@@ -1,0 +1,7 @@
+Task: mOwDmo-rigel
+==============================================================================
+
+Goals
+--------
+
+Create new `rigel` RTOS that combines both signal handling and irq events.

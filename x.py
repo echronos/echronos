@@ -533,6 +533,7 @@ def build(args):
     gatria_gen([])
     kraz_gen([])
     acrux_gen([])
+    rigel_gen([])
 
 
 review_template = """Breakaway Task Review
@@ -814,6 +815,42 @@ def acrux_gen_single(package, context_switch, stack_type):
     # Copy other files across
     for f in ['rtos-acrux.h']:
         shutil.copy(base_file('rtos.input', 'rtos-acrux', f),
+                    os.path.join(module_dir, f))
+
+
+def rigel_gen(args):
+    """Generate the rtos-gatria-posix from its base template."""
+    rigel_config = [
+        ('armv7m', 'components/armv7m-context-switch/armv7m-context-switch.c', 'uint32_t'),
+    ]
+    for package, context_switch, stack in rigel_config:
+        rigel_gen_single(package, context_switch, stack)
+
+
+def rigel_gen_single(package, context_switch, stack_type):
+    """Generate a single instance of the Rigel RTOS."""
+    module = 'rtos-rigel'
+    ctxt_switch_sections = parse_sectioned_file(base_file(context_switch))
+    sched_sections = parse_sectioned_file(base_file('components/sched-rr/sched-rr.c'), {'assume_runnable': False})
+    signal_sections = parse_sectioned_file(base_file('components/signal.c'))
+    irq_event_sections = parse_sectioned_file(base_file('components/irq-event.c'))
+    irq_event_arch_sections = parse_sectioned_file(base_file('components/irq-event-armv7m.c'))
+    config = {'ctxt_switch': ctxt_switch_sections,
+              'sched': sched_sections,
+              'signal': signal_sections,
+              'irq_event_arch': irq_event_arch_sections,
+              'irq_event': irq_event_sections,
+              'stack_type': stack_type}
+
+    module_dir = base_file('packages', package, module)
+    os.makedirs(module_dir, exist_ok=True)
+    render(base_file('rtos.input', 'rtos-rigel', 'template.c'),
+           os.path.join(module_dir, 'entity.c'),
+           config)
+
+    # Copy other files across
+    for f in ['rtos-rigel.h']:
+        shutil.copy(base_file('rtos.input', 'rtos-rigel', f),
                     os.path.join(module_dir, f))
 
 
@@ -1615,6 +1652,7 @@ def main():
     subparsers.add_parser('gatria-gen', help="Generate gatria RTOS")
     subparsers.add_parser('kraz-gen', help="Generate kraz RTOS")
     subparsers.add_parser('acrux-gen', help="Generate acrux RTOS")
+    subparsers.add_parser('rigel-gen', help="Generate rigel RTOS")
     _parser = subparsers.add_parser('integrate', help='Integrate a completed development task/branch into the main \
 upstream branch.')
     _parser.add_argument('--repo', help='Path of git repository to operate in. \

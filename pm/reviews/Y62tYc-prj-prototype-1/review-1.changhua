@@ -1,0 +1,28 @@
+Breakaway Task Review
+=======================
+
+Task name: Y62tYc-prj-prototype-1
+Version reviewed: c52bcbe0f6f7d1910874e4c3aa47c5106a17cf31
+Reviewer: changhua
+Date: 2012-09-18
+Conclusion: Accepted
+
+Overall comments:
+Comment 0: Accepted
+The build system should be able to fulfill the early development needs of RTOS, however, in the future, it might be good to add a system level rebuild option for easy development.
+Note the system-level rebuild option is not the same as module level rebuild option -- a single module can be rebuild as simple as by removing the module build directory and call module.build() again. However, The system-level rebuild should provide a way to work out dependencies among modules and keep tracking of the editing status of modules and only rebuild modules that are required to be rebuild to save development time.
+For now, it is sufficient to manually remove the build directory and rebuild. The rebuild option can be waited to be added until the whole system build time impact the developing and testing of the RTOS.
+Therefore, it is accepted.
+
+[[(benno): Agreed, for now, given the size of the projects we are working on it isn't too bad to have a full build, however we certainly need incremental build in the future.
+This goes with one of Stefan's comments hat we should consider reusing a build engine such as waf.]]
+
+Specific comments
+=================
+
+Location: filename: prj/app/prj.py
+Comment 1: Accepted
+Just a suggestion, maybe it's better to add a function asm_files() for system_build() to build from assembly source code, since for some module, assembly implementation is necessary.
+Sure we can add the function later when we encounter such needs.
+
+[[(benno): Agreed, we will almost certainly add that in the future.]]

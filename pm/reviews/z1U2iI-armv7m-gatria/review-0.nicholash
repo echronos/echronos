@@ -1,0 +1,32 @@
+Breakaway Task Review
+=======================
+
+Task name: z1U2iI-armv7m-gatria
+Version reviewed: 17de8f83e2cce5cd79cb02381b1b94b019093293
+Reviewer: nicholash
+Date: 2013-01-11
+Conclusion: Rework
+
+Overall comments:
+
+I don't like the filename x.py .
+
+[[(benno): Open to suggestsion for other names; it is mostly internal anyway, so I'm not too concerned.]]
+
+Specific comments
+=================
+
+Location: packages.input/rtos-gatria/template.c:39
+Comment: The stack type is unusual. I would expect a type that is specific to the architecture, not the stack itself. If it's just a blob of memory then bytes makes more sense.
+
+[[(benno): The stack type is per-architecture, not per-stack.
+In this context [[stack_type]] is rendered in the first pass of merging with the architecture specific parts.
+Where-as {{idx}} and {{stack_size}} are rendered at actual build time.
+No need to change this.
+Different architecutres require different stack alignment, so making this typed is helpful in those cases.
+]]
+
+Location: x.py:various
+Comment: variable naming, all of ctx_, ctxt_, and context_ used. I would prefer just one, preferably context.
+
+[[(benno): fixed]]

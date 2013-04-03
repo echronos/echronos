@@ -1,0 +1,20 @@
+Fix prj bugs (1)
+=================
+
+Goals
+------
+
+While using prj for development a number of bugs were found.
+
+1. no startup script.
+2. import doesn't search paths during init/startup
+3. setting something to an empty string doesn't work.
+4. FileNotFound error during header copying.
+5. SystemBuildError should be handled and dealt with in a useful manner.
+6. prj.py not executable.
+
+
+Implementation Notes
+--------------------
+
+While implementing #2 discovered that additional errors should be caught, so these were additionally implemented.

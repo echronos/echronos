@@ -1,0 +1,7 @@
+Task: j866mx-add-unix-arm-tools
+==============================================================================
+
+Goals
+--------
+
+Add a standard set of ARM tools (compiler, linker, debugger, etc) so that it is simple for a developer to compile the ARM examples.

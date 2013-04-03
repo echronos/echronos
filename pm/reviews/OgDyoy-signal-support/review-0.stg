@@ -1,0 +1,43 @@
+Breakaway Task Review
+=======================
+
+Task name: OgDyoy-signal-support
+Version reviewed: e4009de934e7e5684259057ee437a6936e62b9e4
+Reviewer: stg
+Date: 2013-02-04
+Conclusion: Rework
+
+Overall comments:
+
+Comment 0: Rework
+The task does not add an example system for the [proprietary] platform, even though the x.py script was extended for kraz to take [proprietary platform] into account.
+
+[[(benno): Deferred to a follow-up task.]]
+
+
+Specific comments
+=================
+
+Location: multiple, e.g., components/signal.c:36, rtos.input/rtos-kraz/template.c:78
+Comment 1: Accepted
+Where possible, the const attribute should be used for variables.
+This allows the compiler to perform stricter consistency checking and, in some instances, apply performance optimizations.
+Pending an agreement on project conventions, I'd also suggest this for function arguments in function definitions.
+
+[[(benno): Fixed, and function arguments updated throughout; Note: signal.c:36 could not be marked as const.]]
+
+Location: components/signal.c:7
+Comment 2: Accepted
+There is an interdependence between the fixed-width SignalId and SignalSet types.
+I suggest adding a C pre-processor check for these two types being consistent with each other and being able to hold the configured number of signals.
+These checks are unlikely to fail but would still protect against a silent violation of the assumptions of the implementation.
+
+[[(benno): Fixed.]]
+
+Location: components/signal.c:26&41
+Comment 3: Rework
+The literals in these statements have no explicit type or width.
+Depending on the platform, integer promotion may lead to code being generated for unnecessarily large bit-widths.
+I suggest casting the literals to the same type as the related operands in these expression.
+
+[[(benno): Casting literals will not sovle the integer promotion problem, so no change made.]]

@@ -1,0 +1,7 @@
+Task: MzfCw5-arm-opt-flags
+==============================================================================
+
+Goals
+--------
+
+Determine the best set of default optimisatino flags to use on the ARM platform, and update the build script to reflect this decision.

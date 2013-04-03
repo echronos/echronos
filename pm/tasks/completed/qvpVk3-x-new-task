@@ -1,0 +1,17 @@
+Task: qvpVk3-x-new-task
+=========================
+
+Goals
+------
+
+Add a 'new-task' command to the x script.
+New task should do the following:
+
+    generate a tag (and full branch name)
+    create a local branch
+    create a remote branch
+    associate local with remote branch
+    create a new pm/tasks/<task_name> file from a template.
+
+Although considered, it is not necessary/desired that the script automatically adds/commits/pushees the task description file.
+

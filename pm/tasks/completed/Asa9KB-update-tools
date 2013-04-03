@@ -1,0 +1,11 @@
+Task: Asa9KB-update-tools
+==============================================================================
+
+Goals
+--------
+
+The current tools require a very modern version of GLIBC on the Linux platform.
+The xyz tool has been updated to generate tools that only depend on GLIBC 2.11.
+This task should install the new tools, then test and verify correct behaviour on a number of Linux platforms.
+
+To verify that the new tools work correctly a skeleton release build script should be added and integrated with TeamCity.

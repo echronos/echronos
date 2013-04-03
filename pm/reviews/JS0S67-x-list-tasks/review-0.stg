@@ -1,0 +1,16 @@
+Breakaway Task Review
+=======================
+
+Task name: JS0S67-x-list-tasks
+Version reviewed: e3bbe5dd1296f4e002b2f657f7b339c8db63f0af
+Reviewer: stg
+Date: 2013-01-14
+Conclusion: Rework
+
+Overall comments:
+
+Comment 0: Rework
+The command output is not descriptive enough and difficult to interpret without double-checking with the source code.
+For example, a table heading and a legend for the flags as part of the command output would be helpful.
+
+[[(benno): Agreed. Updated.]]

@@ -1,0 +1,16 @@
+Breakaway Task Review
+=======================
+
+Task name: YrlAD1-basic-armv7-support
+Version reviewed: b1c0d75ab7b438b88dc319915b8fe05a42b9f244
+Reviewer: stg
+Date: 2013-01-03
+Conclusion: Accepted
+
+Specific comments
+=================
+
+Location: packages/armv7m/ctxt-switch.s:5f
+Comment 0: Accepted
+Among the comment about the registers that need preserving, this file contains implied knowledge that can be difficult to track down.
+Are there one or two references to manuals or specification references that would help developers with less ARM experience to find the relevant information more easily?

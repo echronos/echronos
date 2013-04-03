@@ -1,0 +1,7 @@
+Task: 2bQnA9-stm32f4-discovery-support
+==============================================================================
+
+Goals
+--------
+
+Add support to build binaries that run on the STM32F4-Discovery board.

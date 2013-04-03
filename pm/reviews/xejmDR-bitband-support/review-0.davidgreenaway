@@ -1,0 +1,19 @@
+Breakaway Task Review
+=======================
+
+Task name: xejmDR-bitband-support
+Version reviewed: bbf4c432aa7df7015e9e6635e33e85ee939b8fad
+Reviewer: David
+Date: 2012-03-01
+Conclusion: Rework
+
+Overall comments:
+
+Specific comments
+=================
+
+Location: packages/armv7m/default.ld:33
+Comment: The calculation of _data_size is incorrect since it does not take into account
+  any potential padding between the two sections.
+
+[[(benno): Fixed.]]

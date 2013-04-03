@@ -1,0 +1,16 @@
+Breakaway Task Review
+=======================
+
+Task name: QceQhM-basic-windows-support
+Version reviewed: 502a20a9f993ed8bac33b0ef24da2a791d0260bb
+Reviewer: stg
+Date: 2012-11-27
+Conclusion: Accepted
+
+Specific comments
+=================
+
+Location: README:90
+Comment: 0 [Accepted]
+The URL http://www.python.org/download/releases/3.3.0/ is unnecessarily specific and potentially subject to change.
+I recommend to reword this line to, e.g., "The recommended version of Python is 3.3 which can be obtained from http://www.python.org/."

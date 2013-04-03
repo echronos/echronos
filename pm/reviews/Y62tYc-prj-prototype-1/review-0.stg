@@ -1,0 +1,118 @@
+Breakaway Task Review
+=======================
+
+Task name: Y62tYc-prj-prototype-1
+Version reviewed: 0f5dd1e133003719fa7a5bb98877de8c32638524
+Reviewer: stg
+Date: 2012-09-17
+Conclusion: Rework
+
+Overall comments:
+
+Comment 0: Accepted
+To a large degree, the prj tool is a python based build system, with several build steps currently hard-coded.
+We should evaluate existing frameworks, such as waf (http://code.google.com/p/waf/), for all the usual reasons of code re-use (and possibly useful concepts and abstractions on top).
+
+[[(benno): This is certainly a possibility, and you are right to notice that it is effectively a build system.
+We don't want to use a build system as the *interface* given to users, however we may take advantage of a back end to handle dependencies, parallel builds, and avoiding rebuilds.]]
+
+Specific comments
+=================
+
+Location: /README
+Comment 1: Accepted
+This file contains a lot of process and quality management information that is either already present in the Breakaway Quality Manual, or that should be included in the quality manual, or that should be included in an BRTOS-specific quality manual.
+
+[[(benno): Agreed. As these are moved in to the QMS proper, these will be removed from the README.]]
+
+Location: /x.py
+Comment 2: Accepted
+Does the fact that the prj tool cannot build itself point to a deficiency in the model?
+Or: would it be a valuable generalization to extend the prj tool so that it can build itself (i.e., run checks and generate a release in a given format for a given target)?
+
+[[(benno): I don't think this is required as we want to maintain a clean split between us buliding packages (using x.py) and the end user using packages (with prj).]]
+
+Comment 3: Rework
+/x.py does not conform to PEP8.
+Rework x.py if this is a requirement and record this requirement in an appropriate document.
+
+[[(benno): Fixed.]]
+
+Comment 4: Rework
+The comment at the top of the file is confusing in that it led me to believe that the x.py file is part of the prj tool.
+
+[[(benno): Improved; unlikely to be perfect but much better than previous.]]
+
+Comment 5: Rework
+The comment block at the top of the file is an inappropriate place to document requirements.
+
+[[(benno): I think in this case it is appropriate to have the requirements self-contained; wont-fix,
+This is an active discussion to be had, so may be fixed on the resolution of the policy itself.]]
+
+Location /x.py:63f
+Comment 6: Rework
+It seems that the basename variable is expected to hold an absolute path.
+However, since the __file__ variable can hold a relative path, basename can hold a relative path, too.
+This leads to the function un_base_file() to return incorrectly formatted paths.
+
+[[(benno): Fixed.]]
+
+Location: /x.py:69
+Comment 7: Rework
+The value of the path argument must be subjected to the same processing (conversion to absolute path name, resolving links, etc.) as the basename variable value to achieve the intended output.
+If the slicing approach is maintained, an assertion should be added that checks that the extra character sliced from the path argument is indeed a path separation character.
+
+[[(benno): Fixed.]]
+
+Location: /prj/app/
+Comment 8: Accepted
+Commonly, the source of a project is stored in a directory named 'src'.
+Does it make sense to follow this convention in favor of 'app'?
+
+[[(benno): This is probably the case; no change now, but will consider in the future.]]
+
+Location: /prj/check.sh
+Comment 9: Accepted
+The shell file check.sh is not portable to Windows and violates the recommendation in README to avoid shell or batch files.
+
+[[(benno): File was obsolete; removed.]]
+
+Location: /prj/example/
+Comment 10: Accepted
+It would be more helpful and consistent from a documentation point-of-view if the examples given in the prj manual corresponded directly to the example in this directory regarding naming, layout, and contents.
+
+[[(benno): Good idea; for the future, it may make sense to automatically pull the example files in to the document as well.]]
+
+Location: /prj/app/pystache/
+Comment 11: Rework
+pystache may be relevant for other tools or projects than just prj.
+Should it reside in /external_tools/ instead of /prj/app/pystache/?
+
+[[(benno): Possibly, and indeed pystache is used by x.py; however it needs to be distributed with prj for the user.
+Potentially we could ensure that occurs during a build step.
+Not changing now, but considering best approach in the future.]]
+
+Location: /prj/app/prj.py:2
+Comment 12: Rework
+The comment 'Main entry point' contradicts the README which states that the x.py script is the main entry point for invoking the prj tool.
+
+[[(benno): This is a confusion in the documentation.
+`x.py` is the main entry point for our project, which is to develop the `prj` tool and associated packages.
+The user's main entry point is using `prj` (which we also use for testing etc).
+Wont-fix.]]
+
+Location /prj/app/prj.py
+Comment 13: Rework
+The XML handling functions contain a significant amount of XML format checking.
+It seems more appropriate to use XML schema validation to ensure well-formatted XML as input.
+Would that be an option?
+
+[[(benno): This is true, however there are not a lot of good schema checking tools for Python, and additionally, it is too early to define the schema.
+Wont-fix now, but will reconsider in the future.]]
+
+Location /prj/app/prj.py
+Comment 14: Rework
+The extension-based module handling strongly lends itself to object-oriented refactoring (and possibly other, higher-level abstractions common in build systems), which should lead to code that is easier to maintain.
+
+[[(benno): Agreed, however right now wont-fix.
+More examples of extensions modules are required to fully understand the best approach to refactoring.]]

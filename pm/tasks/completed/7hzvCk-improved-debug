@@ -1,0 +1,7 @@
+Task: 7hzvCk-improved-debug
+==============================================================================
+
+Goals
+--------
+
+Add debug_print() and debug_printhex32() functions to debug.c.

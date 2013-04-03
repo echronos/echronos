@@ -1,0 +1,52 @@
+Breakaway Task Review
+=======================
+
+Task name: C5H3eV-baseline-gatria-rtos
+Version reviewed: bab8f980f240207c0697841d64e85dca6ef6aa21
+Reviewer: stg
+Date: 2012-11-27
+Conclusion: Rework
+
+Overall comments:
+
+All comments, except comment 0, from review 0 have been addressed adequately.
+
+
+Specific comments
+=================
+
+Location: pm/tasks/C5H3eV-baseline-gatria-rtos:16ff
+Comment 0: Rework
+>> (stg) review-0, Comment 0:
+>> How shall yield_to() handle the case of the target task being blocked, given that the description of the 'blocked' state explicitly says that task states are evaluated only by the scheduler whereas the yield_to() operation does >> not appear to involve the scheduler?
+> [[(benno): I think this is addressed on line 33; it is permissible ot yield_to() a task that is blocked.]]
+The requirement is still incomplete.
+The intended result can only be inferred from lines 37-40 although this information is important both for implementing and using the yield_to() function.
+Suggest to rephrase as:
+`yield_to` results a context switch to the specified tasks, even if it is blocked.
+
+Location: pm/tasks/C5H3eV-baseline-gatria-rtos:35
+Comment 1: Rework
+The requirement is incomplete.
+Suggest to rephrase as:
+The result of calling yield() and yield_to() with an invalid TaskId parameter (i.e., one that does not identify an existing task in the system) is undefined.
+
+Location: pm/tasks/C5H3eV-baseline-gatria-rtos:37-40
+Comment 2: Rework
+The requirement is imprecise as it describes the intended behavior of the yield() API only partially.
+Since the terms 'most cases' and 'corner cases' are not further qualified, this distinction provides no concrete information for the implementation or use of the yield() function.
+Suggest to replace all four lines with:
+The result of calling yield() when there are no runnable tasks is undefined.
+
+Location: pm/tasks/C5H3eV-baseline-gatria-rtos:42-43
+Comment 3: Rework
+The requirement could be rephrased more succinctly as:
+The result of calling block() when there are no runnable tasks is undefined.
+
+Location: pm/tasks/C5H3eV-baseline-gatria-rtos:45-47
+Comment 4: Rework
+The word 'start' is used ambiguously ('all tasks are started' vs. 'task with ID of zero is started').
+Suggest to rephrase paragraph as:
+The initial state of all tasks is blocked.
+At boot time, the system passes control to the blocked task with ID zero, as if yield_to(0) had been called.
+Typically, such a task would unblock other tasks and pass control to them by calling yield().

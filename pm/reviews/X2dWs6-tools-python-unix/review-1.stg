@@ -1,0 +1,11 @@
+Breakaway Task Review
+=======================
+
+Task name: X2dWs6-tools-python-unix
+Version reviewed: d4a92b04b1f4e8b09ca1f692fe39cdf756509f30
+Reviewer: stg
+Date: 2013-01-21
+Conclusion: Accepted
+
+Overall comments:
+Replaced bashisms in setenv to be compatible with dash

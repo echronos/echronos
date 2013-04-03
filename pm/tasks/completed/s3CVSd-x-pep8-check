@@ -1,0 +1,8 @@
+Task: s3CVSd-x-pep8-check
+==============================================================================
+
+Goals
+--------
+
+Add a command to the x.py tool that checks all non-external python files for PEP8 compliance.
+This new command may replace the prj-check command.

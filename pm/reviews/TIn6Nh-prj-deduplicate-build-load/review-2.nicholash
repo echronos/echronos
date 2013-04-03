@@ -1,0 +1,20 @@
+Breakaway Task Review
+=======================
+
+Task name: TIn6Nh-prj-deduplicate-build-load
+Version reviewed: daef50e0eb61f548ee95382708864c2c0cb2e561
+Reviewer: nicholash
+Date: 2013-02-10
+Conclusion: Accepted
+
+Overall comments:
+
+In future can you please mark the beginning of a task/branch with something like "New Task:" in the commit message. Unless there's an easier way to find the beginning of a task.
+
+In general looks good. 
+
+Location: prj/app/prj.py:829
+Comment: Class Action has no description.
+
+Location: filename:linenum
+Comment:

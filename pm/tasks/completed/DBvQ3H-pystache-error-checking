@@ -1,0 +1,9 @@
+Task: DBvQ3H-pystache-error-checking
+==============================================================================
+
+Goals
+--------
+
+Determine a design and implementation for improving the way in which pystache handles errors.
+Right now when an error occurs it is very difficult to determine the exact problem.
+Providing a file:line.col style debug information would make things easier for the user.

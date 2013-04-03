@@ -1,0 +1,19 @@
+Breakaway Task Review
+=======================
+
+Task name: YQn8bs-ply-external-library
+Version reviewed: 811d08af5946a4fb8c851f7ca2038ff2efcbcf0a
+Reviewer: Corey
+Date: 2012-02-28
+Conclusion: Rework
+
+Overall comments:
+
+Specific comments
+=================
+
+Location: prj/app/ply/ply/cpp.py:371-372,757
+Comment: '"%s"'.format(...) looks like a mistake caused by changing from using the % operator
+  to using format.
+
+[[(benno): Fixed]]

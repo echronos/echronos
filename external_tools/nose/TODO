@@ -1,0 +1,5 @@
+* man builder using rst2man manpage write
+* register w/sphinx via extension
+* add man section to makefile, makes man.rst, copies from .build/man 
+  to ../nosetests.1
+

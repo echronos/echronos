@@ -1,0 +1,72 @@
+*static*
+DESTLIB=$(LIBDEST)
+MACHDESTLIB=$(BINLIBDEST)
+DESTPATH=
+SITEPATH=
+TESTPATH=
+MACHDEPPATH=:plat-$(MACHDEP)
+EXTRAMACHDEPPATH=
+COREPYTHONPATH=$(DESTPATH)$(SITEPATH)$(TESTPATH)$(MACHDEPPATH)$(EXTRAMACHDEPPATH)
+PYTHONPATH=$(COREPYTHONPATH)
+
+posix posixmodule.c
+errno errnomodule.c
+pwd pwdmodule.c
+_sre _sre.c
+_functools _functoolsmodule.c
+operator operator.c
+_collections _collectionsmodule.c
+itertools itertoolsmodule.c
+_io -I$(srcdir)/Modules/_io _io/_iomodule.c _io/iobase.c _io/fileio.c _io/bytesio.c _io/bufferedio.c _io/textio.c _io/stringio.c
+_codecs _codecsmodule.c
+_multibytecodec cjkcodecs/multibytecodec.c
+_codecs_cn cjkcodecs/_codecs_cn.c
+_codecs_hk cjkcodecs/_codecs_hk.c
+_codecs_iso2022 cjkcodecs/_codecs_iso2022.c
+_codecs_jp cjkcodecs/_codecs_jp.c
+_codecs_kr cjkcodecs/_codecs_kr.c
+_codecs_tw cjkcodecs/_codecs_tw.c
+_locale _localemodule.c
+zipimport zipimport.c
+faulthandler faulthandler.c
+_symtable symtablemodule.c
+array arraymodule.c	# array objects
+cmath cmathmodule.c _math.c # -lm # complex math library functions
+math mathmodule.c # _math.c # -lm # math library functions, e.g. sin()
+_struct _struct.c	# binary structure packing/unpacking
+time timemodule.c -lrt
+_weakref _weakref.c
+_random _randommodule.c
+atexit atexitmodule.c
+_elementtree -I$(srcdir)/Modules/expat -DHAVE_EXPAT_CONFIG_H -DUSE_PYEXPAT_CAPI _elementtree.c	# elementtree accelerator
+pyexpat expat/xmlparse.c expat/xmlrole.c expat/xmltok.c pyexpat.c -I$(srcdir)/Modules/expat -DHAVE_EXPAT_CONFIG_H -DUSE_PYEXPAT_CAPI
+_pickle _pickle.c
+_datetime _datetimemodule.c
+_bisect _bisectmodule.c
+_heapq _heapqmodule.c
+unicodedata unicodedata.c
+fcntl fcntlmodule.c
+grp grpmodule.c
+select selectmodule.c
+mmap mmapmodule.c
+_csv _csv.c
+_socket socketmodule.c
+_crypt _cryptmodule.c -lcrypt
+termios termios.c
+resource resource.c
+_posixsubprocess _posixsubprocess.c
+_md5 md5module.c
+_sha1 sha1module.c
+_sha256 sha256module.c
+_sha512 sha512module.c
+syslog syslogmodule.c
+binascii binascii.c
+parser parsermodule.c
+zlib zlibmodule.c -lz
+_json _json.c
+_lsprof _lsprof.c rotatingtree.c
+audioop audioop.c
+_multiprocessing _multiprocessing/multiprocessing.c _multiprocessing/semaphore.c -IModules/_multiprocessing
+_decimal _decimal/_decimal.c _decimal/libmpdec/basearith.c _decimal/libmpdec/constants.c _decimal/libmpdec/basearith.c _decimal/libmpdec/constants.c _decimal/libmpdec/context.c _decimal/libmpdec/convolute.c _decimal/libmpdec/crt.c _decimal/libmpdec/difradix2.c _decimal/libmpdec/fnt.c _decimal/libmpdec/fourstep.c _decimal/libmpdec/io.c _decimal/libmpdec/memory.c _decimal/libmpdec/mpdecimal.c _decimal/libmpdec/numbertheory.c _decimal/libmpdec/sixstep.c _decimal/libmpdec/transpose.c -I$(srcdir)/Modules/_decimal/libmpdec -DCONFIG_64 -DASM
+# FIXME: ctypes is not correctly set up yet.
+# _ctypes _ctypes/libffi_osx/x86/darwin64.S _ctypes/malloc_closure.c _ctypes/darwin/dlfcn_simple.c _ctypes/_ctypes.c _ctypes/callbacks.c _ctypes/callproc.c _ctypes/stgdict.c _ctypes/cfield.c

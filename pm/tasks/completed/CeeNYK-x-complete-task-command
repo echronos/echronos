@@ -1,0 +1,27 @@
+Support task completion in x.py
+===============================
+
+Goals
+------
+
+The x tool shall automate the actions necessary to complete a development task.
+These actions are:
+
+- Check whether the branch has been reviewed and if the most recent review from each individual reviewer contains the 'Accepted' verdict.
+  If that is not the case, x.py shall inform the user and abort.
+
+- The task branch shall be merged into the 'development' branch.
+
+- On the 'development' branch, the task description shall be moved into the pm/tasks/completed/ directory
+
+- The task branch shall be moved into the 'archive/' directory.
+  (In git terms, the task branch shall be renamed with the prefix 'archive/', pushed to the server, and the original task branch shall be deleted from the server).
+
+The x tool shall implement these actions under a new command.
+The command shall accept the following options for flexibility:
+
+- the task name, implying the branch name and the name of the task description file, defaulting to the active branch if the working directory is a git repository
+
+- the target branch to merge the task branch into, defaulting to 'development'
+
+- the prefix for renaming the branch, defaulting to 'archive/'

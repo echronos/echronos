@@ -1,0 +1,26 @@
+Breakaway Task Review
+=======================
+
+Task name: s3CVSd-x-pep8-check
+Version reviewed: 56e22eaeaeef71eb05cd586b9291c0ab76d9e25f
+Reviewer: nicholash
+Date: 2013-02-04
+Conclusion: Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: x.py:199
+Comment: I like docstrings. Probably not necessary for this one, but what about docstring conventions?
+
+[[(stg): added docstring to function to meet the informal convention to add docstrings to functions.]]
+
+Location: x.py:209
+Comment: I'm not sure how the logging infrastructure works, but logging.error('Error') doesn't look right.
+Can you confirm that this is correct and complete. i.e. not better have a string like: 'Pep8Error', 'pep8' or something
+
+[[(stg): the information about PEP8-non-compliances are printed on stdout and the exception object does not provide useful information.
+This is now documented.]]

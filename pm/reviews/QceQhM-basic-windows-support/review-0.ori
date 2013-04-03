@@ -1,0 +1,15 @@
+Breakaway Task Review
+=======================
+
+Task name: QceQhM-basic-windows-support
+Version reviewed: 07b24a658f3b8b5f38ab06a1ba7c63aab1d16d7c
+Reviewer: ori
+Date: 2012-11-01
+Conclusion: Accepted
+
+Overall comments:
+Tools work correctly on a Windows host (using cygwin).
+
+
+Specific comments
+=================

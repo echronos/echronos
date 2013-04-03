@@ -1,0 +1,8 @@
+Add ARMv7M support for gatria RTOS
+==================================
+
+Goal
+-----
+
+The goal of this task is to support the gatria RTOS on an ARMv7M target.
+It is expected that updates to the core RTOS and support scripts will be needed to implement this.

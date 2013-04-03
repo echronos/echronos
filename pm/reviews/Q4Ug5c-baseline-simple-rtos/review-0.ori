@@ -1,0 +1,19 @@
+Breakaway Task Review
+=======================
+
+Task name: Q4Ug5c-baseline-simple-rtos
+Version reviewed: bb1b6a9b3ae0cd967cbf2d502f7cb419e6e19073
+Reviewer: ori
+Date: 2012-09-18
+Conclusion: Accepted
+
+Overall comments: Small mismatch in the example.
+
+
+Specific comments
+=================
+
+Location: packages/generic/manual:16-18
+Comment:
+With the definitions present in example/acamar_system.prx (and in packages/posix/example/hello.prx), this function is generated as 'debug_println' (as seen in out/example/acamar-system/gen/generic/debug.c).
+Recommend updating either the manual, the generic/debug.c file, or the project files to match each other.

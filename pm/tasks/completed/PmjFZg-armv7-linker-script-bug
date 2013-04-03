@@ -1,0 +1,8 @@
+Task: PmjFZg-armv7-linker-script-bug
+==============================================================================
+
+Goals
+--------
+
+Ensure .data and .bss size is a multiple of 4.
+If the .bss or .data is not a multiple of 4 then the initialisation code fails.

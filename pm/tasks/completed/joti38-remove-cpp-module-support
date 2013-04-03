@@ -1,0 +1,8 @@
+Task: joti38-remove-cpp-module-support
+==============================================================================
+
+Goals
+--------
+
+The CPP approach to module configuration was useful during initial bootstrap, however the templating approach is now stable, and the CPP approach adds little value.
+The CPP configuration approach should be removed to simplify the prj tool and make configuration simpler.

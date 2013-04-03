@@ -1,0 +1,7 @@
+Provide basic Windows support
+==============================
+
+Goals
+------
+
+Ensure that the tools (x.py and prj.py) work correctly on a Windows host machine.

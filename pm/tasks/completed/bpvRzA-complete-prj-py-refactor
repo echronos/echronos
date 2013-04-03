@@ -1,0 +1,9 @@
+Task: bpvRzA-complete-prj-py-refactor
+==============================================================================
+
+Goals
+--------
+
+During the refactor of prj.py to reduce duplication of Load and Build code, some issues were introduced.
+The goal is to fix those issues, and clean up some other small code fixes.
+

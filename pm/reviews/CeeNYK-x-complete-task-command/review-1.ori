@@ -1,0 +1,21 @@
+Breakaway Task Review
+=======================
+
+Task name: CeeNYK-x-complete-task-command
+Version reviewed: 3e99ccef68b6de90ee4be0ed31ba8baa19ad3fcb
+Reviewer: ori
+Date: 2013-01-02
+Conclusion: Accepted
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: x.py:573
+Comment: Accepted
+What happens if 'x.py integrate' is called from inside the tree (i.e. not from the top)?
+Is it possible to set top_directory to the closest parent directory that contains a .git subdir (or to the current directory if it contains a .git subdir)?
+
+[[(stg): good point; I will create a separate task for this improvement]]

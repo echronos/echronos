@@ -1,0 +1,21 @@
+Breakaway Task Review
+=======================
+
+Task name: qvpVk3-x-new-task
+Version reviewed: dc0bceb834d1d63e5afb398e96304a922ee8deff
+Reviewer: stg
+Date: 2013-01-20
+Conclusion: Rework
+
+
+Specific comments
+=================
+
+Location: x.py:503ff
+Comment 0: Accepted
+Consider converting all string constants based on conventions, such as 'origin', 'development', or 'pm/tasks' into variables
+
+Location: x.py:776
+Comment 1: Rework
+The -u flag is not supported in the git version (1.7.9) available through cygwin.
+If it is the same as the --set-upstream option, I'd recommend to use the latter instead, which is available in 1.7.9.

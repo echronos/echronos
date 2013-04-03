@@ -1,0 +1,68 @@
+Breakaway Task Review
+=======================
+
+Task name: Y62tYc-prj-prototype-1
+Version reviewed: c52bcbe0f6f7d1910874e4c3aa47c5106a17cf31
+Reviewer: stg
+Date: 2012-09-18
+Conclusion: Accepted/Rework
+
+Overall comments:
+
+Comment 0:
+All comments from review-0.stg are resolved.
+
+Specific comments
+=================
+
+Location: /prj/manual/prj-user-manual:40
+Comment 1: Accept
+In which manner does the order of search paths affect the search or its result?
+Does the search stop on the first match?
+This and the following documentation issues are listed here because they representation a lack of requirements for the prototype.
+
+[[(benno): Fixed.]]
+
+Location: /prj/manual/prj-user-manual:52
+Comment 2: Accept
+The examples on the file system suggest that system definition files have the extension prx.
+
+[[(benno): Yes. I'm currently playing with extensions to see what works best; any input is appreciated, but right now they are undefined.]]
+
+Location: /prj/manual/prj-user-manual:55
+Comment 3: Accept
+The text does not explain how parameters are defined and referenced.
+The example system definition file illustrates how they are defined, but not how they are referenced.
+
+[[(benno): See below.]]
+
+Location: /prj/manual/prj-user-manual:56
+Comment 4: Accept
+The 'enumeration' requirement remains obscure.
+The example does not seem to illustrate it but rather to contradict the description since it contains integer parameter values.
+Does the prj implement any enumeration-related aspects?
+
+[[(benno): I've added a FIXME explaining that this is currently unimplemented and details need to be defined; currently the example shows configuration of modules, not parameterisation of systems.]]
+
+Location: /prj/manual/prj-user-manual:60
+Comment 5: Accept
+It is unclear how base and variant systems, their parameters, and their possible values are defined.
+
+[[(benno): Currently undefined, added a FIXME.]]
+
+Location: /prj/manual/prj-user-manual:104
+Comment 6: Accept
+Is it correct that the prj tool looks up module definitions by matching the value of the name attribute in a module element in a system definition file against the file name of a module definition file or of module resources?
+
+[[(benno): Correct. Added some extra text in the previous section to make that more clear.]]
+
+Location: /prj/manual/prj-user-manual:106
+Comment 7: Accept
+It remains unclear how templating works and whether this form of templating is related to what the prj tool implements.
+
+[[(benno): Fixed. Currently templating details are undefined.]]
+
+Location: /prj/app/prj.py:532
+Comment 8: Rework
+The function documentation is not up-to-date.
+

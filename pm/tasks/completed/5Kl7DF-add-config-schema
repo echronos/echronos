@@ -1,0 +1,8 @@
+Task: 5Kl7DF-add-config-schema
+==============================================================================
+
+Goals
+--------
+
+To improve error checking and reduce scope for programmer errors, there should be a manner in which a module can define what a valid configuration looks like.
+This task should design and implement an approach for such a configuration.

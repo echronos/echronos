@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <modules>
+
+    <module name="posix/build" />
+    <module name="posix/debug" />
+    <module name="generic/debug">
+      <ll_debug>posix_</ll_debug>
+      <prefix></prefix>
+    </module>
+
+    <module name="posix/rtos-acamar">
+      <prefix>rtos_</prefix>
+      <taskid_size>8</taskid_size>
+      <num_tasks>2</num_tasks>
+      <tasks>
+
+        <task>
+          <idx>0</idx>
+          <name>a</name>
+          <entry>fn_a</entry>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <idx>1</idx>
+          <name>b</name>
+          <entry>fn_b</entry>
+          <stack_size>8192</stack_size>
+        </task>
+
+      </tasks>
+    </module>
+
+    <module name="rtos-example/acamar-test" />
+
+  </modules>
+</system>

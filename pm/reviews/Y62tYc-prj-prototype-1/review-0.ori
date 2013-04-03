@@ -1,0 +1,27 @@
+Breakaway Task Review
+=======================
+
+Task name: Y62tYc-prj-prototype-1
+Version reviewed: 0f5dd1e133003719fa7a5bb98877de8c32638524
+Reviewer: ori
+Date: 17/9/2012
+Conclusion: Accepted
+
+Overall comments:
+A few typos fixed in README and prj.py
+
+Specific comments
+=================
+
+Location: prj.py:310
+Comment: Are only text (i.e. quoted) parameters supported at this stage?
+         OK to leave as-is if this is the intention.
+
+[[(benno): Correct, at this stage only quoted params are supported.
+Some additional though is needed to work out how to support things more widely.]]
+
+Location: prj.py:337
+Comment: Looks like a possible typo or remnant from previous editing/refactoring.
+         The name of the class ('Module') should probably be used for the class representation.
+
+[[(benno): Good catch. Fixed.]]

@@ -1,0 +1,27 @@
+Breakaway Task Review
+=======================
+
+Task name: YrlAD1-basic-armv7-support
+Version reviewed: b1c0d75ab7b438b88dc319915b8fe05a42b9f244
+Reviewer: ori
+Date: 2013-01-03
+Conclusion: Accepted
+
+Overall comments:
+The machine-qemu-simple example builds after replacing the 'arm-none-eabi-' prefix (with 'arm-linux-gnueabi-'
+on ubuntu 12.10) and fixing the typo in hello.prx (see specific comments below)
+
+Did not manage to execute the qemu sample. An example of how to do that would be helpful.
+
+I am not familiar with the details of arm assembler and linking, so this review does not cover these aspects.
+
+Specific comments
+=================
+
+Location: packages/machine-qemu-simple/example/hello.prx:8
+Comment: Accepted
+Typo fixed inline. qemu build fails without this fix.
+
+Location: packages/machine-qemu-simple/manual
+Comment: Accepted
+Adding info about how to run the qemu example would be helpful (did not manage to run it).

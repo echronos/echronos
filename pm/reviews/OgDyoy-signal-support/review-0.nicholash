@@ -1,0 +1,42 @@
+Breakaway Task Review
+=======================
+
+Task name: OgDyoy-signal-support
+Version reviewed: e4009de934e7e5684259057ee437a6936e62b9e4
+Reviewer: nicholash
+Date: 2013-02-04
+Conclusion: Rework
+
+Overall comments:
+
+What about testing?
+
+[[(benno): Important however additional framework still required; a follow-up task.]]
+
+Specific comments
+=================
+
+Location: components/signal.c:4
+Comment: #define not used.
+
+[[(benno): These are not currently used, however are expected to be used for extensions in the very near future.]]
+
+Location: components/signal.c:8
+Comment: type not used.
+
+[[(benno): These are not currently used, however are expected to be used for extensions in the very near future.]]
+
+Location: components/signal.c:31, 55
+Comment: No return value, argument descriptions or comments in/about functions.
+
+[[(benno): This will be documented in the user manual as a follow up task.]]
+
+Location: x.py:703
+Comment: No docstring.
+
+[[(benno): Fixed.]]
+
+Location: packages/rtos-example/kraz-test.c:38
+Comment: return value not checked.
+
+[[(benno): Return value not interesting in this case, explicitly ignored with cast to (void)]]

@@ -1,0 +1,13 @@
+Breakaway Task Review
+=======================
+
+Task name: 7LKeh0-x-self-tests
+Version reviewed: 014a74d38b60c82b18d44bf0fb519632427b6277
+Reviewer: benno
+Date: 2013-02-04
+Conclusion: Rework
+
+Overall comments: Currenly ./x.py x-test fails.
+
+[[(stg): this is caused by the function 'test_release()' which is not a unit-test function but which is picked up as such by the unit-test framework.
+Renamed the function to release_test() to avoid it being detected as a unit-test function.]]

@@ -1,0 +1,11 @@
+Task: jvgNcF-x-git-add-and-new-task-bug-fixes-0
+==============================================================================
+
+Goals
+--------
+
+- The new-review command shall only push the active branch to the remote repository, not all local branches.
+
+- The new-task command shall create templates for task descriptions with Unix-style line breaks.
+
+- The new-task command shall suggest a commit message that contains only the task name, not the path of the task description file

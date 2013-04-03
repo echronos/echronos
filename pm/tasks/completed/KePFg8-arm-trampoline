@@ -1,0 +1,8 @@
+Task: KePFg8-arm-trampoline
+==============================================================================
+
+Goals
+--------
+
+On ARM, when viewing stack traces in the debugger, the debugger becomes confused as finds frames past the top of the thread's stack.
+Improve this by providing a trampoline function that effectively puts a clear stopping frame on the stack.

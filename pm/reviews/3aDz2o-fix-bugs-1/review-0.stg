@@ -1,0 +1,47 @@
+Breakaway Task Review
+=======================
+
+Task name: 3aDz2o-fix-bugs-1
+Version reviewed: fc55e50cf9d07cdad88198048e0ee581fb4050c8
+Reviewer: stg
+Date: 2012-11-27
+Conclusion: Rework
+
+Overall comments:
+
+Comment: 0 [Accepted]
+This task introduces Python 3 style string formatting, mixing it with the existing Python 2 style string formatting.
+This inconsistency should be removed in the future.
+
+[[(benno): Added in dT4gcw-fix-bugs-2]]
+
+Specific comments
+=================
+
+Location: prj\app\prj.py:195
+Comment: 1 [Rework]
+Missing empty line, not pep8 compliant.
+
+[[(benno): Fixed]]
+
+Location: prj\app\prj.py:659-690
+Comment: 2 [Rework]
+Several exception handlers are identical except for the exception types.
+This duplication should be avoid by using 'except' lines such as 'except (EntityLoadError, ProjectStartupError) as e:'.
+
+[[(benno): Fixed]]
+
+Location: prj\manual\prj-user-manual:48
+Comment: 3 [Rework]
+The sentence 'A `startup-script` defines a script that should be run before processing the project file or building any systems.' seems to contradict the fact that the startup script is specified in the project file and, thus, the project obviously needs to be processed before the presence of startup-script definitions is known.
+This text should be changed to describe more clearly when and in which environment such scripts are run.
+Otherwise it is difficult to write startup scripts without scrutinizing the internals of the prj tool.
+
+[[(benno): Fixed]]
+
+Location: project.prj:3
+Comment: 4 [Accepted]
+The command './x.py' may not be portable, e.g., on Windows.
+This may or may not need to be fixed depending on whether this lack of portability is a concern in the context of this task or not.
+
+[[(benno): Added in dT4gcw-fix-bugs-2]]

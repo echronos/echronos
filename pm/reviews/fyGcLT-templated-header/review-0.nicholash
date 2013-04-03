@@ -1,0 +1,24 @@
+Breakaway Task Review
+=======================
+
+Task name: fyGcLT-templated-header
+Version reviewed: e9915c93efb9b24dd0f8f82d6c0e4bb144c304c3
+Reviewer: nicholash
+Date: 2013-01-22
+Conclusion: Rework
+
+Overall comments: minor stuff.
+
+
+Specific comments
+=================
+
+Location: internal-docs/design:51
+Comment: "... generated in a similar manner to how modules are rendered via templates." A reference for some explanation of "similar manner" would be nice.
+
+[[(benno): Updated to provide a rationale and design overview for templating in general.]]
+
+Location: prj/app/prj.py:682
+Comment: the 'else None' at the end of the line is not needed.
+
+[[(benno): This is actually needed; although alternatives code constructions are possible this is the preferred approach.]]

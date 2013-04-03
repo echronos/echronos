@@ -1,0 +1,19 @@
+Task: 2hejdO-x-release-support
+==============================================================================
+
+Goals
+--------
+
+Provide support in x.py for creating releases.
+A release will include a number of packages, and the prj tool binary.
+As the prj tool tool binary is clearly platform dependent this imposes some intersting constraints.
+The approach is that a number if partial archive files will be generated, and then, using TeamCity, package file generated on different machines will be merged together.
+The partial releases will be generated in to `release/partial`.
+
+The current approach to generating rtos has been to place them in single packages.
+This will be changed such that generated RTOSes will be modules that exist within the relevant architecture package.
+For examples armv7m/rtos-acamar.
+This reduces what would otherwise be a large explosion of packages, which would make maintenence difficult.
+A consequence is that form a product management perspective a customer would (by default) receive all RTOS configurations as part of a release.
+This is deemed acceptable from a product management point of view.
+To assist in this change, it will likely be necessary to refactor the current examples directory to be more consistent.

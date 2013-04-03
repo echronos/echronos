@@ -1,0 +1,26 @@
+Breakaway Task Review
+=======================
+
+Task name: QceQhM-basic-windows-support
+Version reviewed: 07b24a658f3b8b5f38ab06a1ba7c63aab1d16d7c
+Reviewer: stg
+Date: 2012-10-25
+Conclusion: Accepted
+
+Overall comments:
+
+Comment 0 [Accepted]
+Please consider including justifications for a change in a commit message instead of a purely descriptive commit message (e.g. revisions 9924ed or 1609c3).
+
+Specific comments
+=================
+
+Location: README:87ff
+Comment 1 [Accepted]
+In the examples, the paths contain slashes which are not portable.
+Even though that should be easy to circumnavigate by any imaginable user coming in contact with the prj tool, I still suggest adding a comment about it for clarity.
+
+Location: README:87ff
+Comment 2 [Accepted]
+For an unknown reason, invoking the prj.py tool directly (omitting 'python' on the command line) does not work for me and results in an "Access is denied." error message.
+Just in case other users run into the same issue, I suggest adding the 'python' interpreter invocation again.

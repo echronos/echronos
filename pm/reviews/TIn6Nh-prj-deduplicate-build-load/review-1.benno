@@ -1,0 +1,56 @@
+Breakaway Task Review
+=======================
+
+Task name: TIn6Nh-prj-deduplicate-build-load
+Version reviewed: 2f17038d6a9255955c649701d94276ebd833c389
+Reviewer: benno
+Date: 2013-02-05
+Conclusion: Rework
+
+Overall comments: It isn't clear what would happen if you try and load an image when there is no loader module.
+I think line 1132 should alsp expect an IndexError when trying to run load.
+
+[[(stg:) fixed by introducing a dedicated Exception subclass for this kind of error and by making the exception description clearer for users.
+Additionally, make lookup-code handle sub-classes of Module as well as sub-classes of ModuleInstance for improved code readability and clarity of user-visible error messages.]]
+
+
+Specific comments
+=================
+
+Location: prj/app/prj.py:580
+Comment: ModuleInstance seems to require that module should be a NamedModule.
+Suggest changing __repr__ to take in to account module being Module() not NamedModule().
+(E.g: a default_name = self.module.__class__.__name__; getattr(self.module, 'name', default_name))
+
+[[(stg:) fixed by removing the reference to the module name, replacing it with the printable representation of the module.
+Additionally unified the __repr__() implementations in the Module and SourceModule classes.]]
+
+Location: prj/app/prj.py:657
+Comment: The doctstring here doesn't quite seem appropriate.
+Seems like most of i should go in the SourceModule prepare method?
+Or the source module prepare method should really be in this method.
+
+[[(stg:) the prepare() method is heavily dependent on a system and the module configuration, as the method parameters illustrate.
+Thus, I agree that it should be a method of SourceModuleInstance which holds the system and configuration information, rather than the SourceModule class which does not.
+I therefore moved the method completely into SourceModuleInstance and removed it from SourceModule completely.]]
+
+Location: prj/app/prj.py:697
+Comment:  Prefer `super().__init__(name)`
+
+[[(stg:) fixed, also fixed accordingly in line 829]]
+
+Location: prj/app/prj.py:739
+Comment: I suggest that configure_from_xml should be marked private since it is only called internally.
+Specifically configure_from_xml => _configure_from_xml
+
+[[(stg:) fixed]]
+
+Location: prj/app/prj.py:802
+Comment: Not strictly part of this branch, but it became obvious that this is better as a method, not a function.
+
+Location: prj/app/prj.py:974
+Comment: under_score not camelCase variable names.
+Potentially intermediate variable is unnecessary.
+Rewrite as`return self._get_instance_by_type(typ).run()`
+
+[[(stg:) fixed]]

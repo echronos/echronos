@@ -1,0 +1,13 @@
+lupHw1: All project (i.e., non-third-party) Python files shall be PEP8 compliant.
+Rationale: consistent code style and improved readability.
+
+u1wSS9: The command 'x.py check-pep8' shall check for compliance of all project Python files.
+Rationale: an automated check allows to detect and resolve non-compliance efficiently.
+
+TZb0Uv: The maximum line length in project Python files is 118 characters.
+Rationale: a maximum line length allows for convenient source code handling with standard text management tools on the command line.
+Since an 80-character limit is considered overly restrictive, 120 characters are a viable compromise on modern displays.
+A reduction by 2 to 118 characters allows to manage indented source code (e.g., by diff) on 120-character wide displays.
+
+tGT1n0: In docstrings and comments of project Python files, each sentence shall start on a new line.
+Rationale: simplifies file handling with line-oriented tools, such as diff (same rationale as for plain text files).

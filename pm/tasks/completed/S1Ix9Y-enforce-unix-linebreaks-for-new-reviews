@@ -1,0 +1,9 @@
+Enforce Unix line-breaks for new reviews
+========================================
+
+Goal
+----
+The x.py tool supports a new-review command which creates files containing review templates.
+Depending on the platform and python installation, the created files may be based on Windows line-breaks.
+This violates the project policy of consistently using Unix-style line-breaks.
+The x.py tool shall be changed so that the created files are based on Unix-style line-breaks.

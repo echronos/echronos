@@ -1,0 +1,42 @@
+Breakaway Task Review
+=======================
+
+Task name: Y62tYc-prj-prototype-1
+Version reviewed: 994c68905525b1cce48a9a5e3caa777b5f668fea
+Reviewer: timl
+Date: 2012-09-16
+Conclusion: Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: prj/check.sh
+Comment: This file is redundant and should be removed
+
+[[(benno): Fixed (in earlier commit based on review-0.stg)]]
+
+Location: prj/app/prj.py:35
+Comment: monkey_start_element_handler needs a comment to explain what it is doing.
+
+[[(benno): Fixed.]]
+
+Location: prj/app/prj.py:71
+Comment: Incomplete docstring
+
+[[(benno): Fixed.]]
+
+Location: prj/app/prj.py:
+Comment 1: Module and Builder classes both take a 'project' as in put and maintain a .project attribute, but never use this attribute. It should be removed until/unless it is needed.
+
+[[(benno): Fixed.]]
+
+Comment 2: Python 3 no longer requires explicit subclassing of object.
+
+[[(benno): Fixed.]]
+
+Comment 3: Builder.name is never used.
+
+[[(benno): Fixed. __repr__ added for the builder which does use name]]

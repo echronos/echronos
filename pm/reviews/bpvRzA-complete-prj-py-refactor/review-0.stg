@@ -1,0 +1,11 @@
+Breakaway Task Review
+=======================
+
+Task name: bpvRzA-complete-prj-py-refactor
+Version reviewed: f1c88bf6366ad6ab64f401d2022c732b41632e98
+Reviewer: stg
+Date: 2013-02-11
+Conclusion: Accepted
+
+Overall comments:
+Manual test on [proprietary] platform succeeds.

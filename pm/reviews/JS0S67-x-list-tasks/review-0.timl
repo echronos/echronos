@@ -1,0 +1,50 @@
+Breakaway Task Review
+=======================
+
+Task name: JS0S67-x-list-tasks
+Version reviewed: e3bbe5dd1296f4e002b2f657f7b339c8db63f0af
+Reviewer: timl
+Date: 2013-01-14
+Conclusion: Rework
+
+Overall comments: Mostly fine, with a few minor modifications required.
+
+
+Specific comments
+=================
+
+Location: x.py:58
+Comment: base_dir -> BASE_DIR. Mostly because it gets used in locations other than the path magic boiler plate. Alternately, in tasks(), where it is used, it should be recalculated as a local variable.
+
+[[(benno): Fixed.]]
+
+Location: x.py:379
+Comment: No need to create a dictionary of Tasks from keys then iterate over the keys and index back into the dictionary. Simpler to iterate over keys and create Tasks as needed.
+
+diff --git a/x.py b/x.py
+index ff88c76..a895de8 100755
+--- a/x.py
++++ b/x.py
+@@ -379,11 +379,10 @@ def tasks(args):
+                            {t.split('/')[0] for t in git.branches + git.origin_branches if
+                             t.count('/') == 0 and t not in skipped_branches})
+
+-    tasks = {t: Task(t, base_dir, git) for t in task_names}
+-
+-    for t in sorted(tasks):
+-        print(tasks[t].report_line())
+-        for rel in tasks[t].related_branches():
++    for task_name in sorted(task_names):
++        task = Task(task_name, base_dir, git)
++        print(task.report_line())
++        for rel in task.related_branches():
+             if rel in skipped_branches:
+                 continue
+             print("{}{} ({})".format(' ' * 60, rel, git.ahead_behind_string('origin/' + t, 'origin/' + rel).strip()))
+
+[[(benno): Fixed.]]
+
+Location: x.py:560,850
+Comment: Commends say "Returns a list" when these methods actually return sets
+
+[[(benno): Fixed.]]

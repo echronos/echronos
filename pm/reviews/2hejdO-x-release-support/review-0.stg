@@ -1,0 +1,15 @@
+Breakaway Task Review
+=======================
+
+Task name: 2hejdO-x-release-support
+Version reviewed: d9a9b382c8550753eb964b95351a8510c0b953e6
+Reviewer: stg
+Date: 2013-01-21
+Conclusion: Rework
+
+Specific comments
+=================
+
+Location: x.py:705ff
+Comment 0: rework
+The function name contradicts the function documentation with regard to the compression format of the tar ball.

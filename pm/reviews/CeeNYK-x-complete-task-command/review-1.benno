@@ -1,0 +1,40 @@
+Breakaway Task Review
+=======================
+
+Task name: CeeNYK-x-complete-task-command
+Version reviewed: 3e99ccef68b6de90ee4be0ed31ba8baa19ad3fcb
+Reviewer: benno
+Date: 2013-01-02
+Conclusion: Rework
+
+Overall comments:
+
+Could the 'review' class handle creating new reviews too?
+
+[[(stg): Yes, that is the intention as part of a new task]]
+
+
+Specific comments
+=================
+
+Location: x.py:341
+Comment: Is 'remote' the best default remote repo name?
+Mine is usually called 'origin'.
+
+[[(stg): Mine too, 'remote' was a typo - fixed]]
+
+Location: x.py:493
+Comment: return conclusion.tolower() can avoid needed to lower it everywhere elszoe.
+
+[[(stg): done]]
+
+Location: x.py:563
+Comment: no need to call str(), this is done automatically.
+
+[[(stg): done]]
+
+Location: x.py:674f
+Comment: I'm not sure we need a factory here; this code could simply live in __init__.
+
+[[(stg): determining valid default values for the constructor arguments is deliberately separated from the constructor itself.
+To avoid a factory class with a single static method, the create function was moved into the Task class.]]

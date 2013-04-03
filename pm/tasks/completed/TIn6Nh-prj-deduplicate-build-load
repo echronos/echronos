@@ -1,0 +1,21 @@
+Remove code duplication between build and load actions in prj tool
+==================================================================
+
+Motivation
+----------
+The load action was adopted 1:1 from the existing build action in the prj tool.
+This approach lead to significant code duplication.
+
+Goal
+----
+The primary goal of this task is to refactor the prj tool to avoid the code duplication between the build and load actions.
+
+Approach
+--------
+The suggested approach to accomplish the goal of this task includes the following elements:
+
+* In the System class, move the instantiation of modules into a single separate function
+
+* In the System class, move the invocation of the prepare() function to a build-related location
+
+* Move the creation of Project and System instances in the build() and load() functions into separate functions and re-use them instead

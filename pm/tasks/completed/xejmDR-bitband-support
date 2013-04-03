@@ -1,0 +1,7 @@
+Task: xejmDR-bitband-support
+==============================================================================
+
+Goals
+--------
+
+AMRv7M supports `bitbanding`, which provides a mechanism for atomically setting (or clearing) an individual bit in memory.

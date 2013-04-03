@@ -1,0 +1,43 @@
+Baseline gatria RTOS
+=====================
+
+Goal
+----
+
+Create a baseline RTOS (codename *gatria*) that supports a scheduler with tasks that can be blocked.
+This RTOS has enough functionality that interesting services can be provided on top such as semaphores, mutexes and timers.
+This will provide a baseline environment on which such services can be tested.
+
+Detail
+------
+
+Unlike the simple RTOS *acamar*, this RTOS supports blocking tasks, and a simple scheduler.
+Each task will be either *blocked* or *runnable*.
+A *blocked* task will never be selected by the scheduler.
+A *runnable* task may be selected by the scheduler.
+
+The following interfaces should be provided:
+
+1. `void rtos_block(void)`
+2. `void rtos_unblock(TaskId)`
+3. `void rtos_yield(void)`
+4. `void rtos_yield_to(TaskId)`
+
+`rtos_block` will set the state of the current task to *blocked* and then performs an `rtos_yield` operation.
+
+`unblock` sets the state of the specified task to *runnable*.
+
+`yield` uses the scheduler to determine the next task that should run, and then performs `yield_to` on that task.
+
+`yield_to` performs a context switch to the specified tasks.
+`yield_to` results in a context switch to the specified task, even if the task is blocked.
+
+The result of calling yield() and yield_to() with an invalid TaskId parameter (i.e., one that does not identify an existing task in the system) is undefined.
+
+The result of calling yield() when there are no runnable tasks is undefined.
+
+The result of calling block() when there are no runnable tasks, or when the current task is the only runnable task, is undefined.
+
+The initial state of all tasks is blocked.
+At boot time, the system passes control to the blocked task with ID zero, as if yield_to(0) had been called.
+Typically, such a task would unblock other tasks and pass control to them by calling yield().

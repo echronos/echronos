@@ -1,0 +1,8 @@
+Task: USrzhG-x-new-review-with-commit
+==============================================================================
+
+Goals
+--------
+
+The new-review command for x.py requires too much additional work by the user.
+It should automatically add, commit (with a standardised message) and push.

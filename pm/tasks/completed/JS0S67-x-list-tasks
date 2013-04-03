@@ -1,0 +1,9 @@
+List tasks
+=================
+
+Goal
+-----
+
+Improve the x tool so that it can list all the tasks it knows about.
+It should take in to account the three potential sources: local branches, remote branches, descriptions in the pm/tasks directory.
+An option should be made for show completed/archived tasks.

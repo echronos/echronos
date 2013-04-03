@@ -1,0 +1,10 @@
+Task: nGdHLz-build-prj-binary
+==============================================================================
+
+Goals
+--------
+
+We want to distribute `prj` as an executable, rather than a set of python scripts.
+To do this the `ice` tool will be used: https://github.com/BreakawayConsulting/ice
+x.py will have a new command `prj-build` that will create the `prj` binary.
+

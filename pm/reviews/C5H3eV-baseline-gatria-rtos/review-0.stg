@@ -1,0 +1,62 @@
+Breakaway Task Review
+=======================
+
+Task name: C5H3eV-baseline-gatria-rtos
+Version reviewed: 93bd0d8e333e91c334739bd96b7e53c252d7c432
+Reviewer: stg
+Date: 2012-09-24
+Conclusion: Rework
+
+Specific comments
+=================
+
+Location: pm/tasks/C5H3eV-baseline-gatria-rtos:16ff
+Comment 0: Rework
+How shall yield_to() handle the case of the target task being blocked, given that the description of the 'blocked' state explicitly says that task states are evaluated only by the scheduler whereas the yield_to() operation does not appear to involve the scheduler?
+
+[[(benno): I think this is addressed on line 33; it is permissible ot yield_to() a task that is blocked.]]
+
+Location: pm/tasks/C5H3eV-baseline-gatria-rtos:28&32
+Comment 1: Rework
+How shall rtos_unblock() and rtos_yield_to() handle invalid task IDs?
+
+[[(benno): Added clarification. (The rtos can assume they are correct.)]]
+
+Location: pm/tasks/C5H3eV-baseline-gatria-rtos:30
+Comment 2: Rework
+Shall rtos_yield() (and potentially rtos_yield_to()) handle the case of no tasks being runnable?
+If yes, how?
+
+[[(benno): Such a case should be impossible; clarified in the requirements.]]
+
+Location: pm/tasks/C5H3eV-baseline-gatria-rtos
+Comment 3: Rework
+What is the initial state of the gatria RTOS?
+Which tasks are runnable and which are blocked?
+Which runnable task is executed first?
+
+[[(benno): Added clarification; all tasks are blocked; task id zero is explicitly started on rtos_start.]]
+
+Location: components/sched-rr/sched-rr.c:10
+Comment 4: Accepted
+The type struct sched_task depends on the type bool to be defined.
+In the future, there should be a mechanism to formally specify such dependencies, so that they can be evaluated automatically and, as in this case, correct header inclusion can be ensured rigorously.
+
+Location: components/sched-rr/sched-rr.c:26
+Comment 5: Rework
+The function sched_max_index() should include a cast to type SchedIndex as some compilers may extend the macro expression to an unnecessarily long type, potentially resulting in unnecessarily inefficient code.
+
+[[(benno): Fixed]]
+
+Location: components/sched-rr/sched-rr.c:65&66
+Comment 6: Rework
+There are no requirements for an idle task
+The intention of and assumptions made in these two lines remain unclear.
+
+[[(benno): Fixed]]
+
+Location: packages.input/rtos-gatria-posix/rtos-gatria.h & packages.output/rtos-gatria-posix/rtos-gatria.h
+Comment 7: Inquiry/Rework
+Is it correct for the 'rtos_' prefix to be hard-coded in these file while it is not in the corresponding C files?
+
+[[(benno): It should be, however this will be delayed until further improvements to prj tool are made.]]

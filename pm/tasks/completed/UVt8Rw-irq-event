@@ -1,0 +1,9 @@
+Task: UVt8Rw-irq-event
+==============================================================================
+
+Goals
+--------
+
+The goal of this task is to add support for an IRQ event RTOS component.
+This will provide the bridge between the *interrupt* and *task* world.
+As well as the low-level component, a new RTOS that uses it should be created, along with a suitable test system.

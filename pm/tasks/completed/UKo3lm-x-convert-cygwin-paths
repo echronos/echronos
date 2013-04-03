@@ -1,0 +1,6 @@
+Task: UKo3lm-x-convert-cygwin-paths
+==============================================================================
+
+Goals
+--------
+Ensure that the path separators in paths and file names are correctly converted in the x.py tool to be able to use git under cygwin.

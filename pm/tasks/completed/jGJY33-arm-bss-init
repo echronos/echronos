@@ -1,0 +1,8 @@
+Task: jGJY33-arm-bss-init
+==============================================================================
+
+Goals
+--------
+
+The ARM .bss and .data section should be initialised at startup.
+Currently the code relies on the bootloader performing this correctly, however in most instances there will not be a bootloader.

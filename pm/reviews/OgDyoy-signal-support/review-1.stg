@@ -1,0 +1,21 @@
+Breakaway Task Review
+=======================
+
+Task name: OgDyoy-signal-support
+Version reviewed: aa43a59811b00412dc1a5749685697fa260234d1
+Reviewer: stg
+Date: 2013-02-04
+Conclusion: Accepted
+
+Overall comments:
+
+Comment 0: Accepted
+All comments from review-0.stg have been addressed adequately.
+
+Specific comments
+=================
+
+Location: [proprietary platform file]
+Comment 1: Accepted
+Adding the 'const' qualifier to an unused function parameter conflicts with the practice of assigning the variable to itself to avoid a compiler warning on the [proprietary] platform.
+Removed the const qualifier again (as the correctness of the code without this qualifier is already established on the development branch).

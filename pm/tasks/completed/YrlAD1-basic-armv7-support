@@ -1,0 +1,9 @@
+Add basic support for ARMv7M
+============================
+
+Goal
+----
+
+Add basic support for the ARMv7M platform.
+It should provide an example acamar system that runs on a suitable ARMv7M platform.
+It is not necessary to add example or support for all RTOSes in this task.

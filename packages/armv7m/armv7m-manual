@@ -1,0 +1,35 @@
+%title ARMv7M package: user manual
+%version 1-draft
+%docid GQH8W1
+
+Introduction
+-------------
+
+The ARMv7M package provides the following modules:
+
+build
+  ~ A build module.
+vectable
+  ~ A module generates an appropriate vector table.
+
+
+`armv7m/build`
+==============
+
+The build module supports the *system build* interface.
+The module does not support any options.
+For correct operation the system must include at least one C or assembler file.
+The system must also have an assigned linker-script.
+It is recommended that the vectable module is used to provide a functional linker-script.
+
+`armv7m/vectable`
+==============
+
+The vectable module generates an appropriate vector table for the system.
+The vector table controls system booting, including both the stack and entry pointer.
+Currently the vectable is not configurable (This is expected to change in the future).
+The entry point is `main()`.
+All other exceptions result in a system reset.
+The stack-size is hardcoded to 1024 bytes.
+The ROM location (and vector table) is hardcoded to address 0x0.
+The RAM location is hardcoded to 0x2000.0000.

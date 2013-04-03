@@ -1,0 +1,18 @@
+Breakaway Task Review
+=======================
+
+Task name: UVt8Rw-irq-event
+Version reviewed: 543224bdefa6cf10bd3f6413e370faa190a66d6f
+Reviewer: Corey
+Date: 2012-03-15
+Conclusion: Accept
+
+Overall comments:
+
+Specific comments
+=================
+
+Location: x.py:824
+Comment: s/gatria/acrux/
+
+[[(benno): Fixed.]]

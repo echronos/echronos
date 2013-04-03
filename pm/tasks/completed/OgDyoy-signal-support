@@ -1,0 +1,10 @@
+Task: OgDyoy-signal-support
+==============================================================================
+
+Goals
+--------
+
+Add the `signal` component to the RTOS toolkit.
+Additionally add a new RTOS `kraz` which uses the new signal component.
+The high-level goal of signals it to provide a simple way to multiplex blocking.
+An appropriate design rationale should be added to explain the chosen design.

@@ -1,0 +1,15 @@
+Simple RTOS baseline
+========================
+
+Goal
+-----
+
+The goal of this task is to provide a simple baseline RTOS.
+By having a baseline it should be possible to incrementally improve the product to reach the desired goal.
+By its very nature the baseline will be missing many features; these can all be addressed in small future tasks.
+
+The simple RTOS will be codenamed *acamar*.
+The simple RTOS will just support `rtos_start` and `rtos_yield_to`.
+Only a build targeting the POSIX machine will be provided (this is something that should be able to run in a Linux process).
+
+As this is a task designed to provide a baseline and not expecte to be complete as such, review should take this in to account.

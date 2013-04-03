@@ -1,0 +1,19 @@
+Draft prj user manual (1)
+=========================
+
+Goal
+-----
+
+Create a first draft of the **prj** tool user manual.
+The user manual shall act as the primary high level specification of the **prj** tool.
+This first draft should include enough detail to support the first iteration of development of the **prj** tool.
+The first development iteration will be used to support development of other product components.
+
+The first draft is not exepcted to be complete, and should be reviewed on this basis.
+
+
+Completion
+-----------
+
+Draft version completed, and reviewed by changhua and stg.
+Merging to development tree based on these reviews.

@@ -1,0 +1,45 @@
+Breakaway Task Review
+=======================
+
+Task name: 5Kl7DF-add-config-schema
+Version reviewed: dce02862c92aa9706f341e38948b90d71d949989
+Reviewer: stg
+Date: 2013-01-22
+Conclusion: Rework
+
+Overall comments:
+
+Comment 0: Rework
+Ensure PEP8 compliance, as per project convention.
+
+[[(benno): Fixed.]]
+
+Comment 1: Rework
+Wrap Python docstrings, comments, etc. at 118 characters, as per project convention.
+Begin sentences on new lines, as per project convention.
+
+[[(benno): Fixed.]]
+
+
+Specific comments
+=================
+
+Location: prj/app/prj.py:149
+Comment 2: Rework
+What does "Parse XML an XML string" mean?
+Improve clarity.
+
+[[(benno): Fixed.]]
+
+Location: prj/app/prj.py:247
+Comment 3: Rework
+Update function documentation with additional parameters.
+
+[[(benno): Fixed.]]
+
+Location: prj/app/prj.py:308
+Comment 4: Accepted
+At this point, it is not clear what a schema is exactly, as it appears to be a Python dictionary following some convention (in terms of a return type), but can also manifest itself as an XML schema, and the DOM tree thereof.
+Suggest to add a short explanation of the schema concept here or somewhere else to clarify it for users who might want to apply it and to developers working on the schema code.
+
+[[(benno): Fixed.]]

@@ -1,0 +1,36 @@
+Breakaway Task Review
+=======================
+
+Task name: UVt8Rw-irq-event
+Version reviewed: 543224bdefa6cf10bd3f6413e370faa190a66d6f
+Reviewer: Raf
+Date: 2012-03-15
+Conclusion: Rework
+
+Overall comments:
+If the default value for flash_load_addr is correct then this patch can be accepted.
+
+Specific comments
+=================
+
+Location: internal-docs/design:93
+Comment: s/manager/managed/
+
+[[(benno): Fixed.]]
+
+Location: internal-docs/design:117
+Comment: The second half of this sentence doesn't make any sense and should be
+  rewritten.
+
+[[(benno): Fixed.]]
+
+Location: packages/armv7m/vectable.py:9
+Comment: Was changing flash_load_addr's default to be the same as code_addr's on
+  purpose? It looks a bit strange.
+
+[[(benno): This is in fact the most common default; the system executes directly from direct-mapped flash.]]
+
+Location: packages/machine-qemu-simple/example/acrux-system.prx:18
+Comment: num_tasks should be two.
+
+[[(benno): Fixed.]]

@@ -1,0 +1,16 @@
+Unit and regression tests for x.py
+==================================
+
+Motivation
+----------
+Code in x.py can currently not be subjected to testing for unit and regression testing and continuous integration.
+
+Goal & Requirements
+-------------------
+The primary functional goal of this task is to be able test x.py for regressions and continuous integration.
+
+Approach
+--------
+To meet the task goal, x.py needs to implement an additional command for self tests.
+This command shall execute nose to execute test functions.
+The implementation may support test functions in x.py itself or in a separate test file.

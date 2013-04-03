@@ -1,0 +1,8 @@
+Task: fyGcLT-templated-header
+==============================================================================
+
+Goals
+--------
+
+Currently RTOS header files can only be copied, not templatified.
+Design an approach to make the headers templated, and then implement.

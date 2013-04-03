@@ -1,0 +1,17 @@
+Breakaway Task Review
+=======================
+
+Task name: YrlAD1-basic-armv7-support
+Version reviewed: b1c0d75ab7b438b88dc319915b8fe05a42b9f244
+Reviewer: changhua
+Date: 2013-01-03
+Conclusion: Accept
+
+Overall comments:
+Withdraw the previous comment as this configuration is non-preemptable, and context switch is not performed in an exception handler.
+
+
+Specific comments
+=================
+
+

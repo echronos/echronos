@@ -1,0 +1,36 @@
+Breakaway Task Review
+=======================
+
+Task name: uMB0dN-draft-prj-user-manual
+Version reviewed: 61bbaa30aa432c67abc40fa58c386a70e79e2007
+Reviewer: stg
+Date: 10/9/2012
+Conclusion: Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: prj-user-manual:30ff
+Comment 1: Accepted
+In a future version, the informal description of the prj file format should be replaced with a formal description in an XML schema language.
+
+Location: prj-user-manual:52ff
+Comment 2: Accepted
+In analogy to class hierarchies, using the term 'derived system' instead of 'variant system' seems more natural to me.
+This does not require changing if the author disagrees.
+
+Location: prj-user-manual:112ff
+Comment 3: Rework
+It remains unclear how packages are defined and/or how the relationships between modules and systems are defined.
+The examples suggest that the prefixes of names define these relationships.
+If that is the case, I strongly recommend against this approach and suggest using explicit definitions via dedicated XML statements instead, so that they can be evaluated more formally and extended more easily.
+
+[[(benno): Attempted to make this clearer.]]
+
+Location: prj-user-manual:119 & throughout
+Comment 4: Accepted
+Defining the 'device' as hardware seems restrictive.
+For a future version, it might be appropriate to generalize this term to a 'target' which might be hardware, a software virtualization guest environment, emulator, simulator, or some other platform.

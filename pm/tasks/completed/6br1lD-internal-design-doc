@@ -1,0 +1,7 @@
+Task: 6br1lD-internal-design-doc
+==============================================================================
+
+Goals
+--------
+
+Add an internal design doc that provides a more permanent list of design descisions (that should be used in preference to extensive git commit message, or task documents).

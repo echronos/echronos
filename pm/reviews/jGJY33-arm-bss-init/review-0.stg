@@ -1,0 +1,16 @@
+Breakaway Task Review
+=======================
+
+Task name: jGJY33-arm-bss-init
+Version reviewed: d7b0f0c061d823fefc0ed46a5c52bb134d699259
+Reviewer: stg
+Date: 2013-01-21
+Conclusion: Accepted
+
+Overall comments:
+
+Comment 0: Accepted
+Fixed text formatting issues.
+
+Comment 1: Accepted
+I cannot vouch for the correctness of the linker directives.

@@ -1,0 +1,9 @@
+Task: YQn8bs-ply-external-library
+==============================================================================
+
+Goals
+--------
+
+There are cases where it is useful to be able to parse C source files (to some extent).
+The PLY library provides basic support for this, so import this (rather than creating something from scratch).
+

@@ -1,0 +1,17 @@
+Task: X2dWs6-tools-python-unix
+==============================================================================
+
+Goals
+--------
+
+Rather than relying on the user's Python install, instead provide a fixed Python implementation.
+This will ensure reliable/repeatable builds and reduce friction for new users having to install Python.
+
+In the first instance, this will only be supported on Linux and Mac OS X.
+A follow up task will be needed to add support for Windows.
+
+The version of Python to be used will be generated from: https://github.com/BreakawayConsulting/xyz.
+This Python is generated so that it can stand-alone (e.g: does not rely on being at a fixed path).
+
+The new `setenv` script is used to initialise the shell environment correctly.
+Users will be required to source this script ('source setenv') before using prj.py or x.py.

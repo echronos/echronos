@@ -1,0 +1,9 @@
+Task: uWeXUf-semihost-debug
+==============================================================================
+
+Goals
+--------
+
+Add debug output support to use the ARM semi-hosting API.
+See: http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0471c/Bgbjjgij.html
+

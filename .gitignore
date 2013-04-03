@@ -1,0 +1,8 @@
+prj/example/out
+release
+__pycache__
+out
+packages/*/rtos-*
+prj.errors
+prj_build*
+

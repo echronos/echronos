@@ -1,0 +1,40 @@
+Breakaway Task Review
+=======================
+
+Task name: YQn8bs-ply-external-library
+Version reviewed: 811d08af5946a4fb8c851f7ca2038ff2efcbcf0a
+Reviewer: David
+Date: 2012-02-28
+Conclusion: Rework
+
+Overall comments:
+Ideally C files should be preprocessed by the end-user's toolchain to ensure
+that what the user's C compiler sees matches what is parsed by us.
+
+For the purposes of defining bitbash regions in the linker script, subtle mismatches
+should not have a significant impact. However, we need to be careful that we
+don't start using this preprocessor for other purposes (where a mismatch
+between our understanding of a C file and the user's toolchain's understanding
+of a C file could cause serious problems) without more carefully reviewing this
+approach.
+
+[[(benno): Fixed by adding a usage note to cpp.py]]
+
+Specific comments
+=================
+
+Location: prj/app/ply/ply/cpp.py:356
+Comment: This should probably use None as default arguments for include_paths and ignore.
+
+[[(benno): Fixed.]]
+
+Location: prj/app/ply/ply/cpp.py:900-903
+Comment: You probably want to also strip trailing U's
+
+[[(benno): Fixed.]]
+
+Location: prj/app/ply/ply/cpp.py:906
+Comment: Replace "eval(py_expr)" with "eval(py_expr, globals={}, locals={})" to prevent innocent
+  errors in C preprocessor directives from inadvertently accessing the Python script's state.
+
+[[(benno): Fixed.]]

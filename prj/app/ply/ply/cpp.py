@@ -915,7 +915,7 @@ class Preprocessor(object):
         expr = expr.replace("U", "")
         py_expr = expr
         try:
-            result = eval(py_expr, globals={}, locals={})
+            result = eval(py_expr, {}, {})
         except Exception:
             self._error(lineno, "Couldn't evaluate expression: '{}'".format(c_expr))
             result = 0

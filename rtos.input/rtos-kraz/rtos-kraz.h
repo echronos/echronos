@@ -1,7 +1,9 @@
 typedef uint{{taskid_size}}_t TaskId;
 typedef uint8_t SignalId;
 typedef uint{{signalset_size}}_t SignalSet;
-typedef SignalSet SignalIdOption;
+typedef SignalId SignalIdOption;
+
+#define SIGNAL_ID_NONE ((SignalIdOption) 0xffU)
 
 void {{prefix}}start(void);
 

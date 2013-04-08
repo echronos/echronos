@@ -1,16 +1,12 @@
 /*| headers |*/
 
 /*| object_like_macros |*/
-#define SIGNAL_ID_NONE 0xffU
 
 /*| type_definitions |*/
 /* Sanity check; should be impossible (since there is no uint256_t!) */
 #if {{signalset_size}} > UINT8_MAX
 #  error "signalset_size ({{signalset_size}}) is greater than UINT8_MAX"
 #endif
-typedef uint8_t SignalId;
-typedef SignalId SignalIdOption;
-typedef uint{{signalset_size}}_t SignalSet;
 
 /*| structure_definitions |*/
 struct signal_task {

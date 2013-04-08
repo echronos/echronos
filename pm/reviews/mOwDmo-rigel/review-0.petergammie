@@ -5,16 +5,22 @@ Task name: mOwDmo-rigel
 Version reviewed: 99e0d34c648b9617b9a9c7930f7ee10937cf57e6
 Reviewer: petergammie
 Date: 2013-04-08
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
 Overall comments:
-
+In general I feel like there should be more asserts testing user input.
+At the very least there should be checks like "irq_event_id < {{num_irq_events}}".
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: packages/rtos-example/rigel-test.c:86
+Comment: What's wrong with "assert (true) ..."?
 
-Location: filename:linenum
-Comment:
+Location: packages/machine-qemu-simple/example/rigel-system.prx:21
+Comment: num_irq_events is 2 instead of 1.
+Not sure if this is on purpose or not.
+
+Localtion: x.py:824
+Comment: Is there a reason behind having to specify a context switch file?
+I would have thought that it could be a function of the package.

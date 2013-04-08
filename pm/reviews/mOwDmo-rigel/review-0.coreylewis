@@ -5,7 +5,7 @@ Task name: mOwDmo-rigel
 Version reviewed: 99e0d34c648b9617b9a9c7930f7ee10937cf57e6
 Reviewer: coreylewis
 Date: 2013-04-08
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
 Overall comments:
 
@@ -13,8 +13,6 @@ Overall comments:
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: rtos.input/rtos-rigel/template.c:68
+Comment: The array of irq_event_handlers should be static.
 
-Location: filename:linenum
-Comment:

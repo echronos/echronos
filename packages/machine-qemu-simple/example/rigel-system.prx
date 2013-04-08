@@ -15,8 +15,10 @@
     <module name="armv7m/rtos-rigel">
       <prefix>rtos_</prefix>
       <taskid_size>8</taskid_size>
-      <num_tasks>4</num_tasks>
       <signalset_size>8</signalset_size>
+      <irqeventid_size>8</irqeventid_size>
+      <num_tasks>2</num_tasks>
+      <num_irq_events>2</num_irq_events>
       <tasks>
 
         <task>
@@ -34,6 +36,15 @@
         </task>
 
       </tasks>
+
+      <irq_events>
+        <irq_event>
+          <idx>0</idx>
+          <name>tick</name>
+          <task>0</task>
+          <sig_set>1</sig_set>
+        </irq_event>
+      </irq_events>
     </module>
 
     <module name="rtos-example/rigel-test" />

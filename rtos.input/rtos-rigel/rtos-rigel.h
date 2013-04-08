@@ -2,7 +2,7 @@ typedef uint{{taskid_size}}_t TaskId;
 typedef uint8_t SignalId;
 typedef uint{{signalset_size}}_t SignalSet;
 typedef SignalId SignalIdOption;
-typedef TaskId IrqEventId;
+typedef uint{{irqeventid_size}}_t IrqEventId;
 
 #define SIGNAL_ID_NONE ((SignalIdOption) 0xffU)
 

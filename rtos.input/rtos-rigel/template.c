@@ -37,6 +37,10 @@ struct task
 {
     context_t ctx;
 };
+struct irq_event_handler {
+    TaskId task;
+    SignalSet sig_set;
+};
 [[sched.structure_definitions]]
 [[signal.structure_definitions]]
 [[irq_event_arch.structure_definitions]]
@@ -61,6 +65,11 @@ static struct task tasks[{{num_tasks}}];
 [[signal.state]]
 [[irq_event_arch.state]]
 [[irq_event.state]]
+struct irq_event_handler irq_events[{{num_irq_events}}] = {
+{{#irq_events}}
+    { {{task}}, {{sig_set}} },
+{{/irq_events}}
+};
 
 /* Function-like macros */
 #define get_current_task() current_task
@@ -107,8 +116,10 @@ _unblock(TaskId task)
 static void
 handle_irq_event(IrqEventId irq_event_id)
 {
-    /* FIXME */
-    {{prefix}}signal_send_set(0, 0x1);
+    TaskId task = irq_events[irq_event_id].task;
+    SignalSet sig_set = irq_events[irq_event_id].sig_set;
+
+    {{prefix}}signal_send_set(task, sig_set);
 }
 
 [[irq_event_arch.functions]]

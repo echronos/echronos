@@ -5,16 +5,9 @@ Task name: mOwDmo-rigel
 Version reviewed: 99e0d34c648b9617b9a9c7930f7ee10937cf57e6
 Reviewer: stg
 Date: 2013-04-08
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
 Overall comments:
-
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Comment 0: Accepted
+In several function implementations, the const keyword could be applied to the function parameters.
+However, this is not mandatory as it is not yet a project convention.

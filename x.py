@@ -819,7 +819,7 @@ def acrux_gen_single(package, context_switch, stack_type):
 
 
 def rigel_gen(args):
-    """Generate the rtos-gatria-posix from its base template."""
+    """Generate the rtos-rigel-posix from its base template."""
     rigel_config = [
         ('armv7m', 'components/armv7m-context-switch/armv7m-context-switch.c', 'uint32_t'),
     ]

@@ -1604,6 +1604,7 @@ SUBCOMMAND_TABLE = {
     'gatria-gen': gatria_gen,
     'kraz-gen': kraz_gen,
     'acrux-gen': acrux_gen,
+    'rigel-gen': rigel_gen,
     'tasks': tasks,
     'integrate': integrate,
     'x-test': x_test,

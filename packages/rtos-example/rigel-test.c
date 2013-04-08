@@ -32,7 +32,7 @@ fn_a(void)
     rtos_signal_send_set(0, 0);
     rtos_signal_send_set(1, 0);
 
-    for (count = 0; ; count++)
+    for (count = 0; count < 10; count++)
     {
         debug_println("task a");
         if (count % 5 == 0)
@@ -40,8 +40,15 @@ fn_a(void)
             debug_println("unblocking b");
             rtos_signal_send_set(1, 1);
         }
-        debug_println("task a blocking");
-//        rtos_block();
+        debug_println("task a yield");
+        rtos_yield();
+    }
+
+    debug_println("A now waiting for ticks");
+    for (;;)
+    {
+        (void) rtos_signal_wait_set(1);
+        debug_println("tick");
     }
 }
 
@@ -72,6 +79,9 @@ main(void)
     SYST_CVR_WRITE(0);
     SYST_CSR_WRITE((1 << 1) | 1);
 
+    debug_println("Starting RTOS");
     rtos_start();
+    /* Should never reach here, but if we do, an infinite loop is
+       easier to debug than returning somewhere random. */
     for (;;) ;
 }

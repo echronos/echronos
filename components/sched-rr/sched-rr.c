@@ -43,7 +43,7 @@ sched_set_blocked(const TaskId task_id)
 static [[#assume_runnable]]TaskId[[/assume_runnable]][[^assume_runnable]]TaskIdOption[[/assume_runnable]]
 sched_get_next(void)
 {
-    TaskId task;
+    [[#assume_runnable]]TaskId[[/assume_runnable]][[^assume_runnable]]TaskIdOption[[/assume_runnable]] task;
     SchedIndex next = sched_get_cur_index();
     bool found = false;
 

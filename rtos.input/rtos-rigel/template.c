@@ -17,7 +17,7 @@
 
 /* Object-like macros */
 #define TASK_ID_ZERO ((TaskId) 0u)
-#define TASK_ID_NONE ((TaskId) 0xffU)
+#define TASK_ID_NONE ((TaskIdOption) 0xffU)
 [[ctxt_switch.object_like_macros]]
 [[sched.object_like_macros]]
 [[signal.object_like_macros]]

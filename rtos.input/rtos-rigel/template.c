@@ -26,7 +26,6 @@
 
 /* Type definitions */
 typedef TaskId TaskIdOption;
-typedef TaskId IrqEventId;
 [[ctxt_switch.type_definitions]]
 [[sched.type_definitions]]
 [[signal.type_definitions]]

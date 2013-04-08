@@ -77,3 +77,26 @@ void
     SIGNAL_OBJ(task_id).signals |= sig_set;
     _unblock(task_id);
 }
+
+bool
+{{prefix}}signal_peek_set(SignalSet sig_set)
+{
+    SignalSet *const cur_task_signals = &SIGNAL_OBJ(get_current_task()).signals;
+
+    return _signal_peek(cur_task_signals, sig_set);
+}
+
+SignalIdOption
+{{prefix}}signal_poll_set(SignalSet sig_set)
+{
+    SignalSet *const cur_task_signals = &SIGNAL_OBJ(get_current_task()).signals;
+
+    if (_signal_peek(cur_task_signals, sig_set))
+    {
+        return _signal_recv(cur_task_signals, sig_set);
+    }
+    else
+    {
+        return SIGNAL_ID_NONE;
+    }
+}

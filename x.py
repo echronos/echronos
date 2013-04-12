@@ -955,7 +955,13 @@ def build_manuals(args):
         build_manual(pkg)
 
 
-class Release:
+class ReleaseMeta(type):
+    """A pretty-printing meta-class for the Release class."""
+    def __str__(cls):
+        return '{}-{}'.format(cls.name, cls.version)
+
+
+class Release(metaclass=ReleaseMeta):
     """The Release base class is used by the release configuration."""
     packages = []
     platforms = []

@@ -59,6 +59,8 @@ externals = ['pep8', 'nose', 'ice']
 BASE_DIR = os.path.normpath(os.path.dirname(__file__))
 sys.path = [os.path.join(BASE_DIR, 'external_tools', e) for e in externals] + sys.path
 sys.path.insert(0, os.path.join(BASE_DIR, 'prj/app/pystache'))
+if __name__ == '__main__':
+    sys.modules['x'] = sys.modules['__main__']
 
 ### Check that the correct Python is being used.
 correct = None
@@ -387,8 +389,8 @@ def discover_tests(*mut_names):
     in a module called 'test_<modulename>'.
 
     """
-    muts = [importlib.import_module(mut_name) for mut_name in mut_names]
-    for mut in muts:
+    muts = [(mut_name, importlib.import_module(mut_name)) for mut_name in mut_names]
+    for mut_name, mut in muts:
         if ispackage(mut):
             test_package = importlib.import_module('{}.test'.format(mut.__name__))
             test_module_names = ['{}.{}'.format(test_package.__name__, m)
@@ -397,7 +399,7 @@ def discover_tests(*mut_names):
             for tmn in test_module_names:
                 yield from discover_tests_module(importlib.import_module(tmn))
         else:
-            yield from discover_tests_module(importlib.import_module('{}_test'.format(mut.__name__)))
+            yield from discover_tests_module(importlib.import_module('{}_test'.format(mut_name)))
 
 
 def _prj_test():

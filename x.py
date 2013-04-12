@@ -944,6 +944,15 @@ def build_manuals(args):
         build_manual(pkg)
 
 
+class Release:
+    """The Release base class is used by the release configuration."""
+    packages = []
+    platforms = []
+    version = None
+    name = None
+    enabled = False
+
+
 def build_single_release(basename, packages, platforms):
     """Build a single release archive..
 
@@ -977,9 +986,13 @@ def build_release(args):
     Currently it is hard-coded for a release of the ARMv7 platform with a Linux host.
 
     """
-    packages = ['armv7m', 'generic', 'rtos-example', 'machine-qemu-simple', 'machine-stm32f4-discovery']
-    platforms = ['x86_64-unknown-linux-gnu']  # ['x86_64-apple-darwin']
-    build_single_release('brtos', packages, platforms)
+    import release_cfg
+    maybe_configs = [getattr(release_cfg, cfg) for cfg in dir(release_cfg)]
+    configs = [cfg for cfg in maybe_configs if inspect.isclass(cfg) and issubclass(cfg, Release)]
+    enabled_configs = [cfg for cfg in configs if cfg.enabled]
+    for config in enabled_configs:
+        full_name = 'brtos-{}-{}'.format(config.name, config.version)
+        build_single_release(full_name, config.packages, config.platforms)
 
 
 def release_test(args):

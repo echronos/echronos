@@ -893,6 +893,17 @@ def tasks(args):
     print("D: described in pm/tasks  L: local branch  R: remote branch  A: archived branch")
 
 
+@contextmanager
+def tarfile_open(name, mode, **kwargs):
+    assert mode.startswith('w')
+    with tarfile.open(name, mode, **kwargs) as f:
+        try:
+            yield f
+        except:
+            os.unlink(name)
+            raise
+
+
 def tar_info_filter(tarinfo):
     tarinfo.uname = 'brtos'
     tarinfo.gname = 'brtos'
@@ -963,7 +974,7 @@ def build_single_release(basename, packages, platforms):
     """
 
     logging.info("Building {}".format(basename))
-    with tarfile.open('release/{}.tar.gz'.format(basename), 'w:gz', format=tarfile.GNU_FORMAT) as tf:
+    with tarfile_open('release/{}.tar.gz'.format(basename), 'w:gz', format=tarfile.GNU_FORMAT) as tf:
         for pkg in packages:
             with tarfile.open('release/partials/{}.tar.gz'.format(pkg), 'r:gz') as in_f:
                 for m in in_f.getmembers():
@@ -992,7 +1003,10 @@ def build_release(args):
     enabled_configs = [cfg for cfg in configs if cfg.enabled]
     for config in enabled_configs:
         full_name = 'brtos-{}-{}'.format(config.name, config.version)
-        build_single_release(full_name, config.packages, config.platforms)
+        try:
+            build_single_release(full_name, config.packages, config.platforms)
+        except FileNotFoundError as e:
+            logging.warning("Unable to build '{}'. File note found: '{}'".format(full_name, e.filename))
 
 
 def release_test(args):

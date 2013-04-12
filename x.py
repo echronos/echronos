@@ -945,7 +945,7 @@ def build_manuals(args):
 def build_single_release(filename, packages, platforms):
     """Build a single release archive..
 
-    `filename` is the basename of archive.
+    `filename` is the basename of archive and the top-level directory name.
     `packages` is a list of packages to include in the release.
     `platforms` is a list of platform to include in the release.
 
@@ -956,9 +956,11 @@ def build_single_release(filename, packages, platforms):
             with tarfile.open('release/partials/{}.tar.gz'.format(pkg), 'r:gz') as in_f:
                 for m in in_f.getmembers():
                     m_f = in_f.extractfile(m)
+                    m.name = os.path.join(filename, m.name)
                     tf.addfile(m, m_f)
         for plat in platforms:
-            tf.add('prj_build_{}/prj'.format(plat), arcname='{}/bin/prj'.format(plat), filter=tar_info_filter)
+            arcname = '{}/{}/bin/prj'.format(filename, plat)
+            tf.add('prj_build_{}/prj'.format(plat), arcname=arcname, filter=tar_info_filter)
 
 
 def build_release(args):

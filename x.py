@@ -942,6 +942,25 @@ def build_manuals(args):
         build_manual(pkg)
 
 
+def build_single_release(filename, packages, platforms):
+    """Build a single release archive..
+
+    `filename` is the basename of archive.
+    `packages` is a list of packages to include in the release.
+    `platforms` is a list of platform to include in the release.
+
+    """
+
+    with tarfile.open('release/{}.tar.gz'.format(filename), 'w:gz', format=tarfile.GNU_FORMAT) as tf:
+        for pkg in packages:
+            with tarfile.open('release/partials/{}.tar.gz'.format(pkg), 'r:gz') as in_f:
+                for m in in_f.getmembers():
+                    m_f = in_f.extractfile(m)
+                    tf.addfile(m, m_f)
+        for plat in platforms:
+            tf.add('prj_build_{}/prj'.format(plat), arcname='{}/bin/prj'.format(plat), filter=tar_info_filter)
+
+
 def build_release(args):
     """Implement the build-release command.
 
@@ -955,15 +974,7 @@ def build_release(args):
     """
     packages = ['armv7m', 'generic', 'rtos-example', 'machine-qemu-simple', 'machine-stm32f4-discovery']
     platforms = ['x86_64-unknown-linux-gnu']  # ['x86_64-apple-darwin']
-
-    with tarfile.open('release/brtos.tar.gz', 'w:gz', format=tarfile.GNU_FORMAT) as tf:
-        for pkg in packages:
-            with tarfile.open('release/partials/{}.tar.gz'.format(pkg), 'r:gz') as in_f:
-                for m in in_f.getmembers():
-                    m_f = in_f.extractfile(m)
-                    tf.addfile(m, m_f)
-        for plat in platforms:
-            tf.add('prj_build_{}/prj'.format(plat), arcname='{}/bin/prj'.format(plat), filter=tar_info_filter)
+    build_single_release('brtos', packages, platforms)
 
 
 def release_test(args):

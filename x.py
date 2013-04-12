@@ -904,6 +904,24 @@ def tarfile_open(name, mode, **kwargs):
             raise
 
 
+class LicenseOpener:
+    """The license opener provides a single 'open' method, that can be
+    used instead of the built-in 'open' function.
+
+    This open will return a file-like object that modifies the underlying
+    file to include an appropriate license header.
+
+    The 'license' is passed to the object during construction.
+
+    """
+    def __init__(self, license):
+        self.license = license
+
+    def open(self, filename, mode):
+        assert mode == 'rb'
+        return open(filename, mode)
+
+
 def tar_info_filter(tarinfo):
     tarinfo.uname = 'brtos'
     tarinfo.gname = 'brtos'
@@ -914,6 +932,7 @@ def tar_info_filter(tarinfo):
 
 
 def tar_gz_with_license(output, tree, prefix, license):
+
     """Create a tar.gz file named `output` from a specified directory tree.
 
     Any appropriate files have the specified license attached.
@@ -922,11 +941,15 @@ def tar_gz_with_license(output, tree, prefix, license):
     help ensure things are consistent.
 
     """
-
-    with tarfile.open(output, 'w:gz', format=tarfile.GNU_FORMAT) as tf:
-        with chdir(tree):
-            for f in os.listdir('.'):
-                tf.add(f, arcname='{}/{}'.format(prefix, f), filter=tar_info_filter)
+    lo = LicenseOpener(license)
+    try:
+        with tarfile.open(output, 'w:gz', format=tarfile.GNU_FORMAT) as tf:
+            tarfile.bltn_open = lo.open
+            with chdir(tree):
+                for f in os.listdir('.'):
+                    tf.add(f, arcname='{}/{}'.format(prefix, f), filter=tar_info_filter)
+    finally:
+        tarfile.bltn_open = open
 
 
 def mk_partial(pkg_name, archive_name, license):

@@ -927,8 +927,8 @@ def tar_gz(output, tree, prefix):
                 tf.add(f, arcname='{}/{}'.format(prefix, f), filter=tar_info_filter)
 
 
-def mk_partial(pkg_name):
-    fn = os.path.join(BASE_DIR, 'release', 'partials', '{}.tar.gz'.format(pkg_name))
+def mk_partial(pkg_name, archive_name):
+    fn = os.path.join(BASE_DIR, 'release', 'partials', '{}.tar.gz'.format(archive_name))
     tar_gz(fn, os.path.join(BASE_DIR, 'packages', pkg_name), 'share/packages/{}'.format(pkg_name))
 
 
@@ -937,7 +937,8 @@ def build_partials(args):
     os.makedirs(os.path.join(BASE_DIR, 'release', 'partials'),  exist_ok=True)
     packages = os.listdir(os.path.join(BASE_DIR, 'packages'))
     for pkg in packages:
-        mk_partial(pkg)
+        for config in get_release_configs():
+            mk_partial(pkg, '{}-{}'.format(pkg, config.name))
 
 
 def build_manual(pkg):
@@ -970,24 +971,27 @@ class Release(metaclass=ReleaseMeta):
     enabled = False
 
 
-def build_single_release(basename, packages, platforms):
-    """Build a single release archive..
+def get_release_configs():
+    """Return a list of release configs."""
+    import release_cfg
+    maybe_configs = [getattr(release_cfg, cfg) for cfg in dir(release_cfg)]
+    configs = [cfg for cfg in maybe_configs if inspect.isclass(cfg) and issubclass(cfg, Release)]
+    enabled_configs = [cfg for cfg in configs if cfg.enabled]
+    return enabled_configs
 
-    `basename` is the basename of archive and the top-level directory name.
-    `packages` is a list of packages to include in the release.
-    `platforms` is a list of platform to include in the release.
 
-    """
-
+def build_single_release(config):
+    """Build a release archive for a specific release configuration."""
+    basename = 'brtos-{}-{}'.format(config.name, config.version)
     logging.info("Building {}".format(basename))
     with tarfile_open('release/{}.tar.gz'.format(basename), 'w:gz', format=tarfile.GNU_FORMAT) as tf:
-        for pkg in packages:
-            with tarfile.open('release/partials/{}.tar.gz'.format(pkg), 'r:gz') as in_f:
+        for pkg in config.packages:
+            with tarfile.open('release/partials/{}-{}.tar.gz'.format(pkg, config.name), 'r:gz') as in_f:
                 for m in in_f.getmembers():
                     m_f = in_f.extractfile(m)
                     m.name = os.path.join(basename, m.name)
                     tf.addfile(m, m_f)
-        for plat in platforms:
+        for plat in config.platforms:
             arcname = '{}/{}/bin/prj'.format(basename, plat)
             tf.add('prj_build_{}/prj'.format(plat), arcname=arcname, filter=tar_info_filter)
 
@@ -1003,16 +1007,11 @@ def build_release(args):
     Currently it is hard-coded for a release of the ARMv7 platform with a Linux host.
 
     """
-    import release_cfg
-    maybe_configs = [getattr(release_cfg, cfg) for cfg in dir(release_cfg)]
-    configs = [cfg for cfg in maybe_configs if inspect.isclass(cfg) and issubclass(cfg, Release)]
-    enabled_configs = [cfg for cfg in configs if cfg.enabled]
-    for config in enabled_configs:
-        full_name = 'brtos-{}-{}'.format(config.name, config.version)
+    for config in get_release_configs():
         try:
-            build_single_release(full_name, config.packages, config.platforms)
+            build_single_release(config)
         except FileNotFoundError as e:
-            logging.warning("Unable to build '{}'. File note found: '{}'".format(full_name, e.filename))
+            logging.warning("Unable to build '{}'. File note found: '{}'".format(config, e.filename))
 
 
 def release_test(args):

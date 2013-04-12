@@ -913,8 +913,10 @@ def tar_info_filter(tarinfo):
     return tarinfo
 
 
-def tar_gz(output, tree, prefix):
+def tar_gz_with_license(output, tree, prefix, license):
     """Create a tar.gz file named `output` from a specified directory tree.
+
+    Any appropriate files have the specified license attached.
 
     When creating the tar.gz a standard set of meta-data will be used to
     help ensure things are consistent.
@@ -927,9 +929,11 @@ def tar_gz(output, tree, prefix):
                 tf.add(f, arcname='{}/{}'.format(prefix, f), filter=tar_info_filter)
 
 
-def mk_partial(pkg_name, archive_name):
+def mk_partial(pkg_name, archive_name, license):
     fn = os.path.join(BASE_DIR, 'release', 'partials', '{}.tar.gz'.format(archive_name))
-    tar_gz(fn, os.path.join(BASE_DIR, 'packages', pkg_name), 'share/packages/{}'.format(pkg_name))
+    src_dir = os.path.join(BASE_DIR, 'packages', pkg_name)
+    src_prefix = 'share/packages/{}'.format(pkg_name)
+    tar_gz_with_license(fn, src_dir, src_prefix, license)
 
 
 def build_partials(args):
@@ -938,7 +942,7 @@ def build_partials(args):
     packages = os.listdir(os.path.join(BASE_DIR, 'packages'))
     for pkg in packages:
         for config in get_release_configs():
-            mk_partial(pkg, '{}-{}'.format(pkg, config.name))
+            mk_partial(pkg, '{}-{}'.format(pkg, config.name), config.license)
 
 
 def build_manual(pkg):
@@ -969,6 +973,7 @@ class Release(metaclass=ReleaseMeta):
     version = None
     name = None
     enabled = False
+    license = None
 
 
 def get_release_configs():

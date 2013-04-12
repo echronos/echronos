@@ -904,6 +904,28 @@ def tarfile_open(name, mode, **kwargs):
             raise
 
 
+class FileWithLicense:
+    """FileWithLicense provides a read-only file-like object that
+    automatically includes license text when reading from the underlying
+    file object.
+
+    """
+    def __init__(self, license, f):
+        self._license = license
+        self._f = f
+        self._read_license = True
+
+    def read(self, len):
+        if self._read_license:
+            return self._f.read(len)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self._f.close()
+
+
 class LicenseOpener:
     """The license opener provides a single 'open' method, that can be
     used instead of the built-in 'open' function.
@@ -919,7 +941,7 @@ class LicenseOpener:
 
     def open(self, filename, mode):
         assert mode == 'rb'
-        return open(filename, mode)
+        return FileWithLicense(self.license, open(filename, mode))
 
 
 def tar_info_filter(tarinfo):

@@ -924,10 +924,9 @@ class FileWithLicense:
                 raise Exception("XML File: '{}' does not contain expected prolouge: {} expected {}".
                                 format(f.name, file_header, XML_PROLOUGE))
 
-        if lic:
+        if len(lic) > 0:
             self._read_license = False
             self._license_io = io.BytesIO(lic)
-
 
     def read(self, size):
         data = b''
@@ -962,13 +961,10 @@ class LicenseOpener:
     def __init__(self, license):
         self.license = license
 
-    def open(self, filename, mode):
-        assert mode == 'rb'
-
-        f = open(filename, mode)
-        lic = None
+    def _get_lic(self, filename):
+        lic = ''
         ext = os.path.splitext(filename)[1]
-        xml_mode = False
+        is_xml = False
 
         if ext in ['.c', '.h', '.ld', '.s']:
             lic = '/*' + self.license + '*/\n'
@@ -976,11 +972,24 @@ class LicenseOpener:
             lic = '"""' + self.license + '"""\n'
         elif ext in ['.prx']:
             lic = '<!--' + self.license + '-->\n'
-            xml_mode = True
+            is_xml = True
 
-        if lic is not None:
-            lic = lic.encode('utf8')
-        return FileWithLicense(f, lic, xml_mode)
+        lic = lic.encode('utf8')
+
+        return lic, is_xml
+
+    def open(self, filename, mode):
+        assert mode == 'rb'
+
+        f = open(filename, mode)
+        lic, is_xml = self._get_lic(filename)
+        return FileWithLicense(f, lic, is_xml)
+
+    def tar_info_filter(self, tarinfo):
+        if tarinfo.isreg():
+            lic, _ = self._get_lic(tarinfo.name)
+            tarinfo.size += len(lic)
+        return tar_info_filter(tarinfo)
 
 
 def tar_info_filter(tarinfo):
@@ -1008,7 +1017,7 @@ def tar_gz_with_license(output, tree, prefix, license):
             tarfile.bltn_open = lo.open
             with chdir(tree):
                 for f in os.listdir('.'):
-                    tf.add(f, arcname='{}/{}'.format(prefix, f), filter=tar_info_filter)
+                    tf.add(f, arcname='{}/{}'.format(prefix, f), filter=lo.tar_info_filter)
     finally:
         tarfile.bltn_open = open
 

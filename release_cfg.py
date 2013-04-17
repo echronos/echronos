@@ -7,6 +7,10 @@ class Standard(Release):
     version = '0.0.1'
     name = 'std'
     enabled = True
+    license = """
+Copyright (c) NIPR Pty Ltd 2013.
+UNLICENSED: Not for use outside NICTA or Breakaway Consulting.
+"""
 
 
 class StandardDarwin(Standard):

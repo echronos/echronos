@@ -910,14 +910,26 @@ class FileWithLicense:
     file object.
 
     """
-    def __init__(self, license, f):
-        self._license = license
+    def __init__(self, f, lic):
         self._f = f
         self._read_license = True
+        if lic:
+            self._read_license = False
+            self._license_io = io.BytesIO(lic.encode('utf8'))
 
-    def read(self, len):
+
+    def read(self, size):
+        data = b''
+        if not self._read_license:
+            data = self._license_io.read(size)
+            if len(data) < size:
+                self._read_license = True
+                size -= len(data)
+
         if self._read_license:
-            return self._f.read(len)
+            data += self._f.read(size)
+
+        return data
 
     def __enter__(self):
         return self
@@ -941,7 +953,19 @@ class LicenseOpener:
 
     def open(self, filename, mode):
         assert mode == 'rb'
-        return FileWithLicense(self.license, open(filename, mode))
+
+        f = open(filename, mode)
+        lic = None
+        ext = os.path.splitext(filename)[1]
+
+        if ext in ['.c', '.h', '.ld', '.s']:
+            lic = '/*' + self.license + '*/\n'
+        elif ext in ['.py']:
+            lic = '"""' + self.license + '"""\n'
+        elif ext in ['.prx']:
+            lic = '<!--' + self.license + '-->\n'
+
+        return FileWithLicense(f, lic)
 
 
 def tar_info_filter(tarinfo):

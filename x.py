@@ -910,12 +910,23 @@ class FileWithLicense:
     file object.
 
     """
-    def __init__(self, f, lic):
+    def __init__(self, f, lic, xml_mode):
+        XML_PROLOUGE = b'<?xml version="1.0" encoding="UTF-8" ?>\n'
         self._f = f
         self._read_license = True
+
+        if xml_mode:
+            assert lic is not None
+
+            lic = XML_PROLOUGE + lic
+            file_header = f.read(len(XML_PROLOUGE))
+            if file_header != XML_PROLOUGE:
+                raise Exception("XML File: '{}' does not contain expected prolouge: {} expected {}".
+                                format(f.name, file_header, XML_PROLOUGE))
+
         if lic:
             self._read_license = False
-            self._license_io = io.BytesIO(lic.encode('utf8'))
+            self._license_io = io.BytesIO(lic)
 
 
     def read(self, size):
@@ -957,6 +968,7 @@ class LicenseOpener:
         f = open(filename, mode)
         lic = None
         ext = os.path.splitext(filename)[1]
+        xml_mode = False
 
         if ext in ['.c', '.h', '.ld', '.s']:
             lic = '/*' + self.license + '*/\n'
@@ -964,8 +976,11 @@ class LicenseOpener:
             lic = '"""' + self.license + '"""\n'
         elif ext in ['.prx']:
             lic = '<!--' + self.license + '-->\n'
+            xml_mode = True
 
-        return FileWithLicense(f, lic)
+        if lic is not None:
+            lic = lic.encode('utf8')
+        return FileWithLicense(f, lic, xml_mode)
 
 
 def tar_info_filter(tarinfo):

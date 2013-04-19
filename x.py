@@ -232,6 +232,43 @@ def check_pep8(args):
         return 1
 
 
+class Component:
+    """Represents a 'component', an optional, exchangeable piece of functionality of an RTOS.
+
+    Components reside in the components/ directory of the core or sub-projects.
+    This class transparently finds components in any of the available core or sub-projects.
+
+    Currently, this class only provides a procedural, not an object-oriented interface.
+
+    """
+    _search_paths = None
+
+    @staticmethod
+    def _get_search_paths():
+        search_paths = []
+        parent_components = base_file('..', 'components')
+        # TODO: consider exploring the directory further up, too, for nesting levels deeper than 2
+        if os.path.isdir(parent_components):
+            search_paths.append(parent_components)
+        search_paths.append(base_file('components'))
+        return search_paths
+
+    @staticmethod
+    def get_search_paths():
+        if Component._search_paths is None:
+            Component._search_paths = Component._get_search_paths()
+        return Component._search_paths
+
+    @staticmethod
+    def find(partial_path):
+        """Find the component partial_path in the main or in sub-projects."""
+        for search_path in Component.get_search_paths():
+            component_path = os.path.join(search_path, partial_path)
+            if os.path.exists(component_path):
+                return component_path
+        raise KeyError('Unable to find component "{}"'.format(partial_path))
+
+
 #
 # unittest related functionality. Note: This may be refactored in to a
 # different module in the future.
@@ -722,8 +759,8 @@ def acamar_gen_single(package, context_switch, stack_type):
 def acamar_gen(args):
     """Generate the rtos-acamar-posix from its base template."""
     acamar_config = [
-        ('posix', 'components/posix-context-switch/posix-context-switch.c', 'uint8_t'),
-        ('armv7m', 'components/armv7m-context-switch/armv7m-context-switch.c', 'uint32_t'),
+        ('posix', Component.find('posix-context-switch/posix-context-switch.c'), 'uint8_t'),
+        ('armv7m', Component.find('armv7m-context-switch/armv7m-context-switch.c'), 'uint32_t'),
     ]
     for package, context_switch, stack in acamar_config:
         acamar_gen_single(package, context_switch, stack)
@@ -733,7 +770,7 @@ def gatria_gen_single(package, context_switch, stack_type):
     # Parse template file
     module = 'rtos-gatria'
     context_switch_sections = parse_sectioned_file(base_file(context_switch))
-    sched_sections = parse_sectioned_file(base_file('components/sched-rr/sched-rr.c'), {'assume_runnable': True})
+    sched_sections = parse_sectioned_file(Component.find('sched-rr/sched-rr.c'), {'assume_runnable': True})
     config = {'context_switch': context_switch_sections,
               'sched': sched_sections,
               'stack_type': stack_type}
@@ -753,8 +790,8 @@ def gatria_gen_single(package, context_switch, stack_type):
 def gatria_gen(args):
     """Generate the rtos-gatria-posix from its base template."""
     gatria_config = [
-        ('posix', 'components/posix-context-switch/posix-context-switch.c', 'uint8_t'),
-        ('armv7m', 'components/armv7m-context-switch/armv7m-context-switch.c', 'uint32_t'),
+        ('posix', Component.find('posix-context-switch/posix-context-switch.c'), 'uint8_t'),
+        ('armv7m', Component.find('armv7m-context-switch/armv7m-context-switch.c'), 'uint32_t'),
     ]
     for package, context_switch, stack in gatria_config:
         gatria_gen_single(package, context_switch, stack)
@@ -764,8 +801,8 @@ def kraz_gen_single(package, context_switch, stack_type):
     """Generate a single instance of the Kraz RTOS."""
     module = 'rtos-kraz'
     ctxt_switch_sections = parse_sectioned_file(base_file(context_switch))
-    sched_sections = parse_sectioned_file(base_file('components/sched-rr/sched-rr.c'), {'assume_runnable': True})
-    signal_sections = parse_sectioned_file(base_file('components/signal.c'))
+    sched_sections = parse_sectioned_file(Component.find('sched-rr/sched-rr.c'), {'assume_runnable': True})
+    signal_sections = parse_sectioned_file(Component.find('signal.c'))
     config = {'ctxt_switch': ctxt_switch_sections,
               'sched': sched_sections,
               'signal': signal_sections,
@@ -786,8 +823,8 @@ def kraz_gen_single(package, context_switch, stack_type):
 def kraz_gen(args):
     """Generate the rtos-gatria-posix from its base template."""
     gatria_config = [
-        ('posix', 'components/posix-context-switch/posix-context-switch.c', 'uint8_t'),
-        ('armv7m', 'components/armv7m-context-switch/armv7m-context-switch.c', 'uint32_t'),
+        ('posix', Component.find('posix-context-switch/posix-context-switch.c'), 'uint8_t'),
+        ('armv7m', Component.find('armv7m-context-switch/armv7m-context-switch.c'), 'uint32_t'),
     ]
     for package, context_switch, stack in gatria_config:
         kraz_gen_single(package, context_switch, stack)
@@ -797,9 +834,9 @@ def acrux_gen_single(package, context_switch, stack_type):
     """Generate a single instance of the Acrux RTOS."""
     module = 'rtos-acrux'
     ctxt_switch_sections = parse_sectioned_file(base_file(context_switch))
-    sched_sections = parse_sectioned_file(base_file('components/sched-rr/sched-rr.c'), {'assume_runnable': False})
-    irq_event_sections = parse_sectioned_file(base_file('components/irq-event.c'))
-    irq_event_arch_sections = parse_sectioned_file(base_file('components/irq-event-armv7m.c'))
+    sched_sections = parse_sectioned_file(Component.find('sched-rr/sched-rr.c'), {'assume_runnable': False})
+    irq_event_sections = parse_sectioned_file(Component.find('irq-event.c'))
+    irq_event_arch_sections = parse_sectioned_file(Component.find('irq-event-armv7m.c'))
     config = {'ctxt_switch': ctxt_switch_sections,
               'sched': sched_sections,
               'irq_event_arch': irq_event_arch_sections,
@@ -821,7 +858,7 @@ def acrux_gen_single(package, context_switch, stack_type):
 def rigel_gen(args):
     """Generate the rtos-rigel-posix from its base template."""
     rigel_config = [
-        ('armv7m', 'components/armv7m-context-switch/armv7m-context-switch.c', 'uint32_t'),
+        ('armv7m', Component.find('armv7m-context-switch/armv7m-context-switch.c'), 'uint32_t'),
     ]
     for package, context_switch, stack in rigel_config:
         rigel_gen_single(package, context_switch, stack)
@@ -831,10 +868,10 @@ def rigel_gen_single(package, context_switch, stack_type):
     """Generate a single instance of the Rigel RTOS."""
     module = 'rtos-rigel'
     ctxt_switch_sections = parse_sectioned_file(base_file(context_switch))
-    sched_sections = parse_sectioned_file(base_file('components/sched-rr/sched-rr.c'), {'assume_runnable': False})
-    signal_sections = parse_sectioned_file(base_file('components/signal.c'))
-    irq_event_sections = parse_sectioned_file(base_file('components/irq-event.c'))
-    irq_event_arch_sections = parse_sectioned_file(base_file('components/irq-event-armv7m.c'))
+    sched_sections = parse_sectioned_file(Component.find('sched-rr/sched-rr.c'), {'assume_runnable': False})
+    signal_sections = parse_sectioned_file(Component.find('signal.c'))
+    irq_event_sections = parse_sectioned_file(Component.find('irq-event.c'))
+    irq_event_arch_sections = parse_sectioned_file(Component.find('irq-event-armv7m.c'))
     config = {'ctxt_switch': ctxt_switch_sections,
               'sched': sched_sections,
               'signal': signal_sections,
@@ -857,7 +894,7 @@ def rigel_gen_single(package, context_switch, stack_type):
 def acrux_gen(args):
     """Generate rtos-acrux from its base template."""
     acrux_config = [
-        ('armv7m', 'components/armv7m-context-switch/armv7m-context-switch.c', 'uint32_t'),
+        ('armv7m', Component.find('armv7m-context-switch/armv7m-context-switch.c'), 'uint32_t'),
     ]
     for package, context_switch, stack in acrux_config:
         acrux_gen_single(package, context_switch, stack)

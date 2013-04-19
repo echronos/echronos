@@ -245,12 +245,31 @@ class Component:
 
     @staticmethod
     def _get_search_paths():
+        """Find and return the directories that, by convention, are expected to contain component modules.
+
+        As search directories qualify all directories called 'components' in the basedir or its parent directories.
+        The search for such directories upwards in the directory tree from basedir stops at the first parent directory not containing a 'components' directory.
+
+        """
         search_paths = []
-        parent_components = base_file('..', 'components')
-        # TODO: consider exploring the directory further up, too, for nesting levels deeper than 2
-        if os.path.isdir(parent_components):
-            search_paths.append(parent_components)
-        search_paths.append(base_file('components'))
+
+        current_dir = basedir
+        while True:
+            components_dir = os.path.join(current_dir, 'components')
+            if os.path.isdir(components_dir):
+                search_paths.append(components_dir)
+                next_dir = os.path.dirname(current_dir)
+                if next_dir != current_dir:
+                    current_dir = next_dir
+                else:
+                    break
+            else:
+                break
+
+        # reverse the search paths so that they are sorted by increasing depth in the directory tree
+        # this is expected to lead to components in client repositories to override those in the core repository
+        search_paths.reverse()
+
         return search_paths
 
     @staticmethod

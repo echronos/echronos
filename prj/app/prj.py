@@ -868,7 +868,9 @@ class System:
 
     @property
     def output(self):
-        return os.path.join(self.project.output, self.name)
+        output = os.path.join(self.project.output, self.name)
+        os.makedirs(output, exist_ok=True)
+        return output
 
     @property
     def include_paths(self):

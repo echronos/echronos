@@ -238,8 +238,6 @@ class Component:
     Components reside in the components/ directory of the core or sub-projects.
     This class transparently finds components in any of the available core or sub-projects.
 
-    Currently, this class only provides a procedural, not an object-oriented interface.
-
     """
     _search_paths = None
 
@@ -286,6 +284,51 @@ class Component:
             if os.path.exists(component_path):
                 return component_path
         raise KeyError('Unable to find component "{}"'.format(partial_path))
+
+    def __init__(self, name, resource_name=None, configuration={}):
+        self.name = name
+        if resource_name is not None:
+            self._resource_name = resource_name
+        else:
+            self._resource_name = name
+        self._configuration = configuration
+
+    def refine(self, refinement={}):
+        if isinstance(refinement, dict):
+            configuration = self._configuration.copy()
+            configuration.update(refinement)
+        else:
+            configuration = self._configuration
+
+        component = None
+        for name in [f.format(self._resource_name) for f in ['{0}.c', '{0}/{0}.c']]:
+            try:
+                component = Component.find(name)
+                break
+            except KeyError:
+                pass
+        if component is None:
+            raise KeyError('Unable to find component "{}"'.format(self._resource_name))
+
+        return parse_sectioned_file(component, configuration)
+
+
+class ArchitectureComponent(Component):
+    def refine(self, arch):
+        assert isinstance(arch, Architecture)
+
+        component = None
+        for name in [f.format(arch.name, self._resource_name) for f in ['{0}-{1}/{0}-{1}.c', '{1}-{0}.c']]:
+            try:
+                component = Component.find(name)
+                break
+            except KeyError:
+                pass
+        if component is None:
+            raise KeyError('Unable to find component "{}"'.format(self._resource_name))
+
+        return parse_sectioned_file(component, self._configuration)
+
 
 
 #
@@ -756,167 +799,122 @@ def render(inf, outf, config):
         f.write(data)
 
 
-def acamar_gen_single(package, context_switch, stack_type):
-    # Parse template file
-    module = 'rtos-acamar'
-    context_switch_sections = parse_sectioned_file(base_file(context_switch))
-    config = {'context_switch': context_switch_sections,
-              'stack_type': stack_type}
+class Architecture:
+    def __init__(self, name, configuration):
+        assert isinstance(name, str)
+        assert isinstance(configuration, dict)
+        self.name = name
+        self.configuration = configuration
 
-    module_dir = base_file('packages', package, module)
-    os.makedirs(module_dir, exist_ok=True)
-    render(base_file('rtos.input', 'rtos-acamar', 'template.c'),
-           os.path.join(module_dir, 'entity.c'),
-           config)
 
-    # Copy other files across
-    for f in ['rtos-acamar.h']:
-        shutil.copy(base_file('rtos.input', 'rtos-acamar', f),
-                    os.path.join(module_dir, f))
+core_architectures = [
+    Architecture('posix', {'stack_type': 'uint8_t'}),
+    Architecture('armv7m', {'stack_type': 'uint32_t'}),
+]
+
+
+class RtosSkeleton:
+    """Represents an RTOS variant as defined by a set of components / functionalities.
+
+    Encapsulates the act of deriving an RtosModule for a specific configuration and target architecture.
+
+    """
+    def __init__(self, name, components, configuration={}):
+        assert isinstance(name, str)
+        assert isinstance(components, list)
+        assert isinstance(configuration, dict)
+        self._name = name
+        self._components = components
+        self._configuration = configuration
+
+    def get_module_configuration(self, arch):
+        assert isinstance(arch, Architecture)
+        # adopt architecture-specific configuration information
+        configuration = arch.configuration.copy()
+        # adopt the configuration information derived from the components of this RTOS variant
+        configuration.update({c.name: c.refine(arch) for c in self._components})
+        # adopt the configuration information intrinsic to this specific RTOS variant
+        configuration.update(self._configuration)
+
+        return configuration
+
+    def create_configured_module(self, arch):
+        return RtosModule(self._name, arch, self.get_module_configuration(arch))
+
+
+class RtosModule:
+    def __init__(self, name, arch, configuration):
+        assert isinstance(name, str)
+        assert isinstance(arch, Architecture)
+        assert isinstance(configuration, dict)
+        self._name = name
+        self._arch = arch
+        self._configuration = configuration
+
+    @property
+    def _module_name(self):
+        return 'rtos-' + self._name
+
+    @property
+    def _module_dir(self):
+        module_dir = base_file('packages', self._arch.name, self._module_name)
+        os.makedirs(module_dir, exist_ok=True)
+        return module_dir
+
+    def generate(self):
+        self._render()
+        self._copy_resources()
+
+    def _render(self):
+        render(base_file('rtos.input', self._module_name, 'template.c'),
+               os.path.join(self._module_dir, 'entity.c'),
+               self._configuration)
+
+    def _copy_resources(self):
+        for f in [self._module_name + '.h']:
+            shutil.copy(base_file('rtos.input', self._module_name, f),
+                        os.path.join(self._module_dir, f))
+
+
+def generate_rtos(skeleton, architectures=core_architectures):
+    for arch in architectures:
+        rtos_module = skeleton.create_configured_module(arch)
+        rtos_module.generate()
 
 
 def acamar_gen(args):
-    """Generate the rtos-acamar-posix from its base template."""
-    acamar_config = [
-        ('posix', Component.find('posix-context-switch/posix-context-switch.c'), 'uint8_t'),
-        ('armv7m', Component.find('armv7m-context-switch/armv7m-context-switch.c'), 'uint32_t'),
-    ]
-    for package, context_switch, stack in acamar_config:
-        acamar_gen_single(package, context_switch, stack)
-
-
-def gatria_gen_single(package, context_switch, stack_type):
-    # Parse template file
-    module = 'rtos-gatria'
-    context_switch_sections = parse_sectioned_file(base_file(context_switch))
-    sched_sections = parse_sectioned_file(Component.find('sched-rr/sched-rr.c'), {'assume_runnable': True})
-    config = {'context_switch': context_switch_sections,
-              'sched': sched_sections,
-              'stack_type': stack_type}
-
-    module_dir = base_file('packages', package, module)
-    os.makedirs(module_dir, exist_ok=True)
-    render(base_file('rtos.input', 'rtos-gatria', 'template.c'),
-           os.path.join(module_dir, 'entity.c'),
-           config)
-
-    # Copy other files across
-    for f in ['rtos-gatria.h']:
-        shutil.copy(base_file('rtos.input', 'rtos-gatria', f),
-                    os.path.join(module_dir, f))
+    skeleton = RtosSkeleton('acamar', [ArchitectureComponent('context_switch', 'context-switch')])
+    generate_rtos(skeleton)
 
 
 def gatria_gen(args):
-    """Generate the rtos-gatria-posix from its base template."""
-    gatria_config = [
-        ('posix', Component.find('posix-context-switch/posix-context-switch.c'), 'uint8_t'),
-        ('armv7m', Component.find('armv7m-context-switch/armv7m-context-switch.c'), 'uint32_t'),
-    ]
-    for package, context_switch, stack in gatria_config:
-        gatria_gen_single(package, context_switch, stack)
-
-
-def kraz_gen_single(package, context_switch, stack_type):
-    """Generate a single instance of the Kraz RTOS."""
-    module = 'rtos-kraz'
-    ctxt_switch_sections = parse_sectioned_file(base_file(context_switch))
-    sched_sections = parse_sectioned_file(Component.find('sched-rr/sched-rr.c'), {'assume_runnable': True})
-    signal_sections = parse_sectioned_file(Component.find('signal.c'))
-    config = {'ctxt_switch': ctxt_switch_sections,
-              'sched': sched_sections,
-              'signal': signal_sections,
-              'stack_type': stack_type}
-
-    module_dir = base_file('packages', package, module)
-    os.makedirs(module_dir, exist_ok=True)
-    render(base_file('rtos.input', 'rtos-kraz', 'template.c'),
-           os.path.join(module_dir, 'entity.c'),
-           config)
-
-    # Copy other files across
-    for f in ['rtos-kraz.h']:
-        shutil.copy(base_file('rtos.input', 'rtos-kraz', f),
-                    os.path.join(module_dir, f))
+    skeleton = RtosSkeleton('gatria', [ArchitectureComponent('context_switch', 'context-switch'),
+                                       Component('sched', 'sched-rr', {'assume_runnable': True})])
+    generate_rtos(skeleton)
 
 
 def kraz_gen(args):
-    """Generate the rtos-gatria-posix from its base template."""
-    gatria_config = [
-        ('posix', Component.find('posix-context-switch/posix-context-switch.c'), 'uint8_t'),
-        ('armv7m', Component.find('armv7m-context-switch/armv7m-context-switch.c'), 'uint32_t'),
-    ]
-    for package, context_switch, stack in gatria_config:
-        kraz_gen_single(package, context_switch, stack)
-
-
-def acrux_gen_single(package, context_switch, stack_type):
-    """Generate a single instance of the Acrux RTOS."""
-    module = 'rtos-acrux'
-    ctxt_switch_sections = parse_sectioned_file(base_file(context_switch))
-    sched_sections = parse_sectioned_file(Component.find('sched-rr/sched-rr.c'), {'assume_runnable': False})
-    irq_event_sections = parse_sectioned_file(Component.find('irq-event.c'))
-    irq_event_arch_sections = parse_sectioned_file(Component.find('irq-event-armv7m.c'))
-    config = {'ctxt_switch': ctxt_switch_sections,
-              'sched': sched_sections,
-              'irq_event_arch': irq_event_arch_sections,
-              'irq_event': irq_event_sections,
-              'stack_type': stack_type}
-
-    module_dir = base_file('packages', package, module)
-    os.makedirs(module_dir, exist_ok=True)
-    render(base_file('rtos.input', 'rtos-acrux', 'template.c'),
-           os.path.join(module_dir, 'entity.c'),
-           config)
-
-    # Copy other files across
-    for f in ['rtos-acrux.h']:
-        shutil.copy(base_file('rtos.input', 'rtos-acrux', f),
-                    os.path.join(module_dir, f))
-
-
-def rigel_gen(args):
-    """Generate the rtos-rigel-posix from its base template."""
-    rigel_config = [
-        ('armv7m', Component.find('armv7m-context-switch/armv7m-context-switch.c'), 'uint32_t'),
-    ]
-    for package, context_switch, stack in rigel_config:
-        rigel_gen_single(package, context_switch, stack)
-
-
-def rigel_gen_single(package, context_switch, stack_type):
-    """Generate a single instance of the Rigel RTOS."""
-    module = 'rtos-rigel'
-    ctxt_switch_sections = parse_sectioned_file(base_file(context_switch))
-    sched_sections = parse_sectioned_file(Component.find('sched-rr/sched-rr.c'), {'assume_runnable': False})
-    signal_sections = parse_sectioned_file(Component.find('signal.c'))
-    irq_event_sections = parse_sectioned_file(Component.find('irq-event.c'))
-    irq_event_arch_sections = parse_sectioned_file(Component.find('irq-event-armv7m.c'))
-    config = {'ctxt_switch': ctxt_switch_sections,
-              'sched': sched_sections,
-              'signal': signal_sections,
-              'irq_event_arch': irq_event_arch_sections,
-              'irq_event': irq_event_sections,
-              'stack_type': stack_type}
-
-    module_dir = base_file('packages', package, module)
-    os.makedirs(module_dir, exist_ok=True)
-    render(base_file('rtos.input', 'rtos-rigel', 'template.c'),
-           os.path.join(module_dir, 'entity.c'),
-           config)
-
-    # Copy other files across
-    for f in ['rtos-rigel.h']:
-        shutil.copy(base_file('rtos.input', 'rtos-rigel', f),
-                    os.path.join(module_dir, f))
+    skeleton = RtosSkeleton('kraz', [ArchitectureComponent('ctxt_switch', 'context-switch'),
+                                     Component('sched', 'sched-rr', {'assume_runnable': True}),
+                                     Component('signal')])
+    generate_rtos(skeleton)
 
 
 def acrux_gen(args):
-    """Generate rtos-acrux from its base template."""
-    acrux_config = [
-        ('armv7m', Component.find('armv7m-context-switch/armv7m-context-switch.c'), 'uint32_t'),
-    ]
-    for package, context_switch, stack in acrux_config:
-        acrux_gen_single(package, context_switch, stack)
+    skeleton = RtosSkeleton('acrux', [ArchitectureComponent('ctxt_switch', 'context-switch'),
+                                      Component('sched', 'sched-rr', {'assume_runnable': False}),
+                                      ArchitectureComponent('irq_event_arch', 'irq-event'),
+                                      Component('irq_event', 'irq-event')])
+    generate_rtos(skeleton, core_architectures[1:2])
+
+
+def rigel_gen(args):
+    skeleton = RtosSkeleton('rigel', [ArchitectureComponent('ctxt_switch', 'context-switch'),
+                                      Component('sched', 'sched-rr', {'assume_runnable': False}),
+                                      Component('signal'),
+                                      ArchitectureComponent('irq_event_arch', 'irq-event'),
+                                      Component('irq_event', 'irq-event')])
+    generate_rtos(skeleton, core_architectures[1:2])
 
 
 def tasks(args):

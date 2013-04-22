@@ -18,3 +18,5 @@ Goals
   For example, the new-task command, when invoked through the wrapper, shall create the new task in the client repository instead of the core repository.
   In particular, allow the wrapper to inject the location of the client repository for use by the core x tool.
   Ideally, the implementation should support several layers of repository nesting.
+
+[stg: to reduce the size of this task, the last goal will be addressed in task 8n1fwa-extended-client-repositories]

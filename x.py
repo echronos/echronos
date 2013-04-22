@@ -807,12 +807,6 @@ class Architecture:
         self.configuration = configuration
 
 
-core_architectures = [
-    Architecture('posix', {'stack_type': 'uint8_t'}),
-    Architecture('armv7m', {'stack_type': 'uint32_t'}),
-]
-
-
 class RtosSkeleton:
     """Represents an RTOS variant as defined by a set of components / functionalities.
 
@@ -823,7 +817,7 @@ class RtosSkeleton:
         assert isinstance(name, str)
         assert isinstance(components, list)
         assert isinstance(configuration, dict)
-        self._name = name
+        self.name = name
         self._components = components
         self._configuration = configuration
 
@@ -839,7 +833,7 @@ class RtosSkeleton:
         return configuration
 
     def create_configured_module(self, arch):
-        return RtosModule(self._name, arch, self.get_module_configuration(arch))
+        return RtosModule(self.name, arch, self.get_module_configuration(arch))
 
 
 class RtosModule:
@@ -876,45 +870,10 @@ class RtosModule:
                         os.path.join(self._module_dir, f))
 
 
-def generate_rtos(skeleton, architectures=core_architectures):
+def generate_rtos_module(skeleton, architectures):
     for arch in architectures:
         rtos_module = skeleton.create_configured_module(arch)
         rtos_module.generate()
-
-
-def acamar_gen(args):
-    skeleton = RtosSkeleton('acamar', [ArchitectureComponent('context_switch', 'context-switch')])
-    generate_rtos(skeleton)
-
-
-def gatria_gen(args):
-    skeleton = RtosSkeleton('gatria', [ArchitectureComponent('context_switch', 'context-switch'),
-                                       Component('sched', 'sched-rr', {'assume_runnable': True})])
-    generate_rtos(skeleton)
-
-
-def kraz_gen(args):
-    skeleton = RtosSkeleton('kraz', [ArchitectureComponent('ctxt_switch', 'context-switch'),
-                                     Component('sched', 'sched-rr', {'assume_runnable': True}),
-                                     Component('signal')])
-    generate_rtos(skeleton)
-
-
-def acrux_gen(args):
-    skeleton = RtosSkeleton('acrux', [ArchitectureComponent('ctxt_switch', 'context-switch'),
-                                      Component('sched', 'sched-rr', {'assume_runnable': False}),
-                                      ArchitectureComponent('irq_event_arch', 'irq-event'),
-                                      Component('irq_event', 'irq-event')])
-    generate_rtos(skeleton, core_architectures[1:2])
-
-
-def rigel_gen(args):
-    skeleton = RtosSkeleton('rigel', [ArchitectureComponent('ctxt_switch', 'context-switch'),
-                                      Component('sched', 'sched-rr', {'assume_runnable': False}),
-                                      Component('signal'),
-                                      ArchitectureComponent('irq_event_arch', 'irq-event'),
-                                      Component('irq_event', 'irq-event')])
-    generate_rtos(skeleton, core_architectures[1:2])
 
 
 def tasks(args):
@@ -1643,30 +1602,74 @@ def integrate(command_line_options):
     task.integrate(command_line_options.target, command_line_options.archive)
 
 
-SUBCOMMAND_TABLE = {
-    'check-pep8': check_pep8,
-    'prj-test': prj_test,
-    'prj-build': prj_build,
-    'build': build,
-    'test-release': release_test,
-    'build-release': build_release,
-    'build-partials': build_partials,
-    'build-manuals': build_manuals,
-    'new-review': new_review,
-    'new-task': new_task,
-    'acamar-gen': acamar_gen,
-    'gatria-gen': gatria_gen,
-    'kraz-gen': kraz_gen,
-    'acrux-gen': acrux_gen,
-    'rigel-gen': rigel_gen,
-    'tasks': tasks,
-    'integrate': integrate,
-    'x-test': x_test,
+class OverrideFunctor:
+    def __init__(self, function, *args, **kwargs):
+        self.function = function
+        self.args = args
+        self.kwargs = kwargs
+
+    def __call__(self, *args, **kwargs):
+        return self.function(*self.args, **self.kwargs)
+
+
+CORE_ARCHITECTURES = {
+    'posix': Architecture('posix', {'stack_type': 'uint8_t'}),
+    'armv7m': Architecture('armv7m', {'stack_type': 'uint32_t'}),
 }
+
+
+CORE_SKELETONS = {
+    'acamar': RtosSkeleton('acamar', [ArchitectureComponent('context_switch', 'context-switch')]),
+    'gatria': RtosSkeleton('gatria', [ArchitectureComponent('context_switch', 'context-switch'),
+                                      Component('sched', 'sched-rr', {'assume_runnable': True})]),
+    'kraz': RtosSkeleton('kraz', [ArchitectureComponent('ctxt_switch', 'context-switch'),
+                                  Component('sched', 'sched-rr', {'assume_runnable': True}),
+                                  Component('signal')]),
+    'acrux': RtosSkeleton('acrux', [ArchitectureComponent('ctxt_switch', 'context-switch'),
+                                    Component('sched', 'sched-rr', {'assume_runnable': False}),
+                                    ArchitectureComponent('irq_event_arch', 'irq-event'),
+                                    Component('irq_event', 'irq-event')]),
+    'rigel': RtosSkeleton('rigel', [ArchitectureComponent('ctxt_switch', 'context-switch'),
+                                    Component('sched', 'sched-rr', {'assume_runnable': False}),
+                                    Component('signal'),
+                                    ArchitectureComponent('irq_event_arch', 'irq-event'),
+                                    Component('irq_event', 'irq-event')]),
+}
+
+
+CORE_CONFIGURATIONS = {
+    'acamar': ['posix', 'armv7m'],
+    'gatria': ['posix', 'armv7m'],
+    'kraz': ['posix', 'armv7m'],
+    'acrux': ['armv7m'],
+    'rigel': ['armv7m'],
+}
+
+
+# client repositories may extend or override the following variables to control which configurations are available
+architectures = CORE_ARCHITECTURES.copy()
+skeletons = CORE_SKELETONS.copy()
+configurations = CORE_CONFIGURATIONS.copy()
 
 
 def main():
     """Application main entry point. Parse arguments, and call specified sub-command."""
+    SUBCOMMAND_TABLE = {
+        'check-pep8': check_pep8,
+        'prj-test': prj_test,
+        'prj-build': prj_build,
+        'build': build,
+        'test-release': release_test,
+        'build-release': build_release,
+        'build-partials': build_partials,
+        'build-manuals': build_manuals,
+        'new-review': new_review,
+        'new-task': new_task,
+        'tasks': tasks,
+        'integrate': integrate,
+        'x-test': x_test,
+    }
+
     # create the top-level parser
     parser = argparse.ArgumentParser(prog='p')
 
@@ -1703,11 +1706,11 @@ def main():
     _parser.add_argument('taskname', metavar='TASKNAME', help='Name of the new task')
     _parser.add_argument('--no-fetch', dest='fetch', action='store_false', default='true', help='Disable fetchign')
 
-    subparsers.add_parser('acamar-gen', help="Generate acamar RTOS")
-    subparsers.add_parser('gatria-gen', help="Generate gatria RTOS")
-    subparsers.add_parser('kraz-gen', help="Generate kraz RTOS")
-    subparsers.add_parser('acrux-gen', help="Generate acrux RTOS")
-    subparsers.add_parser('rigel-gen', help="Generate rigel RTOS")
+    # generate parsers and command table entries for generating RTOS variants
+    for rtos_name, arch_names in configurations.items():
+        SUBCOMMAND_TABLE[rtos_name + '-gen'] = OverrideFunctor(generate_rtos_module, skeletons[rtos_name], [architectures[arch] for arch in arch_names])
+        subparsers.add_parser(rtos_name + '-gen', help="Generate {} RTOS".format(rtos_name))
+
     _parser = subparsers.add_parser('integrate', help='Integrate a completed development task/branch into the main \
 upstream branch.')
     _parser.add_argument('--repo', help='Path of git repository to operate in. \

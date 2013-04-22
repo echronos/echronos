@@ -673,11 +673,8 @@ def prj_build(args):
 
 def build(args):
     # Generate RTOSes
-    acamar_gen([])
-    gatria_gen([])
-    kraz_gen([])
-    acrux_gen([])
-    rigel_gen([])
+    for rtos_name, arch_names in configurations.items():
+        generate_rtos_module(skeletons[rtos_name], [architectures[arch] for arch in arch_names])
 
 
 review_template = """Breakaway Task Review

@@ -233,22 +233,18 @@ def check_pep8(args):
 
 
 class Component:
-    """Represents a 'component', an optional, exchangeable piece of functionality of an RTOS.
+    """Represents an optional, exchangeable piece of functionality of an RTOS.
 
     Components reside in the components/ directory of the core or sub-projects.
     This class transparently finds components in any of the available core or sub-projects.
+    Instances of this class encapsulate the act of parsing a component file and converting it into configuration data
+    used when generating an RtosModule.
 
     """
     _search_paths = None
 
     @staticmethod
     def _get_search_paths():
-        """Find and return the directories that, by convention, are expected to contain component modules.
-
-        As search directories qualify all directories called 'components' in the basedir or its parent directories.
-        The search for such directories upwards in the directory tree from basedir stops at the first parent directory not containing a 'components' directory.
-
-        """
         search_paths = []
 
         current_dir = basedir
@@ -272,13 +268,21 @@ class Component:
 
     @staticmethod
     def get_search_paths():
+        """Find and return the directories that, by convention, are expected to contain component modules.
+
+        As search directories qualify all directories called 'components' in the basedir or its parent directories.
+        The search for such directories upwards in the directory tree from basedir stops at the first parent directory
+        not containing a 'components' directory.
+
+        """
         if Component._search_paths is None:
             Component._search_paths = Component._get_search_paths()
         return Component._search_paths
 
     @staticmethod
     def find(partial_path):
-        """Find the component partial_path in the main or in sub-projects."""
+        """Find the component partial_path in the core repository or client repositories further up in the directory
+        tree."""
         for search_path in Component.get_search_paths():
             component_path = os.path.join(search_path, partial_path)
             if os.path.exists(component_path):
@@ -286,6 +290,25 @@ class Component:
         raise KeyError('Unable to find component "{}"'.format(partial_path))
 
     def __init__(self, name, resource_name=None, configuration={}):
+        """Create a component object.
+
+        Such objects encapsulate the act of parsing a corresponding source file.
+        The parsed data is converted into configuration information used when generating an RtosModule by rendering an
+        RTOS template file.
+
+        'name' is the component name used in the RTOS template file.
+        For example, the properties of the irq event component are referred to as 'irq_event.xyz' in the
+        RTOS template files.
+
+        'resource_name' is the base name of the source file of this component that is parsed to obtain this
+        component's properties.
+        For example, the base name of the irq event component is 'irq-event', which expands to the on-disk
+        file name of irq-event.c.
+
+        'configuration' is a dictionary with configuration information.
+        It is passed to the 'parse_sectioned_file()' function used to parse this component's source file.
+
+        """
         self.name = name
         if resource_name is not None:
             self._resource_name = resource_name
@@ -293,10 +316,19 @@ class Component:
             self._resource_name = name
         self._configuration = configuration
 
-    def refine(self, refinement={}):
-        if isinstance(refinement, dict):
+    def parse(self, parsing_configuration={}):
+        """Retrieve the properties of this component by parsing its corresponding source file.
+
+        'parsing_configuration' is an optional dictionary that is merged with the component's base configuration and
+        passed to the parsing function.
+
+        This function returns a dictionary containing configuration information that can be used to render an RTOS
+        template.
+
+        """
+        if isinstance(parsing_configuration, dict):
             configuration = self._configuration.copy()
-            configuration.update(refinement)
+            configuration.update(parsing_configuration)
         else:
             configuration = self._configuration
 
@@ -314,7 +346,20 @@ class Component:
 
 
 class ArchitectureComponent(Component):
-    def refine(self, arch):
+    """This refinement of the Component class represents an architecture-specific component.
+
+    This class encapsulates the act of finding the architecture-specific source file corresponding to this component.
+    This is opposed to the base Component class which is unaware of architecture-specific file naming conventions.
+
+    """
+    def parse(self, arch):
+        """Retrieve the properties of this component by parsing its architecture-specific source file.
+
+        'arch', an instance of Architecture, identifies the architecture of the source file to parse.
+
+        Otherwise, this function behaves as Component.parse().
+
+        """
         assert isinstance(arch, Architecture)
 
         component = None
@@ -800,6 +845,7 @@ def render(inf, outf, config):
 
 
 class Architecture:
+    """Represents the properties of a target architecture for which an RtosModule can be generated."""
     def __init__(self, name, configuration):
         assert isinstance(name, str)
         assert isinstance(configuration, dict)
@@ -810,10 +856,22 @@ class Architecture:
 class RtosSkeleton:
     """Represents an RTOS variant as defined by a set of components / functionalities.
 
-    Encapsulates the act of deriving an RtosModule for a specific configuration and target architecture.
+    For example, the specific RTOS variant gatria consists exactly of a context-switch and a scheduler component.
+
+    This class encapsulates the act of deriving an RtosModule for a specific configuration and target architecture.
 
     """
     def __init__(self, name, components, configuration={}):
+        """Create an RTOS skeleton based on its core properties.
+
+        'name', a string, is the unique name of the RTOS skeleton.
+
+        'components', a sequence of Component instances, is the set of components that define this RTOS variant.
+
+        'configuration', a dictionary, contains configuration information specific to this RTOS variant.
+        It is used when generating an RtosModule from this skeleton.
+
+        """
         assert isinstance(name, str)
         assert isinstance(components, list)
         assert isinstance(configuration, dict)
@@ -822,22 +880,50 @@ class RtosSkeleton:
         self._configuration = configuration
 
     def get_module_configuration(self, arch):
+        """Retrieve the configuration information necessary to generate an RtosModule from this skeleton.
+
+        The result is a dictionary that is the union of the skeleton's base configuration, the configuration obtained
+        from parsing this skeleton's components, and the architecture-specific configuration contained in the 'arch'
+        parameter.
+
+        """
         assert isinstance(arch, Architecture)
         # adopt architecture-specific configuration information
         configuration = arch.configuration.copy()
         # adopt the configuration information derived from the components of this RTOS variant
-        configuration.update({c.name: c.refine(arch) for c in self._components})
+        configuration.update({c.name: c.parse(arch) for c in self._components})
         # adopt the configuration information intrinsic to this specific RTOS variant
         configuration.update(self._configuration)
 
         return configuration
 
     def create_configured_module(self, arch):
+        """Retrieve module configuration information and create a corresponding RtosModule instance.
+
+        This is only a convenience function.
+
+        """
         return RtosModule(self.name, arch, self.get_module_configuration(arch))
 
 
 class RtosModule:
+    """Represents an instance of an RtosSkeleton (or RTOS variant) with a specific configuration, in particular for a
+    specific target architecture.
+
+    This class encapsulates the act of rendering an RTOS template given an RTOS configuration into a module on disk.
+
+    """
     def __init__(self, name, arch, configuration):
+        """Create an RtosModule instance.
+
+        'name', a string, is the name of the RTOS, i.e., the same as the underlying RtosSkeleton.
+
+        'arch', an instance of Architecture, is the architecture this module is targetted for.
+
+        'configuration', a dictionary, contains the complete information necessary to render the RTOS template.
+        It is typically obtained via RtosSkeleton.get_module_configuration().
+
+        """
         assert isinstance(name, str)
         assert isinstance(arch, Architecture)
         assert isinstance(configuration, dict)
@@ -856,6 +942,7 @@ class RtosModule:
         return module_dir
 
     def generate(self):
+        """Generate the RTOS module to disk, so it is available as a compile and link unit to projects."""
         self._render()
         self._copy_resources()
 
@@ -871,6 +958,7 @@ class RtosModule:
 
 
 def generate_rtos_module(skeleton, architectures):
+    """Generate RTOS modules for several architectures from a given skeleton."""
     for arch in architectures:
         rtos_module = skeleton.create_configured_module(arch)
         rtos_module.generate()

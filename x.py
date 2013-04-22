@@ -375,7 +375,6 @@ class ArchitectureComponent(Component):
         return parse_sectioned_file(component, self._configuration)
 
 
-
 #
 # unittest related functionality. Note: This may be refactored in to a
 # different module in the future.
@@ -432,7 +431,6 @@ class ArchitectureComponent(Component):
 # Selection can be done via exact-match, prefix-match or regular expression
 # matching.
 #
-
 def ispackage(object):
     """Return true if the object is a package."""
     return inspect.ismodule(object) and hasattr(object, '__path__')
@@ -1793,7 +1791,9 @@ def main():
 
     # generate parsers and command table entries for generating RTOS variants
     for rtos_name, arch_names in configurations.items():
-        SUBCOMMAND_TABLE[rtos_name + '-gen'] = OverrideFunctor(generate_rtos_module, skeletons[rtos_name], [architectures[arch] for arch in arch_names])
+        SUBCOMMAND_TABLE[rtos_name + '-gen'] = OverrideFunctor(generate_rtos_module,
+                                                               skeletons[rtos_name],
+                                                               [architectures[arch] for arch in arch_names])
         subparsers.add_parser(rtos_name + '-gen', help="Generate {} RTOS".format(rtos_name))
 
     _parser = subparsers.add_parser('integrate', help='Integrate a completed development task/branch into the main \

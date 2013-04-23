@@ -1067,6 +1067,7 @@ class Release(metaclass=ReleaseMeta):
     name = None
     enabled = False
     license = None
+    top_level_license = None
 
 
 def get_release_configs():
@@ -1092,6 +1093,9 @@ def build_single_release(config):
         for plat in config.platforms:
             arcname = '{}/{}/bin/prj'.format(basename, plat)
             tf.add('prj_build_{}/prj'.format(plat), arcname=arcname, filter=tar_info_filter)
+        if config.top_level_license is not None:
+            print("ADDING LICENS")
+            tf.add(config.top_level_license, arcname=os.path.join(basename, 'LICENSE'), filter=tar_info_filter)
 
 
 def build_release(args):

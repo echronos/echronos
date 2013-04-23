@@ -11,6 +11,7 @@ class Standard(Release):
 Copyright (c) NIPR Pty Ltd 2013.
 UNLICENSED: Not for use outside NICTA or Breakaway Consulting.
 """
+    top_level_license = 'licenses/unlicensed'
 
 
 class StandardDarwin(Standard):
@@ -30,8 +31,8 @@ class ProjectLinux(Standard):
     name = 'smaccm'
     enabled = True
     license = """
-Unpublished copyright (c) 2013 National ICT Australia (NICTA), ABN 62
-102 206 173.  All rights reserved.
+Unpublished copyright (c) 2013 National ICT Australia (NICTA),
+ABN 62 102 206 173.  All rights reserved.
 
 The contents of this document are proprietary to NICTA and you may not
 use, copy, modify, sublicense or distribute the contents in any form
@@ -39,3 +40,4 @@ except as permitted under the terms of a separately executed licence
 agreement with NICTA.
 
 """
+    top_level_license = 'licenses/smaccm'

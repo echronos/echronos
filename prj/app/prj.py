@@ -62,6 +62,21 @@ NOTHING = util.util.Singleton('nothing')
 SIG_NAMES = dict((k, v) for v, k in signal.__dict__.items() if v.startswith('SIG'))
 
 
+def follow_link(l):
+    """Return the underlying file form a symbolic link.
+
+    This will (recursively) follow links until a non-symbolic link is found.
+    No cycle checks are performed by this function.
+
+    """
+    if not os.path.islink(l):
+        return l
+    p = os.readlink(l)
+    if os.path.isabs(p):
+        return p
+    return follow_link(os.path.join(os.path.dirname(l), p))
+
+
 def show_exit(exit_code):
     sig_num = exit_code & 0xff
     exit_status = exit_code >> 8
@@ -1081,6 +1096,8 @@ class Project:
 
         if frozen:
             base_file = sys.executable if frozen else __file__
+            base_file = follow_link(base_file)
+
             base_dir = os.path.normpath(os.path.abspath(os.path.dirname(base_file)))
 
             def find_share(cur):

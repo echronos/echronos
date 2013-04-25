@@ -1011,10 +1011,20 @@ class Project:
     """The Project is a container for other objects in the system."""
 
     def __init__(self, filename):
-        """Parses the project definition file `filename`, and any imported system and module definition files."""
-        self.dom = xml_parse_file(filename)
-        self.project_dir = os.path.dirname(filename)
-        self.search_paths = [self.project_dir]
+        """Parses the project definition file `filename`, and any imported system and module definition files.
+
+        If filename is None, then a default 'empty' project is created.
+
+        """
+        if filename is None:
+            self.dom = xml_parse_string('<project></project>')
+            self.project_dir = os.getcwd()
+            self.search_paths = []
+        else:
+            self.dom = xml_parse_file(filename)
+            self.project_dir = os.path.dirname(filename)
+            self.search_paths = [self.project_dir]
+
         self.entities = {}
 
         # Find all startup-script items.
@@ -1037,7 +1047,7 @@ class Project:
         if output_el:
             path = get_attribute(output_el, 'path')
         else:
-            path = "out"
+            path = 'out'
         if os.path.isabs(path):
             self.output = path
         else:
@@ -1180,6 +1190,8 @@ def main():
     parser = argparse.ArgumentParser(prog='prj')
     parser.add_argument('--project', default='project.prj',
                         help='project file (project.prj)')
+    parser.add_argument('--no-project', action='store_true',
+                        help='force no project file')
 
     subparsers = parser.add_subparsers(title='subcommands', dest='command')
 
@@ -1197,6 +1209,9 @@ def main():
     if args.command is None:
         parser.print_help()
         parser.exit(1, "\nSee 'prj <subcommand> -h' for more information on a specific command\n")
+
+    if args.no_project:
+        args.project = None
 
     # Initialise project
     try:

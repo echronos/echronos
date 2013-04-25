@@ -21,7 +21,7 @@ import argparse
 import functools
 import glob
 import imp
-import logging
+import logging as _logging  # Avoid unintended using of 'logging'
 import pdb
 import pystache
 import re
@@ -101,8 +101,9 @@ real_start_element_handler = xml.dom.expatbuilder.ExpatBuilderNS.start_element_h
 xml.dom.expatbuilder.ExpatBuilderNS.start_element_handler = monkey_start_element_handler
 
 # By default log everything from INFO up.
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger = _logging.getLogger('prj')
+_logging.basicConfig()
+logger.setLevel(_logging.INFO)
 
 # We don't want byte-code written to disk for any of the plug-ins that we load,
 # so disable it here. It would be nicer to do this on a per-plugin basis but
@@ -940,7 +941,7 @@ class System:
             try:
                 module = self.project.find(name)
             except EntityLoadError as e:
-                logging.error(e)
+                logger.error(e)
                 raise EntityLoadError(xml_error_str(m_el, 'Error loading module {}'.format(name)))
 
             if isinstance(module, Module):
@@ -1055,6 +1056,8 @@ class Project:
 
         if len(sp_els) == 0:
             self.search_paths.append(self.project_dir)
+
+        logger.debug("search_paths %s", self.search_paths)
 
         output_el = maybe_single_named_child(self.dom, 'output')
         if output_el:
@@ -1225,14 +1228,14 @@ def call_system_function(project, system_name, function):
     try:
         system = project.find(system_name, allow_paths=True)
     except (EntityLoadError, EntityNotFound):
-        logging.error("Unable to find system [{}].".format(system_name))
+        logger.error("Unable to find system [{}].".format(system_name))
         return 1
 
-    logging.info("Invoking {}.{}".format(system, function))
+    logger.info("Invoking {}.{}".format(system, function))
     try:
         function(system)
     except (SystemParseError, SystemLoadError, SystemConsistencyError, ResourceNotFoundError, EntityNotFound) as e:
-        logging.error(str(e))
+        logger.error(str(e))
         return 1
 
     return 0
@@ -1254,6 +1257,7 @@ def main():
     parser.add_argument('--no-project', action='store_true',
                         help='force no project file')
     parser.add_argument('--search-path', action='append', help='additional search paths')
+    parser.add_argument('--verbose', action='store_true', help='provide verbose output')
 
     subparsers = parser.add_subparsers(title='subcommands', dest='command')
 
@@ -1268,6 +1272,9 @@ def main():
 
     args = parser.parse_args()
 
+    if args.verbose:
+        logger.setLevel(_logging.DEBUG)
+
     if args.command is None:
         parser.print_help()
         parser.exit(1, "\nSee 'prj <subcommand> -h' for more information on a specific command\n")
@@ -1279,13 +1286,13 @@ def main():
     try:
         args.project = Project(args.project, args.search_path)
     except (EntityLoadError, EntityNotFound, ProjectStartupError) as e:
-        logging.error(str(e))
+        logger.error(str(e))
         return 1
     except FileNotFoundError as e:
-        logging.error("Unable to initialise project from file [%s]. Exception: %s" % (args.project, e))
+        logger.error("Unable to initialise project from file [%s]. Exception: %s" % (args.project, e))
         return 1
     except ExpatError as e:
-        logging.error("Parsing %s:%s ExpatError %s" % (e.path, e.lineno, e))
+        logger.error("Parsing %s:%s ExpatError %s" % (e.path, e.lineno, e))
         return 1
 
     return SUBCOMMAND_TABLE[args.command](args)
@@ -1304,11 +1311,11 @@ def _start():
         if developer_mode:
             pdb.post_mortem()
         else:
-            logging.error("An unhandled exception occurred: %s" % e)
+            logger.error("An unhandled exception occurred: %s" % e)
             try:
                 with open("prj.errors", "w") as f:
                     traceback.print_exception(*sys.exc_info(), file=f)
-                logging.error("Please include the 'prj.errors' file when submitting a bug report")
+                logger.error("Please include the 'prj.errors' file when submitting a bug report")
             except:
                 pass
             sys.exit(1)

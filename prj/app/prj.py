@@ -815,7 +815,7 @@ class SourceModule(NamedModule):
         """
         if self.code_gen is None:
             if copy_all_files:
-                path = os.path.join(system.output, 'gen', os.path.basename(self.filename))
+                path = os.path.join(system.output, os.path.basename(self.filename))
                 shutil.copy(self.filename, path)
                 logger.info("Preparing: copy %s -> %s", self.filename, path)
                 system.add_file(path)
@@ -824,14 +824,14 @@ class SourceModule(NamedModule):
 
         elif self.code_gen == 'template':
             # Create implementation file.
-            path = os.path.join(system.output, 'gen', '%s.c' % os.path.basename(self.name))
+            path = os.path.join(system.output, '%s.c' % os.path.basename(self.name))
             logger.info("Preparing: template %s -> %s (%s)", self.filename, path, config)
             pystache_render(self.filename, path, config)
             system.add_file(path)
 
         # Copy any headers across. This should use templating if that is configured.
         for header in self.headers:
-            path = os.path.join(system.output, 'gen', os.path.basename(header.path))
+            path = os.path.join(system.output, os.path.basename(header.path))
             if header.code_gen is None:
                 try:
                     shutil.copy(header.path, path)
@@ -873,6 +873,7 @@ class System:
         self._c_files = []
         self._asm_files = []
         self._linker_script = None
+        self._output = None
         self.__instances = None
 
     @property
@@ -887,11 +888,18 @@ class System:
 
     @property
     def output(self):
-        return os.path.join(self.project.output, self.name)
+        if self._output is None:
+            self._output = os.path.join(self.project.output, self.name)
+
+        return self._output
+
+    @output.setter
+    def output(self, value):
+        self._output = value
 
     @property
     def include_paths(self):
-        return [os.path.join(self.output, 'gen')]
+        return [self.output]
 
     @property
     def c_files(self):
@@ -965,7 +973,7 @@ class System:
                 raise EntityLoadError(xml_error_str(m_el, 'Entity {} has unexpected type {} and cannot be \
                 instantiated'.format(name, type(module))))
 
-        os.makedirs(os.path.join(self.output, 'gen'), exist_ok=True)
+        os.makedirs(self.output, exist_ok=True)
 
         for i in instances:
             i.validate()
@@ -1106,8 +1114,6 @@ class Project:
         else:
             self.output = os.path.join(self.project_dir, path)
 
-        os.makedirs(self.output, exist_ok=True)
-
     def _find_import(self, entity_name):
         """Looks up an entity definition in the search paths by its specified `entity_name`.
 
@@ -1230,7 +1236,7 @@ def generate(args):
     This function returns 0 on success and 1 if an error occurs.
 
     """
-    return call_system_function(args.project, args.system, System.generate, copy_all_files=False)
+    return call_system_function(args, System.generate, extra_args={'copy_all_files': True})
 
 
 def build(args):
@@ -1243,7 +1249,7 @@ def build(args):
     This function returns 0 on success and 1 if an error occurs.
 
     """
-    return call_system_function(args.project, args.system, System.build)
+    return call_system_function(args, System.build)
 
 
 def load(args):
@@ -1256,20 +1262,29 @@ def load(args):
     This function returns 0 on success and 1 if an error occurs.
 
     """
-    return call_system_function(args.project, args.system, System.load)
+    return call_system_function(args, System.load)
 
 
-def call_system_function(project, system_name, function, **kwargs):
+def call_system_function(args, function, extra_args=None):
     """Instantiate a system and call the given member function of the System class on it."""
+    project = args.project
+    system_name = args.system
+
+    if extra_args is None:
+        extra_args = {}
+
     try:
         system = project.find(system_name, allow_paths=True)
     except (EntityLoadError, EntityNotFound):
         logger.error("Unable to find system [{}].".format(system_name))
         return 1
 
+    if args.output:
+        system.output = args.output
+
     logger.info("Invoking {}.{}".format(system, function))
     try:
-        function(system, **kwargs)
+        function(system, **extra_args)
     except (SystemParseError, SystemLoadError, SystemConsistencyError, ResourceNotFoundError, EntityNotFound) as e:
         logger.error(str(e))
         return 1
@@ -1294,6 +1309,7 @@ def main():
                         help='force no project file')
     parser.add_argument('--search-path', action='append', help='additional search paths')
     parser.add_argument('--verbose', action='store_true', help='provide verbose output')
+    parser.add_argument('--output', '-o', help='Output directory')
 
     subparsers = parser.add_subparsers(title='subcommands', dest='command')
 

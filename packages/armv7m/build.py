@@ -13,14 +13,15 @@ def system_build(system):
     c_flags = common_flags + ['-Os']
 
     # Compile all C files.
-    c_obj_files = [os.path.join(system.output, c.replace('.c', '.o')) for c in system.c_files]
+    c_obj_files = [os.path.join(system.output, os.path.basename(c.replace('.c', '.o'))) for c in system.c_files]
+
     for c, o in zip(system.c_files, c_obj_files):
         os.makedirs(os.path.dirname(o), exist_ok=True)
         execute(['arm-none-eabi-gcc', '-ffreestanding', '-c', c, '-o', o, '-Wall', '-Werror'] +
                 c_flags + inc_path_args)
 
     # Assemble all asm files.
-    asm_obj_files = [os.path.join(system.output, s.replace('.s', '.o')) for s in system.asm_files]
+    asm_obj_files = [os.path.join(system.output, os.path.basename(s.replace('.s', '.o'))) for s in system.asm_files]
     for s, o in zip(system.asm_files, asm_obj_files):
         os.makedirs(os.path.dirname(o), exist_ok=True)
         execute(['arm-none-eabi-as', '-o', o, s] + a_flags + inc_path_args)

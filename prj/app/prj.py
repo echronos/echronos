@@ -970,7 +970,6 @@ class System:
         for i in self._instances:
             i.post_prepare()
 
-
     def build(self):
         """Build the system.
 
@@ -1107,7 +1106,6 @@ class Project:
 
         return path
 
-
     def _parse_import(self, entity_name, path):
         """Parse an entity decribed in the specified path.
 
@@ -1157,8 +1155,6 @@ class Project:
 
         return entity_name
 
-
-
     def find(self, entity_name, allow_paths=False):
         """Find an entity (could be a module, system or some other type).
 
@@ -1183,6 +1179,7 @@ class Project:
             self.entities[entity_name] = self._parse_import(entity_name, path)
 
         return self.entities[entity_name]
+
 
 def generate(args):
     """Genereate the source code for the specified system.

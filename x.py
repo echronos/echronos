@@ -1011,6 +1011,23 @@ def tar_info_filter(tarinfo):
     return tarinfo
 
 
+def tar_add_data(tf, arcname, data, ti_filter=None):
+    """Directly add data to a tarfile.
+
+    tf is a tarfile.TarFile object.
+    arcname is the name the data will have in the archive.
+    data is the raw data (which should be of type 'bytes').
+    fi_filter filters the created TarInfo object. (In a similar manner
+    to the tarfile.TarFile.add() method.
+
+    """
+    ti = tarfile.TarInfo(arcname)
+    ti.size = len(data)
+    if ti_filter:
+        ti = ti_filter(ti)
+    tf.addfile(ti, io.BytesIO(data))
+
+
 def tar_gz_with_license(output, tree, prefix, license):
 
     """Create a tar.gz file named `output` from a specified directory tree.
@@ -1104,8 +1121,9 @@ def build_single_release(config):
             arcname = '{}/{}/bin/prj'.format(basename, plat)
             tf.add('prj_build_{}/prj'.format(plat), arcname=arcname, filter=tar_info_filter)
         if config.top_level_license is not None:
-            print("ADDING LICENS")
-            tf.add(config.top_level_license, arcname=os.path.join(basename, 'LICENSE'), filter=tar_info_filter)
+            with open(config.top_level_license, 'rb') as f:
+                license_data = f.read()
+            tar_add_data(tf, '{}/LICENSE'.format(basename), license_data, tar_info_filter)
 
 
 def build_release(args):

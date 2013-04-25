@@ -565,6 +565,10 @@ class EntityLoadError(Exception):
     """Raise when unable to resolve a entity reference."""
 
 
+class EntityNotFound(Exception):
+    """Raised when an entity can not be found."""
+
+
 class ProjectStartupError(Exception):
     """Raised when there is an error initialising the start-script."""
 
@@ -1019,12 +1023,11 @@ class Project:
         if filename is None:
             self.dom = xml_parse_string('<project></project>')
             self.project_dir = os.getcwd()
-            self.search_paths = []
         else:
             self.dom = xml_parse_file(filename)
             self.project_dir = os.path.dirname(filename)
-            self.search_paths = [self.project_dir]
 
+        self.search_paths = []
         self.entities = {}
 
         # Find all startup-script items.
@@ -1041,7 +1044,13 @@ class Project:
         # All search paths are added before attempting any imports
         sp_els = self.dom.getElementsByTagName('search-path')
         for sp_el in sp_els:
-            self.search_paths.append(single_text_child(sp_el))
+            sp = single_text_child(sp_el)
+            if sp.endswith('/'):
+                sp = sp[:-1]
+            self.search_paths.append(sp)
+
+        if len(self.search_paths) == 0:
+            self.search_paths = [self.project_dir]
 
         output_el = maybe_single_named_child(self.dom, 'output')
         if output_el:
@@ -1055,9 +1064,10 @@ class Project:
 
         os.makedirs(self.output, exist_ok=True)
 
-    def _parse_import(self, entity_name):
-        """Looks up an entity definition in the search paths by its specified `entity_name`, parses the definition,
-        and returns the list of entities it defines.
+    def _find_import(self, entity_name):
+        """Looks up an entity definition in the search paths by its specified `entity_name`.
+
+        Returns the path to the entity.
 
         """
         # Search for a given entity name.
@@ -1079,17 +1089,27 @@ class Project:
             if path:
                 break
         else:
-            raise EntityLoadError("Unable to find entity named %s" % entity_name)
+            raise EntityNotFound("Unable to find entity named %s" % entity_name)
 
         if ext == '':
             if not os.path.isdir(path):
-                raise EntityLoadError("Expected path %s to be a directory" % path)
+                raise EntityNotFound("Unable to find entity named %s" % entity_name)
             # Search for an 'entity.<ext>' file.
             file_path, ext = search_inner(os.path.join(path, 'entity'))
             if file_path is None:
-                raise EntityLoadError("Couldn't find entity definition file in %s" % path)
+                raise EntityNotFound("Couldn't find entity definition file in %s" % path)
             path = file_path
 
+        return path
+
+
+    def _parse_import(self, entity_name, path):
+        """Parse an entity decribed in the specified path.
+
+        Return the approriate object as determined by the file extension.
+
+        """
+        ext = os.path.splitext(path)[1]
         if ext == '.prx':
             return System(entity_name, xml_parse_file(path), self)
         elif ext == '.py':
@@ -1107,16 +1127,55 @@ class Project:
         elif ext in ['.c', '.s']:
             return SourceModule(entity_name, path)
         else:
-            raise EntityLoadError("Unhandled extension %s" % ext)
+            raise EntityLoadError("Unhandled extension '{}'".format(ext))
 
-    def find(self, entity_name):
+    def _entity_name_from_path(self, path):
+        """Determine the name of an entity from its path."""
+        # 1. Find which search path the path is in.
+        abs_path = os.path.abspath(path)
+        for sp in self.search_paths:
+            abs_sp = os.path.abspath(sp)
+            if abs_path[:len(abs_sp)] == abs_sp:
+                break
+        else:
+            print("NO SP")
+
+        # Strip the search path
+        entity_name = abs_path[len(abs_sp) + 1:]
+
+        # Strip the extension.
+        entity_name = os.path.splitext(entity_name)[0]
+
+        # Strip 'entity'
+        if entity_name.endswith('/entity'):
+            entity_name = entity_name[:-len('/entity')]
+
+        return entity_name
+
+
+
+    def find(self, entity_name, allow_paths=False):
         """Find an entity (could be a module, system or some other type).
 
         A KeyError will be raised in the case where the entity can't be found.
         """
         if entity_name not in self.entities:
             # Try and find the entity name
-            self.entities[entity_name] = self._parse_import(entity_name)
+            try:
+                path = self._find_import(entity_name)
+            except EntityNotFound:
+                if allow_paths and os.path.exists(entity_name):
+                    path = entity_name
+                    entity_name = self._entity_name_from_path(path)
+                    # Determine the correct entity name
+                else:
+                    raise
+            check = self._entity_name_from_path(path)
+            if check != entity_name:
+                msg = "Internal exception. Invalid entity names '{}' != '{}'".format(check, entity_name)
+                raise Exception(msg)
+            assert check == entity_name
+            self.entities[entity_name] = self._parse_import(entity_name, path)
 
         return self.entities[entity_name]
 
@@ -1162,15 +1221,15 @@ def load(args):
 def call_system_function(project, system_name, function):
     """Instantiate a system and call the given member function of the System class on it."""
     try:
-        system = project.find(system_name)
-    except EntityLoadError:
+        system = project.find(system_name, allow_paths=True)
+    except (EntityLoadError, EntityNotFound):
         logging.error("Unable to find system [{}].".format(system_name))
         return 1
 
     logging.info("Invoking {}.{}".format(system, function))
     try:
         function(system)
-    except (SystemParseError, SystemLoadError, SystemConsistencyError, ResourceNotFoundError) as e:
+    except (SystemParseError, SystemLoadError, SystemConsistencyError, ResourceNotFoundError, EntityNotFound) as e:
         logging.error(str(e))
         return 1
 
@@ -1216,7 +1275,7 @@ def main():
     # Initialise project
     try:
         args.project = Project(args.project)
-    except (EntityLoadError, ProjectStartupError) as e:
+    except (EntityLoadError, EntityNotFound, ProjectStartupError) as e:
         logging.error(str(e))
         return 1
     except FileNotFoundError as e:

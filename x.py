@@ -1416,9 +1416,42 @@ class Git:
             r += '+{:<4}'.format(ahead)
         return r
 
-    def branch_date(self, branch):
-        """Return the date of the latest commit on a given branch as a UNIX timestamp."""
-        return int(self._do(['log', branch, '-1', '--pretty=format:%at']).strip())
+    def _log_pretty(self, pretty_fmt, branch=None):
+        """Return information from the latest commit with a specified `pretty` format.
+
+        The log from a specified branch may be specified.
+        See `git log` man page for possible pretty formats.
+
+        """
+        # Future directions: Rather than just the latest commit, allow the caller
+        # specify the number of commits. This requires additional parsing of the
+        # result to return a list, rather than just a single item.
+        # Additionally, the caller could pass a 'conversion' function which would
+        # convert the string into a a more useful data-type.
+        # As this method may be changed in the future, it is marked as a private
+        # function (for now).
+        cmd = ['log']
+        if branch is not None:
+            cmd.append(branch)
+        cmd.append('-1')
+        cmd.append('--pretty=format:{}'.format(pretty_fmt))
+        return self._do(cmd).strip()
+
+    def branch_date(self, branch=None):
+        """Return the date of the latest commit on a given branch as a UNIX timestamp.
+
+        The branch may be ommitted, in which case it defaults to the current head.
+
+        """
+        return int(self._log_pretty('%at', branch=branch))
+
+    def branch_hash(self, branch=None):
+        """Return the hash of the latest commit on a given branch as a UNIX timestamp.
+
+        The branch may be ommitted, in which case it defaults to the current head.
+
+        """
+        return self._log_pretty('%H', branch=branch)
 
     def working_dir_clean(self):
         """Return True is the working directory is clean."""

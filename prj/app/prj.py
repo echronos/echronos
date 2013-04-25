@@ -1014,10 +1014,12 @@ module\'s functionality cannot be invoked.'.format(self, typ.__name__))
 class Project:
     """The Project is a container for other objects in the system."""
 
-    def __init__(self, filename):
+    def __init__(self, filename, search_paths=None):
         """Parses the project definition file `filename`, and any imported system and module definition files.
 
         If filename is None, then a default 'empty' project is created.
+
+        If search_paths are specified these will be added to any default search paths.
 
         """
         if filename is None:
@@ -1049,8 +1051,11 @@ class Project:
                 sp = sp[:-1]
             self.search_paths.append(sp)
 
-        if len(self.search_paths) == 0:
-            self.search_paths = [self.project_dir]
+        if search_paths is not None:
+            self.search_paths += search_paths
+
+        if len(sp_els) == 0:
+            self.search_paths.append(self.project_dir)
 
         output_el = maybe_single_named_child(self.dom, 'output')
         if output_el:
@@ -1251,6 +1256,7 @@ def main():
                         help='project file (project.prj)')
     parser.add_argument('--no-project', action='store_true',
                         help='force no project file')
+    parser.add_argument('--search-path', action='append', help='additional search paths')
 
     subparsers = parser.add_subparsers(title='subcommands', dest='command')
 
@@ -1274,7 +1280,7 @@ def main():
 
     # Initialise project
     try:
-        args.project = Project(args.project)
+        args.project = Project(args.project, args.search_path)
     except (EntityLoadError, EntityNotFound, ProjectStartupError) as e:
         logging.error(str(e))
         return 1

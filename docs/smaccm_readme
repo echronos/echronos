@@ -6,15 +6,16 @@ Release overview
 
 The RTOS release contains a tool `prj` which is used for configuring
 the RTOS and (optionally) building systems based on the RTOS. The
-`prj` tool can be found in the `x86_64-unknown-linux-gnu/bin` directory.
+`prj` tool can be found in the `x86_64-unknown-linux-gnu/bin`
+directory.
 
 The RTOS itself is organised as a series of packages stored in the
 `share/packages` directory. These are described in the following
 sections.
 
 For completeness, `LICENSE` contains the license under which this
-release is made available and `build_info` contains the specific
-build information used to uniquely identify the release.
+release is made available and `build_info` contains the specific build
+information used to uniquely identify the release.
 
 Installation
 -------------
@@ -24,20 +25,132 @@ suitable location. This can either be within a specific project
 directory, (e.g: `project/rtos`) or in a more general location (e.g:
 ~/local/rtos).
 
-The `prj` binary is used to configure the RTOS, so should installed
-so that it is convenient to use. This can be done by adding
+The `prj` binary is used to configure the RTOS, so should installed so
+that it is convenient to use. This can be done by adding
 `x86_64-unknown-linux-gnu/bin` to the PATH environment variable,
 creating a symbolic link the the `prj` binary, or simply using the
 full path within a build system. E.g.: In `make`:
 
     PRJ := /path/to/rtos/x86_64-unknown-linux-gnu/bin/prj
 
-Although the `prj` binary can be used anywhere on the filesystem,
-the overall structure of the release should be maintained, as this
-is used to determine the location of `packages` directory.
+Although the `prj` binary can be used anywhere on the filesystem, the
+overall structure of the release should be maintained, as this is used
+to determine the location of `packages` directory.
 
-`prj` should work on any modern Linux distribution. It depends on
-zlib (version 1.2.0) and glibc (version 2.14).
+`prj` should work on any modern Linux distribution. It depends on zlib
+(version 1.2.0) and glibc (version 2.14).
 
 Note: Mac OS X support is available, but not provided in this release.
 Please advise if OS X support is desirable.
+
+Usage
+------
+
+The RTOS can be used in two main ways. In the full system mode the
+`prj` tool has full visibility to the source code base, and is used to
+build the full image. In the configuration mode the `prj` tool is only
+used to configure the RTOS (and associated modules) rather than
+building the entire system firmware.
+
+Future versions of the `prj` tools will take advantage of the full
+system mode to provide full system optimisations and checks, such as
+automatically sizing stacks. Ideally projects that just target the
+RTOS will use the full system mode of `prj`.
+
+However, as the current SMACCM project is being designed such that it
+can be built against multiple RTOSes using the `prj` in configuration
+mode is likely to be the best approach at this stage of the project.
+
+The rest of this document assumes that `prj` will be used in
+configuration mode.
+
+Sub-commands
+-------------
+
+The `prj` tool is designed as a set of independent sub-commands.  The
+`gen` sub-command is used to generate source code for a system. The
+`build` sub-command is used to build a system image, and the `load`
+sub-command is used to load a system image on to a target device (or
+simulator).
+
+When using the `prj` tool for configuration mode only the `gen`
+sub-command is relevant.
+
+Global Options
+---------------
+
+There are a number of global command line options available. These
+options should be passed on the command line before the sub-command
+name. E.g:
+
+    prj --global-option sub-command
+
+Not:
+
+    prj sub-command --global-option
+
+The `--project` option specifies a project description file. The
+project description file is used to set project wide configuration
+options such as the output directory and search paths. This option is
+primarily for use in full system mode, and is generally not required
+in configuration mode. In full system mode the project description
+file defaults to `project.prj` (in the current working directory). In
+configuration mode no project description file is used.
+
+The `--no-project` option explicitly disables the use of a project
+file. This is generally only useful in full system mode where a
+default project file is used.
+
+The `--search-path` option allows additional package search paths to
+be specified on the command line. This is generally not needed when
+using configuration mode.
+
+The `--verbose` option enables additional output which may be useful
+when debugging.
+
+The `--output` specifies the output directory. This option is
+generally desirable when using `prj` from within another build system.
+
+The default is `$project_output_dir/$system_name`, where
+`project_output_dir` is the project's output directory and
+`system_name` is the name of the system being built (or
+generated). When no `project` is specified the `project_output_dir`
+will be `$pwd/out` (where `pwd` is the current working directory).
+
+`gen` sub-command options
+--------------------------
+
+The `gen` sub-command takes a single mandatory parameter, which is the
+name of the system to build. The system be either be a fully-qualified
+module name, or the direct path to a system description file (`.prx`
+file).
+
+When using the tool in configuration mode the path to a system
+description file is generally used.
+
+The system description file specifies the system in a declaration
+manner.  In configuration mode, the description file is only
+describing the configuration of the RTOS (and associated modules),
+rather than the full-system.
+
+The format of the system description file is described in following
+sections.
+
+An example usage of the `gen` sub-command is:
+
+    $ prj gen --output rtos rtos.prx
+
+This command will configure the RTOS based on the `rtos.prx` system
+description file, and generate the output files (including C and
+assembler source files, header files and linker scripts) into the
+`rtos` directory.
+
+System Description File
+------------------------
+
+The system description file is used to specify the system or in the
+case of the configuration only mode configure the RTOS related modules
+of the system.
+
+Currently the system description is specified in XML, however additional
+formats are being considered and feedback is welcomed.

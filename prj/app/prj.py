@@ -1136,12 +1136,12 @@ class Project:
         for sp in self.search_paths:
             abs_sp = os.path.abspath(sp)
             if abs_path[:len(abs_sp)] == abs_sp:
+                # Strip the search path
+                entity_name = abs_path[len(abs_sp) + 1:]
                 break
         else:
+            entity_name = 'ABS' + abs_path
             print("NO SP")
-
-        # Strip the search path
-        entity_name = abs_path[len(abs_sp) + 1:]
 
         # Strip the extension.
         entity_name = os.path.splitext(entity_name)[0]

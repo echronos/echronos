@@ -1,0 +1,43 @@
+SMACCM RTOS Release v0.0.1
+==========================
+
+Release overview
+-----------------
+
+The RTOS release contains a tool `prj` which is used for configuring
+the RTOS and (optionally) building systems based on the RTOS. The
+`prj` tool can be found in the `x86_64-unknown-linux-gnu/bin` directory.
+
+The RTOS itself is organised as a series of packages stored in the
+`share/packages` directory. These are described in the following
+sections.
+
+For completeness, `LICENSE` contains the license under which this
+release is made available and `build_info` contains the specific
+build information used to uniquely identify the release.
+
+Installation
+-------------
+
+To install the RTOS simply extract the release archive in to a
+suitable location. This can either be within a specific project
+directory, (e.g: `project/rtos`) or in a more general location (e.g:
+~/local/rtos).
+
+The `prj` binary is used to configure the RTOS, so should installed
+so that it is convenient to use. This can be done by adding
+`x86_64-unknown-linux-gnu/bin` to the PATH environment variable,
+creating a symbolic link the the `prj` binary, or simply using the
+full path within a build system. E.g.: In `make`:
+
+    PRJ := /path/to/rtos/x86_64-unknown-linux-gnu/bin/prj
+
+Although the `prj` binary can be used anywhere on the filesystem,
+the overall structure of the release should be maintained, as this
+is used to determine the location of `packages` directory.
+
+`prj` should work on any modern Linux distribution. It depends on
+zlib (version 1.2.0) and glibc (version 2.14).
+
+Note: Mac OS X support is available, but not provided in this release.
+Please advise if OS X support is desirable.

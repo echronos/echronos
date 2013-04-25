@@ -112,6 +112,7 @@ import time
 import unittest
 import zipfile
 from contextlib import contextmanager
+from glob import glob
 from random import choice
 
 # Set up a specific logger with our desired output level
@@ -1150,14 +1151,15 @@ def build_release(args):
             logging.warning("Unable to build '{}'. File note found: '{}'".format(config, e.filename))
 
 
-def release_test(args):
-    """Implement the test-release command.
+def release_test_one(archive):
+    """Test a single archive
 
-    This command is used to perform sanity checks and testing of the full release.
+    This is primarily a sanity check of the actual release file. Release
+    files are only made after other testing has been successfully performed.
+
     Currently it simply does some sanitfy checking on the tar file to ensure it is consistent.
 
     In the future additional testing will be performed.
-    Additionally, supporting multiple different releases will be necessary in the future.
 
     """
     project_prj_template = """<?xml version="1.0" encoding="UTF-8" ?>
@@ -1166,7 +1168,7 @@ def release_test(args):
 </project>
 """
 
-    rel_file = os.path.abspath('release/brtos.tar.gz')
+    rel_file = os.path.abspath(archive)
     with tarfile.open(rel_file, 'r:gz') as tf:
         for m in tf.getmembers():
             if m.gid != 1000:
@@ -1197,6 +1199,16 @@ def release_test(args):
                 x = os.system("./{}/bin/prj build {}".format(platform, pkg))
                 if x != 0:
                     raise Exception("Build failed.")
+
+
+def release_test(args):
+    """Implement the test-release command.
+
+    This command is used to perform sanity checks and testing of the full release.
+
+    """
+    for rel in glob(os.path.join(BASE_DIR, 'release', '*.tar.gz')):
+        release_test_one(rel)
 
 
 class Git:

@@ -1121,9 +1121,9 @@ def build_single_release(config):
             arcname = '{}/{}/bin/prj'.format(basename, plat)
             tf.add('prj_build_{}/prj'.format(plat), arcname=arcname, filter=tar_info_filter)
         if config.top_level_license is not None:
-            with open(config.top_level_license, 'rb') as f:
-                license_data = f.read()
-            tar_add_data(tf, '{}/LICENSE'.format(basename), license_data, tar_info_filter)
+            tar_add_data(tf, '{}/LICENSE'.format(basename),
+                         config.top_level_license.encode('utf8'),
+                         tar_info_filter)
 
 
 def build_release(args):

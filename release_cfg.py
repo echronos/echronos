@@ -11,7 +11,9 @@ class Standard(Release):
 Copyright (c) NIPR Pty Ltd 2013.
 UNLICENSED: Not for use outside NICTA or Breakaway Consulting.
 """
-    top_level_license = 'licenses/unlicensed'
+    top_level_license = """Unpublished copyright (c) 2013 National ICT Australia (NICTA).
+ABN 62 102 206 173.  All rights reserved.
+"""
 
 
 class StandardDarwin(Standard):
@@ -40,4 +42,18 @@ except as permitted under the terms of a separately executed licence
 agreement with NICTA.
 
 """
-    top_level_license = 'licenses/smaccm'
+    top_level_license = """The contents of this package are proprietary to NICTA and you may not
+use, copy, modify, sublicense or distribute the contents in any form
+except as permitted under the terms of a separately executed license
+agreement with NICTA, such as (if applicable to you) one of the
+following:
+
+1. SMACCM Project License Agreement (Technical Area 4), by and between
+NICTA and Rockwell Collins.
+
+2. SMACCM Project Licence Agreement (Technical Area 4), by and between
+NICTA and Regents of the Univeristy of Minnesota.
+
+3. SMACCM Project Licence Agreement (Technical Area 3), by and between
+NICTA and Galois, Inc.
+"""

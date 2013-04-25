@@ -643,8 +643,8 @@ class ModuleInstance:
             raise AttributeError("ModuleInstance '{}' has no attribute '{}'".format(self, name))
 
         @functools.wraps(func)
-        def _wrap():
-            return func(self._system, self._config)
+        def _wrap(*args, **kwargs):
+            return func(self._system, self._config, *args, **kwargs)
 
         return _wrap
 
@@ -689,7 +689,7 @@ class Module:
         """
         pass
 
-    def prepare(self, system, config):
+    def prepare(self, system, config, **kwargs):
         """Prepare the `system` for building based on a specific module `config`.
 
         This method should be implemented in a sub-class. It should update the system object
@@ -803,7 +803,7 @@ class SourceModule(NamedModule):
         schema = maybe_single_named_child(dom, 'schema')
         self.schema = xml2schema(schema) if schema else None
 
-    def prepare(self, system, config):
+    def prepare(self, system, config, *, copy_all_files=False):
         """prepare the `system` for building based on the specific config.
 
         This includes copying any header files to the correct locations, and running any templating.
@@ -814,12 +814,18 @@ class SourceModule(NamedModule):
 
         """
         if self.code_gen is None:
-            system.add_file(self.filename)
+            if copy_all_files:
+                path = os.path.join(system.output, 'gen', os.path.basename(self.filename))
+                shutil.copy(self.filename, path)
+                logger.info("Preparing: copy %s -> %s", self.filename, path)
+                system.add_file(path)
+            else:
+                system.add_file(self.filename)
 
         elif self.code_gen == 'template':
             # Create implementation file.
-            path = os.path.join(system.output, 'gen', '%s.c' % self.name)
-            logger.info("Preparing: template %s -> %s (%s)" % (self.filename, path, config))
+            path = os.path.join(system.output, 'gen', '%s.c' % os.path.basename(self.name))
+            logger.info("Preparing: template %s -> %s (%s)", self.filename, path, config)
             pystache_render(self.filename, path, config)
             system.add_file(path)
 
@@ -833,7 +839,7 @@ class SourceModule(NamedModule):
                     s = xml_error_str(header.xml_element, "Resource not found: {}".format(header.path))
                     raise ResourceNotFoundError(s)
             elif header.code_gen == 'template':
-                logger.info("Preparing: template %s -> %s (%s)" % (header.path, path, config))
+                logger.info("Preparing: template %s -> %s (%s)", header.path, path, config)
                 pystache_render(header.path, path, config)
 
 
@@ -966,7 +972,7 @@ class System:
 
         return instances
 
-    def generate(self):
+    def generate(self, *, copy_all_files):
         """Generate the source for the system.
 
         Raise an appropriate exception if there is an error.
@@ -974,7 +980,7 @@ class System:
 
         """
         for i in self._instances:
-            i.prepare()
+            i.prepare(copy_all_files=copy_all_files)
 
         for i in self._instances:
             i.post_prepare()
@@ -986,7 +992,7 @@ class System:
         No return value from this method.
 
         """
-        self.generate()
+        self.generate(copy_all_files=False)
         self._run_action(Builder)
 
     def load(self):
@@ -1068,6 +1074,7 @@ class Project:
         if frozen:
             base_file = sys.executable if frozen else __file__
             base_dir = os.path.normpath(os.path.abspath(os.path.dirname(base_file)))
+
             def find_share(cur):
                 maybe_share_path = os.path.join(cur, 'share')
                 if os.path.exists(maybe_share_path):
@@ -1223,7 +1230,7 @@ def generate(args):
     This function returns 0 on success and 1 if an error occurs.
 
     """
-    return call_system_function(args.project, args.system, System.generate)
+    return call_system_function(args.project, args.system, System.generate, copy_all_files=False)
 
 
 def build(args):
@@ -1252,7 +1259,7 @@ def load(args):
     return call_system_function(args.project, args.system, System.load)
 
 
-def call_system_function(project, system_name, function):
+def call_system_function(project, system_name, function, **kwargs):
     """Instantiate a system and call the given member function of the System class on it."""
     try:
         system = project.find(system_name, allow_paths=True)
@@ -1262,7 +1269,7 @@ def call_system_function(project, system_name, function):
 
     logger.info("Invoking {}.{}".format(system, function))
     try:
-        function(system)
+        function(system, **kwargs)
     except (SystemParseError, SystemLoadError, SystemConsistencyError, ResourceNotFoundError, EntityNotFound) as e:
         logger.error(str(e))
         return 1

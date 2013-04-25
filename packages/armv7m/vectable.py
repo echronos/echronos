@@ -38,7 +38,7 @@ class EntryModule(Module):
 
         return config
 
-    def prepare(self, system, config):
+    def prepare(self, system, config, **kwargs):
         # Copy associated header
         header = os.path.join(__path__, 'bitband.h')
         path = os.path.join(system.output, 'gen', os.path.basename('bitband.h'))

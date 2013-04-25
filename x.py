@@ -55,8 +55,23 @@ import sys
 import os
 
 
+def follow_link(l):
+    """Return the underlying file form a symbolic link.
+
+    This will (recursively) follow links until a non-symbolic link is found.
+    No cycle checks are performed by this function.
+
+    """
+    if not os.path.islink(l):
+        return l
+    p = os.readlink(l)
+    if os.path.isabs(p):
+        return p
+    return follow_link(os.path.join(os.path.dirname(l), p))
+
+
 externals = ['pep8', 'nose', 'ice']
-BASE_DIR = os.path.normpath(os.path.dirname(__file__))
+BASE_DIR = os.path.normpath(os.path.dirname(follow_link(__file__)))
 sys.path = [os.path.join(BASE_DIR, 'external_tools', e) for e in externals] + sys.path
 sys.path.insert(0, os.path.join(BASE_DIR, 'prj/app/pystache'))
 if __name__ == '__main__':
@@ -169,11 +184,6 @@ def walk(path, flt=None):
         file_list.extend([os.path.join(root, f) for f in files if not flt(os.path.join(root, f))])
     return file_list
 
-# basedir is a (potentially-relative) path to the location of the
-# directory in which the current script is located. i.e: basedir
-# refers to the top-level directory of the project.
-basedir = os.path.dirname(__file__)
-
 
 def base_file(*path):
     """Join one or more pathname components to the directory in which the
@@ -194,7 +204,7 @@ def base_file(*path):
     The path returned by `base_file` will allow access to the file
     assuming that the current working directory has not been changed.
     """
-    return os.path.join(basedir, *path)
+    return os.path.join(BASE_DIR, *path)
 
 
 def un_base_file(path):
@@ -202,10 +212,10 @@ def un_base_file(path):
 
     For all `x`, `un_base_file(base_file(x)) == x`.
     """
-    if basedir == '':
+    if BASE_DIR == '':
         return path
     else:
-        return path[len(basedir) + 1:]
+        return path[len(BASE_DIR) + 1:]
 
 
 def check_pep8(args):
@@ -464,7 +474,7 @@ def run_module_tests(modules, directories, patterns=[], verbosity=0, print_only=
     If the boolean 'print_only' is True, the discovered tests are printed on the console but not executed.
 
     """
-    paths = [os.path.abspath(os.path.join(os.path.dirname(__file__), dir)) for dir in directories]
+    paths = [os.path.abspath(os.path.join(BASE_DIR, dir)) for dir in directories]
     import sys
     for path in paths:
         sys.path.insert(0, path)

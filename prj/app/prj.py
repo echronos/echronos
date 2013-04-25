@@ -953,10 +953,10 @@ class System:
 
         return instances
 
-    def build(self):
-        """Build the system.
+    def generate(self):
+        """Generate the source for the system.
 
-        Raises an appropriates exception if there is a build error.
+        Raise an appropriate exception if there is an error.
         No return value from this method.
 
         """
@@ -966,6 +966,15 @@ class System:
         for i in self._instances:
             i.post_prepare()
 
+
+    def build(self):
+        """Build the system.
+
+        Raises an appropriates exception if there is a build error.
+        No return value from this method.
+
+        """
+        self.generate()
         self._run_action(Builder)
 
     def load(self):
@@ -1101,6 +1110,18 @@ class Project:
 
         return self.entities[entity_name]
 
+def generate(args):
+    """Genereate the source code for the specified system.
+
+    `args` is expected to provide the following attributes:
+    - `project`: an instance of Project.
+    - `system`: the name of the system entity to instantiate and generate source.
+
+    This function returns 0 on success and 1 if an error occurs.
+
+    """
+    return call_system_function(args.project, args.system, System.generate)
+
 
 def build(args):
     """Build the system specified on the command line from its source modules into a binary.
@@ -1147,6 +1168,7 @@ def call_system_function(project, system_name, function):
 
 
 SUBCOMMAND_TABLE = {
+    'gen': generate,
     'build': build,
     'load': load,
 }
@@ -1160,6 +1182,9 @@ def main():
                         help='project file (project.prj)')
 
     subparsers = parser.add_subparsers(title='subcommands', dest='command')
+
+    build_parser = subparsers.add_parser('gen', help='Generate source code for a system')
+    build_parser.add_argument('system', help='system to generate source for')
 
     build_parser = subparsers.add_parser('build', help='Build a system and create a system image')
     build_parser.add_argument('system', help='system to build')

@@ -25,11 +25,11 @@ suitable location. This can either be within a specific project
 directory, (e.g: `project/rtos`) or in a more general location (e.g:
 ~/local/rtos).
 
-The `prj` binary is used to configure the RTOS, so should installed so
-that it is convenient to use. This can be done by adding
-`x86_64-unknown-linux-gnu/bin` to the PATH environment variable,
-creating a symbolic link the the `prj` binary, or simply using the
-full path within a build system. E.g.: In `make`:
+The `prj` binary is used to configure the RTOS, so should be installed
+somewhere such that it is convenient to use. This can be done by adding
+`x86_64-unknown-linux-gnu/bin` to the PATH environment variable, creating
+a symbolic link the the `prj` binary, or simply using the full path within
+a build system. E.g.: In `make`:
 
     PRJ := /path/to/rtos/x86_64-unknown-linux-gnu/bin/prj
 

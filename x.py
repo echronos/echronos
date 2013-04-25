@@ -1822,6 +1822,12 @@ def integrate(command_line_options):
     task.integrate(command_line_options.target, command_line_options.archive)
 
 
+def pre_commit(command_line_options):
+    r = check_pep8([])
+    if r != 0:
+        return r
+
+
 SUBCOMMAND_TABLE = {
     'check-pep8': check_pep8,
     'prj-test': prj_test,
@@ -1841,13 +1847,14 @@ SUBCOMMAND_TABLE = {
     'tasks': tasks,
     'integrate': integrate,
     'x-test': x_test,
+    'pre-commit': pre_commit,
 }
 
 
-def main():
+def main(raw_args):
     """Application main entry point. Parse arguments, and call specified sub-command."""
     # create the top-level parser
-    parser = argparse.ArgumentParser(prog='p')
+    parser = argparse.ArgumentParser(prog='x.py')
 
     subparsers = parser.add_subparsers(title='subcommands', dest='command')
 
@@ -1898,7 +1905,9 @@ Defaults to "development".', default='development')
     _parser.add_argument('--archive', help='Prefix to add to task branch name when archiving it. \
 Defaults to "archive".', default='archive')
 
-    args = parser.parse_args()
+    subparsers.add_parser('pre-commit', help="Run pre-commit script")
+
+    args = parser.parse_args(raw_args)
 
     # Default to building
     if args.command is None:
@@ -1908,4 +1917,11 @@ Defaults to "archive".', default='archive')
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    script_name = os.path.basename(sys.argv[0])
+
+    # Handle cases where called as a git hook.
+    if script_name in ['pre-commit']:
+        args = [script_name] + sys.argv[1:]
+    else:
+        args = sys.argv[1:]
+    sys.exit(main(args))

@@ -14,6 +14,20 @@ if __name__ == "__main__":
         for pth in ['pystache', 'ply', 'lib']:
             sys.path.insert(0, os.path.join(os.path.dirname(__file__), pth))
 
+# Logging is set up first since this is critical to the rest of the application
+# working correctly. It is possible that other modules will perform logging during
+# import, so make sure this is very early.
+import logging as _logging  # Avoid unintended using of 'logging'
+# By default log everything from INFO up.
+logger = _logging.getLogger('prj')
+logger.setLevel(_logging.INFO)
+_logging.basicConfig()
+
+
+# Ensure that basicConfig is only called once.
+def error_fn(*args, **kwargs):
+    raise Exception("basicConfig called multiple times.")
+_logging.basicConfig = error_fn
 
 import xml.dom.minidom
 from xml.parsers.expat import ExpatError
@@ -21,7 +35,6 @@ import argparse
 import functools
 import glob
 import imp
-import logging as _logging  # Avoid unintended using of 'logging'
 import pdb
 import pystache
 import re
@@ -99,11 +112,6 @@ def monkey_start_element_handler(self, name, attributes):
     node._col = self.getParser().CurrentColumnNumber
 real_start_element_handler = xml.dom.expatbuilder.ExpatBuilderNS.start_element_handler
 xml.dom.expatbuilder.ExpatBuilderNS.start_element_handler = monkey_start_element_handler
-
-# By default log everything from INFO up.
-logger = _logging.getLogger('prj')
-_logging.basicConfig()
-logger.setLevel(_logging.INFO)
 
 # We don't want byte-code written to disk for any of the plug-ins that we load,
 # so disable it here. It would be nicer to do this on a per-plugin basis but

@@ -1327,7 +1327,7 @@ def main():
     """Application main entry point. Parse arguments, and call specified sub-command."""
     # create the top-level parser
     parser = argparse.ArgumentParser(prog='prj')
-    parser.add_argument('--project', default='project.prj',
+    parser.add_argument('--project', default=None,
                         help='project file (project.prj)')
     parser.add_argument('--no-project', action='store_true',
                         help='force no project file')
@@ -1354,6 +1354,9 @@ def main():
     if args.command is None:
         parser.print_help()
         parser.exit(1, "\nSee 'prj <subcommand> -h' for more information on a specific command\n")
+
+    if args.command in ['build', 'load'] and args.project is None:
+        args.project = 'project.prj'
 
     if args.no_project:
         args.project = None

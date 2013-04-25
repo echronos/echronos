@@ -1125,10 +1125,14 @@ def build_single_release(config):
             tar_add_data(tf, '{}/LICENSE'.format(basename),
                          config.top_level_license.encode('utf8'),
                          tar_info_filter)
-        g = Git()
-        build_info = g.branch_hash()
-        if not g.working_dir_clean():
-            build_info += "-unclean"
+
+        if 'TEAMCITY_VERSION' in os.environ:
+            build_info = os.environ['BUILD_VCS_NUMBER']
+        else:
+            g = Git()
+            build_info = g.branch_hash()
+            if not g.working_dir_clean():
+                build_info += "-unclean"
         build_info += '\n'
         tar_add_data(tf, '{}/build_info'.format(basename), build_info.encode('utf8'), tar_info_filter)
 

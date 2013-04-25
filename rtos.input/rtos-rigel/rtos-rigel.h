@@ -8,7 +8,6 @@ typedef uint{{irqeventid_size}}_t IrqEventId;
 
 void {{prefix}}start(void);
 
-void {{prefix}}yield_to(TaskId);
 void {{prefix}}yield(void);
 
 void {{prefix}}irq_event_raise(IrqEventId);

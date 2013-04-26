@@ -176,7 +176,7 @@ it depends.
 
 Each `module` element must have a `name` attribute, which names
 the module. The RTOS comes with a number of built-in modules.
-Custom modules may be created, however this is generally on
+Custom modules may be created, however this is generally only
 needed when using `prj` in full system mode.
 
 Modules may be of varying complexity. At the simplest a module
@@ -363,11 +363,11 @@ the following configuration elements:
 #### `idx`
 
 The IRQ event's identifier. Note: This may be automatically assigned in
-future version. Task identifiers must be unique within the system.
+future version. IRQ event identifiers must be unique within the system.
 
 #### `name`
 
-The name of the IRQ event. This should be a valid C identifier. Task names
+The name of the IRQ event. This should be a valid C identifier. IRQ event names
 must be unique within the system.
 
 #### `task`

@@ -1971,7 +1971,7 @@ skeletons = CORE_SKELETONS.copy()
 configurations = CORE_CONFIGURATIONS.copy()
 
 
-def main():
+def main(top_dir=os.path.dirname(__file__)):
     """Application main entry point. Parse arguments, and call specified sub-command."""
     SUBCOMMAND_TABLE = {
         'check-pep8': check_pep8,

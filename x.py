@@ -242,7 +242,7 @@ def check_pep8(args):
     """
     excludes = ['external_tools', 'pystache', 'tools', 'ply']
     exclude_patterns = ','.join(excludes)
-    options = ['--exclude=' + exclude_patterns, '--max-line-length', '118', base_path('.')]
+    options = ['--exclude=' + exclude_patterns, '--max-line-length', '118', top_path('.')]
 
     logging.info('pep8 check: ' + ' '.join(options))
 

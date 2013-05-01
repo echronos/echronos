@@ -195,32 +195,32 @@ def walk(path, flt=None):
     return file_list
 
 
-def base_file(*path):
+def base_path(*path):
     """Join one or more pathname components to the directory in which the
     script resides.
 
     The goal of this script is to easily allow pathnames that are relative
     to the directory in which the script resides.
 
-    If the script is run as `./x.py` `base_file('foo')` will return
+    If the script is run as `./x.py` `base_path('foo')` will return
     ./foo.
 
     If the script is run by an absolute path (e.g.: `/path/to/x.py`)
-    `base_file('foo')` will return `/path/to/foo`.
+    `base_path('foo')` will return `/path/to/foo`.
 
     If user is in the `./bar` directory and runs the script as
-    `../x.py`, `base_file('foo')` will return `../bar`.
+    `../x.py`, `base_path('foo')` will return `../bar`.
 
-    The path returned by `base_file` will allow access to the file
+    The path returned by `base_path` will allow access to the file
     assuming that the current working directory has not been changed.
     """
     return os.path.join(BASE_DIR, *path)
 
 
-def top_file(*path):
+def top_path(*path):
     """Return a path relative to the directory in which the x tool or wrapper was invoked.
 
-    This function is equivalent to base_file(), except when the x tool is invoked in a client repository through a
+    This function is equivalent to base_path(), except when the x tool is invoked in a client repository through a
     wrapper.
     In that case, the specified path is not appended to the directory containing the core x.py file, but the directory
     containing the wrapper x.py file invoked by the user.
@@ -229,10 +229,10 @@ def top_file(*path):
     return os.path.join(topdir, *path)
 
 
-def un_base_file(path):
-    """Reverse the operation performed by `base_file`.
+def un_base_path(path):
+    """Reverse the operation performed by `base_path`.
 
-    For all `x`, `un_base_file(base_file(x)) == x`.
+    For all `x`, `un_base_path(base_path(x)) == x`.
     """
     if BASE_DIR == '':
         return path
@@ -255,7 +255,7 @@ def check_pep8(args):
     """
     excludes = ['external_tools', 'pystache', 'tools', 'ply']
     exclude_patterns = ','.join(excludes)
-    options = ['--exclude=' + exclude_patterns, '--max-line-length', '118', base_file('.')]
+    options = ['--exclude=' + exclude_patterns, '--max-line-length', '118', base_path('.')]
 
     logging.info('pep8 check: ' + ' '.join(options))
 
@@ -742,7 +742,7 @@ def new_review(args):
         return 1
 
     branch = subprocess.check_output(['git', 'symbolic-ref', 'HEAD'], cwd=topdir).decode().strip().split('/')[-1]
-    review_dir = top_file(os.path.join('pm', 'reviews', branch))
+    review_dir = top_path(os.path.join('pm', 'reviews', branch))
 
     sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=topdir).decode().strip()
 
@@ -794,7 +794,7 @@ def new_task(args):
     """Create a new task."""
     remote = 'origin'
     branch_from = remote + '/development'
-    tasks_dir = top_file('pm', 'tasks')
+    tasks_dir = top_path('pm', 'tasks')
 
     git = Git(local_repository=topdir)
     if not git.working_dir_clean():
@@ -964,7 +964,7 @@ class RtosModule:
 
     @property
     def _module_dir(self):
-        module_dir = base_file('packages', self._arch.name, self._module_name)
+        module_dir = base_path('packages', self._arch.name, self._module_name)
         os.makedirs(module_dir, exist_ok=True)
         return module_dir
 
@@ -974,13 +974,13 @@ class RtosModule:
         self._copy_resources()
 
     def _render(self):
-        render(base_file('rtos.input', self._module_name, 'template.c'),
+        render(base_path('rtos.input', self._module_name, 'template.c'),
                os.path.join(self._module_dir, 'entity.c'),
                self._configuration)
 
     def _copy_resources(self):
         for f in [self._module_name + '.h']:
-            shutil.copy(base_file('rtos.input', self._module_name, f),
+            shutil.copy(base_path('rtos.input', self._module_name, f),
                         os.path.join(self._module_dir, f))
 
 

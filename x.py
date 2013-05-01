@@ -123,6 +123,15 @@ logger.setLevel(logging.INFO)
 BASE_TIME = calendar.timegm((2013, 1, 1, 0, 0, 0, 0, 0, 0))
 
 
+# topdir is the rtos repository directory in which the user invoked the x tool.
+# If the x tool is invoked from a client repository through a wrapper, topdir contains the directory of that client
+# repository.
+# If the user directly invokes x tool of the RTOS core, topdir is the directory of this file.
+# topdir defaults to the core directory.
+# It may be modified by an appropriate invocation of main().
+topdir = None
+
+
 def gen_tag():
     tag_length = 6
     tag_chars = string.ascii_letters + string.digits
@@ -1973,6 +1982,9 @@ configurations = CORE_CONFIGURATIONS.copy()
 
 def main(top_dir=os.path.dirname(__file__)):
     """Application main entry point. Parse arguments, and call specified sub-command."""
+    global topdir
+    topdir = top_dir if top_dir else '.'
+
     SUBCOMMAND_TABLE = {
         'check-pep8': check_pep8,
         'prj-test': prj_test,

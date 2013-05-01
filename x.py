@@ -794,7 +794,7 @@ def new_task(args):
     """Create a new task."""
     remote = 'origin'
     branch_from = remote + '/development'
-    tasks_dir = os.path.join(topdir, 'pm', 'tasks')
+    tasks_dir = top_file('pm', 'tasks')
 
     git = Git(local_repository=topdir)
     if not git.working_dir_clean():

@@ -111,7 +111,7 @@ BASE_TIME = calendar.timegm((2013, 1, 1, 0, 0, 0, 0, 0, 0))
 # If the user directly invokes x tool of the RTOS core, topdir is the directory of this file.
 # topdir defaults to the core directory.
 # It may be modified by an appropriate invocation of main().
-topdir = None
+topdir = os.path.dirname(__file__)
 
 
 def gen_tag():
@@ -771,9 +771,9 @@ def new_task(args):
     """Create a new task."""
     remote = 'origin'
     branch_from = remote + '/development'
-    tasks_dir = 'pm/tasks'
+    tasks_dir = os.path.join(topdir, 'pm', 'tasks')
 
-    git = Git(local_repository=BASE_DIR)
+    git = Git(local_repository=topdir)
     if not git.working_dir_clean():
         print("Working directory must be clean before creating a new task.")
         return 1

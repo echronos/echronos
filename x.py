@@ -217,6 +217,18 @@ def base_file(*path):
     return os.path.join(BASE_DIR, *path)
 
 
+def top_file(*path):
+    """Return a path relative to the directory in which the x tool or wrapper was invoked.
+
+    This function is equivalent to base_file(), except when the x tool is invoked in a client repository through a
+    wrapper.
+    In that case, the specified path is not appended to the directory containing the core x.py file, but the directory
+    containing the wrapper x.py file invoked by the user.
+
+    """
+    return os.path.join(topdir, *path)
+
+
 def un_base_file(path):
     """Reverse the operation performed by `base_file`.
 
@@ -722,20 +734,17 @@ Comment:
 
 
 def new_review(args):
-    """Create a new review for the current branch.
-
-    Currently creates the review files, but does not create a commit.
-    """
+    """Create a new review for the current branch."""
     # Check the directory is clean
-    status = subprocess.check_output(['git', 'status', '--porcelain'])
+    status = subprocess.check_output(['git', 'status', '--porcelain'], cwd=topdir)
     if status != b'':
         print("Can't commit while directory is dirty. Aborting.")
         return 1
 
-    branch = subprocess.check_output(['git', 'symbolic-ref', 'HEAD']).decode().strip().split('/')[-1]
-    review_dir = base_file(os.path.join('pm', 'reviews', branch))
+    branch = subprocess.check_output(['git', 'symbolic-ref', 'HEAD'], cwd=topdir).decode().strip().split('/')[-1]
+    review_dir = top_file(os.path.join('pm', 'reviews', branch))
 
-    sha = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode().strip()
+    sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=topdir).decode().strip()
 
     if os.path.exists(review_dir):
         review_number = sorted([int(re.match(r'review-([0-9]+)..*', f).group(1))
@@ -764,7 +773,7 @@ def new_review(args):
             params['reviewer'] = reviewer
             f.write(review_template % params)
 
-    git = Git(local_repository=BASE_DIR)
+    git = Git(local_repository=topdir)
     # now, git add, git commit -m <msg> and git push.
     msg = 'Review request {} for {}'.format(review_number, branch)
     git.add(review_files)

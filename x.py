@@ -1139,7 +1139,9 @@ class Git:
         """
         assert isinstance(local_repository, str)
         assert isinstance(remote_repository, str)
-        assert os.path.isdir(os.path.join(local_repository, '.git'))
+        # Check whether the local repository is a directory managed by git.
+        # Note that '.git' can be a directory in case of a git repository or a file in case of a git submodule
+        assert os.path.exists(os.path.join(local_repository, '.git'))
         self.local_repository = local_repository
         self.remote_repository = remote_repository
         self._sep = None
@@ -1471,7 +1473,8 @@ class Task:
         """
         if top_directory is None:
             top_directory = os.getcwd()
-        assert os.path.isdir(os.path.join(os.getcwd(), '.git'))
+        # Note that '.git' can be a directory in case of a git repository or a file in case of a git submodule
+        assert os.path.exists(os.path.join(os.getcwd(), '.git'))
         if name is None:
             # derive name from current git branch
             name = Git(top_directory).get_active_branch()

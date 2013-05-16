@@ -1,0 +1,11 @@
+Task: QdWEO0-mutex-component
+==============================================================================
+
+Goals
+--------
+
+Provide a mutex component for the RTOS.
+
+Assumptions:
+   -- NO preemption
+   -- NO blocking, instead tasks waiting on the lock will yield repeatedly until the lock becomes available

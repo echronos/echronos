@@ -17,3 +17,5 @@ Location: prj/app/prj.py:868ff
 Comment: I think I'd actually reverted this exact code (or something very similar) in a recent branch.
 I don't think the accessor function like this shouldn't actual creation.
 I think an explicit creation at the higher level is more appropriate.
+
+[[stg: moved into System.build()]]

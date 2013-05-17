@@ -17,16 +17,26 @@ when rtos-core is a submodule.
 Specific comments
 =================
 
-Location:   File "rtos-clr/core/x.py", line 1124, in __init__
-    assert os.path.isdir(os.path.join(local_repository, '.git'))
-Comment: This assertion fails when attempting to run new-task (and others) because the core is a submodule and thus 
-core/.git is a file not a directory
+> Location:   File "rtos-clr/core/x.py", line 1124, in __init__
+>     assert os.path.isdir(os.path.join(local_repository, '.git'))
+> Comment: This assertion fails when attempting to run new-task (and others) because the core is a submodule and thus
+> core/.git is a file not a directory
 
-Location:   File "rtos-clr/core/x.py", line 744, 766, 962
-Comment:    x.py assumes that the directory core/x.py is in is the location of the base repository. This means that 
-you cant add tasks or reviews to the outer repo.
+stg: out of scope
+Will be part of task branch 8n1fwa-extended-client-repositories
 
-Location:  rtos-clr/core/tools/x86_64-apple-darwin/bin/python3.3 
-Comment:   On OS X or linux, x.py insists on using the python installation within the core repository. This makes it 
-painful to move between repos since you need to specify a different python binary for each one. It would be much 
-nicer if this assertion didnt exist, as is the case for windows.
+> Location:   File "rtos-clr/core/x.py", line 744, 766, 962
+> Comment:    x.py assumes that the directory core/x.py is in is the location of the base repository. This means that
+> you cant add tasks or reviews to the outer repo.
+
+stg: out of scope
+Will be part of task branch 8n1fwa-extended-client-repositories
+
+> Location:  rtos-clr/core/tools/x86_64-apple-darwin/bin/python3.3
+> Comment:   On OS X or linux, x.py insists on using the python installation within the core repository. This makes it
+> painful to move between repos since you need to specify a different python binary for each one. It would be much
+> nicer if this assertion didnt exist, as is the case for windows.
+
+stg: out of scope
+As you point out, this is irrelevant on Windows.
+But I will address it as part of 8n1fwa-extended-client-repositories

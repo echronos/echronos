@@ -5,7 +5,7 @@ Task name: oCfQVU-client-repositories
 Version reviewed: dc8790e7b2b80e3e3d7c9807445e1f0bbfd892c7
 Reviewer: benno
 Date: 2013-05-12
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
@@ -13,8 +13,7 @@ Overall comments:
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Location: prj/app/prj.py:868ff
+Comment: I think I'd actually reverted this exact code (or something very similar) in a recent branch.
+I don't think the accessor function like this shouldn't actual creation.
+I think an explicit creation at the higher level is more appropriate.

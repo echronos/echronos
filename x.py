@@ -56,7 +56,7 @@ import os
 
 
 def follow_link(l):
-    """Return the underlying file form a symbolic link.
+    """Return the underlying file from a symbolic link.
 
     This will (recursively) follow links until a non-symbolic link is found.
     No cycle checks are performed by this function.

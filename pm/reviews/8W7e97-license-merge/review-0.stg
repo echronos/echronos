@@ -4,8 +4,8 @@ Breakaway Task Review
 Task name: 8W7e97-license-merge
 Version reviewed: abcdece95a92f217ee9e4fbf164a70cd962d5386
 Reviewer: stg
-Date: 2013-05-17
-Conclusion: Accepted/Rework
+Date: 2013-05-20
+Conclusion: Rework
 
 Overall comments:
 
@@ -13,8 +13,19 @@ Overall comments:
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: x.py:919 and others
+Comment 0: Rework
+The docstrings in this patch are too short (cf. convention TZb0Uv: The maximum line length in project Python files is 118 characters.)
 
-Location: filename:linenum
-Comment:
+Location: x.py:925
+Comment 1: Rework
+The correct spelling is 'prologue'
+
+Location: x.py:930
+Comment 2: Rework
+This assertion seems valid for all cases in this function, in particular since the expression in line 938 raises an exception if lic is None.
+
+Location: x.py:942ff
+Comment 3: Rework
+This function does not handle the case of size == -1 common in the standard file read() API.
+If this case does not need to be supported, an assertion and/or comment should obviate that fact.

@@ -229,6 +229,30 @@ def top_path(*path):
     return os.path.join(topdir, *path)
 
 
+def base_to_top_paths(*path):
+    """For each directory from BASE_DIR up to topdir in the directory tree, append the specified path and return the
+    resulting sequence.
+
+    For example, if topdir is '/rtos/', BASE_DIR is '/rtos/core/', and *path is ['packages'], this function returns
+    ['/rtos/core/packages', '/rtos/packages']
+
+    If topdir equals BASE_DIR, the result of this function is a sequence with a single element and equal to
+    [base_path(*path)]
+
+    """
+    result = []
+
+    cur_dir = os.path.abspath(BASE_DIR)
+    stop_dir = os.path.abspath(topdir)
+    iterate = True
+    while iterate:
+        result.append(os.path.join(cur_dir, *path))
+        iterate = (cur_dir != stop_dir)
+        cur_dir = os.path.dirname(cur_dir)
+
+    return result
+
+
 def un_base_path(path):
     """Reverse the operation performed by `base_path`.
 
@@ -1166,20 +1190,69 @@ def tar_gz_with_license(output, tree, prefix, license):
         tarfile.bltn_open = open
 
 
-def mk_partial(pkg_name, archive_name, license):
-    fn = os.path.join(BASE_DIR, 'release', 'partials', '{}.tar.gz'.format(archive_name))
-    src_dir = os.path.join(BASE_DIR, 'packages', pkg_name)
-    src_prefix = 'share/packages/{}'.format(pkg_name)
-    tar_gz_with_license(fn, src_dir, src_prefix, license)
+class Package:
+    """Represents a customer visible package.
+
+    This is currently used mainly for release management.
+
+    """
+    @staticmethod
+    def create_from_disk():
+        """Return a sequence that contains a Package instance for each package on disk in a 'package' directory."""
+        pkgs = []
+        for pkg_parent_dir in base_to_top_paths('packages'):
+            pkg_names = os.listdir(pkg_parent_dir)
+            for pkg_name in pkg_names:
+                pkgs.append(Package(os.path.join(pkg_parent_dir, pkg_name)))
+        return pkgs
+
+    def __init__(self, path):
+        assert os.path.isdir(path)
+        self.path = path
+        self.name = os.path.basename(self.path)
+
+
+class ReleasePackage:
+    """Represents a Package instance that is refined for a specific release configuration.
+
+    Configuring a Package instance for release results in additional properties of a package, relevant when creating
+    release files.
+
+    """
+    def __init__(self, package, release_configuration):
+        self._pkg = package
+        self._rls_cfg = release_configuration
+
+    def get_name(self):
+        return self._pkg.name
+
+    def get_path(self):
+        return self._pkg.path
+
+    def get_archive_name(self):
+        return '{}-{}'.format(self._pkg.name, self._rls_cfg.name)
+
+    def get_path_in_archive(self):
+        return 'share/packages/{}'.format(self._pkg.name)
+
+    def get_license(self):
+        return self._rls_cfg.license
+
+
+def mk_partial(pkg):
+    fn = top_path('release', 'partials', '{}.tar.gz'.format(pkg.get_archive_name()))
+    src_prefix = 'share/packages/{}'.format(pkg.get_name())
+    tar_gz_with_license(fn, pkg.get_path(), src_prefix, pkg.get_license())
 
 
 def build_partials(args):
     build([])
-    os.makedirs(os.path.join(BASE_DIR, 'release', 'partials'),  exist_ok=True)
-    packages = os.listdir(os.path.join(BASE_DIR, 'packages'))
+    os.makedirs(top_path('release', 'partials'),  exist_ok=True)
+    packages = Package.create_from_disk()
     for pkg in packages:
         for config in get_release_configs():
-            mk_partial(pkg, '{}-{}'.format(pkg, config.name), config.license)
+            release_package = ReleasePackage(pkg, config)
+            mk_partial(release_package)
 
 
 def build_manual(pkg):
@@ -1228,9 +1301,9 @@ def build_single_release(config):
     """Build a release archive for a specific release configuration."""
     basename = 'brtos-{}-{}'.format(config.name, config.version)
     logging.info("Building {}".format(basename))
-    with tarfile_open('release/{}.tar.gz'.format(basename), 'w:gz', format=tarfile.GNU_FORMAT) as tf:
+    with tarfile_open(top_path('release', '{}.tar.gz'.format(basename)), 'w:gz', format=tarfile.GNU_FORMAT) as tf:
         for pkg in config.packages:
-            with tarfile.open('release/partials/{}-{}.tar.gz'.format(pkg, config.name), 'r:gz') as in_f:
+            with tarfile.open(top_path('release', 'partials', '{}-{}.tar.gz'.format(pkg, config.name)), 'r:gz') as in_f:
                 for m in in_f.getmembers():
                     m_f = in_f.extractfile(m)
                     m.name = os.path.join(basename, m.name)
@@ -1328,7 +1401,7 @@ def release_test(args):
     This command is used to perform sanity checks and testing of the full release.
 
     """
-    for rel in glob(os.path.join(BASE_DIR, 'release', '*.tar.gz')):
+    for rel in glob(top_path('release', '*.tar.gz')):
         release_test_one(rel)
 
 

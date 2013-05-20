@@ -992,8 +992,8 @@ def generate_rtos_module(skeleton, architectures):
 
 
 def tasks(args):
-    git = Git(local_repository=BASE_DIR)
-    task_dir = os.path.join(BASE_DIR, 'pm', 'tasks')
+    git = Git(local_repository=topdir)
+    task_dir = top_path('pm', 'tasks')
     skipped_branches = ['development', 'master']
     task_names = set.union({t for t in os.listdir(task_dir) if
                             os.path.isfile(os.path.join(task_dir, t))},
@@ -1002,7 +1002,7 @@ def tasks(args):
 
     print("flags| last commit          | +- vs origin | +- vs devel  | name")
     for t in sorted(task_names):
-        task = Task(t, BASE_DIR, git)
+        task = Task(t, topdir, git)
         print(task.report_line())
         for rel in task.related_branches():
             if rel in skipped_branches:

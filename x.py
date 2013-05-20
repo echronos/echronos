@@ -1267,12 +1267,20 @@ class Package:
     """
     @staticmethod
     def create_from_disk():
-        """Return a sequence that contains a Package instance for each package on disk in a 'package' directory."""
-        pkgs = []
+        """Return a dictionary that contains a Package instance for each package on disk in a 'package' directory.
+
+        The dictionary keys are the package names.
+        The dictionary values are the package instances.
+
+        """
+        pkgs = {}
         for pkg_parent_dir in base_to_top_paths('packages'):
             pkg_names = os.listdir(pkg_parent_dir)
             for pkg_name in pkg_names:
-                pkgs.append(Package(os.path.join(pkg_parent_dir, pkg_name)))
+                pkg_path = os.path.join(pkg_parent_dir, pkg_name)
+                if pkg_name in pkgs:
+                    logging.warn('Overriding package {} with package {}'.format(pkgs[pkg_name].path, pkg_path))
+                pkgs[pkg_name] = Package(pkg_path)
         return pkgs
 
     def __init__(self, path):
@@ -1317,7 +1325,7 @@ def mk_partial(pkg):
 def build_partials(args):
     build([])
     os.makedirs(top_path('release', 'partials'),  exist_ok=True)
-    packages = Package.create_from_disk()
+    packages = Package.create_from_disk().values()
     for pkg in packages:
         for config in get_release_configs():
             release_package = ReleasePackage(pkg, config)

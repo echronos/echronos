@@ -252,7 +252,6 @@ def check_pep8(args):
         logging.error('pep8 check found non-compliant files')  # details on stdout
         return 1
 
-
 class Component:
     """Represents an optional, exchangeable piece of functionality of an RTOS.
 
@@ -337,34 +336,57 @@ class Component:
             self._resource_name = name
         self._configuration = configuration
 
-    def parse(self, parsing_configuration={}):
+    def _resolve_component(self, **kwargs):
+        component_path = None
+        for name in self._component_search_locations(**kwargs):
+            try:
+                component_path = Component.find(name)
+                break
+            except KeyError:
+                pass
+        if component_path is None:
+            raise KeyError('Unable to find component_path "{}"'.format(self._resource_name))
+        return component_path
+
+    def _component_search_locations(self, **kwargs):
+        return [f.format(self._resource_name) for f in ['{0}.c', '{0}/{0}.c']]
+
+    def parse_sections(self, parsing_configuration={}, **kwargs):
         """Retrieve the properties of this component by parsing its corresponding source file.
 
-        'parsing_configuration' is an optional dictionary that is merged with the component's base configuration and
+        'parsing_configuration' is an optional dictionary that is merged with the component_path's base configuration and
         passed to the parsing function.
 
         This function returns a dictionary containing configuration information that can be used to render an RTOS
         template.
 
         """
-        if isinstance(parsing_configuration, dict):
-            configuration = self._configuration.copy()
-            configuration.update(parsing_configuration)
-        else:
-            configuration = self._configuration
+        assert isinstance(parsing_configuration, dict)
+        configuration = self._configuration.copy()
+        configuration.update(parsing_configuration)
 
-        component = None
-        for name in [f.format(self._resource_name) for f in ['{0}.c', '{0}/{0}.c']]:
-            try:
-                component = Component.find(name)
-                break
-            except KeyError:
-                pass
-        if component is None:
-            raise KeyError('Unable to find component "{}"'.format(self._resource_name))
+        component_path = self._resolve_component(**kwargs)
+        return parse_sectioned_file(component_path, configuration)
 
-        return parse_sectioned_file(component, configuration)
+    def render(self, out_path, parsing_configuration={}, **kwargs):
+        """Render the component files to the specified location, using the component configuration 
+        as well as any given extra configuration
+        """
+        assert isinstance(parsing_configuration, dict)
+        configuration = self._configuration.copy()
+        configuration.update(parsing_configuration)
 
+        component_path = self._resolve_component(**kwargs)
+        render(component_path,
+             os.path.join(out_path, self.name + ".c"),
+             configuration, strict=False) # FIXME - add missing tag handler that filters has_*
+
+        header_path = os.path.splitext(component_path)[0] + ".h"
+        if os.path.isfile(header_path):
+             render(header_path,
+               os.path.join(out_path, self.name + ".h"),
+               configuration, strict=False)
+        
 
 class ArchitectureComponent(Component):
     """This refinement of the Component class represents an architecture-specific component.
@@ -373,7 +395,7 @@ class ArchitectureComponent(Component):
     This is opposed to the base Component class which is unaware of architecture-specific file naming conventions.
 
     """
-    def parse(self, arch):
+    def _component_search_locations(self, **kwargs):
         """Retrieve the properties of this component by parsing its architecture-specific source file.
 
         'arch', an instance of Architecture, identifies the architecture of the source file to parse.
@@ -381,20 +403,10 @@ class ArchitectureComponent(Component):
         Otherwise, this function behaves as Component.parse().
 
         """
-        assert isinstance(arch, Architecture)
+        assert('arch' in kwargs)
+        assert isinstance(kwargs['arch'], Architecture)
 
-        component = None
-        for name in [f.format(arch.name, self._resource_name) for f in ['{0}-{1}/{0}-{1}.c', '{1}-{0}.c']]:
-            try:
-                component = Component.find(name)
-                break
-            except KeyError:
-                pass
-        if component is None:
-            raise KeyError('Unable to find component "{}"'.format(self._resource_name))
-
-        return parse_sectioned_file(component, self._configuration)
-
+        return [f.format(kwargs['arch'].name, self._resource_name) for f in ['{0}-{1}/{0}-{1}.c', '{1}-{0}.c']]
 
 #
 # unittest related functionality. Note: This may be refactored in to a
@@ -592,7 +604,8 @@ def x_test(args):
 
 
 def run_module_tests_with_args(modules, directories, args):
-    """Call a fixed set of modules in specific directories, deriving all input for a call to run_module_tests() from
+    """Call a fixed set of modules in specific directories, deriving 
+    all input for a call to run_module_tests() from
     the given command line arguments."""
     patterns = args.tests
     verbosity = 0
@@ -693,7 +706,7 @@ def prj_build(args):
 def build(args):
     # Generate RTOSes
     for rtos_name, arch_names in configurations.items():
-        generate_rtos_module(skeletons[rtos_name], [architectures[arch] for arch in arch_names])
+        generate_rtos_module(skeletons[rtos_name], [architectures[arch] for arch in arch_names],args)
 
 
 review_template = """Breakaway Task Review
@@ -838,20 +851,20 @@ def parse_sectioned_file(fn, config={}):
     return sections
 
 
-def render_data(in_data, name, config):
+def render_data(in_data, name, config, strict = True):
     """Render input data (`in_data`) using a given `config`. The result is returned."""
-    pystache.defaults.MISSING_TAGS = 'strict'
+    pystache.defaults.MISSING_TAGS = 'strict' if strict else 'ignore'
     pystache.defaults.DELIMITERS = ('[[', ']]')
     pystache.defaults.TAG_ESCAPE = lambda u: u
     return pystache.render(in_data, config, name=name)
 
 
-def render(inf, outf, config):
+def render(inf, outf, config, strict=True):
     """Render an input file (`inf`) to an output file (`outf`) using a given `config`."""
     with open(inf) as f:
         template_data = f.read()
 
-    data = render_data(template_data, inf, config)
+    data = render_data(template_data, inf, config, strict)
 
     with open(outf, 'w') as f:
         f.write(data)
@@ -903,20 +916,20 @@ class RtosSkeleton:
         assert isinstance(arch, Architecture)
         # adopt architecture-specific configuration information
         configuration = arch.configuration.copy()
-        # adopt the configuration information derived from the components of this RTOS variant
-        configuration.update({c.name: c.parse(arch) for c in self._components})
         # adopt the configuration information intrinsic to this specific RTOS variant
         configuration.update(self._configuration)
+        # adopt a configuration parameter for that specifies each component available
+        configuration.update({"has_{0}".format(c.name) : True for c in self._components})
 
         return configuration
 
-    def create_configured_module(self, arch):
+    def sections(self, arch):
         """Retrieve module configuration information and create a corresponding RtosModule instance.
-
-        This is only a convenience function.
-
         """
-        return RtosModule(self.name, arch, self.get_module_configuration(arch))
+        sections = self.get_module_configuration(arch)
+        # parse components into their constituent sections and add this to the configuration
+        sections.update({c.name: c.parse_sections(sections, arch=arch) for c in self._components})
+        return sections
 
 
 class RtosModule:
@@ -926,10 +939,8 @@ class RtosModule:
     This class encapsulates the act of rendering an RTOS template given an RTOS configuration into a module on disk.
 
     """
-    def __init__(self, name, arch, configuration):
+    def __init__(self, arch, skeleton, auxilliary_components=[]):
         """Create an RtosModule instance.
-
-        'name', a string, is the name of the RTOS, i.e., the same as the underlying RtosSkeleton.
 
         'arch', an instance of Architecture, is the architecture this module is targetted for.
 
@@ -937,12 +948,13 @@ class RtosModule:
         It is typically obtained via RtosSkeleton.get_module_configuration().
 
         """
-        assert isinstance(name, str)
         assert isinstance(arch, Architecture)
-        assert isinstance(configuration, dict)
-        self._name = name
+        assert isinstance(skeleton, RtosSkeleton)
+        assert isinstance(auxilliary_components, list)
+        self._name = skeleton.name
         self._arch = arch
-        self._configuration = configuration
+        self._skeleton = skeleton
+        self._auxilliary_components = auxilliary_components
 
     @property
     def _module_name(self):
@@ -958,22 +970,32 @@ class RtosModule:
         """Generate the RTOS module to disk, so it is available as a compile and link unit to projects."""
         self._render()
         self._copy_resources()
+        self._render_auxilliary_components()
 
     def _render(self):
         render(base_path('rtos.input', self._module_name, 'template.c'),
                os.path.join(self._module_dir, 'entity.c'),
-               self._configuration)
+               self._skeleton.sections(self._arch))
 
     def _copy_resources(self):
         for f in [self._module_name + '.h']:
             shutil.copy(base_path('rtos.input', self._module_name, f),
                         os.path.join(self._module_dir, f))
 
-
-def generate_rtos_module(skeleton, architectures):
+    def _render_auxilliary_components(self):
+        configuration = self._skeleton.get_module_configuration(self._arch)
+        for c in self._auxilliary_components:
+            if c in AUXILLIARY_COMPONENTS:
+                AUXILLIARY_COMPONENTS[c].render(self._module_dir,configuration)
+            else:
+                raise KeyError("Unknown auxilliary component: {}".format(c))
+            
+            
+def generate_rtos_module(skeleton, architectures, args):
     """Generate RTOS modules for several architectures from a given skeleton."""
+    
     for arch in architectures:
-        rtos_module = skeleton.create_configured_module(arch)
+        rtos_module = RtosModule(arch,skeleton, getattr(args,'component',[]))
         rtos_module.generate()
 
 
@@ -1713,8 +1735,11 @@ class OverrideFunctor:
         self.kwargs = kwargs
 
     def __call__(self, *args, **kwargs):
-        return self.function(*self.args, **self.kwargs)
+        return self.function(*self.args + args, **self.kwargs)
 
+AUXILLIARY_COMPONENTS = {
+    'mutex': Component('mutex')
+}
 
 CORE_ARCHITECTURES = {
     'posix': Architecture('posix', {'stack_type': 'uint8_t'}),
@@ -1740,7 +1765,6 @@ CORE_SKELETONS = {
                                     Component('irq_event', 'irq-event')]),
 }
 
-
 CORE_CONFIGURATIONS = {
     'acamar': ['posix', 'armv7m'],
     'gatria': ['posix', 'armv7m'],
@@ -1756,10 +1780,14 @@ skeletons = CORE_SKELETONS.copy()
 configurations = CORE_CONFIGURATIONS.copy()
 
 
+
 def main(top_dir=os.path.dirname(__file__)):
     """Application main entry point. Parse arguments, and call specified sub-command."""
     global topdir
     topdir = top_dir
+
+    def add_gen_arguments(parser):
+        parser.add_argument('component', nargs='*', help='auxilliary components to include with the RTOS')
 
     SUBCOMMAND_TABLE = {
         'check-pep8': check_pep8,
@@ -1804,7 +1832,9 @@ def main(top_dir=os.path.dirname(__file__)):
     subparsers.add_parser('test-release', help='Test final release')
     subparsers.add_parser('build-partials', help='Build partial release files')
     subparsers.add_parser('build-manuals', help='Build PDF manuals')
-    subparsers.add_parser('build', help='Build all release files')
+    _parser = subparsers.add_parser('build', help='Build all release files')
+    add_gen_arguments(_parser)
+    
     _parser = subparsers.add_parser('new-review', help='Create a new review')
     _parser.add_argument('reviewers', metavar='REVIEWER', nargs='+',
                          help='Username of reviewer')
@@ -1818,7 +1848,8 @@ def main(top_dir=os.path.dirname(__file__)):
         SUBCOMMAND_TABLE[rtos_name + '-gen'] = OverrideFunctor(generate_rtos_module,
                                                                skeletons[rtos_name],
                                                                [architectures[arch] for arch in arch_names])
-        subparsers.add_parser(rtos_name + '-gen', help="Generate {} RTOS".format(rtos_name))
+        _parser = subparsers.add_parser(rtos_name + '-gen', help="Generate {} RTOS".format(rtos_name))
+        add_gen_arguments(_parser)
 
     _parser = subparsers.add_parser('integrate', help='Integrate a completed development task/branch into the main \
 upstream branch.')

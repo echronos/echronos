@@ -183,7 +183,7 @@ typedef uintmax_t unsigned long long
 #define INTMAX_MAX INT64_MAX
 #define UINTMAX_MAX UINT64_MAX
 
-#define PTRDIFF_MIN −65535
+#define PTRDIFF_MIN -65535
 #define PTRDIFF_MAX +65535
 
 #define SIZE_MAX 65535

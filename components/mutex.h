@@ -3,8 +3,10 @@
 
 #include "stdbool.h"
 
+[[#has_clock]]
 #define MUTEX_TIMEOUT_INFINITE 0xFFFF
 #define MUTEX_TIMEOUT_INSTANT 0x0000
+[[/has_clock]]
 
 typedef struct mutex {{prefix}}mutex;
 
@@ -24,11 +26,7 @@ typedef struct mutex {{prefix}}mutex;
  *
  * @param mutex the mutex you wish to lock
  */
-#define {{prefix}}mutex_lock(mutex) _mutex_lock(mutex, MUTEX_TIMEOUT_INFINITE
-[[#has_signal]]
-            0,0  \
-[[/has_signal]]
-)
+#define {{prefix}}mutex_lock(mutex) _mutex_lock(mutex[[#has_clock]],MUTEX_TIMEOUT_INFINITE [[/has_clock]][[#has_signal]],0, 0[[/has_signal]])
 
 /**
  * @brief Try to lock the mutex. If it is already locked, return straight away.
@@ -37,12 +35,15 @@ typedef struct mutex {{prefix}}mutex;
  *
  * @return true if the lock was taken, false if the lock was not obtained
  */
-#define {{prefix}}mutex_tryLock(mutex) _mutex_lock(mutex, MUTEX_TIMEOUT_INSTANT \
-[[#has_signal]]
-            0,0  \
-[[/has_signal]]
-)
+[[#has_clock]]
+#define {{prefix}}mutex_tryLock(mutex) _mutex_lock(mutex, MUTEX_TIMEOUT_INSTANT [[#has_signal]], 0, 0[[/has_signal]])
+[[/has_clock]]
+[[^has_clock]]
+bool
+{{prefix}}mutex_tryLock({{prefix}}mutex * mutex);
+[[/has_clock]]
 
+[[#has_clock]]
 /**
  * @brief Try to lock the mutex. If it is already locked, wait for at most
  *        \code timeout
@@ -53,11 +54,8 @@ typedef struct mutex {{prefix}}mutex;
  *
  * @return true if the lock was taken, false if the lock was not obtained
  */
-#define {{prefix}}mutex_lockTimeout(mutex, timeout) _mutex_lock(mutex, timeout \
-[[#has_signal]]
-            0,0  \
-[[/has_signal]]
-)
+#define {{prefix}}mutex_lockTimeout(mutex, timeout) _mutex_lock(mutex, timeout[[#has_signal]], 0, 0[[/has_signal]])
+[[/has_clock]]
 
 [[#has_signal]]
 /**
@@ -78,8 +76,4 @@ typedef struct mutex {{prefix}}mutex;
 
 
 bool
-_mutex_lock({{prefix}}mutex *mutex, uint16_t timeout
-[[#has_signal]]
-, SignalSet signal, TaskId taskToSignal
-[[/has_signal]]
-);
+{{prefix}}mutex_lock({{prefix}}mutex *mutex[[#has_clock]], uint16_t timeout[[/has_clock]][[#has_signal]], SignalSet signal, TaskId taskToSignal[[/has_signal]]);

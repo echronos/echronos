@@ -1,11 +1,7 @@
 #include "mutex.h"
 
 bool
-_mutex_lock({{prefix}}mutex *mutex, uint16_t timeout
-[[#has_signal]]
-, SignalSet signal, TaskId taskToSignal
-[[/has_signal]]
-)
+{{prefix}}mutex_lock({{prefix}}mutex *mutex[[#has_clock]], uint16_t timeout[[/has_clock]][[#has_signal]], SignalSet signal, TaskId taskToSignal[[/has_signal]])
 {
 [[#has_clock]]
     clock_t end = clock() + timeout / (CLOCKS_PER_SEC / 1000);
@@ -31,3 +27,19 @@ _mutex_lock({{prefix}}mutex *mutex, uint16_t timeout
     mutex->locked = true;
     return true;
 }
+
+[[^has_clock]]
+bool
+{{prefix}}mutex_tryLock({{prefix}}mutex * mutex)
+{
+    if (mutex->locked)
+    {
+        return false;
+    }
+    else
+    {
+        mutex->locked=true;
+        return true;
+    }
+}
+[[/has_clock]]

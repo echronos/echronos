@@ -919,6 +919,9 @@ class FileWithLicense:
     """FileWithLicense provides a read-only file-like object that automatically includes license text when reading
     from the underlying file object.
 
+    The FileWithLicense object takes ownership of the underlying file object.
+    The original file object should not be used after passing it to the FileWithLicense object.
+
     """
     def __init__(self, f, lic, xml_mode):
         XML_PROLOG = b'<?xml version="1.0" encoding="UTF-8" ?>\n'
@@ -949,11 +952,14 @@ class FileWithLicense:
 
         return data
 
+    def close(self):
+        self._f.close()
+
     def __enter__(self):
         return self
 
     def __exit__(self, type, value, traceback):
-        self._f.close()
+        self.close()
 
 
 class LicenseOpener:

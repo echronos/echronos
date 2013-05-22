@@ -35,5 +35,9 @@ Comment: Typo: "XML_PROLOUGE" should be "XML_PROLOG"
 Location: x.py:995
 Comment: Since FileWithLicense is the class that closes the file, it should probably open the file as well (not LicenseOpener)
 
+[[(benno): In this case FileWithLicense takes ownership over the original file object.
+I wanted to separate the concerns of obtaining a file object (e.g: through opening a file on the filesystem, or creating in some otherway, through e.g.: a ByteIO in memory file-like object) and the actual wrapping.
+I've updated the documentation such that it is much clearer that the ownership of the file-like object is passed to the FileWithLicense object.
+
 Location: release_cfg:31
 Comment: "ProjectLinux" is rather undescriptive. Why not "Smaccm"?

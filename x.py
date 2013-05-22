@@ -1138,15 +1138,12 @@ def build_release(args):
 
     Additionally, it takes the binary 'prj' files and adds it to the appropriate place in the release tar file.
 
-    In the future this should support different release targets via a command line argument.
-    Currently it is hard-coded for a release of the ARMv7 platform with a Linux host.
-
     """
     for config in get_release_configs():
         try:
             build_single_release(config)
         except FileNotFoundError as e:
-            logging.warning("Unable to build '{}'. File note found: '{}'".format(config, e.filename))
+            logging.warning("Unable to build '{}'. File not found: '{}'".format(config, e.filename))
 
 
 def release_test_one(archive):

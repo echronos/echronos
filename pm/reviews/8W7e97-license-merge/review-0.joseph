@@ -14,11 +14,15 @@ Minor comments -- typos mostly.
 Specific comments
 =================
 
-Location: x.py:1067 
+Location: x.py:1067
 Comment: The "hardcoded" comment seems no longer valid
+
+[[(benno): Fixed.]]
 
 Location: x.py:1155
 Comment: Typo: "note found"
+
+[[(benno): Fixed.]]
 
 Location: x.py:934
 Comment: Why throw an exception here? Why not just append the not-prologue that you just read to a prefix buffer containing the license and this bit of text

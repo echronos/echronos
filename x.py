@@ -921,16 +921,16 @@ class FileWithLicense:
 
     """
     def __init__(self, f, lic, xml_mode):
-        XML_PROLOGUE = b'<?xml version="1.0" encoding="UTF-8" ?>\n'
+        XML_PROLOG = b'<?xml version="1.0" encoding="UTF-8" ?>\n'
         self._f = f
         self._read_license = True
 
         if xml_mode:
-            lic = XML_PROLOGUE + lic
-            file_header = f.read(len(XML_PROLOGUE))
-            if file_header != XML_PROLOGUE:
-                raise Exception("XML File: '{}' does not contain expected prologue: {} expected {}".
-                                format(f.name, file_header, XML_PROLOGUE))
+            lic = XML_PROLOG + lic
+            file_header = f.read(len(XML_PROLOG))
+            if file_header != XML_PROLOG:
+                raise Exception("XML File: '{}' does not contain expected prolog: {} expected {}".
+                                format(f.name, file_header, XML_PROLOG))
 
         if len(lic) > 0:
             self._read_license = False

@@ -30,6 +30,8 @@ Comment: Why throw an exception here? Why not just append the not-prologue that 
 Location: x.py:925 et al
 Comment: Typo: "XML_PROLOUGE" should be "XML_PROLOG"
 
+[[(benno): Fixed. (spelled as 'prolog' in the spec, so going with that.)]]
+
 Location: x.py:995
 Comment: Since FileWithLicense is the class that closes the file, it should probably open the file as well (not LicenseOpener)
 

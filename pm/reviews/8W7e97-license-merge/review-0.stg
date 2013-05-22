@@ -35,3 +35,6 @@ Location: x.py:942ff
 Comment 3: Rework
 This function does not handle the case of size == -1 common in the standard file read() API.
 If this case does not need to be supported, an assertion and/or comment should obviate that fact.
+
+[[(benno): The Python API does not ever return -1, in fact this code is going len() on a byte-string, so -1 is impossible.
+In the case of a file read error then an exception would be raised, rather than -1 returned.]]

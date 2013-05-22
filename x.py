@@ -926,8 +926,6 @@ class FileWithLicense:
         self._read_license = True
 
         if xml_mode:
-            assert lic is not None
-
             lic = XML_PROLOGUE + lic
             file_header = f.read(len(XML_PROLOGUE))
             if file_header != XML_PROLOGUE:

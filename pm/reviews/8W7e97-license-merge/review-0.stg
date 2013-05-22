@@ -29,6 +29,8 @@ Location: x.py:930
 Comment 2: Rework
 This assertion seems valid for all cases in this function, in particular since the expression in line 938 raises an exception if lic is None.
 
+[[(benno): Remove assertion.]]
+
 Location: x.py:942ff
 Comment 3: Rework
 This function does not handle the case of size == -1 common in the standard file read() API.

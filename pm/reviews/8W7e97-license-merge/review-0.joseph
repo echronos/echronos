@@ -27,6 +27,8 @@ Comment: Typo: "note found"
 Location: x.py:934
 Comment: Why throw an exception here? Why not just append the not-prologue that you just read to a prefix buffer containing the license and this bit of text
 
+[[(benno): Won't fix; if the XML file doesn't have a prolog it isn't well formed and so no need to support it.]]
+
 Location: x.py:925 et al
 Comment: Typo: "XML_PROLOUGE" should be "XML_PROLOG"
 

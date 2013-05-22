@@ -56,7 +56,7 @@ import os
 
 
 def follow_link(l):
-    """Return the underlying file form a symbolic link.
+    """Return the underlying file from a symbolic link.
 
     This will (recursively) follow links until a non-symbolic link is found.
     No cycle checks are performed by this function.
@@ -916,30 +916,31 @@ def tarfile_open(name, mode, **kwargs):
 
 
 class FileWithLicense:
-    """FileWithLicense provides a read-only file-like object that
-    automatically includes license text when reading from the underlying
-    file object.
+    """FileWithLicense provides a read-only file-like object that automatically includes license text when reading
+    from the underlying file object.
+
+    The FileWithLicense object takes ownership of the underlying file object.
+    The original file object should not be used after passing it to the FileWithLicense object.
 
     """
     def __init__(self, f, lic, xml_mode):
-        XML_PROLOUGE = b'<?xml version="1.0" encoding="UTF-8" ?>\n'
+        XML_PROLOG = b'<?xml version="1.0" encoding="UTF-8" ?>\n'
         self._f = f
         self._read_license = True
 
         if xml_mode:
-            assert lic is not None
-
-            lic = XML_PROLOUGE + lic
-            file_header = f.read(len(XML_PROLOUGE))
-            if file_header != XML_PROLOUGE:
-                raise Exception("XML File: '{}' does not contain expected prolouge: {} expected {}".
-                                format(f.name, file_header, XML_PROLOUGE))
+            lic = XML_PROLOG + lic
+            file_header = f.read(len(XML_PROLOG))
+            if file_header != XML_PROLOG:
+                raise Exception("XML File: '{}' does not contain expected prolog: {} expected {}".
+                                format(f.name, file_header, XML_PROLOG))
 
         if len(lic) > 0:
             self._read_license = False
             self._license_io = io.BytesIO(lic)
 
     def read(self, size):
+        assert size > 0
         data = b''
         if not self._read_license:
             data = self._license_io.read(size)
@@ -952,19 +953,21 @@ class FileWithLicense:
 
         return data
 
+    def close(self):
+        self._f.close()
+
     def __enter__(self):
         return self
 
     def __exit__(self, type, value, traceback):
-        self._f.close()
+        self.close()
 
 
 class LicenseOpener:
-    """The license opener provides a single 'open' method, that can be
-    used instead of the built-in 'open' function.
+    """The license opener provides a single 'open' method, that can be used instead of the built-in 'open' function.
 
-    This open will return a file-like object that modifies the underlying
-    file to include an appropriate license header.
+    This open will return a file-like object that modifies the underlying file to include an appropriate license
+    header.
 
     The 'license' is passed to the object during construction.
 
@@ -1018,8 +1021,7 @@ def tar_add_data(tf, arcname, data, ti_filter=None):
     tf is a tarfile.TarFile object.
     arcname is the name the data will have in the archive.
     data is the raw data (which should be of type 'bytes').
-    fi_filter filters the created TarInfo object. (In a similar manner
-    to the tarfile.TarFile.add() method.
+    fi_filter filters the created TarInfo object. (In a similar manner to the tarfile.TarFile.add() method.
 
     """
     ti = tarfile.TarInfo(arcname)
@@ -1035,8 +1037,7 @@ def tar_gz_with_license(output, tree, prefix, license):
 
     Any appropriate files have the specified license attached.
 
-    When creating the tar.gz a standard set of meta-data will be used to
-    help ensure things are consistent.
+    When creating the tar.gz a standard set of meta-data will be used to help ensure things are consistent.
 
     """
     lo = LicenseOpener(license)
@@ -1144,15 +1145,12 @@ def build_release(args):
 
     Additionally, it takes the binary 'prj' files and adds it to the appropriate place in the release tar file.
 
-    In the future this should support different release targets via a command line argument.
-    Currently it is hard-coded for a release of the ARMv7 platform with a Linux host.
-
     """
     for config in get_release_configs():
         try:
             build_single_release(config)
         except FileNotFoundError as e:
-            logging.warning("Unable to build '{}'. File note found: '{}'".format(config, e.filename))
+            logging.warning("Unable to build '{}'. File not found: '{}'".format(config, e.filename))
 
 
 def release_test_one(archive):

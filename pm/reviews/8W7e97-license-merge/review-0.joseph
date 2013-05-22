@@ -1,0 +1,47 @@
+Breakaway Task Review
+=======================
+
+Task name: 8W7e97-license-merge
+Version reviewed: abcdece95a92f217ee9e4fbf164a70cd962d5386
+Reviewer: joseph
+Date: 2013-05-17
+Conclusion: Rework
+
+Overall comments:
+
+Minor comments -- typos mostly.
+
+Specific comments
+=================
+
+Location: x.py:1067
+Comment: The "hardcoded" comment seems no longer valid
+
+[[(benno): Fixed.]]
+
+Location: x.py:1155
+Comment: Typo: "note found"
+
+[[(benno): Fixed.]]
+
+Location: x.py:934
+Comment: Why throw an exception here? Why not just append the not-prologue that you just read to a prefix buffer containing the license and this bit of text
+
+[[(benno): Won't fix; if the XML file doesn't have a prolog it isn't well formed and so no need to support it.]]
+
+Location: x.py:925 et al
+Comment: Typo: "XML_PROLOUGE" should be "XML_PROLOG"
+
+[[(benno): Fixed. (spelled as 'prolog' in the spec, so going with that.)]]
+
+Location: x.py:995
+Comment: Since FileWithLicense is the class that closes the file, it should probably open the file as well (not LicenseOpener)
+
+[[(benno): In this case FileWithLicense takes ownership over the original file object.
+I wanted to separate the concerns of obtaining a file object (e.g: through opening a file on the filesystem, or creating in some otherway, through e.g.: a ByteIO in memory file-like object) and the actual wrapping.
+I've updated the documentation such that it is much clearer that the ownership of the file-like object is passed to the FileWithLicense object.
+
+Location: release_cfg:31
+Comment: "ProjectLinux" is rather undescriptive. Why not "Smaccm"?
+
+[[(benno): Fixed.]]

@@ -28,7 +28,7 @@ class StandardLinux(Standard):
     enabled = True
 
 
-class ProjectBase(Standard):
+class SmaccmLinux(Standard):
     license = """
 Unpublished copyright (c) 2013 National ICT Australia (NICTA),
 ABN 62 102 206 173.  All rights reserved.

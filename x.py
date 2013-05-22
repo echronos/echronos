@@ -940,6 +940,7 @@ class FileWithLicense:
             self._license_io = io.BytesIO(lic)
 
     def read(self, size):
+        assert size > 0
         data = b''
         if not self._read_license:
             data = self._license_io.read(size)

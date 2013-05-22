@@ -43,3 +43,5 @@ I've updated the documentation such that it is much clearer that the ownership o
 
 Location: release_cfg:31
 Comment: "ProjectLinux" is rather undescriptive. Why not "Smaccm"?
+
+[[(benno): Fixed.]]

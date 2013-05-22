@@ -28,7 +28,7 @@ class StandardLinux(Standard):
     enabled = True
 
 
-class ProjectLinux(Standard):
+class SmaccmLinux(Standard):
     platforms = ['x86_64-unknown-linux-gnu']
     name = 'smaccm'
     enabled = True

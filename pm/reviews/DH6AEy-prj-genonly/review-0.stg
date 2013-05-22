@@ -5,16 +5,22 @@ Task name: DH6AEy-prj-genonly
 Version reviewed: 63ee00f150e220bce654841ce7c2a5b54e08fd99
 Reviewer: stg
 Date: 2013-05-22
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
+
+Comment 0: Rework
+The strategy of collecting search paths should be documented, however briefly, in the README.
+Otherwise, using this feature correctly depends on reading and understanding quite non-trivial code.
 
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: prj/app/prj.py:17
+Comment 1: Rework
+Comments do not meet conventions 'TZb0Uv: The maximum line length in project Python files is 118 characters.' and 'tGT1n0: In docstrings and comments of project Python files, each sentence shall start on a new line.'
 
-Location: filename:linenum
-Comment:
+Location: x.py:1823 pre_commit()
+Comment 2: Accepted
+The pre_commit hook functionality is an unrelated change which should not be part of this branch.

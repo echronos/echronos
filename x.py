@@ -916,9 +916,8 @@ def tarfile_open(name, mode, **kwargs):
 
 
 class FileWithLicense:
-    """FileWithLicense provides a read-only file-like object that
-    automatically includes license text when reading from the underlying
-    file object.
+    """FileWithLicense provides a read-only file-like object that automatically includes license text when reading
+    from the underlying file object.
 
     """
     def __init__(self, f, lic, xml_mode):
@@ -960,11 +959,10 @@ class FileWithLicense:
 
 
 class LicenseOpener:
-    """The license opener provides a single 'open' method, that can be
-    used instead of the built-in 'open' function.
+    """The license opener provides a single 'open' method, that can be used instead of the built-in 'open' function.
 
-    This open will return a file-like object that modifies the underlying
-    file to include an appropriate license header.
+    This open will return a file-like object that modifies the underlying file to include an appropriate license
+    header.
 
     The 'license' is passed to the object during construction.
 
@@ -1018,8 +1016,7 @@ def tar_add_data(tf, arcname, data, ti_filter=None):
     tf is a tarfile.TarFile object.
     arcname is the name the data will have in the archive.
     data is the raw data (which should be of type 'bytes').
-    fi_filter filters the created TarInfo object. (In a similar manner
-    to the tarfile.TarFile.add() method.
+    fi_filter filters the created TarInfo object. (In a similar manner to the tarfile.TarFile.add() method.
 
     """
     ti = tarfile.TarInfo(arcname)
@@ -1035,8 +1032,7 @@ def tar_gz_with_license(output, tree, prefix, license):
 
     Any appropriate files have the specified license attached.
 
-    When creating the tar.gz a standard set of meta-data will be used to
-    help ensure things are consistent.
+    When creating the tar.gz a standard set of meta-data will be used to help ensure things are consistent.
 
     """
     lo = LicenseOpener(license)

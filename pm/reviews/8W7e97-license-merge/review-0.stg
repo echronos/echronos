@@ -17,6 +17,8 @@ Location: x.py:919 and others
 Comment 0: Rework
 The docstrings in this patch are too short (cf. convention TZb0Uv: The maximum line length in project Python files is 118 characters.)
 
+[[(benno): Fixed]]
+
 Location: x.py:925
 Comment 1: Rework
 The correct spelling is 'prologue'

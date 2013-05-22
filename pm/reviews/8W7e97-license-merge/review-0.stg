@@ -23,6 +23,8 @@ Location: x.py:925
 Comment 1: Rework
 The correct spelling is 'prologue'
 
+[[(benno): Fixed]]
+
 Location: x.py:930
 Comment 2: Rework
 This assertion seems valid for all cases in this function, in particular since the expression in line 938 raises an exception if lic is None.

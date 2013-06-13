@@ -432,7 +432,7 @@ class ArchitectureComponent(Component):
             except KeyError:
                 pass
         if component is None:
-            raise KeyError('Unable to find component "{}"'.format(self._resource_name))
+            raise KeyError('Unable to find component "{}" for architecture {}'.format(self._resource_name, arch.name))
 
         return parse_sectioned_file(component, self._configuration)
 

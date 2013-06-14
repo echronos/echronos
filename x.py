@@ -93,6 +93,7 @@ import calendar
 import collections
 import datetime
 import functools
+import glob
 import importlib
 import inspect
 import io
@@ -702,30 +703,65 @@ def prj_build(args):
     elif sys.platform == 'linux':
         host = 'x86_64-unknown-linux-gnu'
         extras = ['-lz', '-lm', '-lpthread', '-lrt', '-ldl', '-lcrypt', '-lutil']
+    elif sys.platform == 'win32':
+        host = 'win32'
     else:
         print("Building prj currently unsupported on {}".format(sys.platform))
         return 1
 
-    prj_build_path = os.path.join(BASE_DIR, 'prj_build_{}'.format(host))
+    prj_build_path = top_path('prj_build_{}'.format(host))
     os.makedirs(prj_build_path, exist_ok=True)
-    with chdir(prj_build_path):
-        ice.create_lib('prj', '../prj/app', main='prj')
-        ice.create_lib('prjlib', '../prj/app/lib')
-        ice.create_lib('pystache', '../prj/app/pystache', excluded=['setup', 'pystache.tests', 'pystache.commands'])
-        ice.create_lib('ply', '../prj/app/ply', excluded=['setup'])
-        ice.create_stdlib()
-        ice.create_app(['stdlib', 'prj', 'prjlib', 'pystache', 'ply'])
 
-        cmd = ['gcc', '*.c', '-o', 'prj', '-I../tools/include/python3.3m/',
-               '-I../tools/{}/include/python3.3m/'.format(host),
-               '-L../tools/{}/lib/python3.3/config-3.3m'.format(host),
-               '-lpython3.3m']
-        cmd += extras
+    if sys.platform == 'win32':
+        prj_build_win32(prj_build_path)
+    else:
+        with chdir(prj_build_path):
+            ice.create_lib('prj', '../prj/app', main='prj')
+            ice.create_lib('prjlib', '../prj/app/lib')
+            ice.create_lib('pystache', '../prj/app/pystache', excluded=['setup', 'pystache.tests', 'pystache.commands'])
+            ice.create_lib('ply', '../prj/app/ply', excluded=['setup'])
+            ice.create_stdlib()
+            ice.create_app(['stdlib', 'prj', 'prjlib', 'pystache', 'ply'])
 
-        cmd = ' '.join(cmd)
-        r = os.system(cmd)
-        if r != 0:
-            print("Error building {}. cmd={}. ".format(show_exit(r), cmd))
+            cmd = ['gcc', '*.c', '-o', 'prj', '-I../tools/include/python3.3m/',
+                   '-I../tools/{}/include/python3.3m/'.format(host),
+                   '-L../tools/{}/lib/python3.3/config-3.3m'.format(host),
+                   '-lpython3.3m']
+            cmd += extras
+
+            cmd = ' '.join(cmd)
+            r = os.system(cmd)
+            if r != 0:
+                print("Error building {}. cmd={}. ".format(show_exit(r), cmd))
+
+
+def prj_build_win32(output_dir):
+    """Create a distributable version of prj.py.
+
+    We currently do not have the infrastructure in place to statically compile and link prj.py and its dependencies
+    against the complete python interpreter.
+
+    However, it is still desirable to create only a single resource that can stand alone given an installed python
+    interpreter.
+    Therefore, collect prj and its dependencies in a zip file that is executable by the python interpreter.
+
+    """
+    with zipfile.ZipFile(os.path.join(output_dir, 'prj'), mode='w') as zip:
+        top = os.path.abspath(base_path('prj', 'app'))
+        top_len = len(top)
+        for dir_path, dir_names, file_names in os.walk(top):
+            archive_dir_path = os.path.relpath(dir_path, top)
+            for file_name in file_names:
+                file_path = os.path.join(dir_path, file_name)
+                if dir_path == top and file_name == 'prj.py':
+                    # The python interpreter expects to be informed about the main file in the zip file by naming it
+                    # __main__.py
+                    archive_file_path = os.path.join(archive_dir_path, '__main__.py')
+                else:
+                    archive_file_path = os.path.join(archive_dir_path, file_name)
+                zip.write(file_path, archive_file_path)
+    with open(os.path.join(output_dir, 'prj.bat'), 'w') as f:
+        f.write('@ECHO OFF\npython %~dp0\\prj')
 
 
 def build(args):

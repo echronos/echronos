@@ -891,6 +891,15 @@ class Action(NamedModule):
         assert hasattr(py_module, 'run')
         self._py_module = py_module
 
+    def configure(self, xml_config):
+        """Create a default Python representation of any XML configuration information for Action modules.
+
+        This overrides the default implementation in the Module class which does not create configuration data.
+        Subclasses should implement this function to, e.g., enforce a specific configuration schema.
+
+        """
+        return xml2dict(xml_config, None)
+
     def run(self, system, config):
         self._py_module.run(system, config)
 

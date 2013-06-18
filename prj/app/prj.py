@@ -527,9 +527,15 @@ def xml2dict(el, schema=None):
                     xml_error_str(el, "Expected tagName: {}, not {}".format(schema['name'], el.tagName)))
 
         if _type == 'dict':
-            return get_dict_val(el, schema['dict_type'] if schema else None)
+            if el is not None:
+                return get_dict_val(el, schema['dict_type'] if schema else None)
+            else:
+                return {}
         elif _type == 'list':
-            return [get_el_val(c, schema['list_type'] if schema else None, el) for c in element_children(el)]
+            if el is not None:
+                return [get_el_val(c, schema['list_type'] if schema else None, el) for c in element_children(el)]
+            else:
+                return []
 
         # If it isn't a compound type, get the value
         val = get_text_value(el, schema, parent)

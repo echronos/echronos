@@ -813,7 +813,7 @@ class SourceModule(NamedModule):
                 if os.path.exists(possible_header):
                     self.headers.append(Header(possible_header, None, None))
 
-        elif filename.endswith('.s'):
+        elif filename.endswith('.s') or filename.endswith('.asm'):
             self.module_type = 'default'
         else:
             raise SystemParseError("Module %s[%s] has invalid filename" % (name, filename))
@@ -975,6 +975,7 @@ class System:
         add_functions = {
             '.c': self.add_c_file,
             '.s': self.add_asm_file,
+            '.asm': self.add_asm_file,
         }
         extension = os.path.splitext(path)[1]
         add_functions[extension](path)
@@ -1190,7 +1191,7 @@ class Project:
 
         """
         # Search for a given entity name.
-        extensions = ['', '.prx', '.py', '.c', '.s']
+        extensions = ['', '.prx', '.py', '.c', '.s', '.asm']
 
         # Find the first path that exists, we try and load that.  If a
         # path exists, but fails to load for some other reason that is
@@ -1243,7 +1244,7 @@ class Project:
             else:
                 raise EntityLoadError("Python entity '%s' from path %s doesn't match any interface" %
                                       (entity_name, path))
-        elif ext in ['.c', '.s']:
+        elif ext in ['.c', '.s', '.asm']:
             return SourceModule(entity_name, path)
         else:
             raise EntityLoadError("Unhandled extension '{}'".format(ext))

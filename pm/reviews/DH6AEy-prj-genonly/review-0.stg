@@ -26,3 +26,5 @@ Comments do not meet conventions 'TZb0Uv: The maximum line length in project Pyt
 Location: x.py:1823 pre_commit()
 Comment 2: Accepted
 The pre_commit hook functionality is an unrelated change which should not be part of this branch.
+
+[[(benno): Reverted commit.]]

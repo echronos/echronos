@@ -21,6 +21,8 @@ Location: prj/app/prj.py:17
 Comment 1: Rework
 Comments do not meet conventions 'TZb0Uv: The maximum line length in project Python files is 118 characters.' and 'tGT1n0: In docstrings and comments of project Python files, each sentence shall start on a new line.'
 
+[[(benno): Fixed.]]
+
 Location: x.py:1823 pre_commit()
 Comment 2: Accepted
 The pre_commit hook functionality is an unrelated change which should not be part of this branch.

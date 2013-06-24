@@ -14,9 +14,8 @@ if __name__ == "__main__":
         for pth in ['pystache', 'ply', 'lib']:
             sys.path.insert(0, os.path.join(os.path.dirname(__file__), pth))
 
-# Logging is set up first since this is critical to the rest of the application
-# working correctly. It is possible that other modules will perform logging during
-# import, so make sure this is very early.
+# Logging is set up first since this is critical to the rest of the application working correctly.
+# It is possible that other modules will perform logging during import, so make sure this is very early.
 import logging as _logging  # Avoid unintended using of 'logging'
 # By default log everything from INFO up.
 logger = _logging.getLogger('prj')

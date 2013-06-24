@@ -8,8 +8,10 @@ Date: 2013-05-22
 Conclusion: Rework
 
 Overall comments:
-This is out of band, but it would be helpful to support file renaming in prx definition, so that source files that are to be part of multiple projects, yet with differing output filenames can be supported. 
+This is out of band, but it would be helpful to support file renaming in prx definition, so that source files that are to be part of multiple projects, yet with differing output filenames can be supported.
 (neo is an example of this -- the directory structure and naming conventions are different to that used in the rtos-core).
+
+[[(benno): Agreed, a new feature should be started to determine the right design for this.]]
 
 Inline Comments
 
@@ -20,11 +22,15 @@ Rework
 
 This is sillily pedantic, but would be good to 2to3 all instances of the old string format operator
 
+[[(benno): Agreed, however fix in this branch; will do in a different branch.]]
+
 1103
 Rework
 
-Is find_share intended to be local to "if frozen"? 
+Is find_share intended to be local to "if frozen"?
 Why would the share directory be irrelevant if the project is not frozen? If this is indeed the intended semantics, then the command-line help should probably be updated to reflect this.
+
+[[(benno): The only time prj.py is not frozen is during development (e.g: when using prj.py directly in the development tree) where there is no share directory to find; wont fix]]
 
 1088
 Rework
@@ -32,6 +38,9 @@ Rework
 Add .asm and .h to this extension?
 (it is not impossible to imagine a module with only header files...for example a memory map)
 
+[[(benno): Probably a good improvement, but I think unrelated to this specific branch.]]
+
 1045
 Rework
 
+[[(benno): Unclear what was meant here.]]

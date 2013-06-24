@@ -1057,6 +1057,14 @@ class Project:
 
         If search_paths are specified these will be added to any default search paths.
 
+        The search path for a project is a list of paths in which modules will be searched.
+
+        Any paths specified by the 'search-path' element will be added to the search path first.
+        This will be followed by any search paths specified on the command line.
+        If no paths are specified on the command line, or in the project XML file, then the search path
+        defaults to the project directory.
+        Finally, the installed 'packages' directory is added to the search path.
+
         """
         if filename is None:
             self.dom = xml_parse_string('<project></project>')

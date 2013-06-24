@@ -13,6 +13,8 @@ Comment 0: Rework
 The strategy of collecting search paths should be documented, however briefly, in the README.
 Otherwise, using this feature correctly depends on reading and understanding quite non-trivial code.
 
+[[(benno): Added to the Project class docstring.
+At some point it will be necessary to create end-user documentation, for which the docstrings will be a starting point.]]
 
 Specific comments
 =================

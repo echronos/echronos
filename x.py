@@ -55,10 +55,27 @@ import sys
 import os
 
 
+def follow_link(l):
+    """Return the underlying file from a symbolic link.
+
+    This will (recursively) follow links until a non-symbolic link is found.
+    No cycle checks are performed by this function.
+
+    """
+    if not os.path.islink(l):
+        return l
+    p = os.readlink(l)
+    if os.path.isabs(p):
+        return p
+    return follow_link(os.path.join(os.path.dirname(l), p))
+
+
 externals = ['pep8', 'nose', 'ice']
-BASE_DIR = os.path.normpath(os.path.dirname(__file__))
+BASE_DIR = os.path.normpath(os.path.dirname(follow_link(__file__)))
 sys.path = [os.path.join(BASE_DIR, 'external_tools', e) for e in externals] + sys.path
 sys.path.insert(0, os.path.join(BASE_DIR, 'prj/app/pystache'))
+if __name__ == '__main__':
+    sys.modules['x'] = sys.modules['__main__']
 
 ### Check that the correct Python is being used.
 correct = None
@@ -95,6 +112,7 @@ import time
 import unittest
 import zipfile
 from contextlib import contextmanager
+from glob import glob
 from random import choice
 
 # Set up a specific logger with our desired output level
@@ -167,11 +185,6 @@ def walk(path, flt=None):
         file_list.extend([os.path.join(root, f) for f in files if not flt(os.path.join(root, f))])
     return file_list
 
-# basedir is a (potentially-relative) path to the location of the
-# directory in which the current script is located. i.e: basedir
-# refers to the top-level directory of the project.
-basedir = os.path.dirname(__file__)
-
 
 def base_file(*path):
     """Join one or more pathname components to the directory in which the
@@ -192,7 +205,7 @@ def base_file(*path):
     The path returned by `base_file` will allow access to the file
     assuming that the current working directory has not been changed.
     """
-    return os.path.join(basedir, *path)
+    return os.path.join(BASE_DIR, *path)
 
 
 def un_base_file(path):
@@ -200,10 +213,10 @@ def un_base_file(path):
 
     For all `x`, `un_base_file(base_file(x)) == x`.
     """
-    if basedir == '':
+    if BASE_DIR == '':
         return path
     else:
-        return path[len(basedir) + 1:]
+        return path[len(BASE_DIR) + 1:]
 
 
 def check_pep8(args):
@@ -529,8 +542,8 @@ def discover_tests(*mut_names):
     in a module called 'test_<modulename>'.
 
     """
-    muts = [importlib.import_module(mut_name) for mut_name in mut_names]
-    for mut in muts:
+    muts = [(mut_name, importlib.import_module(mut_name)) for mut_name in mut_names]
+    for mut_name, mut in muts:
         if ispackage(mut):
             test_package = importlib.import_module('{}.test'.format(mut.__name__))
             test_module_names = ['{}.{}'.format(test_package.__name__, m)
@@ -539,7 +552,7 @@ def discover_tests(*mut_names):
             for tmn in test_module_names:
                 yield from discover_tests_module(importlib.import_module(tmn))
         else:
-            yield from discover_tests_module(importlib.import_module('{}_test'.format(mut.__name__)))
+            yield from discover_tests_module(importlib.import_module('{}_test'.format(mut_name)))
 
 
 def _prj_test():
@@ -604,7 +617,7 @@ def run_module_tests(modules, directories, patterns=[], verbosity=0, print_only=
     If the boolean 'print_only' is True, the discovered tests are printed on the console but not executed.
 
     """
-    paths = [os.path.abspath(os.path.join(os.path.dirname(__file__), dir)) for dir in directories]
+    paths = [os.path.abspath(os.path.join(BASE_DIR, dir)) for dir in directories]
     import sys
     for path in paths:
         sys.path.insert(0, path)
@@ -987,6 +1000,108 @@ def tasks(args):
     print("D: described in pm/tasks  L: local branch  R: remote branch  A: archived branch")
 
 
+@contextmanager
+def tarfile_open(name, mode, **kwargs):
+    assert mode.startswith('w')
+    with tarfile.open(name, mode, **kwargs) as f:
+        try:
+            yield f
+        except:
+            os.unlink(name)
+            raise
+
+
+class FileWithLicense:
+    """FileWithLicense provides a read-only file-like object that automatically includes license text when reading
+    from the underlying file object.
+
+    The FileWithLicense object takes ownership of the underlying file object.
+    The original file object should not be used after passing it to the FileWithLicense object.
+
+    """
+    def __init__(self, f, lic, xml_mode):
+        XML_PROLOG = b'<?xml version="1.0" encoding="UTF-8" ?>\n'
+        self._f = f
+        self._read_license = True
+
+        if xml_mode:
+            lic = XML_PROLOG + lic
+            file_header = f.read(len(XML_PROLOG))
+            if file_header != XML_PROLOG:
+                raise Exception("XML File: '{}' does not contain expected prolog: {} expected {}".
+                                format(f.name, file_header, XML_PROLOG))
+
+        if len(lic) > 0:
+            self._read_license = False
+            self._license_io = io.BytesIO(lic)
+
+    def read(self, size):
+        assert size > 0
+        data = b''
+        if not self._read_license:
+            data = self._license_io.read(size)
+            if len(data) < size:
+                self._read_license = True
+                size -= len(data)
+
+        if self._read_license:
+            data += self._f.read(size)
+
+        return data
+
+    def close(self):
+        self._f.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close()
+
+
+class LicenseOpener:
+    """The license opener provides a single 'open' method, that can be used instead of the built-in 'open' function.
+
+    This open will return a file-like object that modifies the underlying file to include an appropriate license
+    header.
+
+    The 'license' is passed to the object during construction.
+
+    """
+    def __init__(self, license):
+        self.license = license
+
+    def _get_lic(self, filename):
+        lic = ''
+        ext = os.path.splitext(filename)[1]
+        is_xml = False
+
+        if ext in ['.c', '.h', '.ld', '.s']:
+            lic = '/*' + self.license + '*/\n'
+        elif ext in ['.py']:
+            lic = '"""' + self.license + '"""\n'
+        elif ext in ['.prx']:
+            lic = '<!--' + self.license + '-->\n'
+            is_xml = True
+
+        lic = lic.encode('utf8')
+
+        return lic, is_xml
+
+    def open(self, filename, mode):
+        assert mode == 'rb'
+
+        f = open(filename, mode)
+        lic, is_xml = self._get_lic(filename)
+        return FileWithLicense(f, lic, is_xml)
+
+    def tar_info_filter(self, tarinfo):
+        if tarinfo.isreg():
+            lic, _ = self._get_lic(tarinfo.name)
+            tarinfo.size += len(lic)
+        return tar_info_filter(tarinfo)
+
+
 def tar_info_filter(tarinfo):
     tarinfo.uname = 'brtos'
     tarinfo.gname = 'brtos'
@@ -996,23 +1111,47 @@ def tar_info_filter(tarinfo):
     return tarinfo
 
 
-def tar_gz(output, tree, prefix):
-    """Create a tar.gz file named `output` from a specified directory tree.
+def tar_add_data(tf, arcname, data, ti_filter=None):
+    """Directly add data to a tarfile.
 
-    When creating the tar.gz a standard set of meta-data will be used to
-    help ensure things are consistent.
+    tf is a tarfile.TarFile object.
+    arcname is the name the data will have in the archive.
+    data is the raw data (which should be of type 'bytes').
+    fi_filter filters the created TarInfo object. (In a similar manner to the tarfile.TarFile.add() method.
 
     """
+    ti = tarfile.TarInfo(arcname)
+    ti.size = len(data)
+    if ti_filter:
+        ti = ti_filter(ti)
+    tf.addfile(ti, io.BytesIO(data))
 
-    with tarfile.open(output, 'w:gz', format=tarfile.GNU_FORMAT) as tf:
-        with chdir(tree):
-            for f in os.listdir('.'):
-                tf.add(f, arcname='{}/{}'.format(prefix, f), filter=tar_info_filter)
+
+def tar_gz_with_license(output, tree, prefix, license):
+
+    """Create a tar.gz file named `output` from a specified directory tree.
+
+    Any appropriate files have the specified license attached.
+
+    When creating the tar.gz a standard set of meta-data will be used to help ensure things are consistent.
+
+    """
+    lo = LicenseOpener(license)
+    try:
+        with tarfile.open(output, 'w:gz', format=tarfile.GNU_FORMAT) as tf:
+            tarfile.bltn_open = lo.open
+            with chdir(tree):
+                for f in os.listdir('.'):
+                    tf.add(f, arcname='{}/{}'.format(prefix, f), filter=lo.tar_info_filter)
+    finally:
+        tarfile.bltn_open = open
 
 
-def mk_partial(pkg_name):
-    fn = os.path.join(BASE_DIR, 'release', 'partials', '{}.tar.gz'.format(pkg_name))
-    tar_gz(fn, os.path.join(BASE_DIR, 'packages', pkg_name), 'share/packages/{}'.format(pkg_name))
+def mk_partial(pkg_name, archive_name, license):
+    fn = os.path.join(BASE_DIR, 'release', 'partials', '{}.tar.gz'.format(archive_name))
+    src_dir = os.path.join(BASE_DIR, 'packages', pkg_name)
+    src_prefix = 'share/packages/{}'.format(pkg_name)
+    tar_gz_with_license(fn, src_dir, src_prefix, license)
 
 
 def build_partials(args):
@@ -1020,7 +1159,8 @@ def build_partials(args):
     os.makedirs(os.path.join(BASE_DIR, 'release', 'partials'),  exist_ok=True)
     packages = os.listdir(os.path.join(BASE_DIR, 'packages'))
     for pkg in packages:
-        mk_partial(pkg)
+        for config in get_release_configs():
+            mk_partial(pkg, '{}-{}'.format(pkg, config.name), config.license)
 
 
 def build_manual(pkg):
@@ -1038,6 +1178,62 @@ def build_manuals(args):
         build_manual(pkg)
 
 
+class ReleaseMeta(type):
+    """A pretty-printing meta-class for the Release class."""
+    def __str__(cls):
+        return '{}-{}'.format(cls.name, cls.version)
+
+
+class Release(metaclass=ReleaseMeta):
+    """The Release base class is used by the release configuration."""
+    packages = []
+    platforms = []
+    version = None
+    name = None
+    enabled = False
+    license = None
+    top_level_license = None
+
+
+def get_release_configs():
+    """Return a list of release configs."""
+    import release_cfg
+    maybe_configs = [getattr(release_cfg, cfg) for cfg in dir(release_cfg)]
+    configs = [cfg for cfg in maybe_configs if inspect.isclass(cfg) and issubclass(cfg, Release)]
+    enabled_configs = [cfg for cfg in configs if cfg.enabled]
+    return enabled_configs
+
+
+def build_single_release(config):
+    """Build a release archive for a specific release configuration."""
+    basename = 'brtos-{}-{}'.format(config.name, config.version)
+    logging.info("Building {}".format(basename))
+    with tarfile_open('release/{}.tar.gz'.format(basename), 'w:gz', format=tarfile.GNU_FORMAT) as tf:
+        for pkg in config.packages:
+            with tarfile.open('release/partials/{}-{}.tar.gz'.format(pkg, config.name), 'r:gz') as in_f:
+                for m in in_f.getmembers():
+                    m_f = in_f.extractfile(m)
+                    m.name = os.path.join(basename, m.name)
+                    tf.addfile(m, m_f)
+        for plat in config.platforms:
+            arcname = '{}/{}/bin/prj'.format(basename, plat)
+            tf.add('prj_build_{}/prj'.format(plat), arcname=arcname, filter=tar_info_filter)
+        if config.top_level_license is not None:
+            tar_add_data(tf, '{}/LICENSE'.format(basename),
+                         config.top_level_license.encode('utf8'),
+                         tar_info_filter)
+
+        if 'TEAMCITY_VERSION' in os.environ:
+            build_info = os.environ['BUILD_VCS_NUMBER']
+        else:
+            g = Git()
+            build_info = g.branch_hash()
+            if not g.working_dir_clean():
+                build_info += "-unclean"
+        build_info += '\n'
+        tar_add_data(tf, '{}/build_info'.format(basename), build_info.encode('utf8'), tar_info_filter)
+
+
 def build_release(args):
     """Implement the build-release command.
 
@@ -1045,31 +1241,23 @@ def build_release(args):
 
     Additionally, it takes the binary 'prj' files and adds it to the appropriate place in the release tar file.
 
-    In the future this should support different release targets via a command line argument.
-    Currently it is hard-coded for a release of the ARMv7 platform with a Linux host.
-
     """
-    packages = ['armv7m', 'generic', 'rtos-example', 'machine-qemu-simple', 'machine-stm32f4-discovery']
-    platforms = ['x86_64-unknown-linux-gnu']  # ['x86_64-apple-darwin']
-
-    with tarfile.open('release/brtos.tar.gz', 'w:gz', format=tarfile.GNU_FORMAT) as tf:
-        for pkg in packages:
-            with tarfile.open('release/partials/{}.tar.gz'.format(pkg), 'r:gz') as in_f:
-                for m in in_f.getmembers():
-                    m_f = in_f.extractfile(m)
-                    tf.addfile(m, m_f)
-        for plat in platforms:
-            tf.add('prj_build_{}/prj'.format(plat), arcname='{}/bin/prj'.format(plat), filter=tar_info_filter)
+    for config in get_release_configs():
+        try:
+            build_single_release(config)
+        except FileNotFoundError as e:
+            logging.warning("Unable to build '{}'. File not found: '{}'".format(config, e.filename))
 
 
-def release_test(args):
-    """Implement the test-release command.
+def release_test_one(archive):
+    """Test a single archive
 
-    This command is used to perform sanity checks and testing of the full release.
+    This is primarily a sanity check of the actual release file. Release
+    files are only made after other testing has been successfully performed.
+
     Currently it simply does some sanitfy checking on the tar file to ensure it is consistent.
 
     In the future additional testing will be performed.
-    Additionally, supporting multiple different releases will be necessary in the future.
 
     """
     project_prj_template = """<?xml version="1.0" encoding="UTF-8" ?>
@@ -1078,7 +1266,7 @@ def release_test(args):
 </project>
 """
 
-    rel_file = os.path.abspath('release/brtos.tar.gz')
+    rel_file = os.path.abspath(archive)
     with tarfile.open(rel_file, 'r:gz') as tf:
         for m in tf.getmembers():
             if m.gid != 1000:
@@ -1109,6 +1297,16 @@ def release_test(args):
                 x = os.system("./{}/bin/prj build {}".format(platform, pkg))
                 if x != 0:
                     raise Exception("Build failed.")
+
+
+def release_test(args):
+    """Implement the test-release command.
+
+    This command is used to perform sanity checks and testing of the full release.
+
+    """
+    for rel in glob(os.path.join(BASE_DIR, 'release', '*.tar.gz')):
+        release_test_one(rel)
 
 
 class Git:
@@ -1362,9 +1560,42 @@ class Git:
             r += '+{:<4}'.format(ahead)
         return r
 
-    def branch_date(self, branch):
-        """Return the date of the latest commit on a given branch as a UNIX timestamp."""
-        return int(self._do(['log', branch, '-1', '--pretty=format:%at']).strip())
+    def _log_pretty(self, pretty_fmt, branch=None):
+        """Return information from the latest commit with a specified `pretty` format.
+
+        The log from a specified branch may be specified.
+        See `git log` man page for possible pretty formats.
+
+        """
+        # Future directions: Rather than just the latest commit, allow the caller
+        # specify the number of commits. This requires additional parsing of the
+        # result to return a list, rather than just a single item.
+        # Additionally, the caller could pass a 'conversion' function which would
+        # convert the string into a a more useful data-type.
+        # As this method may be changed in the future, it is marked as a private
+        # function (for now).
+        cmd = ['log']
+        if branch is not None:
+            cmd.append(branch)
+        cmd.append('-1')
+        cmd.append('--pretty=format:{}'.format(pretty_fmt))
+        return self._do(cmd).strip()
+
+    def branch_date(self, branch=None):
+        """Return the date of the latest commit on a given branch as a UNIX timestamp.
+
+        The branch may be ommitted, in which case it defaults to the current head.
+
+        """
+        return int(self._log_pretty('%at', branch=branch))
+
+    def branch_hash(self, branch=None):
+        """Return the hash of the latest commit on a given branch as a UNIX timestamp.
+
+        The branch may be ommitted, in which case it defaults to the current head.
+
+        """
+        return self._log_pretty('%H', branch=branch)
 
     def working_dir_clean(self):
         """Return True is the working directory is clean."""

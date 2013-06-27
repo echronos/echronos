@@ -14,6 +14,19 @@ if __name__ == "__main__":
         for pth in ['pystache', 'ply', 'lib']:
             sys.path.insert(0, os.path.join(os.path.dirname(__file__), pth))
 
+# Logging is set up first since this is critical to the rest of the application working correctly.
+# It is possible that other modules will perform logging during import, so make sure this is very early.
+import logging as _logging  # Avoid unintended using of 'logging'
+# By default log everything from INFO up.
+logger = _logging.getLogger('prj')
+logger.setLevel(_logging.INFO)
+_logging.basicConfig()
+
+
+# Ensure that basicConfig is only called once.
+def error_fn(*args, **kwargs):
+    raise Exception("basicConfig called multiple times.")
+_logging.basicConfig = error_fn
 
 import xml.dom.minidom
 from xml.parsers.expat import ExpatError
@@ -21,7 +34,6 @@ import argparse
 import functools
 import glob
 import imp
-import logging
 import pdb
 import pystache
 import re
@@ -47,6 +59,21 @@ sys.modules['prj'] = sys.modules[__name__]
 
 NOTHING = util.util.Singleton('nothing')
 SIG_NAMES = dict((k, v) for v, k in signal.__dict__.items() if v.startswith('SIG'))
+
+
+def follow_link(l):
+    """Return the underlying file form a symbolic link.
+
+    This will (recursively) follow links until a non-symbolic link is found.
+    No cycle checks are performed by this function.
+
+    """
+    if not os.path.islink(l):
+        return l
+    p = os.readlink(l)
+    if os.path.isabs(p):
+        return p
+    return follow_link(os.path.join(os.path.dirname(l), p))
 
 
 def show_exit(exit_code):
@@ -99,10 +126,6 @@ def monkey_start_element_handler(self, name, attributes):
     node._col = self.getParser().CurrentColumnNumber
 real_start_element_handler = xml.dom.expatbuilder.ExpatBuilderNS.start_element_handler
 xml.dom.expatbuilder.ExpatBuilderNS.start_element_handler = monkey_start_element_handler
-
-# By default log everything from INFO up.
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
 
 # We don't want byte-code written to disk for any of the plug-ins that we load,
 # so disable it here. It would be nicer to do this on a per-plugin basis but
@@ -565,6 +588,10 @@ class EntityLoadError(Exception):
     """Raise when unable to resolve a entity reference."""
 
 
+class EntityNotFound(Exception):
+    """Raised when an entity can not be found."""
+
+
 class ProjectStartupError(Exception):
     """Raised when there is an error initialising the start-script."""
 
@@ -630,8 +657,8 @@ class ModuleInstance:
             raise AttributeError("ModuleInstance '{}' has no attribute '{}'".format(self, name))
 
         @functools.wraps(func)
-        def _wrap():
-            return func(self._system, self._config)
+        def _wrap(*args, **kwargs):
+            return func(self._system, self._config, *args, **kwargs)
 
         return _wrap
 
@@ -676,7 +703,7 @@ class Module:
         """
         pass
 
-    def prepare(self, system, config):
+    def prepare(self, system, config, **kwargs):
         """Prepare the `system` for building based on a specific module `config`.
 
         This method should be implemented in a sub-class. It should update the system object
@@ -790,7 +817,7 @@ class SourceModule(NamedModule):
         schema = maybe_single_named_child(dom, 'schema')
         self.schema = xml2schema(schema) if schema else None
 
-    def prepare(self, system, config):
+    def prepare(self, system, config, *, copy_all_files=False):
         """prepare the `system` for building based on the specific config.
 
         This includes copying any header files to the correct locations, and running any templating.
@@ -801,18 +828,24 @@ class SourceModule(NamedModule):
 
         """
         if self.code_gen is None:
-            system.add_file(self.filename)
+            if copy_all_files:
+                path = os.path.join(system.output, os.path.basename(self.filename))
+                shutil.copy(self.filename, path)
+                logger.info("Preparing: copy %s -> %s", self.filename, path)
+                system.add_file(path)
+            else:
+                system.add_file(self.filename)
 
         elif self.code_gen == 'template':
             # Create implementation file.
-            path = os.path.join(system.output, 'gen', '%s.c' % self.name)
-            logger.info("Preparing: template %s -> %s (%s)" % (self.filename, path, config))
+            path = os.path.join(system.output, '%s.c' % os.path.basename(self.name))
+            logger.info("Preparing: template %s -> %s (%s)", self.filename, path, config)
             pystache_render(self.filename, path, config)
             system.add_file(path)
 
         # Copy any headers across. This should use templating if that is configured.
         for header in self.headers:
-            path = os.path.join(system.output, 'gen', os.path.basename(header.path))
+            path = os.path.join(system.output, os.path.basename(header.path))
             if header.code_gen is None:
                 try:
                     shutil.copy(header.path, path)
@@ -820,7 +853,7 @@ class SourceModule(NamedModule):
                     s = xml_error_str(header.xml_element, "Resource not found: {}".format(header.path))
                     raise ResourceNotFoundError(s)
             elif header.code_gen == 'template':
-                logger.info("Preparing: template %s -> %s (%s)" % (header.path, path, config))
+                logger.info("Preparing: template %s -> %s (%s)", header.path, path, config)
                 pystache_render(header.path, path, config)
 
 
@@ -854,6 +887,7 @@ class System:
         self._c_files = []
         self._asm_files = []
         self._linker_script = None
+        self._output = None
         self.__instances = None
 
     @property
@@ -868,11 +902,18 @@ class System:
 
     @property
     def output(self):
-        return os.path.join(self.project.output, self.name)
+        if self._output is None:
+            self._output = os.path.join(self.project.output, self.name)
+
+        return self._output
+
+    @output.setter
+    def output(self, value):
+        self._output = value
 
     @property
     def include_paths(self):
-        return [os.path.join(self.output, 'gen')]
+        return [self.output]
 
     @property
     def c_files(self):
@@ -936,7 +977,7 @@ class System:
             try:
                 module = self.project.find(name)
             except EntityLoadError as e:
-                logging.error(e)
+                logger.error(e)
                 raise EntityLoadError(xml_error_str(m_el, 'Error loading module {}'.format(name)))
 
             if isinstance(module, Module):
@@ -946,12 +987,27 @@ class System:
                 raise EntityLoadError(xml_error_str(m_el, 'Entity {} has unexpected type {} and cannot be \
                 instantiated'.format(name, type(module))))
 
-        os.makedirs(os.path.join(self.output, 'gen'), exist_ok=True)
+        os.makedirs(self.output, exist_ok=True)
 
         for i in instances:
             i.validate()
 
         return instances
+
+    def generate(self, *, copy_all_files):
+        """Generate the source for the system.
+
+        Raise an appropriate exception if there is an error.
+        No return value from this method.
+
+        """
+        os.makedirs(self.output, exist_ok=True)
+
+        for i in self._instances:
+            i.prepare(copy_all_files=copy_all_files)
+
+        for i in self._instances:
+            i.post_prepare()
 
     def build(self):
         """Build the system.
@@ -960,14 +1016,7 @@ class System:
         No return value from this method.
 
         """
-        os.makedirs(self.output, exist_ok=True)
-
-        for i in self._instances:
-            i.prepare()
-
-        for i in self._instances:
-            i.post_prepare()
-
+        self.generate(copy_all_files=False)
         self._run_action(Builder)
 
     def load(self):
@@ -1003,11 +1052,30 @@ module\'s functionality cannot be invoked.'.format(self, typ.__name__))
 class Project:
     """The Project is a container for other objects in the system."""
 
-    def __init__(self, filename):
-        """Parses the project definition file `filename`, and any imported system and module definition files."""
-        self.dom = xml_parse_file(filename)
-        self.project_dir = os.path.dirname(filename)
-        self.search_paths = [self.project_dir]
+    def __init__(self, filename, search_paths=None):
+        """Parses the project definition file `filename`, and any imported system and module definition files.
+
+        If filename is None, then a default 'empty' project is created.
+
+        If search_paths are specified these will be added to any default search paths.
+
+        The search path for a project is a list of paths in which modules will be searched.
+
+        Any paths specified by the 'search-path' element will be added to the search path first.
+        This will be followed by any search paths specified on the command line.
+        If no paths are specified on the command line, or in the project XML file, then the search path
+        defaults to the project directory.
+        Finally, the installed 'packages' directory is added to the search path.
+
+        """
+        if filename is None:
+            self.dom = xml_parse_string('<project></project>')
+            self.project_dir = os.getcwd()
+        else:
+            self.dom = xml_parse_file(filename)
+            self.project_dir = os.path.dirname(filename)
+
+        self.search_paths = []
         self.entities = {}
 
         # Find all startup-script items.
@@ -1024,23 +1092,58 @@ class Project:
         # All search paths are added before attempting any imports
         sp_els = self.dom.getElementsByTagName('search-path')
         for sp_el in sp_els:
-            self.search_paths.append(single_text_child(sp_el))
+            sp = single_text_child(sp_el)
+            if sp.endswith('/'):
+                sp = sp[:-1]
+            self.search_paths.append(sp)
+
+        if search_paths is not None:
+            self.search_paths += search_paths
+
+        if len(sp_els) == 0:
+            self.search_paths.append(self.project_dir)
+
+        if frozen:
+            base_file = sys.executable if frozen else __file__
+            base_file = follow_link(base_file)
+
+            base_dir = os.path.normpath(os.path.abspath(os.path.dirname(base_file)))
+
+            def find_share(cur):
+                maybe_share_path = os.path.join(cur, 'share')
+                if os.path.exists(maybe_share_path):
+                    return maybe_share_path
+                else:
+                    up = os.path.normpath(os.path.join(cur, os.path.pardir))
+                    if up == cur:
+                        return None
+                    return find_share(up)
+            share_dir = find_share(base_dir)
+            if share_dir is None or not os.path.isdir(share_dir):
+                logger.warning("Unable to find 'share' directory.")
+            else:
+                packages_dir = os.path.join(share_dir, 'packages')
+                if not os.path.exists(packages_dir) or not os.path.isdir(packages_dir):
+                    logger.warning("Can't find 'packages' directory in '{}'".format(share_dir))
+                else:
+                    self.search_paths.append(packages_dir)
+
+        logger.debug("search_paths %s", self.search_paths)
 
         output_el = maybe_single_named_child(self.dom, 'output')
         if output_el:
             path = get_attribute(output_el, 'path')
         else:
-            path = "out"
+            path = 'out'
         if os.path.isabs(path):
             self.output = path
         else:
             self.output = os.path.join(self.project_dir, path)
 
-        os.makedirs(self.output, exist_ok=True)
+    def _find_import(self, entity_name):
+        """Looks up an entity definition in the search paths by its specified `entity_name`.
 
-    def _parse_import(self, entity_name):
-        """Looks up an entity definition in the search paths by its specified `entity_name`, parses the definition,
-        and returns the list of entities it defines.
+        Returns the path to the entity.
 
         """
         # Search for a given entity name.
@@ -1062,17 +1165,26 @@ class Project:
             if path:
                 break
         else:
-            raise EntityLoadError("Unable to find entity named %s" % entity_name)
+            raise EntityNotFound("Unable to find entity named %s" % entity_name)
 
         if ext == '':
             if not os.path.isdir(path):
-                raise EntityLoadError("Expected path %s to be a directory" % path)
+                raise EntityNotFound("Unable to find entity named %s" % entity_name)
             # Search for an 'entity.<ext>' file.
             file_path, ext = search_inner(os.path.join(path, 'entity'))
             if file_path is None:
-                raise EntityLoadError("Couldn't find entity definition file in %s" % path)
+                raise EntityNotFound("Couldn't find entity definition file in %s" % path)
             path = file_path
 
+        return path
+
+    def _parse_import(self, entity_name, path):
+        """Parse an entity decribed in the specified path.
+
+        Return the approriate object as determined by the file extension.
+
+        """
+        ext = os.path.splitext(path)[1]
         if ext == '.prx':
             return System(entity_name, xml_parse_file(path), self)
         elif ext == '.py':
@@ -1090,18 +1202,67 @@ class Project:
         elif ext in ['.c', '.s']:
             return SourceModule(entity_name, path)
         else:
-            raise EntityLoadError("Unhandled extension %s" % ext)
+            raise EntityLoadError("Unhandled extension '{}'".format(ext))
 
-    def find(self, entity_name):
+    def _entity_name_from_path(self, path):
+        """Determine the name of an entity from its path."""
+        # 1. Find which search path the path is in.
+        abs_path = os.path.abspath(path)
+        for sp in self.search_paths:
+            abs_sp = os.path.abspath(sp)
+            if abs_path[:len(abs_sp)] == abs_sp:
+                # Strip the search path
+                entity_name = abs_path[len(abs_sp) + 1:]
+                break
+        else:
+            entity_name = 'ABS' + abs_path
+
+        # Strip the extension.
+        entity_name = os.path.splitext(entity_name)[0]
+
+        # Strip 'entity'
+        if entity_name.endswith('/entity'):
+            entity_name = entity_name[:-len('/entity')]
+
+        return entity_name
+
+    def find(self, entity_name, allow_paths=False):
         """Find an entity (could be a module, system or some other type).
 
         A KeyError will be raised in the case where the entity can't be found.
         """
         if entity_name not in self.entities:
             # Try and find the entity name
-            self.entities[entity_name] = self._parse_import(entity_name)
+            try:
+                path = self._find_import(entity_name)
+            except EntityNotFound:
+                if allow_paths and os.path.exists(entity_name):
+                    path = entity_name
+                    entity_name = self._entity_name_from_path(path)
+                    # Determine the correct entity name
+                else:
+                    raise
+            check = self._entity_name_from_path(path)
+            if check != entity_name:
+                msg = "Internal exception. Invalid entity names '{}' != '{}'".format(check, entity_name)
+                raise Exception(msg)
+            assert check == entity_name
+            self.entities[entity_name] = self._parse_import(entity_name, path)
 
         return self.entities[entity_name]
+
+
+def generate(args):
+    """Genereate the source code for the specified system.
+
+    `args` is expected to provide the following attributes:
+    - `project`: an instance of Project.
+    - `system`: the name of the system entity to instantiate and generate source.
+
+    This function returns 0 on success and 1 if an error occurs.
+
+    """
+    return call_system_function(args, System.generate, extra_args={'copy_all_files': True})
 
 
 def build(args):
@@ -1114,7 +1275,7 @@ def build(args):
     This function returns 0 on success and 1 if an error occurs.
 
     """
-    return call_system_function(args.project, args.system, System.build)
+    return call_system_function(args, System.build)
 
 
 def load(args):
@@ -1127,28 +1288,38 @@ def load(args):
     This function returns 0 on success and 1 if an error occurs.
 
     """
-    return call_system_function(args.project, args.system, System.load)
+    return call_system_function(args, System.load)
 
 
-def call_system_function(project, system_name, function):
+def call_system_function(args, function, extra_args=None):
     """Instantiate a system and call the given member function of the System class on it."""
+    project = args.project
+    system_name = args.system
+
+    if extra_args is None:
+        extra_args = {}
+
     try:
-        system = project.find(system_name)
-    except EntityLoadError:
-        logging.error("Unable to find system [{}].".format(system_name))
+        system = project.find(system_name, allow_paths=True)
+    except (EntityLoadError, EntityNotFound):
+        logger.error("Unable to find system [{}].".format(system_name))
         return 1
 
-    logging.info("Invoking {}.{}".format(system, function))
+    if args.output:
+        system.output = args.output
+
+    logger.info("Invoking {}.{}".format(system, function))
     try:
-        function(system)
-    except (SystemParseError, SystemLoadError, SystemConsistencyError, ResourceNotFoundError) as e:
-        logging.error(str(e))
+        function(system, **extra_args)
+    except (SystemParseError, SystemLoadError, SystemConsistencyError, ResourceNotFoundError, EntityNotFound) as e:
+        logger.error(str(e))
         return 1
 
     return 0
 
 
 SUBCOMMAND_TABLE = {
+    'gen': generate,
     'build': build,
     'load': load,
 }
@@ -1160,8 +1331,16 @@ def main():
     parser = argparse.ArgumentParser(prog='prj')
     parser.add_argument('--project', default='project.prj',
                         help='project file (project.prj)')
+    parser.add_argument('--no-project', action='store_true',
+                        help='force no project file')
+    parser.add_argument('--search-path', action='append', help='additional search paths')
+    parser.add_argument('--verbose', action='store_true', help='provide verbose output')
+    parser.add_argument('--output', '-o', help='Output directory')
 
     subparsers = parser.add_subparsers(title='subcommands', dest='command')
+
+    build_parser = subparsers.add_parser('gen', help='Generate source code for a system')
+    build_parser.add_argument('system', help='system to generate source for')
 
     build_parser = subparsers.add_parser('build', help='Build a system and create a system image')
     build_parser.add_argument('system', help='system to build')
@@ -1171,21 +1350,27 @@ def main():
 
     args = parser.parse_args()
 
+    if args.verbose:
+        logger.setLevel(_logging.DEBUG)
+
     if args.command is None:
         parser.print_help()
         parser.exit(1, "\nSee 'prj <subcommand> -h' for more information on a specific command\n")
 
+    if args.no_project:
+        args.project = None
+
     # Initialise project
     try:
-        args.project = Project(args.project)
-    except (EntityLoadError, ProjectStartupError) as e:
-        logging.error(str(e))
+        args.project = Project(args.project, args.search_path)
+    except (EntityLoadError, EntityNotFound, ProjectStartupError) as e:
+        logger.error(str(e))
         return 1
     except FileNotFoundError as e:
-        logging.error("Unable to initialise project from file [%s]. Exception: %s" % (args.project, e))
+        logger.error("Unable to initialise project from file [%s]. Exception: %s" % (args.project, e))
         return 1
     except ExpatError as e:
-        logging.error("Parsing %s:%s ExpatError %s" % (e.path, e.lineno, e))
+        logger.error("Parsing %s:%s ExpatError %s" % (e.path, e.lineno, e))
         return 1
 
     return SUBCOMMAND_TABLE[args.command](args)
@@ -1204,11 +1389,11 @@ def _start():
         if developer_mode:
             pdb.post_mortem()
         else:
-            logging.error("An unhandled exception occurred: %s" % e)
+            logger.error("An unhandled exception occurred: %s" % e)
             try:
                 with open("prj.errors", "w") as f:
                     traceback.print_exception(*sys.exc_info(), file=f)
-                logging.error("Please include the 'prj.errors' file when submitting a bug report")
+                logger.error("Please include the 'prj.errors' file when submitting a bug report")
             except:
                 pass
             sys.exit(1)

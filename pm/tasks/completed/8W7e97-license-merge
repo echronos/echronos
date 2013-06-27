@@ -1,0 +1,9 @@
+Task: 8W7e97-license-merge
+==============================================================================
+
+Goals
+--------
+
+When releasing a build to a customer it is important that the correct license is included.
+This requires place an appropriate LICENSE.txt file in the top-level directory, and including an appropriate license header in each source code file.
+In addition the build release process should be extended so that it can build multiple per customer releases.

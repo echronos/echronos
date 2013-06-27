@@ -1,0 +1,10 @@
+Task: DH6AEy-prj-genonly
+==============================================================================
+
+Goals
+--------
+
+When using the RTOS in other project is preferable to use the project's existing build system, rather than attempting to modify the project to use the `prj` build system.
+The goal of this task is to add a 'generate' only target to the 'prj' tool.
+This will just generate the file rather than performing any build.
+No depedency on build tools should be required.

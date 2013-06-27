@@ -1,0 +1,40 @@
+Breakaway Task Review
+=======================
+
+Task name: 8W7e97-license-merge
+Version reviewed: abcdece95a92f217ee9e4fbf164a70cd962d5386
+Reviewer: stg
+Date: 2013-05-20
+Conclusion: Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: x.py:919 and others
+Comment 0: Rework
+The docstrings in this patch are too short (cf. convention TZb0Uv: The maximum line length in project Python files is 118 characters.)
+
+[[(benno): Fixed]]
+
+Location: x.py:925
+Comment 1: Rework
+The correct spelling is 'prologue'
+
+[[(benno): Fixed]]
+
+Location: x.py:930
+Comment 2: Rework
+This assertion seems valid for all cases in this function, in particular since the expression in line 938 raises an exception if lic is None.
+
+[[(benno): Remove assertion.]]
+
+Location: x.py:942ff
+Comment 3: Rework
+This function does not handle the case of size == -1 common in the standard file read() API.
+If this case does not need to be supported, an assertion and/or comment should obviate that fact.
+
+[[(benno): The Python API does not ever return -1, in fact this code is going len() on a byte-string, so -1 is impossible.
+In the case of a file read error then an exception would be raised, rather than -1 returned.]]

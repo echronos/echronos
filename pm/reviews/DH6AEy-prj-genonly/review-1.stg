@@ -1,0 +1,27 @@
+Breakaway Task Review
+=======================
+
+Task name: DH6AEy-prj-genonly
+Version reviewed: 69336424bba31d2bb06a71d49cc6eb6141d03d79
+Reviewer: stg
+Date: 2013-06-24
+Conclusion: Accepted
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: prj/app/prj.py
+Comment 0: Accepted
+I suggest the following improvements to the help strings for the command line options:
+'force no project file' -> 'Run without a project file. This is useful, e.g., to avoid importing search paths.'
+Or alternatively, whatever this option would be used for, as I am not sure about its purpose (which is where a more helpful help text would help).
+'additional search paths' -> 'Specify a search path for RTOS modules in addition to search paths specified in a project file. This option can be specified multiple times to add multiple search paths.'
+'Generate source code for a system' -> 'Stop after generating source code and skip building a system.'
+
+Location: release_cfg.py
+Comment 1: Accepted
+These changes seem unrelated to this task.
+If that is the case, they should not be included this branch.

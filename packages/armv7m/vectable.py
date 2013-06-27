@@ -38,15 +38,15 @@ class EntryModule(Module):
 
         return config
 
-    def prepare(self, system, config):
+    def prepare(self, system, config, **kwargs):
         # Copy associated header
         header = os.path.join(__path__, 'bitband.h')
-        path = os.path.join(system.output, 'gen', os.path.basename('bitband.h'))
+        path = os.path.join(system.output, os.path.basename('bitband.h'))
         shutil.copy(header, path)
 
         # Apply template to vectable.s
         filename = os.path.join(__path__, 'vectable.s')
-        path = os.path.join(system.output, 'gen', 'vectable.s')
+        path = os.path.join(system.output, 'vectable.s')
         logger.info("Preparing: template %s -> %s", filename, path)
         pystache_render(filename, path, config)
         system.add_asm_file(path)
@@ -73,7 +73,7 @@ class EntryModule(Module):
 
         # Apply template to linker script.
         filename = os.path.join(__path__, 'default.ld')
-        path = os.path.join(system.output, 'gen', 'default.ld')
+        path = os.path.join(system.output, 'default.ld')
         logger.info("Preparing: template %s -> %s", filename, path)
         pystache_render(filename, path, config)
         system.linker_script = path

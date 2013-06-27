@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <system>
   <modules>
-    <module name="posix/build" />
-    <module name="posix/debug" />
-    <module name="generic/debug">
+    <module name="posix.build" />
+    <module name="posix.debug" />
+    <module name="generic.debug">
       <ll_debug>posix_</ll_debug>
       <prefix></prefix>
     </module>
-    <module name="generic/hello">
+    <module name="generic.hello">
       <!-- hello, world! in hindi (according to google translate!) -->
       <phrase>नमस्ते, दुनिया!</phrase>
     </module>

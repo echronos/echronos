@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <system>
   <modules>
-    <module name="armv7m/build" />
-    <module name="armv7m/ctxt-switch" />
-    <module name="armv7m/vectable">
+    <module name="armv7m.build" />
+    <module name="armv7m.ctxt-switch" />
+    <module name="armv7m.vectable">
       <systick>tick_irq</systick>
     </module>
-    <module name="armv7m/rtos-rigel">
+    <module name="armv7m.rtos-rigel">
       <prefix>rtos_</prefix>
       <taskid_size>8</taskid_size>
       <signalset_size>8</signalset_size>

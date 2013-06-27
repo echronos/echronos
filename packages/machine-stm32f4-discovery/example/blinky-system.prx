@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <system>
   <modules>
-    <module name="armv7m/build" />
-    <module name="armv7m/vectable" />
-    <module name="machine-stm32f4-discovery/led" />
-    <module name="machine-stm32f4-discovery/example/blinky">
+    <module name="armv7m.build" />
+    <module name="armv7m.vectable" />
+    <module name="machine-stm32f4-discovery.led" />
+    <module name="machine-stm32f4-discovery.example.blinky">
       <delay_amount>100000</delay_amount>
     </module>
   </modules>

@@ -2,14 +2,14 @@
 <system>
   <modules>
 
-    <module name="posix/build" />
-    <module name="posix/debug" />
-    <module name="generic/debug">
+    <module name="posix.build" />
+    <module name="posix.debug" />
+    <module name="generic.debug">
       <ll_debug>posix_</ll_debug>
       <prefix></prefix>
     </module>
 
-    <module name="posix/rtos-acamar">
+    <module name="posix.rtos-acamar">
       <prefix>rtos_</prefix>
       <taskid_size>8</taskid_size>
       <num_tasks>2</num_tasks>
@@ -32,7 +32,7 @@
       </tasks>
     </module>
 
-    <module name="rtos-example/acamar-test" />
+    <module name="rtos-example.acamar-test" />
 
   </modules>
 </system>

@@ -983,6 +983,8 @@ class System:
         for m_el in module_els:
             # First find the module
             name = get_attribute(m_el, 'name')
+            if not valid_entity_name(name):
+                raise EntityLoadError(xml_error_str(m_el, "Invalid module name '{}'".format(name)))
             try:
                 module = self.project.find(name)
             except EntityLoadError as e:
@@ -1167,7 +1169,7 @@ class Project:
             return None, None
 
         for sp in self.search_paths:
-            base = os.path.join(sp, entity_name)
+            base = os.path.join(sp, os.path.join(*entity_name.split('.')))
             path, ext = search_inner(base)
             if path:
                 break
@@ -1224,12 +1226,18 @@ class Project:
         else:
             entity_name = 'ABS' + abs_path
 
+        # At this point the entity_name should look like a relative path
+        assert not os.path.isabs(entity_name)
+
         # Strip the extension.
         entity_name = os.path.splitext(entity_name)[0]
 
+        # Convert separators to '.'
+        entity_name = '.'.join(entity_name.split(os.path.sep))
+
         # Strip 'entity'
-        if entity_name.endswith('/entity'):
-            entity_name = entity_name[:-len('/entity')]
+        if entity_name.endswith('.entity'):
+            entity_name = entity_name[:-len('.entity')]
 
         return entity_name
 
@@ -1238,6 +1246,9 @@ class Project:
 
         A KeyError will be raised in the case where the entity can't be found.
         """
+        if not valid_entity_name(entity_name):
+            # Note: 'entity_name' should be checked before passing to this function.
+            raise Exception("Invalid entity name passed to find: '{}'".format(entity_name))
         if entity_name not in self.entities:
             # Try and find the entity name
             try:
@@ -1302,6 +1313,10 @@ def call_system_function(args, function, extra_args=None):
     """Instantiate a system and call the given member function of the System class on it."""
     project = args.project
     system_name = args.system
+
+    if not valid_entity_name(system_name):
+        logger.error("System name '{}' is invalid.".format(system_name))
+        return 1
 
     if extra_args is None:
         extra_args = {}

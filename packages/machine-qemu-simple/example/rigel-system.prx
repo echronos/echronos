@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <system>
   <modules>
-    <module name="armv7m/build" />
-    <module name="armv7m/ctxt-switch" />
-    <module name="armv7m/vectable">
+    <module name="armv7m.build" />
+    <module name="armv7m.ctxt-switch" />
+    <module name="armv7m.vectable">
       <systick>tick_irq</systick>
     </module>
-    <module name="armv7m/semihost-debug" />
-    <module name="generic/debug">
+    <module name="armv7m.semihost-debug" />
+    <module name="generic.debug">
       <ll_debug>armv7m_semihost_</ll_debug>
       <prefix></prefix>
     </module>
 
-    <module name="armv7m/rtos-rigel">
+    <module name="armv7m.rtos-rigel">
       <prefix>rtos_</prefix>
       <taskid_size>8</taskid_size>
       <signalset_size>8</signalset_size>
@@ -47,7 +47,7 @@
       </irq_events>
     </module>
 
-    <module name="rtos-example/rigel-test" />
+    <module name="rtos-example.rigel-test" />
 
   </modules>
 </system>

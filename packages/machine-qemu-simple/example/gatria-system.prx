@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <system>
   <modules>
-    <module name="armv7m/build" />
-    <module name="armv7m/ctxt-switch" />
-    <module name="armv7m/vectable" />
-    <module name="armv7m/semihost-debug" />
-    <module name="generic/debug">
+    <module name="armv7m.build" />
+    <module name="armv7m.ctxt-switch" />
+    <module name="armv7m.vectable" />
+    <module name="armv7m.semihost-debug" />
+    <module name="generic.debug">
       <ll_debug>armv7m_semihost_</ll_debug>
       <prefix></prefix>
     </module>
 
-    <module name="armv7m/rtos-gatria">
+    <module name="armv7m.rtos-gatria">
       <prefix>rtos_</prefix>
       <taskid_size>8</taskid_size>
       <num_tasks>2</num_tasks>
@@ -33,7 +33,7 @@
       </tasks>
     </module>
 
-    <module name="rtos-example/gatria-test" />
+    <module name="rtos-example.gatria-test" />
 
   </modules>
 </system>

@@ -1315,7 +1315,7 @@ def call_system_function(args, function, extra_args=None):
     if args.output:
         system.output = args.output
 
-    logger.info("Invoking {}.{}".format(system, function))
+    logger.info("Invoking '{}' on system '{}'".format(function.__name__, system.name))
     try:
         function(system, **extra_args)
     except (SystemParseError, SystemLoadError, SystemConsistencyError, ResourceNotFoundError, EntityNotFound) as e:

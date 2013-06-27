@@ -260,7 +260,7 @@ class Component:
     def _get_search_paths():
         search_paths = []
 
-        current_dir = basedir
+        current_dir = BASE_DIR
         while True:
             components_dir = os.path.join(current_dir, 'components')
             if os.path.isdir(components_dir):
@@ -283,9 +283,9 @@ class Component:
     def get_search_paths():
         """Find and return the directories that, by convention, are expected to contain component modules.
 
-        As search directories qualify all directories called 'components' in the basedir or its parent directories.
-        The search for such directories upwards in the directory tree from basedir stops at the first parent directory
-        not containing a 'components' directory.
+        As search directories qualify all directories called 'components' in the BASE_DIR or its parent directories.
+        The search for such directories upwards in the directory tree from BASE_DIR stops at the first parent
+        directory not containing a 'components' directory.
 
         """
         if Component._search_paths is None:

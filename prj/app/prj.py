@@ -1383,7 +1383,11 @@ def main():
         logger.error("Parsing %s:%s ExpatError %s" % (e.path, e.lineno, e))
         return 1
 
-    return SUBCOMMAND_TABLE[args.command](args)
+    try:
+        return SUBCOMMAND_TABLE[args.command](args)
+    except EntityLoadError as e:
+        logger.error(str(e))
+        return 1
 
 
 def _start():

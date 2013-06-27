@@ -1194,6 +1194,7 @@ class Release(metaclass=ReleaseMeta):
     enabled = False
     license = None
     top_level_license = None
+    extra_files = []
 
 
 def get_release_configs():
@@ -1223,6 +1224,9 @@ def build_single_release(config):
             tar_add_data(tf, '{}/LICENSE'.format(basename),
                          config.top_level_license.encode('utf8'),
                          tar_info_filter)
+
+        for arcname, filename in config.extra_files:
+            tf.add(filename, arcname='{}/{}'.format(basename, arcname), filter=tar_info_filter)
 
         if 'TEAMCITY_VERSION' in os.environ:
             build_info = os.environ['BUILD_VCS_NUMBER']

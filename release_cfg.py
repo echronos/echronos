@@ -54,6 +54,10 @@ NICTA and Regents of the Univeristy of Minnesota.
 3. SMACCM Project Licence Agreement (Technical Area 3), by and between
 NICTA and Galois, Inc.
 """
+    extra_files = [
+        ('README.md', 'docs/smaccm_readme'),
+        ('rigel-manual.pdf', 'docs/rigel-manual.pdf')
+    ]
 
 
 class ProjectLinux(ProjectBase):

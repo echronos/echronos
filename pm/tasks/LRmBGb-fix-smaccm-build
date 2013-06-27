@@ -1,0 +1,9 @@
+Task: LRmBGb-fix-smaccm-build
+==============================================================================
+
+Goals
+--------
+
+A merge error resulted in the smaccm release target being broken.
+Goal of this task is to fix the build.
+

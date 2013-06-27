@@ -596,6 +596,15 @@ class ProjectStartupError(Exception):
     """Raised when there is an error initialising the start-script."""
 
 
+def valid_entity_name(name):
+    """Return true if the name is a valid entity name.
+
+    Entity names can not contain / or \ characters.
+
+    """
+    return not any([bad_char in name for bad_char in '/\\'])
+
+
 def execute(args, env=None):
     """Execute a command. This wraps sucprocess.call in appropriate logging
     calls to display the command being executed, and raising an exception in

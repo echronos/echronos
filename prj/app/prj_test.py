@@ -125,3 +125,10 @@ def test_ensure_all_children_named_success():
 def test_ensure_all_children_named_error():
     xml = "<foo><bar /><baz /><bar /></foo>"
     ensure_all_children_named(xml_parse_string(xml), 'bar')
+
+
+def test_valid_entity_name():
+    assert valid_entity_name("foo.bar")
+    assert not valid_entity_name("foo/bar")
+    assert not valid_entity_name("foo\\bar")
+    assert not valid_entity_name("foo\\bar/baz")

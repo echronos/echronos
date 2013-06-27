@@ -28,7 +28,7 @@ class StandardLinux(Standard):
     enabled = True
 
 
-class SmaccmLinux(Standard):
+class SmaccmBase(Standard):
     license = """
 Unpublished copyright (c) 2013 National ICT Australia (NICTA),
 ABN 62 102 206 173.  All rights reserved.
@@ -60,13 +60,13 @@ NICTA and Galois, Inc.
     ]
 
 
-class ProjectLinux(ProjectBase):
+class SmaccmLinux(SmaccmBase):
     platforms = ['x86_64-unknown-linux-gnu']
     name = 'smaccm'
     enabled = True
 
 
-class ProjectDarwin(ProjectBase):
+class SmaccmDarwin(SmaccmBase):
     platforms = ['x86_64-apple-darwin']
     name = 'smaccm-darwin'
     enabled = True

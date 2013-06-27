@@ -121,7 +121,7 @@ The following systems can be built:
 
 `posix/hello/example`:
 
-     $ ./prj/app/prj.py build posix/example/hello
+     $ ./prj/app/prj.py build posix.example.hello
      $ out/posix/example/hello/system
 
 This should work on Linux, OS X or Windows.

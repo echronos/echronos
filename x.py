@@ -444,6 +444,7 @@ class ArchitectureComponent(Component):
 # Selection can be done via exact-match, prefix-match or regular expression
 # matching.
 #
+
 def ispackage(object):
     """Return true if the object is a package."""
     return inspect.ismodule(object) and hasattr(object, '__path__')

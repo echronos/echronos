@@ -718,7 +718,8 @@ def prj_build(args):
         with chdir(prj_build_path):
             ice.create_lib('prj', '../prj/app', main='prj')
             ice.create_lib('prjlib', '../prj/app/lib')
-            ice.create_lib('pystache', '../prj/app/pystache', excluded=['setup', 'pystache.tests', 'pystache.commands'])
+            ice.create_lib('pystache', '../prj/app/pystache',
+                           excluded=['setup', 'pystache.tests', 'pystache.commands'])
             ice.create_lib('ply', '../prj/app/ply', excluded=['setup'])
             ice.create_stdlib()
             ice.create_app(['stdlib', 'prj', 'prjlib', 'pystache', 'ply'])
@@ -1345,7 +1346,8 @@ def build_single_release(config):
     logging.info("Building {}".format(basename))
     with tarfile_open(top_path('release', '{}.tar.gz'.format(basename)), 'w:gz', format=tarfile.GNU_FORMAT) as tf:
         for pkg in config.packages:
-            with tarfile.open(top_path('release', 'partials', '{}-{}.tar.gz'.format(pkg, config.name)), 'r:gz') as in_f:
+            release_file_path = top_path('release', 'partials', '{}-{}.tar.gz'.format(pkg, config.name))
+            with tarfile.open(release_file_path, 'r:gz') as in_f:
                 for m in in_f.getmembers():
                     m_f = in_f.extractfile(m)
                     m.name = basename + '/' + m.name

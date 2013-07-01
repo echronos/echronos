@@ -664,7 +664,7 @@ def run_module_tests(modules, directories, patterns=[], verbosity=0, print_only=
     If the boolean 'print_only' is True, the discovered tests are printed on the console but not executed.
 
     """
-    paths = [os.path.abspath(os.path.join(BASE_DIR, dir)) for dir in directories]
+    paths = [os.path.abspath(top_path(dir)) for dir in directories]
     import sys
     for path in paths:
         sys.path.insert(0, path)

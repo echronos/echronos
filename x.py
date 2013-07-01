@@ -1067,7 +1067,13 @@ def tasks(args):
         for rel in task.related_branches():
             if rel in skipped_branches:
                 continue
-            print("{}{} ({})".format(' ' * 60, rel, git.ahead_behind_string('origin/' + t, 'origin/' + rel).strip()))
+            branch = 'origin/' + t
+            if branch not in git.get_remote_branches():
+                branch = t
+            base_branch = 'origin/' + rel
+            if base_branch not in git.get_remote_branches():
+                base_branch = rel
+            print("{}{} ({})".format(' ' * 60, rel, git.ahead_behind_string(branch, base_branch).strip()))
 
     for check_branch in skipped_branches:
         if check_branch in git.branches:

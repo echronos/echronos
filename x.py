@@ -599,7 +599,11 @@ def discover_tests(*mut_names):
             for tmn in test_module_names:
                 yield from discover_tests_module(importlib.import_module(tmn))
         else:
-            yield from discover_tests_module(importlib.import_module('{}_test'.format(mut_name)))
+            try:
+                test_module = importlib.import_module('{}_test'.format(mut_name))
+                yield from discover_tests_module(test_module)
+            except ImportError:
+                pass
 
 
 def _prj_test():

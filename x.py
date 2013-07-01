@@ -1342,7 +1342,7 @@ def build_single_release(config):
             with tarfile.open(top_path('release', 'partials', '{}-{}.tar.gz'.format(pkg, config.name)), 'r:gz') as in_f:
                 for m in in_f.getmembers():
                     m_f = in_f.extractfile(m)
-                    m.name = os.path.join(basename, m.name)
+                    m.name = basename + '/' + m.name
                     tf.addfile(m, m_f)
         for plat in config.platforms:
             arcname = '{}/{}/bin/prj'.format(basename, plat)

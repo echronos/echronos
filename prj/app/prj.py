@@ -68,14 +68,22 @@ NOTHING = util.util.Singleton('nothing')
 SIG_NAMES = dict((k, v) for v, k in signal.__dict__.items() if v.startswith('SIG'))
 
 
+def canonical_path(path):
+    return os.path.normcase(os.path.normpath(os.path.realpath(os.path.abspath(path))))
+
+
+def canonical_paths(paths):
+    return [canonical_path(path) for path in paths]
+
+
 def paths_overlap(paths):
     """Check if any of a list of paths overlap."""
-    for path in paths:
-        abs_path = os.path.abspath(path)
-        for check_path in paths:
+    can_paths = canonical_paths(paths)
+    for path, abs_path in zip(paths, can_paths):
+        for check_path, abs_check_path in zip(paths, can_paths):
             if path == check_path:
                 continue
-            if abs_path == os.path.abspath(check_path)[:len(abs_path)]:
+            if abs_path == abs_check_path[:len(abs_path)]:
                 return True, (path, check_path)
     return False, None
 
@@ -1141,14 +1149,15 @@ class Project:
             base_file = sys.executable if frozen else __file__
             base_file = follow_link(base_file)
 
-            base_dir = os.path.normpath(os.path.abspath(os.path.dirname(base_file)))
+            base_dir = canonical_path(os.path.dirname(base_file))
 
             def find_share(cur):
+                cur = canonical_path(cur)
                 maybe_share_path = os.path.join(cur, 'share')
                 if os.path.exists(maybe_share_path):
                     return maybe_share_path
                 else:
-                    up = os.path.normpath(os.path.join(cur, os.path.pardir))
+                    up = canonical_path(os.path.join(cur, os.path.pardir))
                     if up == cur:
                         return None
                     return find_share(up)
@@ -1270,9 +1279,9 @@ class Project:
 
         """
         # 1. Find which search path the path is in.
-        abs_path = os.path.abspath(path)
+        abs_path = canonical_path(path)
         for sp in self.search_paths:
-            abs_sp = os.path.abspath(sp)
+            abs_sp = canonical_path(sp)
             if abs_path[:len(abs_sp)] == abs_sp:
                 # Strip the search path
                 entity_name = abs_path[len(abs_sp) + 1:]

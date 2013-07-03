@@ -69,6 +69,18 @@ NOTHING = util.util.Singleton('nothing')
 SIG_NAMES = dict((k, v) for v, k in signal.__dict__.items() if v.startswith('SIG'))
 
 
+def paths_overlap(paths):
+    """Return true of any of a list of paths overlap."""
+    for path in paths:
+        abs_path = os.path.abspath(path)
+        for check_path in paths:
+            if path == check_path:
+                continue
+            if abs_path == os.path.abspath(check_path)[:len(abs_path)]:
+                return True, (path, check_path)
+    return False, None
+
+
 def follow_link(l):
     """Return the underlying file form a symbolic link.
 

@@ -132,3 +132,8 @@ def test_valid_entity_name():
     assert not valid_entity_name("foo/bar")
     assert not valid_entity_name("foo\\bar")
     assert not valid_entity_name("foo\\bar/baz")
+
+
+def test_paths_overlap():
+    assert paths_overlap(['foo', 'bar']) == (False, None)
+    assert paths_overlap(['foo', 'foo/bar']) == (True, ('foo', 'foo/bar'))

@@ -134,6 +134,11 @@ def test_valid_entity_name():
     assert not valid_entity_name("foo\\bar/baz")
 
 
+@raises(ProjectError)
+def test_project_overlaps():
+    p = Project(None, search_paths=['foo', 'foo/bar'])
+
+
 def test_paths_overlap():
     assert paths_overlap(['foo', 'bar']) == (False, None)
     assert paths_overlap(['foo', 'foo/bar']) == (True, ('foo', 'foo/bar'))

@@ -612,6 +612,10 @@ class EntityNotFound(Exception):
     """Raised when an entity can not be found."""
 
 
+class ProjectError(Exception):
+    """Raised when there is an error constructing the Project class."""
+
+
 class ProjectStartupError(Exception):
     """Raised when there is an error initialising the start-script."""
 
@@ -1158,6 +1162,10 @@ class Project:
                     self.search_paths.append(packages_dir)
 
         logger.debug("search_paths %s", self.search_paths)
+
+        is_overlapping, overlap_detail = paths_overlap(self.search_paths)
+        if is_overlapping:
+            raise ProjectError("Error creating project. Search path {} overlaps {}.".format(*overlap_detail))
 
         output_el = maybe_single_named_child(self.dom, 'output')
         if output_el:

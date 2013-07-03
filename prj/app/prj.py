@@ -1177,7 +1177,7 @@ class Project:
         else:
             self.output = os.path.join(self.project_dir, path)
 
-    def _find_import(self, entity_name):
+    def entity_name_to_path(self, entity_name):
         """Looks up an entity definition in the search paths by its specified `entity_name`.
 
         Returns the path to the entity.
@@ -1278,8 +1278,8 @@ class Project:
 
         # Check that there isn't another file with the same name earlier
         # in the search path
-        if self._find_import(entity_name) != path:
-            raise EntityNotFound("Path {} is shadowed by {}".format(path, self._find_import(entity_name)))
+        if self.entity_name_to_path(entity_name) != path:
+            raise EntityNotFound("Path {} is shadowed by {}".format(path, self.entity_name_to_path(entity_name)))
 
         return entity_name
 
@@ -1293,7 +1293,7 @@ class Project:
             raise Exception("Invalid entity name passed to find: '{}'".format(entity_name))
         if entity_name not in self.entities:
             # Try and find the entity name
-            path = self._find_import(entity_name)
+            path = self.entity_name_to_path(entity_name)
             check = self._entity_name_from_path(path)
             if check != entity_name:
                 msg = "Internal exception. Invalid entity names '{}' != '{}'".format(check, entity_name)

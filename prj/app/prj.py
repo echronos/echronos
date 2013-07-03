@@ -1334,6 +1334,10 @@ def call_system_function(args, function, extra_args=None):
     project = args.project
     system_name = args.system
 
+    if os.path.exists(system_name):
+        system_name = project._entity_name_from_path(system_name)
+        print("Loading entity name: {}".format(system_name))
+
     if not valid_entity_name(system_name):
         logger.error("System name '{}' is invalid.".format(system_name))
         return 1

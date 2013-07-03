@@ -1269,7 +1269,7 @@ class Project:
 
         return entity_name
 
-    def find(self, entity_name, allow_paths=False):
+    def find(self, entity_name):
         """Find an entity (could be a module, system or some other type).
 
         A KeyError will be raised in the case where the entity can't be found.
@@ -1279,15 +1279,7 @@ class Project:
             raise Exception("Invalid entity name passed to find: '{}'".format(entity_name))
         if entity_name not in self.entities:
             # Try and find the entity name
-            try:
-                path = self._find_import(entity_name)
-            except EntityNotFound:
-                if allow_paths and os.path.exists(entity_name):
-                    path = entity_name
-                    entity_name = self._entity_name_from_path(path)
-                    # Determine the correct entity name
-                else:
-                    raise
+            path = self._find_import(entity_name)
             check = self._entity_name_from_path(path)
             if check != entity_name:
                 msg = "Internal exception. Invalid entity names '{}' != '{}'".format(check, entity_name)
@@ -1350,7 +1342,7 @@ def call_system_function(args, function, extra_args=None):
         extra_args = {}
 
     try:
-        system = project.find(system_name, allow_paths=True)
+        system = project.find(system_name)
     except (EntityLoadError, EntityNotFound):
         logger.error("Unable to find system [{}].".format(system_name))
         return 1

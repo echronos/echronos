@@ -1341,7 +1341,7 @@ def generate(args):
     This function returns 0 on success and 1 if an error occurs.
 
     """
-    return call_system_function(args, System.generate, extra_args={'copy_all_files': True})
+    return call_system_function(args, System.generate, extra_args={'copy_all_files': True}, sys_is_path=True)
 
 
 def build(args):
@@ -1370,26 +1370,32 @@ def load(args):
     return call_system_function(args, System.load)
 
 
-def call_system_function(args, function, extra_args=None):
+def call_system_function(args, function, extra_args=None, sys_is_path=False):
     """Instantiate a system and call the given member function of the System class on it."""
     project = args.project
     system_name = args.system
-
-    if os.path.exists(system_name):
-        system_name = project.path_to_entity_name(system_name)
-        print("Loading entity name: {}".format(system_name))
-
-    if not valid_entity_name(system_name):
-        logger.error("System name '{}' is invalid.".format(system_name))
-        return 1
 
     if extra_args is None:
         extra_args = {}
 
     try:
-        system = project.find(system_name)
-    except (EntityLoadError, EntityNotFound):
-        logger.error("Unable to find system [{}].".format(system_name))
+        if sys_is_path:
+            system_path = system_name
+            system_name = os.path.splitext(os.path.basename(system_name))[0]
+            print("Loading system: {}".format(system_name))
+            system = project._parse_import(system_name, system_path)
+            system.output = os.path.curdir
+        else:
+            if not valid_entity_name(system_name):
+                logger.error("System name '{}' is invalid.".format(system_name))
+                return 1
+            print("Loading system: {}".format(system_name))
+            system = project.find(system_name)
+    except EntityLoadError:
+        logger.error("Unable to load system [{}].".format(system_name))
+        return 1
+    except EntityNotFound:
+        logger.error("Unable to  system [{}].".format(system_name))
         return 1
 
     if args.output:

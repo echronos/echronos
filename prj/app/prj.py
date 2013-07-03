@@ -76,18 +76,6 @@ def canonical_paths(paths):
     return [canonical_path(path) for path in paths]
 
 
-def paths_overlap(paths):
-    """Check if any of a list of paths overlap."""
-    can_paths = canonical_paths(paths)
-    for path, abs_path in zip(paths, can_paths):
-        for check_path, abs_check_path in zip(paths, can_paths):
-            if path == check_path:
-                continue
-            if os.path.commonprefix([abs_path, abs_check_path]) == abs_path:
-                return True, (path, check_path)
-    return False, None
-
-
 def follow_link(l):
     """Return the underlying file form a symbolic link.
 
@@ -1175,10 +1163,6 @@ class Project:
 
         logger.debug("search_paths %s", self.search_paths)
 
-        is_overlapping, overlap_detail = paths_overlap(self.search_paths)
-        if is_overlapping:
-            raise ProjectError("Error creating project. Search path {} overlaps {}.".format(*overlap_detail))
-
         output_el = maybe_single_named_child(self.dom, 'output')
         if output_el:
             path = get_attribute(output_el, 'path')
@@ -1264,51 +1248,6 @@ class Project:
         else:
             raise EntityLoadError("Unhandled extension '{}'".format(ext))
 
-    def path_to_entity_name(self, path):
-        """Return the name of an entity given its path.
-
-        In some cases the caller may wish to use the Project.find method to locate an entity, but only have the
-        entity's path, not the name.
-        This method will convert the path to an entity name.
-
-        Not all paths in the system may have a valid entity name, in which case an exception is raised.
-        This can occur when a file is shadowed by a file earlier in the project search path.
-
-        FIXME: Currently absolute paths are not probably supported on Windows.
-        FIXME: Currently directory names containing '.' are not correctly supported.
-
-        """
-        # 1. Find which search path the path is in.
-        abs_path = canonical_path(path)
-        for sp in self.search_paths:
-            abs_sp = canonical_path(sp)
-            if os.path.commonprefix([abs_path, abs_sp]) == abs_sp:
-                # Strip the search path
-                entity_name = os.path.relpath(abs_path, abs_sp)
-                break
-        else:
-            entity_name = 'ABS' + abs_path
-
-        # At this point the entity_name should look like a relative path
-        assert not os.path.isabs(entity_name)
-
-        # Strip the extension.
-        entity_name = os.path.splitext(entity_name)[0]
-
-        # Convert separators to '.'
-        entity_name = '.'.join(entity_name.split(os.path.sep))
-
-        # Strip 'entity'
-        if entity_name.endswith('.entity'):
-            entity_name = entity_name[:-len('.entity')]
-
-        # Check that there isn't another file with the same name earlier
-        # in the search path
-        if not os.path.samefile(self.entity_name_to_path(entity_name), path):
-            raise EntityNotFound("Path {} is shadowed by {}".format(path, self.entity_name_to_path(entity_name)))
-
-        return entity_name
-
     def find(self, entity_name):
         """Find an entity (could be a module, system or some other type).
 
@@ -1321,11 +1260,6 @@ class Project:
         if entity_name not in self.entities:
             # Try and find the entity name
             path = self.entity_name_to_path(entity_name)
-            check = self.path_to_entity_name(path)
-            if check != entity_name:
-                msg = "Internal exception. Invalid entity names '{}' != '{}'".format(check, entity_name)
-                raise Exception(msg)
-            assert check == entity_name
             self.entities[entity_name] = self._parse_import(entity_name, path)
 
         return self.entities[entity_name]

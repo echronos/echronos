@@ -137,11 +137,6 @@ def test_valid_entity_name():
     assert not valid_entity_name("foo\\bar/baz")
 
 
-@raises(ProjectError)
-def test_project_overlaps():
-    p = Project(None, search_paths=['foo', 'foo/bar'])
-
-
 def test_project_find():
     p = Project(None, search_paths=[os.path.join(base_dir, 'test_data', 'path1')])
     eg_system = p.find('example')
@@ -162,58 +157,3 @@ def test_project_find():
         os.path.join(base_dir, 'test_data', 'path1', 'foo'),
     ])
     assert isinstance(p.find('bar.baz.qux'), System)
-
-
-def test_path_to_entity_name():
-    p = Project(None, search_paths=[os.path.join(base_dir, 'test_data', 'path1')])
-    assert p.path_to_entity_name(os.path.join(base_dir, 'test_data', 'path1', 'example.prx')) == 'example'
-
-    qux = os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar', 'baz', 'qux.prx')
-    p = Project(None, search_paths=[
-        os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar', 'baz'),
-    ])
-    assert p.path_to_entity_name(qux) == 'qux'
-
-    p = Project(None, search_paths=[
-        os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar'),
-    ])
-    assert p.path_to_entity_name(qux) == 'baz.qux'
-
-    p = Project(None, search_paths=[
-        os.path.join(base_dir, 'test_data', 'path1', 'foo'),
-    ])
-    assert p.path_to_entity_name(qux) == 'bar.baz.qux'
-
-
-def test_path_to_entity_name_exception():
-    qux = os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar', 'baz', 'qux.prx')
-    qux2 = os.path.join(base_dir, 'test_data', 'path1', 'foo2', 'qux.prx')
-    p = Project(None, search_paths=[
-        os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar', 'baz'),
-        os.path.join(base_dir, 'test_data', 'path1', 'foo2'),
-    ])
-
-    assert p.path_to_entity_name(qux) == 'qux'
-    assert_raises(EntityNotFound, p.path_to_entity_name, qux2)
-
-
-def test_paths_overlap():
-    assert paths_overlap(['foo', 'bar']) == (False, None)
-    assert paths_overlap(['foo', 'foo/bar']) == (True, ('foo', 'foo/bar'))
-
-
-def test_abs_entity_to_path():
-    p = Project(None, [os.path.join(base_dir, 'test_data', 'path1', 'foo2')])
-    qux = os.path.abspath(os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar', 'baz', 'qux.prx'))
-    try:
-        qux_name = p.path_to_entity_name(qux)
-        if os.name == 'posix':
-            assert qux_name.startswith('ABS')
-            assert p.entity_name_to_path(qux_name) == qux
-        else:
-            raise RuntimeError('NotImplementedError not raised as expected')
-    except NotImplementedError:
-        if os.name != 'posix':
-            pass
-        else:
-            raise

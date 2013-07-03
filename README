@@ -119,16 +119,16 @@ Systems that can be built
 
 The following systems can be built:
 
-`posix/hello/example`:
+`posix.hello.example`:
 
      $ ./prj/app/prj.py build posix.example.hello
      $ out/posix/example/hello/system
 
 This should work on Linux, OS X or Windows.
 
-`example/acamar-system`:
+`posix.example.acamar-system`:
 
-     $ ./prj/app/prj.py build acamar-system
-     $ out/example/acamar-system/system
+     $ ./prj/app/prj.py build posix.example.acamar-system
+     $ out/posix/example/acamar-system/system
 
  This will only work on Linux, not OS X or Windows.

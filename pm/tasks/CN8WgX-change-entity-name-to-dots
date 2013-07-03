@@ -13,18 +13,8 @@ Notes
 ---------
 
 In effecting the goals of the task a number of other related aspects regarding module naming were considered.
-Specifically, during testing the changes, it was revealed that it is potential to have name ambiguity.
-If search paths overlap then it is possible for one file to be accessible via different names.
-It was determined that this was undesirable, and as such overlapping search paths is now disallowed (and enforced by the tool).
+Specifically, during testing the changes, it was revealed that there is no reliable way to convert path names to entity names.
 
-Additionally, during testing it was noted that it was possible to specify a file via filename, that resulted in an ambiguous module name.
-Specifically, if two (non-overlapping) search paths (e.g: 'foo' and 'qux') contained similarly named files, e.g:
-
-    foo/bar.prx
-    qux/bar.prx
-
-Then, the resolved entity name for both files is 'bar', which creates an ambiguity.
-In this case, entity name 'bar' resolves to 'foo/bar.prx', since 'foo' is earlier in the seach path.
-In such a case, there is no entity name that resolves to 'qux/bar.prx', and as such 'qux/bar.prx' is not a valid module, and an EntityNotFound error should be raised.
-
-Additionally, during implementation, it was determined that existing functionality was not well unit-tested which was also improved.
+The design for specifying systems on the command line has been improved to remove ambiguity and increase reliability.
+When using the 'gen' command, systems are specified by path only, and the output directory defaults to '.'
+When using 'build' or 'load' commands, systems must be specified by name, and the existing defaults apply.

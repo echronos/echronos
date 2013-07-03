@@ -1267,6 +1267,11 @@ class Project:
         if entity_name.endswith('.entity'):
             entity_name = entity_name[:-len('.entity')]
 
+        # Check that there isn't another file with the same name earlier
+        # in the search path
+        if self._find_import(entity_name) != path:
+            raise EntityNotFound("Path {} is shadowed by {}".format(path, self._find_import(entity_name)))
+
         return entity_name
 
     def find(self, entity_name):

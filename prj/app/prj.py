@@ -1242,7 +1242,16 @@ class Project:
             raise EntityLoadError("Unhandled extension '{}'".format(ext))
 
     def _entity_name_from_path(self, path):
-        """Determine the name of an entity from its path."""
+        """Return the name of an entity given its path.
+
+        In some cases the caller may which to use Project.find method to locate an entity, but only have the entity's
+        path, not the name.
+        This method will convert the path to an entity name.
+
+        Not all paths in the system may have a valid entity name, in which case an exception is raised.
+        This can occur when a file is shadowed by a file earlier in the project search path.
+
+        """
         # 1. Find which search path the path is in.
         abs_path = os.path.abspath(path)
         for sp in self.search_paths:

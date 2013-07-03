@@ -1241,7 +1241,7 @@ class Project:
         else:
             raise EntityLoadError("Unhandled extension '{}'".format(ext))
 
-    def _entity_name_from_path(self, path):
+    def path_to_entity_name(self, path):
         """Return the name of an entity given its path.
 
         In some cases the caller may which to use Project.find method to locate an entity, but only have the entity's
@@ -1294,7 +1294,7 @@ class Project:
         if entity_name not in self.entities:
             # Try and find the entity name
             path = self.entity_name_to_path(entity_name)
-            check = self._entity_name_from_path(path)
+            check = self.path_to_entity_name(path)
             if check != entity_name:
                 msg = "Internal exception. Invalid entity names '{}' != '{}'".format(check, entity_name)
                 raise Exception(msg)
@@ -1349,7 +1349,7 @@ def call_system_function(args, function, extra_args=None):
     system_name = args.system
 
     if os.path.exists(system_name):
-        system_name = project._entity_name_from_path(system_name)
+        system_name = project.path_to_entity_name(system_name)
         print("Loading entity name: {}".format(system_name))
 
     if not valid_entity_name(system_name):

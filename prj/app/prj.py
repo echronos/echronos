@@ -1294,7 +1294,7 @@ class Project:
 
         # Check that there isn't another file with the same name earlier
         # in the search path
-        if self.entity_name_to_path(entity_name) != path:
+        if not os.path.samefile(self.entity_name_to_path(entity_name), path):
             raise EntityNotFound("Path {} is shadowed by {}".format(path, self.entity_name_to_path(entity_name)))
 
         return entity_name

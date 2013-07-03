@@ -200,3 +200,11 @@ def test_path_to_entity_name_exception():
 def test_paths_overlap():
     assert paths_overlap(['foo', 'bar']) == (False, None)
     assert paths_overlap(['foo', 'foo/bar']) == (True, ('foo', 'foo/bar'))
+
+
+def test_abs_entity_to_path():
+    p = Project(None, [os.path.join(base_dir, 'test_data', 'path1', 'foo2')])
+    qux = os.path.abspath(os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar', 'baz', 'qux.prx'))
+    qux_name = p.path_to_entity_name(qux)
+    assert qux_name.startswith('ABS')
+    assert p.entity_name_to_path(qux_name) == qux

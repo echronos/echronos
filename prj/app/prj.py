@@ -1186,6 +1186,9 @@ class Project:
 
         Returns the path to the entity.
 
+        FIXME: Currently absolute paths are not probably supported on Windows.
+        FIXME: Currently directory names containing '.' are not correctly supported.
+
         """
         # Search for a given entity name.
         extensions = ['', '.prx', '.py', '.c', '.s']
@@ -1200,12 +1203,18 @@ class Project:
                     return path, ext
             return None, None
 
-        for sp in self.search_paths:
-            base = os.path.join(sp, os.path.join(*entity_name.split('.')))
+        if entity_name.startswith('ABS'):
+            # FIXME: This doesn't work on windows.
+            base = os.path.join('/', *entity_name.split('.')[1:])
             path, ext = search_inner(base)
-            if path:
-                break
         else:
+            for sp in self.search_paths:
+                base = os.path.join(sp, os.path.join(*entity_name.split('.')))
+                path, ext = search_inner(base)
+                if path is not None:
+                    break
+
+        if path is None:
             raise EntityNotFound("Unable to find entity named '{}'".format(entity_name))
 
         if ext == '':
@@ -1254,6 +1263,9 @@ class Project:
 
         Not all paths in the system may have a valid entity name, in which case an exception is raised.
         This can occur when a file is shadowed by a file earlier in the project search path.
+
+        FIXME: Currently absolute paths are not probably supported on Windows.
+        FIXME: Currently directory names containing '.' are not correctly supported.
 
         """
         # 1. Find which search path the path is in.

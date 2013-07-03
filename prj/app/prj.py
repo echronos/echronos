@@ -13,6 +13,13 @@ if __name__ == "__main__":
     if not frozen:
         for pth in ['pystache', 'ply', 'lib']:
             sys.path.insert(0, os.path.join(os.path.dirname(__file__), pth))
+else:
+    # The prj module is only imported as a module for testing purposes.
+    # In this case it definitely isn't frozen
+    # FIXME: It likely makes sense to refactor prj.py so that this top
+    # level file is purely focussed on script/execution and most logic
+    # is placed in a separate module.
+    frozen = False
 
 # Logging is set up first since this is critical to the rest of the application working correctly.
 # It is possible that other modules will perform logging during import, so make sure this is very early.

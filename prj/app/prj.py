@@ -1203,9 +1203,11 @@ class Project:
             return None, None
 
         if entity_name.startswith('ABS'):
-            # FIXME: This doesn't work on windows.
-            base = os.path.join('/', *entity_name.split('.')[1:])
-            path, ext = search_inner(base)
+            if os.name == 'posix':
+                base = os.path.join('/', *entity_name.split('.')[1:])
+                path, ext = search_inner(base)
+            else:
+                raise NotImplementedError('The ABS prefix for entity names is only supported on POSIX platforms')
         else:
             for sp in self.search_paths:
                 base = os.path.join(sp, os.path.join(*entity_name.split('.')))

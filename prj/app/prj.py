@@ -1202,7 +1202,7 @@ class Project:
             if path:
                 break
         else:
-            raise EntityNotFound("Unable to find entity named %s" % entity_name)
+            raise EntityNotFound("Unable to find entity named '{}'".format(entity_name))
 
         if ext == '':
             if not os.path.isdir(path):
@@ -1210,7 +1210,7 @@ class Project:
             # Search for an 'entity.<ext>' file.
             file_path, ext = search_inner(os.path.join(path, 'entity'))
             if file_path is None:
-                raise EntityNotFound("Couldn't find entity definition file in %s" % path)
+                raise EntityNotFound("Couldn't find entity definition file in '{}'".format(path))
             path = file_path
 
         return path

@@ -1,5 +1,8 @@
+import os
 from prj import *
 from nose.tools import assert_raises, raises
+
+base_dir = os.path.dirname(__file__)
 
 
 def test_list_all_equal():
@@ -137,6 +140,61 @@ def test_valid_entity_name():
 @raises(ProjectError)
 def test_project_overlaps():
     p = Project(None, search_paths=['foo', 'foo/bar'])
+
+
+def test_project_find():
+    p = Project(None, search_paths=[os.path.join(base_dir, 'test_data', 'path1')])
+    eg_system = p.find('example')
+    assert isinstance(eg_system, System)
+
+    qux = os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar', 'baz', 'qux.prx')
+    p = Project(None, search_paths=[
+        os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar', 'baz'),
+    ])
+    assert isinstance(p.find('qux'), System)
+
+    p = Project(None, search_paths=[
+        os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar'),
+    ])
+    assert isinstance(p.find('baz.qux'), System)
+
+    p = Project(None, search_paths=[
+        os.path.join(base_dir, 'test_data', 'path1', 'foo'),
+    ])
+    assert isinstance(p.find('bar.baz.qux'), System)
+
+
+def test_path_to_entity_name():
+    p = Project(None, search_paths=[os.path.join(base_dir, 'test_data', 'path1')])
+    assert p.path_to_entity_name(os.path.join(base_dir, 'test_data', 'path1', 'example.prx')) == 'example'
+
+    qux = os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar', 'baz', 'qux.prx')
+    p = Project(None, search_paths=[
+        os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar', 'baz'),
+    ])
+    assert p.path_to_entity_name(qux) == 'qux'
+
+    p = Project(None, search_paths=[
+        os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar'),
+    ])
+    assert p.path_to_entity_name(qux) == 'baz.qux'
+
+    p = Project(None, search_paths=[
+        os.path.join(base_dir, 'test_data', 'path1', 'foo'),
+    ])
+    assert p.path_to_entity_name(qux) == 'bar.baz.qux'
+
+
+def test_path_to_entity_name_exception():
+    qux = os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar', 'baz', 'qux.prx')
+    qux2 = os.path.join(base_dir, 'test_data', 'path1', 'foo2', 'qux.prx')
+    p = Project(None, search_paths=[
+        os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar', 'baz'),
+        os.path.join(base_dir, 'test_data', 'path1', 'foo2'),
+    ])
+
+    assert p.path_to_entity_name(qux) == 'qux'
+    assert_raises(EntityNotFound, p.path_to_entity_name, qux2)
 
 
 def test_paths_overlap():

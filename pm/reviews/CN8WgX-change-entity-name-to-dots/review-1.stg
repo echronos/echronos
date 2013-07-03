@@ -5,16 +5,40 @@ Task name: CN8WgX-change-entity-name-to-dots
 Version reviewed: 857845c3a632fc1f45feba771384d51fd5d182a8
 Reviewer: stg
 Date: 2013-07-03
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
+
+Comment 0: Rework
+On Windows, a system foo.prx with a source file bar/baz.c and the search path 'bar' is impossible to build in the same directory as foo.prx because:
+- specifying the system name foo on the command line and having a search path for . leads to an error message about overlapping search paths;
+- specifying the system name foo on the command line and not having a search path for . leads to foo.prx not being found;
+- specifying foo.prx on the command line leads to an error message about ABS absolute paths not being supported on Windows.
+
+Comment 1: Accepted
+The attempt to detect overlapping search paths and identical files is not only incompletely implemented, but also almost impossible to achieve technically due to the wide range of options for mapping file system namespaces into each other.
+It would be much simpler to merely warn the user about a single entity name mapping to multiple file system objects.
 
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: prj/app/prj.py
+Comment 2: Accepted
+f2a36c4 Fixed typos and whitespace issues in documentation strings and comments.
+Please review.
 
-Location: filename:linenum
-Comment:
+Location: prj/app/prj.py:
+Comment 3: Accepted
+244d5a7 When encountering an entitity name with the ABS prefix on a non-POSIX platform, raise an exception instead of producing an incorrect path in entity_name_to_path()
+Please review
+
+Location: prj/app/prj.py:
+Comment 4: Accepted
+bf2eccf Replace various forms of path normalization with calls to a single, more comprehensive function for canonicalizing a path, including symlink resolution and case normalization
+Please review
+
+Location: prj/app/prj.py:
+Comment 5: Accepted
+83225f0 Replace string operations on paths with os.path operations for increased robustness
+Please review

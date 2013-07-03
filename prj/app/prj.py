@@ -1086,19 +1086,21 @@ class Project:
     """The Project is a container for other objects in the system."""
 
     def __init__(self, filename, search_paths=None):
-        """Parses the project definition file `filename`, and any imported system and module definition files.
+        """Parses the project definition file `filename` and any imported system and module definition files.
 
         If filename is None, then a default 'empty' project is created.
 
-        If search_paths are specified these will be added to any default search paths.
-
         The search path for a project is a list of paths in which modules will be searched.
+        The order of the search path matters; the first path in which an entity is found is used.
 
-        Any paths specified by the 'search-path' element will be added to the search path first.
-        This will be followed by any search paths specified on the command line.
-        If no paths are specified on the command line, or in the project XML file, then the search path
-        defaults to the project directory.
-        Finally, the installed 'packages' directory is added to the search path.
+        The search path consists of the 'user' search paths, and the 'built-in' search paths.
+        'user' search paths are searched before 'built-in' search paths.
+
+        The 'user' search paths consist of the 'param' search paths as passed explicitly to the class and
+        the 'project' search paths, which are any search paths specified in the project file.
+        'param' search paths are searched before the 'project' search paths.
+        If no 'param' search paths are 'project' search paths are specified, then the 'user' search path
+        defaults to the project file's directory (or the current working directory if now project file is specified.)
 
         """
         if filename is None:
@@ -1108,7 +1110,6 @@ class Project:
             self.dom = xml_parse_file(filename)
             self.project_dir = os.path.dirname(filename)
 
-        self.search_paths = []
         self.entities = {}
 
         # Find all startup-script items.
@@ -1121,21 +1122,22 @@ class Project:
                                         ": '{}' {}".format(command, show_exit(ret_code)))
                 raise ProjectStartupError(err)
 
+        param_search_paths = search_paths if search_paths is not None else []
+
         # Find all search path items, and add to search path
         # All search paths are added before attempting any imports
-        sp_els = self.dom.getElementsByTagName('search-path')
-        for sp_el in sp_els:
+        project_search_paths = []
+        for sp_el in self.dom.getElementsByTagName('search-path'):
             sp = single_text_child(sp_el)
             if sp.endswith('/'):
                 sp = sp[:-1]
-            self.search_paths.append(sp)
+            project_search_paths.append(sp)
 
-        if search_paths is not None:
-            self.search_paths += search_paths
+        user_search_paths = param_search_paths + project_search_paths
+        if len(user_search_paths) == 0:
+            user_search_paths = [self.project_dir]
 
-        if len(sp_els) == 0:
-            self.search_paths.append(self.project_dir)
-
+        built_in_search_paths = []
         if frozen:
             base_file = sys.executable if frozen else __file__
             base_file = follow_link(base_file)
@@ -1159,7 +1161,9 @@ class Project:
                 if not os.path.exists(packages_dir) or not os.path.isdir(packages_dir):
                     logger.warning("Can't find 'packages' directory in '{}'".format(share_dir))
                 else:
-                    self.search_paths.append(packages_dir)
+                    built_in_search_paths.append(packages_dir)
+
+        self.search_paths = user_search_paths + built_in_search_paths
 
         logger.debug("search_paths %s", self.search_paths)
 

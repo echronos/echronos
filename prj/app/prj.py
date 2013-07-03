@@ -936,7 +936,7 @@ class System:
     @property
     def output(self):
         if self._output is None:
-            self._output = os.path.join(self.project.output, self.name)
+            self._output = os.path.join(self.project.output, *self.name.split('.'))
 
         return self._output
 

@@ -15,10 +15,9 @@ if __name__ == "__main__":
             sys.path.insert(0, os.path.join(os.path.dirname(__file__), pth))
 else:
     # The prj module is only imported as a module for testing purposes.
-    # In this case it definitely isn't frozen
-    # FIXME: It likely makes sense to refactor prj.py so that this top
-    # level file is purely focussed on script/execution and most logic
-    # is placed in a separate module.
+    # In this case it definitely isn't frozen.
+    # FIXME: It likely makes sense to refactor prj.py so that this top level file is purely focused on script
+    # execution and most logic is placed in a separate modules.
     frozen = False
 
 # Logging is set up first since this is critical to the rest of the application working correctly.
@@ -70,7 +69,7 @@ SIG_NAMES = dict((k, v) for v, k in signal.__dict__.items() if v.startswith('SIG
 
 
 def paths_overlap(paths):
-    """Return true of any of a list of paths overlap."""
+    """Check if any of a list of paths overlap."""
     for path in paths:
         abs_path = os.path.abspath(path)
         for check_path in paths:
@@ -1099,8 +1098,8 @@ class Project:
         The 'user' search paths consist of the 'param' search paths as passed explicitly to the class and
         the 'project' search paths, which are any search paths specified in the project file.
         'param' search paths are searched before the 'project' search paths.
-        If no 'param' search paths are 'project' search paths are specified, then the 'user' search path
-        defaults to the project file's directory (or the current working directory if now project file is specified.)
+        If no 'param' search paths or 'project' search paths are specified, then the 'user' search path
+        defaults to the project file's directory (or the current working directory if no project file is specified.)
 
         """
         if filename is None:
@@ -1257,8 +1256,8 @@ class Project:
     def path_to_entity_name(self, path):
         """Return the name of an entity given its path.
 
-        In some cases the caller may which to use Project.find method to locate an entity, but only have the entity's
-        path, not the name.
+        In some cases the caller may wish to use the Project.find method to locate an entity, but only have the
+        entity's path, not the name.
         This method will convert the path to an entity name.
 
         Not all paths in the system may have a valid entity name, in which case an exception is raised.
@@ -1303,6 +1302,7 @@ class Project:
         """Find an entity (could be a module, system or some other type).
 
         A KeyError will be raised in the case where the entity can't be found.
+
         """
         if not valid_entity_name(entity_name):
             # Note: 'entity_name' should be checked before passing to this function.

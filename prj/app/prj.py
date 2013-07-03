@@ -83,7 +83,7 @@ def paths_overlap(paths):
         for check_path, abs_check_path in zip(paths, can_paths):
             if path == check_path:
                 continue
-            if abs_path == abs_check_path[:len(abs_path)]:
+            if os.path.commonprefix([abs_path, abs_check_path]) == abs_path:
                 return True, (path, check_path)
     return False, None
 
@@ -1282,9 +1282,9 @@ class Project:
         abs_path = canonical_path(path)
         for sp in self.search_paths:
             abs_sp = canonical_path(sp)
-            if abs_path[:len(abs_sp)] == abs_sp:
+            if os.path.commonprefix([abs_path, abs_sp]) == abs_sp:
                 # Strip the search path
-                entity_name = abs_path[len(abs_sp) + 1:]
+                entity_name = os.path.relpath(abs_path, abs_sp)
                 break
         else:
             entity_name = 'ABS' + abs_path

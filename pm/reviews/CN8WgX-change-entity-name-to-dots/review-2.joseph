@@ -19,6 +19,9 @@ To me this could be slightly confusing as to which system this comment applies t
 
 Is it worth adding a separator in between?
 
+[[(benno): Wont fix.]]
 
 prj/app/prj.py:1196 joseph
 Is the inner join necessary here? It was absent in 906
+
+[[(benno): Fixed.]]

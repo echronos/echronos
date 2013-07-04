@@ -1193,7 +1193,7 @@ class Project:
             return None, None
 
         for sp in self.search_paths:
-            base = os.path.join(sp, os.path.join(*entity_name.split('.')))
+            base = os.path.join(sp, *entity_name.split('.'))
             path, ext = search_inner(base)
             if path is not None:
                 break

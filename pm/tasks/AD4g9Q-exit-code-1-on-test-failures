@@ -1,0 +1,10 @@
+Task: AD4g9Q-exit-code-1-on-test-failures
+==============================================================================
+
+Goals
+--------
+
+The x.py command x-test runs a set of unit tests.
+If one or more tests fail, the python process exits with exit code 0.
+This makes it unnecessarily difficult to detect test failures in such tools as TeamCity.
+The goal of this task is to make the python process exit with exit code 1 (a convention commonly followed for anticipated execution errors) when any test fails.

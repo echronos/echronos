@@ -8,3 +8,12 @@ The x.py command x-test runs a set of unit tests.
 If one or more tests fail, the python process exits with exit code 0.
 This makes it unnecessarily difficult to detect test failures in such tools as TeamCity.
 The goal of this task is to make the python process exit with exit code 1 (a convention commonly followed for anticipated execution errors) when any test fails.
+
+
+Test plan
+---------
+0) add a failing test to x.py or modify an existing test so that it fails
+
+1) run x.py x-test
+
+2) check that the exit code is 1, e.g., by running 'echo $?' if in a sh-compatible command shell

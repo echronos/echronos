@@ -1178,9 +1178,6 @@ class Project:
 
         Returns the path to the entity.
 
-        FIXME: Currently absolute paths are not probably supported on Windows.
-        FIXME: Currently directory names containing '.' are not correctly supported.
-
         """
         # Search for a given entity name.
         extensions = ['', '.prx', '.py', '.c', '.s']
@@ -1195,18 +1192,11 @@ class Project:
                     return path, ext
             return None, None
 
-        if entity_name.startswith('ABS'):
-            if os.name == 'posix':
-                base = os.path.join('/', *entity_name.split('.')[1:])
-                path, ext = search_inner(base)
-            else:
-                raise NotImplementedError('The ABS prefix for entity names is only supported on POSIX platforms')
-        else:
-            for sp in self.search_paths:
-                base = os.path.join(sp, os.path.join(*entity_name.split('.')))
-                path, ext = search_inner(base)
-                if path is not None:
-                    break
+        for sp in self.search_paths:
+            base = os.path.join(sp, os.path.join(*entity_name.split('.')))
+            path, ext = search_inner(base)
+            if path is not None:
+                break
 
         if path is None:
             raise EntityNotFound("Unable to find entity named '{}'".format(entity_name))

@@ -1,0 +1,20 @@
+Task: CN8WgX-change-entity-name-to-dots
+==============================================================================
+
+Goals
+--------
+
+Currently entity names are separated by '/'.
+This causes a number of interesting problems when considering entity name vs paths, especially on Windows.
+This branch should change all entities to be named using '.' as the separator.
+'/' and '\' will be illegal characters in entity names.
+
+Notes
+---------
+
+In effecting the goals of the task a number of other related aspects regarding module naming were considered.
+Specifically, during testing the changes, it was revealed that there is no reliable way to convert path names to entity names.
+
+The design for specifying systems on the command line has been improved to remove ambiguity and increase reliability.
+When using the 'gen' command, systems are specified by path only, and the output directory defaults to '.'
+When using 'build' or 'load' commands, systems must be specified by name, and the existing defaults apply.

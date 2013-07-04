@@ -185,19 +185,19 @@ can be a set of multiple implementation files with a customised,
 scripted-based generation strategy.
 
 When using the RTOS in a configuration only mode there are
-three modules that will be needed: `armv7m/ctxt-switch`,
-`armv7lm/vectable` and `armv7m/rtos-rigel`. These are described
+three modules that will be needed: `armv7m.ctxt-switch`,
+`armv7lm.vectable` and `armv7m.rtos-rigel`. These are described
 in the following sections.
 
-`armv7m/ctxt-switch`
+`armv7m.ctxt-switch`
 ----------------------
 
-The `armv7m/ctxt-switch` module implements the low-level context
+The `armv7m.ctxt-switch` module implements the low-level context
 switching operation. This module does not have an configuration
 options, however as the RTOS depends on this module it must always be
 included in any system description.
 
-`armv7m/vectable`
+`armv7m.vectable`
 ----------------------
 
 The vectable module controls the generation of `vectable.s` and
@@ -211,7 +211,7 @@ jumping to `main`.
 
 When using `prj` in configuration mode the user may prefer to
 use a custom hand-written `vectable.s` rather than the one generated
-by the `armv7m/vectable` module.
+by the `armv7m.vectable` module.
 
 `default.ld` generates a linker-script that is suitable for use with
 the GNU linker. Although it is possible to use an alternative
@@ -227,13 +227,13 @@ used to simplify the use of the ARM *bitband* feature. The *bitband*
 feature allows atomic access to individual bits within words, and
 forms a critical piece of the RTOS implementation. In addition to
 the macro expansion used by the compiler, uses of the macro are
-also parsed by the `armv7m/vectable` module and used to populate
+also parsed by the `armv7m.vectable` module and used to populate
 the `default.ld` file with the appropriate symbol aliases.
 
 Note: When using `prj` in configuration only mode the `bitband.h`
 header can not be used by code other than the RTOS itself.
 
-The `armv7m/vectable` module supports a number of (optional)
+The `armv7m.vectable` module supports a number of (optional)
 configuration options.
 
 The individual exceptions may be configured through the following
@@ -260,7 +260,7 @@ occur if the exception handler is incorrectly specified.
 
 Note: The `vectable.s` file implements the default `reset` exception handler.
 
-The other options available for the `armv7m/vectable` module control
+The other options available for the `armv7m.vectable` module control
 the memory layout. The correct values for these items generally
 require consultation with the chip reference manual. The following
 values are configurable (defaults appear in parens):
@@ -276,7 +276,7 @@ Finally, there is an option (`stack_size`) for specifying the initial
 stack size.  This stack is used by `main` up until the RTOS is
 actually started. The default stack size is 4KiB (0x1000).
 
-`armv7m/rtos-rigel`
+`armv7m.rtos-rigel`
 ----------------------
 
 The RTOS comes in a number of different *flavors*, each of varying complexity,

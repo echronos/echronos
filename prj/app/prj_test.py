@@ -1,5 +1,8 @@
+import os
 from prj import *
 from nose.tools import assert_raises, raises
+
+base_dir = os.path.dirname(__file__)
 
 
 def test_list_all_equal():
@@ -125,3 +128,32 @@ def test_ensure_all_children_named_success():
 def test_ensure_all_children_named_error():
     xml = "<foo><bar /><baz /><bar /></foo>"
     ensure_all_children_named(xml_parse_string(xml), 'bar')
+
+
+def test_valid_entity_name():
+    assert valid_entity_name("foo.bar")
+    assert not valid_entity_name("foo/bar")
+    assert not valid_entity_name("foo\\bar")
+    assert not valid_entity_name("foo\\bar/baz")
+
+
+def test_project_find():
+    p = Project(None, search_paths=[os.path.join(base_dir, 'test_data', 'path1')])
+    eg_system = p.find('example')
+    assert isinstance(eg_system, System)
+
+    qux = os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar', 'baz', 'qux.prx')
+    p = Project(None, search_paths=[
+        os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar', 'baz'),
+    ])
+    assert isinstance(p.find('qux'), System)
+
+    p = Project(None, search_paths=[
+        os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar'),
+    ])
+    assert isinstance(p.find('baz.qux'), System)
+
+    p = Project(None, search_paths=[
+        os.path.join(base_dir, 'test_data', 'path1', 'foo'),
+    ])
+    assert isinstance(p.find('bar.baz.qux'), System)

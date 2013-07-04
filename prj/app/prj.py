@@ -13,6 +13,12 @@ if __name__ == "__main__":
     if not frozen:
         for pth in ['pystache', 'ply', 'lib']:
             sys.path.insert(0, os.path.join(os.path.dirname(__file__), pth))
+else:
+    # The prj module is only imported as a module for testing purposes.
+    # In this case it definitely isn't frozen.
+    # FIXME: It likely makes sense to refactor prj.py so that this top level file is purely focused on script
+    # execution and most logic is placed in a separate modules.
+    frozen = False
 
 # Logging is set up first since this is critical to the rest of the application working correctly.
 # It is possible that other modules will perform logging during import, so make sure this is very early.
@@ -34,6 +40,7 @@ import argparse
 import functools
 import glob
 import imp
+import os
 import pdb
 import pystache
 import re
@@ -59,6 +66,14 @@ sys.modules['prj'] = sys.modules[__name__]
 
 NOTHING = util.util.Singleton('nothing')
 SIG_NAMES = dict((k, v) for v, k in signal.__dict__.items() if v.startswith('SIG'))
+
+
+def canonical_path(path):
+    return os.path.normcase(os.path.normpath(os.path.realpath(os.path.abspath(path))))
+
+
+def canonical_paths(paths):
+    return [canonical_path(path) for path in paths]
 
 
 def follow_link(l):
@@ -592,8 +607,21 @@ class EntityNotFound(Exception):
     """Raised when an entity can not be found."""
 
 
+class ProjectError(Exception):
+    """Raised when there is an error constructing the Project class."""
+
+
 class ProjectStartupError(Exception):
     """Raised when there is an error initialising the start-script."""
+
+
+def valid_entity_name(name):
+    """Return true if the name is a valid entity name.
+
+    Entity names can not contain / or \ characters.
+
+    """
+    return not any([bad_char in name for bad_char in '/\\'])
 
 
 def execute(args, env=None):
@@ -903,7 +931,7 @@ class System:
     @property
     def output(self):
         if self._output is None:
-            self._output = os.path.join(self.project.output, self.name)
+            self._output = os.path.join(self.project.output, *self.name.split('.'))
 
         return self._output
 
@@ -974,6 +1002,8 @@ class System:
         for m_el in module_els:
             # First find the module
             name = get_attribute(m_el, 'name')
+            if not valid_entity_name(name):
+                raise EntityLoadError(xml_error_str(m_el, "Invalid module name '{}'".format(name)))
             try:
                 module = self.project.find(name)
             except EntityLoadError as e:
@@ -1053,19 +1083,21 @@ class Project:
     """The Project is a container for other objects in the system."""
 
     def __init__(self, filename, search_paths=None):
-        """Parses the project definition file `filename`, and any imported system and module definition files.
+        """Parses the project definition file `filename` and any imported system and module definition files.
 
         If filename is None, then a default 'empty' project is created.
 
-        If search_paths are specified these will be added to any default search paths.
-
         The search path for a project is a list of paths in which modules will be searched.
+        The order of the search path matters; the first path in which an entity is found is used.
 
-        Any paths specified by the 'search-path' element will be added to the search path first.
-        This will be followed by any search paths specified on the command line.
-        If no paths are specified on the command line, or in the project XML file, then the search path
-        defaults to the project directory.
-        Finally, the installed 'packages' directory is added to the search path.
+        The search path consists of the 'user' search paths, and the 'built-in' search paths.
+        'user' search paths are searched before 'built-in' search paths.
+
+        The 'user' search paths consist of the 'param' search paths as passed explicitly to the class and
+        the 'project' search paths, which are any search paths specified in the project file.
+        'param' search paths are searched before the 'project' search paths.
+        If no 'param' search paths or 'project' search paths are specified, then the 'user' search path
+        defaults to the project file's directory (or the current working directory if no project file is specified.)
 
         """
         if filename is None:
@@ -1075,7 +1107,6 @@ class Project:
             self.dom = xml_parse_file(filename)
             self.project_dir = os.path.dirname(filename)
 
-        self.search_paths = []
         self.entities = {}
 
         # Find all startup-script items.
@@ -1088,33 +1119,35 @@ class Project:
                                         ": '{}' {}".format(command, show_exit(ret_code)))
                 raise ProjectStartupError(err)
 
+        param_search_paths = search_paths if search_paths is not None else []
+
         # Find all search path items, and add to search path
         # All search paths are added before attempting any imports
-        sp_els = self.dom.getElementsByTagName('search-path')
-        for sp_el in sp_els:
+        project_search_paths = []
+        for sp_el in self.dom.getElementsByTagName('search-path'):
             sp = single_text_child(sp_el)
             if sp.endswith('/'):
                 sp = sp[:-1]
-            self.search_paths.append(sp)
+            project_search_paths.append(sp)
 
-        if search_paths is not None:
-            self.search_paths += search_paths
+        user_search_paths = param_search_paths + project_search_paths
+        if len(user_search_paths) == 0:
+            user_search_paths = [self.project_dir]
 
-        if len(sp_els) == 0:
-            self.search_paths.append(self.project_dir)
-
+        built_in_search_paths = []
         if frozen:
             base_file = sys.executable if frozen else __file__
             base_file = follow_link(base_file)
 
-            base_dir = os.path.normpath(os.path.abspath(os.path.dirname(base_file)))
+            base_dir = canonical_path(os.path.dirname(base_file))
 
             def find_share(cur):
+                cur = canonical_path(cur)
                 maybe_share_path = os.path.join(cur, 'share')
                 if os.path.exists(maybe_share_path):
                     return maybe_share_path
                 else:
-                    up = os.path.normpath(os.path.join(cur, os.path.pardir))
+                    up = canonical_path(os.path.join(cur, os.path.pardir))
                     if up == cur:
                         return None
                     return find_share(up)
@@ -1126,7 +1159,9 @@ class Project:
                 if not os.path.exists(packages_dir) or not os.path.isdir(packages_dir):
                     logger.warning("Can't find 'packages' directory in '{}'".format(share_dir))
                 else:
-                    self.search_paths.append(packages_dir)
+                    built_in_search_paths.append(packages_dir)
+
+        self.search_paths = user_search_paths + built_in_search_paths
 
         logger.debug("search_paths %s", self.search_paths)
 
@@ -1140,7 +1175,7 @@ class Project:
         else:
             self.output = os.path.join(self.project_dir, path)
 
-    def _find_import(self, entity_name):
+    def entity_name_to_path(self, entity_name):
         """Looks up an entity definition in the search paths by its specified `entity_name`.
 
         Returns the path to the entity.
@@ -1160,12 +1195,13 @@ class Project:
             return None, None
 
         for sp in self.search_paths:
-            base = os.path.join(sp, entity_name)
+            base = os.path.join(sp, *entity_name.split('.'))
             path, ext = search_inner(base)
-            if path:
+            if path is not None:
                 break
-        else:
-            raise EntityNotFound("Unable to find entity named %s" % entity_name)
+
+        if path is None:
+            raise EntityNotFound("Unable to find entity named '{}'".format(entity_name))
 
         if ext == '':
             if not os.path.isdir(path):
@@ -1173,7 +1209,7 @@ class Project:
             # Search for an 'entity.<ext>' file.
             file_path, ext = search_inner(os.path.join(path, 'entity'))
             if file_path is None:
-                raise EntityNotFound("Couldn't find entity definition file in %s" % path)
+                raise EntityNotFound("Couldn't find entity definition file in '{}'".format(path))
             path = file_path
 
         return path
@@ -1204,49 +1240,18 @@ class Project:
         else:
             raise EntityLoadError("Unhandled extension '{}'".format(ext))
 
-    def _entity_name_from_path(self, path):
-        """Determine the name of an entity from its path."""
-        # 1. Find which search path the path is in.
-        abs_path = os.path.abspath(path)
-        for sp in self.search_paths:
-            abs_sp = os.path.abspath(sp)
-            if abs_path[:len(abs_sp)] == abs_sp:
-                # Strip the search path
-                entity_name = abs_path[len(abs_sp) + 1:]
-                break
-        else:
-            entity_name = 'ABS' + abs_path
-
-        # Strip the extension.
-        entity_name = os.path.splitext(entity_name)[0]
-
-        # Strip 'entity'
-        if entity_name.endswith('/entity'):
-            entity_name = entity_name[:-len('/entity')]
-
-        return entity_name
-
-    def find(self, entity_name, allow_paths=False):
+    def find(self, entity_name):
         """Find an entity (could be a module, system or some other type).
 
         A KeyError will be raised in the case where the entity can't be found.
+
         """
+        if not valid_entity_name(entity_name):
+            # Note: 'entity_name' should be checked before passing to this function.
+            raise Exception("Invalid entity name passed to find: '{}'".format(entity_name))
         if entity_name not in self.entities:
             # Try and find the entity name
-            try:
-                path = self._find_import(entity_name)
-            except EntityNotFound:
-                if allow_paths and os.path.exists(entity_name):
-                    path = entity_name
-                    entity_name = self._entity_name_from_path(path)
-                    # Determine the correct entity name
-                else:
-                    raise
-            check = self._entity_name_from_path(path)
-            if check != entity_name:
-                msg = "Internal exception. Invalid entity names '{}' != '{}'".format(check, entity_name)
-                raise Exception(msg)
-            assert check == entity_name
+            path = self.entity_name_to_path(entity_name)
             self.entities[entity_name] = self._parse_import(entity_name, path)
 
         return self.entities[entity_name]
@@ -1262,7 +1267,7 @@ def generate(args):
     This function returns 0 on success and 1 if an error occurs.
 
     """
-    return call_system_function(args, System.generate, extra_args={'copy_all_files': True})
+    return call_system_function(args, System.generate, extra_args={'copy_all_files': True}, sys_is_path=True)
 
 
 def build(args):
@@ -1291,7 +1296,7 @@ def load(args):
     return call_system_function(args, System.load)
 
 
-def call_system_function(args, function, extra_args=None):
+def call_system_function(args, function, extra_args=None, sys_is_path=False):
     """Instantiate a system and call the given member function of the System class on it."""
     project = args.project
     system_name = args.system
@@ -1300,15 +1305,29 @@ def call_system_function(args, function, extra_args=None):
         extra_args = {}
 
     try:
-        system = project.find(system_name, allow_paths=True)
-    except (EntityLoadError, EntityNotFound):
-        logger.error("Unable to find system [{}].".format(system_name))
+        if sys_is_path:
+            system_path = system_name
+            system_name = os.path.splitext(os.path.basename(system_name))[0]
+            print("Loading system: {}".format(system_name))
+            system = project._parse_import(system_name, system_path)
+            system.output = os.path.curdir
+        else:
+            if not valid_entity_name(system_name):
+                logger.error("System name '{}' is invalid.".format(system_name))
+                return 1
+            print("Loading system: {}".format(system_name))
+            system = project.find(system_name)
+    except EntityLoadError:
+        logger.error("Unable to load system [{}].".format(system_name))
+        return 1
+    except EntityNotFound:
+        logger.error("Unable to  system [{}].".format(system_name))
         return 1
 
     if args.output:
         system.output = args.output
 
-    logger.info("Invoking {}.{}".format(system, function))
+    logger.info("Invoking '{}' on system '{}'".format(function.__name__, system.name))
     try:
         function(system, **extra_args)
     except (SystemParseError, SystemLoadError, SystemConsistencyError, ResourceNotFoundError, EntityNotFound) as e:
@@ -1376,7 +1395,11 @@ def main():
         logger.error("Parsing %s:%s ExpatError %s" % (e.path, e.lineno, e))
         return 1
 
-    return SUBCOMMAND_TABLE[args.command](args)
+    try:
+        return SUBCOMMAND_TABLE[args.command](args)
+    except EntityLoadError as e:
+        logger.error(str(e))
+        return 1
 
 
 def _start():

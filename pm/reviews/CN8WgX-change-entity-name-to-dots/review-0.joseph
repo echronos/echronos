@@ -1,0 +1,24 @@
+Breakaway Task Review
+=======================
+
+Task name: CN8WgX-change-entity-name-to-dots
+Version reviewed: dcad0e087178b0c5ec825da02ad78b65e22406c7
+Reviewer: joseph
+Date: 2013-06-27
+Conclusion: Accepted
+
+Overall comments:
+
+As discussed on friday, I have a strong preference for making it possible to structure modules in directories.
+I think it makes grokking the sp16 codebase far easier.
+Having said that I agree that module naming is better with a dotted syntax.
+If we end up with dotted modules and an equivalent directory heirarchy, we've got an equivalent arrangement to Java. 
+IMO this works fairly well. It ends up being much easier to find things than python's arbitrary jumble.
+
+Also as discussed on friday, I think it would improve the review process if the initiator could make a few notes about
+how to test the changes and potentially any specific risks to look out for.
+
+Specific comments
+=================
+
+

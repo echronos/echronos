@@ -1,0 +1,35 @@
+Breakaway Task Review
+=======================
+
+Task name: CN8WgX-change-entity-name-to-dots
+Version reviewed: dcad0e087178b0c5ec825da02ad78b65e22406c7
+Reviewer: stg
+Date: 2013-06-27
+Conclusion: Rework
+
+Overall comments
+
+Comment 0: Accepted
+#> python3.3 prj/app/prj.py build machine-qemu-simple.example.rigel-config-only
+fails with
+INFO:prj:Executing: arm-none-eabi-ld -T out/machine-qemu-simple.example.rigel-config-only/default.ld -o out/machine-qemu-simple.example.rigel-config-only/system out/machine-qemu-simple.example.rigel-config-only/ctxt-switch.o out/machine-qemu-simple.example.rigel-config-only/vectable.o out/machine-qemu-simple.example.rigel-config-only/armv7m.rtos-rigel.o
+out/machine-qemu-simple.example.rigel-config-only/vectable.o: In function `_entry':
+/home/stg/rtos-core/out/machine-qemu-simple.example.rigel-config-only/vectable.s:61: undefined reference to `main'
+out/machine-qemu-simple.example.rigel-config-only/vectable.o: In function `_vector_table':
+(.vectors+0x3c): undefined reference to `tick_irq'
+out/machine-qemu-simple.example.rigel-config-only/armv7m.rtos-rigel.o: In function `rtos_start':
+/home/stg/rtos-core/out/machine-qemu-simple.example.rigel-config-only/armv7m.rtos-rigel.c:295: undefined reference to `fn_a'
+/home/stg/rtos-core/out/machine-qemu-simple.example.rigel-config-only/armv7m.rtos-rigel.c:295: undefined reference to `fn_b'
+This needs to be addressed in a different branch
+
+Specific comments
+=================
+
+Location: README:125 and others
+Comment 1: Rework
+The documented paths of the output files are incorrect as they now follow the dot notation instead of the / notation.
+
+Location: prj/app/prj.py:1401-1405
+Comment 2: Accepted
+Is it worth making this a special case?
+Would it work to logg either all exceptions or none?

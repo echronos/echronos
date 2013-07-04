@@ -5,16 +5,20 @@ Task name: CN8WgX-change-entity-name-to-dots
 Version reviewed: c47e664430a59e5ba1afdcfc50dcee3b1cd1ffcf
 Reviewer: joseph
 Date: 2013-07-04
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
+Two very minor nit picking comments
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+README: 127
+To me this could be slightly confusing as to which system this comment applies to.
 
-Location: filename:linenum
-Comment:
+Is it worth adding a separator in between?
+
+
+prj/app/prj.py:1196 joseph
+Is the inner join necessary here? It was absent in 906

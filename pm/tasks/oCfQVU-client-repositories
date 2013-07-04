@@ -13,3 +13,9 @@ Goals
 - allow client repositories to integrate the RTOS core repository by including it as a sub-directory
 
 - support that a wrapper in a client repository re-uses the x tool in the core repository and exposes the same interface
+
+
+Test plan
+---------
+
+- the x tool must pass all tests

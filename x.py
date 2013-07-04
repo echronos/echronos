@@ -628,15 +628,33 @@ def prj_test(args):
 
 
 def x_test(args):
-    """Run x-related tests."""
+    """Run x-related tests.
+
+    Return a process exit code:
+    0 indicates that all tests passed.
+    1 indicates that some tests failed.
+
+    """
     modules = ['x']
     directories = ['.']
-    run_module_tests_with_args(modules, directories, args)
+
+    result = run_module_tests_with_args(modules, directories, args)
+
+    if result:
+        exit_code = 0
+    else:
+        exit_code = 1
+
+    return exit_code
 
 
 def run_module_tests_with_args(modules, directories, args):
     """Call a fixed set of modules in specific directories, deriving all input for a call to run_module_tests() from
-    the given command line arguments."""
+    the given command line arguments.
+
+    Returns a boolean indicating whether all tests succeeded.
+
+    """
     patterns = args.tests
     verbosity = 0
     if args.verbose:
@@ -645,7 +663,7 @@ def run_module_tests_with_args(modules, directories, args):
         verbosity = -1
     print_only = args.list
 
-    run_module_tests(modules, directories, patterns, verbosity, print_only)
+    return run_module_tests(modules, directories, patterns, verbosity, print_only)
 
 
 def run_module_tests(modules, directories, patterns=[], verbosity=0, print_only=False):
@@ -667,6 +685,8 @@ def run_module_tests(modules, directories, patterns=[], verbosity=0, print_only=
 
     If the boolean 'print_only' is True, the discovered tests are printed on the console but not executed.
 
+    Returns a boolean indicating whether all tests succeeded.
+
     """
     paths = [os.path.abspath(top_path(dir)) for dir in directories]
     import sys
@@ -684,20 +704,20 @@ def run_module_tests(modules, directories, patterns=[], verbosity=0, print_only=
 
     suite = unittest.TestSuite(tests)
 
-    r = 0
+    result = False
     if print_only:
         testsuite_list(suite)
+        result = True
     else:
         BASE_VERBOSITY = 1
         runner = unittest.TextTestRunner(resultclass=SimpleTestNameResult, verbosity=BASE_VERBOSITY + verbosity)
-        result = runner.run(suite)
-        if not result.wasSuccessful():
-            r = 1
+        run_result = runner.run(suite)
+        result = run_result.wasSuccessful()
 
     for path in paths:
         sys.path.remove(path)
 
-    return r
+    return result
 
 
 def prj_build(args):

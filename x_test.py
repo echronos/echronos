@@ -1,5 +1,3 @@
-#!/usr/bin/env python3.3
-
 from x import *
 
 # The constants refer to the base (initial) commit.

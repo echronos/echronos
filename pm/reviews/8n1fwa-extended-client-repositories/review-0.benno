@@ -17,3 +17,5 @@ x.py:2116
 
 This approach to setting top-dir seems complicated.
 Prefer simply having the calling module directly set the module level variable.
+
+[[(benno): Fixed.]

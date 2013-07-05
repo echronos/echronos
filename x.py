@@ -115,6 +115,7 @@ import zipfile
 from contextlib import contextmanager
 from glob import glob
 from random import choice
+from nose.plugins.skip import SkipTest
 
 # Set up a specific logger with our desired output level
 logger = logging.getLogger()
@@ -122,6 +123,8 @@ logger.setLevel(logging.INFO)
 
 
 BASE_TIME = calendar.timegm((2013, 1, 1, 0, 0, 0, 0, 0, 0))
+
+IN_TEAMCITY = 'TEAMCITY_PROJECT_NAME' in os.environ
 
 
 # topdir is the rtos repository directory in which the user invoked the x tool.
@@ -490,6 +493,16 @@ class ArchitectureComponent(Component):
 # Selection can be done via exact-match, prefix-match or regular expression
 # matching.
 #
+def teamcityskip(test):
+    """Use this decorator to skip a test when executing on TeamCity."""
+    @functools.wraps(test)
+    def wrapper():
+        if IN_TEAMCITY:
+            raise SkipTest
+        return test()
+
+    return wrapper
+
 
 def ispackage(object):
     """Return true if the object is a package."""

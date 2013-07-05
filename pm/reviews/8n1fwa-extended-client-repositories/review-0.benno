@@ -5,7 +5,7 @@ Task name: 8n1fwa-extended-client-repositories
 Version reviewed: db0685001c648210f29ff1df523aba485590ef6a
 Reviewer: benno
 Date: 2013-07-05
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
@@ -13,8 +13,7 @@ Overall comments:
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+x.py:2116
 
-Location: filename:linenum
-Comment:
+This approach to setting top-dir seems complicated.
+Prefer simply having the calling module directly set the module level variable.

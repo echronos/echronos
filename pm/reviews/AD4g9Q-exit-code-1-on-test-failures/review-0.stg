@@ -5,16 +5,4 @@ Task name: AD4g9Q-exit-code-1-on-test-failures
 Version reviewed: 2d55ff6d7d516ce1025cc8ba1bc2102cb7c1f209
 Reviewer: stg
 Date: 2013-07-05
-Conclusion: Accepted/Rework
-
-Overall comments:
-
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Conclusion: Accepted

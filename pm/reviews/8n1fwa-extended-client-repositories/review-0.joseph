@@ -5,16 +5,18 @@ Task name: 8n1fwa-extended-client-repositories
 Version reviewed: db0685001c648210f29ff1df523aba485590ef6a
 Reviewer: joseph
 Date: 2013-07-05
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
 Overall comments:
 
+The below comment from CfQVU-client-repositories was decided to be out of scope
+(as per skype discussion 2013-07-04):
 
-Specific comments
-=================
+> Location:  rtos-clr/core/tools/x86_64-apple-darwin/bin/python3.3
+> Comment:   On OS X or linux, x.py insists on using the python installation within the core repository. This makes it
+> painful to move between repos since you need to specify a different python binary for each one. It would be much
+> nicer if this assertion didnt exist, as is the case for windows.
 
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+stg: out of scope
+As you point out, this is irrelevant on Windows.
+But I will address it as part of 8n1fwa-extended-client-repositories

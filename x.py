@@ -130,7 +130,7 @@ BASE_TIME = calendar.timegm((2013, 1, 1, 0, 0, 0, 0, 0, 0))
 # If the user directly invokes x tool of the RTOS core, topdir is the directory of this file.
 # topdir defaults to the core directory.
 # It may be modified by an appropriate invocation of main().
-topdir = os.path.dirname(__file__)
+topdir = os.path.normpath(os.path.dirname(__file__))
 
 
 def gen_tag():
@@ -2113,11 +2113,8 @@ skeletons = CORE_SKELETONS.copy()
 configurations = CORE_CONFIGURATIONS.copy()
 
 
-def main(top_dir=os.path.dirname(__file__)):
+def main():
     """Application main entry point. Parse arguments, and call specified sub-command."""
-    global topdir
-    topdir = top_dir if top_dir else '.'
-
     SUBCOMMAND_TABLE = {
         'check-pep8': check_pep8,
         'prj-test': prj_test,

@@ -624,35 +624,22 @@ def prj_test(args):
                    os.path.join('prj', 'app', 'pystache'),
                    os.path.join('prj', 'app', 'lib')]
 
-    run_module_tests_with_args(modules, directories, args)
+    return run_module_tests_with_args(modules, directories, args)
 
 
 def x_test(args):
-    """Run x-related tests.
-
-    Return a process exit code:
-    0 indicates that all tests passed.
-    1 indicates that some tests failed.
-
-    """
+    """Run x-related tests."""
     modules = ['x']
     directories = ['.']
 
-    result = run_module_tests_with_args(modules, directories, args)
-
-    if result:
-        exit_code = 0
-    else:
-        exit_code = 1
-
-    return exit_code
+    return run_module_tests_with_args(modules, directories, args)
 
 
 def run_module_tests_with_args(modules, directories, args):
     """Call a fixed set of modules in specific directories, deriving all input for a call to run_module_tests() from
     the given command line arguments.
 
-    Returns a boolean indicating whether all tests succeeded.
+    See `run_modules_tests` for more information.
 
     """
     patterns = args.tests
@@ -685,7 +672,10 @@ def run_module_tests(modules, directories, patterns=[], verbosity=0, print_only=
 
     If the boolean 'print_only' is True, the discovered tests are printed on the console but not executed.
 
-    Returns a boolean indicating whether all tests succeeded.
+    Returns a process exit code suitable for passing to sys.exit().
+    The exit code represents the number of tests that failed (0 indicating all tests passed).
+    If more than 127 tests failed, then 127 will be returned.
+    127 is the largest, portable value that can be returned via sys.exit().
 
     """
     paths = [os.path.abspath(top_path(dir)) for dir in directories]
@@ -704,15 +694,14 @@ def run_module_tests(modules, directories, patterns=[], verbosity=0, print_only=
 
     suite = unittest.TestSuite(tests)
 
-    result = False
+    result = 0
     if print_only:
         testsuite_list(suite)
-        result = True
     else:
         BASE_VERBOSITY = 1
         runner = unittest.TextTestRunner(resultclass=SimpleTestNameResult, verbosity=BASE_VERBOSITY + verbosity)
         run_result = runner.run(suite)
-        result = run_result.wasSuccessful()
+        result = min(len(run_result.failures), 127)
 
     for path in paths:
         sys.path.remove(path)

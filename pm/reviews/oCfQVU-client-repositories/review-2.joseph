@@ -5,16 +5,15 @@ Task name: oCfQVU-client-repositories
 Version reviewed: b8d22f75c188bd5566a197dde10cf79526c59559
 Reviewer: joseph
 Date: 2013-07-04
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
-Overall comments:
+Overall comments: Good to go
 
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Location: x_test.py
+ 
+Comment: file should either be not executable or have a hashbang
+Accepted: have removed the executable flag

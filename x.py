@@ -682,6 +682,14 @@ def x_test(args):
     return run_module_tests_with_args(modules, directories, args)
 
 
+def rtos_test(args):
+    """Run rtos unit tests."""
+    modules = ['rtos']
+    directories = ['.']
+
+    return run_module_tests_with_args(modules, directories, args)
+
+
 def run_module_tests_with_args(modules, directories, args):
     """Call a fixed set of modules in specific directories, deriving all input for a call to run_module_tests() from
     the given command line arguments.
@@ -2191,6 +2199,7 @@ def main():
         'tasks': tasks,
         'integrate': integrate,
         'x-test': x_test,
+        'rtos-test': rtos_test,
     }
 
     # create the top-level parser
@@ -2201,7 +2210,7 @@ def main():
     # create the parser for the "prj.pep8" command
     subparsers.add_parser('tasks', help="List tasks")
     subparsers.add_parser('check-pep8', help='Run PEP8 on project Python files')
-    for component_name in ['prj', 'x']:
+    for component_name in ['prj', 'x', 'rtos']:
         _parser = subparsers.add_parser(component_name + '-test', help='Run {} unittests'.format(component_name))
         _parser.add_argument('tests', metavar='TEST', nargs='*',
                              help="Specific test", default=[])

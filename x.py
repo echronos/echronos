@@ -559,20 +559,52 @@ def testsuite_list(suite, file=sys.stdout):
         print(testcase_name(test), file=file)
 
 
+class MethodTestCase(unittest.FunctionTestCase):
+    def __init__(self, method, cls):
+        super().__init__(method)
+        self.cls = cls
+
+
+class TestSuite(unittest.TestSuite):
+    def __init__(self, tests):
+        self._classes_setup = set()
+        super().__init__(tests)
+
+    def _handleClassSetUp(self, test, result):
+        if isinstance(test, MethodTestCase):
+            if test.cls not in self._classes_setup:
+                test.cls.setUpClass()
+                self._classes_setup.add(test.cls)
+        return super()._handleClassSetUp(test, result)
+
+
 def discover_tests_class(cls):
     """Generate testcases from the class 'cls'."""
     for name, method in [(name, getattr(cls, name)) for name in dir(cls)
                          if re.match('test.*', name)]:
         if callable(method):
-            testcase = cls(name)
-            testcase._testcase_name = "{}.{}.{}".format(cls.__module__, cls.__name__, name)
-            yield testcase
+            if issubclass(cls, unittest.TestCase):
+                testcase = cls(name)
+                testcase._testcase_name = "{}.{}.{}".format(cls.__module__, cls.__name__, name)
+                yield testcase
+            else:
+                if inspect.isgeneratorfunction(method):
+                    gen = getattr(cls(), name)
+                    for name, *test in gen():
+                        f = functools.partial(*test)
+                        testcase = MethodTestCase(f, cls)
+                        testcase._testcase_name = "{}.{}.{}".format(cls.__module__, cls.__name__, name)
+                        yield testcase
+                else:
+                    testcase = MethodTestCase(getattr(cls(), name), cls)
+                    testcase._testcase_name = "{}.{}.{}".format(cls.__module__, cls.__name__, name)
+                    yield testcase
 
 
 def discover_tests_module(module):
     """Generate testcases from the module."""
     for name, obj in [(name, getattr(module, name)) for name in dir(module)]:
-        if inspect.isclass(obj) and issubclass(obj, unittest.TestCase):
+        if inspect.isclass(obj) and (issubclass(obj, unittest.TestCase) or re.match('test.*', name)):
             yield from discover_tests_class(obj)
         elif callable(obj) and re.match('test_.*', name):
             if inspect.isgeneratorfunction(obj):
@@ -703,7 +735,7 @@ def run_module_tests(modules, directories, patterns=[], verbosity=0, print_only=
     else:
         tests = all_tests
 
-    suite = unittest.TestSuite(tests)
+    suite = TestSuite(tests)
 
     result = 0
     if print_only:

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <modules>
+    <module name="posix.build">
+      <output_type>shared-library</output_type>
+    </module>
+    <module name="unittest.simple" />
+  </modules>
+</system>

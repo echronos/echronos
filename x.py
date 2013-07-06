@@ -539,6 +539,8 @@ def testcase_name(testcase):
     For generated testcases the format is <module_name>.<generator_name>:<description>
 
     """
+    if isinstance(testcase, unittest.suite._ErrorHolder):
+        return str(testcase)
     return testcase._testcase_name
 
 

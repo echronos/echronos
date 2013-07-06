@@ -368,6 +368,9 @@ def dict_has_keys(d, *keys):
     return True
 
 
+valid_schema_types = ['dict', 'list', 'string', 'int', 'c_ident']
+
+
 def xml2schema(el):
     """Return a schema object from an XML description.
 
@@ -396,8 +399,6 @@ def xml2schema(el):
     If the `type` is dict, there should be more one or more sub-element describing the valid dictionary entries.
 
     """
-    valid_types = ['dict', 'list', 'string', 'int', 'c_ident']
-
     def read_entry(el):
         entry = {
             'name': get_attribute(el, 'name'),
@@ -406,8 +407,8 @@ def xml2schema(el):
         }
 
         _type = entry['type']
-        if _type not in valid_types:
-            err_str = xml_error_str(el, "Invalid type '{}' should be one of {}".format(_type, valid_types))
+        if _type not in valid_schema_types:
+            err_str = xml_error_str(el, "Invalid type '{}' should be one of {}".format(_type, valid_schema_types))
             raise SystemParseError(err_str)
 
         if _type == 'list':

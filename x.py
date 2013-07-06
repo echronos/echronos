@@ -699,9 +699,7 @@ def run_module_tests(modules, directories, patterns=[], verbosity=0, print_only=
     all_tests = discover_tests(*modules)
 
     if patterns:
-        tests = []
-        for pattern in patterns:
-            tests.extend([test for test in all_tests if testcase_matches(test, pattern)])
+        tests = (t for t in all_tests if any(testcase_matches(t, p) for p in patterns))
     else:
         tests = all_tests
 

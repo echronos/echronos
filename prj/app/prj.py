@@ -828,7 +828,7 @@ class SourceModule(NamedModule):
 
     def _configure_from_xml(self, dom):
         """Configure a module based on XML input. This may be XML that was
-        extracted from a marked-up c    omment, or directly in an XML file.
+        extracted from a marked-up comment, or directly in an XML file.
 
         """
         cg_el = maybe_single_named_child(dom, 'code_gen')

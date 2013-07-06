@@ -959,7 +959,16 @@ class Action(NamedModule):
             self.schema = py_module.schema
 
     def run(self, system, config):
-        self._py_module.run(system, config)
+        try:
+            self._py_module.run(system, config)
+        except (SystemBuildError, ):
+            raise
+        except Exception as e:
+            file_name = '{}.errors.log'.format(self.name)
+            with open(file_name, "w") as f:
+                traceback.print_exception(*sys.exc_info(), file=f)
+            msg_fmt = "An unexpected error occured while running custom module '{}'. Traceback saved to '{}'."
+            raise SystemBuildError(msg_fmt.format(self.name, file_name))
 
 
 class Builder(Action):
@@ -1398,7 +1407,7 @@ def call_system_function(args, function, extra_args=None, sys_is_path=False):
     logger.info("Invoking '{}' on system '{}'".format(function.__name__, system.name))
     try:
         function(system, **extra_args)
-    except (SystemParseError, SystemLoadError, SystemConsistencyError, ResourceNotFoundError, EntityNotFound) as e:
+    except (SystemParseError, SystemLoadError, SystemBuildError, SystemConsistencyError, ResourceNotFoundError, EntityNotFound) as e:
         logger.error(str(e))
         return 1
 

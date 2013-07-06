@@ -1,0 +1,14 @@
+Task: WkNvlt-posix-unit-testing
+==============================================================================
+
+Goals
+--------
+
+Currently there is no good way to unit test components.
+The approach for unit testing will be to create test harness for components-under-test.
+These test harnesses will be similar in form to the existing RTOS skeletons, and will reuse the code for generating these test cases.
+Once test cases are created, suitable prx files will also be created that allow compiling a system for the component-under-test.
+It is desirable to provide extensive (and even exhaustive) tests.
+With such a gaol in mind it is desirable that tests can be written in Python, rather than directly in C.
+Rather than creating an executable system during the build process, a shared library (.so) will be created.
+The .so file will be accessed using Python's ctypes interface.

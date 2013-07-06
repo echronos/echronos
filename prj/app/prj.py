@@ -37,6 +37,7 @@ _logging.basicConfig = error_fn
 import xml.dom.minidom
 from xml.parsers.expat import ExpatError
 import argparse
+import collections
 import functools
 import glob
 import imp
@@ -371,6 +372,45 @@ def dict_has_keys(d, *keys):
 valid_schema_types = ['dict', 'list', 'string', 'int', 'c_ident']
 
 
+def check_schema_is_valid(schema, key_path=None):
+    """Raise SchemaInvalid exception if the schema is not valid.
+
+    The None object is a valid schema.
+
+    """
+    if key_path is None:
+        key_path = []
+    name = None
+
+    def error(msg):
+        if name is None and len(key_path) == 0:
+            key_name = None
+        elif name is None:
+            key_name = '.'.join(key_path)
+        else:
+            key_name = '.'.join(key_path + [name])
+        key_msg = '' if key_name is None else 'key:{} '.format(key_name)
+        raise SchemaInvalid("Schema {}is invalid: {}".format(key_msg, msg))
+
+    if schema is None:
+        return
+    if not isinstance(schema, collections.Mapping):
+        error("except schema to be a mapping type.")
+    if not dict_has_keys(schema, 'type', 'name'):
+        error("except schema to have 'type' and 'name' fields.")
+    name = schema['name']
+    if schema['type'] not in valid_schema_types:
+        error("type '{}' is invalid.".format(schema['type']))
+
+    if schema['type'] == 'dict':
+        if not dict_has_keys(schema, 'dict_type'):
+            error("when type is 'dict' except 'dict_type' to be defined.")
+        if not isinstance(schema['dict_type'], collections.Sequence):
+            error("'dict_type' should be a sequence")
+        for each in schema['dict_type']:
+            check_schema_is_valid(each, key_path + [schema['name']])
+
+
 def xml2schema(el):
     """Return a schema object from an XML description.
 
@@ -585,6 +625,10 @@ def asdict(lst, key=None, attr=None):
         raise Exception("Key or attr should be set")
 
     return {lookup(x): x for x in lst}
+
+
+class SchemaInvalid(Exception):
+    """Raised by `check_schema_is_valid` if a schema is invalid."""
 
 
 class ResourceNotFoundError(Exception):

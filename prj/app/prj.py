@@ -1330,7 +1330,7 @@ def call_system_function(args, function, extra_args=None, sys_is_path=False):
         logger.error("Unable to load system [{}].".format(system_name))
         return 1
     except EntityNotFound:
-        logger.error("Unable to  system [{}].".format(system_name))
+        logger.error("Unable to find system [{}].".format(system_name))
         return 1
 
     if args.output:

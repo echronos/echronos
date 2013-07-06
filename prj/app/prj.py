@@ -360,6 +360,14 @@ def maybe_get_element_list(el, list_name, list_item_name):
     return list_els
 
 
+def dict_has_keys(d, *keys):
+    """Return True if the dictionary has all keys."""
+    for k in keys:
+        if not k in d:
+            return False
+    return True
+
+
 def xml2schema(el):
     """Return a schema object from an XML description.
 

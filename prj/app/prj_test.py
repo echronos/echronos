@@ -5,6 +5,13 @@ from nose.tools import assert_raises, raises
 base_dir = os.path.dirname(__file__)
 
 
+def test_dict_has_keys():
+    d = {'foo': 37, 'bar': 25}
+    assert dict_has_keys(d, 'foo')
+    assert not dict_has_keys(d, 'baz')
+    assert dict_has_keys(d, 'foo', 'bar')
+
+
 def test_list_all_equal():
     assert list_all_equal("11111111")
     assert not list_all_equal("11111110")

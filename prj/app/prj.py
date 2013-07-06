@@ -524,6 +524,8 @@ def xml2dict(el, schema=None):
       list_type: a single schema object which describes the form of list elements.
 
     """
+    check_schema_is_valid(schema)
+
     def get_dict_val(el, schema):
         children = element_children(el, ensure_unique=True)
         if not schema:
@@ -950,6 +952,10 @@ class Action(NamedModule):
         assert hasattr(py_module, 'run')
         self._py_module = py_module
         if hasattr(py_module, 'schema'):
+            try:
+                check_schema_is_valid(py_module.schema)
+            except SchemaInvalid as e:
+                raise SystemLoadError("The schema declared in module '{}' is invalid. {:s}".format(name, e))
             self.schema = py_module.schema
 
     def run(self, system, config):

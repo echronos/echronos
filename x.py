@@ -640,7 +640,7 @@ def discover_tests(*mut_names):
             test_package = importlib.import_module('{}.test'.format(mut.__name__))
             test_module_names = ['{}.{}'.format(test_package.__name__, m)
                                  for m in
-                                 test_package.__all__]
+                                 test_package.__all__] + [test_package.__name__]
             for tmn in test_module_names:
                 yield from discover_tests_module(importlib.import_module(tmn))
         else:

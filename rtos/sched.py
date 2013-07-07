@@ -5,6 +5,7 @@ This can be used for testing purposes to ensure implementation matches the model
 
 """
 from itertools import product
+import ctypes
 
 
 def head(iter_):
@@ -28,7 +29,36 @@ def incmod(i, n):
     return (i + 1) % n
 
 
-class BaseSched:
+def get_rr_sched_struct(num_tasks):
+    """Return an implementation mock for a round-robin scheduler with 'num_tasks' tasks."""
+    class RrSchedTaskStruct(ctypes.Structure):
+        _fields_ = [("runnable", ctypes.c_bool)]
+
+    class RrSchedStruct(ctypes.Structure):
+        _fields_ = [("cur", ctypes.c_uint8),
+                    ("tasks", RrSchedTaskStruct * num_tasks)]
+
+        def __str__(self):
+            run_state = ''.join(['X' if x.runnable else ' ' for x in self.tasks])
+            return "<RrSchedImpl cur={} runnable=[{}]".format(self.cur, run_state)
+
+        def __eq__(self, model):
+            if model.cur != self.cur:
+                return False
+            for idx, r in model.indexed:
+                if self.tasks[idx].runnable != r:
+                    return False
+            return True
+
+        def set(self, model):
+            self.cur = model.cur
+            for idx, r in model.indexed:
+                self.tasks[idx].runnable = r
+            assert self == model
+    return RrSchedStruct
+
+
+class BaseSchedModel:
     def __init__(self, runnable):
         self.runnable = runnable
         self.size = len(runnable)
@@ -53,7 +83,7 @@ class BaseSched:
         raise Exception("get_next should be implemented by sub-class.")
 
 
-class RrSched(BaseSched):
+class RrSchedModel(BaseSchedModel):
     """A model of the round-robin scheduler."""
 
     def __init__(self, runnable, cur):
@@ -79,7 +109,7 @@ class RrSched(BaseSched):
         return filter(lambda s: any(s.runnable), g) if assume_runnable else g
 
 
-class PrioSched(BaseSched):
+class PrioSchedModel(BaseSchedModel):
     """A model of the strict priority scheduler."""
 
     def __str__(self):
@@ -111,7 +141,7 @@ if __name__ == '__main__':
                         help="Number of tasks in scheduler.")
     args = parser.parse_args()
 
-    sched_class = { 'prio': PrioSched, 'rr': RrSched }[args.sched]
+    sched_class = { 'prio': PrioSchedModel, 'rr': RrSchedModel }[args.sched]
 
     for s in sched_class.states(args.N, args.assume_runnable):
         before = str(s)

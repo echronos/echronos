@@ -8,7 +8,14 @@ Currently there is no good way to unit test components.
 The approach for unit testing will be to create test harness for components-under-test.
 These test harnesses will be similar in form to the existing RTOS skeletons, and will reuse the code for generating these test cases.
 Once test cases are created, suitable prx files will also be created that allow compiling a system for the component-under-test.
+
 It is desirable to provide extensive (and even exhaustive) tests.
-With such a gaol in mind it is desirable that tests can be written in Python, rather than directly in C.
-Rather than creating an executable system during the build process, a shared library (.so) will be created.
-The .so file will be accessed using Python's ctypes interface.
+With such a goal in mind it is desirable that tests can be written in Python, rather than directly in C.
+Scripting in Python allows simpler test case construction and the ability to check C implementation against high-level models implemented in Python.
+The goal is that a Python test suite can interact with the component-under-test via ctypes.
+
+To enable this interaction it is neccesary to have a system built as a shared library (.so) that can be imported with ctypes, rather than executable file.
+Rather than creating an executable system during the build process (on POSIX) shall be extended so that it is possible to build a shared library (.so) instead of an executable.
+
+To ensure that the interfaces are sufficient, some basic testing of the existing round-robin scheduler should be provided.
+The tests need not cover the full-functionality of the round-robing scheduler, but should exercise significant parts of the unittest framework.

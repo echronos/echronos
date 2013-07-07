@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <modules>
+
+    <module name="posix.build">
+      <output_type>shared-library</output_type>
+    </module>
+
+    <module name="posix.rtos-sched-prio-test">
+      <num_tasks>10</num_tasks>
+    </module>
+
+  </modules>
+</system>

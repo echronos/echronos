@@ -58,6 +58,31 @@ def get_rr_sched_struct(num_tasks):
     return RrSchedStruct
 
 
+def get_prio_sched_struct(num_tasks):
+    """Return an implementation mock for a priority scheduler with 'num_tasks' tasks."""
+    class PrioSchedTaskStruct(ctypes.Structure):
+        _fields_ = [("runnable", ctypes.c_bool)]
+
+    class PrioSchedStruct(ctypes.Structure):
+        _fields_ = [("tasks", PrioSchedTaskStruct * num_tasks)]
+
+        def __str__(self):
+            run_state = ''.join(['X' if x.runnable else ' ' for x in self.tasks])
+            return "<PrioSchedImpl runnable=[{}]".format(run_state)
+
+        def __eq__(self, model):
+            for idx, r in model.indexed:
+                if self.tasks[idx].runnable != r:
+                    return False
+            return True
+
+        def set(self, model):
+            for idx, r in model.indexed:
+                self.tasks[idx].runnable = r
+            assert self == model
+    return PrioSchedStruct
+
+
 class BaseSchedModel:
     def __init__(self, runnable):
         self.runnable = runnable

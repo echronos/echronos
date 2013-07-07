@@ -1,4 +1,4 @@
-__all__ = []
+__all__ = ['sched']
 
 import os
 import ctypes

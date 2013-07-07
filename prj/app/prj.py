@@ -935,15 +935,15 @@ class SourceModule(NamedModule):
         # Copy any headers across. This should use templating if that is configured.
         for header in self.headers:
             path = os.path.join(system.output, os.path.basename(header.path))
-            if header.code_gen is None:
-                try:
-                    shutil.copy(header.path, path)
-                except FileNotFoundError as e:
-                    s = xml_error_str(header.xml_element, "Resource not found: {}".format(header.path))
-                    raise ResourceNotFoundError(s)
-            elif header.code_gen == 'template':
-                logger.info("Preparing: template %s -> %s (%s)", header.path, path, config)
-                pystache_render(header.path, path, config)
+            try:
+                if header.code_gen is None:
+                        shutil.copy(header.path, path)
+                elif header.code_gen == 'template':
+                    logger.info("Preparing: template %s -> %s (%s)", header.path, path, config)
+                    pystache_render(header.path, path, config)
+            except FileNotFoundError as e:
+                s = xml_error_str(header.xml_element, "Resource not found: {}".format(header.path))
+                raise ResourceNotFoundError(s)
 
 
 class Action(NamedModule):

@@ -2150,6 +2150,7 @@ CORE_ARCHITECTURES = {
 
 
 CORE_SKELETONS = {
+    'sched-rr-test': RtosSkeleton('sched-rr-test', [Component('sched', 'sched-rr', {'assume_runnable': False})]),
     'acamar': RtosSkeleton('acamar', [ArchitectureComponent('context_switch', 'context-switch')]),
     'gatria': RtosSkeleton('gatria', [ArchitectureComponent('context_switch', 'context-switch'),
                                       Component('sched', 'sched-rr', {'assume_runnable': True})]),
@@ -2169,6 +2170,7 @@ CORE_SKELETONS = {
 
 
 CORE_CONFIGURATIONS = {
+    'sched-rr-test': ['posix'],
     'acamar': ['posix', 'armv7m'],
     'gatria': ['posix', 'armv7m'],
     'kraz': ['posix', 'armv7m'],

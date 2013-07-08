@@ -5,6 +5,7 @@ import ctypes
 import unittest
 import random
 
+
 class testSimple:
     @classmethod
     def setUpClass(cls):

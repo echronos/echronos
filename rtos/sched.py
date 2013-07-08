@@ -141,7 +141,7 @@ if __name__ == '__main__':
                         help="Number of tasks in scheduler.")
     args = parser.parse_args()
 
-    sched_class = { 'prio': PrioSchedModel, 'rr': RrSchedModel }[args.sched]
+    sched_class = {'prio': PrioSchedModel, 'rr': RrSchedModel}[args.sched]
 
     for s in sched_class.states(args.N, args.assume_runnable):
         before = str(s)

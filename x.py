@@ -1495,22 +1495,27 @@ def release_test_one(archive):
 
     with tempdir() as td:
         with chdir(td):
-            os.system("tar xf {}".format(rel_file))
-            os.system("./{}/bin/prj".format(platform))
-            pkgs = []
-            pkg_root = './share/packages/'
-            for root, _dir, files in os.walk(pkg_root):
-                for f in files:
-                    if f.endswith('.prx'):
-                        pkg = os.path.join(root, f)[len(pkg_root):-4]
-                        print(pkg)
-                        pkgs.append(pkg)
-            with open('project.prj', 'w') as f:
-                f.write(project_prj_template.format(pkg_root))
-            for pkg in pkgs:
-                x = os.system("./{}/bin/prj build {}".format(platform, pkg))
-                if x != 0:
-                    raise Exception("Build failed.")
+            subprocess.check_call("tar xf {}".format(rel_file).split())
+            release_dir = os.path.splitext(os.path.splitext(os.path.basename(archive))[0])[0]
+            if not os.path.isdir(release_dir):
+                raise RuntimeError("Release archive does not extract into top directory with the same name as the "
+                                   "base name of the archive ({})".format(release_dir))
+            with chdir(release_dir):
+                os.system("./{}/bin/prj".format(platform))
+                pkgs = []
+                pkg_root = './share/packages/'
+                for root, _dir, files in os.walk(pkg_root):
+                    for f in files:
+                        if f.endswith('.prx'):
+                            pkg = os.path.join(root, f)[len(pkg_root):-4]
+                            print(pkg)
+                            pkgs.append(pkg)
+                with open('project.prj', 'w') as f:
+                    f.write(project_prj_template.format(pkg_root))
+                for pkg in pkgs:
+                    x = os.system("./{}/bin/prj build {}".format(platform, pkg))
+                    if x != 0:
+                        raise Exception("Build failed.")
 
 
 def release_test(args):

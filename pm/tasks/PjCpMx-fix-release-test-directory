@@ -1,0 +1,34 @@
+Task: PjCpMx-fix-release-test-directory
+==============================================================================
+
+Goals
+--------
+
+The x command test-release fails.
+It attempts to perform its tests in an incorrect directory.
+When it extracts the release tar balls under test, it does not change into the top-level extracted directory.
+Thus, it cannot execute the contained prj tool which leads to the error message "sh: 1: ./x86_64-unknown-linux-gnu/bin/prj: not found".
+It also does not convert the old-style path-based system names into the new, dotted notation which leads to error messages such as "ERROR:prj:System name 'machine-qemu-simple/example/kraz-system' is invalid."
+
+The goal of this task is to fix this issue.
+
+Test plan
+---------
+Create a release:
+
+#> . setenv
+#> ./x.py prj-build
+#> ./x.py build-partials
+#> ./x.py build-release
+
+Remove all build artefacts except the release files:
+
+#> mv release ../
+#> git clean -fxd
+#> mv ../release ./
+
+Execute the release tests and ensure that it does not report that prj could not be executed or that the build target system (specified with a path-based name) could not be found.
+
+#> ./x.py test-release
+
+It is known that this command still fails which shall be resolved in a different task.

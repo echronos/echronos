@@ -1507,7 +1507,7 @@ def release_test_one(archive):
                 for root, _dir, files in os.walk(pkg_root):
                     for f in files:
                         if f.endswith('.prx'):
-                            pkg = os.path.join(root, f)[len(pkg_root):-4]
+                            pkg = os.path.join(root, f)[len(pkg_root):-4].replace(os.sep, '.')
                             print(pkg)
                             pkgs.append(pkg)
                 with open('project.prj', 'w') as f:

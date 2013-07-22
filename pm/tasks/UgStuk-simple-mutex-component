@@ -10,6 +10,16 @@ This is represented by sub-section 4 in the design section.
 The interface to be presented to the user should that outline in sub-sections 1 and 2 of the design.
 The semantics should be that as described in sub-section 3.
 
+Due to limitations in the current RTOS generation framework, some desirable properties of this task are not expected to be completed.
+Currently there is no facility in the RTOS generation for assigning name constants, so specifying names for mutexes is not supported.
+As names are currently the only mutex property, there is currently no need to support specifying mutexes in the PRX file explicitly.
+As there is no support for automatically determing e.g.: num_mutexes or num_tasks, num_mutexes must be specified explicitly.
+
+To simplify initial implementaiton, mutex related code is included in the system, even when num_mutexes is zero.
+This is intentional for keeping this specific task simple.
+
+Currently as there is only a single mutex implementation no facility for user selected mutex implementation is provided.
+
 
 Design
 -------

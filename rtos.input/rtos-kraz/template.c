@@ -7,6 +7,7 @@
    <entry name="taskid_size" type="int" default="8"/>
    <entry name="signalset_size" type="int" default="8"/>
    <entry name="num_tasks" type="int"/>
+   <entry name="num_mutexes" type="int"/>
    <entry name="prefix" type="c_ident" default="rtos_" />
    <entry name="tasks" type="list">
      <entry name="task" type="dict">
@@ -25,17 +26,20 @@
 #include "rtos-kraz.h"
 [[ctxt_switch.headers]]
 [[sched.headers]]
+[[mutex.headers]]
 
 /* Object-like macros */
 #define TASK_ID_ZERO ((TaskId) 0)
 [[ctxt_switch.object_like_macros]]
 [[sched.object_like_macros]]
 [[signal.object_like_macros]]
+[[mutex.object_like_macros]]
 
 /* Type definitions */
 [[ctxt_switch.type_definitions]]
 [[sched.type_definitions]]
 [[signal.type_definitions]]
+[[mutex.type_definitions]]
 
 /* Structure definitions */
 struct task
@@ -44,6 +48,7 @@ struct task
 };
 [[sched.structure_definitions]]
 [[signal.structure_definitions]]
+[[mutex.structure_definitions]]
 
 /* External definitions */
 {{#tasks}}
@@ -59,6 +64,7 @@ static TaskId current_task;
 static struct task tasks[{{num_tasks}}];
 [[sched.state]]
 [[signal.state]]
+[[mutex.state]]
 
 /* Function-like macros */
 #define get_current_task() current_task
@@ -66,6 +72,7 @@ static struct task tasks[{{num_tasks}}];
 [[ctxt_switch.function_like_macros]]
 [[sched.function_like_macros]]
 [[signal.function_like_macros]]
+[[mutex.function_like_macros]]
 
 /* Private functions */
 void {{prefix}}yield(void);
@@ -96,6 +103,7 @@ _unblock(const TaskId task)
 }
 
 [[signal.functions]]
+[[mutex.functions]]
 
 /* Public functions */
 void
@@ -116,3 +124,4 @@ void
 }
 
 [[signal.public_functions]]
+[[mutex.public_functions]]

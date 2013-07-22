@@ -14,6 +14,7 @@
 [[signal.headers]]
 [[irq_event_arch.headers]]
 [[irq_event.headers]]
+[[mutex.headers]]
 
 /* Object-like macros */
 #define TASK_ID_ZERO ((TaskId) 0u)
@@ -23,6 +24,7 @@
 [[signal.object_like_macros]]
 [[irq_event_arch.object_like_macros]]
 [[irq_event.object_like_macros]]
+[[mutex.object_like_macros]]
 
 /* Type definitions */
 typedef TaskId TaskIdOption;
@@ -31,6 +33,7 @@ typedef TaskId TaskIdOption;
 [[signal.type_definitions]]
 [[irq_event_arch.type_definitions]]
 [[irq_event.type_definitions]]
+[[mutex.type_definitions]]
 
 /* Structure definitions */
 struct task
@@ -45,6 +48,7 @@ struct irq_event_handler {
 [[signal.structure_definitions]]
 [[irq_event_arch.structure_definitions]]
 [[irq_event.structure_definitions]]
+[[mutex.structure_definitions]]
 
 /* External definitions */
 {{#tasks}}
@@ -54,6 +58,7 @@ extern void {{entry}}(void);
 [[signal.extern_definitions]]
 [[irq_event_arch.extern_definitions]]
 [[irq_event.extern_definitions]]
+[[mutex.extern_definitions]]
 
 /* State */
 {{#tasks}}
@@ -63,6 +68,7 @@ static TaskId current_task;
 static struct task tasks[{{num_tasks}}];
 [[sched.state]]
 [[signal.state]]
+[[mutex.state]]
 [[irq_event_arch.state]]
 [[irq_event.state]]
 struct irq_event_handler irq_events[{{num_irq_events}}] = {
@@ -81,6 +87,7 @@ struct irq_event_handler irq_events[{{num_irq_events}}] = {
 [[signal.function_like_macros]]
 [[irq_event_arch.function_like_macros]]
 [[irq_event.function_like_macros]]
+[[mutex.function_like_macros]]
 
 /* Private functions */
 void {{prefix}}yield(void);
@@ -112,6 +119,7 @@ _unblock(TaskId task)
 }
 
 [[signal.functions]]
+[[mutex.functions]]
 
 static void
 handle_irq_event(IrqEventId irq_event_id)
@@ -147,3 +155,4 @@ void
 [[signal.public_functions]]
 [[irq_event_arch.public_functions]]
 [[irq_event.public_functions]]
+[[mutex.public_functions]]

@@ -32,6 +32,17 @@ fn_a(void)
     rtos_signal_send_set(0, 0);
     rtos_signal_send_set(1, 0);
 
+    debug_println("task a: taking lock");
+    rtos_mutex_lock(0);
+    rtos_yield();
+    if (rtos_mutex_try_lock(0))
+    {
+        debug_println("unexpected mutex not locked.");
+    }
+    debug_println("task a: releasing lock");
+    rtos_mutex_unlock(0);
+    rtos_yield();
+
     for (count = 0; count < 10; count++)
     {
         debug_println("task a");
@@ -56,6 +67,11 @@ void
 fn_b(void)
 {
     uint8_t count;
+
+    debug_println("task b: attempting lock");
+    rtos_mutex_lock(0);
+    debug_println("task b: got lock");
+
     for (count = 0; ; count++)
     {
         debug_println("task b");

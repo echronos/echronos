@@ -1,4 +1,4 @@
-__all__ = ['sched']
+__all__ = ['sched', 'simple_mutex']
 
 import os
 import ctypes

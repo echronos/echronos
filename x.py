@@ -294,6 +294,43 @@ def check_pep8(args):
         return 1
 
 
+class PythonPath:
+    """A context manager that adds (and removes) one or more directories from the Python path.
+
+    This allows extending the Python path temporarily to load certain modules.
+
+    The directories can be specified
+    - as individual arguments of the constructor, e.g., "with PythonPath('foo', 'bar'):"
+    - as list argument(s) of the constructor, e.g., "with PythonPath(['foo', 'bar']):"
+
+    """
+    def __init__(self, *paths):
+        self.paths = []
+        for path in paths:
+            if isinstance(path, list):
+                self.paths.extend([os.path.abspath(p) for p in path])
+            else:
+                self.paths.append(os.path.abspath(path))
+
+    def __enter__(self):
+        self.setup()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.teardown()
+        return False
+
+    def setup(self):
+        import sys
+        for path in self.paths:
+            sys.path.insert(0, path)
+
+    def teardown(self):
+        import sys
+        for path in self.paths:
+            sys.path.remove(path)
+
+
 class Component:
     """Represents an optional, exchangeable piece of functionality of an RTOS.
 
@@ -733,31 +770,25 @@ def run_module_tests(modules, directories, patterns=[], verbosity=0, print_only=
     127 is the largest, portable value that can be returned via sys.exit().
 
     """
-    paths = [os.path.abspath(top_path(dir)) for dir in directories]
-    import sys
-    for path in paths:
-        sys.path.insert(0, path)
+    paths = [top_path(dir) for dir in directories]
+    with PythonPath(paths):
+        all_tests = discover_tests(*modules)
 
-    all_tests = discover_tests(*modules)
+        if patterns:
+            tests = (t for t in all_tests if any(testcase_matches(t, p) for p in patterns))
+        else:
+            tests = all_tests
 
-    if patterns:
-        tests = (t for t in all_tests if any(testcase_matches(t, p) for p in patterns))
-    else:
-        tests = all_tests
+        suite = TestSuite(tests)
 
-    suite = TestSuite(tests)
-
-    result = 0
-    if print_only:
-        testsuite_list(suite)
-    else:
-        BASE_VERBOSITY = 1
-        runner = unittest.TextTestRunner(resultclass=SimpleTestNameResult, verbosity=BASE_VERBOSITY + verbosity)
-        run_result = runner.run(suite)
-        result = min(len(run_result.failures), 127)
-
-    for path in paths:
-        sys.path.remove(path)
+        result = 0
+        if print_only:
+            testsuite_list(suite)
+        else:
+            BASE_VERBOSITY = 1
+            runner = unittest.TextTestRunner(resultclass=SimpleTestNameResult, verbosity=BASE_VERBOSITY + verbosity)
+            run_result = runner.run(suite)
+            result = min(len(run_result.failures), 127)
 
     return result
 

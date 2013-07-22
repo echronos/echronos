@@ -1,0 +1,19 @@
+Task: bfnfJL-fix-prj-test-in-client-repositories
+==============================================================================
+
+Goals
+--------
+
+The command 'x.py prj-test' currently fails when run from a client repository.
+The goal of this task is to fix this failure.
+The failure is due to x.py not setting up the Python path such that the prj module can be found and imported in the function run_module_tests().
+The proposed fix is to not discover and run tests when the directories do not exist with which the Python path is to be extended.
+The rationale is that a test setup is tied to a certain directory and module structure.
+If that structure is not present in a repository, there is no point in attempting to run the test setup.
+
+Test plan
+---------
+Run the commands 'x.py prj-test' and 'x.py x-test' in the core and in a client repository.
+In the core repository, the prj-test and x-test commands shall behave as on the development branch.
+In client repositories, the prj-test and x-test commands shall only lead to the execution of tests if these client repositories contain the test target.
+For the prj-test command, this would usually not be the case so no tests should be run and no errors should be reported.

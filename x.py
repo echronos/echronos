@@ -770,25 +770,28 @@ def run_module_tests(modules, directories, patterns=[], verbosity=0, print_only=
     127 is the largest, portable value that can be returned via sys.exit().
 
     """
+    result = 0
+
     paths = [top_path(dir) for dir in directories]
-    with PythonPath(paths):
-        all_tests = discover_tests(*modules)
+    if all(map(os.path.exists, paths)):
+        with PythonPath(paths):
+            all_tests = discover_tests(*modules)
 
-        if patterns:
-            tests = (t for t in all_tests if any(testcase_matches(t, p) for p in patterns))
-        else:
-            tests = all_tests
+            if patterns:
+                tests = (t for t in all_tests if any(testcase_matches(t, p) for p in patterns))
+            else:
+                tests = all_tests
 
-        suite = TestSuite(tests)
+            suite = TestSuite(tests)
 
-        result = 0
-        if print_only:
-            testsuite_list(suite)
-        else:
-            BASE_VERBOSITY = 1
-            runner = unittest.TextTestRunner(resultclass=SimpleTestNameResult, verbosity=BASE_VERBOSITY + verbosity)
-            run_result = runner.run(suite)
-            result = min(len(run_result.failures), 127)
+            if print_only:
+                testsuite_list(suite)
+            else:
+                BASE_VERBOSITY = 1
+                runner = unittest.TextTestRunner(resultclass=SimpleTestNameResult,
+                                                 verbosity=BASE_VERBOSITY + verbosity)
+                run_result = runner.run(suite)
+                result = min(len(run_result.failures), 127)
 
     return result
 

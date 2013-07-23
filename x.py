@@ -268,6 +268,17 @@ def un_base_path(path):
         return path[len(BASE_DIR) + 1:]
 
 
+def get_host_platform_name():
+    if sys.platform == 'darwin':
+        return 'x86_64-apple-darwin'
+    elif sys.platform == 'linux':
+        return 'x86_64-unknown-linux-gnu'
+    elif sys.platform == 'win32':
+        return 'win32'
+    else:
+        raise RuntimeError('Unsupported platform {}'.format(sys.platform))
+
+
 def check_pep8(args):
     """Check for PEP8 compliance with the pep8 tool.
 
@@ -776,14 +787,13 @@ def run_module_tests(modules, directories, patterns=[], verbosity=0, print_only=
 
 
 def prj_build(args):
+    host = get_host_platform_name()
     if sys.platform == 'darwin':
-        host = 'x86_64-apple-darwin'
         extras = ['-framework', 'CoreFoundation', '-lz']
     elif sys.platform == 'linux':
-        host = 'x86_64-unknown-linux-gnu'
         extras = ['-lz', '-lm', '-lpthread', '-lrt', '-ldl', '-lcrypt', '-lutil']
     elif sys.platform == 'win32':
-        host = 'win32'
+        pass
     else:
         print("Building prj currently unsupported on {}".format(sys.platform))
         return 1

@@ -304,8 +304,10 @@ def python_path(*paths):
     """
     paths = [os.path.abspath(path) for path in paths]
     sys.path = paths + sys.path
-    yield
-    del sys.path[:len(paths)]
+    try:
+        yield
+    finally:
+        del sys.path[:len(paths)]
 
 
 class Component:

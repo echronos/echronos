@@ -5,16 +5,21 @@ Task name: bfnfJL-fix-prj-test-in-client-repositories
 Version reviewed: 245d7526c95736bc806c686b4b022b750f9e8514
 Reviewer: benno
 Date: 2013-07-23
-Conclusion: Accepted/Rework
-
-Overall comments:
+Conclusion: Accepted
 
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: x.py
+Comment: 
 
-Location: filename:linenum
-Comment:
++    The directories can be specified
++    - as individual arguments of the constructor, e.g., "with PythonPath('foo', 'bar'):"
++    - as list argument(s) of the constructor, e.g., "with PythonPath(['foo', 'bar']):"
+
+I would support only one way, not both.
+I'd probably use the first to be consistent with `os.path.join()`.
+
+I would consider writing it as a simple function using the @contextlib.contextmanager
+

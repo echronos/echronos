@@ -299,18 +299,11 @@ class PythonPath:
 
     This allows extending the Python path temporarily to load certain modules.
 
-    The directories can be specified
-    - as individual arguments of the constructor, e.g., "with PythonPath('foo', 'bar'):"
-    - as list argument(s) of the constructor, e.g., "with PythonPath(['foo', 'bar']):"
+    The directories are expected as individual arguments of the constructor, e.g., "with PythonPath('foo', 'bar'):"
 
     """
     def __init__(self, *paths):
-        self.paths = []
-        for path in paths:
-            if isinstance(path, list):
-                self.paths.extend([os.path.abspath(p) for p in path])
-            else:
-                self.paths.append(os.path.abspath(path))
+        self.paths = [os.path.abspath(path) for path in paths]
 
     def __enter__(self):
         self.setup()
@@ -774,7 +767,7 @@ def run_module_tests(modules, directories, patterns=[], verbosity=0, print_only=
 
     paths = [top_path(dir) for dir in directories]
     if all(map(os.path.exists, paths)):
-        with PythonPath(paths):
+        with PythonPath(*paths):
             all_tests = discover_tests(*modules)
 
             if patterns:

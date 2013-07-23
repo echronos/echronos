@@ -5,16 +5,21 @@ Task name: bfnfJL-fix-prj-test-in-client-repositories
 Version reviewed: 3ac7d46bb3c5d7232edcc92242bf203bc1b07a20
 Reviewer: benno
 Date: 2013-07-23
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
+Suggest reworking the python path context manager as:
 
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+@contextmanager
+def python_path(*paths):
+    import sys
+    paths = [os.path.abspath(path) for path in paths]
+    # I think this ensure the paths aren't inserted in reverse order
+    # if that is intended put reversed(..) around paths.
+    sys.path = paths + sys.path
+    try:
+        yield
+    finally:
+        # Remove the added paths directly from the front.
+        sys.path = sys.path[len(paths):]

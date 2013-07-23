@@ -2170,26 +2170,32 @@ CORE_ARCHITECTURES = {
 
 CORE_SKELETONS = {
     'sched-rr-test': RtosSkeleton('sched-rr-test', [Component('sched', 'sched-rr', {'assume_runnable': False})]),
+    'simple-mutex-test': RtosSkeleton('simple-mutex-test', [Component('mutex', 'simple-mutex')]),
     'acamar': RtosSkeleton('acamar', [ArchitectureComponent('context_switch', 'context-switch')]),
     'gatria': RtosSkeleton('gatria', [ArchitectureComponent('context_switch', 'context-switch'),
-                                      Component('sched', 'sched-rr', {'assume_runnable': True})]),
+                                      Component('sched', 'sched-rr', {'assume_runnable': True}),
+                                      Component('mutex', 'simple-mutex')]),
     'kraz': RtosSkeleton('kraz', [ArchitectureComponent('ctxt_switch', 'context-switch'),
                                   Component('sched', 'sched-rr', {'assume_runnable': True}),
-                                  Component('signal')]),
+                                  Component('signal'),
+                                  Component('mutex', 'simple-mutex')]),
     'acrux': RtosSkeleton('acrux', [ArchitectureComponent('ctxt_switch', 'context-switch'),
                                     Component('sched', 'sched-rr', {'assume_runnable': False}),
                                     ArchitectureComponent('irq_event_arch', 'irq-event'),
-                                    Component('irq_event', 'irq-event')]),
+                                    Component('irq_event', 'irq-event'),
+                                    Component('mutex', 'simple-mutex')]),
     'rigel': RtosSkeleton('rigel', [ArchitectureComponent('ctxt_switch', 'context-switch'),
                                     Component('sched', 'sched-rr', {'assume_runnable': False}),
                                     Component('signal'),
                                     ArchitectureComponent('irq_event_arch', 'irq-event'),
-                                    Component('irq_event', 'irq-event')]),
+                                    Component('irq_event', 'irq-event'),
+                                    Component('mutex', 'simple-mutex')]),
 }
 
 
 CORE_CONFIGURATIONS = {
     'sched-rr-test': ['posix'],
+    'simple-mutex-test': ['posix'],
     'acamar': ['posix', 'armv7m'],
     'gatria': ['posix', 'armv7m'],
     'kraz': ['posix', 'armv7m'],

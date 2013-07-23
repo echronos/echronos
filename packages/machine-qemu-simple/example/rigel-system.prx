@@ -18,6 +18,7 @@
       <signalset_size>8</signalset_size>
       <irqeventid_size>8</irqeventid_size>
       <num_tasks>2</num_tasks>
+      <num_mutexes>2</num_mutexes>
       <num_irq_events>2</num_irq_events>
       <tasks>
 

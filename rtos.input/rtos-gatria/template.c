@@ -6,6 +6,7 @@
   <schema>
    <entry name="taskid_size" type="int" default="8"/>
    <entry name="num_tasks" type="int"/>
+   <entry name="num_mutexes" type="int"/>
    <entry name="prefix" type="c_ident" default="rtos_" />
    <entry name="tasks" type="list">
      <entry name="task" type="dict">
@@ -29,10 +30,12 @@
 #define TASK_ID_ZERO ((TaskId) 0)
 [[context_switch.object_like_macros]]
 [[sched.object_like_macros]]
+[[mutex.object_like_macros]]
 
 /* Type definitions */
 [[context_switch.type_definitions]]
 [[sched.type_definitions]]
+[[mutex.type_definitions]]
 
 /* Structure definitions */
 struct task
@@ -40,13 +43,13 @@ struct task
     context_t ctx;
 };
 [[sched.structure_definitions]]
+[[mutex.structure_definitions]]
 
 /* External definitions */
 [[context_switch.extern_definitions]]
 {{#tasks}}
 extern void {{entry}}(void);
 {{/tasks}}
-[[context_switch.extern_definitions]]
 
 /* Internal interface definitions */
 /**
@@ -82,16 +85,20 @@ static [[stack_type]] stack_{{idx}}[{{stack_size}}];
 static TaskId current_task;
 static struct task tasks[{{num_tasks}}];
 [[sched.state]]
+[[mutex.state]]
 
 /* Function-like macros */
 #define get_current_task() current_task
 #define get_task_context(task_id) &tasks[task_id].ctx
 [[context_switch.function_like_macros]]
 [[sched.function_like_macros]]
+[[mutex.function_like_macros]]
+
 
 /* Private functions */
 [[context_switch.functions]]
 [[sched.functions]]
+[[mutex.functions]]
 
 /* Public functions */
 void
@@ -131,3 +138,5 @@ void
 
     context_switch_first(get_task_context(TASK_ID_ZERO));
 }
+
+[[mutex.public_functions]]

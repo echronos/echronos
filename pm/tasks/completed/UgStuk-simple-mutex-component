@@ -1,0 +1,584 @@
+% Task: UgStuk-simple-mutex-component
+
+Goals
+--------
+
+The goal of this task is to add a mutex module to the RTOS.
+The *Design* section outlines the many options available for the interface an implementation of the module.
+Following the overall design and development strategy this task implements the *simplest thing that works*.
+This is represented by sub-section 4 in the design section.
+The interface to be presented to the user should that outline in sub-sections 1 and 2 of the design.
+The semantics should be that as described in sub-section 3.
+
+Due to limitations in the current RTOS generation framework, some desirable properties of this task are not expected to be completed.
+Currently there is no facility in the RTOS generation for assigning name constants, so specifying names for mutexes is not supported.
+As names are currently the only mutex property, there is currently no need to support specifying mutexes in the PRX file explicitly.
+As there is no support for automatically determing e.g.: num_mutexes or num_tasks, num_mutexes must be specified explicitly.
+
+To simplify initial implementaiton, mutex related code is included in the system, even when num_mutexes is zero.
+This is intentional for keeping this specific task simple.
+
+Currently as there is only a single mutex implementation no facility for user selected mutex implementation is provided.
+
+
+Design
+-------
+
+This section outlines thinking around the design of the RTOS mutex.
+
+### 1. Base Interface
+
+At a minimum the base interface provided should be somilar to:
+
+    void rtos_mutex_lock(MutexId m);
+    void rtos_mutex_unlock(MutexId m);
+    bool rtos_mutex_try_lock(MutexId m);
+
+Furhter sections outline some potential extensions to this API.
+
+### 2. Mutex creation
+
+Following the overall static nature of the system mutexes will be created statically in the system PRX file.
+For example something like:
+
+    <mutex>
+      <name>controller</name>
+    </mutex>
+
+As the features supported by the mutex become more complex additional per-mutex configuration may be available.
+
+### 3. Semantics
+
+It is important the semantics of mutex operations are well understood.
+
+When `rtos_mutex_lock()` returns then calling task has *acquired* the mutex.
+The calling task is known as the *holder*.
+Any other calls (by other tasks) to `rtos_mutex_lock()` on the same mutex will not return until the current holder calls `rtos_mutex_unlock()`.
+Any of these tasks are known as *waiting tasks*.
+When the number of tasks waiting on a mutex is zero the lock is *uncontended*; otherwise the mutex is *contended*.
+Only the current holder of a mutex may call `rtos_mutex_unlock()`.
+If the holder attempts to lock a mutex it has already acquired then simple deadlock occurs.
+More complex deadlock can occur in other situations.
+`rtos_mutex_try_lock()` will attempt to acquire the lock, returning true if the lock acquisition is successful.
+
+There is scope for potentially interesting semantics in terms of answering the question: *on an unlock which task should acquire the mutex next*.
+
+Some potential options are:
+
+  a) any of the waiting tasks may acquire the mutex.
+  b) the task which has been waiting the longest acquires the mutex.
+  c) the *scheduler* picks the *next* task from the set of waiting tasks to acquire the mutex.
+  d) any task, even a non-waiting task, may acquire the mutex next, based on the scheduler and the sequence of operations of all tasks.
+
+On careful examination of all the options, the most correct semantics are those described by option *d*.
+As an example consider a system with four tasks **A**, **B**, **C** and **D**.
+Assume for argument that the scheduler operates with a strict priority scheduler, with **A** being highest and **D** being lowest priority task.
+Assuming **B** is the holder of the lock and **D** is the first waiting task, and **C** is the second waiting task.
+**A** is currently blocked (e.g. waiting on I/O).
+Assume a timeline of operations:
+
+   i) **B** unlocks mutex
+   ii) **A** becomes runnable (and preempts **B**)
+   iii) **A** attempts to acquire the lock
+
+Given the operations listed above, _should **A** acquire the lock (immediately)_?
+To maintain useful semantics of the overall system, the answer must be yes.
+
+Based on those desired semantics for that set of operations we can evaluate the previous options.
+All the options *a*, *b*, *c* are not feasible as in all cases, the next acquirer would be task **C** or **D**.
+Based on this *d* represents the only valid operational semantics.
+
+Another way of stating *d* is that when a mutex is unlocked, the module should operate as if all waiting tasks become runnable, and attempt to acquire the mutex based on the order in which the scheduler selects the task to run.
+
+
+### 4. Trivial implementation
+
+Below represents a most basic implemenation.
+Credit to Joe for this implementation.
+
+    typedef uint8_t MutexId;
+
+    struct mutex {
+           bool locked;
+    }
+
+    struct mutex mutexes[NUM_MUTEXES];
+
+    void
+    rtos_mutex_lock(MutexId m)
+    {
+        while (!rtos_mutex_try_lock(m)) {
+            rtos_yield();
+        }
+    }
+
+    void
+    rtos_mutex_unlock(MutexId m)
+    {
+        mutexes[m].locked = false;
+    }
+
+    bool
+    rtos_mutex_try_lock(MutexId m)
+    {
+        if (mutexes[m].locked)
+        {
+            return false;
+        }
+        else
+        {
+            mutexes[m].locked = true;
+            return true;
+        }
+    }
+
+### 5. Design insights of of #4
+
+a) The busy loop in rtos_mutex_lock() could (is likely to?) lead to bad performance as the task will be consuming CPU time unnecessarily.
+
+b) Unlock is O(1). Try-Lock is O(1). Memory usage is O(number-of-mutexes).
+
+c) From a debugging point of view there is no way to identify the current holder of any given mutex.
+
+d) This only works on a round-robin style scheduler, will certainly have problems on priority and maybe other scehdulers.
+
+
+### 6. Evolution of #4 that address 5.c:
+
+Effectively replace `locked` with TaskIdOption.
+All other important design aspects identified in #5 exist.
+
+    typedef uint8_t MutexId;
+
+    struct mutex {
+        TaskIdOption holder;
+    }
+
+    struct mutex mutexes[NUM_MUTEXES];
+
+    void
+    rtos_mutex_lock(MutexId m)
+    {
+        while (!rtos_mutex_try_lock(m)) {
+            rtos_yield();
+        }
+    }
+
+    void
+    rtos_mutex_unlock(MutexId m)
+    {
+        mutexes[m].holder = TASK_ID_NONE;
+    }
+
+    bool
+    rtos_mutex_try_lock(MutexId m)
+    {
+        if (mutexes[m].holder != TASK_ID_NONE)
+        {
+            return false;
+        }
+        else
+        {
+            mutexes[m].holder = rtos_task_current();
+            return true;
+        }
+    }
+
+### 7. To address 5.a) and 5.d) the lock function should be modified to be something like:
+
+    void
+    rtos_mutex_lock(MutexId m)
+    {
+        while (!rtos_mutex_try_lock(m)) {
+            rtos_block();
+        }
+    }
+
+In this case, if the try lock fails, the task blocks.
+**Note:** in this arrangement it is possible for the calling task to be unblocked, and then fail to acquire the mutex.
+This happens if for example, another task is run before the waiting task runs, and this other task acquires the mutex before the waiting task.
+If the loop was not in place the task may be unblocked, but then fail to acquire the lock.
+
+In this arrangement the task is relying on the `rtos_mutex_unlock()` function to call `rtos_unblock()` on the waiting task(s).
+
+To support this approach the unlock function must be something like:
+
+    void
+    rtos_mutex_unlock(MutexId m)
+    {
+        mutexes[m].holder = TASK_ID_NONE;
+        wake_up_one_or_more_tasks_waiting_on_the_mutex();
+    }
+
+The design question now becomes how can we implement the function `wake_up_one_or_more_tasks_waiting_on_the_mutex()` ?
+
+As a simplest approach all tasks that are waiting on the mutex can be unblocked.
+In the most naive approach if the only blocking in the system occurred within `rtos_mutex_lock()`, then a valid implementation would be to unblock all tasks.
+
+    wake_up_one_or_more_tasks_waiting_on_the_mutex()
+    {
+        for (TaskId t = TASK_ID_ZERO; t < TASK_ID_MAX; t++)
+        {
+             rtos_unblock(t);
+        }
+    }
+
+This required no additional memory, and the `rtos_mutex_lock()` function does not require any modifications.
+Of course the performance of `rtos_mutex_unlock()` is now O(`TASK_ID_MAX`).
+
+
+### 8. Avoiding unnecessary unblock
+
+If we take an assumption that ideally we do not want to unnecessarily `unblock()` a task, i.e.: we only unblock if a task is actually waiting on a mutex, another refinement is required.
+
+In this case it is inevitable that some memory is required to store which tasks are waiting on which mutexes (if any).
+An assumption can be made that a task can only be waiting on a single mutex at a time.
+
+Given this a data structure:
+
+    MutexIdOption waiters[NUM_TASKS];
+
+can be used to track which mutex each task is currently waiting on (or `MUTEX_ID_NONE` if not waiting on a mutex).
+
+This then makes `rtos_mutex_lock()` something like:
+
+    void
+    rtos_mutex_lock(MutexId m)
+    {
+        while (!rtos_mutex_try_lock(m)) {
+            waiters[rtos_current()] = m;
+            rtos_block();
+        }
+    }
+
+and then the `wake_up_one_or_more_tasks_waiting_on_the_mutex()` becomes:
+
+    wake_up_one_or_more_tasks_waiting_on_the_mutex(MutexId m)
+    {
+        for (TaskId t = TASK_ID_ZERO; t < TASK_ID_MAX; t++)
+        {
+             if (waiters[t] == m)
+             {
+                 waiters[t] = MUTEX_ID_NONE;
+                 rtos_unblock(t);
+             }
+        }
+    }
+
+This change adds O(`NUM_TASKS`) memory usage to track the waiting.
+In return for that memory it ensures that `rtos_unblock()` is only called in cases where the task is actually waiting on the mutex.
+It doesn't help reduce the unlock time from O(`NUM_TASKS`).
+
+
+### 9. Non-contended optimisation
+
+If we assume the common case is no contention then the `wake_up_one_or_more_tasks_waiting_on_the_mutex()` function does a lot of work when no work is required.
+To optimise this it would be good to avoid calling `wake_up_one_or_more_tasks_waiting_on_the_mutex()` when the lock is uncontended.
+
+The mutex task can be extended to have:
+
+    struct mutex {
+        TaskIdOption holder;
+        bool contended;
+    }
+
+Then:
+
+    void
+    rtos_mutex_lock(MutexId m)
+    {
+        while (!rtos_mutex_try_lock(m)) {
+            waiters[rtos_current()] = m;
+            mutexes[m].contended = true;
+            rtos_block();
+        }
+    }
+
+    void
+    rtos_mutex_unlock(MutexId m)
+    {
+        mutexes[m].holder = TASK_ID_NONE;
+        if (mutexes[m].contended)
+        {
+            wake_up_one_or_more_tasks_waiting_on_the_mutex(m);
+            mutexes[m].conteded = false;
+        }
+    }
+
+This optimises the non-contended case to an O(1) operation, while doubling the amount of memory required to store a mutex.
+
+### 10. Extra debug information.
+
+Given a `bool` and a `uint8_t` effectively require the same amount of memory, it makes sense to track how many waiters there are on a mutex, rather than just contended vs uncontended.
+This can provide valuable extra debugging information.
+
+    struct mutex {
+        TaskIdOption holder;
+        uint8_t num_waiters;
+    }
+
+    void
+    rtos_mutex_lock(MutexId m)
+    {
+        while (!rtos_mutex_try_lock(m)) {
+            waiters[rtos_current()] = m;
+            mutexes[m].num_waiters++;
+            rtos_block();
+        }
+    }
+
+    void
+    rtos_mutex_unlock(MutexId m)
+    {
+        mutexes[m].holder = TASK_ID_NONE;
+        if (mutexes[m].num_waiters > 0)
+        {
+            wake_up_one_or_more_tasks_waiting_on_the_mutex(m);
+            mutexes[m].num_waiters = 0;
+        }
+    }
+
+With this in place, we can also improve the average performance of `wake_up_one_or_more_tasks_waiting_on_the_mutex()` so that is can escape early in cases where it is only lightly contended:
+
+    wake_up_one_or_more_tasks_waiting_on_the_mutex(MutexId m)
+    {
+        for (TaskId t = TASK_ID_ZERO; t < TASK_ID_MAX && mutexes[m].num_waiters > 0; t++)
+        {
+             if (waiters[t] == m)
+             {
+                 waiters[t] = MUTEX_ID_NONE;
+                 mutexes[m].num_waiters--;
+                 rtos_unblock(t);
+             }
+        }
+    }
+
+and then the unlock becomes simpler again.
+
+    void
+    rtos_mutex_unlock(MutexId m)
+    {
+        mutexes[m].holder = TASK_ID_NONE;
+        wake_up_one_or_more_tasks_waiting_on_the_mutex(m);
+    }
+
+
+### 11. Explicit list of waiters
+
+A totally different approach is to have an explicit list of waiters for mutex. E.g:
+
+    struct mutex {
+        TaskIdOption holder;
+        uint8_t num_waiters;
+        TaskId waiters[NUM_TASKS];
+    }
+
+In this case `rtos_mutex_lock()` can become:
+
+    void
+    rtos_mutex_lock(MutexId m)
+    {
+        while (!rtos_mutex_try_lock(m)) {
+            mutexes[m].waiters[mutexes[m].num_waiters] = rtos_current();
+            mutexes[m].num_waiters++;
+            rtos_block();
+        }
+    }
+
+and `rtos_mutex_unlock()`:
+
+    wake_up_one_or_more_tasks_waiting_on_the_mutex(MutexId m)
+    {
+        for (uint8_t i = 0; mutexes[m].num_waiters > 0; i++, mutexes[m].num_waiters--)
+        {
+            rtos_unblock(mutexes[m].waiters[i]);
+        }
+    }
+
+
+This makes the unlock case O(`NUM_WAITERS`), rather than O(`NUM_TASKS`), however increase memory usage significantly.
+It is unlikely this tradeoff makes sense in many contexts.
+
+In the case of `NUM_WAITERS` << `NUM_TASKS`, then likely the memory usage becomes significantly bigger.
+If `NUM_WAITERS` is only slightly less than `NUM_TASKS`, then the improvement in unlock time is not likely to be worth it.
+
+### 12. Linked-list of waiters.
+
+It is of course possible to turn the per mutex 'waiters' element from an array in to a linked-list.
+This would have a fixed O(`NUM_TASK`) overhead in memory, and O(`NUM_WAITERS`) in
+
+    struct task_node
+    {
+        TaskId next_waiter;
+    }
+
+    struct task_node waiters[NUM_TASKS];
+
+    struct mutex {
+        TaskIdOption holder;
+        TaskIdOption first_waiter;
+        uint8_t num_waiters; /* Optional */
+    }
+
+In this case lock can become:
+
+    void
+    rtos_mutex_lock(MutexId m)
+    {
+        while (!rtos_mutex_try_lock(m)) {
+            waiters[rtos_current()] = mutexes[m].first_waiter;
+            mutexes[m].first_waiter = rtos_current();
+            mutexes[m].num_waiters++; /* Optional */
+            rtos_block();
+        }
+    }
+
+and unlock:
+
+    wake_up_one_or_more_tasks_waiting_on_the_mutex(MutexId m)
+    {
+        TaskIdOption n = mutexes[m].first_waiter;
+        while (n != TASK_ID_NONE)
+        {
+            rtos_unblock(n);
+            n = waiters[n];
+        }
+        mutexes[m].num_waiters = 0; /* Optional */
+        mutexes[m].first_waiter = TASK_ID_NONE;
+    }
+
+
+### 13. Involve the scheduler.
+
+In all the existing approaches it is neccessary to wake up all waiting tasks as the correct semantics means any of the waiters may be the next task to run.
+Waking up all tasks can result in a lot of unneccessary work at most one of the unblocked tasks will actually acquire the mutex.
+If the unlock() function can choose that one task that may acquire the lock, then there is potentially a lot fewer failed attempts to acquire the mutex.
+
+    void
+    rtos_mutex_unlock(MutexId m)
+    {
+        mutexes[m].holder = TASK_ID_NONE;
+        if (mutex[m].num_waiters > 0)
+        {
+           wake_up_one_task_according_to_scheduler(m);
+           mutex[m].num_waiters--;
+        }
+    }
+
+The `wake_up_one_task_according_to_scheduler()` would effectively operate identically to the systems regular scheduler, however rather than using *`is_runnable`* as the predicate, the predicate becomes *is blocked on mutex m*.
+
+In this case the complexity of unlock becomes the same as the complexity of the underlying scheduler.
+
+
+### 14. Cancelling waiting on a mutex.
+
+There may be use cases that require cancelling waiting on a mutex (in some manner).
+For example, if we have signals then a useful API may be:
+
+    SignalIdOption rtos_mutex_lock_or_signal(MutexId m, SignalSet s);
+
+In this case either the mutex is locked (and `SIGNAL_ID_NONE` is returned), or a signal received instead, and then that `SignalId` is returned.
+
+The lock becomes something like:
+
+    SignalId
+    rtos_mutex_lock_or_signal(MutexId m, SignalSet s)
+    {
+        SignalId r = SIGNAL_ID_NONE;
+
+        while (!rtos_mutex_try_lock(m) && r == SIGNAL_ID_NONE) {
+            /* Put mutex on list */
+            waiters[rtos_current()] = m;
+            mutexes[m].num_waiters++;
+
+            r = rtos_signal_wait(signal_set_add(s, SIGNAL_ID_MUTEX));
+            if (r == SIGNAL_ID_MUTEX)
+            {
+               r = SIGNAL_ID_NONE
+               r = sig;
+            }
+            else
+            {
+               /* Take mutex off list */
+               waiters[rtos_current()] = MUTEX_ID_NONE;
+               mutexes[m].num_waiters--;
+            }
+        }
+
+        return r;
+    }
+
+When considered in this manner each mutex has a logical list of waiting tasks.
+In many of the previous examples (except in #13), the operation on this list were:
+
+    1) insert
+    2) iterate
+    3) reset
+
+By adding this functionality, a new operation *remove* is required.
+In most cases, *remove* is an O(1) operation, however in #13, this would actually be a more complex O(`NUM_WAITERS`) operation.
+
+### 15. Breaking up mutex operations.
+
+It may be possible that the above `rtos_mutex_lock_or_signal` is somewhat complex, and the exact logic may wish to be deffered to user.
+In this case a simpler set of mutex operations may make sense:
+
+`rtos_mutex_try_lock_wait`: Return true of the mutex is acquired. Otherwise return `false` and mark the task as a waiter of the mutex, but don't actually perform the wait.
+
+    bool
+    rtos_mutex_try_lock_wait(MutexId m)
+    {
+         bool r = true;
+         if (!rtos_mutex_try_lock(m))
+         {
+            /* Put mutex on list */
+            waiters[rtos_current()] = m;
+            mutexes[m].num_waiters++;
+            r = false;
+         }
+         return r;
+    }
+
+`rtos_mutex_cancel`: If already waiting on a mutex. Cancel.
+
+    void
+    rtos_mutex_cancel(MutexId m)
+    {
+         /* Take mutex off list */
+         waiters[rtos_current()] = MUTEX_ID_NONE;
+         mutexes[m].num_waiters--;
+    }
+
+In this case, rtos_mutex_lock simply becomes:
+
+    void rtos_mutex_lock(m)
+    {
+        while(!rtos_mutex_try_lock_wait(m))
+        {
+             signal_wait(SIGNAL_SET_MUTEX);
+        }
+    }
+
+
+This is a somewhat dangerous API however, as it becomes easier for a task to attempt to wait on multiple mutexes at once.
+This would then either need to be supported, or rely on the user not doing this.
+As an API should be hard to mis-use this seems like a bad idea.
+It may make sense however internally to structure the code as presented above, but not expose the intermediate functions.
+
+Additionally both in this case and the restricted #14 case, we rely on all tasks being unblocked in the unlock case, otherwise cancel is not sufficient as no other waiter will ever attempt to acqurie the lock again.
+
+To solve this the `cancel` part of the operation would be responsible for unblocking the next task.
+
+### 16. Add-on module or part of the RTOS?
+
+There are some options as to whether the mutex functionality should be considered *part of the RTOS*, or should be an optional add-on module.
+In this simplest implementation the mutex functionality can be provided with no changes or concern for the core part of the RTOS.
+However, in some of the more complex implementation options, the exact build of the RTOS is indeed very important, especially if the scheduler implementation changes the mutex implementation.
+
+From an end-user point fo view, mutex functionality is considered *part of the RTOS*, regardless of any technical implementation changes.
+From this point of view it makes sense to configure the RTOS functionality in the same place as e.g.: the tasks in the system.
+Additionally, it makes sense for the mutex funcitonality to be prefixed with the RTOS prefix e.g.: `rtos_mutex_lock()`.
+
+A related question is how the different mutex implementations can be selected by the user (if at all).
+In the first instance, the RTOS configuration will be required to select an appropriate mutex implementation.
+As use cases become more complex an approach that allows for build-time selection of a mutex implementation will be investigated.

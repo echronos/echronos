@@ -6,6 +6,7 @@
   <schema>
    <entry name="taskid_size" type="int" default="8"/>
    <entry name="num_tasks" type="int"/>
+   <entry name="num_mutexes" type="int"/>
    <entry name="prefix" type="c_ident" default="rtos_" />
    <entry name="tasks" type="list">
      <entry name="task" type="dict">
@@ -26,6 +27,7 @@
 [[sched.headers]]
 [[irq_event_arch.headers]]
 [[irq_event.headers]]
+[[mutex.headers]]
 
 /* Object-like macros */
 #define TASK_ID_ZERO ((TaskId) 0u)
@@ -34,6 +36,7 @@
 [[sched.object_like_macros]]
 [[irq_event_arch.object_like_macros]]
 [[irq_event.object_like_macros]]
+[[mutex.object_like_macros]]
 
 /* Type definitions */
 typedef TaskId TaskIdOption;
@@ -41,6 +44,7 @@ typedef TaskId TaskIdOption;
 [[sched.type_definitions]]
 [[irq_event_arch.type_definitions]]
 [[irq_event.type_definitions]]
+[[mutex.type_definitions]]
 
 /* Structure definitions */
 struct task
@@ -50,6 +54,7 @@ struct task
 [[sched.structure_definitions]]
 [[irq_event_arch.structure_definitions]]
 [[irq_event.structure_definitions]]
+[[mutex.structure_definitions]]
 
 /* External definitions */
 {{#tasks}}
@@ -68,6 +73,7 @@ static struct task tasks[{{num_tasks}}];
 [[sched.state]]
 [[irq_event_arch.state]]
 [[irq_event.state]]
+[[mutex.state]]
 
 /* Function-like macros */
 #define get_current_task() current_task
@@ -78,6 +84,7 @@ static struct task tasks[{{num_tasks}}];
 [[sched.function_like_macros]]
 [[irq_event_arch.function_like_macros]]
 [[irq_event.function_like_macros]]
+[[mutex.function_like_macros]]
 
 /* Private functions */
 [[ctxt_switch.functions]]
@@ -91,6 +98,7 @@ handle_irq_event(IrqEventId irq_event_id)
 
 [[irq_event_arch.functions]]
 [[irq_event.functions]]
+[[mutex.functions]]
 
 /* Public functions */
 void
@@ -133,3 +141,4 @@ void
 
 [[irq_event_arch.public_functions]]
 [[irq_event.public_functions]]
+[[mutex.public_functions]]

@@ -1,0 +1,13 @@
+Breakaway Task Review
+=======================
+
+Task name: UgStuk-simple-mutex-component
+Version reviewed: 923e1712ded4b1ea308d75cef1eef2c30dce06ab
+Reviewer: stg
+Date: 2013-07-22
+Conclusion: Accepted
+
+Overall comments:
+
+Comment 0: Accepted
+The client repositories need to be updated with mutex support, too.

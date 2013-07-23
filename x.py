@@ -1513,8 +1513,7 @@ def release_test_one(archive):
             if m.mtime != BASE_TIME:
                 raise Exception("m.gid != BASE_TIME({}) {} -- {}".format(m.mtime, BASE_TIME, m.name))
 
-    # In the future this hard-coding will be removed.
-    platform = 'x86_64-unknown-linux-gnu'  # 'x86_64-apple-darwin'
+    platform = get_host_platform_name()
 
     with tempdir() as td:
         with chdir(td):

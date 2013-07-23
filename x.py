@@ -1508,6 +1508,7 @@ def release_test_one(archive):
 
     with tempdir() as td:
         with chdir(td):
+            assert shutil.which('tar')
             subprocess.check_call("tar xf {}".format(rel_file).split())
             release_dir = os.path.splitext(os.path.splitext(os.path.basename(archive))[0])[0]
             if not os.path.isdir(release_dir):

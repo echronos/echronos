@@ -302,7 +302,6 @@ def python_path(*paths):
     The directories are expected as individual arguments, e.g., "with python_path('foo', 'bar'):"
 
     """
-    import sys
     paths = [os.path.abspath(path) for path in paths]
     for path in paths:
         sys.path.insert(0, path)

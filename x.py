@@ -294,34 +294,21 @@ def check_pep8(args):
         return 1
 
 
-class PythonPath:
+@contextmanager
+def python_path(*paths):
     """A context manager that adds (and removes) one or more directories from the Python path.
 
     This allows extending the Python path temporarily to load certain modules.
-
-    The directories are expected as individual arguments of the constructor, e.g., "with PythonPath('foo', 'bar'):"
+    The directories are expected as individual arguments, e.g., "with python_path('foo', 'bar'):"
 
     """
-    def __init__(self, *paths):
-        self.paths = [os.path.abspath(path) for path in paths]
-
-    def __enter__(self):
-        self.setup()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.teardown()
-        return False
-
-    def setup(self):
-        import sys
-        for path in self.paths:
-            sys.path.insert(0, path)
-
-    def teardown(self):
-        import sys
-        for path in self.paths:
-            sys.path.remove(path)
+    import sys
+    paths = [os.path.abspath(path) for path in paths]
+    for path in paths:
+        sys.path.insert(0, path)
+    yield
+    for path in paths:
+        sys.path.remove(path)
 
 
 class Component:
@@ -767,7 +754,7 @@ def run_module_tests(modules, directories, patterns=[], verbosity=0, print_only=
 
     paths = [top_path(dir) for dir in directories]
     if all(map(os.path.exists, paths)):
-        with PythonPath(*paths):
+        with python_path(*paths):
             all_tests = discover_tests(*modules)
 
             if patterns:

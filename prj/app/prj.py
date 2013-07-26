@@ -224,10 +224,13 @@ def xml_parse_file_with_includes(filename):
 
 def xml_resolve_includes(el):
     if el.tagName == 'include':
-        assert len(element_children(el)) == 0
+        if len(element_children(el)) != 0:
+            raise SystemParseError(xml_error_str(el, 'Expected no child elements in include element. Correct format is <include file="FILENAME" />'))
         path_of_file_to_include = get_attribute(el, 'file')
-        assert path_of_file_to_include != NOTHING
-        assert os.path.exists(path_of_file_to_include)
+        if path_of_file_to_include == NOTHING:
+            raise SystemParseError(xml_error_str(el, 'Expected include element to contain "file" attribute. Correct format is <include file="FILENAME" />'))
+        if not os.path.exists(path_of_file_to_include):
+            raise SystemParseError(xml_error_str(el, 'The path {} specified in the include element does not refer to an existing file'.format(path_of_file_to_include)))
         included_element = xml_parse_file(path_of_file_to_include)
         el.parentNode.replaceChild(included_element, el)
         return included_element

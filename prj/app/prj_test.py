@@ -1,4 +1,5 @@
 import os
+import tempfile
 from prj import *
 from nose.tools import assert_raises, raises
 
@@ -206,3 +207,23 @@ def test_project_find():
         os.path.join(base_dir, 'test_data', 'path1', 'foo'),
     ])
     assert isinstance(p.find('bar.baz.qux'), System)
+
+
+def test_xml_parse_file_with_includes_without_include():
+    prx_xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <modules>
+    <module name="foo">
+      <bar>baz</bar>
+    </module>
+  </modules>
+</system>"""
+    prx_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+    prx_file.write(prx_xml)
+    prx_file.close()
+    try:
+        result_of_xml_parse_file_with_includes = xml_parse_file_with_includes(prx_file.name)
+        result_of_xml_parse_file = xml_parse_file(prx_file.name)
+        assert result_of_xml_parse_file_with_includes.toxml() == result_of_xml_parse_file.toxml()
+    finally:
+        os.remove(prx_file.name)

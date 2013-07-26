@@ -251,7 +251,8 @@ def test_xml_parse_file_with_includes():
     try:
         result_of_xml_parse_file_with_includes = xml_parse_file_with_includes(prx_file.name)
         expected_result = xml_parse_string(prx_without_include_xml)
-        expected_result.insertBefore(expected_result.ownerDocument.createElement('newelement'), expected_result.firstChild)
+        expected_result.insertBefore(expected_result.ownerDocument.createElement('newelement'),
+                                     expected_result.firstChild)
         assert result_of_xml_parse_file_with_includes.toxml() == expected_result.toxml()
     finally:
         os.remove(prx_file.name)

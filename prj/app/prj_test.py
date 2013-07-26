@@ -256,3 +256,54 @@ def test_xml_parse_file_with_includes():
     finally:
         os.remove(prx_file.name)
         os.remove(include_file.name)
+
+
+@raises(SystemParseError)
+def test_xml_parse_file_with_includes_invalid_path():
+    check_xml_parse_file_with_includes_with_xml("""<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <include file="/123/abc/!#$" />
+  <modules>
+    <module name="foo">
+      <bar>baz</bar>
+    </module>
+  </modules>
+</system>""")
+
+
+@raises(SystemParseError)
+def test_xml_parse_file_with_includes_missing_path_attribute():
+    check_xml_parse_file_with_includes_with_xml("""<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <include />
+  <modules>
+    <module name="foo">
+      <bar>baz</bar>
+    </module>
+  </modules>
+</system>""")
+
+
+@raises(SystemParseError)
+def test_xml_parse_file_with_includes_missing_path_child_elements():
+    check_xml_parse_file_with_includes_with_xml("""<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <include file=".">
+    <foo />
+  </include>
+  <modules>
+    <module name="foo">
+      <bar>baz</bar>
+    </module>
+  </modules>
+</system>""")
+
+
+def check_xml_parse_file_with_includes_with_xml(xml):
+    prx_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+    prx_file.write(xml)
+    prx_file.close()
+    try:
+        return xml_parse_file_with_includes(prx_file.name)
+    finally:
+        os.remove(prx_file.name)

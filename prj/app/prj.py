@@ -185,20 +185,6 @@ def xml_parse_file(filename):
     dom.path = filename
     dom.start_line = 0
 
-    def resolve_includes(el):
-        if el.tagName == 'include':
-            assert len(element_children(el)) == 0
-            path_of_file_to_include = get_attribute(el, 'file')
-            assert path_of_file_to_include != NOTHING
-            assert os.path.exists(path_of_file_to_include)
-            included_element = xml_parse_file(path_of_file_to_include)
-            el.parentNode.replaceChild(included_element, el)
-        else:
-            for child in element_children(el):
-                resolve_includes(child)
-
-    resolve_includes(dom.documentElement)
-
     return dom.documentElement
 
 
@@ -223,6 +209,32 @@ def xml_parse_string(string, name='<string>', start_line=0):
     dom.path = name
     dom.start_line = start_line
     return dom.documentElement
+
+
+def xml_parse_file_with_includes(filename):
+    """Parse XML file as xml_parse_file() would and resolve include elements.
+
+    All elements with the name 'include' and the attribute 'file' are replaced with the root DOM element of the
+    XML file referenced by the 'file' attribute.
+    This resolution is not recursive.
+
+    """
+    return xml_resolve_includes(xml_parse_file(filename))
+
+
+def xml_resolve_includes(el):
+    if el.tagName == 'include':
+        assert len(element_children(el)) == 0
+        path_of_file_to_include = get_attribute(el, 'file')
+        assert path_of_file_to_include != NOTHING
+        assert os.path.exists(path_of_file_to_include)
+        included_element = xml_parse_file(path_of_file_to_include)
+        el.parentNode.replaceChild(included_element, el)
+        return included_element
+    else:
+        for child in element_children(el):
+            xml_resolve_includes(child)
+        return el
 
 
 def single_text_child(el):
@@ -1314,7 +1326,7 @@ class Project:
         """
         ext = os.path.splitext(path)[1]
         if ext == '.prx':
-            return System(entity_name, xml_parse_file(path), self)
+            return System(entity_name, xml_parse_file_with_includes(path), self)
         elif ext == '.py':
             py_module = imp.load_source("__prj.%s" % entity_name, path)
             py_module.__path__ = os.path.dirname(py_module.__file__)

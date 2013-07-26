@@ -227,3 +227,32 @@ def test_xml_parse_file_with_includes_without_include():
         assert result_of_xml_parse_file_with_includes.toxml() == result_of_xml_parse_file.toxml()
     finally:
         os.remove(prx_file.name)
+
+
+def test_xml_parse_file_with_includes():
+    include_xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<newelement />"""
+    include_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+    include_file.write(include_xml)
+    include_file.close()
+    prx_template = """<?xml version="1.0" encoding="UTF-8" ?>
+<system>{}
+  <modules>
+    <module name="foo">
+      <bar>baz</bar>
+    </module>
+  </modules>
+</system>"""
+    prx_with_include_xml = prx_template.format('<include file="{}" />'.format(os.path.basename(include_file.name)))
+    prx_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+    prx_file.write(prx_with_include_xml)
+    prx_file.close()
+    prx_without_include_xml = prx_template.format('')
+    try:
+        result_of_xml_parse_file_with_includes = xml_parse_file_with_includes(prx_file.name)
+        expected_result = xml_parse_string(prx_without_include_xml)
+        expected_result.insertBefore(expected_result.ownerDocument.createElement('newelement'), expected_result.firstChild)
+        assert result_of_xml_parse_file_with_includes.toxml() == expected_result.toxml()
+    finally:
+        os.remove(prx_file.name)
+        os.remove(include_file.name)

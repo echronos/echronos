@@ -219,24 +219,27 @@ def xml_parse_file_with_includes(filename):
     This resolution is not recursive.
 
     """
-    return xml_resolve_includes(xml_parse_file(filename))
+    return xml_resolve_includes(xml_parse_file(filename), os.path.dirname(filename))
 
 
-def xml_resolve_includes(el):
+def xml_resolve_includes(el, include_dir):
     if el.tagName == 'include':
         if len(element_children(el)) != 0:
             raise SystemParseError(xml_error_str(el, 'Expected no child elements in include element. Correct format is <include file="FILENAME" />'))
-        path_of_file_to_include = get_attribute(el, 'file')
-        if path_of_file_to_include == NOTHING:
+        path_to_include = get_attribute(el, 'file')
+        if path_to_include == NOTHING:
             raise SystemParseError(xml_error_str(el, 'Expected include element to contain "file" attribute. Correct format is <include file="FILENAME" />'))
-        if not os.path.exists(path_of_file_to_include):
-            raise SystemParseError(xml_error_str(el, 'The path {} specified in the include element does not refer to an existing file'.format(path_of_file_to_include)))
-        included_element = xml_parse_file(path_of_file_to_include)
+        if not os.path.isabs(path_to_include):
+            path_to_include = os.path.join(include_dir, path_to_include)
+        path_to_include = os.path.normpath(path_to_include)
+        if not os.path.exists(path_to_include):
+            raise SystemParseError(xml_error_str(el, 'The path {} specified in the include element does not refer to an existing file'.format(path_to_include)))
+        included_element = xml_parse_file(path_to_include)
         el.parentNode.replaceChild(included_element, el)
         return included_element
     else:
         for child in element_children(el):
-            xml_resolve_includes(child)
+            xml_resolve_includes(child, include_dir)
         return el
 
 

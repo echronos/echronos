@@ -184,6 +184,21 @@ def xml_parse_file(filename):
 
     dom.path = filename
     dom.start_line = 0
+
+    def resolve_includes(el):
+        if el.tagName == 'include':
+            assert len(element_children(el)) == 0
+            path_of_file_to_include = get_attribute(el, 'file')
+            assert path_of_file_to_include != NOTHING
+            assert os.path.exists(path_of_file_to_include)
+            included_element = xml_parse_file(path_of_file_to_include)
+            el.parentNode.replaceChild(included_element, el)
+        else:
+            for child in element_children(el):
+                resolve_includes(child)
+
+    resolve_includes(dom.documentElement)
+
     return dom.documentElement
 
 

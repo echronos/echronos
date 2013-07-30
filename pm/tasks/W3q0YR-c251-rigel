@@ -1,0 +1,10 @@
+Task: W3q0YR-c251-rigel
+==============================================================================
+
+This task contains any modifications to rtos-core necessary to support deploying
+rtos-rigel onto the c251 platform.
+
+NB Virtually all of the changes required are in rtos-clr. The only exception is 
+some generic additions to rtos-rigel.h to add include guards and macros
+for task and irq names
+

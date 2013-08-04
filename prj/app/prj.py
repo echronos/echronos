@@ -1405,9 +1405,11 @@ def call_system_function(args, function, extra_args=None, sys_is_path=False):
         system.output = args.output
 
     logger.info("Invoking '{}' on system '{}'".format(function.__name__, system.name))
+    expected_exceptions = (SystemParseError, SystemLoadError, SystemBuildError, SystemConsistencyError,
+                           ResourceNotFoundError, EntityNotFound)
     try:
         function(system, **extra_args)
-    except (SystemParseError, SystemLoadError, SystemBuildError, SystemConsistencyError, ResourceNotFoundError, EntityNotFound) as e:
+    except expected_exceptions as e:
         logger.error(str(e))
         return 1
 

@@ -1,0 +1,16 @@
+Task: tguZAH-enable-pystache-unit-tests
+==============================================================================
+
+Goals
+--------
+
+The pystache library we used has been modified from the upstream pystache library.
+In particular it has been set up so it can be easily used in place, and also packaged in to a frozen binary.
+Also, it has been converted to Python 3.
+In this original conversion process care was not taken to ensure the unit tests still ran correctly.
+Additionally, the port mostly relied on the automatic 2to3 tool, which is not always ideal.
+This makes it difficult to add additional improvement to Pystache.
+There is a desire to extend the existing pystache in a variety of ways, so having a clean base on which to do this is desired.
+
+The goal of this branch is to make sure that the Pystache unit tests correctly execute.
+Additionally, some aspects of the code based may be improved to work better with Python 3.

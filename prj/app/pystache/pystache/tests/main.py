@@ -32,8 +32,9 @@ def make_extra_tests(text_doctest_dir, spec_test_dir):
         tests.extend(doctest_suites)
 
     if spec_test_dir is not None:
-        spec_testcases = get_spec_tests(spec_test_dir)
-        tests.extend(spec_testcases)
+        if os.path.exists(spec_test_dir):
+            spec_testcases = get_spec_tests(spec_test_dir)
+            tests.extend(spec_testcases)
 
     return unittest.TestSuite(tests)
 
@@ -125,7 +126,7 @@ def main(sys_argv):
 
     SetupTests.project_dir = project_dir
 
-    extra_tests = make_extra_tests(project_dir, None)  #spec_test_dir)
+    extra_tests = make_extra_tests(project_dir, spec_test_dir)
     test_program_class = make_test_program_class(extra_tests)
 
     # We pass None for the module because we do not want the unittest

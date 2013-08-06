@@ -44,11 +44,11 @@ class Locator(object):
 # TODO: add test cases for delimiters.
 def parse(template, delimiters=None, name='<string>'):
     """
-    Parse a unicode template string and return a ParsedTemplate instance.
+    Parse a template string and return a ParsedTemplate instance.
 
     Arguments:
 
-      template: a unicode template string.
+      template: a template string.
 
       delimiters: a 2-tuple of delimiters.  Defaults to the package default.
 
@@ -60,7 +60,7 @@ def parse(template, delimiters=None, name='<string>'):
 
     """
     if type(template) is not str:
-        raise Exception("Template is not unicode: %s" % type(template))
+        raise Exception("Template is not str: %s" % type(template))
     parser = _Parser(delimiters)
     return parser.parse(template, name)
 
@@ -279,7 +279,7 @@ class _Parser(object):
 
         Arguments:
 
-          template: a unicode string that is the template to parse.
+          template: a string that is the template to parse.
 
           index: the index at which to start parsing.
 

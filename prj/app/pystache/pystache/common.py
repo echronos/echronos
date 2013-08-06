@@ -7,26 +7,13 @@ Exposes functionality needed throughout the project.
 
 from sys import version_info
 
-def _get_string_types():
-    # TODO: come up with a better solution for this.  One of the issues here
-    #   is that in Python 3 there is no common base class for unicode strings
-    #   and byte strings, and 2to3 seems to convert all of "str", "unicode",
-    #   and "basestring" to Python 3's "str".
-    if version_info < (3, ):
-         return str
-    # The latter evaluates to "bytes" in Python 3 -- even after conversion by 2to3.
-    return (str, type("a".encode('utf-8')))
 
-
-_STRING_TYPES = _get_string_types()
+_STRING_TYPES = (str, bytes)
 
 
 def is_string(obj):
     """
-    Return whether the given object is a byte string or unicode string.
-
-    This function is provided for compatibility with both Python 2 and 3
-    when using 2to3.
+    Return whether the given object is a bytes or string
 
     """
     return isinstance(obj, _STRING_TYPES)
@@ -39,18 +26,8 @@ def read(path):
     Return the contents of a text file as a byte string.
 
     """
-    # Opening in binary mode is necessary for compatibility across Python
-    # 2 and 3.  In both Python 2 and 3, open() defaults to opening files in
-    # text mode.  However, in Python 2, open() returns file objects whose
-    # read() method returns byte strings (strings of type `str` in Python 2),
-    # whereas in Python 3, the file object returns unicode strings (strings
-    # of type `str` in Python 3).
-    f = open(path, 'rb')
-    # We avoid use of the with keyword for Python 2.4 support.
-    try:
+    with open(path, 'rb') as f:
         return f.read()
-    finally:
-        f.close()
 
 
 class MissingTags(object):

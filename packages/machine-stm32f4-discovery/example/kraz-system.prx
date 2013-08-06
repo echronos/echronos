@@ -15,6 +15,7 @@
       <taskid_size>8</taskid_size>
       <signalset_size>8</signalset_size>
       <num_tasks>2</num_tasks>
+      <num_mutexes>2</num_mutexes>
       <tasks>
 
         <task>

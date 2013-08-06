@@ -1,0 +1,11 @@
+Task: H9uFH2-add-num_mutexes-to-prx-files
+==============================================================================
+
+Goals
+--------
+
+The previous branch implementing mutexes (UgStuk-simple-mutex-component) didn't
+correctly updated all PRX files accordingly.
+
+Fix this so that all examples build correctly.
+

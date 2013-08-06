@@ -37,6 +37,7 @@ _logging.basicConfig = error_fn
 import xml.dom.minidom
 from xml.parsers.expat import ExpatError
 import argparse
+import collections
 import functools
 import glob
 import imp
@@ -360,6 +361,56 @@ def maybe_get_element_list(el, list_name, list_item_name):
     return list_els
 
 
+def dict_has_keys(d, *keys):
+    """Return True if the dictionary has all keys."""
+    for k in keys:
+        if not k in d:
+            return False
+    return True
+
+
+valid_schema_types = ['dict', 'list', 'string', 'int', 'c_ident']
+
+
+def check_schema_is_valid(schema, key_path=None):
+    """Raise SchemaInvalid exception if the schema is not valid.
+
+    The None object is a valid schema.
+
+    """
+    if key_path is None:
+        key_path = []
+    name = None
+
+    def error(msg):
+        if name is None and len(key_path) == 0:
+            key_name = None
+        elif name is None:
+            key_name = '.'.join(key_path)
+        else:
+            key_name = '.'.join(key_path + [name])
+        key_msg = '' if key_name is None else 'key:{} '.format(key_name)
+        raise SchemaInvalid("Schema {}is invalid: {}".format(key_msg, msg))
+
+    if schema is None:
+        return
+    if not isinstance(schema, collections.Mapping):
+        error("except schema to be a mapping type.")
+    if not dict_has_keys(schema, 'type', 'name'):
+        error("except schema to have 'type' and 'name' fields.")
+    name = schema['name']
+    if schema['type'] not in valid_schema_types:
+        error("type '{}' is invalid.".format(schema['type']))
+
+    if schema['type'] == 'dict':
+        if not dict_has_keys(schema, 'dict_type'):
+            error("when type is 'dict' except 'dict_type' to be defined.")
+        if not isinstance(schema['dict_type'], collections.Sequence):
+            error("'dict_type' should be a sequence")
+        for each in schema['dict_type']:
+            check_schema_is_valid(each, key_path + [schema['name']])
+
+
 def xml2schema(el):
     """Return a schema object from an XML description.
 
@@ -388,8 +439,6 @@ def xml2schema(el):
     If the `type` is dict, there should be more one or more sub-element describing the valid dictionary entries.
 
     """
-    valid_types = ['dict', 'list', 'string', 'int', 'c_ident']
-
     def read_entry(el):
         entry = {
             'name': get_attribute(el, 'name'),
@@ -398,8 +447,8 @@ def xml2schema(el):
         }
 
         _type = entry['type']
-        if _type not in valid_types:
-            err_str = xml_error_str(el, "Invalid type '{}' should be one of {}".format(_type, valid_types))
+        if _type not in valid_schema_types:
+            err_str = xml_error_str(el, "Invalid type '{}' should be one of {}".format(_type, valid_schema_types))
             raise SystemParseError(err_str)
 
         if _type == 'list':
@@ -475,6 +524,8 @@ def xml2dict(el, schema=None):
       list_type: a single schema object which describes the form of list elements.
 
     """
+    check_schema_is_valid(schema)
+
     def get_dict_val(el, schema):
         children = element_children(el, ensure_unique=True)
         if not schema:
@@ -576,6 +627,10 @@ def asdict(lst, key=None, attr=None):
         raise Exception("Key or attr should be set")
 
     return {lookup(x): x for x in lst}
+
+
+class SchemaInvalid(Exception):
+    """Raised by `check_schema_is_valid` if a schema is invalid."""
 
 
 class ResourceNotFoundError(Exception):
@@ -820,7 +875,7 @@ class SourceModule(NamedModule):
 
     def _configure_from_xml(self, dom):
         """Configure a module based on XML input. This may be XML that was
-        extracted from a marked-up c    omment, or directly in an XML file.
+        extracted from a marked-up comment, or directly in an XML file.
 
         """
         cg_el = maybe_single_named_child(dom, 'code_gen')
@@ -880,15 +935,15 @@ class SourceModule(NamedModule):
         # Copy any headers across. This should use templating if that is configured.
         for header in self.headers:
             path = os.path.join(system.output, os.path.basename(header.path))
-            if header.code_gen is None:
-                try:
-                    shutil.copy(header.path, path)
-                except FileNotFoundError as e:
-                    s = xml_error_str(header.xml_element, "Resource not found: {}".format(header.path))
-                    raise ResourceNotFoundError(s)
-            elif header.code_gen == 'template':
-                logger.info("Preparing: template %s -> %s (%s)", header.path, path, config)
-                pystache_render(header.path, path, config)
+            try:
+                if header.code_gen is None:
+                        shutil.copy(header.path, path)
+                elif header.code_gen == 'template':
+                    logger.info("Preparing: template %s -> %s (%s)", header.path, path, config)
+                    pystache_render(header.path, path, config)
+            except FileNotFoundError as e:
+                s = xml_error_str(header.xml_element, "Resource not found: {}".format(header.path))
+                raise ResourceNotFoundError(s)
 
 
 class Action(NamedModule):
@@ -897,10 +952,23 @@ class Action(NamedModule):
         assert hasattr(py_module, 'run')
         self._py_module = py_module
         if hasattr(py_module, 'schema'):
+            try:
+                check_schema_is_valid(py_module.schema)
+            except SchemaInvalid as e:
+                raise SystemLoadError("The schema declared in module '{}' is invalid. {:s}".format(name, e))
             self.schema = py_module.schema
 
     def run(self, system, config):
-        self._py_module.run(system, config)
+        try:
+            self._py_module.run(system, config)
+        except (SystemBuildError, ):
+            raise
+        except Exception as e:
+            file_name = '{}.errors.log'.format(self.name)
+            with open(file_name, "w") as f:
+                traceback.print_exception(*sys.exc_info(), file=f)
+            msg_fmt = "An unexpected error occured while running custom module '{}'. Traceback saved to '{}'."
+            raise SystemBuildError(msg_fmt.format(self.name, file_name))
 
 
 class Builder(Action):
@@ -1337,9 +1405,11 @@ def call_system_function(args, function, extra_args=None, sys_is_path=False):
         system.output = args.output
 
     logger.info("Invoking '{}' on system '{}'".format(function.__name__, system.name))
+    expected_exceptions = (SystemParseError, SystemLoadError, SystemBuildError, SystemConsistencyError,
+                           ResourceNotFoundError, EntityNotFound)
     try:
         function(system, **extra_args)
-    except (SystemParseError, SystemLoadError, SystemConsistencyError, ResourceNotFoundError, EntityNotFound) as e:
+    except expected_exceptions as e:
         logger.error(str(e))
         return 1
 

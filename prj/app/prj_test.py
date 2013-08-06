@@ -5,6 +5,55 @@ from nose.tools import assert_raises, raises
 base_dir = os.path.dirname(__file__)
 
 
+def test_dict_has_keys():
+    d = {'foo': 37, 'bar': 25}
+    assert dict_has_keys(d, 'foo')
+    assert not dict_has_keys(d, 'baz')
+    assert dict_has_keys(d, 'foo', 'bar')
+
+
+def test_schema_is_valid():
+    check_schema_is_valid(None)
+    good = {
+        'type': 'dict',
+        'name': 'module',
+        'dict_type':
+        [
+            {'type': 'string', 'name': 'target', 'default': ''}
+        ]
+    }
+    check_schema_is_valid(good)
+
+    no_name = {
+        'type': 'dict',
+        'dict_type':
+        [
+            {'type': 'string', 'name': 'target', 'default': ''}
+        ]
+    }
+    assert_raises(SchemaInvalid, check_schema_is_valid, no_name)
+
+    bad_dict_type = {
+        'name': 'module',
+        'type': 'dict',
+        'dict_type':
+        {
+            'foo': {'type': 'string', 'name': 'target', 'default': ''}
+        }
+    }
+    assert_raises(SchemaInvalid, check_schema_is_valid, bad_dict_type)
+
+    invalid_nested = {
+        'type': 'dict',
+        'name': 'module',
+        'dict_type':
+        [
+            {'name': 'target', 'default': ''}
+        ]
+    }
+    assert_raises(SchemaInvalid, check_schema_is_valid, invalid_nested)
+
+
 def test_list_all_equal():
     assert list_all_equal("11111111")
     assert not list_all_equal("11111110")

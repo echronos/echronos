@@ -1,0 +1,19 @@
+Task: BIW1qA-prj-improved-error-checking
+==============================================================================
+
+Goals
+--------
+
+There are some aspects of the current prj tool where user supplied inputs are not well checked.
+The goal of this task is to improve prj's error checking so more cases are handled cleanly, with appropriate feedback to the user.
+
+It is not anticipated that this task will capture all possible user errors.
+The task's goal will be achieved if the error checked is improved; it need not be perfect.
+
+Specific areas to improve include:
+
+If a user supplied Python module raises an unexpected exception this should not cause prj to crash.
+Instead a traceback should be saved for the user and an appopriate error message provided.
+
+If a user specificies a schema object in a python module, and that schema is invalid, an unexpected error will occur when attempting to parse the configuration.
+Instead the schema validity should be checked, and an appropriate error raise before configuration occurs.

@@ -11,11 +11,7 @@ import pkgutil
 import sys
 import traceback
 
-if sys.version_info >= (3,):
-    # Then pull in modules needed for 2to3 conversion.  The modules
-    # below are not necessarily available in older versions of Python.
-    from lib2to3.main import main as lib2to3main  # new in Python 2.6?
-    from shutil import copyfile
+from shutil import copyfile
 
 from pystache.tests.common import TEXT_DOCTEST_PATHS
 from pystache.tests.common import get_module_names

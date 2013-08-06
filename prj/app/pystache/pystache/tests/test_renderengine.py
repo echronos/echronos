@@ -33,11 +33,11 @@ def mock_literal(s):
       s: a byte string or unicode string.
 
     """
-    if isinstance(s, unicode):
+    if isinstance(s, str):
         # Strip off unicode super classes, if present.
-        u = unicode(s)
+        u = str(s)
     else:
-        u = unicode(s, encoding='ascii')
+        u = str(s, encoding='ascii')
 
     # We apply upper() to make sure we are actually using our custom
     # function in the tests
@@ -92,12 +92,12 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         engine = kwargs.get('engine', self._engine())
 
         if partials is not None:
-            engine.resolve_partial = lambda key: unicode(partials[key])
+            engine.resolve_partial = lambda name, location: str(partials[name])
 
         context = ContextStack(*context)
 
         # RenderEngine.render() only accepts unicode template strings.
-        actual = engine.render(unicode(template), context)
+        actual = engine.render(str(template), context)
 
         self.assertString(actual=actual, expected=expected)
 
@@ -111,7 +111,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         """
         engine = self._engine()
         partials = {'partial': u"{{person}}"}
-        engine.resolve_partial = lambda key: partials[key]
+        engine.resolve_partial = lambda name, location: partials[name]
 
         self._assert_render(u'Hi Mom', 'Hi {{>partial}}', {'person': 'Mom'}, engine=engine)
 
@@ -165,7 +165,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         variable value is markupsafe.Markup when escaping.
 
         """
-        class MyUnicode(unicode):
+        class MyUnicode(str):
             pass
 
         def escape(s):
@@ -397,7 +397,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         template = '{{/section}}'
         try:
             self._assert_render(None, template)
-        except ParsingError, err:
+        except ParsingError as err:
             self.assertEqual(str(err), "Section end tag mismatch: section != None")
 
     def test_section__end_tag_mismatch(self):
@@ -408,7 +408,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         template = '{{#section_start}}{{/section_end}}'
         try:
             self._assert_render(None, template)
-        except ParsingError, err:
+        except ParsingError as err:
             self.assertEqual(str(err), "Section end tag mismatch: section_end != section_start")
 
     def test_section__context_values(self):
@@ -534,7 +534,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         context = {'iterable': (i for i in range(3))}  # type 'generator'
         self._assert_render(u'012', template, context)
 
-        context = {'iterable': xrange(4)}  # type 'xrange'
+        context = {'iterable': range(4)}  # type 'xrange'
         self._assert_render(u'0123', template, context)
 
         d = {'foo': 0, 'bar': 0}
@@ -544,7 +544,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         #   itervalues() are called with no intervening modifications to
         #   the dictionary, the lists will directly correspond."
         expected = u''.join(d.keys())
-        context = {'iterable': d.iterkeys()}  # type 'dictionary-keyiterator'
+        context = {'iterable': d.keys()}  # type 'dictionary-keyiterator'
         self._assert_render(expected, template, context)
 
     def test_section__lambda__tag_in_output(self):

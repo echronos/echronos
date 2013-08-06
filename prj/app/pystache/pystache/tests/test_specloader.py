@@ -9,11 +9,11 @@ import os.path
 import sys
 import unittest
 
-import examples
-from examples.simple import Simple
-from examples.complex import Complex
-from examples.lambdas import Lambdas
-from examples.inverted import Inverted, InvertedLists
+import pystache.tests.examples
+from pystache.tests.examples.simple import Simple
+from pystache.tests.examples.complex import Complex
+from pystache.tests.examples.lambdas import Lambdas
+from pystache.tests.examples.inverted import Inverted, InvertedLists
 from pystache import Renderer
 from pystache import TemplateSpec
 from pystache.common import TemplateNotFoundError
@@ -168,7 +168,7 @@ def _make_specloader():
         """
         if encoding is None:
             encoding = 'ascii'
-        return unicode(s, encoding, 'strict')
+        return str(s, encoding, 'strict')
 
     loader = Loader(file_encoding='ascii', to_unicode=to_unicode)
     return SpecLoader(loader=loader)
@@ -400,7 +400,7 @@ class TemplateSpecTests(unittest.TestCase):
         loader = self._make_loader()
         actual = loader.load(custom)
 
-        self.assertEqual(type(actual), unicode)
+        self.assertEqual(type(actual), str)
         self.assertEqual(actual, expected)
 
     def test_get_template(self):

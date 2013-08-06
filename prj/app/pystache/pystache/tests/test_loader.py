@@ -102,10 +102,10 @@ class LoaderTests(unittest.TestCase, AssertStringMixin, SetupDefaults):
         Test unicode(): default arguments with unicode-subclass input.
 
         """
-        class UnicodeSubclass(unicode):
+        class StrSubclass(str):
             pass
 
-        s = UnicodeSubclass(u"foo")
+        s = StrSubclass(u"foo")
 
         loader = Loader()
         actual = loader.unicode(s)
@@ -125,7 +125,7 @@ class LoaderTests(unittest.TestCase, AssertStringMixin, SetupDefaults):
         def to_unicode(s, encoding=None):
             if encoding is None:
                 encoding = 'utf-8'
-            return unicode(s, encoding)
+            return str(s, encoding)
 
         loader.to_unicode = to_unicode
         self.assertString(loader.unicode(non_ascii), u"abcdé")

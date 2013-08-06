@@ -32,7 +32,7 @@ class Renderer(object):
     >>> partials = {'partial': 'Hello, {{thing}}!'}
     >>> renderer = Renderer(partials=partials)
     >>> # We apply print to make the test work in Python 3 after 2to3.
-    >>> print renderer.render('{{>partial}}', {'thing': 'world'})
+    >>> print(renderer.render('{{>partial}}', {'thing': 'world'}))
     Hello, world!
 
     """
@@ -420,11 +420,12 @@ class Renderer(object):
             all items in the *context list.
 
         """
+        name = None
         if is_string(template):
-            return self._render_string(template, *context, **kwargs)
+            return self._render_string(template, name, *context, **kwargs)
         if isinstance(template, ParsedTemplate):
             render_func = lambda engine, stack: template.render(engine, stack)
-            return self._render_final(render_func, *context, **kwargs)
+            return self._render_final(render_func, name, *context, **kwargs)
         # Otherwise, we assume the template is an object.
 
         return self._render_object(template, *context, **kwargs)

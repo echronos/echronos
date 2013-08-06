@@ -236,13 +236,11 @@ class RendererTests(unittest.TestCase, AssertStringMixin):
         renderer = self._renderer()
         renderer.file_encoding = 'enc'
         renderer.file_extension = 'ext'
-        renderer.str = unicode_
 
         loader = renderer._make_loader()
 
         self.assertEqual(loader.extension, 'ext')
         self.assertEqual(loader.file_encoding, 'enc')
-        self.assertEqual(loader.to_unicode, unicode_)
 
     ## Test the render() method.
 

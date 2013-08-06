@@ -18,25 +18,22 @@ class ParsedTemplate(object):
         """
         Arguments:
 
-          node: a unicode string or node object instance.  A node object
+          node: a string or node object instance.  A node object
             instance must have a `render(engine, stack)` method that
             accepts a RenderEngine instance and a ContextStack instance and
-            returns a unicode string.
+            returns a string.
 
         """
         self._parse_tree.append(node)
 
     def render(self, engine, context):
         """
-        Returns: a string of type unicode.
+        Returns: a string.
 
         """
-        # We avoid use of the ternary operator for Python 2.4 support.
-        def get_unicode(val):
-            if type(val) is str:
-                return val
-            return val.render(engine, context)
-        parts = list(map(get_unicode, self._parse_tree))
+        def get_str(val):
+            return val if type(val) is str else val.render(engine, context)
+        parts = list(map(get_str, self._parse_tree))
         s = ''.join(parts)
 
         return str(s)

@@ -26,15 +26,15 @@ class RenderEngine(object):
 
     This class is meant only for internal use.
 
-    As a rule, the code in this class operates on unicode strings where
-    possible rather than, say, strings of type str or markupsafe.Markup.
+    As a rule, the code in this class operates on strings where
+    possible rather than, say, strings of bytes or markupsafe.Markup.
     This means that strings obtained from "external" sources like partials
-    and variable tag values are immediately converted to unicode (or
-    escaped and converted to unicode) before being operated on further.
+    and variable tag values are immediately converted to str (or
+    escaped and converted to str) before being operated on further.
     This makes maintaining, reasoning about, and testing the correctness
     of the code much simpler.  In particular, it keeps the implementation
     of this class independent of the API details of one (or possibly more)
-    unicode subclasses (e.g. markupsafe.Markup).
+    str subclasses (e.g. markupsafe.Markup).
 
     """
 
@@ -48,25 +48,25 @@ class RenderEngine(object):
         Arguments:
 
           literal: the function used to convert unescaped variable tag
-            values to unicode, e.g. the value corresponding to a tag
+            values to str, e.g. the value corresponding to a tag
             "{{{name}}}".  The function should accept a string of type
-            str or unicode (or a subclass) and return a string of type
-            unicode (but not a proper subclass of unicode).
+            str (or a subclass) and return a string of type
+            str (but not a proper subclass of str).
                 This class will only pass basestring instances to this
             function.  For example, it will call str() on integer variable
             values prior to passing them to this function.
 
           escape: the function used to escape and convert variable tag
-            values to unicode, e.g. the value corresponding to a tag
+            values to str, e.g. the value corresponding to a tag
             "{{name}}".  The function should obey the same properties
             described above for the "literal" function argument.
                 This function should take care to convert any str
-            arguments to unicode just as the literal function should, as
+            arguments to str just as the literal function should, as
             this class will not pass tag values to literal prior to passing
             them to this function.  This allows for more flexibility,
             for example using a custom escape function that handles
             incoming strings of type markupsafe.Markup differently
-            from plain unicode strings.
+            from plain strings.
 
           resolve_context: the function to call to resolve a name against
             a context stack.  The function should accept two positional
@@ -74,7 +74,7 @@ class RenderEngine(object):
 
           resolve_partial: the function to call when loading a partial.
             The function should accept a template name string and return a
-            template string of type unicode (not a subclass).
+            template string of type str (not a subclass).
 
         """
         self.escape = escape
@@ -156,12 +156,12 @@ class RenderEngine(object):
 
     def render(self, template, context_stack, delimiters=None, name=None):
         """
-        Render a unicode template string, and return as unicode.
+        Render a template string, and return as str.
 
         Arguments:
 
-          template: a template string of type unicode (but not a proper
-            subclass of unicode).
+          template: a template string of type str (but not a proper
+            subclass of str).
 
           context_stack: a ContextStack instance.
 

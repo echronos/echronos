@@ -20,20 +20,17 @@ import sys
 from pystache.common import MissingTags
 
 
-# How to handle encoding errors when decoding strings from str to unicode.
+# How to handle encoding errors when decoding bytes to str.
 #
 # This value is passed as the "errors" argument to Python's built-in
-# unicode() function:
-#
-#   http://docs.python.org/library/functions.html#unicode
+# str() function.
 #
 DECODE_ERRORS = 'strict'
 
-# The name of the encoding to use when converting to unicode any strings of
-# type str encountered during the rendering process.
+# The name of the encoding to use when converting any bytes to str
 STRING_ENCODING = sys.getdefaultencoding()
 
-# The name of the encoding to use when converting file contents to unicode.
+# The name of the encoding to use when converting file contents to str.
 # This default takes precedence over the STRING_ENCODING default for
 # strings that arise from files.
 FILE_ENCODING = sys.getdefaultencoding()
@@ -50,7 +47,7 @@ SEARCH_DIRS = [os.curdir]  # i.e. ['.']
 
 # The escape function to apply to strings that require escaping when
 # rendering templates (e.g. for tags enclosed in double braces).
-# Only unicode strings will be passed to this function.
+# Only strings (not bytes) will be passed to this function.
 #
 # The quote=True argument causes double but not single quotes to be escaped
 # in Python 3.1 and earlier, and both double and single quotes to be

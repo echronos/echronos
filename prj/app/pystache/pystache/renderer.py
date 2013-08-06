@@ -46,18 +46,18 @@ class Renderer(object):
         Arguments:
 
           file_encoding: the name of the encoding to use by default when
-            reading template files.  All templates are converted to unicode
+            reading template files.  All templates are converted to str
             prior to parsing.  Defaults to the package default.
 
           string_encoding: the name of the encoding to use when converting
-            to unicode any byte strings (type str in Python 2) encountered
+            to str any bytes encountered
             during the rendering process.  This name will be passed as the
-            encoding argument to the built-in function unicode().
+            encoding argument to the built-in str() function.
             Defaults to the package default.
 
           decode_errors: the string to pass as the errors argument to the
-            built-in function unicode() when converting byte strings to
-            unicode.  Defaults to the package default.
+            built-in function str() when converting byte strings to
+            str.  Defaults to the package default.
 
           search_dirs: the list of directories in which to search when
             loading a template by name or file name.  If given a string,
@@ -72,7 +72,7 @@ class Renderer(object):
             during the rendering process.
                 The object should have a get() method that accepts a string
             and returns the corresponding template as a string, preferably
-            as a unicode string.  If there is no template with that name,
+            as a string.  If there is no template with that name,
             the get() method should either return None (as dict.get() does)
             or raise an exception.
                 If this argument is None, the rendering process will use
@@ -81,11 +81,11 @@ class Renderer(object):
             search_dirs, file_encoding, etc.
 
           escape: the function used to escape variable tag values when
-            rendering a template.  The function should accept a unicode
-            string (or subclass of unicode) and return an escaped string
-            that is again unicode (or a subclass of unicode).
-                This function need not handle strings of type `str` because
-            this class will only pass it unicode strings.  The constructor
+            rendering a template.  The function should accept a
+            string (or subclass of str) and return an escaped string
+            that is again str (or a subclass of str).
+                This function need not handle strings of type `bytes` because
+            this class will only pass it strings.  The constructor
             assigns this function to the constructed instance's escape()
             method.
                 To disable escaping entirely, one can pass `lambda u: u`
@@ -146,36 +146,33 @@ class Renderer(object):
         """
         return self._context
 
-    def _to_unicode_soft(self, s):
+    def _to_str_soft(self, s):
         """
-        Convert a basestring to unicode, preserving any unicode subclass.
+        Convert a basestring to str, preserving any str subclass.
 
         """
         # We type-check to avoid "TypeError: decoding Unicode is not supported".
-        # We avoid the Python ternary operator for Python 2.4 support.
-        if isinstance(s, str):
-            return s
-        return self.str(s)
+        return s if isinstance(s, str) else self.str(s)
 
-    def _to_unicode_hard(self, s):
+    def _to_str_hard(self, s):
         """
-        Convert a basestring to a string with type unicode (not subclass).
+        Convert a basestring to a str  (not subclass).
 
         """
-        return str(self._to_unicode_soft(s))
+        return str(self._to_str_soft(s))
 
-    def _escape_to_unicode(self, s):
+    def _escape_to_str(self, s):
         """
-        Convert a basestring to unicode (preserving any unicode subclass), and escape it.
+        Convert a basestring to str (preserving any str subclass), and escape it.
 
-        Returns a unicode string (not subclass).
+        Returns a string (not subclass).
 
         """
-        return str(self.escape(self._to_unicode_soft(s)))
+        return str(self.escape(self._to_str_soft(s)))
 
     def str(self, b, encoding=None):
         """
-        Convert a byte string to unicode, using string_encoding and decode_errors.
+        Convert a byte string to str, using string_encoding and decode_errors.
 
         Arguments:
 
@@ -186,9 +183,9 @@ class Renderer(object):
 
         Raises:
 
-          TypeError: Because this method calls Python's built-in unicode()
+          TypeError: Because this method calls Python's built-in str()
             function, this method raises the following exception if the
-            given string is already unicode:
+            given string is already str:
 
               TypeError: decoding Unicode is not supported
 
@@ -206,7 +203,7 @@ class Renderer(object):
 
         """
         return Loader(file_encoding=self.file_encoding, extension=self.file_extension,
-                      to_unicode=self.str, search_dirs=self.search_dirs)
+                      search_dirs=self.search_dirs)
 
     def _make_load_template(self):
         """
@@ -241,8 +238,8 @@ class Renderer(object):
                 raise TemplateNotFoundError("Name %s not found in partials: %s" %
                                             (repr(name), type(partials)))
 
-            # RenderEngine requires that the return value be unicode.
-            return self._to_unicode_hard(template)
+            # RenderEngine requires that the return value be str.
+            return self._to_str_hard(template)
 
         return load_partial
 
@@ -310,8 +307,8 @@ class Renderer(object):
         resolve_context = self._make_resolve_context()
         resolve_partial = self._make_resolve_partial()
 
-        engine = RenderEngine(literal=self._to_unicode_hard,
-                              escape=self._escape_to_unicode,
+        engine = RenderEngine(literal=self._to_str_hard,
+                              escape=self._escape_to_str,
                               resolve_context=resolve_context,
                               resolve_partial=resolve_partial)
         return engine
@@ -364,8 +361,8 @@ class Renderer(object):
         Render the given template string using the given context.
 
         """
-        # RenderEngine.render() requires that the template string be unicode.
-        template = self._to_unicode_hard(template)
+        # RenderEngine.render() requires that the template string be str.
+        template = self._to_str_hard(template)
 
         render_func = lambda engine, stack: engine.render(template, stack, name=name)
 
@@ -378,7 +375,7 @@ class Renderer(object):
         Arguments:
 
           render_func: a function that accepts a RenderEngine and ContextStack
-            instance and returns a template rendering as a unicode string.
+            instance and returns a template rendering as a string.
 
         """
         stack = ContextStack.create(*context, **kwargs)
@@ -392,16 +389,16 @@ class Renderer(object):
         """
         Render the given template string, view template, or parsed template.
 
-        Returns a unicode string.
+        Returns a string.
 
         Prior to rendering, this method will convert a template that is a
-        byte string (type str in Python 2) to unicode using the string_encoding
+        bytes to string using the string_encoding
         and decode_errors attributes.  See the constructor docstring for
         more information.
 
         Arguments:
 
-          template: a template string that is unicode or a byte string,
+          template: a template string that is string or bytes,
             a ParsedTemplate instance, or another object instance.  In the
             final case, the function first looks for the template associated
             to the object by calling this class's get_associated_template()

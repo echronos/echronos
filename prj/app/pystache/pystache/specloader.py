@@ -72,7 +72,7 @@ class SpecLoader(object):
         """
         Find and return the template associated to a TemplateSpec instance.
 
-        Returns the template as a unicode string.
+        Returns the template as a string.
 
         Arguments:
 
@@ -80,7 +80,10 @@ class SpecLoader(object):
 
         """
         if spec.template is not None:
-            return self.loader.unicode(spec.template, spec.template_encoding)
+            if spec.template_encoding is None:
+                return str(spec.template)
+            else:
+                return str(spec.template, spec.template_encoding)
 
         path = self._find(spec)
 

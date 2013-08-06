@@ -170,7 +170,7 @@ def _make_specloader():
             encoding = 'ascii'
         return str(s, encoding, 'strict')
 
-    loader = Loader(file_encoding='ascii', to_unicode=to_unicode)
+    loader = Loader(file_encoding='ascii')
     return SpecLoader(loader=loader)
 
 
@@ -192,7 +192,6 @@ class SpecLoaderTests(unittest.TestCase, AssertIsMixin, AssertStringMixin):
         self.assertEqual(loader.extension, 'mustache')
         self.assertEqual(loader.file_encoding, sys.getdefaultencoding())
         # TODO: finish testing the other Loader attributes.
-        to_unicode = loader.to_unicode
 
     def test_init__loader(self):
         loader = Loader()
@@ -243,6 +242,7 @@ class SpecLoaderTests(unittest.TestCase, AssertIsMixin, AssertStringMixin):
 
         """
         custom = TemplateSpec()
+        custom.template_encoding = 'ascii'
         custom.template = u'é'.encode('utf-8')
 
         spec_loader = self._make_specloader()
@@ -251,42 +251,6 @@ class SpecLoaderTests(unittest.TestCase, AssertIsMixin, AssertStringMixin):
 
         custom.template_encoding = 'utf-8'
         self._assert_template(spec_loader, custom, u'é')
-
-    # TODO: make this test complete.
-    def test_load__template__correct_loader(self):
-        """
-        Test that reader.unicode() is called correctly.
-
-        This test tests that the correct reader is called with the correct
-        arguments.  This is a catch-all test to supplement the other
-        test cases.  It tests SpecLoader.load() independent of reader.unicode()
-        being implemented correctly (and tested).
-
-        """
-        class MockLoader(Loader):
-
-            def __init__(self):
-                self.s = None
-                self.encoding = None
-
-            # Overrides the existing method.
-            def unicode(self, s, encoding=None):
-                self.s = s
-                self.encoding = encoding
-                return u"foo"
-
-        loader = MockLoader()
-        custom_loader = SpecLoader()
-        custom_loader.loader = loader
-
-        view = TemplateSpec()
-        view.template = "template-foo"
-        view.template_encoding = "encoding-foo"
-
-        # Check that our unicode() above was called.
-        self._assert_template(custom_loader, view, u'foo')
-        self.assertEqual(loader.s, "template-foo")
-        self.assertEqual(loader.encoding, "encoding-foo")
 
 
 # TODO: migrate these tests into the SpecLoaderTests class.

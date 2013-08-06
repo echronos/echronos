@@ -1,5 +1,6 @@
 /*| headers |*/
-
+#include <stdbool.h>
+#include <stddef.h>
 /*| object_like_macros |*/
 
 /*| type_definitions |*/

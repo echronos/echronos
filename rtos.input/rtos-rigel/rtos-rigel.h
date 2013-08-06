@@ -18,15 +18,15 @@ void {{prefix}}start(void);
 void {{prefix}}yield(void);
 
 {{#tasks}}
-#define TASK_{{name}} {{idx}}
+#define TASK_ID_{{name}} {{idx}}
 {{/tasks}}
 
 {{#irq_events}}
-#define IRQ_EVENT_{{name}} {{idx}}
+#define IRQ_EVENT_ID_{{name}} {{idx}}
 {{/irq_events}}
 
 {{#irq_events}}
-#define IRQ_SIGNAL_SET_{{name}} {{sig_set}}
+#define SIGNAL_SET_IRQ_{{name}} {{sig_set}}
 {{/irq_events}}
 
 void {{prefix}}irq_event_raise(IrqEventId);

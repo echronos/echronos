@@ -80,7 +80,7 @@ class SpecLoader(object):
 
         """
         if spec.template is not None:
-            return self.loader.str(spec.template, spec.template_encoding)
+            return self.loader.unicode(spec.template, spec.template_encoding)
 
         path = self._find(spec)
 

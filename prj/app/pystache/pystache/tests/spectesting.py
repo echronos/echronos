@@ -37,7 +37,10 @@ except ImportError:
             from sys import exc_info
             ex_type, ex_value, tb = exc_info()
             new_ex = Exception("%s: %s" % (ex_type.__name__, ex_value))
-            raise new_ex.__class__, new_ex, tb
+
+            e = new_ex.__class__(new_ex)
+            e.__traceback__ = tb
+            raise e
     file_extension = 'json'
     parser = json
 else:
@@ -62,7 +65,7 @@ def get_spec_tests(spec_test_dir):
 
     """
     # TODO: use logging module instead.
-    print "pystache: spec tests: using %s" % _get_parser_info()
+    print("pystache: spec tests: using %s" % _get_parser_info())
 
     cases = []
 

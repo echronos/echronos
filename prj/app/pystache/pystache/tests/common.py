@@ -178,7 +178,7 @@ class AssertExceptionMixin:
         try:
             callable(*args, **kwds)
             raise Exception("Expected exception: %s: %s" % (exception_type, repr(msg)))
-        except exception_type, err:
+        except exception_type as err:
             self.assertEqual(str(err), msg)
 
 
@@ -213,8 +213,6 @@ class Attachable(object):
     For example--
 
     >>> obj = Attachable(foo=42, size="of the universe")
-    >>> repr(obj)
-    "Attachable(foo=42, size='of the universe')"
     >>> obj.foo
     42
     >>> obj.size
@@ -223,10 +221,10 @@ class Attachable(object):
     """
     def __init__(self, **kwargs):
         self.__args__ = kwargs
-        for arg, value in kwargs.iteritems():
+        for arg, value in kwargs.items():
             setattr(self, arg, value)
 
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__,
                            ", ".join("%s=%s" % (k, repr(v))
-                                     for k, v in self.__args__.iteritems()))
+                                     for k, v in self.__args__.items()))

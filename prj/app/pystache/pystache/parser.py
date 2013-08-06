@@ -55,7 +55,7 @@ def parse(template, delimiters=None, name='<string>'):
     Examples:
 
     >>> parsed = parse(u"Hey {{#who}}{{name}}!{{/who}}")
-    >>> print str(parsed).replace('u', '')  # This is a hack to get the test to pass both in Python 2 and 3.
+    >>> print(str(parsed).replace('u', ''))  # This is a hack to get the test to pass both in Python 2 and 3.
     ['Hey ', _SectionNode(key='who', index_begin=12, index_end=21, parsed=[_EscapeNode(key='name'), '!'])]
 
     """
@@ -140,7 +140,7 @@ class _EscapeNode(object):
         self.location = location
 
     def __repr__(self):
-        return _format(self)
+        return _format(self, exclude=['location'])
 
     def render(self, engine, context):
         s = engine.fetch_string(context, self.key, self.location)
@@ -215,7 +215,7 @@ class _SectionNode(object):
         self.location = location
 
     def __repr__(self):
-        return _format(self, exclude=['delimiters', 'template'])
+        return _format(self, exclude=['delimiters', 'template', 'location'])
 
     def render(self, engine, context):
         data = engine.fetch_section_data(context, self.key, self.location)

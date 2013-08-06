@@ -698,6 +698,11 @@ def x_test(args):
     return run_module_tests_with_args(modules, directories, args)
 
 
+def pystache_test(args):
+    """Run tests assocaited with pystache modules."""
+    return subprocess.call([sys.executable, os.path.join('prj', 'app', 'pystache', 'test_pystache.py')])
+
+
 def rtos_test(args):
     """Run rtos unit tests."""
     modules = ['rtos']
@@ -2214,6 +2219,7 @@ def main():
     SUBCOMMAND_TABLE = {
         'check-pep8': check_pep8,
         'prj-test': prj_test,
+        'pystache-test': pystache_test,
         'prj-build': prj_build,
         'build': build,
         'test-release': release_test,
@@ -2229,7 +2235,7 @@ def main():
     }
 
     # create the top-level parser
-    parser = argparse.ArgumentParser(prog='p')
+    parser = argparse.ArgumentParser(prog='x.py')
 
     subparsers = parser.add_subparsers(title='subcommands', dest='command')
 
@@ -2251,6 +2257,7 @@ def main():
                              default=False)
     subparsers.add_parser('prj-build', help='Build prj')
 
+    subparsers.add_parser('pystache-test', help='Test pystache')
     subparsers.add_parser('build-release', help='Build final release')
     subparsers.add_parser('test-release', help='Test final release')
     subparsers.add_parser('build-partials', help='Build partial release files')

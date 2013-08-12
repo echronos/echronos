@@ -913,7 +913,8 @@ class SourceModule(NamedModule):
         self.schema = None  # schema defaults to none
 
         # Determine what type of Module this is.
-        if filename.endswith('.c'):
+        extensions = ['.c', '.s']
+        if any([filename.endswith(ext) for ext in extensions]):
             # This is a very non-perfect comment extractor
             state = "find_open"
             content = []
@@ -1002,7 +1003,8 @@ class SourceModule(NamedModule):
 
         elif self.code_gen == 'template':
             # Create implementation file.
-            path = os.path.join(system.output, '%s.c' % os.path.basename(self.name))
+            ext = os.path.splitext(self.filename)[1]
+            path = os.path.join(system.output, '{}{}'.format(os.path.basename(self.name), ext))
             logger.info("Preparing: template %s -> %s (%s)", self.filename, path, config)
             pystache_render(self.filename, path, config)
             system.add_file(path)

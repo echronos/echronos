@@ -7,8 +7,6 @@
 
 /*| object_like_macros |*/
 
-/*| object_like_macros |*/
-
 /*| type_definitions |*/
 
 /*| structure_definitions |*/

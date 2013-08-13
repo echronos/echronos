@@ -973,6 +973,19 @@ def parse_sectioned_file(fn, config={}):
 
     { 'foo' : "foo data....", 'bar' : "bar data...." }
     """
+    expected_sections = ['headers',
+                         'public_type_definitions',
+                         'public_macros',
+                         'object_like_macros',
+                         'type_definitions',
+                         'structure_definitions',
+                         'extern_definitions',
+                         'state',
+                         'function_like_macros',
+                         'functions',
+                         'public_functions',
+    ]
+
     with open(fn) as f:
         sections = {}
         current_lines = None
@@ -988,6 +1001,10 @@ def parse_sectioned_file(fn, config={}):
 
     for key, value in sections.items():
         sections[key] = render_data('\n'.join(value).rstrip(), "{}: Section {}".format(fn, key), config)
+
+    for s in expected_sections:
+        if s not in sections:
+            raise Exception("Couldn't find exepcted section '{}' in file: '{}'".format(s, fn))
 
     return sections
 

@@ -1,5 +1,9 @@
 /*| headers |*/
 
+/*| public_type_definitions |*/
+
+/*| public_macros |*/
+
 /*| object_like_macros |*/
 
 /*| type_definitions |*/
@@ -14,6 +18,8 @@ struct sched {
     SchedIndex cur; /* The index of the currently scheduled task */
     struct sched_task tasks[{{num_tasks}}];
 };
+
+/*| extern_definitions |*/
 
 /*| state |*/
 static struct sched sched_tasks;
@@ -76,3 +82,5 @@ sched_get_next(void)
 
     return task;
 }
+
+/*| public_functions |*/

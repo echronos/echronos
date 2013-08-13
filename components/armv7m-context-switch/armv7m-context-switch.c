@@ -1,6 +1,10 @@
 /*| headers |*/
 #include <stdint.h>
 
+/*| public_type_definitions |*/
+
+/*| public_macros |*/
+
 /*| extern_definitions |*/
 extern void armv7m_context_switch(context_t *, context_t *);
 extern void armv7m_context_switch_first(context_t *);
@@ -22,6 +26,10 @@ extern void armv7m_trampoline(void);
 /*| type_definitions |*/
 typedef uint32_t* context_t;
 
+/*| structure_definitions |*/
+
+/*| state |*/
+
 /*| function_like_macros |*/
 #define context_switch(from, to) armv7m_context_switch(to, from)
 #define context_switch_first(to) armv7m_context_switch_first(to)
@@ -36,3 +44,5 @@ context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack
     context[CONTEXT_PC_IDX] = (uint32_t) armv7m_trampoline;
     *ctx = context;
 }
+
+/*| public_functions |*/

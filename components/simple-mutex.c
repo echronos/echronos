@@ -28,6 +28,8 @@ struct mutex {
 
 /*| extern_definitions |*/
 
+/*| function_definitions |*/
+
 /*| state |*/
 static struct mutex mutexes[{{num_mutexes}}];
 

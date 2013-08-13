@@ -1,11 +1,13 @@
-typedef uint{{taskid_size}}_t TaskId;
-typedef uint8_t MutexId;
+#ifndef RTOS_GATRIA_H
+#define RTOS_GATRIA_H
 
-void {{prefix}}yield_to(TaskId);
-void {{prefix}}yield(void);
-void {{prefix}}block(void);
-void {{prefix}}unblock(TaskId);
-void {{prefix}}start(void);
-void {{prefix}}mutex_lock(MutexId);
-bool {{prefix}}mutex_try_lock(MutexId);
-void {{prefix}}mutex_unlock(MutexId);
+#include <stdint.h>
+#include <stdbool.h>
+
+[[ALL.public_type_definitions]]
+
+[[ALL.public_macros]]
+
+[[ALL.public_function_definitions]]
+
+#endif /* RTOS_GATRIA_H */

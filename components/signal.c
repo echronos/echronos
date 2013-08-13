@@ -34,6 +34,9 @@ struct signal {
 
 /*| extern_definitions |*/
 
+/*| function_definitions |*/
+static SignalId _signal_recv(SignalSet *const cur_task_signals, const SignalSet mask);
+
 /*| state |*/
 static struct signal signal_tasks;
 

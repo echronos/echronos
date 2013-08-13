@@ -5,6 +5,9 @@
 
 /*| public_macros |*/
 
+/*| public_function_definitions |*/
+void {{prefix}}irq_event_raise(IrqEventId);
+
 /*| object_like_macros |*/
 
 /*| type_definitions |*/
@@ -12,6 +15,11 @@
 /*| structure_definitions |*/
 
 /*| extern_definitions |*/
+
+/*| function_definitions |*/
+static void irq_event_process(void);
+static inline bool irq_event_check(void);
+static inline void irq_event_wait(void);
 
 /*| state |*/
 VOLATILE_BITBAND_VAR(uint32_t, irq_event);

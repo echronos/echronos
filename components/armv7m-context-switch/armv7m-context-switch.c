@@ -5,10 +5,7 @@
 
 /*| public_macros |*/
 
-/*| extern_definitions |*/
-extern void armv7m_context_switch(context_t *, context_t *);
-extern void armv7m_context_switch_first(context_t *);
-extern void armv7m_trampoline(void);
+/*| public_function_definitions |*/
 
 /*| object_like_macros |*/
 #define CONTEXT_SIZE 10
@@ -27,6 +24,14 @@ extern void armv7m_trampoline(void);
 typedef uint32_t* context_t;
 
 /*| structure_definitions |*/
+
+/*| extern_definitions |*/
+extern void armv7m_context_switch(context_t *, context_t *);
+extern void armv7m_context_switch_first(context_t *);
+extern void armv7m_trampoline(void);
+
+/*| function_definitions |*/
+static void context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack_base, const size_t stack_size);
 
 /*| state |*/
 

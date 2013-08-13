@@ -4,6 +4,8 @@
 
 /*| public_macros |*/
 
+/*| public_function_definitions |*/
+
 /*| object_like_macros |*/
 
 /*| type_definitions |*/
@@ -20,6 +22,11 @@ struct sched {
 };
 
 /*| extern_definitions |*/
+
+/*| function_definitions |*/
+static void sched_set_runnable(const TaskId task_id);
+static void sched_set_blocked(const TaskId task_id);
+static [[#assume_runnable]]TaskId[[/assume_runnable]][[^assume_runnable]]TaskIdOption[[/assume_runnable]] sched_get_next(void);
 
 /*| state |*/
 static struct sched sched_tasks;

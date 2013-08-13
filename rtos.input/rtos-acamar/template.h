@@ -1,4 +1,13 @@
-typedef uint{{taskid_size}}_t TaskId;
+#ifndef RTOS_ACAMAR_H
+#define RTOS_ACAMAR_H
 
-void {{prefix}}yield_to(TaskId);
-void {{prefix}}start(void);
+#include <stdint.h>
+#include <stdbool.h>
+
+[[ALL.public_type_definitions]]
+
+[[ALL.public_macros]]
+
+[[ALL.public_function_definitions]]
+
+#endif /* RTOS_ACAMAR_H */

@@ -5,7 +5,7 @@
 
 /*| public_macros |*/
 
-/*| extern_definitions |*/
+/*| public_function_definitions |*/
 
 /*| object_like_macros |*/
 
@@ -13,6 +13,10 @@
 typedef ucontext_t context_t;
 
 /*| structure_definitions |*/
+
+/*| extern_definitions |*/
+
+/*| function_definitions |*/
 
 /*| state |*/
 

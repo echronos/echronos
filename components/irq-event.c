@@ -9,6 +9,8 @@ typedef uint{{irqeventid_size}}_t IrqEventId;
 #define IRQ_EVENT_ID_{{name}} {{idx}}
 {{/irq_events}}
 
+/*| public_function_definitions |*/
+
 /*| object_like_macros |*/
 
 /*| type_definitions |*/
@@ -16,6 +18,9 @@ typedef uint{{irqeventid_size}}_t IrqEventId;
 /*| structure_definitions |*/
 
 /*| extern_definitions |*/
+
+/*| function_definitions |*/
+static TaskId irq_event_get_next(void);
 
 /*| state |*/
 

@@ -54,13 +54,16 @@ directory.
 import sys
 import os
 
+# FIXME: Use correct declaration vs definition.
 EXPECTED_SECTIONS = ['headers',
                      'public_type_definitions',
                      'public_macros',
+                     'public_function_definitions',
                      'object_like_macros',
                      'type_definitions',
                      'structure_definitions',
                      'extern_definitions',
+                     'function_definitions',
                      'state',
                      'function_like_macros',
                      'functions',
@@ -2181,28 +2184,38 @@ class OverrideFunctor:
 
 
 CORE_ARCHITECTURES = {
-    'posix': Architecture('posix', {'stack_type': 'uint8_t'}),
-    'armv7m': Architecture('armv7m', {'stack_type': 'uint32_t'}),
+    'posix': Architecture('posix', {}),
+    'armv7m': Architecture('armv7m', {}),
 }
 
 
 CORE_SKELETONS = {
     'sched-rr-test': RtosSkeleton('sched-rr-test', [Component('sched', 'sched-rr', {'assume_runnable': False})]),
     'simple-mutex-test': RtosSkeleton('simple-mutex-test', [Component('mutex', 'simple-mutex')]),
-    'acamar': RtosSkeleton('acamar', [ArchitectureComponent('context_switch', 'context-switch')]),
-    'gatria': RtosSkeleton('gatria', [ArchitectureComponent('context_switch', 'context-switch'),
+    'acamar': RtosSkeleton('acamar', [Component('acamar'),
+                                      ArchitectureComponent('acamar_arch', 'acamar'),
+                                      ArchitectureComponent('context_switch', 'context-switch')]),
+    'gatria': RtosSkeleton('gatria', [Component('gatria'),
+                                      ArchitectureComponent('gatria_arch', 'gatria'),
+                                      ArchitectureComponent('context_switch', 'context-switch'),
                                       Component('sched', 'sched-rr', {'assume_runnable': True}),
                                       Component('mutex', 'simple-mutex')]),
-    'kraz': RtosSkeleton('kraz', [ArchitectureComponent('ctxt_switch', 'context-switch'),
+    'kraz': RtosSkeleton('kraz', [Component('kraz'),
+                                  ArchitectureComponent('kraz_arch', 'kraz'),
+                                  ArchitectureComponent('ctxt_switch', 'context-switch'),
                                   Component('sched', 'sched-rr', {'assume_runnable': True}),
                                   Component('signal'),
                                   Component('mutex', 'simple-mutex')]),
-    'acrux': RtosSkeleton('acrux', [ArchitectureComponent('ctxt_switch', 'context-switch'),
+    'acrux': RtosSkeleton('acrux', [Component('acrux'),
+                                    ArchitectureComponent('acrux_arch', 'acrux'),
+                                    ArchitectureComponent('ctxt_switch', 'context-switch'),
                                     Component('sched', 'sched-rr', {'assume_runnable': False}),
                                     ArchitectureComponent('irq_event_arch', 'irq-event'),
                                     Component('irq_event', 'irq-event'),
                                     Component('mutex', 'simple-mutex')]),
-    'rigel': RtosSkeleton('rigel', [ArchitectureComponent('ctxt_switch', 'context-switch'),
+    'rigel': RtosSkeleton('rigel', [Component('rigel'),
+                                    ArchitectureComponent('rigel_arch', 'rigel'),
+                                    ArchitectureComponent('ctxt_switch', 'context-switch'),
                                     Component('sched', 'sched-rr', {'assume_runnable': False}),
                                     Component('signal'),
                                     ArchitectureComponent('irq_event_arch', 'irq-event'),

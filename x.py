@@ -1111,17 +1111,14 @@ class RtosModule:
     def generate(self):
         """Generate the RTOS module to disk, so it is available as a compile and link unit to projects."""
         self._render()
-        self._copy_resources()
 
     def _render(self):
         render(base_path('rtos.input', self._module_name, 'template.c'),
                os.path.join(self._module_dir, 'entity.c'),
                self._configuration)
-
-    def _copy_resources(self):
-        for f in [self._module_name + '.h']:
-            shutil.copy(base_path('rtos.input', self._module_name, f),
-                        os.path.join(self._module_dir, f))
+        render(base_path('rtos.input', self._module_name, 'template.h'),
+               os.path.join(self._module_dir, self._module_name + '.h'),
+               self._configuration)
 
 
 def generate_rtos_module(skeleton, architectures):

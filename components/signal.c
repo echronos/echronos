@@ -1,5 +1,20 @@
 /*| headers |*/
 
+/*| public_type_definitions |*/
+typedef uint8_t SignalId;
+typedef uint{{signalset_size}}_t SignalSet;
+typedef SignalId SignalIdOption;
+
+/*| public_macros |*/
+#define SIGNAL_ID_C(x) ((SignalId) UINT8_C(x))
+#define SIGNAL_ID_NONE ((SignalIdOption) SIGNAL_ID_C(0xff))
+
+/*| public_function_definitions |*/
+SignalId {{prefix}}signal_wait_set(SignalSet signal_set);
+void {{prefix}}signal_send_set(TaskId task_id, SignalId signal_id);
+SignalIdOption {{prefix}}signal_poll_set(SignalSet signal_set);
+bool {{prefix}}signal_peek_set(SignalSet signal_set);
+
 /*| object_like_macros |*/
 
 /*| type_definitions |*/

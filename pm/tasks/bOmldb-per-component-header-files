@@ -1,0 +1,8 @@
+Task: bOmldb-per-component-header-files
+==============================================================================
+
+Goals
+--------
+
+The aim of this task is to allow components to contribute to the header files in the same way that they contribute to source files.
+This will allow greater flexibility in the overall RTOS generation procedure.

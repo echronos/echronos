@@ -170,6 +170,56 @@ def show_exit(exit_code):
         return "signal: {}".format(SIG_NAMES.get(sig_num, 'Unknown signal {}'.format(sig_num)))
 
 
+def sort_typedefs(typedef_lines):
+    """Given a string containing multiple lines of typedefs, sort the lines so that the typedefs are in the 'correct'
+    order.
+
+    The typedef lines must only contain typedefs.
+    No comments or other data is allowed.
+    Blank lines are allowed, but will be ommited from the output.
+
+    The correct order for typedefs is on such that if typedef 'b' is defined in terms of typedef 'a', typedef 'a' will
+    appear first in the sorted output.
+
+    """
+
+    typedefs = []
+    for l in typedef_lines.split('\n'):
+        if l == '':
+            continue
+        if not l.endswith(';'):
+            raise Exception("Expect a typedef line to end with ';' ({})".format(l))
+        parts = l[:-1].split()
+        if not parts[0] == 'typedef':
+            raise Exception("Expect typedef line to startwith 'typedef'")
+        new_type = parts[-1]
+        old_type = ' '.join(parts[1:-1])
+        typedefs.append((new_type, old_type))
+
+
+    new_types = [new for (new, _) in typedefs]
+    r = []
+
+    # First put in any types that don't cross reference.
+    #  we assume they are defined in other headers.
+    for (new, old) in typedefs[:]:
+        if old not in new_types:
+            r.append((new, old))
+            typedefs.remove((new, old))
+
+    # Now, for each new type
+    i = 0
+    while i < len(r):
+        check_type = r[i][0]
+        i += 1
+        for (new, old) in typedefs[:]:
+            if old == check_type:
+                r.append((new, old))
+                typedefs.remove((new, old))
+
+    return '\n'.join(['typedef {} {};'.format(old, new) for (new, old) in r])
+
+
 @contextmanager
 def chdir(path):
     """Current-working directory context manager.
@@ -1152,14 +1202,22 @@ class RtosModule:
         with open(source_output, 'w') as f:
             f.write(self._schema)
             for ss in source_sections:
-                f.write(self._configuration['ALL'][ss])
+                if ss == 'type_definitions':
+                    data = sort_typedefs(self._configuration['ALL'][ss])
+                else:
+                    data = self._configuration['ALL'][ss]
+                f.write(data)
                 f.write('\n')
         with open(header_output, 'w') as f:
             mod_name = self._module_name.upper().replace('-', '_')
             f.write("#ifndef {}_H\n".format(mod_name))
             f.write("#define {}_H\n".format(mod_name))
             for ss in header_sections:
-                f.write(self._configuration['ALL'][ss])
+                if ss == 'public_type_definitions':
+                    data = sort_typedefs(self._configuration['ALL'][ss])
+                else:
+                    data = self._configuration['ALL'][ss]
+                f.write(data)
                 f.write('\n')
             f.write("\n#endif /* {}_H */".format(mod_name))
 

@@ -20,12 +20,12 @@ bool {{prefix}}signal_peek_set(SignalSet signal_set);
 /*| headers |*/
 
 /*| object_like_macros |*/
-
-/*| type_definitions |*/
 /* Sanity check; should be impossible (since there is no uint256_t!) */
 #if {{signalset_size}} > UINT8_MAX
 #  error "signalset_size ({{signalset_size}}) is greater than UINT8_MAX"
 #endif
+
+/*| type_definitions |*/
 
 /*| structure_definitions |*/
 struct signal_task {

@@ -1,4 +1,5 @@
-/*| headers |*/
+/*| public_headers |*/
+#include <stdint.h>
 
 /*| public_type_definitions |*/
 typedef uint{{taskid_size}}_t TaskId;
@@ -8,6 +9,9 @@ typedef uint{{taskid_size}}_t TaskId;
 /*| public_function_definitions |*/
 void {{prefix}}yield_to(TaskId);
 void {{prefix}}start(void);
+
+/*| headers |*/
+#include "rtos-acamar.h"
 
 /*| object_like_macros |*/
 #define TASK_ID_ZERO ((TaskId) 0)

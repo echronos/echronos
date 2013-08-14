@@ -1,10 +1,22 @@
-/*| headers |*/
+/*| public_headers |*/
+#include <stdint.h>
+
 
 /*| public_type_definitions |*/
+typedef uint{{taskid_size}}_t TaskId;
 
 /*| public_macros |*/
 
 /*| public_function_definitions |*/
+void {{prefix}}yield_to(TaskId to);
+void {{prefix}}yield(void);
+void {{prefix}}block(void);
+void {{prefix}}unblock(TaskId task);
+void {{prefix}}start(void);
+
+/*| headers |*/
+#include <stdbool.h>
+#include "rtos-acrux.h"
 
 /*| object_like_macros |*/
 #define TASK_ID_ZERO ((TaskId) 0u)

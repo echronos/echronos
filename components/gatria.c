@@ -1,4 +1,5 @@
-/*| headers |*/
+/*| public_headers |*/
+#include <stdint.h>
 
 /*| public_type_definitions |*/
 typedef uint{{taskid_size}}_t TaskId;
@@ -11,6 +12,10 @@ void {{prefix}}yield(void);
 void {{prefix}}block(void);
 void {{prefix}}unblock(TaskId);
 void {{prefix}}start(void);
+
+/*| headers |*/
+#include <stdint.h>
+#include "rtos-gatria.h"
 
 /*| object_like_macros |*/
 #define TASK_ID_ZERO ((TaskId) 0)

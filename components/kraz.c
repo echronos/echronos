@@ -1,10 +1,18 @@
-/*| headers |*/
+/*| public_headers |*/
+#include <stdint.h>
 
 /*| public_type_definitions |*/
+typedef uint{{taskid_size}}_t TaskId;
 
 /*| public_macros |*/
 
 /*| public_function_definitions |*/
+void {{prefix}}yield(void);
+void {{prefix}}start(void);
+
+/*| headers |*/
+#include <stdint.h>
+#include "rtos-kraz.h"
 
 /*| object_like_macros |*/
 #define TASK_ID_ZERO ((TaskId) 0)

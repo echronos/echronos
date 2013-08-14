@@ -1,4 +1,5 @@
-/*| headers |*/
+/*| public_headers |*/
+#include <stdint.h>
 
 /*| public_type_definitions |*/
 typedef uint{{taskid_size}}_t TaskId;
@@ -15,6 +16,9 @@ typedef uint{{taskid_size}}_t TaskId;
 /*| public_function_definitions |*/
 void {{prefix}}start(void);
 void {{prefix}}yield(void);
+
+/*| headers |*/
+#include "rtos-rigel.h"
 
 /*| object_like_macros |*/
 #define TASK_ID_ZERO ((TaskId) 0u)

@@ -1,5 +1,4 @@
-/*| headers |*/
-#include "bitband.h"
+/*| public_headers |*/
 
 /*| public_type_definitions |*/
 
@@ -7,6 +6,9 @@
 
 /*| public_function_definitions |*/
 void {{prefix}}irq_event_raise(IrqEventId);
+
+/*| headers |*/
+#include "bitband.h"
 
 /*| object_like_macros |*/
 

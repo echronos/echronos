@@ -1,3 +1,5 @@
+/*| public_headers |*/
+
 /*| headers |*/
 
 /*| public_type_definitions |*/

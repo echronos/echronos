@@ -1,4 +1,6 @@
-/*| headers |*/
+/*| public_headers |*/
+#include <stdbool.h>
+#include <stdint.h>
 
 /*| public_type_definitions |*/
 typedef uint8_t SignalId;
@@ -14,6 +16,8 @@ SignalId {{prefix}}signal_wait_set(SignalSet signal_set);
 void {{prefix}}signal_send_set(TaskId task_id, SignalId signal_id);
 SignalIdOption {{prefix}}signal_poll_set(SignalSet signal_set);
 bool {{prefix}}signal_peek_set(SignalSet signal_set);
+
+/*| headers |*/
 
 /*| object_like_macros |*/
 

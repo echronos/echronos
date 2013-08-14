@@ -1,4 +1,4 @@
-/*| headers |*/
+/*| public_headers |*/
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -15,6 +15,8 @@ typedef uint8_t MutexId;
 void {{prefix}}mutex_lock(MutexId);
 bool {{prefix}}mutex_try_lock(MutexId);
 void {{prefix}}mutex_unlock(MutexId);
+
+/*| headers |*/
 
 /*| object_like_macros |*/
 

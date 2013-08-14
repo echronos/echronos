@@ -1,4 +1,5 @@
-/*| headers |*/
+/*| public_headers |*/
+#include <stdint.h>
 
 /*| public_type_definitions |*/
 typedef uint{{irqeventid_size}}_t IrqEventId;
@@ -10,6 +11,8 @@ typedef uint{{irqeventid_size}}_t IrqEventId;
 {{/irq_events}}
 
 /*| public_function_definitions |*/
+
+/*| headers |*/
 
 /*| object_like_macros |*/
 

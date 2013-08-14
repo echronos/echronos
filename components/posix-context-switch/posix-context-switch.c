@@ -1,11 +1,13 @@
-/*| headers |*/
-#include <ucontext.h>
+/*| public_headers |*/
 
 /*| public_type_definitions |*/
 
 /*| public_macros |*/
 
 /*| public_function_definitions |*/
+
+/*| headers |*/
+#include <ucontext.h>
 
 /*| object_like_macros |*/
 

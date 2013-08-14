@@ -55,10 +55,11 @@ import sys
 import os
 
 # FIXME: Use correct declaration vs definition.
-EXPECTED_SECTIONS = ['headers',
+EXPECTED_SECTIONS = ['public_headers',
                      'public_type_definitions',
                      'public_macros',
                      'public_function_definitions',
+                     'headers',
                      'object_like_macros',
                      'type_definitions',
                      'structure_definitions',
@@ -1049,7 +1050,7 @@ class RtosSkeleton:
     This class encapsulates the act of deriving an RtosModule for a specific configuration and target architecture.
 
     """
-    def __init__(self, name, components, configuration={}):
+    def __init__(self, name, schema, components, configuration={}):
         """Create an RTOS skeleton based on its core properties.
 
         'name', a string, is the unique name of the RTOS skeleton.
@@ -1064,6 +1065,7 @@ class RtosSkeleton:
         assert isinstance(components, list)
         assert isinstance(configuration, dict)
         self.name = name
+        self.schema = schema
         self._components = components
         self._configuration = configuration
 
@@ -1095,7 +1097,7 @@ class RtosSkeleton:
         This is only a convenience function.
 
         """
-        return RtosModule(self.name, arch, self.get_module_configuration(arch))
+        return RtosModule(self.name, self.schema, arch, self.get_module_configuration(arch))
 
 
 class RtosModule:
@@ -1105,7 +1107,7 @@ class RtosModule:
     This class encapsulates the act of rendering an RTOS template given an RTOS configuration into a module on disk.
 
     """
-    def __init__(self, name, arch, configuration):
+    def __init__(self, name, schema, arch, configuration):
         """Create an RtosModule instance.
 
         'name', a string, is the name of the RTOS, i.e., the same as the underlying RtosSkeleton.
@@ -1121,6 +1123,7 @@ class RtosModule:
         assert isinstance(configuration, dict)
         self._name = name
         self._arch = arch
+        self._schema = schema
         self._configuration = configuration
 
     @property
@@ -1138,12 +1141,28 @@ class RtosModule:
         self._render()
 
     def _render(self):
-        render(base_path('rtos.input', self._module_name, 'template.c'),
-               os.path.join(self._module_dir, 'entity.c'),
-               self._configuration)
-        render(base_path('rtos.input', self._module_name, 'template.h'),
-               os.path.join(self._module_dir, self._module_name + '.h'),
-               self._configuration)
+        source_output = os.path.join(self._module_dir, 'entity.c')
+        header_output = os.path.join(self._module_dir, self._module_name + '.h')
+        source_sections = ['headers', 'object_like_macros',
+                           'type_definitions', 'structure_definitions',
+                           'extern_definitions', 'function_definitions',
+                           'state', 'function_like_macros',
+                           'functions', 'public_functions']
+        header_sections = ['public_headers', 'public_type_definitions',
+                           'public_macros', 'public_function_definitions']
+        with open(source_output, 'w') as f:
+            f.write(self._schema)
+            for ss in source_sections:
+                f.write(self._configuration['ALL'][ss])
+                f.write('\n')
+        with open(header_output, 'w') as f:
+            mod_name = self._module_name.upper().replace('-', '_')
+            f.write("#ifndef {}_H\n".format(mod_name))
+            f.write("#define {}_H\n".format(mod_name))
+            for ss in header_sections:
+                f.write(self._configuration['ALL'][ss])
+                f.write('\n')
+            f.write("\n#endif /* {}_H */".format(mod_name))
 
 
 def generate_rtos_module(skeleton, architectures):
@@ -2189,38 +2208,194 @@ CORE_ARCHITECTURES = {
 }
 
 
+sched_rr_test_schema = """/*<module>
+  <code_gen>template</code_gen>
+  <schema>
+   <entry name="num_tasks" type="int"/>
+  </schema>
+</module>*/"""
+
+simple_mutex_test_schema = """/*<module>
+  <code_gen>template</code_gen>
+  <headers>
+    <header path="rtos-simple-mutex-test.h" code_gen="template" />
+  </headers>
+  <schema>
+   <entry name="num_mutexes" type="int"/>
+   <entry name="prefix" type="c_ident" default="rtos_" />
+  </schema>
+</module>*/
+"""
+
+acamar_schema = """/*<module>
+  <code_gen>template</code_gen>
+  <headers>
+    <header path="rtos-acamar.h" code_gen="template" />
+  </headers>
+  <schema>
+   <entry name="taskid_size" type="int" default="8"/>
+   <entry name="num_tasks" type="int"/>
+   <entry name="prefix" type="c_ident" default="rtos_" />
+   <entry name="tasks" type="list">
+     <entry name="task" type="dict">
+      <entry name="idx" type="int" />
+      <entry name="entry" type="c_ident" />
+      <entry name="name" type="c_ident" />
+      <entry name="stack_size" type="int" />
+     </entry>
+   </entry>
+  </schema>
+</module>*/
+"""
+
+gatria_schema = """/*<module>
+  <code_gen>template</code_gen>
+  <headers>
+    <header path="rtos-gatria.h" code_gen="template" />
+  </headers>
+  <schema>
+   <entry name="taskid_size" type="int" default="8"/>
+   <entry name="num_tasks" type="int"/>
+   <entry name="num_mutexes" type="int"/>
+   <entry name="prefix" type="c_ident" default="rtos_" />
+   <entry name="tasks" type="list">
+     <entry name="task" type="dict">
+      <entry name="idx" type="int" />
+      <entry name="entry" type="c_ident" />
+      <entry name="name" type="c_ident" />
+      <entry name="stack_size" type="int" />
+     </entry>
+   </entry>
+   <entry name="mutexes" type="list">
+     <entry name="mutex" type="dict">
+      <entry name="idx" type="int" />
+      <entry name="name" type="c_ident" />
+     </entry>
+   </entry>
+  </schema>
+</module>*/
+"""
+
+kraz_schema = """/*<module>
+  <code_gen>template</code_gen>
+  <headers>
+    <header path="rtos-kraz.h" code_gen="template" />
+  </headers>
+  <schema>
+   <entry name="taskid_size" type="int" default="8"/>
+   <entry name="signalset_size" type="int" default="8"/>
+   <entry name="num_tasks" type="int"/>
+   <entry name="num_mutexes" type="int"/>
+   <entry name="prefix" type="c_ident" default="rtos_" />
+   <entry name="tasks" type="list">
+     <entry name="task" type="dict">
+      <entry name="idx" type="int" />
+      <entry name="entry" type="c_ident" />
+      <entry name="name" type="c_ident" />
+      <entry name="stack_size" type="int" />
+     </entry>
+   </entry>
+   <entry name="mutexes" type="list">
+     <entry name="mutex" type="dict">
+      <entry name="idx" type="int" />
+      <entry name="name" type="c_ident" />
+     </entry>
+   </entry>
+  </schema>
+</module>*/
+"""
+
+acrux_schema = """/*<module>
+  <code_gen>template</code_gen>
+  <headers>
+    <header path="rtos-acrux.h" code_gen="template" />
+  </headers>
+  <schema>
+   <entry name="taskid_size" type="int" default="8"/>
+   <entry name="irqeventid_size" type="int" default="8"/>
+   <entry name="num_tasks" type="int"/>
+   <entry name="num_mutexes" type="int"/>
+   <entry name="prefix" type="c_ident" default="rtos_" />
+   <entry name="tasks" type="list">
+     <entry name="task" type="dict">
+      <entry name="idx" type="int" />
+      <entry name="entry" type="c_ident" />
+      <entry name="name" type="c_ident" />
+      <entry name="stack_size" type="int" />
+     </entry>
+   </entry>
+   <entry name="irq_events" type="list">
+     <entry name="irq_event" type="dict">
+      <entry name="idx" type="int" />
+      <entry name="name" type="c_ident" />
+     </entry>
+   </entry>
+   <entry name="mutexes" type="list">
+     <entry name="mutex" type="dict">
+      <entry name="idx" type="int" />
+      <entry name="name" type="c_ident" />
+     </entry>
+   </entry>
+  </schema>
+</module>*/
+"""
+
+rigel_schema = """/*<module>
+  <code_gen>template</code_gen>
+  <headers>
+    <header path="rtos-rigel.h" code_gen="template" />
+  </headers>
+</module>*/
+"""
+
+
 CORE_SKELETONS = {
-    'sched-rr-test': RtosSkeleton('sched-rr-test', [Component('sched', 'sched-rr', {'assume_runnable': False})]),
-    'simple-mutex-test': RtosSkeleton('simple-mutex-test', [Component('mutex', 'simple-mutex')]),
-    'acamar': RtosSkeleton('acamar', [Component('acamar'),
-                                      ArchitectureComponent('acamar_arch', 'acamar'),
-                                      ArchitectureComponent('context_switch', 'context-switch')]),
-    'gatria': RtosSkeleton('gatria', [Component('gatria'),
-                                      ArchitectureComponent('gatria_arch', 'gatria'),
-                                      ArchitectureComponent('context_switch', 'context-switch'),
-                                      Component('sched', 'sched-rr', {'assume_runnable': True}),
-                                      Component('mutex', 'simple-mutex')]),
-    'kraz': RtosSkeleton('kraz', [Component('kraz'),
-                                  ArchitectureComponent('kraz_arch', 'kraz'),
-                                  ArchitectureComponent('ctxt_switch', 'context-switch'),
-                                  Component('sched', 'sched-rr', {'assume_runnable': True}),
-                                  Component('signal'),
-                                  Component('mutex', 'simple-mutex')]),
-    'acrux': RtosSkeleton('acrux', [Component('acrux'),
-                                    ArchitectureComponent('acrux_arch', 'acrux'),
-                                    ArchitectureComponent('ctxt_switch', 'context-switch'),
-                                    Component('sched', 'sched-rr', {'assume_runnable': False}),
-                                    ArchitectureComponent('irq_event_arch', 'irq-event'),
-                                    Component('irq_event', 'irq-event'),
-                                    Component('mutex', 'simple-mutex')]),
-    'rigel': RtosSkeleton('rigel', [Component('rigel'),
-                                    ArchitectureComponent('rigel_arch', 'rigel'),
-                                    ArchitectureComponent('ctxt_switch', 'context-switch'),
-                                    Component('sched', 'sched-rr', {'assume_runnable': False}),
-                                    Component('signal'),
-                                    ArchitectureComponent('irq_event_arch', 'irq-event'),
-                                    Component('irq_event', 'irq-event'),
-                                    Component('mutex', 'simple-mutex')]),
+    'sched-rr-test': RtosSkeleton(
+        'sched-rr-test', sched_rr_test_schema,
+        [Component('sched', 'sched-rr', {'assume_runnable': False})]),
+    'simple-mutex-test': RtosSkeleton(
+        'simple-mutex-test', simple_mutex_test_schema,
+        [Component('mutex', 'simple-mutex')]),
+    'acamar': RtosSkeleton(
+        'acamar', acamar_schema,
+        [Component('acamar'),
+         ArchitectureComponent('acamar_arch', 'acamar'),
+         ArchitectureComponent('context_switch', 'context-switch')]),
+    'gatria': RtosSkeleton(
+        'gatria', gatria_schema,
+        [Component('gatria'),
+         ArchitectureComponent('gatria_arch', 'gatria'),
+         ArchitectureComponent('context_switch', 'context-switch'),
+         Component('sched', 'sched-rr', {'assume_runnable': True}),
+         Component('mutex', 'simple-mutex')]),
+    'kraz': RtosSkeleton(
+        'kraz', kraz_schema,
+        [Component('kraz'),
+         ArchitectureComponent('kraz_arch', 'kraz'),
+         ArchitectureComponent('ctxt_switch', 'context-switch'),
+         Component('sched', 'sched-rr', {'assume_runnable': True}),
+         Component('signal'),
+         Component('mutex', 'simple-mutex')]),
+    'acrux': RtosSkeleton(
+        'acrux', acrux_schema,
+        [Component('acrux'),
+         ArchitectureComponent('acrux_arch', 'acrux'),
+         ArchitectureComponent('ctxt_switch', 'context-switch'),
+         Component('sched', 'sched-rr', {'assume_runnable': False}),
+         ArchitectureComponent('irq_event_arch', 'irq-event'),
+         Component('irq_event', 'irq-event'),
+         Component('mutex', 'simple-mutex')]),
+    'rigel': RtosSkeleton(
+        'rigel', rigel_schema,
+        [Component('rigel'),
+         ArchitectureComponent('rigel_arch', 'rigel'),
+         ArchitectureComponent('ctxt_switch', 'context-switch'),
+         Component('sched', 'sched-rr', {'assume_runnable': False}),
+         Component('signal'),
+         ArchitectureComponent('irq_event_arch', 'irq-event'),
+         Component('irq_event', 'irq-event'),
+         Component('mutex', 'simple-mutex')],
+    ),
 }
 
 

@@ -19,6 +19,7 @@ typedef ucontext_t context_t;
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
+static void context_init(context_t *const ctx, void (*const fn)(void), uint8_t *const stack_base, const size_t stack_size);
 
 /*| state |*/
 

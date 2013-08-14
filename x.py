@@ -1120,13 +1120,12 @@ class RtosSkeleton:
         # adopt architecture-specific configuration information
         configuration = arch.configuration.copy()
         # adopt the configuration information derived from the components of this RTOS variant
-        component_sections = {c.name: c.parse(arch) for c in self._components}
-        configuration.update(component_sections)
         # adopt the configuration information intrinsic to this specific RTOS variant
         configuration.update(self._configuration)
 
-        configuration['ALL'] = {s: '\n'.join(c[s] for c in component_sections.values())
-                                for s in EXPECTED_SECTIONS}
+        component_sections = [c.parse(arch) for c in self._components]
+        configuration['sections'] = {s: '\n'.join(c[s] for c in component_sections)
+                                     for s in EXPECTED_SECTIONS}
 
         return configuration
 
@@ -1190,13 +1189,14 @@ class RtosModule:
         header_sections = ['public_headers', 'public_type_definitions',
                            'public_object_like_macros', 'public_function_like_macros',
                            'public_extern_definitions', 'public_function_definitions']
+        sections = self._configuration['sections']
         with open(source_output, 'w') as f:
             f.write(self._schema)
             for ss in source_sections:
                 if ss == 'type_definitions':
-                    data = sort_typedefs(self._configuration['ALL'][ss])
+                    data = sort_typedefs(sections[ss])
                 else:
-                    data = self._configuration['ALL'][ss]
+                    data = sections[ss]
                 f.write(data)
                 f.write('\n')
         with open(header_output, 'w') as f:
@@ -1205,9 +1205,9 @@ class RtosModule:
             f.write("#define {}_H\n".format(mod_name))
             for ss in header_sections:
                 if ss == 'public_type_definitions':
-                    data = sort_typedefs(self._configuration['ALL'][ss])
+                    data = sections[ss]
                 else:
-                    data = self._configuration['ALL'][ss]
+                    data = sections[ss]
                 f.write(data)
                 f.write('\n')
             f.write("\n#endif /* {}_H */".format(mod_name))

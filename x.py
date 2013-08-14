@@ -1524,14 +1524,18 @@ def release_test_one(archive):
                 raise RuntimeError("Release archive does not extract into top directory with the same name as the "
                                    "base name of the archive ({})".format(release_dir))
             with chdir(release_dir):
-                os.system("./{}/bin/prj".format(platform))
+                cmd = "./{}/bin/prj".format(platform)
+                try:
+                    subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
+                except subprocess.CalledProcessError as e:
+                    if e.returncode != 1:
+                        raise e
                 pkgs = []
                 pkg_root = './share/packages/'
                 for root, _dir, files in os.walk(pkg_root):
                     for f in files:
                         if f.endswith('.prx'):
                             pkg = os.path.join(root, f)[len(pkg_root):-4].replace(os.sep, '.')
-                            print(pkg)
                             pkgs.append((pkg, os.path.join(root, f)))
                 with open('project.prj', 'w') as f:
                     f.write(project_prj_template.format(pkg_root))

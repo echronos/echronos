@@ -4,7 +4,11 @@
 /*| public_type_definitions |*/
 typedef uint{{taskid_size}}_t TaskId;
 
-/*| public_macros |*/
+/*| public_object_like_macros |*/
+
+/*| public_function_like_macros |*/
+
+/*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
 void {{prefix}}yield_to(TaskId);

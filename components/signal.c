@@ -7,9 +7,13 @@ typedef uint8_t SignalId;
 typedef uint{{signalset_size}}_t SignalSet;
 typedef SignalId SignalIdOption;
 
-/*| public_macros |*/
+/*| public_object_like_macros |*/
 #define SIGNAL_ID_C(x) ((SignalId) UINT8_C(x))
 #define SIGNAL_ID_NONE ((SignalIdOption) SIGNAL_ID_C(0xff))
+
+/*| public_function_like_macros |*/
+
+/*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
 SignalId {{prefix}}signal_wait_set(SignalSet signal_set);

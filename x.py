@@ -57,7 +57,9 @@ import os
 # FIXME: Use correct declaration vs definition.
 EXPECTED_SECTIONS = ['public_headers',
                      'public_type_definitions',
-                     'public_macros',
+                     'public_object_like_macros',
+                     'public_function_like_macros',
+                     'public_extern_definitions',
                      'public_function_definitions',
                      'headers',
                      'object_like_macros',
@@ -1198,7 +1200,8 @@ class RtosModule:
                            'state', 'function_like_macros',
                            'functions', 'public_functions']
         header_sections = ['public_headers', 'public_type_definitions',
-                           'public_macros', 'public_function_definitions']
+                           'public_object_like_macros', 'public_function_like_macros',
+                           'public_extern_definitions', 'public_function_definitions']
         with open(source_output, 'w') as f:
             f.write(self._schema)
             for ss in source_sections:

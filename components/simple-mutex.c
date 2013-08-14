@@ -6,11 +6,15 @@
 /*| public_type_definitions |*/
 typedef uint8_t MutexId;
 
-/*| public_macros |*/
+/*| public_object_like_macros |*/
 #define MUTEX_ID_C(x) ((MutexId) UINT8_C(x))
 {{#mutexes}}
 #define MUTEX_ID_{{name}} MUTEX_ID_C({{idx}})
 {{/mutexes}}
+
+/*| public_function_like_macros |*/
+
+/*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
 void {{prefix}}mutex_lock(MutexId);

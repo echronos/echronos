@@ -4,7 +4,7 @@
 /*| public_type_definitions |*/
 typedef uint{{taskid_size}}_t TaskId;
 
-/*| public_macros |*/
+/*| public_object_like_macros |*/
 {{#tasks}}
 #define TASK_ID_{{name}} {{idx}}
 {{/tasks}}
@@ -12,6 +12,10 @@ typedef uint{{taskid_size}}_t TaskId;
 {{#irq_events}}
 #define SIGNAL_SET_IRQ_{{name}} {{sig_set}}
 {{/irq_events}}
+
+/*| public_function_like_macros |*/
+
+/*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
 void {{prefix}}start(void);

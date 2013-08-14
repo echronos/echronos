@@ -2359,19 +2359,19 @@ CORE_SKELETONS = {
     'acamar': RtosSkeleton(
         'acamar', acamar_schema,
         [Component('acamar'),
-         ArchitectureComponent('acamar_arch', 'acamar'),
+         ArchitectureComponent('stack', 'stack'),
          ArchitectureComponent('context_switch', 'context-switch')]),
     'gatria': RtosSkeleton(
         'gatria', gatria_schema,
         [Component('gatria'),
-         ArchitectureComponent('gatria_arch', 'gatria'),
+         ArchitectureComponent('stack', 'stack'),
          ArchitectureComponent('context_switch', 'context-switch'),
          Component('sched', 'sched-rr', {'assume_runnable': True}),
          Component('mutex', 'simple-mutex')]),
     'kraz': RtosSkeleton(
         'kraz', kraz_schema,
         [Component('kraz'),
-         ArchitectureComponent('kraz_arch', 'kraz'),
+         ArchitectureComponent('stack', 'stack'),
          ArchitectureComponent('ctxt_switch', 'context-switch'),
          Component('sched', 'sched-rr', {'assume_runnable': True}),
          Component('signal'),
@@ -2379,7 +2379,7 @@ CORE_SKELETONS = {
     'acrux': RtosSkeleton(
         'acrux', acrux_schema,
         [Component('acrux'),
-         ArchitectureComponent('acrux_arch', 'acrux'),
+         ArchitectureComponent('stack', 'stack'),
          ArchitectureComponent('ctxt_switch', 'context-switch'),
          Component('sched', 'sched-rr', {'assume_runnable': False}),
          ArchitectureComponent('irq_event_arch', 'irq-event'),
@@ -2388,7 +2388,7 @@ CORE_SKELETONS = {
     'rigel': RtosSkeleton(
         'rigel', rigel_schema,
         [Component('rigel'),
-         ArchitectureComponent('rigel_arch', 'rigel'),
+         ArchitectureComponent('stack', 'stack'),
          ArchitectureComponent('ctxt_switch', 'context-switch'),
          Component('sched', 'sched-rr', {'assume_runnable': False}),
          Component('signal'),

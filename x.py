@@ -1532,13 +1532,29 @@ def release_test_one(archive):
                         if f.endswith('.prx'):
                             pkg = os.path.join(root, f)[len(pkg_root):-4].replace(os.sep, '.')
                             print(pkg)
-                            pkgs.append(pkg)
+                            pkgs.append((pkg, os.path.join(root, f)))
                 with open('project.prj', 'w') as f:
                     f.write(project_prj_template.format(pkg_root))
-                for pkg in pkgs:
-                    x = os.system("./{}/bin/prj build {}".format(platform, pkg))
-                    if x != 0:
-                        raise Exception("Build failed.")
+                for pkg, f in pkgs:
+                    cmd = "./{}/bin/prj build {}".format(platform, pkg)
+                    try:
+                        subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
+                    except subprocess.CalledProcessError as e:
+                        err_str = None
+                        for l in e.output.splitlines():
+                            l = l.decode()
+                            if l.startswith('ERROR'):
+                                err_str = l
+                                break
+                        if err_str is None:
+                            print(e.output)
+                            raise e
+                        elif 'missing or contains multiple Builder modules' in err_str:
+                            pass
+                        else:
+                            print("Unexpected error:", err_str)
+                            raise e
+
 
 
 def release_test(args):

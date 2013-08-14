@@ -4,6 +4,8 @@
 /*| public_type_definitions |*/
 typedef uint{{taskid_size}}_t TaskId;
 
+/*| public_structure_definitions |*/
+
 /*| public_object_like_macros |*/
 {{#tasks}}
 #define TASK_ID_{{name}} {{idx}}

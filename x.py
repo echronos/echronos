@@ -198,7 +198,6 @@ def sort_typedefs(typedef_lines):
         old_type = ' '.join(parts[1:-1])
         typedefs.append((new_type, old_type))
 
-
     new_types = [new for (new, _) in typedefs]
     r = []
 

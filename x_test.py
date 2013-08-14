@@ -26,10 +26,10 @@ def test_git_branch_date():
     assert INITIAL_TIME == g.branch_date(INITIAL_COMMIT)
 
 
-def test_sort_types():
+def test_sort_typedefs():
     typedefs = ['typedef uint8_t foo;',
                 'typedef foo bar;',
                 'typedef bar baz;']
     expected = '\n'.join(typedefs)
     for x in itertools.permutations(typedefs):
-        assert sort_types('\n'.join(x)) == expected
+        assert sort_typedefs('\n'.join(x)) == expected

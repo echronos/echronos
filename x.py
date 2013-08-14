@@ -1108,26 +1108,13 @@ class RtosSkeleton:
         self._components = components
         self._configuration = configuration
 
-    def get_module_configuration(self, arch):
-        """Retrieve the configuration information necessary to generate an RtosModule from this skeleton.
-
-        The result is a dictionary that is the union of the skeleton's base configuration, the configuration obtained
-        from parsing this skeleton's components, and the architecture-specific configuration contained in the 'arch'
-        parameter.
+    def get_module_sections(self, arch):
+        """Retrieve the sections necessary to generate an RtosModule from this skeleton.
 
         """
-        assert isinstance(arch, Architecture)
-        # adopt architecture-specific configuration information
-        configuration = arch.configuration.copy()
-        # adopt the configuration information derived from the components of this RTOS variant
-        # adopt the configuration information intrinsic to this specific RTOS variant
-        configuration.update(self._configuration)
-
         component_sections = [c.parse(arch) for c in self._components]
-        configuration['sections'] = {s: '\n'.join(c[s] for c in component_sections)
-                                     for s in EXPECTED_SECTIONS}
-
-        return configuration
+        return  {s: '\n'.join(c[s] for c in component_sections)
+                 for s in EXPECTED_SECTIONS}
 
     def create_configured_module(self, arch):
         """Retrieve module configuration information and create a corresponding RtosModule instance.
@@ -1135,7 +1122,7 @@ class RtosSkeleton:
         This is only a convenience function.
 
         """
-        return RtosModule(self.name, self.schema, arch, self.get_module_configuration(arch))
+        return RtosModule(self.name, self.schema, arch, self.get_module_sections(arch))
 
 
 class RtosModule:
@@ -1145,24 +1132,24 @@ class RtosModule:
     This class encapsulates the act of rendering an RTOS template given an RTOS configuration into a module on disk.
 
     """
-    def __init__(self, name, schema, arch, configuration):
+    def __init__(self, name, schema, arch, sections):
         """Create an RtosModule instance.
 
         'name', a string, is the name of the RTOS, i.e., the same as the underlying RtosSkeleton.
 
         'arch', an instance of Architecture, is the architecture this module is targetted for.
 
-        'configuration', a dictionary, contains the complete information necessary to render the RTOS template.
+        'sections', a dictionary, containing all the merged sections from the RTOS components.
         It is typically obtained via RtosSkeleton.get_module_configuration().
 
         """
         assert isinstance(name, str)
         assert isinstance(arch, Architecture)
-        assert isinstance(configuration, dict)
+        assert isinstance(sections, dict)
         self._name = name
         self._arch = arch
         self._schema = schema
-        self._configuration = configuration
+        self._sections = sections
 
     @property
     def _module_name(self):
@@ -1189,7 +1176,7 @@ class RtosModule:
         header_sections = ['public_headers', 'public_type_definitions',
                            'public_object_like_macros', 'public_function_like_macros',
                            'public_extern_definitions', 'public_function_definitions']
-        sections = self._configuration['sections']
+        sections = self._sections
         with open(source_output, 'w') as f:
             f.write(self._schema)
             for ss in source_sections:

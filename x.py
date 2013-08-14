@@ -1072,17 +1072,6 @@ def render_data(in_data, name, config):
     return pystache.render(in_data, config, name=name)
 
 
-def render(inf, outf, config):
-    """Render an input file (`inf`) to an output file (`outf`) using a given `config`."""
-    with open(inf) as f:
-        template_data = f.read()
-
-    data = render_data(template_data, inf, config)
-
-    with open(outf, 'w') as f:
-        f.write(data)
-
-
 class Architecture:
     """Represents the properties of a target architecture for which an RtosModule can be generated."""
     def __init__(self, name, configuration):

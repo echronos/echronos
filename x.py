@@ -2270,7 +2270,8 @@ sched_rr_test_schema = """/*<module>
   <schema>
    <entry name="num_tasks" type="int"/>
   </schema>
-</module>*/"""
+</module>*/
+"""
 
 simple_mutex_test_schema = """/*<module>
   <code_gen>template</code_gen>
@@ -2280,6 +2281,12 @@ simple_mutex_test_schema = """/*<module>
   <schema>
    <entry name="num_mutexes" type="int"/>
    <entry name="prefix" type="c_ident" default="rtos_" />
+   <entry name="mutexes" type="list">
+     <entry name="mutex" type="dict">
+      <entry name="idx" type="int" />
+      <entry name="name" type="c_ident" />
+     </entry>
+   </entry>
   </schema>
 </module>*/
 """
@@ -2409,10 +2416,12 @@ rigel_schema = """/*<module>
 CORE_SKELETONS = {
     'sched-rr-test': RtosSkeleton(
         'sched-rr-test', sched_rr_test_schema,
-        [Component('sched', 'sched-rr', {'assume_runnable': False})]),
+        [Component('sched-rr-test'),
+         Component('sched', 'sched-rr', {'assume_runnable': False})]),
     'simple-mutex-test': RtosSkeleton(
         'simple-mutex-test', simple_mutex_test_schema,
-        [Component('mutex', 'simple-mutex')]),
+        [Component('simple-mutex-test'),
+         Component('mutex', 'simple-mutex')]),
     'acamar': RtosSkeleton(
         'acamar', acamar_schema,
         [Component('acamar'),

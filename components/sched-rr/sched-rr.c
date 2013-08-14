@@ -7,6 +7,7 @@
 /*| public_function_definitions |*/
 
 /*| headers |*/
+#include <stdbool.h>
 
 /*| object_like_macros |*/
 

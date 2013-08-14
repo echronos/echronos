@@ -68,8 +68,7 @@ EXPECTED_SECTIONS = ['public_headers',
                      'state',
                      'function_like_macros',
                      'functions',
-                     'public_functions',
-]
+                     'public_functions']
 
 
 def follow_link(l):
@@ -1086,8 +1085,8 @@ class RtosSkeleton:
         # adopt the configuration information intrinsic to this specific RTOS variant
         configuration.update(self._configuration)
 
-        configuration['ALL'] = { s: '\n'.join(c[s] for c in component_sections.values())
-                                 for s in EXPECTED_SECTIONS }
+        configuration['ALL'] = {s: '\n'.join(c[s] for c in component_sections.values())
+                                for s in EXPECTED_SECTIONS}
 
         return configuration
 

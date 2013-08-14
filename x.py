@@ -1556,7 +1556,6 @@ def release_test_one(archive):
                             raise e
 
 
-
 def release_test(args):
     """Implement the test-release command.
 

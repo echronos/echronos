@@ -5,16 +5,11 @@ Task name: OTSg8d-fix-freestanding-test-release
 Version reviewed: 28b52022dfd43b59d8100dbaf805461883682dde
 Reviewer: joseph
 Date: 2013-08-14
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
 Overall comments:
 
+This doesn't build in windows, because it has no tar executable, possibly among other things.
 
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+However, it *does* build under cygwin, if you add that to get_host_platform_name. This is out of scope but 
+may be a useful addition at some point.

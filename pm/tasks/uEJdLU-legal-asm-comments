@@ -1,0 +1,8 @@
+Task: uEJdLU-legal-asm-comments
+==============================================================================
+
+Goals
+--------
+
+Convert the comment delimiter used in prepending license text to assembler files
+to ';' since '/* */' is illegal for A251 when using the macro processing language

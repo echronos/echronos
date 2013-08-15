@@ -1,0 +1,19 @@
+Breakaway Task Review
+=======================
+
+Task name: bOmldb-per-component-header-files
+Version reviewed: d58c74f05fd4dbee9189c89867c5288ccabe6f0f
+Reviewer: stg
+Date: 2013-08-14
+Conclusion: Accepted
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: x.py:176
+Comment 0: Accepted
+Part of the function sort_typedefs() is a topological sort algorithm.
+It would be good to extract this part into a re-usable function as topological sort will become relevant in the future for other dependency calculations.

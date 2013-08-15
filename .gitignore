@@ -1,3 +1,10 @@
+# eclipse project files (for now)
+.settings
+.pydevproject
+.cproject
+.project
+
+# generated package files
 prj/example/out
 release
 __pycache__
@@ -6,3 +13,10 @@ packages/*/rtos-*
 prj.errors
 prj_build*
 
+
+# merge artefacts
+*.orig
+*.REMOTE.*
+*.LOCAL.*
+*.BASE.*
+*.BACKUP.*

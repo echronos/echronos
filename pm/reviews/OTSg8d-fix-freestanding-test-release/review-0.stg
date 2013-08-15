@@ -1,0 +1,11 @@
+Breakaway Task Review
+=======================
+
+Task name: OTSg8d-fix-freestanding-test-release
+Version reviewed: 28b52022dfd43b59d8100dbaf805461883682dde
+Reviewer: stg
+Date: 2013-08-14
+Conclusion: Rework
+
+Overall comments:
+Test plan fails

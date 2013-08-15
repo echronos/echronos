@@ -1,0 +1,29 @@
+Task: OTSg8d-fix-freestanding-test-release
+==============================================================================
+
+Goals
+--------
+
+The x.py command test-release currently works only if invoked in a directory containing the build artifacts from creating a release.
+When invoked on a release tar-ball only, it fails.
+The goal of this task is to ensure that the test-release command correctly tests a release tar-ball, even in otherwise clean rtos-core repositories.
+
+Test plan
+---------
+Create an rtos release:
+#> . setenv
+#> ./x.py build-partials
+#> ./x.py prj-build
+#> ./x.py build-release
+
+Keep only the release tar-ball
+#> rm -fr release/partials
+#> mv release ../
+#> git clean -xdf
+#> mv ../release ./
+
+Test the release
+#> ./x.py test-release
+
+The x tool must exit with the exit code 0 and must not report any errors.
+It must successfully extract the release tar-ball(s) and build the contained systems.

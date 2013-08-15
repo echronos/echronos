@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <system>
   <modules>
-    <module name="armv7m.build" />
     <module name="armv7m.ctxt-switch" />
     <module name="armv7m.vectable">
       <systick>tick_irq</systick>
@@ -40,6 +39,15 @@
           <sig_set>1</sig_set>
         </irq_event>
       </irq_events>
+
+
+      <mutexes>
+        <mutex>
+          <idx>0</idx>
+          <name>dummy</name>
+        </mutex>
+      </mutexes>
+
     </module>
 
   </modules>

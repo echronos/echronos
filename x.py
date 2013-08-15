@@ -54,6 +54,25 @@ directory.
 import sys
 import os
 
+# FIXME: Use correct declaration vs definition.
+EXPECTED_SECTIONS = ['public_headers',
+                     'public_type_definitions',
+                     'public_structure_definitions',
+                     'public_object_like_macros',
+                     'public_function_like_macros',
+                     'public_extern_definitions',
+                     'public_function_definitions',
+                     'headers',
+                     'object_like_macros',
+                     'type_definitions',
+                     'structure_definitions',
+                     'extern_definitions',
+                     'function_definitions',
+                     'state',
+                     'function_like_macros',
+                     'functions',
+                     'public_functions']
+
 
 def follow_link(l):
     """Return the underlying file from a symbolic link.
@@ -152,6 +171,55 @@ def show_exit(exit_code):
         return "exit: {}".format(exit_status)
     else:
         return "signal: {}".format(SIG_NAMES.get(sig_num, 'Unknown signal {}'.format(sig_num)))
+
+
+def sort_typedefs(typedef_lines):
+    """Given a string containing multiple lines of typedefs, sort the lines so that the typedefs are in the 'correct'
+    order.
+
+    The typedef lines must only contain typedefs.
+    No comments or other data is allowed.
+    Blank lines are allowed, but will be ommited from the output.
+
+    The correct order for typedefs is on such that if typedef 'b' is defined in terms of typedef 'a', typedef 'a' will
+    appear first in the sorted output.
+
+    """
+
+    typedefs = []
+    for l in typedef_lines.split('\n'):
+        if l == '':
+            continue
+        if not l.endswith(';'):
+            raise Exception("Expect a typedef line to end with ';' ({})".format(l))
+        parts = l[:-1].split()
+        if not parts[0] == 'typedef':
+            raise Exception("Expect typedef line to startwith 'typedef'")
+        new_type = parts[-1]
+        old_type = ' '.join(parts[1:-1])
+        typedefs.append((new_type, old_type))
+
+    new_types = [new for (new, _) in typedefs]
+    r = []
+
+    # First put in any types that don't cross reference.
+    #  we assume they are defined in other headers.
+    for (new, old) in typedefs[:]:
+        if old not in new_types:
+            r.append((new, old))
+            typedefs.remove((new, old))
+
+    # Now, for each new type
+    i = 0
+    while i < len(r):
+        check_type = r[i][0]
+        i += 1
+        for (new, old) in typedefs[:]:
+            if old == check_type:
+                r.append((new, old))
+                typedefs.remove((new, old))
+
+    return '\n'.join(['typedef {} {};'.format(old, new) for (new, old) in r])
 
 
 @contextmanager
@@ -266,6 +334,17 @@ def un_base_path(path):
         return path
     else:
         return path[len(BASE_DIR) + 1:]
+
+
+def get_host_platform_name():
+    if sys.platform == 'darwin':
+        return 'x86_64-apple-darwin'
+    elif sys.platform == 'linux':
+        return 'x86_64-unknown-linux-gnu'
+    elif sys.platform == 'win32':
+        return 'win32'
+    else:
+        raise RuntimeError('Unsupported platform {}'.format(sys.platform))
 
 
 def check_pep8(args):
@@ -781,14 +860,13 @@ def run_module_tests(modules, directories, patterns=[], verbosity=0, print_only=
 
 
 def prj_build(args):
+    host = get_host_platform_name()
     if sys.platform == 'darwin':
-        host = 'x86_64-apple-darwin'
         extras = ['-framework', 'CoreFoundation', '-lz']
     elif sys.platform == 'linux':
-        host = 'x86_64-unknown-linux-gnu'
         extras = ['-lz', '-lm', '-lpthread', '-lrt', '-ldl', '-lcrypt', '-lutil']
     elif sys.platform == 'win32':
-        host = 'win32'
+        pass
     else:
         print("Building prj currently unsupported on {}".format(sys.platform))
         return 1
@@ -978,6 +1056,7 @@ def parse_sectioned_file(fn, config={}):
 
     { 'foo' : "foo data....", 'bar' : "bar data...." }
     """
+
     with open(fn) as f:
         sections = {}
         current_lines = None
@@ -994,6 +1073,10 @@ def parse_sectioned_file(fn, config={}):
     for key, value in sections.items():
         sections[key] = render_data('\n'.join(value).rstrip(), "{}: Section {}".format(fn, key), config)
 
+    for s in EXPECTED_SECTIONS:
+        if s not in sections:
+            raise Exception("Couldn't find exepcted section '{}' in file: '{}'".format(s, fn))
+
     return sections
 
 
@@ -1003,17 +1086,6 @@ def render_data(in_data, name, config):
     pystache.defaults.DELIMITERS = ('[[', ']]')
     pystache.defaults.TAG_ESCAPE = lambda u: u
     return pystache.render(in_data, config, name=name)
-
-
-def render(inf, outf, config):
-    """Render an input file (`inf`) to an output file (`outf`) using a given `config`."""
-    with open(inf) as f:
-        template_data = f.read()
-
-    data = render_data(template_data, inf, config)
-
-    with open(outf, 'w') as f:
-        f.write(data)
 
 
 class Architecture:
@@ -1033,7 +1105,7 @@ class RtosSkeleton:
     This class encapsulates the act of deriving an RtosModule for a specific configuration and target architecture.
 
     """
-    def __init__(self, name, components, configuration={}):
+    def __init__(self, name, schema, components, configuration={}):
         """Create an RTOS skeleton based on its core properties.
 
         'name', a string, is the unique name of the RTOS skeleton.
@@ -1048,26 +1120,17 @@ class RtosSkeleton:
         assert isinstance(components, list)
         assert isinstance(configuration, dict)
         self.name = name
+        self.schema = schema
         self._components = components
         self._configuration = configuration
 
-    def get_module_configuration(self, arch):
-        """Retrieve the configuration information necessary to generate an RtosModule from this skeleton.
-
-        The result is a dictionary that is the union of the skeleton's base configuration, the configuration obtained
-        from parsing this skeleton's components, and the architecture-specific configuration contained in the 'arch'
-        parameter.
+    def get_module_sections(self, arch):
+        """Retrieve the sections necessary to generate an RtosModule from this skeleton.
 
         """
-        assert isinstance(arch, Architecture)
-        # adopt architecture-specific configuration information
-        configuration = arch.configuration.copy()
-        # adopt the configuration information derived from the components of this RTOS variant
-        configuration.update({c.name: c.parse(arch) for c in self._components})
-        # adopt the configuration information intrinsic to this specific RTOS variant
-        configuration.update(self._configuration)
-
-        return configuration
+        component_sections = [c.parse(arch) for c in self._components]
+        return  {s: '\n'.join(c[s] for c in component_sections)
+                 for s in EXPECTED_SECTIONS}
 
     def create_configured_module(self, arch):
         """Retrieve module configuration information and create a corresponding RtosModule instance.
@@ -1075,7 +1138,7 @@ class RtosSkeleton:
         This is only a convenience function.
 
         """
-        return RtosModule(self.name, arch, self.get_module_configuration(arch))
+        return RtosModule(self.name, self.schema, arch, self.get_module_sections(arch))
 
 
 class RtosModule:
@@ -1085,23 +1148,24 @@ class RtosModule:
     This class encapsulates the act of rendering an RTOS template given an RTOS configuration into a module on disk.
 
     """
-    def __init__(self, name, arch, configuration):
+    def __init__(self, name, schema, arch, sections):
         """Create an RtosModule instance.
 
         'name', a string, is the name of the RTOS, i.e., the same as the underlying RtosSkeleton.
 
         'arch', an instance of Architecture, is the architecture this module is targetted for.
 
-        'configuration', a dictionary, contains the complete information necessary to render the RTOS template.
+        'sections', a dictionary, containing all the merged sections from the RTOS components.
         It is typically obtained via RtosSkeleton.get_module_configuration().
 
         """
         assert isinstance(name, str)
         assert isinstance(arch, Architecture)
-        assert isinstance(configuration, dict)
+        assert isinstance(sections, dict)
         self._name = name
         self._arch = arch
-        self._configuration = configuration
+        self._schema = schema
+        self._sections = sections
 
     @property
     def _module_name(self):
@@ -1116,17 +1180,40 @@ class RtosModule:
     def generate(self):
         """Generate the RTOS module to disk, so it is available as a compile and link unit to projects."""
         self._render()
-        self._copy_resources()
 
     def _render(self):
-        render(base_path('rtos.input', self._module_name, 'template.c'),
-               os.path.join(self._module_dir, 'entity.c'),
-               self._configuration)
-
-    def _copy_resources(self):
-        for f in [self._module_name + '.h']:
-            shutil.copy(base_path('rtos.input', self._module_name, f),
-                        os.path.join(self._module_dir, f))
+        source_output = os.path.join(self._module_dir, 'entity.c')
+        header_output = os.path.join(self._module_dir, self._module_name + '.h')
+        source_sections = ['headers', 'object_like_macros',
+                           'type_definitions', 'structure_definitions',
+                           'extern_definitions', 'function_definitions',
+                           'state', 'function_like_macros',
+                           'functions', 'public_functions']
+        header_sections = ['public_headers', 'public_type_definitions',
+                           'public_object_like_macros', 'public_function_like_macros',
+                           'public_extern_definitions', 'public_function_definitions']
+        sections = self._sections
+        with open(source_output, 'w') as f:
+            f.write(self._schema)
+            for ss in source_sections:
+                if ss == 'type_definitions':
+                    data = sort_typedefs(sections[ss])
+                else:
+                    data = sections[ss]
+                f.write(data)
+                f.write('\n')
+        with open(header_output, 'w') as f:
+            mod_name = self._module_name.upper().replace('-', '_')
+            f.write("#ifndef {}_H\n".format(mod_name))
+            f.write("#define {}_H\n".format(mod_name))
+            for ss in header_sections:
+                if ss == 'public_type_definitions':
+                    data = sections[ss]
+                else:
+                    data = sections[ss]
+                f.write(data)
+                f.write('\n')
+            f.write("\n#endif /* {}_H */".format(mod_name))
 
 
 def generate_rtos_module(skeleton, architectures):
@@ -1508,32 +1595,51 @@ def release_test_one(archive):
             if m.mtime != BASE_TIME:
                 raise Exception("m.gid != BASE_TIME({}) {} -- {}".format(m.mtime, BASE_TIME, m.name))
 
-    # In the future this hard-coding will be removed.
-    platform = 'x86_64-unknown-linux-gnu'  # 'x86_64-apple-darwin'
+    platform = get_host_platform_name()
 
     with tempdir() as td:
         with chdir(td):
+            assert shutil.which('tar')
             subprocess.check_call("tar xf {}".format(rel_file).split())
             release_dir = os.path.splitext(os.path.splitext(os.path.basename(archive))[0])[0]
             if not os.path.isdir(release_dir):
                 raise RuntimeError("Release archive does not extract into top directory with the same name as the "
                                    "base name of the archive ({})".format(release_dir))
             with chdir(release_dir):
-                os.system("./{}/bin/prj".format(platform))
+                cmd = "./{}/bin/prj".format(platform)
+                try:
+                    subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
+                except subprocess.CalledProcessError as e:
+                    if e.returncode != 1:
+                        raise e
                 pkgs = []
                 pkg_root = './share/packages/'
                 for root, _dir, files in os.walk(pkg_root):
                     for f in files:
                         if f.endswith('.prx'):
                             pkg = os.path.join(root, f)[len(pkg_root):-4].replace(os.sep, '.')
-                            print(pkg)
-                            pkgs.append(pkg)
+                            pkgs.append((pkg, os.path.join(root, f)))
                 with open('project.prj', 'w') as f:
                     f.write(project_prj_template.format(pkg_root))
-                for pkg in pkgs:
-                    x = os.system("./{}/bin/prj build {}".format(platform, pkg))
-                    if x != 0:
-                        raise Exception("Build failed.")
+                for pkg, f in pkgs:
+                    cmd = "./{}/bin/prj build {}".format(platform, pkg)
+                    try:
+                        subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
+                    except subprocess.CalledProcessError as e:
+                        err_str = None
+                        for l in e.output.splitlines():
+                            l = l.decode()
+                            if l.startswith('ERROR'):
+                                err_str = l
+                                break
+                        if err_str is None:
+                            print(e.output)
+                            raise e
+                        elif 'missing or contains multiple Builder modules' in err_str:
+                            pass
+                        else:
+                            print("Unexpected error:", err_str)
+                            raise e
 
 
 def release_test(args):
@@ -2167,33 +2273,208 @@ class OverrideFunctor:
 
 
 CORE_ARCHITECTURES = {
-    'posix': Architecture('posix', {'stack_type': 'uint8_t'}),
-    'armv7m': Architecture('armv7m', {'stack_type': 'uint32_t'}),
+    'posix': Architecture('posix', {}),
+    'armv7m': Architecture('armv7m', {}),
 }
 
 
+sched_rr_test_schema = """/*<module>
+  <code_gen>template</code_gen>
+  <schema>
+   <entry name="num_tasks" type="int"/>
+  </schema>
+</module>*/
+"""
+
+simple_mutex_test_schema = """/*<module>
+  <code_gen>template</code_gen>
+  <headers>
+    <header path="rtos-simple-mutex-test.h" code_gen="template" />
+  </headers>
+  <schema>
+   <entry name="num_mutexes" type="int"/>
+   <entry name="prefix" type="c_ident" default="rtos_" />
+   <entry name="mutexes" type="list">
+     <entry name="mutex" type="dict">
+      <entry name="idx" type="int" />
+      <entry name="name" type="c_ident" />
+     </entry>
+   </entry>
+  </schema>
+</module>*/
+"""
+
+acamar_schema = """/*<module>
+  <code_gen>template</code_gen>
+  <headers>
+    <header path="rtos-acamar.h" code_gen="template" />
+  </headers>
+  <schema>
+   <entry name="taskid_size" type="int" default="8"/>
+   <entry name="num_tasks" type="int"/>
+   <entry name="prefix" type="c_ident" default="rtos_" />
+   <entry name="tasks" type="list">
+     <entry name="task" type="dict">
+      <entry name="idx" type="int" />
+      <entry name="entry" type="c_ident" />
+      <entry name="name" type="c_ident" />
+      <entry name="stack_size" type="int" />
+     </entry>
+   </entry>
+  </schema>
+</module>*/
+"""
+
+gatria_schema = """/*<module>
+  <code_gen>template</code_gen>
+  <headers>
+    <header path="rtos-gatria.h" code_gen="template" />
+  </headers>
+  <schema>
+   <entry name="taskid_size" type="int" default="8"/>
+   <entry name="num_tasks" type="int"/>
+   <entry name="num_mutexes" type="int"/>
+   <entry name="prefix" type="c_ident" default="rtos_" />
+   <entry name="tasks" type="list">
+     <entry name="task" type="dict">
+      <entry name="idx" type="int" />
+      <entry name="entry" type="c_ident" />
+      <entry name="name" type="c_ident" />
+      <entry name="stack_size" type="int" />
+     </entry>
+   </entry>
+   <entry name="mutexes" type="list">
+     <entry name="mutex" type="dict">
+      <entry name="idx" type="int" />
+      <entry name="name" type="c_ident" />
+     </entry>
+   </entry>
+  </schema>
+</module>*/
+"""
+
+kraz_schema = """/*<module>
+  <code_gen>template</code_gen>
+  <headers>
+    <header path="rtos-kraz.h" code_gen="template" />
+  </headers>
+  <schema>
+   <entry name="taskid_size" type="int" default="8"/>
+   <entry name="signalset_size" type="int" default="8"/>
+   <entry name="num_tasks" type="int"/>
+   <entry name="num_mutexes" type="int"/>
+   <entry name="prefix" type="c_ident" default="rtos_" />
+   <entry name="tasks" type="list">
+     <entry name="task" type="dict">
+      <entry name="idx" type="int" />
+      <entry name="entry" type="c_ident" />
+      <entry name="name" type="c_ident" />
+      <entry name="stack_size" type="int" />
+     </entry>
+   </entry>
+   <entry name="mutexes" type="list">
+     <entry name="mutex" type="dict">
+      <entry name="idx" type="int" />
+      <entry name="name" type="c_ident" />
+     </entry>
+   </entry>
+  </schema>
+</module>*/
+"""
+
+acrux_schema = """/*<module>
+  <code_gen>template</code_gen>
+  <headers>
+    <header path="rtos-acrux.h" code_gen="template" />
+  </headers>
+  <schema>
+   <entry name="taskid_size" type="int" default="8"/>
+   <entry name="irqeventid_size" type="int" default="8"/>
+   <entry name="num_tasks" type="int"/>
+   <entry name="num_mutexes" type="int"/>
+   <entry name="prefix" type="c_ident" default="rtos_" />
+   <entry name="tasks" type="list">
+     <entry name="task" type="dict">
+      <entry name="idx" type="int" />
+      <entry name="entry" type="c_ident" />
+      <entry name="name" type="c_ident" />
+      <entry name="stack_size" type="int" />
+     </entry>
+   </entry>
+   <entry name="irq_events" type="list">
+     <entry name="irq_event" type="dict">
+      <entry name="idx" type="int" />
+      <entry name="name" type="c_ident" />
+     </entry>
+   </entry>
+   <entry name="mutexes" type="list">
+     <entry name="mutex" type="dict">
+      <entry name="idx" type="int" />
+      <entry name="name" type="c_ident" />
+     </entry>
+   </entry>
+  </schema>
+</module>*/
+"""
+
+rigel_schema = """/*<module>
+  <code_gen>template</code_gen>
+  <headers>
+    <header path="rtos-rigel.h" code_gen="template" />
+  </headers>
+</module>*/
+"""
+
+
 CORE_SKELETONS = {
-    'sched-rr-test': RtosSkeleton('sched-rr-test', [Component('sched', 'sched-rr', {'assume_runnable': False})]),
-    'simple-mutex-test': RtosSkeleton('simple-mutex-test', [Component('mutex', 'simple-mutex')]),
-    'acamar': RtosSkeleton('acamar', [ArchitectureComponent('context_switch', 'context-switch')]),
-    'gatria': RtosSkeleton('gatria', [ArchitectureComponent('context_switch', 'context-switch'),
-                                      Component('sched', 'sched-rr', {'assume_runnable': True}),
-                                      Component('mutex', 'simple-mutex')]),
-    'kraz': RtosSkeleton('kraz', [ArchitectureComponent('ctxt_switch', 'context-switch'),
-                                  Component('sched', 'sched-rr', {'assume_runnable': True}),
-                                  Component('signal'),
-                                  Component('mutex', 'simple-mutex')]),
-    'acrux': RtosSkeleton('acrux', [ArchitectureComponent('ctxt_switch', 'context-switch'),
-                                    Component('sched', 'sched-rr', {'assume_runnable': False}),
-                                    ArchitectureComponent('irq_event_arch', 'irq-event'),
-                                    Component('irq_event', 'irq-event'),
-                                    Component('mutex', 'simple-mutex')]),
-    'rigel': RtosSkeleton('rigel', [ArchitectureComponent('ctxt_switch', 'context-switch'),
-                                    Component('sched', 'sched-rr', {'assume_runnable': False}),
-                                    Component('signal'),
-                                    ArchitectureComponent('irq_event_arch', 'irq-event'),
-                                    Component('irq_event', 'irq-event'),
-                                    Component('mutex', 'simple-mutex')]),
+    'sched-rr-test': RtosSkeleton(
+        'sched-rr-test', sched_rr_test_schema,
+        [Component('sched-rr-test'),
+         Component('sched', 'sched-rr', {'assume_runnable': False})]),
+    'simple-mutex-test': RtosSkeleton(
+        'simple-mutex-test', simple_mutex_test_schema,
+        [Component('simple-mutex-test'),
+         Component('mutex', 'simple-mutex')]),
+    'acamar': RtosSkeleton(
+        'acamar', acamar_schema,
+        [Component('acamar'),
+         ArchitectureComponent('stack', 'stack'),
+         ArchitectureComponent('context_switch', 'context-switch')]),
+    'gatria': RtosSkeleton(
+        'gatria', gatria_schema,
+        [Component('gatria'),
+         ArchitectureComponent('stack', 'stack'),
+         ArchitectureComponent('context_switch', 'context-switch'),
+         Component('sched', 'sched-rr', {'assume_runnable': True}),
+         Component('mutex', 'simple-mutex')]),
+    'kraz': RtosSkeleton(
+        'kraz', kraz_schema,
+        [Component('kraz'),
+         ArchitectureComponent('stack', 'stack'),
+         ArchitectureComponent('ctxt_switch', 'context-switch'),
+         Component('sched', 'sched-rr', {'assume_runnable': True}),
+         Component('signal'),
+         Component('mutex', 'simple-mutex')]),
+    'acrux': RtosSkeleton(
+        'acrux', acrux_schema,
+        [Component('acrux'),
+         ArchitectureComponent('stack', 'stack'),
+         ArchitectureComponent('ctxt_switch', 'context-switch'),
+         Component('sched', 'sched-rr', {'assume_runnable': False}),
+         ArchitectureComponent('irq_event_arch', 'irq-event'),
+         Component('irq_event', 'irq-event'),
+         Component('mutex', 'simple-mutex')]),
+    'rigel': RtosSkeleton(
+        'rigel', rigel_schema,
+        [Component('rigel'),
+         ArchitectureComponent('stack', 'stack'),
+         ArchitectureComponent('ctxt_switch', 'context-switch'),
+         Component('sched', 'sched-rr', {'assume_runnable': False}),
+         Component('signal'),
+         ArchitectureComponent('irq_event_arch', 'irq-event'),
+         Component('irq_event', 'irq-event'),
+         Component('mutex', 'simple-mutex')],
+    ),
 }
 
 

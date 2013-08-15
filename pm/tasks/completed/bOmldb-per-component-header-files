@@ -1,0 +1,17 @@
+Task: bOmldb-per-component-header-files
+==============================================================================
+
+Goals
+--------
+
+The aim of this task is to allow components to contribute to the header files in the same way that they contribute to source files.
+This will allow greater flexibility in the overall RTOS generation procedure.
+
+In development of a solution to the above problem, a more general approach to simplify RTOS module generation was defined.
+Rather than having individual templates x.py instead generates the whole source and header file based on a merging all the sections from all defined components.
+TO achieve this the RTOS variant itself becomes a component and implements the necessary sections.
+
+Some additional complexities with this approach that needed to be solved arise as previously the variant code interleaved some of the other components.
+In particular there was careful work in the template to ensure that typedefs and static functions were defined in the correct order.
+To avoid these problems static functions are now pre-declared, rather than relying on definition in the correct order.
+To ensure the typedefs are output in the correct order these are explicitly sorted by x.py.

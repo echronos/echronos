@@ -1,4 +1,19 @@
+/*| public_headers |*/
+
+/*| public_type_definitions |*/
+
+/*| public_structure_definitions |*/
+
+/*| public_object_like_macros |*/
+
+/*| public_function_like_macros |*/
+
+/*| public_extern_definitions |*/
+
+/*| public_function_definitions |*/
+
 /*| headers |*/
+#include <stdbool.h>
 
 /*| object_like_macros |*/
 
@@ -14,6 +29,13 @@ struct sched {
     SchedIndex cur; /* The index of the currently scheduled task */
     struct sched_task tasks[{{num_tasks}}];
 };
+
+/*| extern_definitions |*/
+
+/*| function_definitions |*/
+static void sched_set_runnable(const TaskId task_id);
+static void sched_set_blocked(const TaskId task_id);
+static [[#assume_runnable]]TaskId[[/assume_runnable]][[^assume_runnable]]TaskIdOption[[/assume_runnable]] sched_get_next(void);
 
 /*| state |*/
 static struct sched sched_tasks;
@@ -76,3 +98,5 @@ sched_get_next(void)
 
     return task;
 }
+
+/*| public_functions |*/

@@ -8,6 +8,13 @@
 
     <module name="posix.rtos-simple-mutex-test">
       <num_mutexes>10</num_mutexes>
+
+      <mutexes>
+        <mutex>
+          <idx>0</idx>
+          <name>dummy</name>
+        </mutex>
+      </mutexes>
     </module>
 
   </modules>

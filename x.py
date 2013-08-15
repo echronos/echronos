@@ -1328,13 +1328,15 @@ class LicenseOpener:
         ext = os.path.splitext(filename)[1]
         is_xml = False
 
-        if ext in ['.c', '.h', '.ld', '.s']:
+        if ext in ['.c', '.h', '.ld']:
             lic = '/*' + self.license + '*/\n'
         elif ext in ['.py']:
             lic = '"""' + self.license + '"""\n'
         elif ext in ['.prx']:
             lic = '<!--' + self.license + '-->\n'
             is_xml = True
+        elif ext in ['.s', '.asm']:
+            lic = "\n".join(['; ' + line for line in self.license.rsplit("\n")]) + "\n"
 
         lic = lic.encode('utf8')
 

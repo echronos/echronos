@@ -39,6 +39,15 @@
           <sig_set>1</sig_set>
         </irq_event>
       </irq_events>
+
+
+      <mutexes>
+        <mutex>
+          <idx>0</idx>
+          <name>dummy</name>
+        </mutex>
+      </mutexes>
+
     </module>
 
   </modules>

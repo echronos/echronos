@@ -1,0 +1,11 @@
+Task: 2fF4DZ-fix-asm-comment-syntax
+==============================================================================
+
+Goals
+--------
+
+Previous task uEJdLU-legal-asm-comments incorrectly used ';' as a comment character for GNU assembler files.
+Unfortunately GNU assembler files have different comment characters based on the underlying architecture.
+Instead use /* */ comments for GNU assembler and ';' on other assemblers.
+To distinguish between the two .s will be used exclusively for GNU assembler files, and .asm for other.
+

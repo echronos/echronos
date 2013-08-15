@@ -1,12 +1,37 @@
+/*| public_headers |*/
+#include <stdbool.h>
+#include <stdint.h>
+
+/*| public_type_definitions |*/
+typedef uint8_t SignalId;
+typedef uint{{signalset_size}}_t SignalSet;
+typedef SignalId SignalIdOption;
+
+/*| public_structure_definitions |*/
+
+/*| public_object_like_macros |*/
+#define SIGNAL_ID_C(x) ((SignalId) UINT8_C(x))
+#define SIGNAL_ID_NONE ((SignalIdOption) SIGNAL_ID_C(0xff))
+
+/*| public_function_like_macros |*/
+
+/*| public_extern_definitions |*/
+
+/*| public_function_definitions |*/
+SignalId {{prefix}}signal_wait_set(SignalSet signal_set);
+void {{prefix}}signal_send_set(TaskId task_id, SignalId signal_id);
+SignalIdOption {{prefix}}signal_poll_set(SignalSet signal_set);
+bool {{prefix}}signal_peek_set(SignalSet signal_set);
+
 /*| headers |*/
 
 /*| object_like_macros |*/
-
-/*| type_definitions |*/
 /* Sanity check; should be impossible (since there is no uint256_t!) */
 #if {{signalset_size}} > UINT8_MAX
 #  error "signalset_size ({{signalset_size}}) is greater than UINT8_MAX"
 #endif
+
+/*| type_definitions |*/
 
 /*| structure_definitions |*/
 struct signal_task {
@@ -18,6 +43,9 @@ struct signal {
 };
 
 /*| extern_definitions |*/
+
+/*| function_definitions |*/
+static SignalId _signal_recv(SignalSet *const cur_task_signals, const SignalSet mask);
 
 /*| state |*/
 static struct signal signal_tasks;

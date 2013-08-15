@@ -1,6 +1,30 @@
-/*| headers |*/
+/*| public_headers |*/
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
+
+/*| public_type_definitions |*/
+typedef uint8_t MutexId;
+
+/*| public_structure_definitions |*/
+
+/*| public_object_like_macros |*/
+#define MUTEX_ID_C(x) ((MutexId) UINT8_C(x))
+{{#mutexes}}
+#define MUTEX_ID_{{name}} MUTEX_ID_C({{idx}})
+{{/mutexes}}
+
+/*| public_function_like_macros |*/
+
+/*| public_extern_definitions |*/
+
+/*| public_function_definitions |*/
+void {{prefix}}mutex_lock(MutexId);
+bool {{prefix}}mutex_try_lock(MutexId);
+void {{prefix}}mutex_unlock(MutexId);
+
+/*| headers |*/
+
 /*| object_like_macros |*/
 
 /*| type_definitions |*/
@@ -12,6 +36,8 @@ struct mutex {
 };
 
 /*| extern_definitions |*/
+
+/*| function_definitions |*/
 
 /*| state |*/
 static struct mutex mutexes[{{num_mutexes}}];

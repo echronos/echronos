@@ -32,6 +32,13 @@
         </task>
 
       </tasks>
+
+      <mutexes>
+        <mutex>
+          <idx>0</idx>
+          <name>dummy</name>
+        </mutex>
+      </mutexes>
     </module>
 
     <module name="rtos-example.gatria-test" />

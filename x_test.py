@@ -1,4 +1,5 @@
 from x import *
+import itertools
 
 # The constants refer to the base (initial) commit.
 # All branches should be dervied from this commit, so it
@@ -23,3 +24,12 @@ def test_git_branch_hash():
 def test_git_branch_date():
     g = Git()
     assert INITIAL_TIME == g.branch_date(INITIAL_COMMIT)
+
+
+def test_sort_typedefs():
+    typedefs = ['typedef uint8_t foo;',
+                'typedef foo bar;',
+                'typedef bar baz;']
+    expected = '\n'.join(typedefs)
+    for x in itertools.permutations(typedefs):
+        assert sort_typedefs('\n'.join(x)) == expected

@@ -1,0 +1,16 @@
+Task: uEJdLU-legal-asm-comments
+==============================================================================
+
+Goals
+--------
+
+Convert the comment delimiter used in prepending license text to assembler files
+to ';' since '/* */' is illegal for A251 when using the macro processing language
+
+Test Plan
+---------
+
+ -- x-test pass
+ -- rtos-clr-port is generated with correct comment delimiters
+ -- rtos-clr-port builds
+ -- rtos-core projects generate and build correctly

@@ -5,16 +5,4 @@ Task name: 2fF4DZ-fix-asm-comment-syntax
 Version reviewed: 43eba7a2b1a4aadcf6b9470c8a40a931e489ab28
 Reviewer: joseph
 Date: 2013-08-15
-Conclusion: Accepted/Rework
-
-Overall comments:
-
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Conclusion: Accepted

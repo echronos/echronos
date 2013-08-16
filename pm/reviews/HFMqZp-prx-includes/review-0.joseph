@@ -5,16 +5,30 @@ Task name: HFMqZp-prx-includes
 Version reviewed: 83156b0e26cc58970e6a12ef6d03b1f52e551377
 Reviewer: joseph
 Date: 2013-08-15
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
-Overall comments:
+The feature doesn't work when wanting to include multiple elements, eg:
 
+<include file="cip.xml"/>
 
-Specific comments
-=================
+where cip.xml contains
 
-Location: filename:linenum
-Comment:
+<module name="cip.foo"/>
+<module name="cip.bar"/>
 
-Location: filename:linenum
-Comment:
+There is currently no legal way in terms of either xml or the prx syntax
+to make this work.
+
+I propose that we mandate a document element in the include file which 
+is thrown away, and its children inserted into the parent document in
+its stead.
+
+The patch for this change is to replace 
+
+        el.parentNode.replaceChild(...)
+
+(in line 241 or so) with
+
+        el.parentNode.children += included_element.children
+        el.parentNode.removeChild(el)
+

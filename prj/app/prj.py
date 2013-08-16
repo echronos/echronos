@@ -211,7 +211,7 @@ def xml_parse_string(string, name='<string>', start_line=0):
     return dom.documentElement
 
 
-def xml_parse_file_with_includes(filename):
+def xml_parse_file_with_includes(filename, include_dir=None):
     """Parse XML file as xml_parse_file() would and resolve include elements.
 
     All elements with the name 'include' and the attribute 'file' are replaced with the root DOM element of the
@@ -219,13 +219,16 @@ def xml_parse_file_with_includes(filename):
     This resolution is not recursive.
 
     """
+    if include_dir is None:
+        include_dir = os.path.dirname(filename)
+
     document_element = xml_parse_file(filename)
 
     if document_element.tagName == 'include':
         raise SystemParseError(xml_error_str(document_element, 'The XML root element is an include element. This is \
 not supported. include elements may only appear below the root element.'))
 
-    xml_resolve_includes(document_element, os.path.dirname(filename))
+    xml_resolve_includes(document_element, include_dir)
     return document_element
 
 

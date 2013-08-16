@@ -228,20 +228,20 @@ def xml_parse_file_with_includes(filename, include_dir=None):
         raise SystemParseError(xml_error_str(document_element, 'The XML root element is an include element. This is \
 not supported. include elements may only appear below the root element.'))
 
-    xml_resolve_includes(document_element, include_dir)
+    xml_resolve_includes_below_element(document_element, include_dir)
     return document_element
 
 
-def xml_resolve_includes(el, include_dir):
+def xml_resolve_includes_below_element(el, include_dir):
     """Recurse children of 'el' and replace all include elements with contents of included XML files."""
     for child in el.childNodes:
         if child.nodeType == child.ELEMENT_NODE and child.tagName == 'include':
-            xml_resolve_include(child, include_dir)
+            xml_resolve_include_element(child, include_dir)
         else:
-            xml_resolve_includes(child, include_dir)
+            xml_resolve_includes_below_element(child, include_dir)
 
 
-def xml_resolve_include(el, include_dir):
+def xml_resolve_include_element(el, include_dir):
     """Replace the XML element 'el' with the child nodes of the root element of the included DOM.
 
     This performs all necessary consistency checks to ensure the result is again a well-formed DOM.

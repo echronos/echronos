@@ -214,9 +214,9 @@ def xml_parse_string(string, name='<string>', start_line=0):
 def xml_parse_file_with_includes(filename, include_dir=None):
     """Parse XML file as xml_parse_file() would and resolve include elements.
 
-    All elements with the name 'include' and the attribute 'file' are replaced with the root DOM element of the
-    XML file referenced by the 'file' attribute.
-    This resolution is not recursive.
+    All elements with the name 'include' and the attribute 'file' are replaced with the child nodes of the root DOM
+    element of the XML file referenced by the 'file' attribute.
+    This resolution is not recursive in the sense that include elements in included files are ignored.
 
     """
     if include_dir is None:
@@ -233,12 +233,21 @@ not supported. include elements may only appear below the root element.'))
 
 
 def xml_resolve_includes(el, include_dir):
+    """Recurse children of 'el' and replace all include elements with contents of included XML files."""
     for child in el.childNodes:
         if child.nodeType == child.ELEMENT_NODE and child.tagName == 'include':
             xml_resolve_include(child, include_dir)
 
 
 def xml_resolve_include(el, include_dir):
+    """Replace the XML element 'el' with the child nodes of the root element of the included DOM.
+
+    This performs all necessary consistency checks to ensure the result is again a well-formed DOM.
+
+    After this function returns, the element 'el' is no longer part of the original DOM, it is unlinked, and must not
+    be accessed or used in the context of the calling function.
+
+    """
     if len(element_children(el)) != 0:
         raise SystemParseError(xml_error_str(el, 'Expected no child elements in include element. Correct format \
 is <include file="FILENAME" />'))

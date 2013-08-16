@@ -237,6 +237,8 @@ def xml_resolve_includes(el, include_dir):
     for child in el.childNodes:
         if child.nodeType == child.ELEMENT_NODE and child.tagName == 'include':
             xml_resolve_include(child, include_dir)
+        else:
+            xml_resolve_includes(child, include_dir)
 
 
 def xml_resolve_include(el, include_dir):

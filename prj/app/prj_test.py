@@ -222,19 +222,16 @@ def test_xml_parse_file_with_includes_without_include():
     prx_file.write(prx_xml)
     prx_file.close()
     try:
-        result_of_xml_parse_file_with_includes = xml_parse_file_with_includes(prx_file.name)
+        result = xml_parse_file_with_includes(prx_file.name)
         result_of_xml_parse_file = xml_parse_file(prx_file.name)
-        assert result_of_xml_parse_file_with_includes.toxml() == result_of_xml_parse_file.toxml()
+        assert result.toxml() == result_of_xml_parse_file.toxml()
     finally:
         os.remove(prx_file.name)
 
 
 def test_xml_parse_file_with_includes():
-    include_xml = """<?xml version="1.0" encoding="UTF-8" ?>
-<newelement />"""
-    include_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
-    include_file.write(include_xml)
-    include_file.close()
+    included_xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<include_root><newelement /></include_root>"""
     prx_template = """<?xml version="1.0" encoding="UTF-8" ?>
 <system>{}
   <modules>
@@ -243,24 +240,31 @@ def test_xml_parse_file_with_includes():
     </module>
   </modules>
 </system>"""
-    prx_with_include_xml = prx_template.format('<include file="{}" />'.format(os.path.basename(include_file.name)))
-    prx_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
-    prx_file.write(prx_with_include_xml)
-    prx_file.close()
+    prx_with_include_xml = prx_template.format('<include file="{}" />')
     prx_without_include_xml = prx_template.format('')
-    try:
-        result_of_xml_parse_file_with_includes = xml_parse_file_with_includes(prx_file.name)
-        expected_result = xml_parse_string(prx_without_include_xml)
-        expected_result.insertBefore(expected_result.ownerDocument.createElement('newelement'),
-                                     expected_result.firstChild)
-        assert result_of_xml_parse_file_with_includes.toxml() == expected_result.toxml()
-    finally:
-        os.remove(prx_file.name)
-        os.remove(include_file.name)
+
+    result = check_xml_parse_file_with_includes_with_xml(prx_with_include_xml, included_xml)
+
+    expected_result = xml_parse_string(prx_without_include_xml)
+    expected_result.insertBefore(expected_result.ownerDocument.createElement('newelement'),
+                                 expected_result.firstChild)
+
+    assert result.toxml() == expected_result.toxml()
 
 
 @raises(SystemParseError)
-def test_xml_parse_file_with_includes_invalid_path():
+def test_xml_parse_file_with_includes__include_as_root_element():
+    including_xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<include file="{}" />"""
+    included_xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<include_root>
+  <foo />
+</include_root>"""
+    check_xml_parse_file_with_includes_with_xml(including_xml, included_xml)
+
+
+@raises(SystemParseError)
+def test_xml_parse_file_with_includes__invalid_path():
     check_xml_parse_file_with_includes_with_xml("""<?xml version="1.0" encoding="UTF-8" ?>
 <system>
   <include file="/123/abc/!#$" />
@@ -273,7 +277,7 @@ def test_xml_parse_file_with_includes_invalid_path():
 
 
 @raises(SystemParseError)
-def test_xml_parse_file_with_includes_missing_path_attribute():
+def test_xml_parse_file_with_includes__missing_path_attribute():
     check_xml_parse_file_with_includes_with_xml("""<?xml version="1.0" encoding="UTF-8" ?>
 <system>
   <include />
@@ -286,7 +290,7 @@ def test_xml_parse_file_with_includes_missing_path_attribute():
 
 
 @raises(SystemParseError)
-def test_xml_parse_file_with_includes_missing_path_child_elements():
+def test_xml_parse_file_with_includes__child_elements():
     check_xml_parse_file_with_includes_with_xml("""<?xml version="1.0" encoding="UTF-8" ?>
 <system>
   <include file=".">
@@ -300,11 +304,45 @@ def test_xml_parse_file_with_includes_missing_path_child_elements():
 </system>""")
 
 
-def check_xml_parse_file_with_includes_with_xml(xml):
+@raises(SystemParseError)
+def test_xml_parse_file_with_includes__wrong_name_of_included_root_element():
+    check_xml_parse_file_with_includes_with_xml("""<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <include file="{}" />
+  <modules>
+    <module name="foo">
+      <bar>baz</bar>
+    </module>
+  </modules>
+</system>""", """<?xml version="1.0" encoding="UTF-8" ?><foo />""")
+
+
+def test_xml_parse_file_with_includes__empty_included_root_element():
+    check_xml_parse_file_with_includes_with_xml("""<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <include file="{}" />
+  <modules>
+    <module name="foo">
+      <bar>baz</bar>
+    </module>
+  </modules>
+</system>""", """<?xml version="1.0" encoding="UTF-8" ?><include_root />""")
+
+
+def check_xml_parse_file_with_includes_with_xml(xml, included_xml=None):
+    if included_xml:
+        included_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+        included_file.write(included_xml)
+        included_file.close()
+        xml = xml.format(included_file.name)
+
     prx_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
     prx_file.write(xml)
     prx_file.close()
+
     try:
         return xml_parse_file_with_includes(prx_file.name)
     finally:
         os.remove(prx_file.name)
+        if included_xml:
+            os.remove(included_file.name)

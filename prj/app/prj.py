@@ -219,31 +219,51 @@ def xml_parse_file_with_includes(filename):
     This resolution is not recursive.
 
     """
-    return xml_resolve_includes(xml_parse_file(filename), os.path.dirname(filename))
+    document_element = xml_parse_file(filename)
+
+    if document_element.tagName == 'include':
+        raise SystemParseError(xml_error_str(document_element, 'The XML root element is an include element. This is \
+not supported. include elements may only appear below the root element.'))
+
+    xml_resolve_includes(document_element, os.path.dirname(filename))
+    return document_element
 
 
 def xml_resolve_includes(el, include_dir):
-    if el.tagName == 'include':
-        if len(element_children(el)) != 0:
-            raise SystemParseError(xml_error_str(el, 'Expected no child elements in include element. Correct format \
+    for child in el.childNodes:
+        if child.nodeType == child.ELEMENT_NODE and child.tagName == 'include':
+            xml_resolve_include(child, include_dir)
+
+
+def xml_resolve_include(el, include_dir):
+    if len(element_children(el)) != 0:
+        raise SystemParseError(xml_error_str(el, 'Expected no child elements in include element. Correct format \
 is <include file="FILENAME" />'))
-        path_to_include = get_attribute(el, 'file')
-        if path_to_include == NOTHING:
-            raise SystemParseError(xml_error_str(el, 'Expected include element to contain "file" attribute. Correct \
+
+    path_to_include = get_attribute(el, 'file')
+    if path_to_include == NOTHING:
+        raise SystemParseError(xml_error_str(el, 'Expected include element to contain "file" attribute. Correct \
 format is <include file="FILENAME" />'))
-        if not os.path.isabs(path_to_include):
-            path_to_include = os.path.join(include_dir, path_to_include)
-        path_to_include = os.path.normpath(path_to_include)
-        if not os.path.exists(path_to_include):
-            raise SystemParseError(xml_error_str(el, 'The path {} specified in the include element does not refer to \
+
+    if not os.path.isabs(path_to_include):
+        path_to_include = os.path.join(include_dir, path_to_include)
+
+    path_to_include = os.path.normpath(path_to_include)
+    if not os.path.exists(path_to_include):
+        raise SystemParseError(xml_error_str(el, 'The path {} specified in the include element does not refer to \
 an existing file'.format(path_to_include)))
-        included_element = xml_parse_file(path_to_include)
-        el.parentNode.replaceChild(included_element, el)
-        return included_element
-    else:
-        for child in element_children(el):
-            xml_resolve_includes(child, include_dir)
-        return el
+
+    included_root_element = xml_parse_file(path_to_include)
+    if included_root_element.tagName != 'include_root':
+        raise SystemParseError(xml_error_str(included_root_element, 'The XML root element in file {} is not named \
+include_root as expected. Root elements in included XML files must have this name by convention and are removed \
+implicitly by the inclusion process.'))
+
+    parent_node = el.parentNode
+    for child in included_root_element.childNodes:
+        parent_node.insertBefore(child, el)
+    parent_node.removeChild(el)
+    el.unlink()
 
 
 def single_text_child(el):

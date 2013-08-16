@@ -366,10 +366,12 @@ class TeamcityReport(pep8.StandardReport):
         return ret
 
     def _teamcity(self, msg):
-        print ("##teamcity[{}]".format( msg))
+        print("##teamcity[{}]".format(msg))
 
     def _test_name(self):
-        return self.filename[:-3].replace("|", "||").replace("'", "|'").replace("[", "|[").replace("]", "|]").replace("\n", "|n").replace("\r", "|r")
+        return self.filename[:-3].replace("|", "||").replace("'", "|'").replace("[", "|[") \
+            .replace("]", "|]").replace("\n", "|n").replace("\r", "|r")
+
 
 def check_pep8(args):
     """Check for PEP8 compliance with the pep8 tool.

@@ -9,6 +9,7 @@ import bisect
 import re
 
 from pystache import defaults
+from pystache.common import FormatterNotFoundError
 from pystache.parsed import ParsedTemplate
 
 
@@ -145,7 +146,12 @@ class _InterpolateNode(object):
 
     def render(self, engine, context):
         val = engine.fetch_value(context, self.key, self.location)
-        return engine.interpolate(val, self.formatter)
+        try:
+            return engine.interpolate(val, self.formatter)
+        except FormatterNotFoundError as e:
+            e.location = self.location
+            raise e
+
 
 
 class _PartialNode(object):

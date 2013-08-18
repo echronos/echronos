@@ -46,3 +46,8 @@ class PystacheError(Exception):
 class TemplateNotFoundError(PystacheError):
     """An exception raised when a template is not found."""
     pass
+
+
+class FormatterNotFoundError(PystacheError):
+    """An exception raise when a formatter is not found."""
+    pass

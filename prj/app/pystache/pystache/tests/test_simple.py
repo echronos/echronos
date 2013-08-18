@@ -2,6 +2,7 @@ import unittest
 
 import pystache
 from pystache import Renderer
+from pystache.common import FormatterNotFoundError
 from pystache.tests.examples.nested_context import NestedContext
 from pystache.tests.examples.complex import Complex
 from pystache.tests.examples.lambdas import Lambdas
@@ -92,4 +93,8 @@ class TestFormatter(unittest.TestCase, AssertStringMixin):
     def test_nonexist_formatter(self):
         renderer = Renderer()
         renderer.register('u', lambda x: x.upper())
-        self.assertRaises(KeyError, renderer.render, '{{foo|x}}', {'foo': 'bar'})
+        self.assertRaises(FormatterNotFoundError, renderer.render, '{{foo|x}}', {'foo': 'bar'})
+        try:
+            renderer.render('{{foo|x}}', {'foo': 'bar'})
+        except FormatterNotFoundError as e:
+            self.assertString('None:1.0', str(e.location))

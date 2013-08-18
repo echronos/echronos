@@ -8,7 +8,8 @@ This module provides a Renderer class to render templates.
 import sys
 
 from pystache import defaults
-from pystache.common import TemplateNotFoundError, MissingTags, is_string
+from pystache.common import TemplateNotFoundError, MissingTags, is_string, \
+    FormatterNotFoundError
 from pystache.context import ContextStack, KeyNotFoundError
 from pystache.loader import Loader
 from pystache.parsed import ParsedTemplate
@@ -168,7 +169,10 @@ class Renderer(object):
         """Convert a value to string.
 
         """
-        formatter = self.formatters[formatter_key]
+        try:
+            formatter = self.formatters[formatter_key]
+        except:
+            raise FormatterNotFoundError("Formatter key '{}' not found".format(formatter_key))
         if isinstance(val, bytes):
             val = self._bytes_to_str(val)
         elif not isinstance(val, str):

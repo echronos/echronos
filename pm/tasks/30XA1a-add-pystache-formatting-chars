@@ -1,0 +1,27 @@
+Task: 30XA1a-add-pystache-formatting-chars
+==============================================================================
+
+Goals
+--------
+
+Pystache performs replacement well, however there are sometimes cases where some minimal form of modification is desiraed.
+For example, concerting a string to upper-case.
+It would be useful to be able to perform these formatting changes direclty in the template, rather than requiring creating special attributes.
+Inspired by Python's format specifiers approach, the proposal is that an (optional) formatter may be specified for variable interpolations.
+
+For example:
+
+    {{varname|formatter}}
+
+A user of the library can register formatter with the library.
+
+For example:
+
+   renderer.register('u', string.upper)
+   renderer.render('{{foo|u}}', {'foo': 'bar'})
+
+Would output:
+
+   'BAR'
+
+Another approach would be to support the underlying Python __format__.

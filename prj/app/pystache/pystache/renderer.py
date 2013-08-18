@@ -147,50 +147,40 @@ class Renderer(object):
         """
         return self._context
 
-    def _to_str_soft(self, s):
-        """
-        Convert a basestring to str, preserving any str subclass.
-
-        """
-        # We type-check to avoid "TypeError: decoding Unicode is not supported".
-        return s if isinstance(s, str) else self.str(s)
-
     def _interpolate(self, s, formatter_key=''):
         """
-        Convert a basestring to str (preserving any str subclass), and escape it.
+        Convert a basestring to str (preserving any str subclass), and format it based on the formatter_key.
 
         Returns a string (not subclass).
 
         """
         formatter = self.formatters.get(formatter_key, self.escape)
-        return formatter(self._to_str_soft(s))
+        return formatter(self._to_str(s))
 
-    def str(self, b, encoding=None):
+    def _to_str(self, val):
+        """
+        Convert an arbitrary val to a string.
+
+        If the value is already a string instance, no conversion is applied.
+
+        """
+        return val if isinstance(val, str) else self._str(val)
+
+    def _str(self, _bytes):
         """
         Convert a byte string to str, using string_encoding and decode_errors.
 
         Arguments:
 
-          b: a byte string.
-
-          encoding: the name of an encoding.  Defaults to the string_encoding
-            attribute for this instance.
+          _bytes: a byte string.
 
         Raises:
 
-          TypeError: Because this method calls Python's built-in str()
-            function, this method raises the following exception if the
-            given string is already str:
-
-              TypeError: decoding Unicode is not supported
+          AssertError: if b is not 'bytes'
 
         """
-        if encoding is None:
-            encoding = self.string_encoding
-
-        # TODO: Wrap UnicodeDecodeErrors with a message about setting
-        # the string_encoding and decode_errors attributes.
-        return str(b, encoding, self.decode_errors)
+        assert type(_bytes) == bytes
+        return str(_bytes, self.string_encoding, self.decode_errors)
 
     def _make_loader(self):
         """
@@ -234,7 +224,7 @@ class Renderer(object):
                                             (repr(name), type(partials)))
 
             # RenderEngine requires that the return value be str.
-            return str(self._to_str_soft(template))
+            return str(self._to_str(template))
 
         return load_partial
 
@@ -356,7 +346,7 @@ class Renderer(object):
 
         """
         # RenderEngine.render() requires that the template string be str.
-        template = str(self._to_str_soft(template))
+        template = str(self._to_str(template))
 
         render_func = lambda engine, stack: engine.render(template, stack, name=name)
 

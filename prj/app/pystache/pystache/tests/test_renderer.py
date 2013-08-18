@@ -193,10 +193,10 @@ class RendererTests(unittest.TestCase, AssertStringMixin):
         b = u"é".encode('utf-8')
 
         renderer.string_encoding = "ascii"
-        self.assertRaises(UnicodeDecodeError, renderer.str, b)
+        self.assertRaises(UnicodeDecodeError, renderer._str, b)
 
         renderer.string_encoding = "utf-8"
-        self.assertEqual(renderer.str(b), u"é")
+        self.assertEqual(renderer._str(b), u"é")
 
     def test_unicode__decode_errors(self):
         """
@@ -208,11 +208,11 @@ class RendererTests(unittest.TestCase, AssertStringMixin):
         b = u"déf".encode('utf-8')
 
         renderer.decode_errors = "ignore"
-        self.assertEqual(renderer.str(b), "df")
+        self.assertEqual(renderer._str(b), "df")
 
         renderer.decode_errors = "replace"
         # U+FFFD is the official Unicode replacement character.
-        self.assertEqual(renderer.str(b), u'd\ufffd\ufffdf')
+        self.assertEqual(renderer._str(b), u'd\ufffd\ufffdf')
 
     ## Test the _make_loader() method.
 

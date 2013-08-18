@@ -193,10 +193,10 @@ class RendererTests(unittest.TestCase, AssertStringMixin):
         b = u"é".encode('utf-8')
 
         renderer.string_encoding = "ascii"
-        self.assertRaises(UnicodeDecodeError, renderer._str, b)
+        self.assertRaises(UnicodeDecodeError, renderer._bytes_to_str, b)
 
         renderer.string_encoding = "utf-8"
-        self.assertEqual(renderer._str(b), u"é")
+        self.assertEqual(renderer._bytes_to_str(b), u"é")
 
     def test_unicode__decode_errors(self):
         """
@@ -208,11 +208,11 @@ class RendererTests(unittest.TestCase, AssertStringMixin):
         b = u"déf".encode('utf-8')
 
         renderer.decode_errors = "ignore"
-        self.assertEqual(renderer._str(b), "df")
+        self.assertEqual(renderer._bytes_to_str(b), "df")
 
         renderer.decode_errors = "replace"
         # U+FFFD is the official Unicode replacement character.
-        self.assertEqual(renderer._str(b), u'd\ufffd\ufffdf')
+        self.assertEqual(renderer._bytes_to_str(b), u'd\ufffd\ufffdf')
 
     ## Test the _make_loader() method.
 
@@ -312,8 +312,7 @@ class RendererTests(unittest.TestCase, AssertStringMixin):
         self.assertEqual(context, {})
 
     def test_render__nonascii_template(self):
-        """
-        Test passing a non-unicode template with non-ascii characters.
+        """Test passing a non-unicode template with non-ascii characters.
 
         """
         renderer = _make_renderer()
@@ -430,11 +429,8 @@ class Renderer_MakeRenderEngineTests(unittest.TestCase, AssertStringMixin, Asser
 
     ## Test the engine's resolve_partial attribute.
 
-    def test__resolve_partial__returns_unicode(self):
-        """
-        Check that resolve_partial returns unicode (and not a subclass).
-
-        """
+    def test__resolve_partial__returns_subclass(self):
+        """Check that resolve_partial returns str (preserving any subclass)."""
         class MyUnicode(str):
             pass
 
@@ -451,7 +447,7 @@ class Renderer_MakeRenderEngineTests(unittest.TestCase, AssertStringMixin, Asser
         # Check that unicode subclasses are not preserved.
         actual = engine.resolve_partial('subclass', None)
         self.assertEqual(actual, "abc")
-        self.assertEqual(type(actual), str)
+        self.assertEqual(type(actual), MyUnicode)
 
     def test__resolve_partial__not_found(self):
         """
@@ -463,7 +459,7 @@ class Renderer_MakeRenderEngineTests(unittest.TestCase, AssertStringMixin, Asser
         engine = renderer._make_render_engine()
         resolve_partial = engine.resolve_partial
 
-        self.assertString(resolve_partial('foo', None), u'')
+        self.assertString(resolve_partial('foo', None), '')
 
     def test__resolve_partial__not_found__missing_tags_strict(self):
         """
@@ -561,7 +557,7 @@ class Renderer_MakeRenderEngineTests(unittest.TestCase, AssertStringMixin, Asser
 
         self.assertEqual(interpolate("foo"), "**foo")
 
-    def test__interpoalte__has_access_to_original_unicode_subclass(self):
+    def test__escape__has_access_to_original_unicode_subclass(self):
         """
         Test that interpolate receives strings with the unicode subclass intact.
 

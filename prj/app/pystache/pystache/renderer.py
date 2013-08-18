@@ -71,8 +71,8 @@ class Renderer(object):
           partials: an object (e.g. a dictionary) for custom partial loading
             during the rendering process.
                 The object should have a get() method that accepts a string
-            and returns the corresponding template as a string, preferably
-            as a string.  If there is no template with that name,
+            and returns the corresponding template as a string
+                If there is no template with that name,
             the get() method should either return None (as dict.get() does)
             or raise an exception.
                 If this argument is None, the rendering process will use
@@ -147,36 +147,19 @@ class Renderer(object):
         """
         return self._context
 
-    def _interpolate(self, s, formatter_key=''):
-        """
-        Convert a basestring to str (preserving any str subclass), and format it based on the formatter_key.
-
-        Returns a string (not subclass).
+    def _interpolate(self, val, formatter_key=''):
+        """Convert a value to string.
 
         """
         formatter = self.formatters.get(formatter_key, self.escape)
-        return formatter(self._to_str(s))
+        if isinstance(val, bytes):
+            val = self._bytes_to_str(val)
+        elif not isinstance(val, str):
+            val = str(val)
+        return formatter(val)
 
-    def _to_str(self, val):
-        """
-        Convert an arbitrary val to a string.
-
-        If the value is already a string instance, no conversion is applied.
-
-        """
-        return val if isinstance(val, str) else self._str(val)
-
-    def _str(self, _bytes):
-        """
-        Convert a byte string to str, using string_encoding and decode_errors.
-
-        Arguments:
-
-          _bytes: a byte string.
-
-        Raises:
-
-          AssertError: if b is not 'bytes'
+    def _bytes_to_str(self, _bytes):
+        """Convert a byte string to str, using string_encoding and decode_errors.
 
         """
         assert type(_bytes) == bytes
@@ -224,7 +207,8 @@ class Renderer(object):
                                             (repr(name), type(partials)))
 
             # RenderEngine requires that the return value be str.
-            return str(self._to_str(template))
+            assert isinstance(template, str)
+            return template
 
         return load_partial
 
@@ -345,11 +329,9 @@ class Renderer(object):
         Render the given template string using the given context.
 
         """
-        # RenderEngine.render() requires that the template string be str.
-        template = str(self._to_str(template))
+        assert isinstance(template, str)
 
         render_func = lambda engine, stack: engine.render(template, stack, name=name)
-
         return self._render_final(render_func, *context, **kwargs)
 
     # All calls to render() should end here because it prepares the
@@ -406,11 +388,14 @@ class Renderer(object):
 
         """
         name = None
-        if is_string(template):
+        if isinstance(template, bytes):
+            template = self._bytes_to_str(template)
+
+        if isinstance(template, str):
             return self._render_string(template, name, *context, **kwargs)
-        if isinstance(template, ParsedTemplate):
+        elif isinstance(template, ParsedTemplate):
             render_func = lambda engine, stack: template.render(engine, stack)
             return self._render_final(render_func, name, *context, **kwargs)
-        # Otherwise, we assume the template is an object.
-
-        return self._render_object(template, *context, **kwargs)
+        else:
+            # Otherwise, we assume the template is an object.
+            return self._render_object(template, *context, **kwargs)

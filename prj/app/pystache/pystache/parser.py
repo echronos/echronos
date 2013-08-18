@@ -144,8 +144,8 @@ class _InterpolateNode(object):
         return _format(self, exclude=['formatter', 'location'])
 
     def render(self, engine, context):
-        s = engine.fetch_string(context, self.key, self.location)
-        return engine.interpolate(s, self.formatter)
+        val = engine.fetch_value(context, self.key, self.location)
+        return engine.interpolate(val, self.formatter)
 
 
 class _PartialNode(object):
@@ -256,8 +256,7 @@ class _Parser(object):
         self._compile_delimiters()
 
     def parse(self, template, name):
-        """
-        Parse a template string starting at some index.
+        """Parse a template string starting at some index.
 
         Name is used to provide detailed information about the name of the
         template which is used in debug messages.

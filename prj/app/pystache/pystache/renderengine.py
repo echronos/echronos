@@ -42,8 +42,7 @@ class RenderEngine(object):
     #   and set as an attribute a single RenderResolver instance
     #   that encapsulates the customizable aspects of converting
     #   strings and resolving partials and names from context.
-    def __init__(self, interpolate=None, resolve_context=None,
-                 resolve_partial=None):
+    def __init__(self, interpolate=None, resolve_context=None, resolve_partial=None):
         """
         Arguments:
 
@@ -80,7 +79,7 @@ class RenderEngine(object):
     #   The returned value MUST be rendered against the default delimiters,
     #   then interpolated in place of the lambda.
     #
-    def fetch_string(self, context, name, location):
+    def fetch_value(self, context, name, location):
         """
         Get a value from the given context as a basestring instance.
 
@@ -90,9 +89,6 @@ class RenderEngine(object):
         if hasattr(val, '__call__'):
             # Return because _render_value() is already a string.
             return self._render_value(val(), context)
-
-        if not is_string(val):
-            return str(val)
 
         return val
 
@@ -144,8 +140,7 @@ class RenderEngine(object):
         return self.render(val, context, delimiters)
 
     def render(self, template, context_stack, delimiters=None, name=None):
-        """
-        Render a template string, and return as str.
+        """Render a template string, and return as str.
 
         Arguments:
 

@@ -24,7 +24,7 @@ def _get_unicode_char():
 _UNICODE_CHAR = _get_unicode_char()
 
 
-def mock_interpolate(s, f=None):
+def mock_interpolate(val, f=None):
     """
     For use as the interpolate keyword argument to the RenderEngine constructor.
 
@@ -33,11 +33,13 @@ def mock_interpolate(s, f=None):
       s: a byte string or unicode string.
 
     """
-    if isinstance(s, str):
+    if isinstance(val, str):
         # Strip off unicode super classes, if present.
-        u = str(s)
+        u = str(val)
+    elif isinstance(val, bytes):
+        u = str(val, encoding='ascii')
     else:
-        u = str(s, encoding='ascii')
+        u = str(val)
 
     # We apply upper() to make sure we are actually using our custom
     # function in the tests
@@ -193,8 +195,6 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         engine = self._engine()
         engine.interpolate = mock_interpolate
 
-        self.assertRaises(TypeError, engine.interpolate, 100)
-
         template = '{{text}} {{int}} {{{int}}}'
         context = {'int': 100, 'text': 'foo'}
 
@@ -299,7 +299,6 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         context = {'section': item, attr_name: 7}
         self._assert_render(u'7', template, context)
 
-    # This test is also important for testing 2to3.
     def test_interpolation__nonascii_nonunicode(self):
         """
         Test a tag whose value is a non-ascii, non-unicode string.

@@ -132,6 +132,7 @@ class Renderer(object):
         self.partials = partials
         self.search_dirs = search_dirs
         self.string_encoding = string_encoding
+        self.formatters = {}
 
     # This is an experimental way of giving views access to the current context.
     # TODO: consider another approach of not giving access via a property,
@@ -161,14 +162,15 @@ class Renderer(object):
         """
         return str(self._to_str_soft(s))
 
-    def _escape_to_str(self, s):
+    def _escape_to_str(self, s, formatter_key=''):
         """
         Convert a basestring to str (preserving any str subclass), and escape it.
 
         Returns a string (not subclass).
 
         """
-        return str(self.escape(self._to_str_soft(s)))
+        formatter = self.formatters.get(formatter_key, str)
+        return formatter(self.escape(self._to_str_soft(s)))
 
     def str(self, b, encoding=None):
         """
@@ -384,6 +386,10 @@ class Renderer(object):
         engine = self._make_render_engine()
 
         return render_func(engine, stack)
+
+    def register(self, key, function):
+        """Register a specific function as the formatter for a given key."""
+        self.formatters[key] = function
 
     def render(self, template, *context, **kwargs):
         """

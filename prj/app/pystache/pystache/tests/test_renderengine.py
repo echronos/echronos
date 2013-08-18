@@ -24,7 +24,7 @@ def _get_unicode_char():
 _UNICODE_CHAR = _get_unicode_char()
 
 
-def mock_literal(s):
+def mock_literal(s, f=None):
     """
     For use as the literal keyword argument to the RenderEngine constructor.
 
@@ -139,7 +139,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
 
         """
         engine = self._engine()
-        engine.escape = lambda s: "**" + s
+        engine.escape = lambda s, f: "**" + s
 
         self._assert_render(u'**bar', '{{foo}}', {'foo': 'bar'}, engine=engine)
 
@@ -150,7 +150,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         """
         engine = self._engine()
         engine.literal = lambda s: s.upper()  # a test version
-        engine.escape = lambda s: "**" + s
+        engine.escape = lambda s, f: "**" + s
 
         template = 'literal: {{{foo}}} escaped: {{foo}}'
         context = {'foo': 'bar'}
@@ -168,7 +168,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         class MyUnicode(str):
             pass
 
-        def escape(s):
+        def escape(s, f):
             if type(s) is MyUnicode:
                 return "**" + s
             else:

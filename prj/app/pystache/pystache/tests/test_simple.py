@@ -85,6 +85,6 @@ class TestSimple(unittest.TestCase, AssertStringMixin):
 class TestFormatter(unittest.TestCase, AssertStringMixin):
     def test_simple_formatter(self):
         renderer = Renderer()
-        renderer.register('u', string.upper)
+        renderer.register('u', lambda x: x.upper())
         actual = renderer.render('{{foo|u}}', {'foo': 'bar'})
         self.assertString(actual, 'BAR')

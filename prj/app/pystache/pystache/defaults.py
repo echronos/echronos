@@ -38,6 +38,9 @@ FILE_ENCODING = sys.getdefaultencoding()
 # The delimiters to start with when parsing.
 DELIMITERS = ('{{', '}}')
 
+# The formatter delimiter
+FORMAT_DELIMITER = '|'
+
 # How to handle missing tags when rendering a template.
 MISSING_TAGS = MissingTags.ignore
 

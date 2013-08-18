@@ -135,16 +135,17 @@ class _ChangeNode(object):
 
 class _EscapeNode(object):
 
-    def __init__(self, key, location):
+    def __init__(self, key, formatter, location):
         self.key = key
+        self.formatter = formatter
         self.location = location
 
     def __repr__(self):
-        return _format(self, exclude=['location'])
+        return _format(self, exclude=['formatter', 'location'])
 
     def render(self, engine, context):
         s = engine.fetch_string(context, self.key, self.location)
-        return engine.escape(s)
+        return engine.escape(s, self.formatter)
 
 
 class _LiteralNode(object):
@@ -390,7 +391,9 @@ class _Parser(object):
             return _ChangeNode(delimiters)
 
         if tag_type == '':
-            return _EscapeNode(tag_key, location)
+            key_formatter = tag_key.rsplit(defaults.FORMAT_DELIMITER, 1)
+            tag_key, formatter = (key_formatter[0], '') if len(key_formatter) == 1 else key_formatter
+            return _EscapeNode(tag_key, formatter, location)
 
         if tag_type == '&':
             return _LiteralNode(tag_key, location)

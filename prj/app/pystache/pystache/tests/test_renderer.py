@@ -513,29 +513,29 @@ class Renderer_MakeRenderEngineTests(unittest.TestCase, AssertStringMixin, Asser
 
     def test__literal__handles_unicode(self):
         """
-        Test that literal doesn't try to "double decode" unicode.
+        Test that interpolate(..., 'literal') doesn't try to "double decode" unicode.
 
         """
         renderer = Renderer()
         renderer.string_encoding = 'ascii'
 
         engine = renderer._make_render_engine()
-        literal = engine.literal
+        interpolate = engine.interpolate
 
-        self.assertEqual(literal(u"foo"), "foo")
+        self.assertEqual(interpolate(u"foo", 'literal'), "foo")
 
     def test__literal__returns_unicode(self):
         """
-        Test that literal returns unicode (and not a subclass).
+        Test that interpolate(..., 'literal') returns unicode (and not a subclass).
 
         """
         renderer = Renderer()
         renderer.string_encoding = 'ascii'
 
         engine = renderer._make_render_engine()
-        literal = engine.literal
+        interpolate = engine.interpolate
 
-        self.assertEqual(type(literal("foo")), str)
+        self.assertEqual(type(interpolate("foo", 'literal')), str)
 
         class MyUnicode(str):
             pass
@@ -544,53 +544,53 @@ class Renderer_MakeRenderEngineTests(unittest.TestCase, AssertStringMixin, Asser
 
         self.assertEqual(type(s), MyUnicode)
         self.assertTrue(isinstance(s, str))
-        self.assertEqual(type(literal(s)), str)
+        self.assertEqual(type(interpolate(s, 'literal')), str)
 
     ## Test the engine's escape attribute.
 
-    def test__escape__uses_renderer_escape(self):
+    def test__interpolate__uses_renderer_escape(self):
         """
-        Test that escape uses the renderer's escape function.
+        Test that interpolate uses the renderer's interpolate function.
 
         """
         renderer = Renderer()
         renderer.escape = lambda s: "**" + s
 
         engine = renderer._make_render_engine()
-        escape = engine.escape
+        interpolate = engine.interpolate
 
-        self.assertEqual(escape("foo"), "**foo")
+        self.assertEqual(interpolate("foo"), "**foo")
 
-    def test__escape__has_access_to_original_unicode_subclass(self):
+    def test__interpoalte__has_access_to_original_unicode_subclass(self):
         """
-        Test that escape receives strings with the unicode subclass intact.
+        Test that interpolate receives strings with the unicode subclass intact.
 
         """
         renderer = Renderer()
         renderer.escape = lambda s: str(type(s).__name__)
 
         engine = renderer._make_render_engine()
-        escape = engine.escape
+        interpolate = engine.interpolate
 
         class MyUnicode(str):
             pass
 
-        self.assertEqual(escape(u"foo".encode('ascii')), str.__name__)
-        self.assertEqual(escape(u"foo"), str.__name__)
-        self.assertEqual(escape(MyUnicode("foo")), MyUnicode.__name__)
+        self.assertEqual(interpolate(u"foo".encode('ascii'), ''), str.__name__)
+        self.assertEqual(interpolate(u"foo", ''), str.__name__)
+        self.assertEqual(interpolate(MyUnicode("foo"), ''), MyUnicode.__name__)
 
-    def test__escape__returns_unicode(self):
+    def test__interpolate__returns_unicode(self):
         """
-        Test that literal returns unicode (and not a subclass).
+        Test that interpolate returns unicode (and not a subclass).
 
         """
         renderer = Renderer()
         renderer.string_encoding = 'ascii'
 
         engine = renderer._make_render_engine()
-        escape = engine.escape
+        interpolate = engine.interpolate
 
-        self.assertEqual(type(escape("foo")), str)
+        self.assertEqual(type(interpolate("foo")), str)
 
         # Check that literal doesn't preserve unicode subclasses.
         class MyUnicode(str):
@@ -600,7 +600,7 @@ class Renderer_MakeRenderEngineTests(unittest.TestCase, AssertStringMixin, Asser
 
         self.assertEqual(type(s), MyUnicode)
         self.assertTrue(isinstance(s, str))
-        self.assertEqual(type(escape(s)), str)
+        self.assertEqual(type(interpolate(s)), str)
 
     ## Test the missing_tags attribute.
 

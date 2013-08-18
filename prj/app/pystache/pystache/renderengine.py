@@ -42,31 +42,21 @@ class RenderEngine(object):
     #   and set as an attribute a single RenderResolver instance
     #   that encapsulates the customizable aspects of converting
     #   strings and resolving partials and names from context.
-    def __init__(self, literal=None, escape=None, resolve_context=None,
+    def __init__(self, interpolate=None, resolve_context=None,
                  resolve_partial=None):
         """
         Arguments:
 
-          literal: the function used to convert unescaped variable tag
-            values to str, e.g. the value corresponding to a tag
-            "{{{name}}}".  The function should accept a string of type
-            str (or a subclass) and return a string of type
-            str (but not a proper subclass of str).
-                This class will only pass basestring instances to this
-            function.  For example, it will call str() on integer variable
-            values prior to passing them to this function.
+          interpolate: the function used to convert variables tag
+            values to str. This function takes a raw string, and
+            a formatter key.
 
-          escape: the function used to escape and convert variable tag
-            values to str, e.g. the value corresponding to a tag
-            "{{name}}".  The function should obey the same properties
-            described above for the "literal" function argument.
-                This function should take care to convert any str
-            arguments to str just as the literal function should, as
-            this class will not pass tag values to literal prior to passing
-            them to this function.  This allows for more flexibility,
-            for example using a custom escape function that handles
-            incoming strings of type markupsafe.Markup differently
-            from plain strings.
+            If the value being interpolated is a literal, then the
+            formatter key is 'literal'. If no formatter is specified
+            then the key is ''.
+
+            interpolate should return a 'str' and honor the specified
+            formatter.
 
           resolve_context: the function to call to resolve a name against
             a context stack.  The function should accept two positional
@@ -77,8 +67,7 @@ class RenderEngine(object):
             template string of type str (not a subclass).
 
         """
-        self.escape = escape
-        self.literal = literal
+        self.interpolate = interpolate
         self.resolve_context = resolve_context
         self.resolve_partial = resolve_partial
 
@@ -151,7 +140,7 @@ class RenderEngine(object):
             # In case the template is an integer, for example.
             val = str(val)
         if type(val) is not str:
-            val = self.literal(val)
+            val = self.interpolate(val, 'literal')
         return self.render(val, context, delimiters)
 
     def render(self, template, context_stack, delimiters=None, name=None):

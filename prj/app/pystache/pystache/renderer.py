@@ -132,7 +132,7 @@ class Renderer(object):
         self.partials = partials
         self.search_dirs = search_dirs
         self.string_encoding = string_encoding
-        self.formatters = {}
+        self.formatters = {'literal': str}
 
     # This is an experimental way of giving views access to the current context.
     # TODO: consider another approach of not giving access via a property,
@@ -155,22 +155,15 @@ class Renderer(object):
         # We type-check to avoid "TypeError: decoding Unicode is not supported".
         return s if isinstance(s, str) else self.str(s)
 
-    def _to_str_hard(self, s):
-        """
-        Convert a basestring to a str  (not subclass).
-
-        """
-        return str(self._to_str_soft(s))
-
-    def _escape_to_str(self, s, formatter_key=''):
+    def _interpolate(self, s, formatter_key=''):
         """
         Convert a basestring to str (preserving any str subclass), and escape it.
 
         Returns a string (not subclass).
 
         """
-        formatter = self.formatters.get(formatter_key, str)
-        return formatter(self.escape(self._to_str_soft(s)))
+        formatter = self.formatters.get(formatter_key, self.escape)
+        return formatter(self._to_str_soft(s))
 
     def str(self, b, encoding=None):
         """
@@ -241,7 +234,7 @@ class Renderer(object):
                                             (repr(name), type(partials)))
 
             # RenderEngine requires that the return value be str.
-            return self._to_str_hard(template)
+            return str(self._to_str_soft(template))
 
         return load_partial
 
@@ -309,8 +302,7 @@ class Renderer(object):
         resolve_context = self._make_resolve_context()
         resolve_partial = self._make_resolve_partial()
 
-        engine = RenderEngine(literal=self._to_str_hard,
-                              escape=self._escape_to_str,
+        engine = RenderEngine(interpolate=self._interpolate,
                               resolve_context=resolve_context,
                               resolve_partial=resolve_partial)
         return engine
@@ -364,7 +356,7 @@ class Renderer(object):
 
         """
         # RenderEngine.render() requires that the template string be str.
-        template = self._to_str_hard(template)
+        template = str(self._to_str_soft(template))
 
         render_func = lambda engine, stack: engine.render(template, stack, name=name)
 

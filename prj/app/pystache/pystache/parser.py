@@ -56,7 +56,7 @@ def parse(template, delimiters=None, name='<string>'):
 
     >>> parsed = parse(u"Hey {{#who}}{{name}}!{{/who}}")
     >>> print(str(parsed).replace('u', ''))  # This is a hack to get the test to pass both in Python 2 and 3.
-    ['Hey ', _SectionNode(key='who', index_begin=12, index_end=21, parsed=[_EscapeNode(key='name'), '!'])]
+    ['Hey ', _SectionNode(key='who', index_begin=12, index_end=21, parsed=[_InterpolateNode(key='name'), '!'])]
 
     """
     if type(template) is not str:
@@ -133,7 +133,7 @@ class _ChangeNode(object):
         return ''
 
 
-class _EscapeNode(object):
+class _InterpolateNode(object):
 
     def __init__(self, key, formatter, location):
         self.key = key
@@ -145,21 +145,7 @@ class _EscapeNode(object):
 
     def render(self, engine, context):
         s = engine.fetch_string(context, self.key, self.location)
-        return engine.escape(s, self.formatter)
-
-
-class _LiteralNode(object):
-
-    def __init__(self, key, location):
-        self.key = key
-        self.location = location
-
-    def __repr__(self):
-        return _format(self)
-
-    def render(self, engine, context):
-        s = engine.fetch_string(context, self.key, self.location)
-        return engine.literal(s)
+        return engine.interpolate(s, self.formatter)
 
 
 class _PartialNode(object):
@@ -393,10 +379,10 @@ class _Parser(object):
         if tag_type == '':
             key_formatter = tag_key.rsplit(defaults.FORMAT_DELIMITER, 1)
             tag_key, formatter = (key_formatter[0], '') if len(key_formatter) == 1 else key_formatter
-            return _EscapeNode(tag_key, formatter, location)
+            return _InterpolateNode(tag_key, formatter, location)
 
         if tag_type == '&':
-            return _LiteralNode(tag_key, location)
+            return _InterpolateNode(tag_key, 'literal', location)
 
         if tag_type == '>':
             return _PartialNode(tag_key, leading_whitespace, location)

@@ -24,9 +24,9 @@ def _get_unicode_char():
 _UNICODE_CHAR = _get_unicode_char()
 
 
-def mock_literal(s, f=None):
+def mock_interpolate(s, f=None):
     """
-    For use as the literal keyword argument to the RenderEngine constructor.
+    For use as the interpolate keyword argument to the RenderEngine constructor.
 
     Arguments:
 
@@ -55,10 +55,9 @@ class RenderEngineTestCase(unittest.TestCase):
 
         """
         # In real-life, these arguments would be functions
-        engine = RenderEngine(resolve_partial="foo", literal="literal", escape="escape")
+        engine = RenderEngine(resolve_partial="foo", interpolate="interpolate")
 
-        self.assertEqual(engine.escape, "escape")
-        self.assertEqual(engine.literal, "literal")
+        self.assertEqual(engine.interpolate, "interpolate")
         self.assertEqual(engine.resolve_partial, "foo")
 
 
@@ -117,11 +116,11 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
 
     def test__literal(self):
         """
-        Test that render() uses the literal attribute.
+        Test that render() uses the interpolate(..., 'literal') correctly.
 
         """
         engine = self._engine()
-        engine.literal = lambda s: s.upper()
+        engine.interpolate = lambda s, f: s.upper() if f == 'literal' else s
 
         self._assert_render(u'BAR', '{{{foo}}}', {'foo': 'bar'}, engine=engine)
 
@@ -133,33 +132,37 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
 
         self._assert_render(expected, template, context)
 
-    def test__escape(self):
+    def test__interpolate(self):
         """
-        Test that render() uses the escape attribute.
+        Test that render() uses the interpolate attribute.
 
         """
         engine = self._engine()
-        engine.escape = lambda s, f: "**" + s
+        engine.interpolate = lambda s, f: "**" + s
 
         self._assert_render(u'**bar', '{{foo}}', {'foo': 'bar'}, engine=engine)
 
-    def test__escape_does_not_call_literal(self):
+    def test__interpolate_does_not_call_literal(self):
         """
-        Test that render() does not call literal before or after calling escape.
+        Test that render() does not call interpolate(..., 'literal') before or after calling escape.
 
         """
         engine = self._engine()
-        engine.literal = lambda s: s.upper()  # a test version
-        engine.escape = lambda s, f: "**" + s
+        def interpolate(s, f):
+            if f == 'literal':
+                return s.upper()  # a test version
+            else:
+                return '**' + s
+        engine.interpolate = interpolate
 
         template = 'literal: {{{foo}}} escaped: {{foo}}'
         context = {'foo': 'bar'}
 
         self._assert_render(u'literal: BAR escaped: **bar', template, context, engine=engine)
 
-    def test__escape_preserves_unicode_subclasses(self):
+    def test__interpolate_preserves_unicode_subclasses(self):
         """
-        Test that render() preserves unicode subclasses when passing to escape.
+        Test that render() preserves unicode subclasses when passing to interpolate.
 
         This is useful, for example, if one wants to respect whether a
         variable value is markupsafe.Markup when escaping.
@@ -168,14 +171,14 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         class MyUnicode(str):
             pass
 
-        def escape(s, f):
+        def interpolate(s, f):
             if type(s) is MyUnicode:
                 return "**" + s
             else:
                 return s + "**"
 
         engine = self._engine()
-        engine.escape = escape
+        engine.interpolate = interpolate
 
         template = '{{foo1}} {{foo2}}'
         context = {'foo1': MyUnicode('bar'), 'foo2': 'bar'}
@@ -188,10 +191,9 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
 
         """
         engine = self._engine()
-        engine.escape = mock_literal
-        engine.literal = mock_literal
+        engine.interpolate = mock_interpolate
 
-        self.assertRaises(TypeError, engine.literal, 100)
+        self.assertRaises(TypeError, engine.interpolate, 100)
 
         template = '{{text}} {{int}} {{{int}}}'
         context = {'int': 100, 'text': 'foo'}

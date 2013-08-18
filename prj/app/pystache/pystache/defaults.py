@@ -8,12 +8,7 @@ does not otherwise specify a value.
 
 """
 
-try:
-    # Python 3.2 adds html.escape() and deprecates cgi.escape().
-    from html import escape
-except ImportError:
-    from cgi import escape
-
+from html import escape
 import os
 import sys
 

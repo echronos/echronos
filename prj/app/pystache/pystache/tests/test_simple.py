@@ -60,7 +60,6 @@ class TestSimple(unittest.TestCase, AssertStringMixin):
         template = '{{not_set}} {{blank}}'
         self.assertEqual(pystache.Renderer().render(template), ' ')
 
-
     def test_template_partial_extension(self):
         """
         Side note:
@@ -81,3 +80,11 @@ class TestSimple(unittest.TestCase, AssertStringMixin):
 -------
 
 ## Again, Welcome! ##""")
+
+
+class TestFormatter(unittest.TestCase, AssertStringMixin):
+    def test_simple_formatter(self):
+        renderer = Renderer()
+        renderer.register('u', string.upper)
+        actual = renderer.render('{{foo|u}}', {'foo': 'bar'})
+        self.assertString(actual, 'BAR')

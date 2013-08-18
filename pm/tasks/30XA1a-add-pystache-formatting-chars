@@ -25,3 +25,9 @@ Would output:
    'BAR'
 
 Another approach would be to support the underlying Python __format__.
+
+prj.py should be updated to use the functionality, specifically adding an upper-case ('u') formatter.
+The current templates should be updated to take advatnage of this formatter so that macro names are craeted correctly.
+
+Adding the feature to pystache provides an opportunity to simplify some of the pystache internals, and clean up some rought spots in the current implementation.
+This opportunity has been taken to improve the overall quality of pystache.

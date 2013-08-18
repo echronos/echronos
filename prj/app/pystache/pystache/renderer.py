@@ -125,14 +125,31 @@ class Renderer(object):
 
         self._context = None
         self.decode_errors = decode_errors
-        self.escape = escape
         self.file_encoding = file_encoding
         self.file_extension = file_extension
         self.missing_tags = missing_tags
         self.partials = partials
         self.search_dirs = search_dirs
         self.string_encoding = string_encoding
-        self.formatters = {'literal': str}
+        self.formatters = {}
+        self.escape = escape
+        self.literal = str
+
+    @property
+    def escape(self):
+        return self.formatters['']
+
+    @escape.setter
+    def escape(self, val):
+        self.formatters[''] = val
+
+    @property
+    def literal(self):
+        return self.formatters['literal']
+
+    @escape.setter
+    def literal(self, val):
+        self.formatters['literal'] = val
 
     # This is an experimental way of giving views access to the current context.
     # TODO: consider another approach of not giving access via a property,
@@ -151,7 +168,7 @@ class Renderer(object):
         """Convert a value to string.
 
         """
-        formatter = self.formatters.get(formatter_key, self.escape)
+        formatter = self.formatters[formatter_key]
         if isinstance(val, bytes):
             val = self._bytes_to_str(val)
         elif not isinstance(val, str):

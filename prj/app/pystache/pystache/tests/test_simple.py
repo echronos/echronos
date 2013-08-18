@@ -88,3 +88,8 @@ class TestFormatter(unittest.TestCase, AssertStringMixin):
         renderer.register('u', lambda x: x.upper())
         actual = renderer.render('{{foo|u}}', {'foo': 'bar'})
         self.assertString(actual, 'BAR')
+
+    def test_nonexist_formatter(self):
+        renderer = Renderer()
+        renderer.register('u', lambda x: x.upper())
+        self.assertRaises(KeyError, renderer.render, '{{foo|x}}', {'foo': 'bar'})

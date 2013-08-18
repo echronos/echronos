@@ -11,12 +11,12 @@ from pystache.common import is_string
 from pystache.parser import parse
 
 
-def context_get(stack, name):
+def context_get(stack, name, location):
     """
     Find and return a name from a ContextStack instance.
 
     """
-    return stack.get(name)
+    return stack.get(name, location)
 
 
 class RenderEngine(object):
@@ -88,7 +88,7 @@ class RenderEngine(object):
 
         if hasattr(val, '__call__'):
             # Return because _render_value() is already a string.
-            return self._render_value(val(), context)
+            return self._render_value(val(), context, location=location)
 
         return val
 
@@ -127,7 +127,7 @@ class RenderEngine(object):
 
         return data
 
-    def _render_value(self, val, context, delimiters=None):
+    def _render_value(self, val, context, delimiters=None, location=None):
         """
         Render an arbitrary value.
 
@@ -136,7 +136,7 @@ class RenderEngine(object):
             # In case the template is an integer, for example.
             val = str(val)
         if type(val) is not str:
-            val = self.interpolate(val, 'literal')
+            val = self.interpolate(val, 'literal', location)
         return self.render(val, context, delimiters)
 
     def render(self, template, context_stack, delimiters=None, name=None):

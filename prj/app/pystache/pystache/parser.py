@@ -146,12 +146,7 @@ class _InterpolateNode(object):
 
     def render(self, engine, context):
         val = engine.fetch_value(context, self.key, self.location)
-        try:
-            return engine.interpolate(val, self.formatter)
-        except FormatterNotFoundError as e:
-            e.location = self.location
-            raise e
-
+        return engine.interpolate(val, self.formatter, self.location)
 
 
 class _PartialNode(object):
@@ -232,7 +227,8 @@ class _SectionNode(object):
                 #
                 # TODO: should we check the arity?
                 val = val(self.template[self.index_begin:self.index_end])
-                val = engine._render_value(val, context, delimiters=self.delimiters)
+                val = engine._render_value(val, context, delimiters=self.delimiters,
+                                           location=self.location)
                 parts.append(val)
                 continue
 

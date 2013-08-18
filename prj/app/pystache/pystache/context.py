@@ -83,12 +83,13 @@ class KeyNotFoundError(PystacheError):
 
     """
 
-    def __init__(self, key, details):
+    def __init__(self, key, details, location):
+        super().__init__(location)
         self.key = key
         self.details = details
 
     def __str__(self):
-        return "Key %s not found: %s" % (repr(self.key), self.details)
+        return "Key {0.key!r} not found: {0.details}".format(self)
 
 
 class ContextStack(object):
@@ -200,7 +201,7 @@ class ContextStack(object):
 
     # TODO: add more unit tests for this.
     # TODO: update the docstring for dotted names.
-    def get(self, name):
+    def get(self, name, location=None):
         """
         Resolve a dotted name against the current context stack.
 
@@ -273,14 +274,14 @@ class ContextStack(object):
             try:
                 return self.top()
             except IndexError:
-                raise KeyNotFoundError(".", "empty context stack")
+                raise KeyNotFoundError(".", "empty context stack", location)
 
         parts = name.split('.')
 
         try:
-            result = self._get_simple(parts[0])
+            result = self._get_simple(parts[0], location)
         except KeyNotFoundError:
-            raise KeyNotFoundError(name, "first part")
+            raise KeyNotFoundError(name, "first part", location)
 
         for part in parts[1:]:
             # The full context stack is not used to resolve the remaining parts.
@@ -297,11 +298,11 @@ class ContextStack(object):
             # TODO: consider using EAFP here instead.
             #   http://docs.python.org/glossary.html#term-eafp
             if result is _NOT_FOUND:
-                raise KeyNotFoundError(name, "missing %s" % repr(part))
+                raise KeyNotFoundError(name, "missing %s" % repr(part), location)
 
         return result
 
-    def _get_simple(self, name):
+    def _get_simple(self, name, location):
         """
         Query the stack for a non-dotted name.
 
@@ -311,7 +312,7 @@ class ContextStack(object):
             if result is not _NOT_FOUND:
                 return result
 
-        raise KeyNotFoundError(name, "part missing")
+        raise KeyNotFoundError(name, "part missing", location)
 
     def push(self, item):
         """

@@ -518,7 +518,7 @@ class Renderer_MakeRenderEngineTests(unittest.TestCase, AssertStringMixin, Asser
         engine = renderer._make_render_engine()
         interpolate = engine.interpolate
 
-        self.assertEqual(interpolate(u"foo", 'literal'), "foo")
+        self.assertEqual(interpolate(u"foo", 'literal', None), "foo")
 
     def test__literal__returns_unicode(self):
         """
@@ -531,7 +531,7 @@ class Renderer_MakeRenderEngineTests(unittest.TestCase, AssertStringMixin, Asser
         engine = renderer._make_render_engine()
         interpolate = engine.interpolate
 
-        self.assertEqual(type(interpolate("foo", 'literal')), str)
+        self.assertEqual(type(interpolate("foo", 'literal', None)), str)
 
         class MyUnicode(str):
             pass
@@ -540,7 +540,7 @@ class Renderer_MakeRenderEngineTests(unittest.TestCase, AssertStringMixin, Asser
 
         self.assertEqual(type(s), MyUnicode)
         self.assertTrue(isinstance(s, str))
-        self.assertEqual(type(interpolate(s, 'literal')), str)
+        self.assertEqual(type(interpolate(s, 'literal', None)), str)
 
     ## Test the engine's escape attribute.
 
@@ -555,7 +555,7 @@ class Renderer_MakeRenderEngineTests(unittest.TestCase, AssertStringMixin, Asser
         engine = renderer._make_render_engine()
         interpolate = engine.interpolate
 
-        self.assertEqual(interpolate("foo"), "**foo")
+        self.assertEqual(interpolate("foo", '', None), "**foo")
 
     def test__escape__has_access_to_original_unicode_subclass(self):
         """
@@ -571,9 +571,9 @@ class Renderer_MakeRenderEngineTests(unittest.TestCase, AssertStringMixin, Asser
         class MyUnicode(str):
             pass
 
-        self.assertEqual(interpolate(u"foo".encode('ascii'), ''), str.__name__)
-        self.assertEqual(interpolate(u"foo", ''), str.__name__)
-        self.assertEqual(interpolate(MyUnicode("foo"), ''), MyUnicode.__name__)
+        self.assertEqual(interpolate(u"foo".encode('ascii'), '', None), str.__name__)
+        self.assertEqual(interpolate(u"foo", '', None), str.__name__)
+        self.assertEqual(interpolate(MyUnicode("foo"), '', None), MyUnicode.__name__)
 
     def test__interpolate__returns_unicode(self):
         """
@@ -586,7 +586,7 @@ class Renderer_MakeRenderEngineTests(unittest.TestCase, AssertStringMixin, Asser
         engine = renderer._make_render_engine()
         interpolate = engine.interpolate
 
-        self.assertEqual(type(interpolate("foo")), str)
+        self.assertEqual(type(interpolate("foo", '', None)), str)
 
         # Check that literal doesn't preserve unicode subclasses.
         class MyUnicode(str):
@@ -596,7 +596,7 @@ class Renderer_MakeRenderEngineTests(unittest.TestCase, AssertStringMixin, Asser
 
         self.assertEqual(type(s), MyUnicode)
         self.assertTrue(isinstance(s, str))
-        self.assertEqual(type(interpolate(s)), str)
+        self.assertEqual(type(interpolate(s, '', None)), str)
 
     ## Test the missing_tags attribute.
 

@@ -8,10 +8,10 @@ This module provides a Renderer class to render templates.
 import sys
 
 from pystache import defaults
-from pystache.common import TemplateNotFoundError, MissingTags, is_string, \
-    FormatterNotFoundError
+from pystache.common import TemplateNotFoundError, MissingTags, FormatterNotFoundError
 from pystache.context import ContextStack, KeyNotFoundError
 from pystache.loader import Loader
+from pystache.locator import LocatorNotFoundError
 from pystache.parsed import ParsedTemplate
 from pystache.renderengine import context_get, RenderEngine
 from pystache.specloader import SpecLoader
@@ -165,14 +165,14 @@ class Renderer(object):
         """
         return self._context
 
-    def _interpolate(self, val, formatter_key=''):
+    def _interpolate(self, val, formatter_key, location):
         """Convert a value to string.
 
         """
         try:
             formatter = self.formatters[formatter_key]
         except:
-            raise FormatterNotFoundError("Formatter key '{}' not found".format(formatter_key))
+            raise FormatterNotFoundError(formatter_key, location)
         if isinstance(val, bytes):
             val = self._bytes_to_str(val)
         elif not isinstance(val, str):
@@ -201,8 +201,11 @@ class Renderer(object):
         """
         loader = self._make_loader()
 
-        def load_template(template_name):
-            return loader.load_name(template_name)
+        def load_template(template_name, location):
+            try:
+                return loader.load_name(template_name)
+            except LocatorNotFoundError as e:
+                raise TemplateNotFoundError(str(e), location)
 
         return load_template
 
@@ -217,15 +220,15 @@ class Renderer(object):
         # Otherwise, create a function from the custom partial loader.
         partials = self.partials
 
-        def load_partial(name):
+        def load_partial(name, location):
             # TODO: consider using EAFP here instead.
             #     http://docs.python.org/glossary.html#term-eafp
             #   This would mean requiring that the custom partial loader
             #   raise a KeyError on name not found.
             template = partials.get(name)
             if template is None:
-                raise TemplateNotFoundError("Name %s not found in partials: %s" %
-                                            (repr(name), type(partials)))
+                msg = "Name {} not found in partials: {}".format(repr(name), type(partials))
+                raise TemplateNotFoundError(msg, location)
 
             # RenderEngine requires that the return value be str.
             assert isinstance(template, str)
@@ -255,15 +258,11 @@ class Renderer(object):
         load_partial = self._make_load_partial()
 
         def resolve_partial_add_loc(name, location):
-            try:
-                return load_partial(name)
-            except TemplateNotFoundError as e:
-                e.location = location
-                raise
+            return load_partial(name, location)
 
         def resolve_partial_squelch(name, location):
             try:
-                return load_partial(name)
+                return load_partial(name, location)
             except TemplateNotFoundError:
                 return ''
 
@@ -276,16 +275,12 @@ class Renderer(object):
         """
         def resolve_context_squelch(stack, name, location):
             try:
-                return context_get(stack, name)
+                return context_get(stack, name, location)
             except KeyNotFoundError:
                 return ''
 
         def resolve_context_add_loc(stack, name, location):
-            try:
-                return context_get(stack, name)
-            except KeyNotFoundError as e:
-                e.location = location
-                raise
+            return context_get(stack, name, location)
 
         return resolve_context_add_loc if self._is_missing_tags_strict() else resolve_context_squelch
 
@@ -309,7 +304,7 @@ class Renderer(object):
 
         """
         load_template = self._make_load_template()
-        return load_template(template_name)
+        return load_template(template_name, None)
 
     def _render_object(self, obj, *context, **kwargs):
         """
@@ -323,11 +318,14 @@ class Renderer(object):
         #   a SpecLoader in all cases, and the SpecLoader instance can
         #   check the object's type.  Or perhaps Loader and SpecLoader
         #   can be refactored to implement the same interface.
-        if isinstance(obj, TemplateSpec):
-            loader = SpecLoader(loader)
-            template = loader.load(obj)
-        else:
-            template = loader.load_object(obj)
+        try:
+            if isinstance(obj, TemplateSpec):
+                loader = SpecLoader(loader)
+                template = loader.load(obj)
+            else:
+                template = loader.load_object(obj)
+        except LocatorNotFoundError as e:
+            raise TemplateNotFoundError(str(e), None)
 
         context = [obj] + list(context)
 

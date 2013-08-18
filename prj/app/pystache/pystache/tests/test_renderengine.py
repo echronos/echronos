@@ -24,7 +24,7 @@ def _get_unicode_char():
 _UNICODE_CHAR = _get_unicode_char()
 
 
-def mock_interpolate(val, f=None):
+def mock_interpolate(val, f=None, l=None):
     """
     For use as the interpolate keyword argument to the RenderEngine constructor.
 
@@ -122,7 +122,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
 
         """
         engine = self._engine()
-        engine.interpolate = lambda s, f: s.upper() if f == 'literal' else s
+        engine.interpolate = lambda s, f, l: s.upper() if f == 'literal' else s
 
         self._assert_render(u'BAR', '{{{foo}}}', {'foo': 'bar'}, engine=engine)
 
@@ -140,7 +140,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
 
         """
         engine = self._engine()
-        engine.interpolate = lambda s, f: "**" + s
+        engine.interpolate = lambda s, f, l: "**" + s
 
         self._assert_render(u'**bar', '{{foo}}', {'foo': 'bar'}, engine=engine)
 
@@ -150,7 +150,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
 
         """
         engine = self._engine()
-        def interpolate(s, f):
+        def interpolate(s, f, l):
             if f == 'literal':
                 return s.upper()  # a test version
             else:
@@ -173,7 +173,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         class MyUnicode(str):
             pass
 
-        def interpolate(s, f):
+        def interpolate(s, f, l):
             if type(s) is MyUnicode:
                 return "**" + s
             else:

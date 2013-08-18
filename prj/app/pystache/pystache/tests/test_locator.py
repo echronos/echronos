@@ -11,9 +11,8 @@ import sys
 import unittest
 
 # TODO: remove this alias.
-from pystache.common import TemplateNotFoundError
 from pystache.loader import Loader as Reader
-from pystache.locator import Locator
+from pystache.locator import Locator, LocatorNotFoundError
 
 from pystache.tests.common import DATA_DIR, EXAMPLES_DIR, AssertExceptionMixin
 from pystache.tests.data.views import SayHello
@@ -131,7 +130,7 @@ class LocatorTests(unittest.TestCase, AssertExceptionMixin):
     def test_find_name__non_existent_template_fails(self):
         locator = Locator()
 
-        self.assertException(TemplateNotFoundError, "File 'doesnt_exist.mustache' not found in dirs: []",
+        self.assertException(LocatorNotFoundError, "File 'doesnt_exist.mustache' not found in dirs: []",
                              locator.find_name, search_dirs=[], template_name='doesnt_exist')
 
     def test_find_object(self):

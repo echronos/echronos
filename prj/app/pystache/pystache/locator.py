@@ -9,8 +9,15 @@ import os
 import re
 import sys
 
-from pystache.common import TemplateNotFoundError
 from pystache import defaults
+
+class LocatorNotFoundError(Exception):
+    def __init__(self, file_name, search_dirs):
+        self.file_name = file_name
+        self.search_dirs = search_dirs
+
+    def __str__(self):
+        return "File {0.file_name!r} not found in dirs: {0.search_dirs!r}".format(self)
 
 
 class Locator(object):
@@ -118,8 +125,7 @@ class Locator(object):
         path = self._find_path(search_dirs, file_name)
 
         if path is None:
-            raise TemplateNotFoundError('File %s not found in dirs: %s' %
-                                        (repr(file_name), repr(search_dirs)))
+            raise LocatorNotFoundError(file_name, search_dirs)
 
         return path
 

@@ -40,14 +40,25 @@ class MissingTags(object):
 
 class PystacheError(Exception):
     """Base class for Pystache exceptions."""
-    pass
+    def __init__(self, location):
+        self.location = location
 
 
 class TemplateNotFoundError(PystacheError):
     """An exception raised when a template is not found."""
-    pass
+    def __init__(self, msg, location):
+        super().__init__(location)
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
 
 
 class FormatterNotFoundError(PystacheError):
     """An exception raise when a formatter is not found."""
-    pass
+    def __init__(self, formatter_key, location):
+        super().__init__(location)
+        self.formatter_key = formatter_key
+
+    def __str__(self):
+        return "Formatter key '{}' not found".format(self.formatter_key)

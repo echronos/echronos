@@ -8,11 +8,11 @@ typedef uint{{taskid_size}}_t TaskId;
 
 /*| public_object_like_macros |*/
 {{#tasks}}
-#define TASK_ID_{{name}} {{idx}}
+#define TASK_ID_{{name|u}} {{idx}}
 {{/tasks}}
 
 {{#irq_events}}
-#define SIGNAL_SET_IRQ_{{name}} {{sig_set}}
+#define SIGNAL_SET_IRQ_{{name|u}} {{sig_set}}
 {{/irq_events}}
 
 /*| public_function_like_macros |*/
@@ -62,7 +62,7 @@ static struct task tasks[{{num_tasks}}];
 
 struct irq_event_handler irq_events[{{num_irq_events}}] = {
 {{#irq_events}}
- { {{task}}, SIGNAL_SET_IRQ_{{name}} },
+ { {{task}}, SIGNAL_SET_IRQ_{{name|u}} },
 {{/irq_events}}
 };
 

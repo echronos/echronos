@@ -120,8 +120,8 @@ def pystache_render(file_in, file_out, config):
 
     try:
         data = pystache.render(template_data, config, name=file_in)
-    except pystache.context.KeyNotFoundError as e:
-        raise SystemBuildError("Error rendering template '{}'. Key not found: '{}'.".format(e.location, e.key))
+    except pystache.common.PystacheError as e:
+        raise SystemBuildError("Error rendering template '{}'. {}.".format(e.location, str(e)))
 
     os.makedirs(os.path.dirname(file_out), exist_ok=True)
 

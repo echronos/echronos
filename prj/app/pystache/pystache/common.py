@@ -55,7 +55,7 @@ class TemplateNotFoundError(PystacheError):
 
 
 class FormatterNotFoundError(PystacheError):
-    """An exception raise when a formatter is not found."""
+    """An exception raised when a formatter is not found."""
     def __init__(self, formatter_key, location):
         super().__init__(location)
         self.formatter_key = formatter_key

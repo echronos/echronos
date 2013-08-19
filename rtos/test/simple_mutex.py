@@ -42,7 +42,7 @@ class testSimpleMutex:
         expected_yields = 20
         self.impl.rtos_mutex_lock(0)
 
-        YieldFuncPtr = ctypes.CFUNCTYPE(ctypes.c_int)
+        YieldFuncPtr = ctypes.CFUNCTYPE(None)
         yield_calls = 0
 
         def yield_func():
@@ -50,9 +50,8 @@ class testSimpleMutex:
             yield_calls += 1
             if yield_calls == expected_yields:
                 self.impl.rtos_mutex_unlock(0)
-            return 0
+
         yield_func = YieldFuncPtr(yield_func)
-        yield_ptr = YieldFuncPtr.in_dll(self.impl, 'yield_ptr')
         self.impl.pub_set_yield_ptr(yield_func)
 
         self.impl.rtos_mutex_lock(0)

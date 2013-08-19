@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <modules>
+
+    <module name="posix.build">
+      <output_type>shared-library</output_type>
+    </module>
+
+    <module name="posix.rtos-simple-semaphore-test">
+      <num_tasks>10</num_tasks>
+
+      <tasks>
+        <task>
+          <idx>0</idx>
+          <name>foo</name>
+        </task>
+      </tasks>
+
+      <num_semaphores>10</num_semaphores>
+
+      <semaphores>
+        <semaphore>
+          <idx>0</idx>
+          <name>dummy</name>
+        </semaphore>
+      </semaphores>
+    </module>
+
+  </modules>
+</system>

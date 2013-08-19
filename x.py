@@ -2334,6 +2334,31 @@ simple_mutex_test_schema = """/*<module>
 </module>*/
 """
 
+simple_semaphore_test_schema = """/*<module>
+  <code_gen>template</code_gen>
+  <headers>
+    <header path="rtos-simple-semaphore-test.h" code_gen="template" />
+  </headers>
+  <schema>
+   <entry name="num_tasks" type="int"/>
+   <entry name="num_semaphores" type="int"/>
+   <entry name="prefix" type="c_ident" default="rtos_" />
+   <entry name="semaphores" type="list">
+     <entry name="semaphore" type="dict">
+      <entry name="idx" type="int" />
+      <entry name="name" type="c_ident" />
+     </entry>
+   </entry>
+   <entry name="tasks" type="list">
+     <entry name="task" type="dict">
+      <entry name="idx" type="int" />
+      <entry name="name" type="c_ident" />
+     </entry>
+   </entry>
+  </schema>
+</module>*/
+"""
+
 acamar_schema = """/*<module>
   <code_gen>template</code_gen>
   <headers>
@@ -2465,6 +2490,10 @@ CORE_SKELETONS = {
         'simple-mutex-test', simple_mutex_test_schema,
         [Component('simple-mutex-test'),
          Component('mutex', 'simple-mutex')]),
+    'simple-semaphore-test': RtosSkeleton(
+        'simple-semaphore-test', simple_semaphore_test_schema,
+        [Component('simple-semaphore-test'),
+         Component('semaphore', 'simple-semaphore')]),
     'acamar': RtosSkeleton(
         'acamar', acamar_schema,
         [Component('acamar'),
@@ -2511,6 +2540,7 @@ CORE_SKELETONS = {
 CORE_CONFIGURATIONS = {
     'sched-rr-test': ['posix'],
     'simple-mutex-test': ['posix'],
+    'simple-semaphore-test': ['posix'],
     'acamar': ['posix', 'armv7m'],
     'gatria': ['posix', 'armv7m'],
     'kraz': ['posix', 'armv7m'],

@@ -231,7 +231,7 @@ def test_xml_parse_file_with_includes_without_include():
 
 def test_xml_parse_file_with_includes():
     included_xml = """<?xml version="1.0" encoding="UTF-8" ?>
-<include_root><newelement /></include_root>"""
+<include_root> <newelement1 />   <newelement2> <newelement3/> </newelement2></include_root>"""
     prx_template = """<?xml version="1.0" encoding="UTF-8" ?>
 <system>{}
   <modules>
@@ -245,11 +245,23 @@ def test_xml_parse_file_with_includes():
 
     result = check_xml_parse_file_with_includes_with_xml(prx_with_include_xml, included_xml)
 
-    expected_result = xml_parse_string(prx_without_include_xml)
-    expected_result.insertBefore(expected_result.ownerDocument.createElement('newelement'),
-                                 expected_result.firstChild)
+    result_dom = xml_parse_string(result.toprettyxml())
+    new_el1s = result_dom.getElementsByTagName('newelement1')
+    assert len(new_el1s) == 1
+    new_el1 = new_el1s[0]
+    assert new_el1.parentNode == result_dom
 
-    assert result.toxml() == expected_result.toxml()
+    new_el2s = result_dom.getElementsByTagName('newelement2')
+    assert len(new_el2s) == 1
+    new_el2 = new_el2s[0]
+    assert new_el2.parentNode == result_dom
+
+    new_el3s = result_dom.getElementsByTagName('newelement3')
+    assert len(new_el3s) == 1
+    new_el3 = new_el3s[0]
+    assert new_el3.parentNode == new_el2
+
+    #assert result.toprettyxml() == expected_result.toprettyxml()
 
 
 @raises(SystemParseError)

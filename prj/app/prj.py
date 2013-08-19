@@ -122,7 +122,6 @@ def pystache_render(file_in, file_out, config):
     with open(file_in, 'r') as inp:
         template_data = inp.read()
 
-
     try:
         parsed_template = pystache.parser.parse(template_data, name=file_in)
         data = renderer.render(parsed_template, config)

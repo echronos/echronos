@@ -370,9 +370,10 @@ class Renderer(object):
 
         return render_func(engine, stack)
 
-    def register(self, key, function):
-        """Register a specific function as the formatter for a given key."""
-        self.formatters[key] = function
+    def register_formatter(self, specifier, function):
+        """Register a specific function as the formatter for a given specifier."""
+        assert callable(function)
+        self.formatters[specifier] = function
 
     def render(self, template, *context, **kwargs):
         """

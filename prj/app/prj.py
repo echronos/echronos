@@ -117,7 +117,7 @@ def pystache_render(file_in, file_out, config):
 
     """
     renderer = pystache.renderer.Renderer()
-    renderer.register('u', lambda x: x.upper())
+    renderer.register_formatter('u', lambda x: x.upper())
 
     with open(file_in, 'r') as inp:
         template_data = inp.read()

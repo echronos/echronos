@@ -1369,7 +1369,10 @@ class Project:
         """
         ext = os.path.splitext(path)[1]
         if ext == '.prx':
-            return System(entity_name, xml_parse_file_with_includes(path), self)
+            try:
+                return System(entity_name, xml_parse_file_with_includes(path), self)
+            except ExpatError as e:
+                raise EntityLoadError("Error parsing system import '{}:{}': {!s}".format(e.path, e.lineno, e))
         elif ext == '.py':
             py_module = imp.load_source("__prj.%s" % entity_name, path)
             py_module.__path__ = os.path.dirname(py_module.__file__)
@@ -1464,8 +1467,8 @@ def call_system_function(args, function, extra_args=None, sys_is_path=False):
                 return 1
             print("Loading system: {}".format(system_name))
             system = project.find(system_name)
-    except EntityLoadError:
-        logger.error("Unable to load system [{}].".format(system_name))
+    except EntityLoadError as e:
+        logger.error("Unable to load system [{}]: {}".format(system_name, e))
         return 1
     except EntityNotFound:
         logger.error("Unable to find system [{}].".format(system_name))

@@ -1,0 +1,33 @@
+Task: 32gfoj-simple-semaphore
+==============================================================================
+
+Goals
+--------
+
+Semaphores are a commonly used signalling mechanism in RTOSes.
+Semaphores should support the V (increment/post) and P (decrement/wait) operations as described in http://www.cs.utexas.edu/users/EWD/transcriptions/EWD01xx/EWD123.html
+
+From the original paper:
+
+    The V-operation is an operation with one argument, which must be the identification of a semaphore.
+    (If "S1" and "S2" denote semaphores, we can write "V(S1)" and "V(S2)".)
+    Its function is to increase the value of its argument semaphore by 1; this increase is to be regarded as an indivisible operation.
+
+    The P-operation is an operation with one argument, which must be the identification of a semaphore.
+    (If "S1" and "S2" denote semaphores, we can write "P(S1)" and "P(S2)".)
+    Its function is to decrease the value of its argument semaphore by 1 as soon as the resulting value would be non-negative.
+    The completion of the P-operation —i.e. the decision that this is the appropriate moment to effectuate the decrease and the subsequent decrease itself— is to be regarded as an indivisible operation.
+
+As per POSIX rather than use *V* and *P*, the names `post` and `wait` will be used.
+
+The interface shall be:
+
+    void sem_post(SemId sem);
+    void sem_wait(SemId sem);
+    void sem_try_wait(SemId sem);
+
+Many of the designs outlined in task *UgStuk-simple-mutex-component* are applicable to the semaphore design.
+A requirement of the semaphore design is that it will work with an arbitrary scheduler.
+As such, tasks must block during `sem_wait`, not simply poll.
+
+If a `sem_post` causes the underlying integer value to overflow, the behaviour is undefined.

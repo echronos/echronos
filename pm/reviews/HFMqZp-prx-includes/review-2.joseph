@@ -5,16 +5,15 @@ Task name: HFMqZp-prx-includes
 Version reviewed: e5adda18b42b8641e9491324d7e195ec7f84716d
 Reviewer: joseph
 Date: 2013-08-19
-Conclusion: Accepted/Rework
+Conclusion: Rework if desired
 
 Overall comments:
 
+I think that it would be beneficial to include an option to output the resolved prx file
+as a build artefact to facilitate debugging. This would be particularly important
+if the user has problems with recursive includes.
 
-Specific comments
-=================
+-------
 
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+clr-rtos-port:uCrtos/TestSystems/I/cip.prx using includes now builds. :)
+Don't yet know if it is correct due to above and new "improper fixup" issue.

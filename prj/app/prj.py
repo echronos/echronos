@@ -122,9 +122,9 @@ def pystache_render(file_in, file_out, config):
     with open(file_in, 'r') as inp:
         template_data = inp.read()
 
-    parsed_template = pystache.parser.parse(template_data, name=file_in)
 
     try:
+        parsed_template = pystache.parser.parse(template_data, name=file_in)
         data = renderer.render(parsed_template, config)
     except pystache.common.PystacheError as e:
         raise SystemBuildError("Error rendering template '{}'. {}.".format(e.location, str(e)))

@@ -274,7 +274,7 @@ include_root as expected. Root elements in included XML files must have this nam
 implicitly by the inclusion process.'))
 
     parent_node = el.parentNode
-    for child in included_root_element.childNodes:
+    for child in included_root_element.childNodes[:]:
         parent_node.insertBefore(child, el)
     parent_node.removeChild(el)
     el.unlink()

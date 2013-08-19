@@ -23,6 +23,24 @@ something like:
 
 and then {{>partial}} wherever I want to use it (as currently is the case).
 
+--------------------
+
+Another (probably future) enhancement would be to disambiguate "empty list -- {{#xxx}}" from
+true/false. This is important because I have several items where I have a list of
+templates to instantiate, but elsewhere in the code I have a single template
+that I only want to include *if* the list of templates is *not* empty. (in this
+case, I enumerate the irq event handlers, but then do not install the typhoon
+irq if there are no activated isrs for it).
+
+proposal: leave {{#xxx}} syntax as list enumerator, introduce {{?xxx}} as true/false
+indication.
+
+--------------
+
+Incorrect error message? I have not yet defined the "l" specifier in my module implementation.
+I expect to get a message saying that the specifier is not registered. Instead I get:
+
+ERROR:prj:Error rendering template 'Source\irq\isr.c:13.43'. Key not found: 'name|l'.
 
 Specific comments
 =================
@@ -43,4 +61,14 @@ Location test_simple.py:20
 Comment: it may out of scope, but unit tests
 validating pystache's parsing of location (test_specloader appears to
 test filename but not line number?) could be helpful?
- 
+
+Location prj.py:109
+Comment: in order to register additional format specifiers in a separate module
+(eg clr-rtos-port/Source/irq/isr.py) it is necessary to reimplement
+prj.pystache_render. I think that it is necessary to either 
+
+   a) pass a list of  specifiers in to pystache_render, or 
+   b) preferrably - add a global cache of specifiers as part of prj.py
+      that other packages can add to (and update if desired)
+      (nb this may be irrelevant given that there is no obvious place
+      for a module to statically add specifiers to the global cache)

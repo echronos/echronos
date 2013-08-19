@@ -15,13 +15,16 @@ need to declare the same variable template 3 or 4 times (in irq-event-c251.c):
 {{prefix}}{{name}}_event
 
 I'd really like to declare that as a partial and define it once and reuse it (less error-prone too).
-Its hardly worth creating a whole file for just that however. It'd be great if I 
+Its hardly worth creating a whole file for just that however. It'd be great if I
 could define the partial in the template file and then use it after that. Perhaps
 something like:
 
 {{:partial}}{{prefix}}{{name}}_event{{/partial}}
 
 and then {{>partial}} wherever I want to use it (as currently is the case).
+
+
+[[(benno): Out-of-scope, but would be useful in the future.]]
 
 --------------------
 
@@ -35,6 +38,8 @@ irq if there are no activated isrs for it).
 proposal: leave {{#xxx}} syntax as list enumerator, introduce {{?xxx}} as true/false
 indication.
 
+[[(benno): Out-of-scope, but would be useful in the future.]]
+
 --------------
 
 Incorrect error message? I have not yet defined the "l" specifier in my module implementation.
@@ -42,33 +47,46 @@ I expect to get a message saying that the specifier is not registered. Instead I
 
 ERROR:prj:Error rendering template 'Source\irq\isr.c:13.43'. Key not found: 'name|l'.
 
+[[(benno): Please double check; this should work correctly.]]
+
+
 Specific comments
 =================
 
 Location: renderer:389
 Comment: This function name is a little ambiguous. It doesnt
-tell you *what* it's registering. How about "regster_format_specifier". 
+tell you *what* it's registering. How about "regster_format_specifier".
 I also think it might be better to use "specifier" rather than "key".
 
+[[(benno): Changed to register_formatter (matches FormatterNotFoundError).]]
+
 And assert "hassattr(function, '__call__')"?
+
+[[(benno): Generally Python eschews type checks like this, in this case though no harm, so added assert callable(fucntion)]]
 
 Location: test_renderer.py:203
 Comment: Am being pedantic and don't have an emphatic opinion, but
 unless we are targeting python 3.2, we can remove the 'u' string prefix.
 (And elsewhere)
 
+[[(benno): Out-of-scope, but fixed anyway.]]
+
 Location test_simple.py:20
 Comment: it may out of scope, but unit tests
 validating pystache's parsing of location (test_specloader appears to
 test filename but not line number?) could be helpful?
 
+[[(benno): Out-of-scope (location feature has existed for a while at this point.)]]
+
 Location prj.py:109
 Comment: in order to register additional format specifiers in a separate module
 (eg clr-rtos-port/Source/irq/isr.py) it is necessary to reimplement
-prj.pystache_render. I think that it is necessary to either 
+prj.pystache_render. I think that it is necessary to either
 
-   a) pass a list of  specifiers in to pystache_render, or 
+   a) pass a list of  specifiers in to pystache_render, or
    b) preferrably - add a global cache of specifiers as part of prj.py
       that other packages can add to (and update if desired)
       (nb this may be irrelevant given that there is no obvious place
       for a module to statically add specifiers to the global cache)
+
+[[(benno): Out-of-scope; could be easily added, however for the immediate term, I would prefer that we limit the extensibility ofered to module developers.]]

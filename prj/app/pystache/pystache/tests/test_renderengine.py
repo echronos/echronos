@@ -16,14 +16,6 @@ from pystache.renderengine import context_get, RenderEngine
 from pystache.tests.common import AssertStringMixin, AssertExceptionMixin, Attachable
 
 
-def _get_unicode_char():
-    if sys.version_info < (3, ):
-        return 'u'
-    return ''
-
-_UNICODE_CHAR = _get_unicode_char()
-
-
 def mock_interpolate(val, f=None, l=None):
     """
     For use as the interpolate keyword argument to the RenderEngine constructor.
@@ -103,7 +95,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         self.assertString(actual=actual, expected=expected)
 
     def test_render(self):
-        self._assert_render(u'Hi Mom', 'Hi {{person}}', {'person': 'Mom'})
+        self._assert_render('Hi Mom', 'Hi {{person}}', {'person': 'Mom'})
 
     def test__resolve_partial(self):
         """
@@ -111,10 +103,10 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
 
         """
         engine = self._engine()
-        partials = {'partial': u"{{person}}"}
+        partials = {'partial': "{{person}}"}
         engine.resolve_partial = lambda name, location: partials[name]
 
-        self._assert_render(u'Hi Mom', 'Hi {{>partial}}', {'person': 'Mom'}, engine=engine)
+        self._assert_render('Hi Mom', 'Hi {{>partial}}', {'person': 'Mom'}, engine=engine)
 
     def test__literal(self):
         """
@@ -124,13 +116,13 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         engine = self._engine()
         engine.interpolate = lambda s, f, l: s.upper() if f == 'literal' else s
 
-        self._assert_render(u'BAR', '{{{foo}}}', {'foo': 'bar'}, engine=engine)
+        self._assert_render('BAR', '{{{foo}}}', {'foo': 'bar'}, engine=engine)
 
     def test_literal__sigil(self):
         template = "<h1>{{& thing}}</h1>"
         context = {'thing': 'Bear > Giraffe'}
 
-        expected = u"<h1>Bear > Giraffe</h1>"
+        expected = "<h1>Bear > Giraffe</h1>"
 
         self._assert_render(expected, template, context)
 
@@ -142,7 +134,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         engine = self._engine()
         engine.interpolate = lambda s, f, l: "**" + s
 
-        self._assert_render(u'**bar', '{{foo}}', {'foo': 'bar'}, engine=engine)
+        self._assert_render('**bar', '{{foo}}', {'foo': 'bar'}, engine=engine)
 
     def test__interpolate_does_not_call_literal(self):
         """
@@ -160,7 +152,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         template = 'literal: {{{foo}}} escaped: {{foo}}'
         context = {'foo': 'bar'}
 
-        self._assert_render(u'literal: BAR escaped: **bar', template, context, engine=engine)
+        self._assert_render('literal: BAR escaped: **bar', template, context, engine=engine)
 
     def test__interpolate_preserves_unicode_subclasses(self):
         """
@@ -185,7 +177,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         template = '{{foo1}} {{foo2}}'
         context = {'foo1': MyUnicode('bar'), 'foo2': 'bar'}
 
-        self._assert_render(u'**bar bar**', template, context, engine=engine)
+        self._assert_render('**bar bar**', template, context, engine=engine)
 
     def test__non_basestring__literal_and_escaped(self):
         """
@@ -198,7 +190,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         template = '{{text}} {{int}} {{{int}}}'
         context = {'int': 100, 'text': 'foo'}
 
-        self._assert_render(u'FOO 100 100', template, context, engine=engine)
+        self._assert_render('FOO 100 100', template, context, engine=engine)
 
     def test_tag__output_not_interpolated(self):
         """
@@ -207,7 +199,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         """
         template = '{{template}}: {{planet}}'
         context = {'template': '{{planet}}', 'planet': 'Earth'}
-        self._assert_render(u'{{planet}}: Earth', template, context)
+        self._assert_render('{{planet}}: Earth', template, context)
 
     def test_tag__output_not_interpolated__section(self):
         """
@@ -216,7 +208,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         """
         template = '{{test}}'
         context = {'test': '{{#hello}}'}
-        self._assert_render(u'{{#hello}}', template, context)
+        self._assert_render('{{#hello}}', template, context)
 
     ## Test interpolation with "falsey" values
     #
@@ -227,17 +219,17 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
     def test_interpolation__falsey__zero(self):
         template = '{{.}}'
         context = 0
-        self._assert_render(u'0', template, context)
+        self._assert_render('0', template, context)
 
     def test_interpolation__falsey__none(self):
         template = '{{.}}'
         context = None
-        self._assert_render(u'None', template, context)
+        self._assert_render('None', template, context)
 
     def test_interpolation__falsey__zero(self):
         template = '{{.}}'
         context = False
-        self._assert_render(u'False', template, context)
+        self._assert_render('False', template, context)
 
     # Built-in types:
     #
@@ -269,7 +261,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         Check tag interpolation with a built-in type: string.
 
         """
-        self._assert_builtin_type('abc', 'upper', 'ABC', u'xyz')
+        self._assert_builtin_type('abc', 'upper', 'ABC', 'xyz')
 
     def test_interpolation__built_in_type__integer(self):
         """
@@ -283,7 +275,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         #
         # we need to resort to built-in attributes (double-underscored) on
         # the integer type.
-        self._assert_builtin_type(15, '__neg__', -15, u'999')
+        self._assert_builtin_type(15, '__neg__', -15, '999')
 
     def test_interpolation__built_in_type__list(self):
         """
@@ -297,7 +289,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
 
         template = '{{#section}}{{%s}}{{/section}}' % attr_name
         context = {'section': item, attr_name: 7}
-        self._assert_render(u'7', template, context)
+        self._assert_render('7', template, context)
 
     def test_interpolation__nonascii_nonunicode(self):
         """
@@ -305,8 +297,8 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
 
         """
         template = '{{nonascii}}'
-        context = {'nonascii': u'abcdé'.encode('utf-8')}
-        self._assert_render(u'abcdé', template, context)
+        context = {'nonascii': 'abcdé'.encode('utf-8')}
+        self._assert_render('abcdé', template, context)
 
     def test_implicit_iterator__literal(self):
         """
@@ -316,7 +308,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         template = """{{#test}}{{{.}}}{{/test}}"""
         context = {'test': ['<', '>']}
 
-        self._assert_render(u'<>', template, context)
+        self._assert_render('<>', template, context)
 
     def test_implicit_iterator__escaped(self):
         """
@@ -326,7 +318,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         template = """{{#test}}{{.}}{{/test}}"""
         context = {'test': ['<', '>']}
 
-        self._assert_render(u'&lt;&gt;', template, context)
+        self._assert_render('&lt;&gt;', template, context)
 
     def test_literal__in_section(self):
         """
@@ -336,7 +328,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         template = '{{#test}}1 {{{less_than}}} 2{{/test}}'
         context = {'test': {'less_than': '<'}}
 
-        self._assert_render(u'1 < 2', template, context)
+        self._assert_render('1 < 2', template, context)
 
     def test_literal__in_partial(self):
         """
@@ -347,11 +339,11 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         partials = {'partial': '1 {{{less_than}}} 2'}
         context = {'less_than': '<'}
 
-        self._assert_render(u'1 < 2', template, context, partials=partials)
+        self._assert_render('1 < 2', template, context, partials=partials)
 
     def test_partial(self):
         partials = {'partial': "{{person}}"}
-        self._assert_render(u'Hi Mom', 'Hi {{>partial}}', {'person': 'Mom'}, partials=partials)
+        self._assert_render('Hi Mom', 'Hi {{>partial}}', {'person': 'Mom'}, partials=partials)
 
     def test_partial__context_values(self):
         """
@@ -364,7 +356,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         partials = {'partial': 'unescaped: {{{foo}}} escaped: {{foo}}'}
         context = {'foo': '<'}
 
-        self._assert_render(u'unescaped: < escaped: &lt;', template, context, engine=engine, partials=partials)
+        self._assert_render('unescaped: < escaped: &lt;', template, context, engine=engine, partials=partials)
 
     ## Test cases related specifically to lambdas.
 
@@ -375,8 +367,8 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
 
         """
         template = '{{#nonascii}}{{.}}{{/nonascii}}'
-        context = {'nonascii': u'abcdé'.encode('utf-8')}
-        self._assert_render(u'abcdé', template, context)
+        context = {'nonascii': 'abcdé'.encode('utf-8')}
+        self._assert_render('abcdé', template, context)
 
     # This test is also important for testing 2to3.
     def test_lambda__returning_nonascii_nonunicode(self):
@@ -385,8 +377,8 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
 
         """
         template = '{{lambda}}'
-        context = {'lambda': lambda: u'abcdé'.encode('utf-8')}
-        self._assert_render(u'abcdé', template, context)
+        context = {'lambda': lambda: 'abcdé'.encode('utf-8')}
+        self._assert_render('abcdé', template, context)
 
     ## Test cases related specifically to sections.
 
@@ -422,7 +414,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         template = '{{#test}}unescaped: {{{foo}}} escaped: {{foo}}{{/test}}'
         context = {'test': {'foo': '<'}}
 
-        self._assert_render(u'unescaped: < escaped: &lt;', template, context, engine=engine)
+        self._assert_render('unescaped: < escaped: &lt;', template, context, engine=engine)
 
     def test_section__context_precedence(self):
         """
@@ -431,7 +423,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         """
         template = '{{entree}} : {{#vegetarian}}{{entree}}{{/vegetarian}}'
         context = {'entree': 'chicken', 'vegetarian': {'entree': 'beans and rice'}}
-        self._assert_render(u'chicken : beans and rice', template, context)
+        self._assert_render('chicken : beans and rice', template, context)
 
     def test_section__list_referencing_outer_context(self):
         """
@@ -449,7 +441,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
 
         template = "{{#list}}{{greeting}} {{name}}, {{/list}}"
 
-        self._assert_render(u"Hi Al, Hi Bob, ", template, context)
+        self._assert_render("Hi Al, Hi Bob, ", template, context)
 
     def test_section__output_not_interpolated(self):
         """
@@ -458,7 +450,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         """
         template = '{{#section}}{{template}}{{/section}}: {{planet}}'
         context = {'section': True, 'template': '{{planet}}', 'planet': 'Earth'}
-        self._assert_render(u'{{planet}}: Earth', template, context)
+        self._assert_render('{{planet}}: Earth', template, context)
 
     # TODO: have this test case added to the spec.
     def test_section__string_values_not_lists(self):
@@ -469,7 +461,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         template = '{{#section}}foo{{/section}}'
         context = {'section': '123'}
         # If strings were interpreted as lists, this would give "foofoofoo".
-        self._assert_render(u'foo', template, context)
+        self._assert_render('foo', template, context)
 
     def test_section__nested_truthy(self):
         """
@@ -483,7 +475,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         """
         template = '| A {{#bool}}B {{#bool}}C{{/bool}} D{{/bool}} E |'
         context = {'bool': True}
-        self._assert_render(u'| A B C D E |', template, context)
+        self._assert_render('| A B C D E |', template, context)
 
     def test_section__nested_with_same_keys(self):
         """
@@ -495,16 +487,16 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         # Start with an easier, working case.
         template = '{{#x}}{{#z}}{{y}}{{/z}}{{/x}}'
         context = {'x': {'z': {'y': 1}}}
-        self._assert_render(u'1', template, context)
+        self._assert_render('1', template, context)
 
         template = '{{#x}}{{#x}}{{y}}{{/x}}{{/x}}'
         context = {'x': {'x': {'y': 1}}}
-        self._assert_render(u'1', template, context)
+        self._assert_render('1', template, context)
 
     def test_section__lambda(self):
         template = '{{#test}}Mom{{/test}}'
         context = {'test': (lambda text: 'Hi %s' % text)}
-        self._assert_render(u'Hi Mom', template, context)
+        self._assert_render('Hi Mom', template, context)
 
     # This test is also important for testing 2to3.
     def test_section__lambda__returning_nonascii_nonunicode(self):
@@ -513,8 +505,8 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
 
         """
         template = '{{#lambda}}{{/lambda}}'
-        context = {'lambda': lambda text: u'abcdé'.encode('utf-8')}
-        self._assert_render(u'abcdé', template, context)
+        context = {'lambda': lambda text: 'abcdé'.encode('utf-8')}
+        self._assert_render('abcdé', template, context)
 
     def test_section__lambda__returning_nonstring(self):
         """
@@ -523,7 +515,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         """
         template = '{{#lambda}}foo{{/lambda}}'
         context = {'lambda': lambda text: len(text)}
-        self._assert_render(u'3', template, context)
+        self._assert_render('3', template, context)
 
     def test_section__iterable(self):
         """
@@ -533,10 +525,10 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         template = '{{#iterable}}{{.}}{{/iterable}}'
 
         context = {'iterable': (i for i in range(3))}  # type 'generator'
-        self._assert_render(u'012', template, context)
+        self._assert_render('012', template, context)
 
         context = {'iterable': range(4)}  # type 'xrange'
-        self._assert_render(u'0123', template, context)
+        self._assert_render('0123', template, context)
 
         d = {'foo': 0, 'bar': 0}
         # We don't know what order of keys we'll be given, but from the
@@ -544,7 +536,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         #  "If items(), keys(), values(), iteritems(), iterkeys(), and
         #   itervalues() are called with no intervening modifications to
         #   the dictionary, the lists will directly correspond."
-        expected = u''.join(d.keys())
+        expected = ''.join(d.keys())
         context = {'iterable': d.keys()}  # type 'dictionary-keyiterator'
         self._assert_render(expected, template, context)
 
@@ -563,7 +555,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         """
         template = '{{#test}}Hi {{person}}{{/test}}'
         context = {'person': 'Mom', 'test': (lambda text: text + " :)")}
-        self._assert_render(u'Hi Mom :)', template, context)
+        self._assert_render('Hi Mom :)', template, context)
 
     def test_section__lambda__list(self):
         """
@@ -579,7 +571,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
                    'lambdas': [lambda text: "~{{%s}}~" % text,
                                lambda text: "#{{%s}}#" % text]}
 
-        self._assert_render(u'<~bar~#bar#>', template, context)
+        self._assert_render('<~bar~#bar#>', template, context)
 
     def test_section__lambda__mixed_list(self):
         """
@@ -594,7 +586,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         context = {'foo': 'bar',
                    'lambdas': [lambda text: "~{{%s}}~" % text, 1]}
 
-        self._assert_render(u'<~bar~foo>', template, context)
+        self._assert_render('<~bar~foo>', template, context)
 
     def test_section__lambda__not_on_context_stack(self):
         """
@@ -611,7 +603,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         """
         context = {'foo': 'bar', 'lambda': (lambda text: "{{.}}")}
         template = '{{#foo}}{{#lambda}}blah{{/lambda}}{{/foo}}'
-        self._assert_render(u'bar', template, context)
+        self._assert_render('bar', template, context)
 
     def test_section__lambda__no_reinterpolation(self):
         """
@@ -628,15 +620,15 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         """
         template = '{{#planet}}{{#lambda}}dot{{/lambda}}{{/planet}}'
         context = {'planet': 'Earth', 'dot': '~{{.}}~', 'lambda': (lambda text: "#{{%s}}#" % text)}
-        self._assert_render(u'#~{{.}}~#', template, context)
+        self._assert_render('#~{{.}}~#', template, context)
 
     def test_comment__multiline(self):
         """
         Check that multiline comments are permitted.
 
         """
-        self._assert_render(u'foobar', 'foo{{! baz }}bar')
-        self._assert_render(u'foobar', 'foo{{! \nbaz }}bar')
+        self._assert_render('foobar', 'foo{{! baz }}bar')
+        self._assert_render('foobar', 'foo{{! \nbaz }}bar')
 
     def test_custom_delimiters__sections(self):
         """
@@ -647,7 +639,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         """
         template = '{{=[[ ]]=}}[[#foo]]bar[[/foo]]'
         context = {'foo': True}
-        self._assert_render(u'bar', template, context)
+        self._assert_render('bar', template, context)
 
     def test_custom_delimiters__not_retroactive(self):
         """
@@ -656,7 +648,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         Test case for issue #35: https://github.com/defunkt/pystache/issues/35
 
         """
-        expected = u' {{foo}} '
+        expected = ' {{foo}} '
         self._assert_render(expected, '{{=$ $=}} {{foo}} ')
         self._assert_render(expected, '{{=$ $=}} {{foo}} $={{ }}=$')  # was yielding u'  '.
 
@@ -671,7 +663,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         template = 'Hello, {{person.name}}. I see you are {{person.details.age}}.'
         person = Attachable(name='Biggles', details={'age': 42})
         context = {'person': person}
-        self._assert_render(u'Hello, Biggles. I see you are 42.', template, context)
+        self._assert_render('Hello, Biggles. I see you are 42.', template, context)
 
     def test_dot_notation__multiple_levels(self):
         """
@@ -680,7 +672,7 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         """
         template = """Hello, Mr. {{person.name.lastname}}.
         I see you're back from {{person.travels.last.country.city}}."""
-        expected = u"""Hello, Mr. Pither.
+        expected = """Hello, Mr. Pither.
         I see you're back from Cornwall."""
         context = {'person': {'name': {'firstname': 'unknown', 'lastname': 'Pither'},
                             'travels': {'last': {'country': {'city': 'Cornwall'}}},
@@ -716,12 +708,11 @@ class RenderTests(unittest.TestCase, AssertStringMixin, AssertExceptionMixin):
         context = {'a': {'b': 'A.B'}, 'c': {'a': 'A'} }
 
         template = '{{a.b}}'
-        self._assert_render(u'A.B', template, context)
+        self._assert_render('A.B', template, context)
 
         template = '{{#c}}{{a}}{{/c}}'
-        self._assert_render(u'A', template, context)
+        self._assert_render('A', template, context)
 
         template = '{{#c}}{{a.b}}{{/c}}'
-        self.assertException(KeyNotFoundError, "Key %(unicode)s'a.b' not found: missing %(unicode)s'b'" %
-                             {'unicode': _UNICODE_CHAR},
+        self.assertException(KeyNotFoundError, "Key 'a.b' not found: missing 'b'",
                              self._assert_render, 'A.B :: (A :: )', template, context)

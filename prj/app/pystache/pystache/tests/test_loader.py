@@ -60,7 +60,7 @@ class LoaderTests(unittest.TestCase, AssertStringMixin, SetupDefaults):
         loader = Loader()
         path = self._get_path('ascii.mustache')
         actual = loader.read(path)
-        self.assertString(actual, u'ascii: abc')
+        self.assertString(actual, 'ascii: abc')
 
     def test_read__file_encoding__attribute(self):
         """
@@ -74,7 +74,7 @@ class LoaderTests(unittest.TestCase, AssertStringMixin, SetupDefaults):
 
         loader.file_encoding = 'utf-8'
         actual = loader.read(path)
-        self.assertString(actual, u'non-ascii: é')
+        self.assertString(actual, 'non-ascii: é')
 
     def test_read__encoding__argument(self):
         """
@@ -87,7 +87,7 @@ class LoaderTests(unittest.TestCase, AssertStringMixin, SetupDefaults):
         self.assertRaises(UnicodeDecodeError, loader.read, path)
 
         actual = loader.read(path, encoding='utf-8')
-        self.assertString(actual, u'non-ascii: é')
+        self.assertString(actual, 'non-ascii: é')
 
     def test_read__to_unicode__attribute(self):
         """
@@ -101,7 +101,7 @@ class LoaderTests(unittest.TestCase, AssertStringMixin, SetupDefaults):
 
         #loader.decode_errors = 'ignore'
         #actual = loader.read(path)
-        #self.assertString(actual, u'non-ascii: ')
+        #self.assertString(actual, 'non-ascii: ')
 
     def test_load_file(self):
         loader = Loader(search_dirs=[DATA_DIR, LOADER_DATA_DIR])
@@ -113,4 +113,3 @@ class LoaderTests(unittest.TestCase, AssertStringMixin, SetupDefaults):
                         extension='txt')
         template = loader.load_name('template')
         self.assertEqual(template, 'Test template file\n')
-

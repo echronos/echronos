@@ -5,16 +5,42 @@ Task name: 30XA1a-add-pystache-formatting-chars
 Version reviewed: 42903b241cf470019844798d9da572c765aab961
 Reviewer: joseph
 Date: 2013-08-19
-Conclusion: Accepted/Rework
+Conclusion: Rework if desired
 
 Overall comments:
+
+I'm sure its out of scope, but something I came up against the other day is that I
+need to declare the same variable template 3 or 4 times (in irq-event-c251.c):
+
+{{prefix}}{{name}}_event
+
+I'd really like to declare that as a partial and define it once and reuse it (less error-prone too).
+Its hardly worth creating a whole file for just that however. It'd be great if I 
+could define the partial in the template file and then use it after that. Perhaps
+something like:
+
+{{:partial}}{{prefix}}{{name}}_event{{/partial}}
+
+and then {{>partial}} wherever I want to use it (as currently is the case).
 
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: renderer:389
+Comment: This function name is a little ambiguous. It doesnt
+tell you *what* it's registering. How about "regster_format_specifier". 
+I also think it might be better to use "specifier" rather than "key".
 
-Location: filename:linenum
-Comment:
+And assert "hassattr(function, '__call__')"?
+
+Location: test_renderer.py:203
+Comment: Am being pedantic and don't have an emphatic opinion, but
+unless we are targeting python 3.2, we can remove the 'u' string prefix.
+(And elsewhere)
+
+Location test_simple.py:20
+Comment: it may out of scope, but unit tests
+validating pystache's parsing of location (test_specloader appears to
+test filename but not line number?) could be helpful?
+ 

@@ -1,0 +1,32 @@
+Breakaway Task Review
+=======================
+
+Task name: HFMqZp-prx-includes
+Version reviewed: 83156b0e26cc58970e6a12ef6d03b1f52e551377
+Reviewer: benno
+Date: 2013-08-15
+Conclusion: 3Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: prj/app/prj.py:225
+Comment: I think it would be clearer if xml_resolve_includes was purely a mutation function, rather than returning any value.
+The change would be to remove the "return" lines.
+This would also mean changing xml_parse_file_with_includes to:
+
+    dom = xml_parse_file(filename)
+    xml_resolve_includes(dom, os.path.dirname(filename))
+    return dom
+
+Overall doesn't reduce lines of code, but I believe it is much clearer.
+
+Location: prj/app/prj.py:225
+Comments: This function should be documented.
+
+Location: prj/app/prj.py:214
+Comment: Consider making the include directory a parameter, which defaults to os.path.dirname(filename).
+This would potentially make this more reusable in the future.

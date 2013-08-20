@@ -27,6 +27,10 @@ void {{prefix}}sem_wait(SemId);
 
 /*| object_like_macros |*/
 #define SEM_ID_NONE ((SemIdOption) SEM_ID_C(UINT8_MAX))
+#define SEM_ID_ZERO SEM_ID_C(0)
+#define SEM_ID_MAX SEM_ID_C({{num_semaphores}})
+#define SEM_VALUE_ZERO ((SemValue) UINT8_C(0))
+
 
 /*| type_definitions |*/
 typedef uint8_t SemValue;
@@ -79,7 +83,7 @@ void
 
     semaphores[s].value++;
 
-    if (old_value == 0)
+    if (old_value == SEM_VALUE_ZERO)
     {
         for (t = TASK_ID_ZERO; t < TASK_ID_MAX; t++)
         {
@@ -95,7 +99,7 @@ void
 bool
 {{prefix}}sem_try_wait(const SemId m)
 {
-    if (semaphores[m].value == 0)
+    if (semaphores[m].value == SEM_VALUE_ZERO)
     {
         return false;
     }

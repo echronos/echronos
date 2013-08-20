@@ -1,4 +1,5 @@
 import os
+import tempfile
 from prj import *
 from nose.tools import assert_raises, raises
 
@@ -206,3 +207,154 @@ def test_project_find():
         os.path.join(base_dir, 'test_data', 'path1', 'foo'),
     ])
     assert isinstance(p.find('bar.baz.qux'), System)
+
+
+def test_xml_parse_file_with_includes_without_include():
+    prx_xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <modules>
+    <module name="foo">
+      <bar>baz</bar>
+    </module>
+  </modules>
+</system>"""
+    prx_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+    prx_file.write(prx_xml)
+    prx_file.close()
+    try:
+        result = xml_parse_file_with_includes(prx_file.name)
+        result_of_xml_parse_file = xml_parse_file(prx_file.name)
+        assert result.toxml() == result_of_xml_parse_file.toxml()
+    finally:
+        os.remove(prx_file.name)
+
+
+def test_xml_parse_file_with_includes():
+    included_xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<include_root> <newelement1 />   <newelement2> <newelement3/> </newelement2></include_root>"""
+    prx_template = """<?xml version="1.0" encoding="UTF-8" ?>
+<system>{}
+  <modules>
+    <module name="foo">
+      <bar>baz</bar>
+    </module>
+  </modules>
+</system>"""
+    prx_with_include_xml = prx_template.format('<include file="{}" />')
+    prx_without_include_xml = prx_template.format('')
+
+    result = check_xml_parse_file_with_includes_with_xml(prx_with_include_xml, included_xml)
+
+    result_dom = xml_parse_string(result.toprettyxml())
+    new_el1s = result_dom.getElementsByTagName('newelement1')
+    assert len(new_el1s) == 1
+    new_el1 = new_el1s[0]
+    assert new_el1.parentNode == result_dom
+
+    new_el2s = result_dom.getElementsByTagName('newelement2')
+    assert len(new_el2s) == 1
+    new_el2 = new_el2s[0]
+    assert new_el2.parentNode == result_dom
+
+    new_el3s = result_dom.getElementsByTagName('newelement3')
+    assert len(new_el3s) == 1
+    new_el3 = new_el3s[0]
+    assert new_el3.parentNode == new_el2
+
+    #assert result.toprettyxml() == expected_result.toprettyxml()
+
+
+@raises(SystemParseError)
+def test_xml_parse_file_with_includes__include_as_root_element():
+    including_xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<include file="{}" />"""
+    included_xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<include_root>
+  <foo />
+</include_root>"""
+    check_xml_parse_file_with_includes_with_xml(including_xml, included_xml)
+
+
+@raises(SystemParseError)
+def test_xml_parse_file_with_includes__invalid_path():
+    check_xml_parse_file_with_includes_with_xml("""<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <include file="/123/abc/!#$" />
+  <modules>
+    <module name="foo">
+      <bar>baz</bar>
+    </module>
+  </modules>
+</system>""")
+
+
+@raises(SystemParseError)
+def test_xml_parse_file_with_includes__missing_path_attribute():
+    check_xml_parse_file_with_includes_with_xml("""<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <include />
+  <modules>
+    <module name="foo">
+      <bar>baz</bar>
+    </module>
+  </modules>
+</system>""")
+
+
+@raises(SystemParseError)
+def test_xml_parse_file_with_includes__child_elements():
+    check_xml_parse_file_with_includes_with_xml("""<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <include file=".">
+    <foo />
+  </include>
+  <modules>
+    <module name="foo">
+      <bar>baz</bar>
+    </module>
+  </modules>
+</system>""")
+
+
+@raises(SystemParseError)
+def test_xml_parse_file_with_includes__wrong_name_of_included_root_element():
+    check_xml_parse_file_with_includes_with_xml("""<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <include file="{}" />
+  <modules>
+    <module name="foo">
+      <bar>baz</bar>
+    </module>
+  </modules>
+</system>""", """<?xml version="1.0" encoding="UTF-8" ?><foo />""")
+
+
+def test_xml_parse_file_with_includes__empty_included_root_element():
+    check_xml_parse_file_with_includes_with_xml("""<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <include file="{}" />
+  <modules>
+    <module name="foo">
+      <bar>baz</bar>
+    </module>
+  </modules>
+</system>""", """<?xml version="1.0" encoding="UTF-8" ?><include_root />""")
+
+
+def check_xml_parse_file_with_includes_with_xml(xml, included_xml=None):
+    if included_xml:
+        included_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+        included_file.write(included_xml)
+        included_file.close()
+        xml = xml.format(included_file.name)
+
+    prx_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+    prx_file.write(xml)
+    prx_file.close()
+
+    try:
+        return xml_parse_file_with_includes(prx_file.name)
+    finally:
+        os.remove(prx_file.name)
+        if included_xml:
+            os.remove(included_file.name)

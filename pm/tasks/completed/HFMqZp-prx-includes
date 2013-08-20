@@ -1,0 +1,35 @@
+Task: HFMqZp-prx-includes
+==============================================================================
+
+Goals
+--------
+
+System definition (.prx) files are currently completely static and provide no mechanism for re-using them partially.
+For example, building the same system with different compiler flags requires two almost identical copies of the system definition differing only in the compiler flags.
+This is undesirable as it leads to duplication and requires unnecessary effort to maintain similar systems and keep them consistent.
+
+The goal of this task is to support a re-use mechanism for .prx files.
+The focus is on simplicity of implementation and use.
+
+The following is assumed:
+
+- Both the reused and the variable parts of the system definition are static and can be stored in files.
+  For example, there would be a fixed number of variations of compiler options, all of which are known and fixed and can be stored in separate files (in contrast to, e.g., evaluating Python code to determine the compiler options).
+- A very small number of variations per system is required.
+  For example, only a fixed set of compiler options or referenced modules would be different across the variations of a system.
+- Both fixed and variable parts of system definitions are complete XML entities.
+
+Based on these assumptions, and mechanism somewhat similar to C pre-process #include statements shall be implemented.
+It shall be possible to add an *include* XML element, which references another XML file, anywhere in a system definition file.
+After reading a system definition file, all *include* elements in the DOM shall be replaced with the root DOM elements of the referenced XML files.
+For simplicity, files to be included shall be referenced by their path and full file name.
+For usability, absolute paths as well as paths relative to the including prx file's directory shall be supported in include elements.
+Recursive resolution of include elements is not required.
+It is sufficient of only include statements in a top-level prx file are evaluated.
+
+Test plan
+---------
+
+The implemented functionality must be covered by unit tests that can be run via the prj-test command of the x tool.
+The unit tests must cover the correct modification of the system definition DOM if include elements are present.
+They must also cover such typical case of incorrect usage, such as missing 'file' attributes or invalid paths of included files.

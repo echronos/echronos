@@ -189,6 +189,7 @@ def xml_parse_file(filename):
 
     dom.path = filename
     dom.start_line = 0
+
     return dom.documentElement
 
 
@@ -213,6 +214,75 @@ def xml_parse_string(string, name='<string>', start_line=0):
     dom.path = name
     dom.start_line = start_line
     return dom.documentElement
+
+
+def xml_parse_file_with_includes(filename, include_dir=None):
+    """Parse XML file as xml_parse_file() would and resolve include elements.
+
+    All elements with the name 'include' and the attribute 'file' are replaced with the child nodes of the root DOM
+    element of the XML file referenced by the 'file' attribute.
+    This resolution is not recursive in the sense that include elements in included files are ignored.
+
+    """
+    if include_dir is None:
+        include_dir = os.path.dirname(filename)
+
+    document_element = xml_parse_file(filename)
+
+    if document_element.tagName == 'include':
+        raise SystemParseError(xml_error_str(document_element, 'The XML root element is an include element. This is \
+not supported. include elements may only appear below the root element.'))
+
+    xml_resolve_includes_below_element(document_element, include_dir)
+    return document_element
+
+
+def xml_resolve_includes_below_element(el, include_dir):
+    """Recurse children of 'el' and replace all include elements with contents of included XML files."""
+    for child in el.childNodes:
+        if child.nodeType == child.ELEMENT_NODE and child.tagName == 'include':
+            xml_resolve_include_element(child, include_dir)
+        else:
+            xml_resolve_includes_below_element(child, include_dir)
+
+
+def xml_resolve_include_element(el, include_dir):
+    """Replace the XML element 'el' with the child nodes of the root element of the included DOM.
+
+    This performs all necessary consistency checks to ensure the result is again a well-formed DOM.
+
+    After this function returns, the element 'el' is no longer part of the original DOM, it is unlinked, and must not
+    be accessed or used in the context of the calling function.
+
+    """
+    if len(element_children(el)) != 0:
+        raise SystemParseError(xml_error_str(el, 'Expected no child elements in include element. Correct format \
+is <include file="FILENAME" />'))
+
+    path_to_include = get_attribute(el, 'file')
+    if path_to_include == NOTHING:
+        raise SystemParseError(xml_error_str(el, 'Expected include element to contain "file" attribute. Correct \
+format is <include file="FILENAME" />'))
+
+    if not os.path.isabs(path_to_include):
+        path_to_include = os.path.join(include_dir, path_to_include)
+
+    path_to_include = os.path.normpath(path_to_include)
+    if not os.path.exists(path_to_include):
+        raise SystemParseError(xml_error_str(el, 'The path {} specified in the include element does not refer to \
+an existing file'.format(path_to_include)))
+
+    included_root_element = xml_parse_file(path_to_include)
+    if included_root_element.tagName != 'include_root':
+        raise SystemParseError(xml_error_str(included_root_element, 'The XML root element in file {} is not named \
+include_root as expected. Root elements in included XML files must have this name by convention and are removed \
+implicitly by the inclusion process.'))
+
+    parent_node = el.parentNode
+    for child in included_root_element.childNodes[:]:
+        parent_node.insertBefore(child, el)
+    parent_node.removeChild(el)
+    el.unlink()
 
 
 def single_text_child(el):
@@ -1304,7 +1374,10 @@ class Project:
         """
         ext = os.path.splitext(path)[1]
         if ext == '.prx':
-            return System(entity_name, xml_parse_file(path), self)
+            try:
+                return System(entity_name, xml_parse_file_with_includes(path), self)
+            except ExpatError as e:
+                raise EntityLoadError("Error parsing system import '{}:{}': {!s}".format(e.path, e.lineno, e))
         elif ext == '.py':
             py_module = imp.load_source("__prj.%s" % entity_name, path)
             py_module.__path__ = os.path.dirname(py_module.__file__)
@@ -1399,8 +1472,8 @@ def call_system_function(args, function, extra_args=None, sys_is_path=False):
                 return 1
             print("Loading system: {}".format(system_name))
             system = project.find(system_name)
-    except EntityLoadError:
-        logger.error("Unable to load system [{}].".format(system_name))
+    except EntityLoadError as e:
+        logger.error("Unable to load system [{}]: {}".format(system_name, e))
         return 1
     except EntityNotFound:
         logger.error("Unable to find system [{}].".format(system_name))

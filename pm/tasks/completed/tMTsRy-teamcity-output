@@ -1,0 +1,10 @@
+Task: tMTsRy-teamcity-output
+==============================================================================
+
+Goals
+--------
+
+  -- add teamcity-compatible output to (at this stage) check-pep8
+  -- add an excludes option to check-pep8 so that (for example) running check-pep8 in rtos-clr can ignore the core
+
+

@@ -347,6 +347,32 @@ def get_host_platform_name():
         raise RuntimeError('Unsupported platform {}'.format(sys.platform))
 
 
+class TeamcityReport(pep8.StandardReport):
+    """Collect results and print teamcity messages."""
+
+    def __init__(self, options):
+        super(TeamcityReport, self).__init__(options)
+
+    def get_file_results(self):
+        ret = super(TeamcityReport, self).get_file_results()
+        if self.file_errors:
+            self._teamcity("testFailed name='%s'" % self._test_name())
+        self._teamcity("testFinished name='%s'" % self._test_name())
+        return ret
+
+    def init_file(self, filename, lines, expected, line_offset):
+        ret = super(TeamcityReport, self).init_file(filename, lines, expected, line_offset)
+        self._teamcity("testStarted name='%s' captureStandardOutput='true'" % self._test_name())
+        return ret
+
+    def _teamcity(self, msg):
+        print("##teamcity[{}]".format(msg))
+
+    def _test_name(self):
+        return self.filename[:-3].replace("|", "||").replace("'", "|'").replace("[", "|[") \
+            .replace("]", "|]").replace("\n", "|n").replace("\r", "|r")
+
+
 def check_pep8(args):
     """Check for PEP8 compliance with the pep8 tool.
 
@@ -360,15 +386,17 @@ def check_pep8(args):
     exceptions.
 
     """
-    excludes = ['external_tools', 'pystache', 'tools', 'ply']
+    excludes = ['external_tools', 'pystache', 'tools', 'ply'] + args.excludes
     exclude_patterns = ','.join(excludes)
     options = ['--exclude=' + exclude_patterns, '--max-line-length', '118', top_path('.')]
 
     logging.info('pep8 check: ' + ' '.join(options))
 
-    try:
-        pep8.pep8(options)
-    except pep8.Pep8Error:
+    pep8style = pep8.StyleGuide(arglist=options)
+    if args.teamcity:
+        pep8style.init_report(TeamcityReport)
+    report = pep8style.check_files()
+    if report.total_errors:
         logging.error('pep8 check found non-compliant files')  # details on stdout
         return 1
 
@@ -2524,7 +2552,15 @@ def main():
 
     # create the parser for the "prj.pep8" command
     subparsers.add_parser('tasks', help="List tasks")
-    subparsers.add_parser('check-pep8', help='Run PEP8 on project Python files')
+
+    _parser = subparsers.add_parser('check-pep8', help='Run PEP8 on project Python files')
+    _parser.add_argument('--teamcity', action='store_true',
+                         help="Provide teamcity output for tests",
+                         default=False)
+    _parser.add_argument('--excludes', nargs='*',
+                         help="Exclude directories from pep8 checks",
+                         default=[])
+
     for component_name in ['prj', 'x', 'rtos']:
         _parser = subparsers.add_parser(component_name + '-test', help='Run {} unittests'.format(component_name))
         _parser.add_argument('tests', metavar='TEST', nargs='*',

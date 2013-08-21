@@ -1,6 +1,7 @@
 import os
 import ctypes
 from rtos import sched
+import itertools
 
 NUM_SEMAPHORES = 10
 ALL_SEMAPHORES = list(range(NUM_SEMAPHORES))
@@ -29,6 +30,25 @@ class SemaphoreTest:
         cls.impl_sem = ctypes.POINTER(SemaphoreStruct).in_dll(cls.impl, 'pub_semaphores')
         cls.impl_waiters = ctypes.POINTER(ctypes.c_ubyte).in_dll(cls.impl, 'pub_waiters')
         cls.impl.rtos_sem_try_wait.res_type = ctypes.c_bool
+        cls.unblock_func_ptr = None
+        cls.block_func_ptr = None
+        cls.get_current_task_ptr = None
+
+    def show_state(cls):
+        print("WAITERS: {}".format([cls.impl_waiters[i] for i in ALL_TASKS]))
+        print("SEMVALUES: {}".format([cls.impl_sem[i].value for i in ALL_SEMAPHORES]))
+
+    def set_unblock_func(cls, fn):
+        cls.unblock_func_ptr = UnblockFuncPtr(fn)
+        cls.impl.pub_set_unblock_ptr(cls.unblock_func_ptr)
+
+    def set_block_func(cls, fn):
+        cls.block_func_ptr = BlockFuncPtr(fn)
+        cls.impl.pub_set_block_ptr(cls.block_func_ptr)
+
+    def set_get_current_task_func(cls, fn):
+        cls.get_current_task_ptr = GetCurrentTaskPtr(fn)
+        cls.impl.pub_set_get_current_task_ptr(cls.get_current_task_ptr)
 
 
 class testSimpleSemaphoreWhiteBox(SemaphoreTest):
@@ -56,27 +76,51 @@ class testSimpleSemaphoreWhiteBox(SemaphoreTest):
                 for sem_id in ALL_SEMAPHORES:
                     assert self.impl_sem[sem_id].value == (i if sem_id == test_sem_id else SEM_VALUE_ZERO)
 
-    def test_unblock_multiple(self):
+    def test_block(self):
+        self.impl.pub_sem_init()
+
         current_task_id = None
         current_sem_id = None
 
         def get_current_task():
             return current_task_id
-        get_current_task_ptr = GetCurrentTaskPtr(get_current_task)
-        self.impl.pub_set_get_current_task_ptr(get_current_task_ptr)
+        self.set_get_current_task_func(get_current_task)
 
         def block_func():
             for task_id in ALL_TASKS:
                 assert self.impl_waiters[task_id] == current_sem_id if task_id == current_task_id else SEM_ID_NONE
             self.impl.rtos_sem_post(current_sem_id)
-        block_func_ptr = BlockFuncPtr(block_func)
-        self.impl.pub_set_block_ptr(block_func_ptr)
+        self.set_block_func(block_func)
 
         for current_task_id in ALL_TASKS:
             for current_sem_id in ALL_SEMAPHORES:
                 self.impl.rtos_sem_wait(current_sem_id)
                 for task_id in ALL_TASKS:
                     assert self.impl_waiters[task_id] == SEM_ID_NONE
+
+    def test_unblock_multiple(self):
+        """Test that calling 'post' will unblock the correct set of waiters."""
+        unblocked = []
+
+        def unblock_func(task_id):
+            nonlocal unblocked
+            unblocked.append(task_id)
+
+        for test_sem_id in ALL_SEMAPHORES:
+            for waiters in itertools.product([True, False], repeat=NUM_TASKS):
+                self.impl.pub_sem_init()
+                self.set_unblock_func(unblock_func)
+                for i, waiting in enumerate(waiters):
+                    self.impl_waiters[i] = test_sem_id if waiting else SEM_ID_NONE
+                unblocked = []
+                self.impl.rtos_sem_post(test_sem_id)
+                for task_id in ALL_TASKS:
+                    assert self.impl_waiters[task_id] == SEM_ID_NONE
+                    if waiters[task_id]:
+                        assert task_id in unblocked
+                    else:
+                        assert task_id not in unblocked
+
 
 class testSimpleSemaphore(SemaphoreTest):
     """Semaphore tests (black-box)."""
@@ -119,21 +163,18 @@ class testSimpleSemaphore(SemaphoreTest):
         def unblock_func(task_id):
             nonlocal unblocked
             unblocked = task_id
-        unblock_func_ptr = UnblockFuncPtr(unblock_func)
-        self.impl.pub_set_unblock_ptr(unblock_func_ptr)
+        self.set_unblock_func(unblock_func)
 
         def block_func():
             nonlocal block_calls
             block_calls += 1
             if block_calls == expected_blocks:
                 self.impl.rtos_sem_post(0)
-        block_func_ptr = BlockFuncPtr(block_func)
-        self.impl.pub_set_block_ptr(block_func_ptr)
+        self.set_block_func(block_func)
 
         def get_current_task():
             return task_id
-        get_current_task_ptr = GetCurrentTaskPtr(get_current_task)
-        self.impl.pub_set_get_current_task_ptr(get_current_task_ptr)
+        self.set_get_current_task_func(get_current_task)
 
         self.impl.rtos_sem_wait(0)
 

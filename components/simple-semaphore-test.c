@@ -95,4 +95,7 @@ void pub_sem_init(void)
     {
         semaphores[sem_id].value = SEM_VALUE_ZERO;
     }
+    block_ptr = NULL;
+    unblock_ptr = NULL;
+    get_current_task_ptr = NULL;
 }

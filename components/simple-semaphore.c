@@ -58,7 +58,7 @@ sem_init(void)
 {
     TaskId t;
 
-    for (t = TASK_ID_ZERO; t < TASK_ID_MAX; t++)
+    for (t = TASK_ID_ZERO; t <= TASK_ID_MAX; t++)
     {
         waiters[t] = SEM_ID_NONE;
     }
@@ -85,7 +85,7 @@ void
 
     if (old_value == SEM_VALUE_ZERO)
     {
-        for (t = TASK_ID_ZERO; t < TASK_ID_MAX; t++)
+        for (t = TASK_ID_ZERO; t <= TASK_ID_MAX; t++)
         {
             if (waiters[t] == s)
             {

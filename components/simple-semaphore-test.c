@@ -69,6 +69,7 @@ get_current_task(void)
 /*| public_functions |*/
 
 struct semaphore * pub_semaphores = semaphores;
+TaskId * pub_waiters = waiters;
 
 void pub_set_block_ptr(void (*fn)(void))
 {

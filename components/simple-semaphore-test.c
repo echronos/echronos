@@ -91,7 +91,7 @@ void pub_sem_init(void)
     SemId sem_id;
     sem_init();
     /* For testing purposes we also reset the value of all semaphores to zero */
-    for (sem_id = SEM_ID_ZERO; sem_id < SEM_ID_MAX; sem_id++)
+    for (sem_id = SEM_ID_ZERO; sem_id <= SEM_ID_MAX; sem_id++)
     {
         semaphores[sem_id].value = SEM_VALUE_ZERO;
     }

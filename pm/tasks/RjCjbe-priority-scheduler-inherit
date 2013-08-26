@@ -1,0 +1,10 @@
+Task: RjCjbe-priority-scheduler-inherit
+==============================================================================
+
+Goals
+--------
+
+Implement a priority scheduler that supports inheritance.
+Inheritance allows a task to 'block on' a specific task, rather than simply 'blocking'.
+When a task 'blocks on' another task (the 'blocker') that blocker will be scheduled instead of the original task.
+In a priority scheduler this will implement the standard priority inheritance protocol.

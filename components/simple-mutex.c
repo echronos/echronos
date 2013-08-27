@@ -40,7 +40,7 @@ struct mutex {
 /*| function_definitions |*/
 
 /*| state |*/
-static struct mutex mutexes[{{num_mutexes}}];
+static struct mutex mutexes[{{mutexes.length}}];
 
 /*| function_like_macros |*/
 

@@ -12,7 +12,6 @@
     <module name="posix.rtos-acamar">
       <prefix>rtos_</prefix>
       <taskid_size>8</taskid_size>
-      <num_tasks>2</num_tasks>
       <tasks>
 
         <task>

@@ -43,7 +43,7 @@ extern void {{entry}}(void);
 
 /*| state |*/
 static TaskId current_task;
-static struct task tasks[{{num_tasks}}];
+static struct task tasks[{{tasks.length}}];
 
 /*| function_like_macros |*/
 #define get_current_task() current_task

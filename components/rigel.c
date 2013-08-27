@@ -58,9 +58,9 @@ static void handle_irq_event(IrqEventId irq_event_id);
 
 /*| state |*/
 static TaskId current_task;
-static struct task tasks[{{num_tasks}}];
+static struct task tasks[{{tasks.length}}];
 
-struct irq_event_handler irq_events[{{num_irq_events}}] = {
+struct irq_event_handler irq_events[{{irq_events.length}}] = {
 {{#irq_events}}
  { {{task}}, SIGNAL_SET_IRQ_{{name|u}} },
 {{/irq_events}}

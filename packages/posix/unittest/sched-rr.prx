@@ -7,7 +7,18 @@
     </module>
 
     <module name="posix.rtos-sched-rr-test">
-      <num_tasks>10</num_tasks>
+      <tasks>
+        <task><name>t0</name></task>
+        <task><name>t1</name></task>
+        <task><name>t2</name></task>
+        <task><name>t3</name></task>
+        <task><name>t4</name></task>
+        <task><name>t5</name></task>
+        <task><name>t6</name></task>
+        <task><name>t7</name></task>
+        <task><name>t8</name></task>
+        <task><name>t9</name></task>
+      </tasks>
     </module>
 
   </modules>

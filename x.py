@@ -2311,7 +2311,9 @@ CORE_ARCHITECTURES = {
 sched_rr_test_schema = """/*<module>
   <code_gen>template</code_gen>
   <schema>
-   <entry name="num_tasks" type="int"/>
+   <entry name="tasks" type="list">
+      <entry name="task" type="dict" />
+   </entry>
   </schema>
 </module>*/
 """
@@ -2322,7 +2324,6 @@ simple_mutex_test_schema = """/*<module>
     <header path="rtos-simple-mutex-test.h" code_gen="template" />
   </headers>
   <schema>
-   <entry name="num_mutexes" type="int"/>
    <entry name="prefix" type="c_ident" default="rtos_" />
    <entry name="mutexes" type="list">
      <entry name="mutex" type="dict">
@@ -2340,8 +2341,6 @@ simple_semaphore_test_schema = """/*<module>
     <header path="rtos-simple-semaphore-test.h" code_gen="template" />
   </headers>
   <schema>
-   <entry name="num_tasks" type="int"/>
-   <entry name="num_semaphores" type="int"/>
    <entry name="prefix" type="c_ident" default="rtos_" />
    <entry name="semaphores" type="list">
      <entry name="semaphore" type="dict">
@@ -2366,7 +2365,6 @@ acamar_schema = """/*<module>
   </headers>
   <schema>
    <entry name="taskid_size" type="int" default="8"/>
-   <entry name="num_tasks" type="int"/>
    <entry name="prefix" type="c_ident" default="rtos_" />
    <entry name="tasks" type="list">
      <entry name="task" type="dict">
@@ -2387,8 +2385,6 @@ gatria_schema = """/*<module>
   </headers>
   <schema>
    <entry name="taskid_size" type="int" default="8"/>
-   <entry name="num_tasks" type="int"/>
-   <entry name="num_mutexes" type="int"/>
    <entry name="prefix" type="c_ident" default="rtos_" />
    <entry name="tasks" type="list">
      <entry name="task" type="dict">
@@ -2416,8 +2412,6 @@ kraz_schema = """/*<module>
   <schema>
    <entry name="taskid_size" type="int" default="8"/>
    <entry name="signalset_size" type="int" default="8"/>
-   <entry name="num_tasks" type="int"/>
-   <entry name="num_mutexes" type="int"/>
    <entry name="prefix" type="c_ident" default="rtos_" />
    <entry name="tasks" type="list">
      <entry name="task" type="dict">
@@ -2445,8 +2439,6 @@ acrux_schema = """/*<module>
   <schema>
    <entry name="taskid_size" type="int" default="8"/>
    <entry name="irqeventid_size" type="int" default="8"/>
-   <entry name="num_tasks" type="int"/>
-   <entry name="num_mutexes" type="int"/>
    <entry name="prefix" type="c_ident" default="rtos_" />
    <entry name="tasks" type="list">
      <entry name="task" type="dict">

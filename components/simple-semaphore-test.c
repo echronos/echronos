@@ -19,7 +19,7 @@ typedef uint8_t TaskId;
 
 /*| object_like_macros |*/
 #define TASK_ID_ZERO 0
-#define TASK_ID_MAX ({{num_tasks}} - 1)
+#define TASK_ID_MAX ({{tasks.length}} - 1)
 
 /*| type_definitions |*/
 

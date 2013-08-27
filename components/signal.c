@@ -39,7 +39,7 @@ struct signal_task {
 };
 
 struct signal {
-    struct signal_task tasks[{{num_tasks}}];
+    struct signal_task tasks[{{tasks.length}}];
 };
 
 /*| extern_definitions |*/

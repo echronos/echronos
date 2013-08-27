@@ -27,7 +27,7 @@ struct sched_task {
 
 struct sched {
     SchedIndex cur; /* The index of the currently scheduled task */
-    struct sched_task tasks[{{num_tasks}}];
+    struct sched_task tasks[{{tasks.length}}];
 };
 
 /*| extern_definitions |*/
@@ -45,7 +45,7 @@ static struct sched sched_tasks;
 #define sched_next_index(cur) (((cur) == sched_max_index()) ? 0 : ((cur) + 1))
 #define sched_get_cur_index() (sched_tasks.cur)
 #define sched_set_cur_index(idx) sched_tasks.cur = (idx)
-#define sched_max_index() (SchedIndex)({{num_tasks}} - 1U)
+#define sched_max_index() (SchedIndex)({{tasks.length}} - 1U)
 #define sched_index_to_taskid(sched_index) (TaskId)(sched_index)
 #define SCHED_OBJ(task_id) sched_tasks.tasks[task_id]
 

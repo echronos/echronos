@@ -79,11 +79,8 @@ void
 {{prefix}}sem_post(const SemId s)
 {
     TaskId t;
-    SemValue old_value = semaphores[s].value;
 
-    semaphores[s].value++;
-
-    if (old_value == SEM_VALUE_ZERO)
+    if (semaphores[s].value == SEM_VALUE_ZERO)
     {
         for (t = TASK_ID_ZERO; t <= TASK_ID_MAX; t++)
         {
@@ -94,6 +91,8 @@ void
             }
         }
     }
+
+    semaphores[s].value++;
 }
 
 bool

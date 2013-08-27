@@ -16,3 +16,5 @@ Specific comments
 Location: components/simple-semaphore.c:74-93
 Comment: You could increment semaphore[s].value after unblocking the tasks.
 If sem_post is atomic then this is safe and means that old_value is not needed.
+
+[[(benno): Fixed.]]

@@ -533,6 +533,7 @@ def xml2schema(el):
 
         if _type == 'list':
             entry['list_type'] = read_entry(single_named_child(el, 'entry'))
+            entry['auto_index_field'] = get_attribute(el, 'auto_index_field', None)
         elif _type == 'dict':
             entry['dict_type'] = read_dict_schema(el)
 
@@ -667,6 +668,13 @@ def xml2dict(el, schema=None):
                 r = [get_el_val(c, schema['list_type'] if schema else None, el) for c in element_children(el)]
             else:
                 r = []
+
+            auto_index_field = schema.get('auto_index_field') if schema is not None else None
+            if auto_index_field is not None:
+                try:
+                    util.util.add_index(r, auto_index_field)
+                except ValueError as e:
+                    raise SystemParseError(xml_error_str(el, str(e)))
             return util.util.LengthList(r)
 
         # If it isn't a compound type, get the value

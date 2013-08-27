@@ -136,14 +136,27 @@ def test_schema_default_value():
                        'name': 'bar',
                        'default': 'FOO'}]
     }
-    assert xml2dict(xml_parse_string("<foo></foo>"), schema) == {'bar' : 'FOO'}
-    assert xml2dict(xml_parse_string("<foo><bar>BAZ</bar></foo>"), schema) == {'bar' : 'BAZ'}
+    assert xml2dict(xml_parse_string("<foo></foo>"), schema) == {'bar': 'FOO'}
+    assert xml2dict(xml_parse_string("<foo><bar>BAZ</bar></foo>"), schema) == {'bar': 'BAZ'}
 
 
 def test_xml2dict_length_prop():
     test_xml = "<list><li>foo</li><li>bar</li><li>baz</li></list>"
     x = xml2dict(xml_parse_string(test_xml))
     assert x.length == 3
+
+
+def test_xml2dict_autoindex():
+    test_xml = "<list><x><name>foo</name></x><x><name>bar</name></x><x><name>x</name></x></list>"
+    schema = {
+        'type': 'list',
+        'name': 'list',
+        'auto_index_field': 'idx',
+        'list_type': {'type': 'dict',
+                      'name': 'x',
+                      'dict_type': [{'name': 'name', 'type': 'string'}]}
+    }
+    x = xml2dict(xml_parse_string(test_xml), schema)
 
 
 def test_asdict_key():

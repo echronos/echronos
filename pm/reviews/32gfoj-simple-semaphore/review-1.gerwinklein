@@ -5,16 +5,21 @@ Task name: 32gfoj-simple-semaphore
 Version reviewed: 8472d4ba3e62abe9340482be8b3b35d4cf09dc9c
 Reviewer: gerwinklein
 Date: 2013-08-27
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
 Overall comments:
 
+No real problems, some small potential tweaks below.
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+- There is a change to simple_mutex.py in the patch that seems unrelated
+  to semaphores (testing yield for mutex). The change is benign, though.
 
-Location: filename:linenum
-Comment:
+- The format in simple-semaphore.prx needs documentation:
+  Is the <semaphores> .. </semaphores> part optional?
+  I assume it only assigns names to a subset of semaphores.
+
+- should the build statically test for num_semaphores < UNIT8_MAX?
+  (for SemIdOption encoding to be valid)

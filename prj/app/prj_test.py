@@ -116,6 +116,30 @@ def test_xml2dict():
         yield name, check, xml, result
 
 
+def test_schema_default_none():
+    test_xml = "<foo></foo>"
+    schema = {
+        'type': 'dict',
+        'name': 'foo',
+        'dict_type': [{'type': 'string',
+                       'name': 'foo'}]
+    }
+    with assert_raises(SystemParseError):
+        xml2dict(xml_parse_string(test_xml), schema)
+
+
+def test_schema_default_value():
+    schema = {
+        'type': 'dict',
+        'name': 'foo',
+        'dict_type': [{'type': 'string',
+                       'name': 'bar',
+                       'default': 'FOO'}]
+    }
+    assert xml2dict(xml_parse_string("<foo></foo>"), schema) == {'bar' : 'FOO'}
+    assert xml2dict(xml_parse_string("<foo><bar>BAZ</bar></foo>"), schema) == {'bar' : 'BAZ'}
+
+
 def test_xml2dict_length_prop():
     test_xml = "<list><li>foo</li><li>bar</li><li>baz</li></list>"
     x = xml2dict(xml_parse_string(test_xml))

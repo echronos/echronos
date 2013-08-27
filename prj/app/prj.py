@@ -641,7 +641,7 @@ def xml2dict(el, schema=None):
         if el is not None:
             return single_text_child(el)
         else:
-            if schema['default'] is not None:
+            if schema.get('default') is not None:
                 return schema['default']
             else:
                 raise SystemParseError(xml_error_str(parent, "Required config {} missing.".format(schema['name'])))

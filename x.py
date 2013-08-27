@@ -2313,7 +2313,6 @@ CORE_ARCHITECTURES = {
     'armv7m': Architecture('armv7m', {}),
 }
 
-
 CORE_SKELETONS = {
     'sched-rr-test': RtosSkeleton(
         'sched-rr-test',
@@ -2323,6 +2322,10 @@ CORE_SKELETONS = {
         'sched-prio-test',
         [Component('sched-prio-test'),
          Component('sched', 'sched-prio', {'assume_runnable': False})]),
+    'sched-prio-inherit-test': RtosSkeleton(
+        'sched-prio-inherit-test',
+        [Component('sched-prio-inherit-test'),
+         Component('sched', 'sched-prio-inherit', {'assume_runnable': False})]),
     'simple-mutex-test': RtosSkeleton(
         'simple-mutex-test',
         [Component('simple-mutex-test'),
@@ -2376,6 +2379,7 @@ CORE_SKELETONS = {
 
 CORE_CONFIGURATIONS = {
     'sched-rr-test': ['posix'],
+    'sched-prio-inherit-test': ['posix'],
     'simple-mutex-test': ['posix'],
     'simple-semaphore-test': ['posix'],
     'sched-prio-test': ['posix'],

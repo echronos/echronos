@@ -83,6 +83,36 @@ def get_prio_sched_struct(num_tasks):
     return PrioSchedStruct
 
 
+def get_prio_inherit_sched_struct(num_tasks):
+    """Return an implementation mock for a prioity inheritance scheduler with 'num_tasks' tasks."""
+    class PrioInheritTaskStruct(ctypes.Structure):
+        _fields_ = [("blocked_on", ctypes.c_uint8)]
+
+    class PrioInheritSchedStruct(ctypes.Structure):
+        _fields_ = [("tasks", PrioInheritTaskStruct * num_tasks)]
+
+        def __str__(self):
+            blocked_on = ''.join(['{:d}'.format(x.blocked_on) if x.blocked_on is not 0xff else '.'
+                                  for x in self.tasks])
+            return "<PrioInheritSchedImpl blocked_on=[{}]".format(blocked_on)
+
+        def __eq__(self, model):
+            for idx, r in enumerate(model.blocked_on):
+                if r is None:
+                    r = 0xff
+                if self.tasks[idx].blocked_on != r:
+                    return False
+            return True
+
+        def set(self, model):
+            for idx, blocked_on in enumerate(model.blocked_on):
+                if blocked_on is None:
+                    blocked_on = 0xff
+                self.tasks[idx].blocked_on = blocked_on
+            assert self == model
+    return PrioInheritSchedStruct
+
+
 class BaseSchedModel:
     def __init__(self, runnable):
         self.runnable = runnable
@@ -152,6 +182,65 @@ class PrioSchedModel(BaseSchedModel):
         """
         g = (cls(s) for s in product((True, False), repeat=n))
         return filter(lambda s: any(s.runnable), g) if assume_runnable else g
+
+
+class PrioInheritSchedModel(BaseSchedModel):
+    """A model of the strict priority with inheritance scheduler."""
+
+    def __init__(self, blocked_on):
+        self.blocked_on = blocked_on
+
+    @property
+    def blocked_on_str(self):
+        return ''.join(['{:d}'.format(r) if r is not None else '.' for r in self.blocked_on])
+
+    @property
+    def any_runnable(self):
+        return any(idx == val for idx, val in enumerate(self.blocked_on))
+
+    def __str__(self):
+        return '<PrioInheritSched blocked_on=[{}]>'.format(self.blocked_on_str)
+
+    def get_next(self):
+        def resolve_block_chain(task_id):
+            seen = set()
+            while True:
+                blocked_on = self.blocked_on[task_id]
+                assert blocked_on not in seen
+                if blocked_on in (task_id, None):
+                    return blocked_on
+                else:
+                    seen.add(task_id)
+                    task_id = blocked_on
+
+        return head(task_id for
+                    task_id in map(resolve_block_chain, range(len(self.blocked_on)))
+                    if task_id is not None)
+
+    @classmethod
+    def states(cls, n, assume_runnable=False):
+        """Return all possible priority scheduler states for n tasks.
+
+        If assume_runnable is True then only include states where at least one task is runnable.
+
+        """
+        def check_blocked(blocked_list, task_id):
+            seen = set()
+            while True:
+                blocked_on = blocked_list[task_id]
+                if blocked_on in seen:
+                    return False
+                elif blocked_on in (task_id, None):
+                    return True
+                else:
+                    seen.add(task_id)
+                    task_id = blocked_on
+
+        def check_blocked_list(blocked_list):
+            r = all(check_blocked(blocked_list, task_id) for task_id in range(len(blocked_list)))
+            return r
+        g = (cls(s) for s in product(list(range(n)) + [None], repeat=n) if check_blocked_list(s))
+        return filter(lambda s: s.any_runnable, g) if assume_runnable else g
 
 
 if __name__ == '__main__':

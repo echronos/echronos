@@ -1,4 +1,9 @@
 .syntax unified
+
+/* See ARMv7M Architecture Reference Manual */
+.set reset_register, 0xe000ed0c
+.set reset_value, 0x05fa0004
+
 .section .vectors, "a"
 .global _vector_table
 _vector_table:
@@ -25,8 +30,8 @@ _vector_table:
 .section .text
 .type reset,#function
 reset:
-        ldr r0, =0xe000ed0c
-        ldr r1, =0x5fa00004
+        ldr r0, =reset_register
+        ldr r1, =reset_value
         str r1, [r0]
         dsb
 1:      b 1b

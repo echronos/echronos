@@ -9,29 +9,29 @@
     <module name="posix.rtos-simple-semaphore-test">
 
       <tasks>
-        <task><idx>0</idx><name>t0</name></task>
-        <task><idx>1</idx><name>t1</name></task>
-        <task><idx>2</idx><name>t2</name></task>
-        <task><idx>3</idx><name>t3</name></task>
-        <task><idx>4</idx><name>t4</name></task>
-        <task><idx>5</idx><name>t5</name></task>
-        <task><idx>6</idx><name>t6</name></task>
-        <task><idx>7</idx><name>t7</name></task>
-        <task><idx>8</idx><name>t8</name></task>
-        <task><idx>9</idx><name>t9</name></task>
+        <task><name>t0</name></task>
+        <task><name>t1</name></task>
+        <task><name>t2</name></task>
+        <task><name>t3</name></task>
+        <task><name>t4</name></task>
+        <task><name>t5</name></task>
+        <task><name>t6</name></task>
+        <task><name>t7</name></task>
+        <task><name>t8</name></task>
+        <task><name>t9</name></task>
       </tasks>
 
       <semaphores>
-        <semaphore><idx>0</idx><name>s0</name></semaphore>
-        <semaphore><idx>1</idx><name>s1</name></semaphore>
-        <semaphore><idx>2</idx><name>s2</name></semaphore>
-        <semaphore><idx>3</idx><name>s3</name></semaphore>
-        <semaphore><idx>4</idx><name>s4</name></semaphore>
-        <semaphore><idx>5</idx><name>s5</name></semaphore>
-        <semaphore><idx>6</idx><name>s6</name></semaphore>
-        <semaphore><idx>7</idx><name>s7</name></semaphore>
-        <semaphore><idx>8</idx><name>s8</name></semaphore>
-        <semaphore><idx>9</idx><name>s9</name></semaphore>
+        <semaphore><name>s0</name></semaphore>
+        <semaphore><name>s1</name></semaphore>
+        <semaphore><name>s2</name></semaphore>
+        <semaphore><name>s3</name></semaphore>
+        <semaphore><name>s4</name></semaphore>
+        <semaphore><name>s5</name></semaphore>
+        <semaphore><name>s6</name></semaphore>
+        <semaphore><name>s7</name></semaphore>
+        <semaphore><name>s8</name></semaphore>
+        <semaphore><name>s9</name></semaphore>
       </semaphores>
     </module>
 

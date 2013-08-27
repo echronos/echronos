@@ -2325,9 +2325,8 @@ simple_mutex_test_schema = """/*<module>
   </headers>
   <schema>
    <entry name="prefix" type="c_ident" default="rtos_" />
-   <entry name="mutexes" type="list">
+   <entry name="mutexes" type="list" auto_index_field="idx">
      <entry name="mutex" type="dict">
-      <entry name="idx" type="int" />
       <entry name="name" type="c_ident" />
      </entry>
    </entry>
@@ -2342,15 +2341,13 @@ simple_semaphore_test_schema = """/*<module>
   </headers>
   <schema>
    <entry name="prefix" type="c_ident" default="rtos_" />
-   <entry name="semaphores" type="list">
+   <entry name="semaphores" type="list" auto_index_field="idx">
      <entry name="semaphore" type="dict">
-      <entry name="idx" type="int" />
       <entry name="name" type="c_ident" />
      </entry>
    </entry>
-   <entry name="tasks" type="list">
+   <entry name="tasks" type="list" auto_index_field="idx">
      <entry name="task" type="dict">
-      <entry name="idx" type="int" />
       <entry name="name" type="c_ident" />
      </entry>
    </entry>
@@ -2366,9 +2363,8 @@ acamar_schema = """/*<module>
   <schema>
    <entry name="taskid_size" type="int" default="8"/>
    <entry name="prefix" type="c_ident" default="rtos_" />
-   <entry name="tasks" type="list">
+   <entry name="tasks" type="list" auto_index_field="idx">
      <entry name="task" type="dict">
-      <entry name="idx" type="int" />
       <entry name="entry" type="c_ident" />
       <entry name="name" type="c_ident" />
       <entry name="stack_size" type="int" />
@@ -2386,17 +2382,15 @@ gatria_schema = """/*<module>
   <schema>
    <entry name="taskid_size" type="int" default="8"/>
    <entry name="prefix" type="c_ident" default="rtos_" />
-   <entry name="tasks" type="list">
+   <entry name="tasks" type="list" auto_index_field="idx">
      <entry name="task" type="dict">
-      <entry name="idx" type="int" />
       <entry name="entry" type="c_ident" />
       <entry name="name" type="c_ident" />
       <entry name="stack_size" type="int" />
      </entry>
    </entry>
-   <entry name="mutexes" type="list">
+   <entry name="mutexes" type="list" auto_index_field="idx">
      <entry name="mutex" type="dict">
-      <entry name="idx" type="int" />
       <entry name="name" type="c_ident" />
      </entry>
    </entry>
@@ -2413,17 +2407,15 @@ kraz_schema = """/*<module>
    <entry name="taskid_size" type="int" default="8"/>
    <entry name="signalset_size" type="int" default="8"/>
    <entry name="prefix" type="c_ident" default="rtos_" />
-   <entry name="tasks" type="list">
+   <entry name="tasks" type="list" auto_index_field="idx">
      <entry name="task" type="dict">
-      <entry name="idx" type="int" />
       <entry name="entry" type="c_ident" />
       <entry name="name" type="c_ident" />
       <entry name="stack_size" type="int" />
      </entry>
    </entry>
-   <entry name="mutexes" type="list">
+   <entry name="mutexes" type="list" auto_index_field="idx">
      <entry name="mutex" type="dict">
-      <entry name="idx" type="int" />
       <entry name="name" type="c_ident" />
      </entry>
    </entry>
@@ -2440,23 +2432,21 @@ acrux_schema = """/*<module>
    <entry name="taskid_size" type="int" default="8"/>
    <entry name="irqeventid_size" type="int" default="8"/>
    <entry name="prefix" type="c_ident" default="rtos_" />
-   <entry name="tasks" type="list">
+   <entry name="tasks" type="list" auto_index_field="idx">
      <entry name="task" type="dict">
-      <entry name="idx" type="int" />
+      <entry type="int" />
       <entry name="entry" type="c_ident" />
       <entry name="name" type="c_ident" />
       <entry name="stack_size" type="int" />
      </entry>
    </entry>
-   <entry name="irq_events" type="list">
+   <entry name="irq_events" type="list" auto_index_field="idx">
      <entry name="irq_event" type="dict">
-      <entry name="idx" type="int" />
       <entry name="name" type="c_ident" />
      </entry>
    </entry>
-   <entry name="mutexes" type="list">
+   <entry name="mutexes" type="list" auto_index_field="idx">
      <entry name="mutex" type="dict">
-      <entry name="idx" type="int" />
       <entry name="name" type="c_ident" />
      </entry>
    </entry>
@@ -2469,6 +2459,31 @@ rigel_schema = """/*<module>
   <headers>
     <header path="rtos-rigel.h" code_gen="template" />
   </headers>
+  <schema>
+   <entry name="taskid_size" type="int" default="8"/>
+   <entry name="signalset_size" type="int" default="8"/>
+   <entry name="irqeventid_size" type="int" default="8"/>
+   <entry name="prefix" type="c_ident" default="rtos_" />
+   <entry name="tasks" type="list" auto_index_field="idx">
+     <entry name="task" type="dict">
+      <entry name="entry" type="c_ident" />
+      <entry name="name" type="c_ident" />
+      <entry name="stack_size" type="int" />
+     </entry>
+   </entry>
+   <entry name="irq_events" type="list" auto_index_field="idx">
+     <entry name="irq_event" type="dict">
+      <entry name="name" type="c_ident" />
+      <entry name="task" type="int" />
+      <entry name="sig_set" type="int" />
+     </entry>
+   </entry>
+   <entry name="mutexes" type="list" auto_index_field="idx">
+     <entry name="mutex" type="dict">
+      <entry name="name" type="c_ident" />
+     </entry>
+   </entry>
+  </schema>
 </module>*/
 """
 

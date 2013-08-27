@@ -18,14 +18,12 @@
       <tasks>
 
         <task>
-          <idx>0</idx>
           <name>a</name>
           <entry>fn_a</entry>
           <stack_size>64</stack_size>
         </task>
 
         <task>
-          <idx>1</idx>
           <name>b</name>
           <entry>fn_b</entry>
           <stack_size>64</stack_size>
@@ -34,14 +32,12 @@
       </tasks>
       <irq_events>
         <irq_event>
-          <idx>0</idx>
           <name>dummy</name>
         </irq_event>
       </irq_events>
 
       <mutexes>
         <mutex>
-          <idx>0</idx>
           <name>dummy</name>
         </mutex>
       </mutexes>

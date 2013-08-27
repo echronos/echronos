@@ -13,14 +13,12 @@
       <tasks>
 
         <task>
-          <idx>0</idx>
           <name>a</name>
           <entry>fn_a</entry>
           <stack_size>64</stack_size>
         </task>
 
         <task>
-          <idx>1</idx>
           <name>b</name>
           <entry>fn_b</entry>
           <stack_size>64</stack_size>
@@ -30,7 +28,6 @@
 
       <irq_events>
         <irq_event>
-          <idx>0</idx>
           <name>tick</name>
           <task>0</task>
           <sig_set>1</sig_set>
@@ -40,7 +37,6 @@
 
       <mutexes>
         <mutex>
-          <idx>0</idx>
           <name>dummy</name>
         </mutex>
       </mutexes>

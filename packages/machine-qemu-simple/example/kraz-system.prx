@@ -17,14 +17,12 @@
       <tasks>
 
         <task>
-          <idx>0</idx>
           <name>a</name>
           <entry>fn_a</entry>
           <stack_size>8192</stack_size>
         </task>
 
         <task>
-          <idx>1</idx>
           <name>b</name>
           <entry>fn_b</entry>
           <stack_size>8192</stack_size>
@@ -34,7 +32,6 @@
 
       <mutexes>
         <mutex>
-          <idx>0</idx>
           <name>dummy</name>
         </mutex>
       </mutexes>

@@ -4,17 +4,15 @@ Breakaway Task Review
 Task name: 32gfoj-simple-semaphore
 Version reviewed: f541c82cd70d3974f2516e631eefd62a6067c8af
 Reviewer: coreylewis
-Date: 2013-08-27
-Conclusion: Accepted/Rework
+Date: 2013-08-23
+Conclusion: Accepted
 
 Overall comments:
-
+I can't really comment on the test framework but what I could understand seemed fine.
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Location: components/simple-semaphore.c:74-93
+Comment: You could increment semaphore[s].value after unblocking the tasks.
+If sem_post is atomic then this is safe and means that old_value is not needed.

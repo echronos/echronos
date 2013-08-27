@@ -102,3 +102,25 @@ def add_index(lst, key):
         d[key] = new_index
 
     lst.sort(key=itemgetter(key))
+
+
+class LengthMixin:
+    """A mixin that provides classes with a 'length' property.
+
+    It should be possible to use this mixin on any class providing an __len__ method.
+
+    Note: This should only be used in very specific circumstances.
+    In most cases it is much more pythonic to use len(...)
+
+    """
+    @property
+    def length(self):
+        return len(self)
+
+
+class LengthList(list, LengthMixin):
+    """A list class that supports a 'length' property.
+
+    Note: as per the LengthMixin this is only to be used in very specific circumstances.
+
+    """

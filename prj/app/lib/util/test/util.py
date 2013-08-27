@@ -1,4 +1,5 @@
-from util.util import do_nothing, Singleton, s16l, check_unique, remove_multi, add_index
+from util.util import do_nothing, Singleton, s16l, check_unique, remove_multi, add_index, \
+    LengthMixin, LengthList
 from nose.tools import assert_raises, raises
 
 
@@ -134,3 +135,20 @@ def test_add_index_idx_duplicate():
     with assert_raises(ValueError) as cm:
         add_index(lst, 'idx')
     assert str(cm.exception) == "Duplicates found in list: [(1, 2)]"
+
+
+def test_length_mixin():
+    class Foo:
+        def __len__(self):
+            return 123
+
+    class LengthFoo(LengthMixin, Foo):
+        pass
+
+    lf = LengthFoo()
+
+    assert lf.length == 123
+
+
+def test_length_list():
+    assert LengthList(range(5)).length == 5

@@ -3,17 +3,17 @@
   <modules>
     <module name="armv7m.build" />
     <module name="armv7m.ctxt-switch" />
-    <module name="armv7m.exception-trampoline">
+    <module name="armv7m.exception-preempt">
       <handler>special_yield</handler>
-      <exception_trampolines>
-        <exception_trampoline>
+      <trampolines>
+        <trampoline>
           <name>systick</name>
-          <real_handler>tick_irq</real_handler>
-        </exception_trampoline>
-      </exception_trampolines>
+          <handler>tick_irq</handler>
+        </trampoline>
+      </trampolines>
     </module>
     <module name="armv7m.vectable">
-      <systick>exception_trampoline_systick</systick>
+      <systick>exception_preempt_trampoline_systick</systick>
     </module>
     <module name="armv7m.semihost-debug" />
     <module name="generic.debug">

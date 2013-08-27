@@ -1,4 +1,4 @@
-from util.util import do_nothing, Singleton, s16l, check_unique
+from util.util import do_nothing, Singleton, s16l, check_unique, remove_multi
 from nose.tools import assert_raises, raises
 
 
@@ -53,3 +53,16 @@ def test_check_unique_dups():
     with assert_raises(ValueError) as cm:
         check_unique(lst)
     assert str(cm.exception) == "Duplicates found in list: [(39, 2)]"
+
+
+def test_remove_multi():
+    x = list(range(3))
+    remove_multi(x)
+    assert x == list(range(3))
+
+    remove_multi(x, 0, 2)
+    assert x == [1]
+
+    x = list(range(3))
+    remove_multi(x, *list(range(3)))
+    assert x == []

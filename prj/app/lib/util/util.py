@@ -65,3 +65,9 @@ def check_unique(lst):
     if len(uniq) != len(lst):
         dups = list((u, lst.count(u)) for u in uniq if lst.count(u) > 1)
         raise ValueError("Duplicates found in list: {}".format(dups))
+
+
+def remove_multi(lst, *values):
+    """Remove multiple values from a list."""
+    for value in values:
+        lst.remove(value)

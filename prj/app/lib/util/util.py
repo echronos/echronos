@@ -57,3 +57,11 @@ class Singleton:
 def s16l(value, n):
     """Shift an unsigned 16-bit value left by n-bits."""
     return (value << n) & 0xffff
+
+
+def check_unique(lst):
+    """Raise exception if the items in the list are not unique."""
+    uniq = list(set(lst))
+    if len(uniq) != len(lst):
+        dups = list((u, lst.count(u)) for u in uniq if lst.count(u) > 1)
+        raise ValueError("Duplicates found in list: {}".format(dups))

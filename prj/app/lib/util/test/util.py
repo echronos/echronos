@@ -1,4 +1,5 @@
 from util.util import do_nothing, Singleton, s16l, check_unique
+from nose.tools import assert_raises, raises
 
 
 def test_do_nothing_no_args():
@@ -41,3 +42,14 @@ def test_s16l_zero():
 def test_s16l_ffff():
     for n, expected in [(1, 0xfffe), (8, 0xff00), (15, 0x8000), (16, 0)]:
         yield 'n={}'.format(n), check_s16l, 0xffff, n, expected
+
+
+def test_check_unique_no_dups():
+    check_unique(range(40))
+
+
+def test_check_unique_dups():
+    lst = list(range(40)) + [39]
+    with assert_raises(ValueError) as cm:
+        check_unique(lst)
+    assert str(cm.exception) == "Duplicates found in list: [(39, 2)]"

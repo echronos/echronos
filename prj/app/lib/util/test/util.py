@@ -1,22 +1,22 @@
-import util.util
+from util.util import do_nothing, Singleton, s16l, check_unique
 
 
 def test_do_nothing_no_args():
-    util.util.do_nothing()
+    do_nothing()
 
 
 def test_do_nothing_some_args():
-    util.util.do_nothing(1, 2, 3)
+    do_nothing(1, 2, 3)
 
 
 def test_do_nothing_kw_args():
-    util.util.do_nothing(x=1, b=2, c=3)
+    do_nothing(x=1, b=2, c=3)
 
 
 def test_singleton():
-    x = util.util.Singleton('x')
+    x = Singleton('x')
     x1 = x
-    y = util.util.Singleton('y')
+    y = Singleton('y')
     y1 = y
 
     assert x1 is x
@@ -30,7 +30,7 @@ def test_singleton():
 
 
 def check_s16l(value, n, expected):
-    assert util.util.s16l(value, n) == expected
+    assert s16l(value, n) == expected
 
 
 def test_s16l_zero():

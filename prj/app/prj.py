@@ -659,9 +659,10 @@ def xml2dict(el, schema=None):
                 return {}
         elif _type == 'list':
             if el is not None:
-                return [get_el_val(c, schema['list_type'] if schema else None, el) for c in element_children(el)]
+                r = [get_el_val(c, schema['list_type'] if schema else None, el) for c in element_children(el)]
             else:
-                return []
+                r = []
+            return util.util.LengthList(r)
 
         # If it isn't a compound type, get the value
         val = get_text_value(el, schema, parent)

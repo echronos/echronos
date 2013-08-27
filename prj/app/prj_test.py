@@ -103,6 +103,12 @@ def test_xml2dict():
         yield name, check, xml, result
 
 
+def test_xml2dict_length_prop():
+    test_xml = "<list><li>foo</li><li>bar</li><li>baz</li></list>"
+    x = xml2dict(xml_parse_string(test_xml))
+    assert x.length == 3
+
+
 def test_asdict_key():
     x = {'foo': 1}
     y = {'foo': 2}

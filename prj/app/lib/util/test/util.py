@@ -1,4 +1,4 @@
-from util.util import do_nothing, Singleton, s16l, check_unique, remove_multi
+from util.util import do_nothing, Singleton, s16l, check_unique, remove_multi, add_index
 from nose.tools import assert_raises, raises
 
 
@@ -66,3 +66,71 @@ def test_remove_multi():
     x = list(range(3))
     remove_multi(x, *list(range(3)))
     assert x == []
+
+
+def add_index_setup():
+    lst = []
+    for i in range(3):
+        lst.append({'value': i})
+    return lst
+
+
+def add_index_check(lst):
+    assert lst == [{'value': 0, 'idx': 0},
+                   {'value': 1, 'idx': 1},
+                   {'value': 2, 'idx': 2}]
+
+
+def test_add_index_no_exist():
+    lst = add_index_setup()
+
+    add_index(lst, 'idx')
+
+    add_index_check(lst)
+
+
+def test_add_index_idx_is_none():
+    lst = add_index_setup()
+    for d in lst:
+        d['idx'] = None
+
+    add_index(lst, 'idx')
+
+    add_index_check(lst)
+
+
+def test_add_index_some_exist():
+    lst = add_index_setup()
+    lst[1]['idx'] = 1
+
+    add_index(lst, 'idx')
+
+    add_index_check(lst)
+
+
+def test_add_index_sort():
+    lst = [{'value': 1, 'idx': 1},
+           {'value': 0},
+           {'value': 2}]
+
+    add_index(lst, 'idx')
+    add_index_check(lst)
+
+
+def test_add_index_idx_out_of_range():
+    lst = add_index_setup()
+    lst[0]['idx'] = 4
+
+    with assert_raises(ValueError) as cm:
+        add_index(lst, 'idx')
+    assert str(cm.exception) == "Some index value are out-of-range: [4]"
+
+
+def test_add_index_idx_duplicate():
+    lst = add_index_setup()
+    lst[0]['idx'] = 1
+    lst[1]['idx'] = 1
+
+    with assert_raises(ValueError) as cm:
+        add_index(lst, 'idx')
+    assert str(cm.exception) == "Duplicates found in list: [(1, 2)]"

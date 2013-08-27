@@ -5,6 +5,7 @@ functionality. All the functions and classess in this module are
 candidates for refactor at some time.
 
 """
+from operator import itemgetter
 
 
 def do_nothing(*args, **kwargs):
@@ -71,3 +72,33 @@ def remove_multi(lst, *values):
     """Remove multiple values from a list."""
     for value in values:
         lst.remove(value)
+
+
+def add_index(lst, key):
+    """Given a list of dictionaries, add an index to each dictionary.
+
+    The key for the index value is specified as a parameter.
+
+    The dictionaries in the list may already have index values specified.
+    In this case, these index values are not modified.
+
+    The list is sorted so that index for each object matches its location in the list.
+
+    If the value of existing keys is incorrect then a ValueError is raised.
+
+    """
+    indexes = [d[key] for d in lst if d.get(key) is not None]
+    out_of_range = [idx for idx in indexes if idx >= len(lst) or idx < 0]
+    if len(out_of_range) > 0:
+        raise ValueError("Some index value are out-of-range: {}".format(out_of_range))
+    check_unique(indexes)
+
+    # Assign missing indexes to dictionaries without the key.
+    new_indexes = list(range(len(lst)))
+    remove_multi(new_indexes, *indexes)
+    dicts_without_index = (d for d in lst if d.get(key) is None)
+
+    for d, new_index in zip(dicts_without_index, new_indexes):
+        d[key] = new_index
+
+    lst.sort(key=itemgetter(key))

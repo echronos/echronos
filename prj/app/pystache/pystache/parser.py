@@ -9,7 +9,7 @@ import bisect
 import re
 
 from pystache import defaults
-from pystache.common import FormatterNotFoundError
+from pystache.common import FormatterNotFoundError, ParsingError
 from pystache.parsed import ParsedTemplate
 
 
@@ -92,11 +92,6 @@ def _compile_template_re(delimiters):
     """ % {'tag_types': tag_types, 'otag': re.escape(delimiters[0]), 'ctag': re.escape(delimiters[1])}
 
     return re.compile(tag, re.VERBOSE)
-
-
-class ParsingError(Exception):
-
-    pass
 
 
 ## Node types
@@ -343,7 +338,8 @@ class _Parser(object):
 
             if tag_type == '/':
                 if tag_key != section_key:
-                    raise ParsingError("Section end tag mismatch: %s != %s" % (tag_key, section_key))
+                    msg = "Section end tag mismatch: {} != {}".format(tag_key, section_key)
+                    raise ParsingError(msg, location)
 
                 # Restore previous state with newly found section data.
                 parsed_section = parsed_template

@@ -485,6 +485,11 @@ def check_schema_is_valid(schema, key_path=None):
         for each in schema['dict_type']:
             check_schema_is_valid(each, key_path + [schema['name']])
 
+    if schema['type'] == 'list':
+        if not dict_has_keys(schema, 'list_type'):
+            error("when type is 'list' except 'list_type' to be defined.")
+        check_schema_is_valid(schema['list_type'])
+
 
 def xml2schema(el):
     """Return a schema object from an XML description.

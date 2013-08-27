@@ -54,6 +54,19 @@ def test_schema_is_valid():
     }
     assert_raises(SchemaInvalid, check_schema_is_valid, invalid_nested)
 
+    list_no_type = {
+        'type': 'list',
+        'name': 'foo'
+    }
+    assert_raises(SchemaInvalid, check_schema_is_valid, list_no_type)
+
+    list_nested_bad_dict = {
+        'type': 'list',
+        'name': 'foo',
+        'list_type': {'type': 'dict_type', 'name': 'foo'}
+    }
+    assert_raises(SchemaInvalid, check_schema_is_valid, list_nested_bad_dict)
+
 
 def test_list_all_equal():
     assert list_all_equal("11111111")

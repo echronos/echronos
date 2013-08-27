@@ -17,9 +17,15 @@ Specific comments
 - There is a change to simple_mutex.py in the patch that seems unrelated
   to semaphores (testing yield for mutex). The change is benign, though.
 
+[[(benno): Noted; ideally this should have gone in a separate branch (wontfix).]]
+
 - The format in simple-semaphore.prx needs documentation:
   Is the <semaphores> .. </semaphores> part optional?
   I assume it only assigns names to a subset of semaphores.
 
+[[(benno): This is a more general problem than just semaphores and will be addressed more broadly.]]
+
 - should the build statically test for num_semaphores < UNIT8_MAX?
   (for SemIdOption encoding to be valid)
+
+[[(benno): There should should be a check, but requires enhancements to the overall framework to implement.]]

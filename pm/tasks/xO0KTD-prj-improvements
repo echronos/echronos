@@ -1,0 +1,39 @@
+Task: xO0KTD-prj-improvements
+==============================================================================
+
+Goals
+--------
+
+To support upcoming RTOS variants a number of short-comings of the existing prj were identified.
+These are fixed together in a batch.
+
+### ident vs c_ident
+
+There are some things (specifically names) that we expect to have a certain format.
+These should have a distinct type from the current `c_ident`.
+This new type will be `ident` and shall be lower-case + digits + '_' only.
+
+### Python code in module.
+
+Newer RTOS variants will have more complexity and need to perform additional, specific, configuration fixups.
+To support this an RTOS shall now be composed of a python module, c file and header.
+The python file can then contain arbitrary configuration and code-generation rules.
+
+### Improved base `Module` class.
+
+In order to make it feasible for each RTOS variant to have Python code the base `Module` should be more powerful.
+This means improving the base module to cover common cases and avoid duplication.
+
+### Improved prj error checking.
+
+As part of ongoing improvement the error checking in prj should be improved.
+
+### Avoid `num_xxx`
+
+It shouldn't be required for users to specify `num_xxx` as well as having a list of `xxx` items.
+To support this the lists passed to configuration will be improved to have a `length` attribute.
+
+### Avoid need for explicit `idx` field.
+
+Currently there are various times where each item in a list needs an explicit <idx> item.
+This should be automatically added (if the schema desires).

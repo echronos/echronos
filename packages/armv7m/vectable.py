@@ -5,7 +5,10 @@ import ply.cpp
 import shutil
 logger = logging.getLogger()
 
-schema_xml = """<schema>
+
+class EntryModule(Module):
+    xml_schema = """
+<schema>
     <entry name="flash_load_addr" type="int" default="0" />
     <entry name="code_addr" type="int" default="0" />
     <entry name="data_addr" type="int" default="0x20000000" />
@@ -27,29 +30,20 @@ schema_xml = """<schema>
 
 </schema>"""
 
+    files = [
+        {'input': 'bitband.h'},
+        {'input': 'vectable.s', 'render': True, 'type': 'asm'},
+        {'input': 'default.ld', 'render': True, 'type': 'linker_script', 'stage': 'post_prepare'},
+    ]
 
-class EntryModule(Module):
     def configure(self, xml_config):
         config = {}
         config['external_irqs'] = []
         config['bit_aliases'] = []  # A list of variables that should have bitband aliases created.
 
-        config.update(xml2dict(xml_config, xml2schema(xml_parse_string(schema_xml))))
+        config.update(super().configure(xml_config))
 
         return config
-
-    def prepare(self, system, config, **kwargs):
-        # Copy associated header
-        header = os.path.join(__path__, 'bitband.h')
-        path = os.path.join(system.output, os.path.basename('bitband.h'))
-        shutil.copy(header, path)
-
-        # Apply template to vectable.s
-        filename = os.path.join(__path__, 'vectable.s')
-        path = os.path.join(system.output, 'vectable.s')
-        logger.info("Preparing: template %s -> %s", filename, path)
-        pystache_render(filename, path, config)
-        system.add_asm_file(path)
 
     def post_prepare(self, system, config):
         # Now find all the BITBAND variables in all the c_files.
@@ -71,12 +65,7 @@ class EntryModule(Module):
                 except ply.cpp.CppError as e:
                     raise SystemBuildError(str(e))
 
-        # Apply template to linker script.
-        filename = os.path.join(__path__, 'default.ld')
-        path = os.path.join(system.output, 'default.ld')
-        logger.info("Preparing: template %s -> %s", filename, path)
-        pystache_render(filename, path, config)
-        system.linker_script = path
+        super().post_prepare(system, config)
 
 
 module = EntryModule()

@@ -11,20 +11,20 @@ class RigelModule(Module):
    <entry name="tasks" type="list" auto_index_field="idx">
      <entry name="task" type="dict">
       <entry name="entry" type="c_ident" />
-      <entry name="name" type="c_ident" />
+      <entry name="name" type="ident" />
       <entry name="stack_size" type="int" />
      </entry>
    </entry>
    <entry name="irq_events" type="list" auto_index_field="idx">
      <entry name="irq_event" type="dict">
-      <entry name="name" type="c_ident" />
+      <entry name="name" type="ident" />
       <entry name="task" type="int" />
       <entry name="sig_set" type="int" />
      </entry>
    </entry>
    <entry name="mutexes" type="list" auto_index_field="idx">
      <entry name="mutex" type="dict">
-      <entry name="name" type="c_ident" />
+      <entry name="name" type="ident" />
      </entry>
    </entry>
   </schema>

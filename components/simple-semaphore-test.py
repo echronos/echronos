@@ -7,12 +7,12 @@ class SimpleSemaphoreTestModule(Module):
    <entry name="prefix" type="c_ident" default="rtos_" />
    <entry name="semaphores" type="list" auto_index_field="idx">
      <entry name="semaphore" type="dict">
-      <entry name="name" type="c_ident" />
+      <entry name="name" type="ident" />
      </entry>
    </entry>
    <entry name="tasks" type="list" auto_index_field="idx">
      <entry name="task" type="dict">
-      <entry name="name" type="c_ident" />
+      <entry name="name" type="ident" />
      </entry>
    </entry>
   </schema>

@@ -1133,7 +1133,7 @@ class RtosSkeleton:
     This class encapsulates the act of deriving an RtosModule for a specific configuration and target architecture.
 
     """
-    def __init__(self, name, schema, components, configuration={}):
+    def __init__(self, name, components, configuration={}):
         """Create an RTOS skeleton based on its core properties.
 
         'name', a string, is the unique name of the RTOS skeleton.
@@ -1148,7 +1148,8 @@ class RtosSkeleton:
         assert isinstance(components, list)
         assert isinstance(configuration, dict)
         self.name = name
-        self.schema = schema
+        self.python_file = os.path.join(BASE_DIR, 'components', '{}.py'.format(self.name))
+
         self._components = components
         self._configuration = configuration
 
@@ -1166,7 +1167,7 @@ class RtosSkeleton:
         This is only a convenience function.
 
         """
-        return RtosModule(self.name, self.schema, arch, self.get_module_sections(arch))
+        return RtosModule(self.name, arch, self.get_module_sections(arch), self.python_file)
 
 
 class RtosModule:
@@ -1176,7 +1177,7 @@ class RtosModule:
     This class encapsulates the act of rendering an RTOS template given an RTOS configuration into a module on disk.
 
     """
-    def __init__(self, name, schema, arch, sections):
+    def __init__(self, name, arch, sections, python_file):
         """Create an RtosModule instance.
 
         'name', a string, is the name of the RTOS, i.e., the same as the underlying RtosSkeleton.
@@ -1192,8 +1193,8 @@ class RtosModule:
         assert isinstance(sections, dict)
         self._name = name
         self._arch = arch
-        self._schema = schema
         self._sections = sections
+        self._python_file = python_file
 
     @property
     def _module_name(self):
@@ -1210,8 +1211,10 @@ class RtosModule:
         self._render()
 
     def _render(self):
-        source_output = os.path.join(self._module_dir, 'entity.c')
+        python_output = os.path.join(self._module_dir, 'entity.py')
+        source_output = os.path.join(self._module_dir, self._module_name + '.c')
         header_output = os.path.join(self._module_dir, self._module_name + '.h')
+
         source_sections = ['headers', 'object_like_macros',
                            'type_definitions', 'structure_definitions',
                            'extern_definitions', 'function_definitions',
@@ -1221,8 +1224,8 @@ class RtosModule:
                            'public_object_like_macros', 'public_function_like_macros',
                            'public_extern_definitions', 'public_function_definitions']
         sections = self._sections
+
         with open(source_output, 'w') as f:
-            f.write(self._schema)
             for ss in source_sections:
                 if ss == 'type_definitions':
                     data = sort_typedefs(sections[ss])
@@ -1230,6 +1233,7 @@ class RtosModule:
                     data = sections[ss]
                 f.write(data)
                 f.write('\n')
+
         with open(header_output, 'w') as f:
             mod_name = self._module_name.upper().replace('-', '_')
             f.write("#ifndef {}_H\n".format(mod_name))
@@ -1242,6 +1246,8 @@ class RtosModule:
                 f.write(data)
                 f.write('\n')
             f.write("\n#endif /* {}_H */".format(mod_name))
+
+        shutil.copy(self._python_file, python_output)
 
 
 def generate_rtos_module(skeleton, architectures):
@@ -2308,213 +2314,33 @@ CORE_ARCHITECTURES = {
 }
 
 
-sched_rr_test_schema = """/*<module>
-  <code_gen>template</code_gen>
-  <schema>
-   <entry name="tasks" type="list">
-      <entry name="task" type="dict" />
-   </entry>
-  </schema>
-</module>*/
-"""
-
-simple_mutex_test_schema = """/*<module>
-  <code_gen>template</code_gen>
-  <headers>
-    <header path="rtos-simple-mutex-test.h" code_gen="template" />
-  </headers>
-  <schema>
-   <entry name="prefix" type="c_ident" default="rtos_" />
-   <entry name="mutexes" type="list" auto_index_field="idx">
-     <entry name="mutex" type="dict">
-      <entry name="name" type="c_ident" />
-     </entry>
-   </entry>
-  </schema>
-</module>*/
-"""
-
-simple_semaphore_test_schema = """/*<module>
-  <code_gen>template</code_gen>
-  <headers>
-    <header path="rtos-simple-semaphore-test.h" code_gen="template" />
-  </headers>
-  <schema>
-   <entry name="prefix" type="c_ident" default="rtos_" />
-   <entry name="semaphores" type="list" auto_index_field="idx">
-     <entry name="semaphore" type="dict">
-      <entry name="name" type="c_ident" />
-     </entry>
-   </entry>
-   <entry name="tasks" type="list" auto_index_field="idx">
-     <entry name="task" type="dict">
-      <entry name="name" type="c_ident" />
-     </entry>
-   </entry>
-  </schema>
-</module>*/
-"""
-
-acamar_schema = """/*<module>
-  <code_gen>template</code_gen>
-  <headers>
-    <header path="rtos-acamar.h" code_gen="template" />
-  </headers>
-  <schema>
-   <entry name="taskid_size" type="int" default="8"/>
-   <entry name="prefix" type="c_ident" default="rtos_" />
-   <entry name="tasks" type="list" auto_index_field="idx">
-     <entry name="task" type="dict">
-      <entry name="entry" type="c_ident" />
-      <entry name="name" type="c_ident" />
-      <entry name="stack_size" type="int" />
-     </entry>
-   </entry>
-  </schema>
-</module>*/
-"""
-
-gatria_schema = """/*<module>
-  <code_gen>template</code_gen>
-  <headers>
-    <header path="rtos-gatria.h" code_gen="template" />
-  </headers>
-  <schema>
-   <entry name="taskid_size" type="int" default="8"/>
-   <entry name="prefix" type="c_ident" default="rtos_" />
-   <entry name="tasks" type="list" auto_index_field="idx">
-     <entry name="task" type="dict">
-      <entry name="entry" type="c_ident" />
-      <entry name="name" type="c_ident" />
-      <entry name="stack_size" type="int" />
-     </entry>
-   </entry>
-   <entry name="mutexes" type="list" auto_index_field="idx">
-     <entry name="mutex" type="dict">
-      <entry name="name" type="c_ident" />
-     </entry>
-   </entry>
-  </schema>
-</module>*/
-"""
-
-kraz_schema = """/*<module>
-  <code_gen>template</code_gen>
-  <headers>
-    <header path="rtos-kraz.h" code_gen="template" />
-  </headers>
-  <schema>
-   <entry name="taskid_size" type="int" default="8"/>
-   <entry name="signalset_size" type="int" default="8"/>
-   <entry name="prefix" type="c_ident" default="rtos_" />
-   <entry name="tasks" type="list" auto_index_field="idx">
-     <entry name="task" type="dict">
-      <entry name="entry" type="c_ident" />
-      <entry name="name" type="c_ident" />
-      <entry name="stack_size" type="int" />
-     </entry>
-   </entry>
-   <entry name="mutexes" type="list" auto_index_field="idx">
-     <entry name="mutex" type="dict">
-      <entry name="name" type="c_ident" />
-     </entry>
-   </entry>
-  </schema>
-</module>*/
-"""
-
-acrux_schema = """/*<module>
-  <code_gen>template</code_gen>
-  <headers>
-    <header path="rtos-acrux.h" code_gen="template" />
-  </headers>
-  <schema>
-   <entry name="taskid_size" type="int" default="8"/>
-   <entry name="irqeventid_size" type="int" default="8"/>
-   <entry name="prefix" type="c_ident" default="rtos_" />
-   <entry name="tasks" type="list" auto_index_field="idx">
-     <entry name="task" type="dict">
-      <entry type="int" />
-      <entry name="entry" type="c_ident" />
-      <entry name="name" type="c_ident" />
-      <entry name="stack_size" type="int" />
-     </entry>
-   </entry>
-   <entry name="irq_events" type="list" auto_index_field="idx">
-     <entry name="irq_event" type="dict">
-      <entry name="name" type="c_ident" />
-     </entry>
-   </entry>
-   <entry name="mutexes" type="list" auto_index_field="idx">
-     <entry name="mutex" type="dict">
-      <entry name="name" type="c_ident" />
-     </entry>
-   </entry>
-  </schema>
-</module>*/
-"""
-
-rigel_schema = """/*<module>
-  <code_gen>template</code_gen>
-  <headers>
-    <header path="rtos-rigel.h" code_gen="template" />
-  </headers>
-  <schema>
-   <entry name="taskid_size" type="int" default="8"/>
-   <entry name="signalset_size" type="int" default="8"/>
-   <entry name="irqeventid_size" type="int" default="8"/>
-   <entry name="prefix" type="c_ident" default="rtos_" />
-   <entry name="tasks" type="list" auto_index_field="idx">
-     <entry name="task" type="dict">
-      <entry name="entry" type="c_ident" />
-      <entry name="name" type="c_ident" />
-      <entry name="stack_size" type="int" />
-     </entry>
-   </entry>
-   <entry name="irq_events" type="list" auto_index_field="idx">
-     <entry name="irq_event" type="dict">
-      <entry name="name" type="c_ident" />
-      <entry name="task" type="int" />
-      <entry name="sig_set" type="int" />
-     </entry>
-   </entry>
-   <entry name="mutexes" type="list" auto_index_field="idx">
-     <entry name="mutex" type="dict">
-      <entry name="name" type="c_ident" />
-     </entry>
-   </entry>
-  </schema>
-</module>*/
-"""
-
-
 CORE_SKELETONS = {
     'sched-rr-test': RtosSkeleton(
-        'sched-rr-test', sched_rr_test_schema,
+        'sched-rr-test',
         [Component('sched-rr-test'),
          Component('sched', 'sched-rr', {'assume_runnable': False})]),
     'simple-mutex-test': RtosSkeleton(
-        'simple-mutex-test', simple_mutex_test_schema,
+        'simple-mutex-test',
         [Component('simple-mutex-test'),
          Component('mutex', 'simple-mutex')]),
     'simple-semaphore-test': RtosSkeleton(
-        'simple-semaphore-test', simple_semaphore_test_schema,
+        'simple-semaphore-test',
         [Component('simple-semaphore-test'),
          Component('semaphore', 'simple-semaphore')]),
     'acamar': RtosSkeleton(
-        'acamar', acamar_schema,
+        'acamar',
         [Component('acamar'),
          ArchitectureComponent('stack', 'stack'),
          ArchitectureComponent('context_switch', 'context-switch')]),
     'gatria': RtosSkeleton(
-        'gatria', gatria_schema,
+        'gatria',
         [Component('gatria'),
          ArchitectureComponent('stack', 'stack'),
          ArchitectureComponent('context_switch', 'context-switch'),
          Component('sched', 'sched-rr', {'assume_runnable': True}),
          Component('mutex', 'simple-mutex')]),
     'kraz': RtosSkeleton(
-        'kraz', kraz_schema,
+        'kraz',
         [Component('kraz'),
          ArchitectureComponent('stack', 'stack'),
          ArchitectureComponent('ctxt_switch', 'context-switch'),
@@ -2522,7 +2348,7 @@ CORE_SKELETONS = {
          Component('signal'),
          Component('mutex', 'simple-mutex')]),
     'acrux': RtosSkeleton(
-        'acrux', acrux_schema,
+        'acrux',
         [Component('acrux'),
          ArchitectureComponent('stack', 'stack'),
          ArchitectureComponent('ctxt_switch', 'context-switch'),
@@ -2531,7 +2357,7 @@ CORE_SKELETONS = {
          Component('irq_event', 'irq-event'),
          Component('mutex', 'simple-mutex')]),
     'rigel': RtosSkeleton(
-        'rigel', rigel_schema,
+        'rigel',
         [Component('rigel'),
          ArchitectureComponent('stack', 'stack'),
          ArchitectureComponent('ctxt_switch', 'context-switch'),

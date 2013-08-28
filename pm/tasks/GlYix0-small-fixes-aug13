@@ -1,0 +1,15 @@
+Task: GlYix0-small-fixes-aug13
+==============================================================================
+
+Goals
+--------
+
+
+During development of other features a number of small bug fixes and improvements were surfaced.
+This set of small mostly unrelated changes are batched together to aid review.
+
+1: Provide better error checking on pystache parsing errors.
+2: 8-byte align ARM stacks.
+3: Fix ARM reset constant.
+4: Support for templated assembler modules.
+

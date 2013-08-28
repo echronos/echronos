@@ -27,7 +27,7 @@
 
 /*| state |*/
 {{#tasks}}
-static uint32_t stack_{{idx}}[{{stack_size}}];
+static uint32_t stack_{{idx}}[{{stack_size}}] __attribute__((aligned(8)));
 {{/tasks}}
 
 /*| function_like_macros |*/

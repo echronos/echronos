@@ -43,15 +43,15 @@ class PystacheError(Exception):
     def __init__(self, location):
         self.location = location
 
+    def __str__(self):
+        return self.msg
+
 
 class TemplateNotFoundError(PystacheError):
     """An exception raised when a template is not found."""
     def __init__(self, msg, location):
         super().__init__(location)
         self.msg = msg
-
-    def __str__(self):
-        return self.msg
 
 
 class FormatterNotFoundError(PystacheError):
@@ -62,3 +62,10 @@ class FormatterNotFoundError(PystacheError):
 
     def __str__(self):
         return "Formatter key '{}' not found".format(self.formatter_key)
+
+
+class ParsingError(PystacheError):
+    """An exception raised during parsing."""
+    def __init__(self, msg, location):
+        super().__init__(location)
+        self.msg = msg

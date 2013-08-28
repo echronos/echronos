@@ -36,9 +36,10 @@ special_yield(void)
 {
     TaskId x = yield_next;
 
+    exception_preempt_disabled = 1;
+
     do
     {
-        exception_preempt_disabled = 1;
         exception_preempt_pending = 0;
 
         debug_println("special!\n");
@@ -56,9 +57,10 @@ special_yield(void)
         {
             debug_println("Trampoline is pending!\n");
         }
-        exception_preempt_disabled = 0;
     }
     while (exception_preempt_pending);
+
+    exception_preempt_disabled = 0;
 }
 
 bool

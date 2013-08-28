@@ -444,7 +444,7 @@ def dict_has_keys(d, *keys):
     return True
 
 
-valid_schema_types = ['dict', 'list', 'string', 'int', 'c_ident']
+valid_schema_types = ['dict', 'list', 'string', 'int', 'c_ident', 'ident']
 
 
 def check_schema_is_valid(schema, key_path=None):
@@ -507,7 +507,7 @@ def xml2schema(el):
       <entry name="task" type="dict">
        <entry name="idx" type="int" />
        <entry name="entry" type="c_ident" />
-       <entry name="name" type="c_ident" />
+       <entry name="name" type="ident" />
        <entry name="stack_size" type="int" />
       </entry>
      </entry>
@@ -547,6 +547,23 @@ def xml2schema(el):
         'type': 'dict',
         'dict_type': read_dict_schema(el)
     }
+
+
+def check_ident(s):
+    """Check that a string (`s`) is a valid `ident`.
+
+    Raise a SystemParseError if `s` is not valid.
+
+    A valid ident should contains lower-case ascii [a-z], digits [0-9] and '_'.
+    The first character should be a lower-case ascii. [a-z]
+
+    """
+    if s[0] not in string.ascii_lowercase:
+        raise SystemParseError("First character of an indent must be a lower-case ascii character.")
+
+    valid_chars = string.ascii_lowercase + string.digits + '_'
+    if any(c not in valid_chars for c in s):
+        raise SystemParseError("Ident must only contains ASCII lower-case, digits and '_'")
 
 
 def xml2dict(el, schema=None):
@@ -690,6 +707,9 @@ def xml2dict(el, schema=None):
                 raise SystemParseError(xml_error_str(el, "Error converting '{}' to integer: {}".format(val, e)))
         elif _type == 'c_ident':
             # Check this is really a C identifier
+            return val
+        elif _type == 'ident':
+            check_ident(val)
             return val
         else:
             assert False

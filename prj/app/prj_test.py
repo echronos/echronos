@@ -414,3 +414,13 @@ def check_xml_parse_file_with_includes_with_xml(xml, included_xml=None):
         os.remove(prx_file.name)
         if included_xml:
             os.remove(included_file.name)
+
+
+def test_check_ident():
+    check_ident('foo_bar_123')
+    with assert_raises(SystemParseError):
+        check_ident('fooFbar')
+    with assert_raises(SystemParseError):
+        check_ident('Foobar')
+    with assert_raises(SystemParseError):
+        check_ident('foo_%_')

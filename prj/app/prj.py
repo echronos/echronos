@@ -855,8 +855,41 @@ class Module:
     Often this will be a dictionary, however the exact types is module specific.
     This configuration data will be later be passed explicitly to the `validate` and `prepare` methods.
 
+    Any sub-class may override all methods to provide customisation, however in many cases this is not necessary, and
+    simply setting some class level variables is sufficient.
+
+    The `schema` class variable is the schema used when parsing the user's configuration.
+    The `xml_schema` class variable is an XML representation of the schema.
+    Only one of `schema` and `xml_schema` should be set.
+
+    The `files` class variable is a list of dictionaries representing files that should be installed during the
+    prepare or post-prepare stages.
+    Each dictionary has the following fields:
+       'input': The input file-name.
+       'output': The output file-name (optional, defaults to the input filename).
+       'render': Whether pystache rendering should be applied to the file (defaults to False).
+       'type': The type of the file (if any).
+               'c': The file should be added as a C file to the system.
+               'asm': The file should be added as a assembler file to the system.
+               'linker_script': The file should be added as the linker script in the system.
+       'stage': The stage at which the file should be prepared: `prepare` or `post_prepare`. Defaults to `prepare`.
+
     """
     schema = NOTHING
+    xml_schema = NOTHING
+    files = NOTHING
+
+    def __init__(self):
+        """Initialise the module.
+
+        Module initialisation will ensures the class is correctly constructed.
+        If the xml_schema is set, initialisation will set the schema based on the xml_schema.
+
+        """
+        if self.xml_schema is not NOTHING:
+            if self.schema is not NOTHING:
+                raise Exception("Class '{}' has both schema and xml_schema set.".format(self.__class__.__name__))
+            self.schema = xml2schema(xml_parse_string(self.xml_schema))
 
     def configure(self, xml_config):
         """Configure a module.
@@ -881,6 +914,41 @@ class Module:
         """
         pass
 
+    def _prepare_files(self, system, config, stage):
+        """Prepare the files in the objects's `files` variable for building.
+
+        """
+        if self.files is NOTHING:
+            return
+
+        # Input file names are related to the module's path.
+        module_path = sys.modules[self.__class__.__module__].__path__
+
+        for f in self.files:
+            if f.get('stage', 'prepare') != stage:
+                continue
+
+            input_path = os.path.join(module_path, f['input'])
+            output_path = os.path.join(system.output, f.get('output', f['input']))
+
+            logger.info("Preparing: template %s -> %s", input_path, output_path)
+            if f.get('render', False):
+                pystache_render(input_path, output_path, config)
+            else:
+                shutil.copy(input_path, output_path)
+
+            _type = f.get('type')
+            if _type is None:
+                pass
+            elif _type == 'c':
+                system.add_c_file(output_path)
+            elif _type == 'asm':
+                system.add_asm_file(output_path)
+            elif _type == 'linker_script':
+                system.linker_script = output_path
+            else:
+                raise Exception("Unexpected type '{}' for file '{}'".format(_type, f['input']))
+
     def prepare(self, system, config, **kwargs):
         """Prepare the `system` for building based on a specific module `config`.
 
@@ -889,10 +957,10 @@ class Module:
         filesystem to generate files.
 
         """
-        pass
+        self._prepare_files(system, config, stage="prepare")
 
     def post_prepare(self, system, config):
-        pass
+        self._prepare_files(system, config, stage="post_prepare")
 
     def __repr__(self):
         return '<{}>'.format(cls_name(self.__class__))
@@ -1395,7 +1463,12 @@ class Project:
             except ExpatError as e:
                 raise EntityLoadError("Error parsing system import '{}:{}': {!s}".format(e.path, e.lineno, e))
         elif ext == '.py':
-            py_module = imp.load_source("__prj.%s" % entity_name, path)
+            try:
+                py_module = imp.load_source("__prj.%s" % entity_name, path)
+            except:
+                raise
+                # FIXME: Capture traceback for printing later.
+                raise EntityLoadError("An error occured while loading '{}'".format(path))
             py_module.__path__ = os.path.dirname(py_module.__file__)
             if hasattr(py_module, 'system_build'):
                 return Builder(entity_name, py_module)

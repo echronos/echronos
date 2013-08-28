@@ -349,7 +349,7 @@ def get_attribute(el, attr_name, default=NOTHING):
     val = el.getAttributeNode(attr_name)
     if val is None:
         if default is NOTHING:
-            raise SystemParseError(xml_error_str(el, "Expected attribute name {}".format(attr_name)))
+            raise SystemParseError(xml_error_str(el, "Expected attribute name '{}'".format(attr_name)))
         else:
             return default
     return val.value
@@ -889,7 +889,8 @@ class Module:
         if self.xml_schema is not NOTHING:
             if self.schema is not NOTHING:
                 raise Exception("Class '{}' has both schema and xml_schema set.".format(self.__class__.__name__))
-            self.schema = xml2schema(xml_parse_string(self.xml_schema))
+            filename = sys.modules[self.__class__.__module__].__file__
+            self.schema = xml2schema(xml_parse_string(self.xml_schema, '{}!xml_schema'.format(filename)))
 
     def configure(self, xml_config):
         """Configure a module.

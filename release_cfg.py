@@ -84,7 +84,8 @@ any conflicting contractual terms or conditions.
 """
     extra_files = [
         ('README.md', 'docs/smaccm_readme'),
-        ('rigel-manual.pdf', 'docs/rigel-manual.pdf')
+        ('rigel-manual.pdf', 'docs/rigel-manual.pdf'),
+        ('kochab-manual.pdf', 'docs/kochab-manual.pdf')
     ]
 
 

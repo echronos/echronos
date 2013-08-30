@@ -1,0 +1,10 @@
+Task: e8uJKC-blocking-mutex
+==============================================================================
+
+Goals
+--------
+
+The first mutex implementation was done using yield.
+This implementation is lacking when trying to support priority inheritance.
+An alternative mutex implementation that support blocking and PI should be provided.
+

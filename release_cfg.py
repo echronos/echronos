@@ -38,6 +38,18 @@ use, copy, modify, sublicense or distribute the contents in any form
 except as permitted under the terms of a separately executed licence
 agreement with NICTA.
 
+COMMERCIAL LICENSE RIGHTS
+Agreement No.: FA8750-12-9-0179
+Contractor's Name; Rockwell Collins, Inc.
+Contractor's Address: 400 Collins Road N.E., Cedar Rapids, IA 52498
+
+By accepting delivery of the RTOS Code and Documentation, the Licensee
+agrees that the software is "commercial" computer software within the
+meaning of the applicable acquisition regulations (e.g., FAR 2.101 or
+DFARS 227.7202-3).  The terms and conditions of this License shall pertain
+to the Licensee's use and disclosure of the software, and shall supersede
+any conflicting contractual terms or conditions.
+
 """
     top_level_license = """The contents of this package are proprietary to NICTA and you may not
 use, copy, modify, sublicense or distribute the contents in any form
@@ -53,6 +65,22 @@ NICTA and Regents of the Univeristy of Minnesota.
 
 3. SMACCM Project Licence Agreement (Technical Area 3), by and between
 NICTA and Galois, Inc.
+
+4. SMACCM Project Licence Agreement (Technical Area 5), by and between
+NICTA and Assured Information Security, Inc.
+
+
+COMMERCIAL LICENSE RIGHTS
+Agreement No.: FA8750-12-9-0179
+Contractor's Name; Rockwell Collins, Inc.
+Contractor's Address: 400 Collins Road N.E., Cedar Rapids, IA 52498
+
+By accepting delivery of the RTOS Code and Documentation, the Licensee
+agrees that the software is "commercial" computer software within the
+meaning of the applicable acquisition regulations (e.g., FAR 2.101 or
+DFARS 227.7202-3).  The terms and conditions of this License shall pertain
+to the Licensee's use and disclosure of the software, and shall supersede
+any conflicting contractual terms or conditions.
 """
     extra_files = [
         ('README.md', 'docs/smaccm_readme'),

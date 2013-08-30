@@ -1,20 +1,22 @@
 Breakaway Task Review
 =======================
 
-Task name: e8uJKC-blocking-mutex
-Version reviewed: 970866d1c13f38600cad47e996689b415bd77b7e
+Task name: z7vFXX-rtos-critical-sections
+Version reviewed: 7eabfc5541ca91d3f0024c14d72dec533fc77a53
 Reviewer: gerwinklein
 Date: 2013-08-30
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
 Overall comments:
-
+No problems, just two small typos in the task description.
 
 Specific comments
 =================
 
-Location: filename:linenum
+Location: z7vFXX-rtos-critical-sections:7
 Comment:
+intrdocue -> introduce
 
-Location: filename:linenum
+Location: z7vFXX-rtos-critical-sections:8
 Comment:
+sections we -> sections were

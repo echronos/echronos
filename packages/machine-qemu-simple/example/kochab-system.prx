@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <modules>
+    <module name="armv7m.build" />
+    <module name="armv7m.ctxt-switch" />
+    <module name="armv7m.vectable">
+      <systick>tick_irq</systick>
+    </module>
+    <module name="armv7m.semihost-debug" />
+    <module name="generic.debug">
+      <ll_debug>armv7m_semihost_</ll_debug>
+      <prefix></prefix>
+    </module>
+
+    <module name="armv7m.rtos-kochab">
+      <prefix>rtos_</prefix>
+      <taskid_size>8</taskid_size>
+      <signalset_size>8</signalset_size>
+      <irqeventid_size>8</irqeventid_size>
+      <tasks>
+
+        <task>
+          <name>a</name>
+          <entry>fn_a</entry>
+          <stack_size>64</stack_size>
+        </task>
+
+        <task>
+          <name>b</name>
+          <entry>fn_b</entry>
+          <stack_size>64</stack_size>
+        </task>
+
+      </tasks>
+
+      <irq_events>
+        <irq_event>
+          <name>tick</name>
+          <task>0</task>
+          <sig_set>1</sig_set>
+        </irq_event>
+      </irq_events>
+
+      <signals>
+        <signal>
+          <name>s0</name>
+        </signal>
+      </signals>
+
+      <mutexes>
+        <mutex>
+          <name>m0</name>
+        </mutex>
+      </mutexes>
+    </module>
+
+    <module name="rtos-example.kochab-test" />
+
+  </modules>
+</system>

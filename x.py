@@ -2380,6 +2380,18 @@ CORE_SKELETONS = {
          Component('mutex', 'simple-mutex'),
          Component('rigel')],
     ),
+    'kochab': RtosSkeleton(
+        'kochab',
+        [Component('kochab'),
+         ArchitectureComponent('stack', 'stack'),
+         ArchitectureComponent('ctxt_switch', 'context-switch'),
+         Component('sched', 'sched-prio', {'assume_runnable': False}),
+         Component('signal'),
+         ArchitectureComponent('irq_event_arch', 'irq-event'),
+         Component('irq_event', 'irq-event',  {'timer_process': False}),
+         Component('mutex', 'simple-mutex'),
+         Component('semaphore', 'simple-semaphore')],
+    ),
 }
 
 
@@ -2395,6 +2407,7 @@ CORE_CONFIGURATIONS = {
     'kraz': ['posix', 'armv7m'],
     'acrux': ['armv7m'],
     'rigel': ['armv7m'],
+    'kochab': ['armv7m'],
 }
 
 

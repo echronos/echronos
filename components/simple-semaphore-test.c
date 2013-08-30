@@ -35,6 +35,8 @@ static void (*unblock_ptr)(TaskId);
 static TaskId (*get_current_task_ptr)(void);
 
 /*| function_like_macros |*/
+#define preempt_enable()
+#define preempt_disable()
 
 /*| functions |*/
 static void

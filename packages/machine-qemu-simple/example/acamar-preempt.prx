@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <modules>
+    <module name="armv7m.build" />
+    <module name="armv7m.ctxt-switch" />
+    <module name="armv7m.exception-preempt">
+      <handler>special_yield</handler>
+      <trampolines>
+        <trampoline>
+          <name>systick</name>
+          <handler>tick_irq</handler>
+        </trampoline>
+      </trampolines>
+    </module>
+    <module name="armv7m.vectable">
+      <systick>exception_preempt_trampoline_systick</systick>
+    </module>
+    <module name="armv7m.semihost-debug" />
+    <module name="generic.debug">
+      <ll_debug>armv7m_semihost_</ll_debug>
+      <prefix></prefix>
+    </module>
+
+    <module name="armv7m.rtos-acamar">
+      <prefix>rtos_</prefix>
+      <tasks>
+
+        <task>
+          <name>a</name>
+          <entry>fn_a</entry>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>b</name>
+          <entry>fn_b</entry>
+          <stack_size>8192</stack_size>
+        </task>
+
+      </tasks>
+    </module>
+
+    <module name="rtos-example.acamar-trampoline" />
+
+  </modules>
+</system>

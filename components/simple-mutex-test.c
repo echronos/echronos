@@ -28,6 +28,8 @@
 /*| state |*/
 
 /*| function_like_macros |*/
+#define preempt_enable()
+#define preempt_disable()
 
 /*| functions |*/
 

@@ -1,0 +1,24 @@
+Breakaway Task Review
+=======================
+
+Task name: z7vFXX-rtos-critical-sections
+Version reviewed: 7eabfc5541ca91d3f0024c14d72dec533fc77a53
+Reviewer: gerwinklein
+Date: 2013-08-30
+Conclusion: Accepted
+
+Overall comments:
+No problems.
+
+Specific comments
+=================
+
+Location: components/signal.c:88
+Comment:
+Just double-checking: preempt_disable() comes after the assignment of
+cur_task_signals. I assume this is correct, because
+&SIGNAL_OBJ(get_current_task()).signals will give the same result even after a
+pre-emption, because the current task ID would still be the same. (Same later
+in signal_poll_set)
+
+[[(benno): The cur_task_signals value is a pointer, so there shouldn't be any problem here.]]

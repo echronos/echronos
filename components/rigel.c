@@ -67,6 +67,8 @@ struct irq_event_handler irq_events[{{irq_events.length}}] = {
 };
 
 /*| function_like_macros |*/
+#define preempt_disable()
+#define preempt_enable()
 #define get_current_task() current_task
 #define get_task_context(task_id) &tasks[task_id].ctx
 #define irq_event_id_to_taskid(irq_event_id) ((TaskId)(irq_event_id))

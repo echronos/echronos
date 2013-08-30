@@ -1,0 +1,12 @@
+Task: z7vFXX-rtos-critical-sections
+==============================================================================
+
+Goals
+--------
+
+The goal of this is to intrdocue critical sections within the RTOS.
+Prior to preemption this was not necessary, as all sections we critical sections if they did not contain yield.
+The critical section will be flagged as "preempt_disable()" and "preempt_enable()" macros.
+It will be the responsibility of the RTOS variant component to provide these function-like macros.
+For the existing RTOS variants these will be no-ops, but for future variants these can be used to support preemptable kernels.
+

@@ -1,0 +1,19 @@
+Breakaway Task Review
+=======================
+
+Task name: z7vFXX-rtos-critical-sections
+Version reviewed: 7eabfc5541ca91d3f0024c14d72dec533fc77a53
+Reviewer: coreylewis
+Date: 2013-08-30
+Conclusion: Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: components/simple-semaphore.c:52
+Comment: Why is internal_sem_try_wait in the state section?
+
+[[(benno): Fixed]]

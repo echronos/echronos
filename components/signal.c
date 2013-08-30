@@ -83,6 +83,9 @@ SignalId
 {{prefix}}signal_wait_set(const SignalSet sig_set)
 {
     SignalSet *const cur_task_signals = &SIGNAL_OBJ(get_current_task()).signals;
+    SignalId r;
+
+    preempt_disable();
 
     if (_signal_peek(cur_task_signals, sig_set))
     {
@@ -96,14 +99,22 @@ SignalId
         } while (!_signal_peek(cur_task_signals, sig_set));
     }
 
-    return _signal_recv(cur_task_signals, sig_set);
+    r = _signal_recv(cur_task_signals, sig_set);
+
+    preempt_enable();
+
+    return r;
 }
 
 void
 {{prefix}}signal_send_set(const TaskId task_id, const SignalSet sig_set)
 {
+    preempt_disable();
+
     SIGNAL_OBJ(task_id).signals |= sig_set;
     _unblock(task_id);
+
+    preempt_enable();
 }
 
 bool
@@ -118,13 +129,16 @@ SignalIdOption
 {{prefix}}signal_poll_set(SignalSet sig_set)
 {
     SignalSet *const cur_task_signals = &SIGNAL_OBJ(get_current_task()).signals;
+    SignalIdOption r = SIGNAL_ID_NONE;
+
+    preempt_disable();
 
     if (_signal_peek(cur_task_signals, sig_set))
     {
-        return _signal_recv(cur_task_signals, sig_set);
+        r = _signal_recv(cur_task_signals, sig_set);
     }
-    else
-    {
-        return SIGNAL_ID_NONE;
-    }
+
+    preempt_enable();
+
+    return r;
 }

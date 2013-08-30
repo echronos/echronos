@@ -21,3 +21,4 @@ cur_task_signals. I assume this is correct, because
 pre-emption, because the current task ID would still be the same. (Same later
 in signal_poll_set)
 
+[[(benno): The cur_task_signals value is a pointer, so there shouldn't be any problem here.]]

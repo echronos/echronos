@@ -26,6 +26,10 @@ struct sched_task {
     TaskIdOption blocked_on;
 };
 
+/*
+ * NOTE: An RTOS variant using the scheduler must ensure that tasks
+ * array is sorted by priority.
+ */
 struct sched {
     struct sched_task tasks[{{tasks.length}}];
 };

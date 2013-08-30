@@ -50,13 +50,15 @@ struct irq_event_handler {
 {{#tasks}}
 extern void {{entry}}(void);
 {{/tasks}}
+extern volatile uint8_t exception_preempt_disabled;
+extern volatile uint8_t exception_preempt_pending;
 
 /*| function_definitions |*/
-static void _yield_to(TaskId to);
+static void _yield(void);
 static void _block(void);
 static void _unblock(TaskId task);
 static void handle_irq_event(IrqEventId irq_event_id);
-
+static void _preempt_enable(void);
 
 /*| state |*/
 static TaskId current_task;
@@ -69,56 +71,96 @@ struct irq_event_handler irq_events[{{irq_events.length}}] = {
 };
 
 /*| function_like_macros |*/
-#define preempt_disable()
-#define preempt_enable()
+#define preempt_disable() exception_preempt_disabled = 1
+#define preempt_enable() _preempt_enable()
 #define get_current_task() current_task
 #define get_task_context(task_id) &tasks[task_id].ctx
 #define irq_event_id_to_taskid(irq_event_id) ((TaskId)(irq_event_id))
 
 /*| functions |*/
 static void
-_yield_to(TaskId to)
+_yield(void)
 {
+    /* pre-condition: preemption disabled */
+    TaskId to = irq_event_get_next();
     TaskId from = get_current_task();
     current_task = to;
     context_switch(get_task_context(from), get_task_context(to));
+    /* post-condition: preemption disabled */
 }
 
 static void
 _block(void)
 {
+    /* pre-condition: preemption disabled */
     sched_set_blocked(get_current_task());
-    {{prefix}}yield();
+    _yield();
+    /* post-condition: preemption disabled */
 }
 
 static void
 _block_on(TaskId t)
 {
+    /* pre-condition: preemption disabled */
     sched_set_blocked_on(get_current_task(), t);
-    {{prefix}}yield();
+    _yield();
+    /* post-condition: preemption disabled */
 }
 
 static void
 _unblock(TaskId task)
 {
+    /* pre-condition: preemption disabled */
     sched_set_runnable(task);
+    /* Note: Must yield here as the task being unblocked may have an effective
+       priority higher than the current task */
+    _yield();
+    /* post-condition: preemption disabled */
 }
 
 static void
 handle_irq_event(IrqEventId irq_event_id)
 {
+    /* pre-condition: preemption disabled */
     TaskId task = irq_events[irq_event_id].task;
     SignalSet sig_set = irq_events[irq_event_id].sig_set;
 
     {{prefix}}signal_send_set(task, sig_set);
+    /* post-condition: preemption disabled */
+}
+
+static void
+_preempt_enable(void)
+{
+    /* FIXME: This should be done atomically. I.e.: with interrupts disabled */
+    bool pending = exception_preempt_pending;
+    if (!pending)
+    {
+        exception_preempt_disabled = 0;
+    }
+
+    if (pending)
+    {
+        _yield();
+    }
 }
 
 /*| public_functions |*/
 void
+{{prefix}}preempt_handler(void)
+{
+    _yield();
+    _preempt_enable();
+}
+
+void
 {{prefix}}yield(void)
 {
-    TaskId to = irq_event_get_next();
-    _yield_to(to);
+    /* pre-condition: preemption enabled */
+    preempt_disable();
+    _yield();
+    preempt_enable();
+    /* pre-condition: preemption enabled */
 }
 
 void

@@ -3,6 +3,15 @@
   <modules>
     <module name="armv7m.build" />
     <module name="armv7m.ctxt-switch" />
+    <module name="armv7m.exception-preempt">
+      <handler>rtos_preempt_handler</handler>
+      <trampolines>
+        <trampoline>
+          <name>systick</name>
+          <handler>tick_irq</handler>
+        </trampoline>
+      </trampolines>
+    </module>
     <module name="armv7m.vectable">
       <systick>tick_irq</systick>
     </module>

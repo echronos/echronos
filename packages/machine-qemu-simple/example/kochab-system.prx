@@ -22,12 +22,14 @@
         <task>
           <name>a</name>
           <entry>fn_a</entry>
+          <priority>10</priority>
           <stack_size>64</stack_size>
         </task>
 
         <task>
           <name>b</name>
           <entry>fn_b</entry>
+          <priority>30</priority>
           <stack_size>64</stack_size>
         </task>
 

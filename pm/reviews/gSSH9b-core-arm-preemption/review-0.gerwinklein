@@ -1,0 +1,23 @@
+Breakaway Task Review
+=======================
+
+Task name: gSSH9b-core-arm-preemption
+Version reviewed: 8570ef224e392e97ee70fdb1f7b7b07db9b702cd
+Reviewer: gerwinklein
+Date: 2013-08-30
+Conclusion: Accepted
+
+Overall comments:
+Good. I don't see any major changes from discussion on Wed.
+
+Specific comments
+=================
+
+Location: exception-preempt.s:139
+Comment:
+commited -> committed
+
+Location: exception-preempt.s:149
+Comment:
+requires to low -> requires low
+

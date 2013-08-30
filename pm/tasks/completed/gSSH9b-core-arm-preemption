@@ -1,0 +1,94 @@
+Task: gSSH9b-core-arm-preemption
+==============================================================================
+
+Goals
+--------
+
+The goal of this is to add the ability to create RTOS variants that support preemption.
+The existing RTOS variants only support tasks which explicitly yield.
+This has some key advantages in terms of predictability and knowing exactly when a task may be preempted.
+Of course, this can mean that a task may accidentally take all the CPU resources.
+Having the programmer manually insert yield() can also be problematic in some systems.
+
+Although preemption means one task can be preempted by another at any time, in practise there is only limited places where this can occur.
+While a task is executing another task can only become runnable, and potentially pre-empt the current task, in two cases.
+Firstly, the current task could make the other task runnable (e.g. send it a signal, unlock a mutex).
+This case is not interesting as these things occur at explicit points within the RTOS.
+
+The only other way is if an interrupt handler makes another task runnable.
+In the current design, when an interrupt handler completes execution the currently executing task continues.
+To support preemption there should be a mechanism that allows the scheduler policy to pick the next task to run after an interrupt handler completes.
+The RTOS already has a mechanism for letting the scheduler pick the next task to run: yield.
+
+To support preemption, the kernel should support running 'yield' after completing an interrupt handler rather than simply returning directly.
+Supporting this operation causes some overhead in terms of extra state saving operations.
+
+Not all interrupt handlers will want to cause a preemption.
+It should be possible to avoid any additional overhead for these interrupt handlers.
+
+For other interrupt handlers, the handler itself may only wish to cause preemption on some interrupts.
+The design should support optimising the case where preemption is not required.
+
+
+Design
+-------
+
+For each installed interrupt handler, the PRX file should specify wether it is a normal interrupt handler, or one that can cause preemption.
+For preemption interrupt handlers the signature of the function should be 'bool fn(void)'.
+When preemption is required the handler should return true (false otherwise).
+
+When a preemption handler is installed instead of the handler being directly installed in the exception table, an indirection 'trampoline' will be installed instead.
+This trampoline should save any necessary state, call the installed handler, and then based on the result either return directly to the interrupt task, or force a call to yield.
+
+    SP -> [ old_top ]
+
+At exception entry:
+          [ old_top ]
+          [ xPSR ]
+          [ Return address (i.e. PC) ]
+          [ LR ]
+          [ R12 ]
+          [ R3 ]
+          [ R2 ]
+          [ R1 ]
+          [ R0 ]
+    SP -> [ ... ]
+
+    LR == <special return address>
+
+The interrupt handler should not change this state by the time it returns.
+It may have scratched R0, R1, R2, R4, R12, LR and the PSR.
+
+Normally an exception return would occur by jumping to the return address put in to LR.
+Doing so would cause the stack to be popped, and the current task to continue execution at the point of interruption.
+
+Instead of returning directly to the task, we wish to return to the yield function.
+To achieve this a new stack frame must be constructed and appended to the stack.
+
+At exception entry:
+          [ old_top ]
+          [ xPSR ]
+          [ Return address (i.e. PC) ]
+          [ LR ]
+          [ R12 ]
+          [ R3 ]
+          [ R2 ]
+          [ R1 ]
+          [ R0 ]
+
+New stack frame:
+          [ xPSR: Copied from old stack frame. ]
+          [ Return address: address of yield function ]
+          [ LR: address of restore function ]
+          [ R12: Doesn't matter ]
+          [ R3: Doesn't matter ]
+          [ R2: Doesn't matter ]
+          [ R1: Doesn't matter ]
+          [ R0: Doesn't matter ]
+
+    SP -> [ ... ]
+
+    LR == <special return address>
+
+A completely different approach would be to make all RTOS entries through an exception (e.g.: by using an SVC call).
+That approach is avoided for the moment in preference of running the RTOS as a pure library.

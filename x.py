@@ -2330,6 +2330,10 @@ CORE_SKELETONS = {
         'simple-mutex-test',
         [Component('simple-mutex-test'),
          Component('mutex', 'simple-mutex')]),
+    'blocking-mutex-test': RtosSkeleton(
+        'blocking-mutex-test',
+        [Component('blocking-mutex-test'),
+         Component('mutex', 'blocking-mutex')]),
     'simple-semaphore-test': RtosSkeleton(
         'simple-semaphore-test',
         [Component('simple-semaphore-test'),
@@ -2381,6 +2385,7 @@ CORE_CONFIGURATIONS = {
     'sched-rr-test': ['posix'],
     'sched-prio-inherit-test': ['posix'],
     'simple-mutex-test': ['posix'],
+    'blocking-mutex-test': ['posix'],
     'simple-semaphore-test': ['posix'],
     'sched-prio-test': ['posix'],
     'acamar': ['posix', 'armv7m'],

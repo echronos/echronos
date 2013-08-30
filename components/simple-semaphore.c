@@ -49,6 +49,7 @@ struct semaphore {
 /*| state |*/
 static struct semaphore semaphores[{{semaphores.length}}];
 static SemIdOption waiters[{{tasks.length}}];
+static bool internal_sem_try_wait(const SemId s);
 
 /*| function_like_macros |*/
 
@@ -64,21 +65,42 @@ sem_init(void)
     }
 }
 
+static bool
+internal_sem_try_wait(const SemId s)
+{
+    /* Must be called with pre-emption disabled */
+    if (semaphores[s].value == SEM_VALUE_ZERO)
+    {
+        return false;
+    }
+    else
+    {
+        semaphores[s].value--;
+        return true;
+    }
+}
+
 /*| public_functions |*/
 void
 {{prefix}}sem_wait(const SemId s)
 {
-    while (!{{prefix}}sem_try_wait(s))
+    preempt_disable();
+
+    while (!internal_sem_try_wait(s))
     {
         waiters[get_current_task()] = s;
         _block();
     }
+
+    preempt_enable();
 }
 
 void
 {{prefix}}sem_post(const SemId s)
 {
     TaskId t;
+
+    preempt_disable();
 
     if (semaphores[s].value == SEM_VALUE_ZERO)
     {
@@ -93,18 +115,18 @@ void
     }
 
     semaphores[s].value++;
+
+    preempt_enable();
 }
 
 bool
-{{prefix}}sem_try_wait(const SemId m)
+{{prefix}}sem_try_wait(const SemId s)
 {
-    if (semaphores[m].value == SEM_VALUE_ZERO)
-    {
-        return false;
-    }
-    else
-    {
-        semaphores[m].value--;
-        return true;
-    }
+    bool r;
+
+    preempt_disable();
+    r = internal_sem_try_wait(s);
+    preempt_enable();
+
+    return r;
 }

@@ -45,24 +45,8 @@ static struct mutex mutexes[{{mutexes.length}}];
 /*| function_like_macros |*/
 
 /*| functions |*/
-
-/*| public_functions |*/
-void
-{{prefix}}mutex_lock(const MutexId m)
-{
-    while (!{{prefix}}mutex_try_lock(m)) {
-        {{prefix}}yield();
-    }
-}
-
-void
-{{prefix}}mutex_unlock(const MutexId m)
-{
-    mutexes[m].locked = false;
-}
-
-bool
-{{prefix}}mutex_try_lock(const MutexId m)
+static bool
+internal_mutex_try_lock(const MutexId m)
 {
     if (mutexes[m].locked)
     {
@@ -73,4 +57,37 @@ bool
         mutexes[m].locked = true;
         return true;
     }
+}
+
+/*| public_functions |*/
+void
+{{prefix}}mutex_lock(const MutexId m)
+{
+    preempt_disable();
+
+    while (!internal_mutex_try_lock(m))
+    {
+        {{prefix}}yield();
+    }
+
+    preempt_enable();
+}
+
+void
+{{prefix}}mutex_unlock(const MutexId m)
+{
+    /* Note: assumes writing a single word is atomic */
+    mutexes[m].locked = false;
+}
+
+bool
+{{prefix}}mutex_try_lock(const MutexId m)
+{
+    bool r;
+
+    preempt_disable();
+    r = internal_mutex_try_lock(m);
+    preempt_enable();
+
+    return r;
 }

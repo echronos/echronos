@@ -33,6 +33,8 @@ typedef TaskId TaskIdOption;
 /*| state |*/
 
 /*| function_like_macros |*/
+#define preempt_disable()
+#define preempt_enable()
 
 /*| functions |*/
 

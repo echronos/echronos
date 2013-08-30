@@ -1,0 +1,9 @@
+Task: W0IcHr-priority-scheduler
+==============================================================================
+
+Goals
+--------
+
+Implement a strict priority scheduler as an alternative to the current round-robin scheduler.
+Each task shall have a unique priority.
+A task with a higher priority shall always be selected in favour of one with a lower priority.

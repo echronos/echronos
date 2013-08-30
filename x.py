@@ -2319,6 +2319,10 @@ CORE_SKELETONS = {
         'sched-rr-test',
         [Component('sched-rr-test'),
          Component('sched', 'sched-rr', {'assume_runnable': False})]),
+    'sched-prio-test': RtosSkeleton(
+        'sched-prio-test',
+        [Component('sched-prio-test'),
+         Component('sched', 'sched-prio', {'assume_runnable': False})]),
     'simple-mutex-test': RtosSkeleton(
         'simple-mutex-test',
         [Component('simple-mutex-test'),
@@ -2374,6 +2378,7 @@ CORE_CONFIGURATIONS = {
     'sched-rr-test': ['posix'],
     'simple-mutex-test': ['posix'],
     'simple-semaphore-test': ['posix'],
+    'sched-prio-test': ['posix'],
     'acamar': ['posix', 'armv7m'],
     'gatria': ['posix', 'armv7m'],
     'kraz': ['posix', 'armv7m'],

@@ -4,7 +4,7 @@ from x import Release
 class Standard(Release):
     packages = ['armv7m', 'generic', 'rtos-example', 'machine-qemu-simple', 'machine-stm32f4-discovery']
     platforms = ['x86_64-apple-darwin', 'x86_64-unknown-linux-gnu']
-    version = '0.0.1'
+    version = '0.0.2'
     name = 'std'
     enabled = True
     license = """

@@ -1,0 +1,9 @@
+Task: lLGoAN-kochab-rtos-variant
+==============================================================================
+
+Goals
+--------
+
+Add a new RTOS variant 'kochab'.
+Briefly, the new RTOS should support priority inheritance scheduler, signals, mutexes and semaphores.
+

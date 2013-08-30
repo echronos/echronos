@@ -45,11 +45,11 @@ struct semaphore {
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
+static bool internal_sem_try_wait(const SemId s);
 
 /*| state |*/
 static struct semaphore semaphores[{{semaphores.length}}];
 static SemIdOption waiters[{{tasks.length}}];
-static bool internal_sem_try_wait(const SemId s);
 
 /*| function_like_macros |*/
 

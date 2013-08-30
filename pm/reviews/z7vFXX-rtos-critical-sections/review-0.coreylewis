@@ -15,3 +15,5 @@ Specific comments
 
 Location: components/simple-semaphore.c:52
 Comment: Why is internal_sem_try_wait in the state section?
+
+[[(benno): Fixed]]

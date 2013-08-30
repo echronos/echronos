@@ -29,8 +29,8 @@ typedef TaskId TaskIdOption;
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static void block_on(TaskId task);
-static void unblock(TaskId task);
+static void _block_on(TaskId task);
+static void _unblock(TaskId task);
 static TaskId get_current_task(void);
 
 /*| state |*/
@@ -42,7 +42,7 @@ TaskId (*get_current_task_ptr)(void);
 
 /*| functions |*/
 static void
-block_on(TaskId task)
+_block_on(TaskId task)
 {
     if (block_on_ptr != NULL)
     {
@@ -51,7 +51,7 @@ block_on(TaskId task)
 }
 
 static void
-unblock(TaskId task)
+_unblock(TaskId task)
 {
     if (unblock_ptr != NULL)
     {

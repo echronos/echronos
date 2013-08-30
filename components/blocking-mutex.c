@@ -74,7 +74,7 @@ void
     while (!{{prefix}}mutex_try_lock(m))
     {
         waiters[get_current_task()] = m;
-        block_on(mutexes[m].holder);
+        _block_on(mutexes[m].holder);
     }
 }
 
@@ -88,7 +88,7 @@ void
         if (waiters[t] == m)
         {
             waiters[t] = MUTEX_ID_NONE;
-            unblock(t);
+            _unblock(t);
         }
     }
 

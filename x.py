@@ -2385,11 +2385,11 @@ CORE_SKELETONS = {
         [Component('kochab'),
          ArchitectureComponent('stack', 'stack'),
          ArchitectureComponent('ctxt_switch', 'context-switch'),
-         Component('sched', 'sched-prio', {'assume_runnable': False}),
+         Component('sched', 'sched-prio-inherit', {'assume_runnable': False}),
          Component('signal'),
          ArchitectureComponent('irq_event_arch', 'irq-event'),
          Component('irq_event', 'irq-event',  {'timer_process': False}),
-         Component('mutex', 'simple-mutex'),
+         Component('mutex', 'blocking-mutex'),
          Component('semaphore', 'simple-semaphore')],
     ),
 }

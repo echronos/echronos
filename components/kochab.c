@@ -92,6 +92,13 @@ _block(void)
 }
 
 static void
+_block_on(TaskId t)
+{
+    sched_set_blocked_on(get_current_task(), t);
+    {{prefix}}yield();
+}
+
+static void
 _unblock(TaskId task)
 {
     sched_set_runnable(task);
@@ -118,6 +125,7 @@ void
 {{prefix}}start(void)
 {
     sem_init();
+    mutex_init();
 
     {{#tasks}}
     context_init(get_task_context({{idx}}), {{entry}}, stack_{{idx}}, {{stack_size}});

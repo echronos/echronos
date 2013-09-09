@@ -1346,7 +1346,7 @@ module\'s functionality cannot be invoked.'.format(self, typ.__name__))
 class Project:
     """The Project is a container for other objects in the system."""
 
-    def __init__(self, filename, search_paths=None):
+    def __init__(self, filename, search_paths=None, prx_include_paths=None):
         """Parses the project definition file `filename` and any imported system and module definition files.
 
         If filename is None, then a default 'empty' project is created.
@@ -1429,6 +1429,8 @@ class Project:
 
         logger.debug("search_paths %s", self.search_paths)
 
+        self._prx_include_paths = prx_include_paths
+
         output_el = maybe_single_named_child(self.dom, 'output')
         if output_el:
             path = get_attribute(output_el, 'path')
@@ -1487,7 +1489,7 @@ class Project:
         ext = os.path.splitext(path)[1]
         if ext == '.prx':
             try:
-                return System(entity_name, xml_parse_file_with_includes(path), self)
+                return System(entity_name, xml_parse_file_with_includes(path, self._prx_include_paths), self)
             except ExpatError as e:
                 raise EntityLoadError("Error parsing system import '{}:{}': {!s}".format(e.path, e.lineno, e))
         elif ext == '.py':
@@ -1629,6 +1631,8 @@ def main():
     parser.add_argument('--search-path', action='append', help='additional search paths')
     parser.add_argument('--verbose', action='store_true', help='provide verbose output')
     parser.add_argument('--output', '-o', help='Output directory')
+    parser.add_argument('--prx-inc-path', action='append',
+                        help='Search paths for resolving "include" elements in system definition files')
 
     subparsers = parser.add_subparsers(title='subcommands', dest='command')
 
@@ -1658,7 +1662,7 @@ def main():
 
     # Initialise project
     try:
-        args.project = Project(args.project, args.search_path)
+        args.project = Project(args.project, args.search_path, args.prx_inc_path)
     except (EntityLoadError, EntityNotFound, ProjectStartupError) as e:
         logger.error(str(e))
         return 1

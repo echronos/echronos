@@ -216,13 +216,19 @@ def xml_parse_string(string, name='<string>', start_line=0):
     return dom.documentElement
 
 
-def xml_parse_file_with_includes(filename):
+_xml_parse_include_paths = None
+
+
+def xml_parse_file_with_includes(filename, include_paths=None):
     """Parse XML file as xml_parse_file() would and resolve include elements.
 
     All elements with the name 'include' and the attribute 'file' are replaced with the child nodes of the root DOM
     element of the XML file referenced by the 'file' attribute.
 
     """
+    global _xml_parse_include_paths
+    _xml_parse_include_paths = include_paths if include_paths is not None else []
+
     document_element = xml_parse_file(filename)
 
     if document_element.tagName == 'include':
@@ -233,16 +239,16 @@ not supported. include elements may only appear below the root element.'))
     return document_element
 
 
-def xml_resolve_includes_below_element(el, include_dir):
+def xml_resolve_includes_below_element(el, parent_dir):
     """Recurse children of 'el' and replace all include elements with contents of included XML files."""
     for child in el.childNodes:
         if child.nodeType == child.ELEMENT_NODE and child.tagName == 'include':
-            xml_resolve_include_element(child, include_dir)
+            xml_resolve_include_element(child, parent_dir)
         else:
-            xml_resolve_includes_below_element(child, include_dir)
+            xml_resolve_includes_below_element(child, parent_dir)
 
 
-def xml_resolve_include_element(el, include_dir):
+def xml_resolve_include_element(el, parent_dir):
     """Replace the XML element 'el' with the child nodes of the root element of the included DOM.
 
     This performs all necessary consistency checks to ensure the result is again a well-formed DOM.
@@ -255,13 +261,18 @@ def xml_resolve_include_element(el, include_dir):
         raise SystemParseError(xml_error_str(el, 'Expected no child elements in include element. Correct format \
 is <include file="FILENAME" />'))
 
-    path_to_include = get_attribute(el, 'file')
-    if path_to_include == NOTHING:
+    path_attribute = get_attribute(el, 'file')
+    if path_attribute == NOTHING:
         raise SystemParseError(xml_error_str(el, 'Expected include element to contain "file" attribute. Correct \
 format is <include file="FILENAME" />'))
 
-    if not os.path.isabs(path_to_include):
-        path_to_include = os.path.join(include_dir, path_to_include)
+    if os.path.isabs(path_attribute):
+        path_to_include = path_attribute
+    else:
+        for include_path in [parent_dir] + _xml_parse_include_paths:
+            path_to_include = os.path.join(include_path, path_attribute)
+            if os.path.isfile(path_to_include):
+                break
 
     path_to_include = os.path.normpath(path_to_include)
     if not os.path.exists(path_to_include):

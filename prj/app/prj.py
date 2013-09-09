@@ -216,24 +216,20 @@ def xml_parse_string(string, name='<string>', start_line=0):
     return dom.documentElement
 
 
-def xml_parse_file_with_includes(filename, include_dir=None):
+def xml_parse_file_with_includes(filename):
     """Parse XML file as xml_parse_file() would and resolve include elements.
 
     All elements with the name 'include' and the attribute 'file' are replaced with the child nodes of the root DOM
     element of the XML file referenced by the 'file' attribute.
-    This resolution is not recursive in the sense that include elements in included files are ignored.
 
     """
-    if include_dir is None:
-        include_dir = os.path.dirname(filename)
-
     document_element = xml_parse_file(filename)
 
     if document_element.tagName == 'include':
         raise SystemParseError(xml_error_str(document_element, 'The XML root element is an include element. This is \
 not supported. include elements may only appear below the root element.'))
 
-    xml_resolve_includes_below_element(document_element, include_dir)
+    xml_resolve_includes_below_element(document_element, os.path.dirname(filename))
     return document_element
 
 
@@ -272,7 +268,7 @@ format is <include file="FILENAME" />'))
         raise SystemParseError(xml_error_str(el, 'The path {} specified in the include element does not refer to \
 an existing file'.format(path_to_include)))
 
-    included_root_element = xml_parse_file(path_to_include)
+    included_root_element = xml_parse_file_with_includes(path_to_include)
     if included_root_element.tagName != 'include_root':
         raise SystemParseError(xml_error_str(included_root_element, 'The XML root element in file {} is not named \
 include_root as expected. Root elements in included XML files must have this name by convention and are removed \

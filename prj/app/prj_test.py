@@ -317,7 +317,34 @@ def test_xml_parse_file_with_includes():
     new_el3 = new_el3s[0]
     assert new_el3.parentNode == new_el2
 
-    #assert result.toprettyxml() == expected_result.toprettyxml()
+
+def test_xml_parse_file_with_includes__nested():
+    nested_included_xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<include_root><nested_element /></include_root>"""
+    included_xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<include_root><included_element_1 /> <include file="{}" /> <included_element_2/></include_root>"""
+    system_xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <include file="{}" />
+  <modules>
+    <module name="foo">
+      <bar>baz</bar>
+    </module>
+  </modules>
+</system>"""
+    expected_xml = """<system>
+  <included_element_1 /> <nested_element /> <included_element_2/>
+  <modules>
+    <module name="foo">
+      <bar>baz</bar>
+    </module>
+  </modules>
+</system>"""
+
+    result_dom = check_xml_parse_file_with_includes_with_xml(system_xml, included_xml, nested_included_xml)
+    expected_dom = xml_parse_string(expected_xml)
+
+    assert result_dom.toxml() == expected_dom.toxml()
 
 
 @raises(SystemParseError)
@@ -397,7 +424,13 @@ def test_xml_parse_file_with_includes__empty_included_root_element():
 </system>""", """<?xml version="1.0" encoding="UTF-8" ?><include_root />""")
 
 
-def check_xml_parse_file_with_includes_with_xml(xml, included_xml=None):
+def check_xml_parse_file_with_includes_with_xml(xml, included_xml=None, nested_included_xml=None):
+    if nested_included_xml:
+        nested_included_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+        nested_included_file.write(nested_included_xml)
+        nested_included_file.close()
+        included_xml = included_xml.format(nested_included_file.name)
+
     if included_xml:
         included_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
         included_file.write(included_xml)
@@ -414,6 +447,8 @@ def check_xml_parse_file_with_includes_with_xml(xml, included_xml=None):
         os.remove(prx_file.name)
         if included_xml:
             os.remove(included_file.name)
+        if nested_included_xml:
+            os.remove(nested_included_file.name)
 
 
 def test_check_ident():

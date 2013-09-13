@@ -1384,16 +1384,7 @@ class Project:
                 raise ProjectStartupError(err)
 
         param_search_paths = search_paths if search_paths is not None else []
-
-        # Find all search path items, and add to search path
-        # All search paths are added before attempting any imports
-        project_search_paths = []
-        for sp_el in self.dom.getElementsByTagName('search-path'):
-            sp = single_text_child(sp_el)
-            if sp.endswith('/'):
-                sp = sp[:-1]
-            project_search_paths.append(sp)
-
+        project_search_paths = list(get_paths_from_dom(self.dom, 'search-path'))
         user_search_paths = param_search_paths + project_search_paths
         if len(user_search_paths) == 0:
             user_search_paths = [self.project_dir]
@@ -1529,6 +1520,21 @@ class Project:
             self.entities[entity_name] = self._parse_import(entity_name, path)
 
         return self.entities[entity_name]
+
+
+def get_paths_from_dom(dom, element_name):
+    """Return the contents of all elements with a given name as a list of paths.
+
+    `dom` is a DOM element from a parsed XML document.
+    `element_name` is a string matched against the names of all elements in `dom`.
+    The text node value contained in each such element is added to the return value.
+    Trailing directory delimiters are removed from the end of each such string.
+
+    This function returns an iterator over strings.
+
+    """
+    for sp_el in dom.getElementsByTagName('search-path'):
+        yield single_text_child(sp_el).rstrip(os.sep)
 
 
 def generate(args):

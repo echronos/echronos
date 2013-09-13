@@ -216,9 +216,6 @@ def xml_parse_string(string, name='<string>', start_line=0):
     return dom.documentElement
 
 
-_xml_parse_include_paths = None
-
-
 def xml_parse_file_with_includes(filename, include_paths=None):
     """Parse XML file as xml_parse_file() would and resolve include elements.
 
@@ -226,70 +223,83 @@ def xml_parse_file_with_includes(filename, include_paths=None):
     element of the XML file referenced by the 'file' attribute.
 
     """
-    global _xml_parse_include_paths
-    _xml_parse_include_paths = include_paths if include_paths is not None else []
-
-    document_element = xml_parse_file(filename)
-
-    if document_element.tagName == 'include':
-        raise SystemParseError(xml_error_str(document_element, 'The XML root element is an include element. This is \
-not supported. include elements may only appear below the root element.'))
-
-    xml_resolve_includes_below_element(document_element, os.path.dirname(filename))
-    return document_element
+    return XmlIncludeParser(include_paths).parse(filename)
 
 
-def xml_resolve_includes_below_element(el, parent_dir):
-    """Recurse children of 'el' and replace all include elements with contents of included XML files."""
-    for child in el.childNodes:
-        if child.nodeType == child.ELEMENT_NODE and child.tagName == 'include':
-            xml_resolve_include_element(child, parent_dir)
-        else:
-            xml_resolve_includes_below_element(child, parent_dir)
+class XmlIncludeParser:
+    def __init__(self, include_paths=None):
+        if include_paths is None:
+            include_paths = []
+        self._include_paths = include_paths
+        assert isinstance(self._include_paths, list)
+        assert all(map(lambda x: isinstance(x, str), self._include_paths))
 
+    def parse(self, filename):
+        """Parse XML file as xml_parse_file() would and resolve include elements.
 
-def xml_resolve_include_element(el, parent_dir):
-    """Replace the XML element 'el' with the child nodes of the root element of the included DOM.
+        All elements with the name 'include' and the attribute 'file' are replaced with the child nodes of the root
+        DOM element of the XML file referenced by the 'file' attribute.
 
-    This performs all necessary consistency checks to ensure the result is again a well-formed DOM.
+        """
+        document_element = xml_parse_file(filename)
 
-    After this function returns, the element 'el' is no longer part of the original DOM, it is unlinked, and must not
-    be accessed or used in the context of the calling function.
+        if document_element.tagName == 'include':
+            raise SystemParseError(xml_error_str(document_element, 'The XML root element is an include element. This \
+is not supported. include elements may only appear below the root element.'))
 
-    """
-    if len(element_children(el)) != 0:
-        raise SystemParseError(xml_error_str(el, 'Expected no child elements in include element. Correct format \
+        self.resolve_includes_below_element(document_element, os.path.dirname(filename))
+        return document_element
+
+    def resolve_includes_below_element(self, el, parent_dir):
+        """Recurse children of 'el' and replace all include elements with contents of included XML files."""
+        for child in el.childNodes:
+            if child.nodeType == child.ELEMENT_NODE and child.tagName == 'include':
+                self.resolve_include_element(child, parent_dir)
+            else:
+                self.resolve_includes_below_element(child, parent_dir)
+
+    def resolve_include_element(self, el, parent_dir):
+        """Replace the XML element 'el' with the child nodes of the root element of the included DOM.
+
+        This performs all necessary consistency checks to ensure the result is again a well-formed DOM.
+
+        After this function returns, the element 'el' is no longer part of the original DOM, it is unlinked, and must
+        not be accessed or used in the context of the calling function.
+
+        """
+        if len(element_children(el)) != 0:
+            raise SystemParseError(xml_error_str(el, 'Expected no child elements in include element. Correct format \
 is <include file="FILENAME" />'))
 
-    path_attribute = get_attribute(el, 'file')
-    if path_attribute == NOTHING:
-        raise SystemParseError(xml_error_str(el, 'Expected include element to contain "file" attribute. Correct \
+        path_attribute = get_attribute(el, 'file')
+        if path_attribute == NOTHING:
+            raise SystemParseError(xml_error_str(el, 'Expected include element to contain "file" attribute. Correct \
 format is <include file="FILENAME" />'))
 
-    if os.path.isabs(path_attribute):
-        path_to_include = path_attribute
-    else:
-        for include_path in [parent_dir] + _xml_parse_include_paths:
-            path_to_include = os.path.join(include_path, path_attribute)
-            if os.path.isfile(path_to_include):
-                break
+        if os.path.isabs(path_attribute):
+            path_to_include = path_attribute
+        else:
+            for include_path in [parent_dir] + self._include_paths:
+                path_to_include = os.path.join(include_path, path_attribute)
+                if os.path.isfile(path_to_include):
+                    break
 
-    path_to_include = os.path.normpath(path_to_include)
-    if not os.path.exists(path_to_include):
-        raise SystemParseError(xml_error_str(el, 'The path {} specified in the include element does not refer to \
+        path_to_include = os.path.normpath(path_to_include)
+        if not os.path.exists(path_to_include):
+            raise SystemParseError(xml_error_str(el, 'The path {} specified in the include element does not refer to \
 an existing file'.format(path_to_include)))
 
-    included_root_element = xml_parse_file_with_includes(path_to_include)
-    if included_root_element.tagName != 'include_root':
-        raise SystemParseError(xml_error_str(included_root_element, 'The XML root element in file {} is not named \
-include_root as expected. Root elements in included XML files must have this name by convention and are removed \
+        included_root_element = self.parse(path_to_include)
+        if included_root_element.tagName != 'include_root':
+            raise SystemParseError(xml_error_str(included_root_element, 'The XML root element in file {} is not named\
+ include_root as expected. Root elements in included XML files must have this name by convention and are removed \
 implicitly by the inclusion process.'))
 
-    parent_node = el.parentNode
-    for child in included_root_element.childNodes[:]:
-        parent_node.insertBefore(child, el)
-    parent_node.removeChild(el)
-    el.unlink()
+        parent_node = el.parentNode
+        for child in included_root_element.childNodes[:]:
+            parent_node.insertBefore(child, el)
+        parent_node.removeChild(el)
+        el.unlink()
 
 
 def single_text_child(el):

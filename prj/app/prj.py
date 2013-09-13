@@ -1552,7 +1552,7 @@ def get_paths_from_dom(dom, element_name):
     This function returns an iterator over strings.
 
     """
-    for sp_el in dom.getElementsByTagName('search-path'):
+    for sp_el in dom.getElementsByTagName(element_name):
         yield single_text_child(sp_el).rstrip(os.sep)
 
 

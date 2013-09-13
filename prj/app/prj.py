@@ -294,7 +294,11 @@ format is <include file="FILENAME" />'))
         path_to_include = os.path.normpath(path_to_include)
         if not os.path.exists(path_to_include):
             raise SystemParseError(xml_error_str(el, 'The path {} specified in the include element does not refer to \
-an existing file'.format(path_to_include)))
+an existing file. \
+The path is considered to be {}. \
+The known prx include paths are {})'.format(path_to_include,
+                                            'absolute' if os.path.isabs(path_attribute) else 'relative',
+                                            self._include_paths)))
 
         included_root_element = self.parse(path_to_include)
         if included_root_element.tagName != 'include_root':

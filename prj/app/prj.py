@@ -216,14 +216,21 @@ def xml_parse_string(string, name='<string>', start_line=0):
     return dom.documentElement
 
 
-def xml_parse_file_with_includes(filename, include_paths=None):
+def xml_parse_file_with_includes(filename, include_paths=None, output_dir=None):
     """Parse XML file as xml_parse_file() would and resolve include elements.
 
     All elements with the name 'include' and the attribute 'file' are replaced with the child nodes of the root DOM
     element of the XML file referenced by the 'file' attribute.
 
+    If `output_dir` is specified, the resulting DOM is written as XML to a file with the name contained in `filename`
+    in directory `output_dir`.
+
     """
-    return XmlIncludeParser(include_paths).parse(filename)
+    dom = XmlIncludeParser(include_paths).parse(filename)
+    if output_dir is not None and os.path.isdir(output_dir):
+        with open(os.path.join(output_dir, os.path.basename(filename)), 'w') as f:
+            f.write(dom.toprettyxml())
+    return dom
 
 
 class XmlIncludeParser:
@@ -1491,7 +1498,8 @@ class Project:
         ext = os.path.splitext(path)[1]
         if ext == '.prx':
             try:
-                return System(entity_name, xml_parse_file_with_includes(path, self._prx_include_paths), self)
+                return System(entity_name, xml_parse_file_with_includes(path, self._prx_include_paths, self.output),
+                              self)
             except ExpatError as e:
                 raise EntityLoadError("Error parsing system import '{}:{}': {!s}".format(e.path, e.lineno, e))
         elif ext == '.py':

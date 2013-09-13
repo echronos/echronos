@@ -1,4 +1,6 @@
 import os
+import subprocess
+import sys
 import tempfile
 from prj import *
 from nose.tools import assert_raises, raises
@@ -539,6 +541,27 @@ def check_xml_parse_file_with_includes_with_xml(xml, included_xml=None, nested_i
             os.remove(included_file.name)
         if nested_included_xml:
             os.remove(nested_included_file.name)
+
+
+def test_xml_include_paths():
+    sys.argv[1:] = ['--prx-inc-path', 'a', '--prx-inc-path', 'b', 'gen', 'foo']
+    args = get_command_line_arguments()
+    assert args.prx_inc_path == ['a', 'b']
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        project_file_path = os.path.join(temp_dir, 'project.prj')
+        with open(project_file_path, 'w') as f:
+            f.write('''<?xml version="1.0" encoding="UTF-8" ?>
+<project>
+  <prx-include-path>1</prx-include-path>
+  <prx-include-path>2</prx-include-path>
+</project>''')
+
+        p = Project(project_file_path)
+        assert p._prx_include_paths == ['1', '2']
+
+        p = Project(project_file_path, None, args.prx_inc_path)
+        assert p._prx_include_paths == ['1', '2', 'a', 'b']
 
 
 def test_check_ident():

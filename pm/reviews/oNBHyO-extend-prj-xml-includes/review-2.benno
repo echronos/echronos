@@ -5,7 +5,7 @@ Task name: oNBHyO-extend-prj-xml-includes
 Version reviewed: 44b5218d6876dc38e1f35d91163dcb67a6e4c321
 Reviewer: benno
 Date: 2013-09-13
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
@@ -13,8 +13,13 @@ Overall comments:
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: prj.py:219
+Comment: Change the `output_dir` to be `output_file`
 
-Location: filename:linenum
-Comment:
+Location: prj.py:230
+Comment: Don't need an `isdir` check if the output is a file name.
+
+Location: prj.py:241
+Comment: I think testing that this is a list is overconstraining.
+For better or worse Python does the ducktyping thing, and in this case if
+include_paths is a tuple, or array, or custom type that can be iterated over the code would style work.

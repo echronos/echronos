@@ -238,8 +238,6 @@ class XmlIncludeParser:
         if include_paths is None:
             include_paths = []
         self._include_paths = include_paths
-        assert isinstance(self._include_paths, list)
-        assert all(map(lambda x: isinstance(x, str), self._include_paths))
 
     def parse(self, filename):
         """Parse XML file as xml_parse_file() would and resolve include elements.

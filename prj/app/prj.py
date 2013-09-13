@@ -1420,7 +1420,8 @@ class Project:
 
         logger.debug("search_paths %s", self.search_paths)
 
-        self._prx_include_paths = prx_include_paths
+        param_prx_include_paths = prx_include_paths if prx_include_paths is not None else []
+        self._prx_include_paths = list(get_paths_from_dom(self.dom, 'prx-include-path')) + param_prx_include_paths
 
         output_el = maybe_single_named_child(self.dom, 'output')
         if output_el:
@@ -1638,7 +1639,8 @@ def main():
     parser.add_argument('--verbose', action='store_true', help='provide verbose output')
     parser.add_argument('--output', '-o', help='Output directory')
     parser.add_argument('--prx-inc-path', action='append',
-                        help='Search paths for resolving "include" elements in system definition files')
+                        help='Search paths for resolving "include" elements in system definition files. '
+                             'These paths are appended to the ones specified in the project file.')
 
     subparsers = parser.add_subparsers(title='subcommands', dest='command')
 

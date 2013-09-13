@@ -1645,8 +1645,7 @@ SUBCOMMAND_TABLE = {
 }
 
 
-def main():
-    """Application main entry point. Parse arguments, and call specified sub-command."""
+def get_command_line_arguments():
     # create the top-level parser
     parser = argparse.ArgumentParser(prog='prj')
     parser.add_argument('--project', default=None,
@@ -1685,6 +1684,13 @@ def main():
 
     if args.no_project:
         args.project = None
+
+    return args
+
+
+def main():
+    """Application main entry point. Parse arguments, and call specified sub-command."""
+    args = get_command_line_arguments()
 
     # Initialise project
     try:

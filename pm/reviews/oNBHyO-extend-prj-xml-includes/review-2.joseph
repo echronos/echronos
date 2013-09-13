@@ -5,16 +5,13 @@ Task name: oNBHyO-extend-prj-xml-includes
 Version reviewed: 44b5218d6876dc38e1f35d91163dcb67a6e4c321
 Reviewer: joseph
 Date: 2013-09-13
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
+1. The prx output file is in the wrong place. Currently it is written to out. It really should be written to out/I/xxx
+where xxx is the name of the original prx file.
 
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+2. The prx output file contains 3 newlines for every newline in the original file. I guess its not essential but
+it would be much better if the extraneous text nodes were filtered out before pretty printing. It seems the
+pretty print method is not ideal.

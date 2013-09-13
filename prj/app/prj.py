@@ -1501,7 +1501,9 @@ class Project:
         if ext == '.prx':
             os.makedirs(self.output, exist_ok=True)
             try:
-                return System(entity_name, xml_parse_file_with_includes(path, self._prx_include_paths, os.path.join(self.output, os.path.basename(path))),
+                return System(entity_name,
+                              xml_parse_file_with_includes(path, self._prx_include_paths,
+                                                           os.path.join(self.output, entity_name + ext)),
                               self)
             except ExpatError as e:
                 raise EntityLoadError("Error parsing system import '{}:{}': {!s}".format(e.path, e.lineno, e))

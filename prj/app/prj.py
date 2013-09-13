@@ -216,7 +216,7 @@ def xml_parse_string(string, name='<string>', start_line=0):
     return dom.documentElement
 
 
-def xml_parse_file_with_includes(filename, include_paths=None, output_dir=None):
+def xml_parse_file_with_includes(filename, include_paths=None, output_file_path=None):
     """Parse XML file as xml_parse_file() would and resolve include elements.
 
     All elements with the name 'include' and the attribute 'file' are replaced with the child nodes of the root DOM
@@ -227,8 +227,8 @@ def xml_parse_file_with_includes(filename, include_paths=None, output_dir=None):
 
     """
     dom = XmlIncludeParser(include_paths).parse(filename)
-    if output_dir is not None and os.path.isdir(output_dir):
-        with open(os.path.join(output_dir, os.path.basename(filename)), 'w') as f:
+    if output_file_path is not None:
+        with open(output_file_path, 'w') as f:
             f.write(dom.toprettyxml())
     return dom
 
@@ -1501,8 +1501,9 @@ class Project:
         """
         ext = os.path.splitext(path)[1]
         if ext == '.prx':
+            os.makedirs(self.output, exist_ok=True)
             try:
-                return System(entity_name, xml_parse_file_with_includes(path, self._prx_include_paths, self.output),
+                return System(entity_name, xml_parse_file_with_includes(path, self._prx_include_paths, os.path.join(self.output, os.path.basename(path))),
                               self)
             except ExpatError as e:
                 raise EntityLoadError("Error parsing system import '{}:{}': {!s}".format(e.path, e.lineno, e))

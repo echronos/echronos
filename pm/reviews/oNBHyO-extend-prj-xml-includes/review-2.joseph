@@ -12,6 +12,12 @@ Overall comments:
 1. The prx output file is in the wrong place. Currently it is written to out. It really should be written to out/I/xxx
 where xxx is the name of the original prx file.
 
+[stg: reconstructing the original relative path of the prx file is not straight-forward.
+As a compromise, the output file is now out/DOTTED_SYSTEM_NAME.prx, e.g., out/Systems.I.xxx.prx.]
+
 2. The prx output file contains 3 newlines for every newline in the original file. I guess its not essential but
 it would be much better if the extraneous text nodes were filtered out before pretty printing. It seems the
 pretty print method is not ideal.
+
+[stg: won't fix.
+I agree that this is not ideal but do not see a point in spending effort on this cosmetic aspect of a debugging feature]

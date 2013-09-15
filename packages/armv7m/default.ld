@@ -4,6 +4,7 @@ ENTRY(_vector_table)
 SECTIONS
 {
         . = {{code_addr}};
+        .ro_start = .;
         .vectors : AT ({{flash_load_addr}})
         { *(.vectors) }
 
@@ -13,8 +14,10 @@ SECTIONS
         .rodata : AT (LOADADDR (.text) + SIZEOF(.text))
         { *(.rodata*) }
 
+        .ro_end = ALIGN(4);
+
         . = {{data_addr}};
-        .data.bitband : AT (LOADADDR(.rodata) + SIZEOF(.rodata))
+        .data.bitband : AT ({{flash_load_addr}} + (.ro_end - .ro_start))
         {
               *(.data.bitband)
         }
@@ -31,6 +34,11 @@ SECTIONS
         _data_load_addr = LOADADDR(.data.bitband);
         _data_virt_addr = ADDR(.data.bitband);
         _data_size = . - ADDR(.data.bitband);
+
+        /* Check addresses are correct */
+        _ = ASSERT(_data_load_addr % 4 == 0, "_data_load_addr not word aligned");
+        _ = ASSERT(_data_virt_addr % 4 == 0, "_data_virt_addr not word aligned");
+        _ = ASSERT(_data_size % 4 == 0, "_data_size not word aligned");
 
         .bss :
         {

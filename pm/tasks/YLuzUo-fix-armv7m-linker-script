@@ -1,0 +1,10 @@
+Task: YLuzUo-fix-armv7m-linker-script
+==============================================================================
+
+Goals
+--------
+
+The ARMv7M has a subtle error that causes aligned accesses during startup.
+The startup code copies initialised data from flash in to data ram, and does so with a word at a time copy.
+For this to work it is essential that both the target and source address are word aligned.
+This patch will ensure that linker script always generates aligned addresses.

@@ -8,6 +8,11 @@ class RigelModule(Module):
    <entry name="signalset_size" type="int" default="8"/>
    <entry name="irqeventid_size" type="int" default="8"/>
    <entry name="prefix" type="c_ident" default="rtos_" />
+   <entry name="signals" type="list" auto_index_field="idx">
+     <entry name="signal" type="dict">
+       <entry name="name" type="ident" />
+     </entry>
+   </entry>
    <entry name="tasks" type="list" auto_index_field="idx">
      <entry name="task" type="dict">
       <entry name="entry" type="c_ident" />

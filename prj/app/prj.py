@@ -578,18 +578,18 @@ def xml2schema(el):
 def check_ident(s):
     """Check that a string (`s`) is a valid `ident`.
 
-    Raise a SystemParseError if `s` is not valid.
+    Raise a ValueError if `s` is not valid.
 
     A valid ident should contains lower-case ascii [a-z], digits [0-9] and '_'.
     The first character should be a lower-case ascii. [a-z]
 
     """
     if s[0] not in string.ascii_lowercase:
-        raise SystemParseError("First character of an indent must be a lower-case ascii character.")
+        raise ValueError("First character of an indent must be a lower-case ascii character.")
 
     valid_chars = string.ascii_lowercase + string.digits + '_'
     if any(c not in valid_chars for c in s):
-        raise SystemParseError("Ident must only contains ASCII lower-case, digits and '_'")
+        raise ValueError("Ident must only contains ASCII lower-case, digits and '_'")
 
 
 def xml2dict(el, schema=None):

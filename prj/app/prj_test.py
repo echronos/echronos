@@ -566,9 +566,9 @@ def test_xml_include_paths():
 
 def test_check_ident():
     check_ident('foo_bar_123')
-    with assert_raises(SystemParseError):
+    with assert_raises(ValueError):
         check_ident('fooFbar')
-    with assert_raises(SystemParseError):
+    with assert_raises(ValueError):
         check_ident('Foobar')
-    with assert_raises(SystemParseError):
+    with assert_raises(ValueError):
         check_ident('foo_%_')

@@ -470,7 +470,7 @@ def dict_has_keys(d, *keys):
     return True
 
 
-valid_schema_types = ['dict', 'list', 'string', 'int', 'c_ident', 'ident']
+valid_schema_types = ['dict', 'list', 'string', 'int', 'c_ident', 'ident', 'object']
 
 
 def check_schema_is_valid(schema, key_path=None):
@@ -562,6 +562,8 @@ def xml2schema(el):
             entry['auto_index_field'] = get_attribute(el, 'auto_index_field', None)
         elif _type == 'dict':
             entry['dict_type'] = read_dict_schema(el)
+        elif _type == 'object':
+            entry['object_group'] = get_attribute(el, 'group', None)
 
         return entry
 
@@ -649,6 +651,26 @@ def xml2dict(el, schema=None):
 
     """
     check_schema_is_valid(schema)
+
+    class ObjectProxy:
+        """An ObjectProxy stands in for a real object.
+
+        This proxied objects are resolved once a first-pass has been completed and all names are known.
+
+        """
+        def __init__(self, name, group, el):
+            self.name = name
+            self.group = group
+            self.el = el
+
+    def resolve_proxies(dct):
+        # Find all ObjectProxies and resolve them.
+        for key, val in ((k, v) for k, v in util.util.config_traverse(dct) if isinstance(v, ObjectProxy)):
+            try:
+                real_val = util.util.list_search(dct[val.group], 'name', val.name)
+            except KeyError:
+                raise SystemParseError(xml_error_str(val.el, "Can't find object named '{}'".format(val.name)))
+            util.util.config_set(dct, key, real_val)
 
     def get_dict_val(el, schema):
         children = element_children(el, ensure_unique=True)
@@ -740,10 +762,14 @@ def xml2dict(el, schema=None):
             except ValueError as e:
                 raise SystemParseError(xml_error_str(el, "Error parsing ident '{}'. {}".format(val, e)))
             return val
+        elif _type == 'object':
+            return ObjectProxy(val, schema['object_group'], el)
         else:
             assert False
 
-    return get_el_val(el, schema, None)
+    dct = get_el_val(el, schema, None)
+    resolve_proxies(dct)
+    return dct
 
 
 def asdict(lst, key=None, attr=None):

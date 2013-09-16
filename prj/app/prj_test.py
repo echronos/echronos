@@ -170,6 +170,49 @@ def test_xml2dict_ident_error():
     assert '<string>:1.0' in str(e.exception)
 
 
+def test_xml2dict_object():
+    schema = {
+        'type': 'dict',
+        'name': 'foo',
+        'dict_type': [{'type': 'list',
+                       'name': 'bars',
+                       'list_type': {'type': 'dict',
+                                     'name': 'bar',
+                                     'dict_type': [{'name': 'name', 'type': 'string'}]}},
+                      {'type': 'list',
+                       'name': 'bazs',
+                       'list_type': {'type': 'dict',
+                                     'name': 'baz',
+                                     'dict_type': [{'name': 'name', 'type': 'string'},
+                                                   {'name': 'bar', 'type': 'object', 'object_group': 'bars'}]}}]
+    }
+    test_xml = """<foo>
+<bars>
+ <bar><name>A</name></bar>
+ <bar><name>B</name></bar>
+</bars>
+<bazs>
+ <baz><name>X</name><bar>A</bar></baz>
+</bazs>
+</foo>
+"""
+    parsed = xml2dict(xml_parse_string(test_xml), schema)
+    assert parsed['bazs'][0]['bar']['name'] == 'A'
+
+    bad_xml = """<foo>
+<bars>
+ <bar><name>A</name></bar>
+ <bar><name>B</name></bar>
+</bars>
+<bazs>
+ <baz><name>X</name><bar>AA</bar></baz>
+</bazs>
+</foo>
+"""
+    with assert_raises(SystemParseError) as e:
+        parsed = xml2dict(xml_parse_string(bad_xml), schema)
+
+
 def test_asdict_key():
     x = {'foo': 1}
     y = {'foo': 2}

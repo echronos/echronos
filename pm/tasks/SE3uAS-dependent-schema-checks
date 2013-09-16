@@ -1,0 +1,27 @@
+Task: SE3uAS-dependent-schema-checks
+==============================================================================
+
+Goals
+--------
+
+Modules schemas often wish to have fields that refer to other objects.
+For example, irq_events refer to a task (and signal set) in the rigel variant.
+Rather than code such as:
+
+        <irq_event>
+          <name>tick</name>
+          <task>0</task>
+          <sig_set>1</sig_set>
+        </irq_event>
+
+
+It should be possible to write:
+
+        <irq_event>
+          <name>tick</name>
+          <task>a</task>
+          <sig_set>1</sig_set>
+        </irq_event>
+
+Were 'a' is the name of a task defined in the system.
+If 'a' doesn't exist, then it should throw an error (before even attempting to compile).

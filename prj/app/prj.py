@@ -735,7 +735,10 @@ def xml2dict(el, schema=None):
             # Check this is really a C identifier
             return val
         elif _type == 'ident':
-            check_ident(val)
+            try:
+                check_ident(val)
+            except ValueError as e:
+                raise SystemParseError(xml_error_str(el, "Error parsing ident '{}'. {}".format(val, e)))
             return val
         else:
             assert False

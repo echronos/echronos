@@ -126,6 +126,14 @@ class LengthList(list, LengthMixin):
     """
 
 
+def list_search(lst, key, value):
+    """Search a list of dictionaries for the dict where dict[key] == value."""
+    try:
+        return next(dct for dct in lst if dct[key] == value)
+    except StopIteration:
+        raise KeyError()
+
+
 """A `configuration` is a normal Python dictionary used for storing configuration data.
 
 The values may be any Python value, however any list or dictionary values are treated as holding traversable

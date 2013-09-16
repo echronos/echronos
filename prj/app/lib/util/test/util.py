@@ -1,5 +1,5 @@
 from util.util import do_nothing, Singleton, s16l, check_unique, remove_multi, add_index, \
-    LengthMixin, LengthList, config_traverse
+    LengthMixin, LengthList, config_traverse, config_set
 from nose.tools import assert_raises, raises
 
 
@@ -164,3 +164,11 @@ def test_config_traverse():
 
     cfg = {}
     assert set(config_traverse(cfg)) == set()
+
+
+def test_config_set():
+    cfg = {'foo': [5, 6, 7], 'bar': {'baz': 7, 'qux': 8}}
+
+    config_set(cfg, ('foo', 0), 10)
+
+    assert cfg['foo'][0] == 10

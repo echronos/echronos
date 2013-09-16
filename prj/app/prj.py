@@ -729,7 +729,7 @@ def xml2dict(el, schema=None):
         elif _type == 'int':
             try:
                 return int(val, base=0)
-            except Exception as e:
+            except ValueError as e:
                 raise SystemParseError(xml_error_str(el, "Error converting '{}' to integer: {}".format(val, e)))
         elif _type == 'c_ident':
             # Check this is really a C identifier

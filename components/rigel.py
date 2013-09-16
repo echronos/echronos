@@ -23,7 +23,7 @@ class RigelModule(Module):
    <entry name="irq_events" type="list" auto_index_field="idx">
      <entry name="irq_event" type="dict">
       <entry name="name" type="ident" />
-      <entry name="task" type="int" />
+      <entry name="task" type="object" group="tasks" />
       <entry name="sig_set" type="int" />
      </entry>
    </entry>

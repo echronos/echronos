@@ -41,7 +41,7 @@ typedef SignalId SignalIdOption;
 
 /*| public_function_definitions |*/
 SignalId {{prefix}}signal_wait_set(SignalSet signal_set);
-void {{prefix}}signal_send_set(TaskId task_id, SignalId signal_id);
+void {{prefix}}signal_send_set(TaskId task_id, SignalSet signal_set);
 SignalIdOption {{prefix}}signal_poll_set(SignalSet signal_set);
 bool {{prefix}}signal_peek_set(SignalSet signal_set);
 

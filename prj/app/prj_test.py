@@ -161,6 +161,15 @@ def test_xml2dict_autoindex():
     x = xml2dict(xml_parse_string(test_xml), schema)
 
 
+def test_xml2dict_ident_error():
+    """Ensure that exceptions raised while parsing bad idents include location information."""
+    test_xml = "<foo>_bad</foo>"
+    schema = {'type': 'ident', 'name': 'foo'}
+    with assert_raises(SystemParseError) as e:
+        x = xml2dict(xml_parse_string(test_xml), schema)
+    assert '<string>:1.0' in str(e.exception)
+
+
 def test_asdict_key():
     x = {'foo': 1}
     y = {'foo': 2}

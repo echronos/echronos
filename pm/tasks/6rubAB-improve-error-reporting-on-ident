@@ -1,0 +1,13 @@
+Task: 6rubAB-improve-error-reporting-on-ident
+==============================================================================
+
+Goals
+--------
+
+In some cases the improved schema checking does not provide a useful file location in the error message.
+For example:
+
+   ERROR:prj:Ident must only contains ASCII lower-case, digits and '_'
+
+The goal of this is to ensure that correct location information is added to this error.
+Additionally, other code paths should be evaluated to determine if similar under-reporting occurs.

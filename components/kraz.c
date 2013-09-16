@@ -7,6 +7,10 @@ typedef uint{{taskid_size}}_t TaskId;
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
+#define TASK_ID_C(x) ((TaskId) UINT{{taskid_size}}_C(x))
+{{#tasks}}
+#define TASK_ID_{{name|u}} TASK_ID_C({{idx}})
+{{/tasks}}
 
 /*| public_function_like_macros |*/
 

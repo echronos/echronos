@@ -124,3 +124,36 @@ class LengthList(list, LengthMixin):
     Note: as per the LengthMixin this is only to be used in very specific circumstances.
 
     """
+
+
+"""A `configuration` is a normal Python dictionary used for storing configuration data.
+
+The values may be any Python value, however any list or dictionary values are treated as holding traversable
+configuration data.
+
+A configuration may be accessed via a configuration key, which is a tuple containing a path to a configuration item.
+
+The utility module defines two functions that operate on configurations.
+
+`config_traverse` is a generator that products key, value pairs for all non-container data in the configuration.
+
+`config_set` sets a particular value in the configuration (as indexed by a configuration key).
+
+Future work may investigate encapsulating this functionality within a class, however the current approach allows
+for interoperability with existing Python modules that operate on dictionaries.
+
+"""
+
+
+def config_traverse(cfg):
+    """Generate key, value pairs for all non-container elements in a configuration."""
+    def traverse(val, key):
+        if isinstance(val, list):
+            for idx, val_ in enumerate(val):
+                yield from traverse(val_, key + (idx, ))
+        elif isinstance(val, dict):
+            for key_, val_ in val.items():
+                yield from traverse(val_, key + (key_, ))
+        else:
+            yield key, val
+    yield from traverse(cfg, tuple())

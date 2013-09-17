@@ -1,0 +1,112 @@
+Task: BGZ3Wc-timer-implementation
+==============================================================================
+
+Goals
+--------
+
+Implement a basic timer component and add to the rigel OS variant.
+Following sections represent preliminary design work done and are subject to change in the final implementation.
+
+
+Requirements / Assumptions / Design inputs
+--------------------------------------------
+
+1: Timers will be based on an underlying constant, periodic tick.
+
+  Rationale:
+    a/ This is a widely used design in embedded systems so engineers are familiar with it.
+    b/ The design is simple.
+    c/ Compared to variable ticks it works on hardware that has expensive/difficult reprogramming of the hardware timer.
+
+2: The application will be the source of ticks.
+
+  Rationale:
+    a/ The core RTOS should try and avoid needing SoC specific timer sources.
+    b/ There are many reasons for an application to choose a very specific clock for the tick.
+
+3: Application will call the RTOS from interrupt context on each tick.
+   This function will be called 'void tick(void)'.
+
+4: The tick() function should be fast.
+   This implies it does a minimum of processing and defers actual processing to a later time.
+
+5: Processing of ticks will occur during the yield() part of the RTOS.
+
+6: It is a reasonable restriction that the application code must call yield() with a greater frequency than the tick().
+Specifically, there must be at least one call to yield() (either directly or by blocking) by the application for every call of tick().
+
+7: There will be supervisor timers.
+   When a supervisor timer expires the applications 'error()' function will be invoked.
+
+8: There will be 'oneshot' timers.
+   When a oneshot timer expires a task will be notified via a signal.
+
+9: There will be 'periodic' timers.
+   When a periodic timer expires a task will be notified via a signal.
+   If a periodic timer expires when the previous signal has not been cleared it is an error.
+
+
+Interfaces
+------------
+
+void tick(void):
+
+  To be called by the application on each tick.
+  Assumed to be called in interrupt context.
+
+
+void timer_watchdog_start(TimerId):
+
+  Start a watchdog timer.
+  timer_watchdog_cancel() must be called before the watchdog expires.
+
+void timer_watchdog_cancel(TimerId):
+
+  Cancel a watchdog timer.
+
+void timer_watchdog_timeout_set(TicksRelative):
+
+   Set the watchdog timeout.
+   This takes effect the next time the watchdog is started.
+   Behaviour is undefined if this is called when watchdog is currently running.
+
+
+void timer_oneshot_start(TimerId, TicksRelative)
+
+   Start a oneshot timer.
+
+
+void timer_oneshot_cancel(TimerId)
+
+   Cancel a oneshot timer.
+
+
+void timer_periodic_start(TimerId)
+
+   Start a periodic timer with its configured timeout
+
+void timer_periodic_stop(TimerId)
+
+   Stop a periodic timer.
+
+
+TickRelative timer_remaining(TimerId)
+
+    Return number of ticks remaining for a given timer.
+
+
+Data structures
+---------------
+
+struct timer
+{
+   bool enabled;
+   TicksTimeout expiry;
+   TickRelative reload;
+
+   ErrorId error_id;
+
+   TaskId task_id;
+   SignalSet signal_set;
+
+}

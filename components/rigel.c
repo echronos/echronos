@@ -3,6 +3,7 @@
 
 /*| public_type_definitions |*/
 typedef uint{{taskid_size}}_t TaskId;
+typedef uint8_t ErrorId;
 
 /*| public_structure_definitions |*/
 
@@ -30,6 +31,8 @@ void {{prefix}}yield(void);
 #define TASK_ID_ZERO ((TaskId) 0u)
 #define TASK_ID_NONE ((TaskIdOption) 0xffU)
 
+#define ERROR_ID_NONE ((ErrorId) 0u)
+
 /*| type_definitions |*/
 typedef TaskId TaskIdOption;
 
@@ -48,6 +51,7 @@ struct irq_event_handler {
 {{#tasks}}
 extern void {{entry}}(void);
 {{/tasks}}
+extern void {{fatal_error}}(ErrorId error_id);
 
 /*| function_definitions |*/
 static void _yield_to(TaskId to);

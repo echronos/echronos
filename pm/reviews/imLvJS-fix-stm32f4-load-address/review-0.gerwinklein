@@ -5,16 +5,13 @@ Task name: imLvJS-fix-stm32f4-load-address
 Version reviewed: 5098a6b8cf71eab826908f875cd9ca1df6a7d85a
 Reviewer: gerwinklein
 Date: 2013-09-15
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
 Overall comments:
-
+No problems.
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Comment: We should also add a kochab-system example (as a separate task).
 
-Location: filename:linenum
-Comment:

@@ -5,16 +5,4 @@ Task name: SE3uAS-dependent-schema-checks
 Version reviewed: 61d3a485dddd332bf13b738e25680f920f483264
 Reviewer: stg
 Date: 2013-09-17
-Conclusion: Accepted/Rework
-
-Overall comments:
-
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Conclusion: Accepted

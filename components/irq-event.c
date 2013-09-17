@@ -44,6 +44,13 @@ irq_event_get_next(void)
     for (;;)
     {
         irq_event_process();
+[[#process_ticks]]
+        /* IMPROVE: This indicates we may want to factor things differently in the future */
+        if (timer_check())
+        {
+            timer_process();
+        }
+[[/process_ticks]]
         next = sched_get_next();
         if (next == TASK_ID_NONE)
         {

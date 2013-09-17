@@ -1,5 +1,5 @@
 from util.util import do_nothing, Singleton, s16l, check_unique, remove_multi, add_index, \
-    LengthMixin, LengthList
+    LengthMixin, LengthList, config_traverse, config_set, list_search
 from nose.tools import assert_raises, raises
 
 
@@ -152,3 +152,34 @@ def test_length_mixin():
 
 def test_length_list():
     assert LengthList(range(5)).length == 5
+
+
+def test_config_traverse():
+    cfg = {'foo': [5, 6, 7], 'bar': {'baz': 7, 'qux': 8}}
+    assert set(config_traverse(cfg)) == set([(('foo', 0), 5),
+                                             (('foo', 1), 6),
+                                             (('foo', 2), 7),
+                                             (('bar', 'baz'), 7),
+                                             (('bar', 'qux'), 8)])
+
+    cfg = {}
+    assert set(config_traverse(cfg)) == set()
+
+
+def test_config_set():
+    cfg = {'foo': [5, 6, 7], 'bar': {'baz': 7, 'qux': 8}}
+
+    config_set(cfg, ('foo', 0), 10)
+
+    assert cfg['foo'][0] == 10
+
+
+def test_list_search():
+    lst = [{'foo': 5, 'bar': 'A'},
+           {'foo': 6, 'bar': 'B'},
+           {'foo': 7, 'bar': 'C'}]
+
+    assert list_search(lst, 'foo', 6)['bar'] == 'B'
+
+    with assert_raises(KeyError):
+        list_search(lst, 'foo', 8)

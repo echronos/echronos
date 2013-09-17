@@ -1,0 +1,32 @@
+Task: g0JE2w-signal-names
+==============================================================================
+
+Goals
+--------
+
+The goal of this task is to allow the system designer to name signals.
+Signal names will be a global name.
+The overall schema will be:
+
+    <signals>
+     <signal>
+       <name>...</name>
+     </signal>
+     ...
+    </signals>
+
+This will produce appropriately named SIGNAL_ID_<name> defines so that programmers need not hardcode signals.
+
+Secondary goals
+----------------
+
+The initial signal implementation only provided version of functions that operated on full sets.
+The original design called for helper functions (function-like macros) that operated on a single signal, rather than a full set.
+
+
+   void signal_send(TaskId task_id, SignalId signal_id);
+   bool signal_peek(SignalId signal_id);
+   void signal_wait(SIgnalId signal_id);
+   bool signal_poll(SignalId signal_id);
+
+These work in conjunction with a macro SIGNAL_ID_TO_SET, which converts a SignalId to a singleton set.

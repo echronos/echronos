@@ -1,0 +1,15 @@
+Breakaway Task Review
+=======================
+
+Task name: g0JE2w-signal-names
+Version reviewed: 83f6fa7608a718d4d8466a9c88beda1ff7c60002
+Reviewer: joseph
+Date: 2013-09-17
+Conclusion: Accepted
+
+Overall comments:
+
+This comment is actually about the prior task which implements the schema type "ident", however since it was missed there it is also relevant to this task.
+
+I think it is important to provide some feedback about where an ident error occurs, since it is otherwise potentially time consuming to locate the offending item.
+Having said that, this is to be implemented in a subsequent task so this one is still accepted.

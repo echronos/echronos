@@ -29,15 +29,17 @@ void
 fn_a(void)
 {
     uint8_t count;
+
+    /* FIXME: This is necessary to ensure all tasks are started */
     rtos_signal_send_set(0, 0);
     rtos_signal_send_set(1, 0);
 
     debug_println("task a: taking lock");
-    rtos_mutex_lock(0);
+    rtos_mutex_lock(MUTEX_ID_TEST);
     rtos_yield();
-    if (rtos_mutex_try_lock(0))
+    if (rtos_mutex_try_lock(MUTEX_ID_TEST))
     {
-        debug_println("unexpected mutex not locked.");
+        debug_println("task a: ERROR: unexpected mutex not locked.");
     }
     debug_println("task a: releasing lock");
     rtos_mutex_unlock(0);
@@ -48,18 +50,18 @@ fn_a(void)
         debug_println("task a");
         if (count % 5 == 0)
         {
-            debug_println("unblocking b");
-            rtos_signal_send_set(1, 1);
+            debug_println("task a: unblocking b");
+            rtos_signal_send(TASK_ID_B, SIGNAL_ID_TEST);
         }
-        debug_println("task a yield");
+        debug_println("task a: yield");
         rtos_yield();
     }
 
-    debug_println("A now waiting for ticks");
+    debug_println("task a: now waiting for ticks");
     for (;;)
     {
-        (void) rtos_signal_wait_set(1);
-        debug_println("tick");
+        rtos_signal_wait(SIGNAL_ID_TEST);
+        debug_println("task a: tick");
     }
 }
 
@@ -69,7 +71,7 @@ fn_b(void)
     uint8_t count;
 
     debug_println("task b: attempting lock");
-    rtos_mutex_lock(0);
+    rtos_mutex_lock(MUTEX_ID_TEST);
     debug_println("task b: got lock");
 
     for (count = 0; ; count++)
@@ -77,8 +79,8 @@ fn_b(void)
         debug_println("task b");
         if (count % 4 == 0)
         {
-            debug_println("b blocking");
-            (void) rtos_signal_wait_set(1);
+            debug_println("task b: blocking");
+            rtos_signal_wait(SIGNAL_ID_TEST);
         }
         else
         {

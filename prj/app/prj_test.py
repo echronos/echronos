@@ -1,4 +1,6 @@
 import os
+import subprocess
+import sys
 import tempfile
 from prj import *
 from nose.tools import assert_raises, raises
@@ -159,6 +161,58 @@ def test_xml2dict_autoindex():
     x = xml2dict(xml_parse_string(test_xml), schema)
 
 
+def test_xml2dict_ident_error():
+    """Ensure that exceptions raised while parsing bad idents include location information."""
+    test_xml = "<foo>_bad</foo>"
+    schema = {'type': 'ident', 'name': 'foo'}
+    with assert_raises(SystemParseError) as e:
+        x = xml2dict(xml_parse_string(test_xml), schema)
+    assert '<string>:1.0' in str(e.exception)
+
+
+def test_xml2dict_object():
+    schema = {
+        'type': 'dict',
+        'name': 'foo',
+        'dict_type': [{'type': 'list',
+                       'name': 'bars',
+                       'list_type': {'type': 'dict',
+                                     'name': 'bar',
+                                     'dict_type': [{'name': 'name', 'type': 'string'}]}},
+                      {'type': 'list',
+                       'name': 'bazs',
+                       'list_type': {'type': 'dict',
+                                     'name': 'baz',
+                                     'dict_type': [{'name': 'name', 'type': 'string'},
+                                                   {'name': 'bar', 'type': 'object', 'object_group': 'bars'}]}}]
+    }
+    test_xml = """<foo>
+<bars>
+ <bar><name>A</name></bar>
+ <bar><name>B</name></bar>
+</bars>
+<bazs>
+ <baz><name>X</name><bar>A</bar></baz>
+</bazs>
+</foo>
+"""
+    parsed = xml2dict(xml_parse_string(test_xml), schema)
+    assert parsed['bazs'][0]['bar']['name'] == 'A'
+
+    bad_xml = """<foo>
+<bars>
+ <bar><name>A</name></bar>
+ <bar><name>B</name></bar>
+</bars>
+<bazs>
+ <baz><name>X</name><bar>AA</bar></baz>
+</bazs>
+</foo>
+"""
+    with assert_raises(SystemParseError) as e:
+        parsed = xml2dict(xml_parse_string(bad_xml), schema)
+
+
 def test_asdict_key():
     x = {'foo': 1}
     y = {'foo': 2}
@@ -317,7 +371,124 @@ def test_xml_parse_file_with_includes():
     new_el3 = new_el3s[0]
     assert new_el3.parentNode == new_el2
 
-    #assert result.toprettyxml() == expected_result.toprettyxml()
+
+def test_xml_parse_file_with_includes__absolute():
+    check_xml_parse_file_with_includes__absolute_relative(absolute=True)
+
+
+def test_xml_parse_file_with_includes__relative():
+    check_xml_parse_file_with_includes__absolute_relative(absolute=False)
+
+
+def check_xml_parse_file_with_includes__absolute_relative(absolute):
+    try:
+        included_xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<include_root><included_element /></include_root>"""
+        main_xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <include file="{}" />
+</system>"""
+        expected_xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <included_element />
+</system>"""
+
+        included_dir = tempfile.TemporaryDirectory()
+        main_dir = tempfile.TemporaryDirectory()
+
+        included_file = tempfile.NamedTemporaryFile(mode='w', delete=False, dir=included_dir.name)
+        included_file.write(included_xml)
+        included_file.close()
+
+        with open(os.path.join(main_dir.name, os.path.basename(included_file.name)), 'w') as empty_file:
+            empty_file.write("""<?xml version="1.0" encoding="UTF-8" ?><include_root></include_root>""")
+
+        if absolute:
+            included_path = os.path.abspath(included_file.name)
+        else:
+            included_path = os.path.join('..', os.path.basename(included_dir.name),
+                                         os.path.basename(included_file.name))
+        main_xml = main_xml.format(included_path)
+        main_file = tempfile.NamedTemporaryFile(mode='w', delete=False, dir=main_dir.name)
+        main_file.write(main_xml)
+        main_file.close()
+
+        result_dom = xml_parse_file_with_includes(main_file.name)
+        expected_dom = xml_parse_string(expected_xml)
+
+        assert result_dom.toxml() == expected_dom.toxml()
+
+    finally:
+        for dir in [included_dir, main_dir]:
+            dir.cleanup()
+
+
+def test_xml_parse_file_with_includes__include_paths():
+    try:
+        included_xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<include_root><included_element /></include_root>"""
+        main_xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <include file="{}" />
+</system>"""
+        expected_xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <included_element />
+</system>"""
+
+        include_dirs = [tempfile.TemporaryDirectory() for _ in range(3)]
+        included_dir = include_dirs[1]
+        main_dir = tempfile.TemporaryDirectory()
+
+        included_file = tempfile.NamedTemporaryFile(mode='w', delete=False, dir=included_dir.name)
+        included_file.write(included_xml)
+        included_file.close()
+
+        with open(os.path.join(include_dirs[2].name, os.path.basename(included_file.name)), 'w') as empty_file:
+            empty_file.write("""<?xml version="1.0" encoding="UTF-8" ?><include_root></include_root>""")
+
+        main_xml = main_xml.format(os.path.basename(included_file.name))
+        main_file = tempfile.NamedTemporaryFile(mode='w', delete=False, dir=main_dir.name)
+        main_file.write(main_xml)
+        main_file.close()
+
+        result_dom = xml_parse_file_with_includes(main_file.name, [d.name for d in include_dirs])
+        expected_dom = xml_parse_string(expected_xml)
+
+        assert result_dom.toxml() == expected_dom.toxml()
+
+    finally:
+        for dir in include_dirs:
+            dir.cleanup()
+
+
+def test_xml_parse_file_with_includes__nested():
+    nested_included_xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<include_root><nested_element /></include_root>"""
+    included_xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<include_root><included_element_1 /> <include file="{}" /> <included_element_2/></include_root>"""
+    system_xml = """<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <include file="{}" />
+  <modules>
+    <module name="foo">
+      <bar>baz</bar>
+    </module>
+  </modules>
+</system>"""
+    expected_xml = """<system>
+  <included_element_1 /> <nested_element /> <included_element_2/>
+  <modules>
+    <module name="foo">
+      <bar>baz</bar>
+    </module>
+  </modules>
+</system>"""
+
+    result_dom = check_xml_parse_file_with_includes_with_xml(system_xml, included_xml, nested_included_xml)
+    expected_dom = xml_parse_string(expected_xml)
+
+    assert result_dom.toxml() == expected_dom.toxml()
 
 
 @raises(SystemParseError)
@@ -397,7 +568,13 @@ def test_xml_parse_file_with_includes__empty_included_root_element():
 </system>""", """<?xml version="1.0" encoding="UTF-8" ?><include_root />""")
 
 
-def check_xml_parse_file_with_includes_with_xml(xml, included_xml=None):
+def check_xml_parse_file_with_includes_with_xml(xml, included_xml=None, nested_included_xml=None):
+    if nested_included_xml:
+        nested_included_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+        nested_included_file.write(nested_included_xml)
+        nested_included_file.close()
+        included_xml = included_xml.format(nested_included_file.name)
+
     if included_xml:
         included_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
         included_file.write(included_xml)
@@ -414,13 +591,36 @@ def check_xml_parse_file_with_includes_with_xml(xml, included_xml=None):
         os.remove(prx_file.name)
         if included_xml:
             os.remove(included_file.name)
+        if nested_included_xml:
+            os.remove(nested_included_file.name)
+
+
+def test_xml_include_paths():
+    sys.argv[1:] = ['--prx-inc-path', 'a', '--prx-inc-path', 'b', 'gen', 'foo']
+    args = get_command_line_arguments()
+    assert args.prx_inc_path == ['a', 'b']
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        project_file_path = os.path.join(temp_dir, 'project.prj')
+        with open(project_file_path, 'w') as f:
+            f.write('''<?xml version="1.0" encoding="UTF-8" ?>
+<project>
+  <prx-include-path>1</prx-include-path>
+  <prx-include-path>2</prx-include-path>
+</project>''')
+
+        p = Project(project_file_path)
+        assert p._prx_include_paths == ['1', '2']
+
+        p = Project(project_file_path, None, args.prx_inc_path)
+        assert p._prx_include_paths == ['1', '2', 'a', 'b']
 
 
 def test_check_ident():
     check_ident('foo_bar_123')
-    with assert_raises(SystemParseError):
+    with assert_raises(ValueError):
         check_ident('fooFbar')
-    with assert_raises(SystemParseError):
+    with assert_raises(ValueError):
         check_ident('Foobar')
-    with assert_raises(SystemParseError):
+    with assert_raises(ValueError):
         check_ident('foo_%_')

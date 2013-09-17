@@ -12,14 +12,36 @@ typedef SignalId SignalIdOption;
 /*| public_object_like_macros |*/
 #define SIGNAL_ID_C(x) ((SignalId) UINT8_C(x))
 #define SIGNAL_ID_NONE ((SignalIdOption) SIGNAL_ID_C(0xff))
+{{#signals}}
+#define SIGNAL_ID_{{name|u}} SIGNAL_ID_C({{idx}})
+{{/signals}}
+
+#define SIGNAL_SET_C(x) ((SignalSet) UINT{{signalset_size}}_C(x))
+#define SIGNAL_SET_NONE SIGNAL_SET_C(0)
+#define SIGNAL_SET_ALL SIGNAL_SET_C(UINT{{signalset_size}}_MAX)
+
+#define SIGNAL_ID_TO_SET(signal) ((SignalSet) (1u << signal))
+
 
 /*| public_function_like_macros |*/
+#define {{prefix}}signal_send(task_id, signal_id) \
+    {{prefix}}signal_send_set(task_id, SIGNAL_ID_TO_SET(signal_id))
+
+#define {{prefix}}signal_peek(signal_id) \
+    {{prefix}}signal_peek_set(SIGNAL_ID_TO_SET(signal_id))
+
+#define {{prefix}}signal_wait(signal_id) \
+    (void) {{prefix}}signal_wait_set(SIGNAL_ID_TO_SET(signal_id))
+
+#define {{prefix}}signal_poll(signal_id) \
+    ({{prefix}}signal_poll_set(SIGNAL_ID_TO_SET(signal_id)) == signal_id)
+
 
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
 SignalId {{prefix}}signal_wait_set(SignalSet signal_set);
-void {{prefix}}signal_send_set(TaskId task_id, SignalId signal_id);
+void {{prefix}}signal_send_set(TaskId task_id, SignalSet signal_set);
 SignalIdOption {{prefix}}signal_poll_set(SignalSet signal_set);
 bool {{prefix}}signal_peek_set(SignalSet signal_set);
 

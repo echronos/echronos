@@ -62,7 +62,7 @@ static struct task tasks[{{tasks.length}}];
 
 struct irq_event_handler irq_events[{{irq_events.length}}] = {
 {{#irq_events}}
- { {{task}}, SIGNAL_SET_IRQ_{{name|u}} },
+ { TASK_ID_{{task.name|u}}, SIGNAL_SET_IRQ_{{name|u}} },
 {{/irq_events}}
 };
 

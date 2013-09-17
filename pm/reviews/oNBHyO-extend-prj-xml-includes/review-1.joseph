@@ -1,0 +1,38 @@
+Breakaway Task Review
+=======================
+
+Task name: oNBHyO-extend-prj-xml-includes
+Version reviewed: bdd97a84a29195c162b269b12efbdc1856900784
+Reviewer: joseph
+Date: 2013-09-13
+Conclusion: Rework
+
+Overall comments (3):
+
+1. Bug in relative include
+========================
+There appears to be a bug in the system. I have refactored the two build xml files to pull out the common stuff into build/common-I.xml.
+I then include this file in the debug-I.xml and release-I.xml files, using
+
+<include file="common.xml" />
+
+I get the error 
+
+ERROR:prj:An unhandled exception occurred: Systems\build\release-I.xml:4.8 The path Systems\I\common-I.xml specified in the include element does not refer to an existing file.
+
+(I have attached the files in question) in ./.
+
+
+2. Add unit test for prj inclusion mechanism
+=========================================
+
+Its a fairly minor feature but all the same it might be good to validate via a new test
+
+
+3. Add debug option that prints the resolved prx file to stdout or a file.
+======================================================================
+
+I've suggested this before, but given this added complexity of the include mechanism, I think that it is pretty important to have the ability to see the resulting "virtual" prx file
+that represents what is going to be built. If you have multiple versions of an include file (eg different build modules as suggested by @stg), it will be fairly 
+important to verify that the correct one is being used.
+

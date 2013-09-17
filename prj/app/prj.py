@@ -552,6 +552,11 @@ def xml2schema(el):
             'default': get_attribute(el, 'default', None),
         }
 
+        try:
+            entry['optional'] = {'true': True, 'false': False}[get_attribute(el, 'optional', 'false').lower()]
+        except KeyError:
+            raise SystemParseError(xml_error_str(el, "Attribute 'optional' should be 'true' or 'false'."))
+
         _type = entry['type']
         if _type not in valid_schema_types:
             err_str = xml_error_str(el, "Invalid type '{}' should be one of {}".format(_type, valid_schema_types))
@@ -709,6 +714,8 @@ def xml2dict(el, schema=None):
         else:
             if schema.get('default') is not None:
                 return schema['default']
+            elif schema.get('optional', False):
+                return None
             else:
                 msg = xml_error_str(parent, "Required config field '{}' missing.".format(schema['name']))
                 raise SystemParseError(msg)
@@ -745,6 +752,10 @@ def xml2dict(el, schema=None):
 
         # If it isn't a compound type, get the value
         val = get_text_value(el, schema, parent)
+
+        # Optional values may be None; return immediately.
+        if val is None:
+            return val
 
         # and then do type checking an coercion
         if _type == 'string':

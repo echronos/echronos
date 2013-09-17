@@ -181,6 +181,28 @@ def test_xml2dict_bool():
         assert xml2dict(xml_parse_string(test_xml), schema)
 
 
+def test_xml2dict_optional():
+    schema = {
+        'type': 'dict',
+        'name': 'x',
+        'dict_type': [{'type': 'bool',
+                       'name': 'b'}]
+    }
+
+    test_xml = "<x><b>true</b></x>"
+    x = xml2dict(xml_parse_string(test_xml), schema)
+    assert x['b']
+
+    test_xml = "<x></x>"
+    with assert_raises(SystemParseError):
+        x = xml2dict(xml_parse_string(test_xml), schema)
+
+    # Make the child element optional instead.
+    schema['dict_type'][0]['optional'] = True
+    x = xml2dict(xml_parse_string(test_xml), schema)
+    assert x['b'] is None
+
+
 def test_xml2dict_ident_error():
     """Ensure that exceptions raised while parsing bad idents include location information."""
     test_xml = "<foo>_bad</foo>"

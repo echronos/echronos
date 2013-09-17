@@ -2365,7 +2365,7 @@ CORE_SKELETONS = {
          ArchitectureComponent('ctxt_switch', 'context-switch'),
          Component('sched', 'sched-rr', {'assume_runnable': False}),
          ArchitectureComponent('irq_event_arch', 'irq-event'),
-         Component('irq_event', 'irq-event'),
+         Component('irq_event', 'irq-event', {'process_ticks': False}),
          Component('mutex', 'simple-mutex')]),
     'rigel': RtosSkeleton(
         'rigel',
@@ -2374,8 +2374,10 @@ CORE_SKELETONS = {
          ArchitectureComponent('ctxt_switch', 'context-switch'),
          Component('sched', 'sched-rr', {'assume_runnable': False}),
          Component('signal'),
+         ArchitectureComponent('timer_arch', 'timer'),
+         Component('timer'),
          ArchitectureComponent('irq_event_arch', 'irq-event'),
-         Component('irq_event', 'irq-event'),
+         Component('irq_event', 'irq-event', {'process_ticks': True}),
          Component('mutex', 'simple-mutex')],
     ),
 }

@@ -32,6 +32,7 @@ void {{prefix}}yield(void);
 #define TASK_ID_NONE ((TaskIdOption) 0xffU)
 
 #define ERROR_ID_NONE ((ErrorId) 0u)
+#define ERROR_ID_TICK_OVERFLOW ((ErrorId) 1u)
 
 /*| type_definitions |*/
 typedef TaskId TaskIdOption;

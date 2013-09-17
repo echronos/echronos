@@ -33,6 +33,16 @@ class RigelModule(Module):
       <entry name="name" type="ident" />
      </entry>
    </entry>
+   <entry name="timers" type="list" auto_index_field="idx">
+     <entry name="timer" type="dict">
+      <entry name="name" type="ident" />
+      <entry name="enabled" type="bool" />
+      <entry name="reload" type="int" />
+      <entry name="error" type="int" default="0" />
+      <entry name="task" type="object" group="tasks" optional="true" />
+      <entry name="sig_set" type="int" optional="true" />
+     </entry>
+   </entry>
   </schema>
 """
     files = [

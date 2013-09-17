@@ -687,7 +687,7 @@ def xml2dict(el, schema=None):
 
         if len(els):
             fst = next(iter(els.values()))
-            raise SystemParseError(xml_error_str(fst, "Unexpected entry: {}".format(fst.tagName)))
+            raise SystemParseError(xml_error_str(fst, "Unexpected configuration entry '{}'".format(fst.tagName)))
 
         return r
 
@@ -710,7 +710,8 @@ def xml2dict(el, schema=None):
             if schema.get('default') is not None:
                 return schema['default']
             else:
-                raise SystemParseError(xml_error_str(parent, "Required config {} missing.".format(schema['name'])))
+                msg = xml_error_str(parent, "Required config field '{}' missing.".format(schema['name']))
+                raise SystemParseError(msg)
 
     def get_el_val(el, schema, parent):
         """Return a Python object value for the given element."""

@@ -161,6 +161,26 @@ def test_xml2dict_autoindex():
     x = xml2dict(xml_parse_string(test_xml), schema)
 
 
+def test_xml2dict_bool():
+    schema = {
+        'type': 'bool',
+        'name': 'b'
+    }
+
+    test_xml = "<b>true</b>"
+    assert xml2dict(xml_parse_string(test_xml), schema)
+
+    test_xml = "<b>false</b>"
+    assert not xml2dict(xml_parse_string(test_xml), schema)
+
+    test_xml = "<b>TrUe</b>"
+    assert xml2dict(xml_parse_string(test_xml), schema)
+
+    with assert_raises(SystemParseError):
+        test_xml = "<b>bad</b>"
+        assert xml2dict(xml_parse_string(test_xml), schema)
+
+
 def test_xml2dict_ident_error():
     """Ensure that exceptions raised while parsing bad idents include location information."""
     test_xml = "<foo>_bad</foo>"

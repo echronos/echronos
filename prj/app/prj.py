@@ -470,7 +470,7 @@ def dict_has_keys(d, *keys):
     return True
 
 
-valid_schema_types = ['dict', 'list', 'string', 'int', 'c_ident', 'ident', 'object']
+valid_schema_types = ['dict', 'list', 'string', 'bool', 'int', 'c_ident', 'ident', 'object']
 
 
 def check_schema_is_valid(schema, key_path=None):
@@ -749,6 +749,11 @@ def xml2dict(el, schema=None):
         # and then do type checking an coercion
         if _type == 'string':
             return val
+        elif _type == 'bool':
+            try:
+                return {'true': True, 'false': False}[val.lower()]
+            except KeyError:
+                raise SystemParseError(xml_error_str(el, "Error converting '{}' to boolean.".format(val)))
         elif _type == 'int':
             try:
                 return int(val, base=0)

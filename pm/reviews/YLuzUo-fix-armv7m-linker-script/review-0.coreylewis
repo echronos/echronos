@@ -4,17 +4,11 @@ Breakaway Task Review
 Task name: YLuzUo-fix-armv7m-linker-script
 Version reviewed: fa2dfb425eac1e921ef89a86fe7952b2c0431d19
 Reviewer: coreylewis
-Date: 2013-09-15
-Conclusion: Accepted/Rework
+Date: 2013-09-17
+Conclusion: Accepted
 
 Overall comments:
 
 
 Specific comments
 =================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:

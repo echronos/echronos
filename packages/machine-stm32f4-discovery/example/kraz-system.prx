@@ -14,6 +14,15 @@
       <prefix>rtos_</prefix>
       <taskid_size>8</taskid_size>
       <signalset_size>8</signalset_size>
+
+      <signals>
+
+        <signal>
+          <name>test</name>
+        </signal>
+
+      </signals>
+
       <tasks>
 
         <task>
@@ -29,6 +38,14 @@
         </task>
 
       </tasks>
+
+
+      <mutexes>
+        <mutex>
+          <name>test</name>
+        </mutex>
+      </mutexes>
+
     </module>
 
     <module name="rtos-example.kraz-test" />

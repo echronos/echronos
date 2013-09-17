@@ -1,0 +1,15 @@
+Breakaway Task Review
+=======================
+
+Task name: 6rubAB-improve-error-reporting-on-ident
+Version reviewed: a9c9eff3c28974cbac86e1023c16f38f4cd56425
+Reviewer: stg
+Date: 2013-09-17
+Conclusion: Accepted
+
+Overall comments:
+
+Comment 0: Accepted
+The term 'ident' in the error message is not a common one.
+I personally will be confused by it.
+If 'ident' is an in-code abbreviation for 'identifier' adopted in the error message, I'd recommend to use the common, natural-language term instead.

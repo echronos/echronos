@@ -124,3 +124,60 @@ class LengthList(list, LengthMixin):
     Note: as per the LengthMixin this is only to be used in very specific circumstances.
 
     """
+
+
+def list_search(lst, key, value):
+    """Search a list of dictionaries for the dict where dict[key] == value."""
+    try:
+        return next(dct for dct in lst if dct[key] == value)
+    except StopIteration:
+        raise KeyError()
+
+
+"""A `configuration` is a normal Python dictionary used for storing configuration data.
+
+The values may be any Python value, however any list or dictionary values are treated as holding traversable
+configuration data.
+
+A configuration may be accessed via a configuration key, which is a tuple containing a path to a configuration item.
+
+The utility module defines two functions that operate on configurations.
+
+`config_traverse` is a generator that products key, value pairs for all non-container data in the configuration.
+
+`config_set` sets a particular value in the configuration (as indexed by a configuration key).
+
+Future work may investigate encapsulating this functionality within a class, however the current approach allows
+for interoperability with existing Python modules that operate on dictionaries.
+
+"""
+
+
+def config_traverse(cfg):
+    """Generate key, value pairs for all non-container elements in a configuration."""
+    def traverse(val, key):
+        if isinstance(val, list):
+            for idx, val_ in enumerate(val):
+                yield from traverse(val_, key + (idx, ))
+        elif isinstance(val, dict):
+            for key_, val_ in val.items():
+                yield from traverse(val_, key + (key_, ))
+        else:
+            yield key, val
+    yield from traverse(cfg, tuple())
+
+
+def config_set(cfg, key, val):
+    """Set the value for a given key in the configuration.
+
+    The `key` should be a configuration key, which is a tuple representing the path to an element.
+
+    """
+    # Note: This could be implemented pretty nicely as a recursive algortihm, but
+    # I've avoided this since there is no tail-call optimisation available.
+    assert len(key) > 0
+
+    while len(key) > 1:
+        cfg, key = cfg[key[0]], key[1:]
+
+    cfg[key[0]] = val

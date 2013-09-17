@@ -1,0 +1,24 @@
+Task: oNBHyO-extend-prj-xml-includes
+==============================================================================
+
+Goals
+--------
+
+When parsing system definitions, the prj tool resolves XML 'include' elements by including the referenced file.
+The goal of this task is to make prj support nested inclusions.
+Thus, if a system definition has an include element referring to file A which in turn contains an include element referring to file B, the resulting XML DOM shall include A and B.
+The path of B shall be interpreted relative to A, not the main system definition.
+
+Paths of files to include, as specified by the 'file' attribute in an 'include' element, are evaluated relative to the path of the file containing the 'include' element.
+The second goal of this task is to resolve paths additionally relative to a configurable set of "include paths".
+The prj tool shall attempt paths according to the following logic:
+- If the 'file' path is absolute, include the referenced file.
+- If the 'file' path is relative, interpret it relative to the path of the file containing the 'include' element.
+  If such a file exists, include it.
+  If no such file exists, interpret the 'file' path relative to each of the paths in the configured set of include paths.
+  The first file existing with such a path shall be included.
+
+Test plan
+---------
+
+A unit test must be added that exercises nested includes.

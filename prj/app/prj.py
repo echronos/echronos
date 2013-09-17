@@ -216,73 +216,99 @@ def xml_parse_string(string, name='<string>', start_line=0):
     return dom.documentElement
 
 
-def xml_parse_file_with_includes(filename, include_dir=None):
+def xml_parse_file_with_includes(filename, include_paths=None, output_file_path=None):
     """Parse XML file as xml_parse_file() would and resolve include elements.
 
     All elements with the name 'include' and the attribute 'file' are replaced with the child nodes of the root DOM
     element of the XML file referenced by the 'file' attribute.
-    This resolution is not recursive in the sense that include elements in included files are ignored.
+
+    If `output_dir` is specified, the resulting DOM is written as XML to a file with the name contained in `filename`
+    in directory `output_dir`.
 
     """
-    if include_dir is None:
-        include_dir = os.path.dirname(filename)
-
-    document_element = xml_parse_file(filename)
-
-    if document_element.tagName == 'include':
-        raise SystemParseError(xml_error_str(document_element, 'The XML root element is an include element. This is \
-not supported. include elements may only appear below the root element.'))
-
-    xml_resolve_includes_below_element(document_element, include_dir)
-    return document_element
+    dom = XmlIncludeParser(include_paths).parse(filename)
+    if output_file_path is not None:
+        with open(output_file_path, 'w') as f:
+            f.write(dom.toprettyxml())
+    return dom
 
 
-def xml_resolve_includes_below_element(el, include_dir):
-    """Recurse children of 'el' and replace all include elements with contents of included XML files."""
-    for child in el.childNodes:
-        if child.nodeType == child.ELEMENT_NODE and child.tagName == 'include':
-            xml_resolve_include_element(child, include_dir)
-        else:
-            xml_resolve_includes_below_element(child, include_dir)
+class XmlIncludeParser:
+    def __init__(self, include_paths=None):
+        if include_paths is None:
+            include_paths = []
+        self._include_paths = include_paths
 
+    def parse(self, filename):
+        """Parse XML file as xml_parse_file() would and resolve include elements.
 
-def xml_resolve_include_element(el, include_dir):
-    """Replace the XML element 'el' with the child nodes of the root element of the included DOM.
+        All elements with the name 'include' and the attribute 'file' are replaced with the child nodes of the root
+        DOM element of the XML file referenced by the 'file' attribute.
 
-    This performs all necessary consistency checks to ensure the result is again a well-formed DOM.
+        """
+        document_element = xml_parse_file(filename)
 
-    After this function returns, the element 'el' is no longer part of the original DOM, it is unlinked, and must not
-    be accessed or used in the context of the calling function.
+        if document_element.tagName == 'include':
+            raise SystemParseError(xml_error_str(document_element, 'The XML root element is an include element. This \
+is not supported. include elements may only appear below the root element.'))
 
-    """
-    if len(element_children(el)) != 0:
-        raise SystemParseError(xml_error_str(el, 'Expected no child elements in include element. Correct format \
+        self.resolve_includes_below_element(document_element, os.path.dirname(filename))
+        return document_element
+
+    def resolve_includes_below_element(self, el, parent_dir):
+        """Recurse children of 'el' and replace all include elements with contents of included XML files."""
+        for child in el.childNodes:
+            if child.nodeType == child.ELEMENT_NODE and child.tagName == 'include':
+                self.resolve_include_element(child, parent_dir)
+            else:
+                self.resolve_includes_below_element(child, parent_dir)
+
+    def resolve_include_element(self, el, parent_dir):
+        """Replace the XML element 'el' with the child nodes of the root element of the included DOM.
+
+        This performs all necessary consistency checks to ensure the result is again a well-formed DOM.
+
+        After this function returns, the element 'el' is no longer part of the original DOM, it is unlinked, and must
+        not be accessed or used in the context of the calling function.
+
+        """
+        if len(element_children(el)) != 0:
+            raise SystemParseError(xml_error_str(el, 'Expected no child elements in include element. Correct format \
 is <include file="FILENAME" />'))
 
-    path_to_include = get_attribute(el, 'file')
-    if path_to_include == NOTHING:
-        raise SystemParseError(xml_error_str(el, 'Expected include element to contain "file" attribute. Correct \
+        path_attribute = get_attribute(el, 'file')
+        if path_attribute == NOTHING:
+            raise SystemParseError(xml_error_str(el, 'Expected include element to contain "file" attribute. Correct \
 format is <include file="FILENAME" />'))
 
-    if not os.path.isabs(path_to_include):
-        path_to_include = os.path.join(include_dir, path_to_include)
+        if os.path.isabs(path_attribute):
+            path_to_include = path_attribute
+        else:
+            for include_path in [parent_dir] + self._include_paths:
+                path_to_include = os.path.join(include_path, path_attribute)
+                if os.path.isfile(path_to_include):
+                    break
 
-    path_to_include = os.path.normpath(path_to_include)
-    if not os.path.exists(path_to_include):
-        raise SystemParseError(xml_error_str(el, 'The path {} specified in the include element does not refer to \
-an existing file'.format(path_to_include)))
+        path_to_include = os.path.normpath(path_to_include)
+        if not os.path.exists(path_to_include):
+            raise SystemParseError(xml_error_str(el, 'The path {} specified in the include element does not refer to \
+an existing file. \
+The path is considered to be {}. \
+The known prx include paths are {})'.format(path_to_include,
+                                            'absolute' if os.path.isabs(path_attribute) else 'relative',
+                                            self._include_paths)))
 
-    included_root_element = xml_parse_file(path_to_include)
-    if included_root_element.tagName != 'include_root':
-        raise SystemParseError(xml_error_str(included_root_element, 'The XML root element in file {} is not named \
-include_root as expected. Root elements in included XML files must have this name by convention and are removed \
+        included_root_element = self.parse(path_to_include)
+        if included_root_element.tagName != 'include_root':
+            raise SystemParseError(xml_error_str(included_root_element, 'The XML root element in file {} is not named\
+ include_root as expected. Root elements in included XML files must have this name by convention and are removed \
 implicitly by the inclusion process.'))
 
-    parent_node = el.parentNode
-    for child in included_root_element.childNodes[:]:
-        parent_node.insertBefore(child, el)
-    parent_node.removeChild(el)
-    el.unlink()
+        parent_node = el.parentNode
+        for child in included_root_element.childNodes[:]:
+            parent_node.insertBefore(child, el)
+        parent_node.removeChild(el)
+        el.unlink()
 
 
 def single_text_child(el):
@@ -444,7 +470,7 @@ def dict_has_keys(d, *keys):
     return True
 
 
-valid_schema_types = ['dict', 'list', 'string', 'int', 'c_ident', 'ident']
+valid_schema_types = ['dict', 'list', 'string', 'int', 'c_ident', 'ident', 'object']
 
 
 def check_schema_is_valid(schema, key_path=None):
@@ -536,6 +562,8 @@ def xml2schema(el):
             entry['auto_index_field'] = get_attribute(el, 'auto_index_field', None)
         elif _type == 'dict':
             entry['dict_type'] = read_dict_schema(el)
+        elif _type == 'object':
+            entry['object_group'] = get_attribute(el, 'group', None)
 
         return entry
 
@@ -552,18 +580,18 @@ def xml2schema(el):
 def check_ident(s):
     """Check that a string (`s`) is a valid `ident`.
 
-    Raise a SystemParseError if `s` is not valid.
+    Raise a ValueError if `s` is not valid.
 
     A valid ident should contains lower-case ascii [a-z], digits [0-9] and '_'.
     The first character should be a lower-case ascii. [a-z]
 
     """
     if s[0] not in string.ascii_lowercase:
-        raise SystemParseError("First character of an indent must be a lower-case ascii character.")
+        raise ValueError("First character of an indent must be a lower-case ascii character.")
 
     valid_chars = string.ascii_lowercase + string.digits + '_'
     if any(c not in valid_chars for c in s):
-        raise SystemParseError("Ident must only contains ASCII lower-case, digits and '_'")
+        raise ValueError("Ident must only contains ASCII lower-case, digits and '_'")
 
 
 def xml2dict(el, schema=None):
@@ -623,6 +651,26 @@ def xml2dict(el, schema=None):
 
     """
     check_schema_is_valid(schema)
+
+    class ObjectProxy:
+        """An ObjectProxy stands in for a real object.
+
+        This proxied objects are resolved once a first-pass has been completed and all names are known.
+
+        """
+        def __init__(self, name, group, el):
+            self.name = name
+            self.group = group
+            self.el = el
+
+    def resolve_proxies(dct):
+        # Find all ObjectProxies and resolve them.
+        for key, val in ((k, v) for k, v in util.util.config_traverse(dct) if isinstance(v, ObjectProxy)):
+            try:
+                real_val = util.util.list_search(dct[val.group], 'name', val.name)
+            except KeyError:
+                raise SystemParseError(xml_error_str(val.el, "Can't find object named '{}'".format(val.name)))
+            util.util.config_set(dct, key, real_val)
 
     def get_dict_val(el, schema):
         children = element_children(el, ensure_unique=True)
@@ -703,18 +751,25 @@ def xml2dict(el, schema=None):
         elif _type == 'int':
             try:
                 return int(val, base=0)
-            except Exception as e:
+            except ValueError as e:
                 raise SystemParseError(xml_error_str(el, "Error converting '{}' to integer: {}".format(val, e)))
         elif _type == 'c_ident':
             # Check this is really a C identifier
             return val
         elif _type == 'ident':
-            check_ident(val)
+            try:
+                check_ident(val)
+            except ValueError as e:
+                raise SystemParseError(xml_error_str(el, "Error parsing ident '{}'. {}".format(val, e)))
             return val
+        elif _type == 'object':
+            return ObjectProxy(val, schema['object_group'], el)
         else:
             assert False
 
-    return get_el_val(el, schema, None)
+    dct = get_el_val(el, schema, None)
+    resolve_proxies(dct)
+    return dct
 
 
 def asdict(lst, key=None, attr=None):
@@ -1339,7 +1394,7 @@ module\'s functionality cannot be invoked.'.format(self, typ.__name__))
 class Project:
     """The Project is a container for other objects in the system."""
 
-    def __init__(self, filename, search_paths=None):
+    def __init__(self, filename, search_paths=None, prx_include_paths=None):
         """Parses the project definition file `filename` and any imported system and module definition files.
 
         If filename is None, then a default 'empty' project is created.
@@ -1377,16 +1432,7 @@ class Project:
                 raise ProjectStartupError(err)
 
         param_search_paths = search_paths if search_paths is not None else []
-
-        # Find all search path items, and add to search path
-        # All search paths are added before attempting any imports
-        project_search_paths = []
-        for sp_el in self.dom.getElementsByTagName('search-path'):
-            sp = single_text_child(sp_el)
-            if sp.endswith('/'):
-                sp = sp[:-1]
-            project_search_paths.append(sp)
-
+        project_search_paths = list(get_paths_from_dom(self.dom, 'search-path'))
         user_search_paths = param_search_paths + project_search_paths
         if len(user_search_paths) == 0:
             user_search_paths = [self.project_dir]
@@ -1421,6 +1467,9 @@ class Project:
         self.search_paths = user_search_paths + built_in_search_paths
 
         logger.debug("search_paths %s", self.search_paths)
+
+        param_prx_include_paths = prx_include_paths if prx_include_paths is not None else []
+        self._prx_include_paths = list(get_paths_from_dom(self.dom, 'prx-include-path')) + param_prx_include_paths
 
         output_el = maybe_single_named_child(self.dom, 'output')
         if output_el:
@@ -1479,8 +1528,12 @@ class Project:
         """
         ext = os.path.splitext(path)[1]
         if ext == '.prx':
+            os.makedirs(self.output, exist_ok=True)
             try:
-                return System(entity_name, xml_parse_file_with_includes(path), self)
+                return System(entity_name,
+                              xml_parse_file_with_includes(path, self._prx_include_paths,
+                                                           os.path.join(self.output, entity_name + ext)),
+                              self)
             except ExpatError as e:
                 raise EntityLoadError("Error parsing system import '{}:{}': {!s}".format(e.path, e.lineno, e))
         elif ext == '.py':
@@ -1520,6 +1573,21 @@ class Project:
             self.entities[entity_name] = self._parse_import(entity_name, path)
 
         return self.entities[entity_name]
+
+
+def get_paths_from_dom(dom, element_name):
+    """Return the contents of all elements with a given name as a list of paths.
+
+    `dom` is a DOM element from a parsed XML document.
+    `element_name` is a string matched against the names of all elements in `dom`.
+    The text node value contained in each such element is added to the return value.
+    Trailing directory delimiters are removed from the end of each such string.
+
+    This function returns an iterator over strings.
+
+    """
+    for sp_el in dom.getElementsByTagName(element_name):
+        yield single_text_child(sp_el).rstrip(os.sep)
 
 
 def generate(args):
@@ -1611,8 +1679,7 @@ SUBCOMMAND_TABLE = {
 }
 
 
-def main():
-    """Application main entry point. Parse arguments, and call specified sub-command."""
+def get_command_line_arguments():
     # create the top-level parser
     parser = argparse.ArgumentParser(prog='prj')
     parser.add_argument('--project', default=None,
@@ -1622,6 +1689,9 @@ def main():
     parser.add_argument('--search-path', action='append', help='additional search paths')
     parser.add_argument('--verbose', action='store_true', help='provide verbose output')
     parser.add_argument('--output', '-o', help='Output directory')
+    parser.add_argument('--prx-inc-path', action='append',
+                        help='Search paths for resolving "include" elements in system definition files. '
+                             'These paths are appended to the ones specified in the project file.')
 
     subparsers = parser.add_subparsers(title='subcommands', dest='command')
 
@@ -1649,9 +1719,16 @@ def main():
     if args.no_project:
         args.project = None
 
+    return args
+
+
+def main():
+    """Application main entry point. Parse arguments, and call specified sub-command."""
+    args = get_command_line_arguments()
+
     # Initialise project
     try:
-        args.project = Project(args.project, args.search_path)
+        args.project = Project(args.project, args.search_path, args.prx_inc_path)
     except (EntityLoadError, EntityNotFound, ProjectStartupError) as e:
         logger.error(str(e))
         return 1

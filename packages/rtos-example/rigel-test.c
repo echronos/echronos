@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #include "rtos-rigel.h"
+#include "debug.h"
 
 extern void debug_println(const char *msg);
 
@@ -22,7 +23,19 @@ extern void debug_println(const char *msg);
 void
 tick_irq(void)
 {
-    rtos_irq_event_raise(0);
+    debug_println("irq tick");
+    rtos_timer_tick();
+}
+
+void
+fatal(ErrorId error_id)
+{
+    debug_print("FATAL ERROR: ");
+    debug_printhex32(error_id);
+    debug_println("");
+    for (;;)
+    {
+    }
 }
 
 void
@@ -57,11 +70,40 @@ fn_a(void)
         rtos_yield();
     }
 
+    do {
+        debug_print("task b: remaining test - ");
+        debug_printhex32(rtos_timer_remaining(TIMER_ID_TEST));
+        debug_print(" - remaining supervisor - ");
+        debug_printhex32(rtos_timer_remaining(TIMER_ID_SUPERVISOR));
+        debug_print(" - ticks - ");
+        debug_printhex32(rtos_timer_current_ticks);
+        debug_println("");
+        rtos_yield();
+    } while (!rtos_timer_check_overflow(TIMER_ID_TEST));
+
+    if (!rtos_signal_poll(SIGNAL_ID_TIMER))
+    {
+        debug_println("ERROR: couldn't poll expected timer.");
+    }
+
+    /* Spin for a bit - force a missed ticked */
+    for (;;)
+    {
+        volatile int i;
+        debug_println("task a: start delay");
+        for (i = 0 ; i < 50000000; i++)
+        {
+
+        }
+        debug_println("task a: complete delay");
+        rtos_yield();
+    }
+
     debug_println("task a: now waiting for ticks");
     for (;;)
     {
-        rtos_signal_wait(SIGNAL_ID_TEST);
-        debug_println("task a: tick");
+        rtos_signal_wait(SIGNAL_ID_TIMER);
+        debug_println("task a: timer tick");
     }
 }
 
@@ -93,7 +135,7 @@ int
 main(void)
 {
     /* Set the systick reload value */
-    SYST_RVR_WRITE(0x000fffff);
+    SYST_RVR_WRITE(0x0001ffff);
     SYST_CVR_WRITE(0);
     SYST_CSR_WRITE((1 << 1) | 1);
 

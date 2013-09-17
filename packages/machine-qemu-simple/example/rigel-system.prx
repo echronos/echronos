@@ -17,11 +17,16 @@
       <taskid_size>8</taskid_size>
       <signalset_size>8</signalset_size>
       <irqeventid_size>8</irqeventid_size>
+      <fatal_error>fatal</fatal_error>
 
       <signals>
 
         <signal>
           <name>test</name>
+        </signal>
+
+        <signal>
+          <name>timer</name>
         </signal>
 
       </signals>
@@ -41,6 +46,25 @@
         </task>
 
       </tasks>
+
+      <timers>
+
+        <timer>
+          <name>test</name>
+          <enabled>true</enabled>
+          <reload>10</reload>
+          <task>a</task>
+          <sig_set>2</sig_set>
+        </timer>
+
+        <timer>
+          <name>supervisor</name>
+          <enabled>false</enabled>
+          <reload>10</reload>
+          <error>2</error>
+        </timer>
+
+      </timers>
 
       <irq_events>
         <irq_event>

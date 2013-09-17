@@ -74,6 +74,7 @@ static struct signal signal_tasks;
 
 /*| function_like_macros |*/
 #define _signal_peek(cur_task_signals, mask) ((*(cur_task_signals) & (mask)) != 0)
+#define _signal_pending(task_id, mask) ((SIGNAL_OBJ(task_id).signals & mask) == mask)
 #define SIGNAL_OBJ(task_id) signal_tasks.tasks[task_id]
 
 /*| functions |*/

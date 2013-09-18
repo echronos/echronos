@@ -1,0 +1,8 @@
+Task: 1zvc7S-fix-rigel-config-only
+==============================================================================
+
+Goals
+--------
+
+During implementation of recent features and regression in the rigel-config-only system was discovered on TeamCity after merge.
+The goal of this task is to fix those regressions.

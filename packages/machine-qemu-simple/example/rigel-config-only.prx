@@ -29,7 +29,7 @@
       <irq_events>
         <irq_event>
           <name>tick</name>
-          <task>0</task>
+          <task>a</task>
           <sig_set>1</sig_set>
         </irq_event>
       </irq_events>

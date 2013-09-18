@@ -134,8 +134,15 @@ timer_process(void)
 void
 {{prefix}}timer_enable(const TimerId timer_id)
 {
-    timers[timer_id].expiry = current_timeout() + timers[timer_id].reload;
-    timers[timer_id].enabled = true;
+    if (timers[timer_id].reload == 0)
+    {
+        timer_process_one(&timers[timer_id]);
+    }
+    else
+    {
+        timers[timer_id].expiry = current_timeout() + timers[timer_id].reload;
+        timers[timer_id].enabled = true;
+    }
 }
 
 void

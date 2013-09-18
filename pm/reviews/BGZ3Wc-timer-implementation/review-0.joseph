@@ -5,16 +5,29 @@ Task name: BGZ3Wc-timer-implementation
 Version reviewed: 8025ff05956262785c4b97461dbd327e49023cc0
 Reviewer: joseph
 Date: 2013-09-18
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
 Overall comments:
 
+I have spent some time provisionally integrating this functionality with the rtos port, in order to validate and unit
+test it. This is not complete, however I can verify that the component schema seems sane (with the caveats mentioned below),
+that the tick input interface works, as does sleep. 
 
-Specific comments
-=================
+There are a number of important pieces of work that are out of the scope of this task but impact significantly on its utility:
 
-Location: filename:linenum
-Comment:
+1. Named signal sets. Without this the mapping from named signals to the manually specified signal sets in timers and 
+irq_events is brittle at best. Given the inclusion of implicit sleep timers it gets even more tenuous. 
+At the moment I have resorted to rewriting the timer signal value at runtime to ensure that all is consistent. (see test-swt.c)
 
-Location: filename:linenum
-Comment:
+2. Fixing the current limitation that all rtos components must have at least one instantiation otherwise we get errors due
+to attempted zero size arrays. The proposed solution for this is to remove all code for that component if it is not being
+used by the system.
+
+A nice-to-have would be to provide a simple python file that enumerates all of the symbolic macros (signal/task/mutex/timer 
+name->id mapping, counts for such things) that can be easily picked up by a unit test.
+
+Also helpful would be exposing NUM_TASKS, NUM_TIMERS and friends in the rtos header in case people want to dimension metadata
+about any of these components (for example, my unit test maintains an array of counters that measure how many times each timer
+task has iterated, to make sure it is as expected. Presently I infer the task array size by the maximum value out of my timer
+tasks, which is a bit clunky).
+

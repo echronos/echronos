@@ -79,7 +79,7 @@ static struct timer timers[{{timers.length}}] = {
 
 /*| function_like_macros |*/
 #define timer_expired(timer, timeout) ((timer)->enabled && (timer)->expiry == timeout)
-#define timer_is_periodic(timer) (timer->reload > 0)
+#define timer_is_periodic(timer) ((timer)->reload > 0)
 #define current_timeout() ((TicksTimeout) {{prefix}}timer_current_ticks)
 #define TIMER_PTR(timer_id) (&timers[timer_id])
 

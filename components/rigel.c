@@ -23,6 +23,7 @@ typedef uint8_t ErrorId;
 /*| public_function_definitions |*/
 void {{prefix}}start(void);
 void {{prefix}}yield(void);
+void {{prefix}}sleep(TicksRelative ticks);
 
 /*| headers |*/
 #include "rtos-rigel.h"
@@ -64,6 +65,11 @@ static void handle_irq_event(IrqEventId irq_event_id);
 /*| state |*/
 static TaskId current_task;
 static struct task tasks[{{tasks.length}}];
+static TimerId task_timers[{{tasks.length}}] = {
+{{#tasks}}
+    TIMER_ID_{{timer.name|u}},
+{{/tasks}}
+};
 
 struct irq_event_handler irq_events[{{irq_events.length}}] = {
 {{#irq_events}}
@@ -115,6 +121,13 @@ void
 {
     TaskId to = irq_event_get_next();
     _yield_to(to);
+}
+
+void
+{{prefix}}sleep(TicksRelative ticks)
+{
+    {{prefix}}timer_oneshot(task_timers[get_current_task()], ticks);
+    {{prefix}}signal_wait(SIGNAL_ID__TASK_TIMER);
 }
 
 void

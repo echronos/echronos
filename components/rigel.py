@@ -50,4 +50,23 @@ class RigelModule(Module):
         {'input': 'rtos-rigel.c', 'render': True, 'type': 'c'},
     ]
 
+    def configure(self, xml_config):
+        config = super().configure(xml_config)
+        # Create builtin signals
+        timer_signal = {'name': '_task_timer', 'idx': len(config['signals'])}
+        config['signals'].append(timer_signal)
+
+        # Create a timer for each task
+        for task in config['tasks']:
+            timer = {'name': '_task_' + task['name'],
+                     'error': 0,
+                     'reload': 0,
+                     'task': task,
+                     'idx': len(config['timers']),
+                     'enabled': False,
+                     'sig_set': (1 << timer_signal['idx'])}
+            task['timer'] = timer
+            config['timers'].append(timer)
+        return config
+
 module = RigelModule()

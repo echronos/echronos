@@ -70,8 +70,16 @@ fn_a(void)
         rtos_yield();
     }
 
+    /* Do some sleeps */
+    debug_println("task a: sleep 10");
+    rtos_sleep(10);
+    debug_println("task a: sleep done - sleep 5");
+    rtos_sleep(5);
+    debug_println("task a: sleep done");
+
+
     do {
-        debug_print("task b: remaining test - ");
+        debug_print("task a: remaining test - ");
         debug_printhex32(rtos_timer_remaining(TIMER_ID_TEST));
         debug_print(" - remaining supervisor - ");
         debug_printhex32(rtos_timer_remaining(TIMER_ID_SUPERVISOR));
@@ -81,10 +89,15 @@ fn_a(void)
         rtos_yield();
     } while (!rtos_timer_check_overflow(TIMER_ID_TEST));
 
+
+
     if (!rtos_signal_poll(SIGNAL_ID_TIMER))
     {
         debug_println("ERROR: couldn't poll expected timer.");
     }
+
+    debug_println("task a: sleep for 100");
+    rtos_sleep(100);
 
     /* Spin for a bit - force a missed ticked */
     for (;;)
@@ -110,24 +123,10 @@ fn_a(void)
 void
 fn_b(void)
 {
-    uint8_t count;
-
-    debug_println("task b: attempting lock");
-    rtos_mutex_lock(MUTEX_ID_TEST);
-    debug_println("task b: got lock");
-
-    for (count = 0; ; count++)
+    for (;;)
     {
-        debug_println("task b");
-        if (count % 4 == 0)
-        {
-            debug_println("task b: blocking");
-            rtos_signal_wait(SIGNAL_ID_TEST);
-        }
-        else
-        {
-            rtos_yield();
-        }
+        debug_println("task b: sleeping for 7");
+        rtos_sleep(7);
     }
 }
 

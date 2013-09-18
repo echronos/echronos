@@ -85,7 +85,7 @@ static struct timer timers[{{timers.length}}] = {
 
 /*| functions |*/
 static void
-timer_process_one(struct timer *timer)
+timer_process_one(struct timer *const timer)
 {
     if (timer_is_periodic(timer))
     {
@@ -132,20 +132,20 @@ timer_process(void)
 
 /*| public_functions |*/
 void
-{{prefix}}timer_enable(TimerId timer_id)
+{{prefix}}timer_enable(const TimerId timer_id)
 {
     timers[timer_id].expiry = current_timeout() + timers[timer_id].reload;
     timers[timer_id].enabled = true;
 }
 
 void
-{{prefix}}timer_disable(TimerId timer_id)
+{{prefix}}timer_disable(const TimerId timer_id)
 {
     timers[timer_id].enabled = false;
 }
 
 void
-{{prefix}}timer_oneshot(TimerId timer_id, TicksRelative timeout)
+{{prefix}}timer_oneshot(const TimerId timer_id, const TicksRelative timeout)
 {
     {{prefix}}timer_reload_set(timer_id, timeout);
     {{prefix}}timer_enable(timer_id);
@@ -153,7 +153,7 @@ void
 }
 
 bool
-{{prefix}}timer_check_overflow(TimerId timer_id)
+{{prefix}}timer_check_overflow(const TimerId timer_id)
 {
     bool r = timers[timer_id].overflow;
     timers[timer_id].overflow = false;
@@ -161,26 +161,26 @@ bool
 }
 
 TicksRelative
-{{prefix}}timer_remaining(TimerId timer_id)
+{{prefix}}timer_remaining(const TimerId timer_id)
 {
     return timers[timer_id].enabled ? timers[timer_id].expiry - current_timeout() : 0;
 }
 
 /* Configuration functions */
 void
-{{prefix}}timer_reload_set(TimerId timer_id, TicksRelative reload)
+{{prefix}}timer_reload_set(const TimerId timer_id, const TicksRelative reload)
 {
     timers[timer_id].reload = reload;
 }
 
 void
-{{prefix}}timer_reload_clear(TimerId timer_id)
+{{prefix}}timer_reload_clear(const TimerId timer_id)
 {
     timers[timer_id].reload = 0;
 }
 
 void
-{{prefix}}timer_signal_set(TimerId timer_id, TaskId task_id, SignalSet signal_set)
+{{prefix}}timer_signal_set(const TimerId timer_id, const TaskId task_id, const SignalSet signal_set)
 {
     timers[timer_id].error_id = ERROR_ID_NONE;
     timers[timer_id].task_id = task_id;
@@ -188,7 +188,7 @@ void
 }
 
 void
-{{prefix}}timer_error_set(TimerId timer_id, ErrorId error_id)
+{{prefix}}timer_error_set(const TimerId timer_id, const ErrorId error_id)
 {
     timers[timer_id].error_id = error_id;
 }

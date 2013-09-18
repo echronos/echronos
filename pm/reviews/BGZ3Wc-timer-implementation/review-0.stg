@@ -9,3 +9,5 @@ Conclusion: Rework
 
 Overall comments:
 Remove declaration of undefined function timer_reload_clear() in timer.c
+
+[[(benno): Fixed.]]

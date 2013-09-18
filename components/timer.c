@@ -26,7 +26,6 @@ void {{prefix}}timer_oneshot(TimerId timer_id, TicksRelative timeout);
 bool {{prefix}}timer_check_overflow(TimerId timer_id);
 TicksRelative {{prefix}}timer_remaining(TimerId timer_id);
 void {{prefix}}timer_reload_set(TimerId timer_id, TicksRelative reload);
-void {{prefix}}timer_reload_clear(TimerId timer_id);
 void {{prefix}}timer_signal_set(TimerId timer_id, TaskId task_id, SignalSet signal_set);
 
 /*| headers |*/

@@ -10,6 +10,7 @@
       <taskid_size>8</taskid_size>
       <signalset_size>8</signalset_size>
       <irqeventid_size>8</irqeventid_size>
+      <fatal_error>fatal</fatal_error>
       <tasks>
 
         <task>
@@ -29,7 +30,7 @@
       <irq_events>
         <irq_event>
           <name>tick</name>
-          <task>0</task>
+          <task>a</task>
           <sig_set>1</sig_set>
         </irq_event>
       </irq_events>

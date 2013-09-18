@@ -149,7 +149,7 @@ void
 {
     {{prefix}}timer_reload_set(timer_id, timeout);
     {{prefix}}timer_enable(timer_id);
-    {{prefix}}timer_reload_clear(timer_id);
+    {{prefix}}timer_reload_set(timer_id, 0);
 }
 
 bool
@@ -171,12 +171,6 @@ void
 {{prefix}}timer_reload_set(const TimerId timer_id, const TicksRelative reload)
 {
     timers[timer_id].reload = reload;
-}
-
-void
-{{prefix}}timer_reload_clear(const TimerId timer_id)
-{
-    timers[timer_id].reload = 0;
 }
 
 void

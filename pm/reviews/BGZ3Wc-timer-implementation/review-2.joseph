@@ -5,16 +5,8 @@ Task name: BGZ3Wc-timer-implementation
 Version reviewed: 29d26ef036cba16d57e82afc11ccbf35142cd37c
 Reviewer: joseph
 Date: 2013-09-19
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
 Overall comments:
 
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Still works (as much as it did in the last review) in the port. Happy to sign off.

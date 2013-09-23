@@ -866,14 +866,19 @@ def valid_entity_name(name):
     return not any([bad_char in name for bad_char in '/\\'])
 
 
-def execute(args, env=None):
-    """Execute a command. This wraps sucprocess.call in appropriate logging
-    calls to display the command being executed, and raising an exception in
-    the case of an error."""
+def execute(args, **kwargs):
+    """Execute a command.
+
+    This wraps sucprocess.call in appropriate logging calls to display the command being executed, and raising an
+    exception in the case of an error.
+
+    Optional additional keyword arguments are passed verbatim to subprocess.call().
+
+    """
     cmd_line = ' '.join(args)
     logger.info('Executing: %s' % cmd_line)
     try:
-        code = subprocess.call(args, env=env)
+        code = subprocess.call(args, **kwargs)
     except FileNotFoundError as exc:
         raise SystemBuildError("Command {} raise exception: {}".format(cmd_line, exc))
     if code != 0:

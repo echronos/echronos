@@ -1,0 +1,7 @@
+Task: jjEmGA-arbitrary-execute-arguments
+==============================================================================
+
+Goals
+--------
+
+The goal of this task is to make the execute() function in prj.py more flexible by allowing passing arbitrary keyword arguments to subprocess.call().

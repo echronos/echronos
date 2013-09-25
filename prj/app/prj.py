@@ -1710,6 +1710,7 @@ def get_command_line_arguments():
                         help='force no project file')
     parser.add_argument('--search-path', action='append', help='additional search paths')
     parser.add_argument('--verbose', action='store_true', help='provide verbose output')
+    parser.add_argument('--quiet', action='store_true', help='provide less output')
     parser.add_argument('--output', '-o', help='Output directory')
     parser.add_argument('--prx-inc-path', action='append',
                         help='Search paths for resolving "include" elements in system definition files. '
@@ -1727,6 +1728,9 @@ def get_command_line_arguments():
     load_parser.add_argument('system', help='system to load')
 
     args = parser.parse_args()
+
+    if args.quiet:
+        logger.setLevel(_logging.WARNING)
 
     if args.verbose:
         logger.setLevel(_logging.DEBUG)

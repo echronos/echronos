@@ -1,0 +1,8 @@
+Task: mOI0Xr-quiet-mode
+==============================================================================
+
+Goals
+--------
+
+The prj tool currently supports increasing the log level via the --verbose command line argument.
+The goal of this task is to also support a quiet execution mode with no output in the absence of errors.

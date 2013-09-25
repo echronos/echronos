@@ -1663,14 +1663,14 @@ def call_system_function(args, function, extra_args=None, sys_is_path=False):
         if sys_is_path:
             system_path = system_name
             system_name = os.path.splitext(os.path.basename(system_name))[0]
-            print("Loading system: {}".format(system_name))
+            logger.info("Loading system: {}".format(system_name))
             system = project._parse_import(system_name, system_path)
             system.output = os.path.curdir
         else:
             if not valid_entity_name(system_name):
                 logger.error("System name '{}' is invalid.".format(system_name))
                 return 1
-            print("Loading system: {}".format(system_name))
+            logger.info("Loading system: {}".format(system_name))
             system = project.find(system_name)
     except EntityLoadError as e:
         logger.error("Unable to load system [{}]: {}".format(system_name, e))

@@ -82,8 +82,15 @@ static void
 _yield(void)
 {
     /* pre-condition: preemption disabled */
-    TaskId to = irq_event_get_next();
-    TaskId from = get_current_task();
+    const TaskId from = get_current_task();
+    TaskId to;
+    do
+    {
+        exception_preempt_pending = 0;
+        to = irq_event_get_next();
+    }
+    while (exception_preempt_pending);
+
     current_task = to;
     context_switch(get_task_context(from), get_task_context(to));
     /* post-condition: preemption disabled */

@@ -11,6 +11,7 @@
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
+void {{prefix}}yield(void);
 
 /*| headers |*/
 #include "rtos-simple-mutex-test.h"

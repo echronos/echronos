@@ -1,0 +1,11 @@
+Task: PBFo04-change-component-order
+==============================================================================
+
+Goals
+--------
+
+The current order of components has the 'variant' component first.
+This doesn't work well if the component file defines structures based on structured defined in other components.
+A full solution would be to automatically order structs correctly, however that is somewhat difficult.
+Instead, as a work around, change the component order in x.py so that the variant component always comes last.
+

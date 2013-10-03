@@ -1,0 +1,8 @@
+Task: FEsnjA-fix-rigel-test
+==============================================================================
+
+Goals
+--------
+
+The rigel test application in packages/rtos-example/rigel-test.c currently contains an infinite loop where a bounded delay is intended.
+The goal of this task is to remove the infinite loop so that the application behaves as intended.

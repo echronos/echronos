@@ -41,6 +41,7 @@ fatal(ErrorId error_id)
 void
 fn_a(void)
 {
+    volatile int i;
     uint8_t count;
 
     /* FIXME: This is necessary to ensure all tasks are started */
@@ -100,17 +101,13 @@ fn_a(void)
     rtos_sleep(100);
 
     /* Spin for a bit - force a missed ticked */
-    for (;;)
+    debug_println("task a: start delay");
+    for (i = 0 ; i < 50000000; i++)
     {
-        volatile int i;
-        debug_println("task a: start delay");
-        for (i = 0 ; i < 50000000; i++)
-        {
 
-        }
-        debug_println("task a: complete delay");
-        rtos_yield();
     }
+    debug_println("task a: complete delay");
+    rtos_yield();
 
     debug_println("task a: now waiting for ticks");
     for (;;)

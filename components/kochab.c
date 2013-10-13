@@ -78,6 +78,15 @@ struct irq_event_handler irq_events[{{irq_events.length}}] = {
 #define irq_event_id_to_taskid(irq_event_id) ((TaskId)(irq_event_id))
 
 /*| functions |*/
+{{#tasks}}
+static void
+entry_{{name}}(void)
+{
+    preempt_enable();
+    {{entry}}();
+}
+{{/tasks}}
+
 static void
 _yield(void)
 {
@@ -177,7 +186,7 @@ void
     mutex_init();
 
     {{#tasks}}
-    context_init(get_task_context({{idx}}), {{entry}}, stack_{{idx}}, {{stack_size}});
+    context_init(get_task_context({{idx}}), entry_{{name}}, stack_{{idx}}, {{stack_size}});
     sched_set_runnable({{idx}});
     {{/tasks}}
 

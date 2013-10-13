@@ -67,21 +67,40 @@ mutex_init(void)
     }
 }
 
+static bool
+_mutex_try_lock(const MutexId m)
+{
+    const bool r = mutexes[m].holder == TASK_ID_NONE;
+    if (r)
+    {
+        mutexes[m].holder = get_current_task();
+    }
+
+    return r;
+}
+
+
 /*| public_functions |*/
 void
 {{prefix}}mutex_lock(const MutexId m)
 {
-    while (!{{prefix}}mutex_try_lock(m))
+    preempt_disable();
+
+    while (!_mutex_try_lock(m))
     {
         waiters[get_current_task()] = m;
         _block_on(mutexes[m].holder);
     }
+
+    preempt_enable();
 }
 
 void
 {{prefix}}mutex_unlock(const MutexId m)
 {
     TaskId t;
+
+    preempt_disable();
 
     for (t = TASK_ID_ZERO; t <= TASK_ID_MAX; t++)
     {
@@ -93,18 +112,20 @@ void
     }
 
     mutexes[m].holder = TASK_ID_NONE;
+
+    preempt_enable();
 }
 
 bool
 {{prefix}}mutex_try_lock(const MutexId m)
 {
-    if (mutexes[m].holder != TASK_ID_NONE)
-    {
-        return false;
-    }
-    else
-    {
-        mutexes[m].holder = get_current_task();
-        return true;
-    }
+    bool r;
+
+    preempt_disable();
+
+    r = _mutex_try_lock(m);
+
+    preempt_enable();
+
+    return r;
 }

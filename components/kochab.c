@@ -128,9 +128,13 @@ _unblock(TaskId task)
 {
     /* pre-condition: preemption disabled */
     sched_set_runnable(task);
-    /* Note: Must yield here as the task being unblocked may have an effective
-       priority higher than the current task */
-    _yield();
+
+    /*
+     * Note: When preemption is enabled a yield should be forced
+     * as a higher priority task may have been scheduled.
+     */
+    exception_preempt_pending = 1;
+
     /* post-condition: preemption disabled */
 }
 

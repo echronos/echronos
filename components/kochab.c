@@ -92,14 +92,7 @@ _yield(void)
 {
     /* pre-condition: preemption disabled */
     const TaskId from = get_current_task();
-    TaskId to;
-    do
-    {
-        exception_preempt_pending = 0;
-        to = irq_event_get_next();
-    }
-    while (exception_preempt_pending);
-
+    const TaskId to = irq_event_get_next();
     current_task = to;
     context_switch(get_task_context(from), get_task_context(to));
     /* post-condition: preemption disabled */
@@ -152,17 +145,15 @@ handle_irq_event(IrqEventId irq_event_id)
 static void
 _preempt_enable(void)
 {
-    /* FIXME: This should be done atomically. I.e.: with interrupts disabled */
-    bool pending = exception_preempt_pending;
-    if (!pending)
-    {
-        exception_preempt_disabled = 0;
-    }
+    /* post-condition: exception_preempt_disabled == 1 */
 
-    if (pending)
+    /* FIXME: This should be done atomically. I.e.: with interrupts disabled */
+    while (exception_preempt_pending)
     {
         _yield();
     }
+    exception_preempt_disabled = 0;
+    /* post-condition: exception_preempt_disabled == 0 */
 }
 
 /*| public_functions |*/

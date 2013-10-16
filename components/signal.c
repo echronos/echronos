@@ -68,6 +68,7 @@ struct signal {
 
 /*| function_definitions |*/
 static SignalId _signal_recv(SignalSet *const cur_task_signals, const SignalSet mask);
+static void _signal_send_set(TaskId task_id, SignalSet signal_set);
 
 /*| state |*/
 static struct signal signal_tasks;
@@ -99,6 +100,13 @@ _signal_recv(SignalSet *const cur_task_signals, const SignalSet mask)
     *cur_task_signals = *cur_task_signals & ~signal_inverse;
 
     return signal;
+}
+
+static void
+_signal_send_set(const TaskId task_id, const SignalSet sig_set)
+{
+    SIGNAL_OBJ(task_id).signals |= sig_set;
+    _unblock(task_id);
 }
 
 /*| public_functions |*/
@@ -133,10 +141,7 @@ void
 {{prefix}}signal_send_set(const TaskId task_id, const SignalSet sig_set)
 {
     preempt_disable();
-
-    SIGNAL_OBJ(task_id).signals |= sig_set;
-    _unblock(task_id);
-
+    _signal_send_set(task_id, sig_set);
     preempt_enable();
 }
 

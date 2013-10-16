@@ -145,7 +145,7 @@ handle_irq_event(IrqEventId irq_event_id)
     TaskId task = irq_events[irq_event_id].task;
     SignalSet sig_set = irq_events[irq_event_id].sig_set;
 
-    {{prefix}}signal_send_set(task, sig_set);
+    _signal_send_set(task, sig_set);
     /* post-condition: preemption disabled */
 }
 

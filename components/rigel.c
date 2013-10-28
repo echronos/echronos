@@ -24,6 +24,7 @@ typedef uint8_t ErrorId;
 void {{prefix}}start(void);
 void {{prefix}}yield(void);
 void {{prefix}}sleep(TicksRelative ticks);
+TaskId {{prefix}}task_current(void);
 
 /*| headers |*/
 #include "rtos-rigel.h"
@@ -116,6 +117,12 @@ handle_irq_event(IrqEventId irq_event_id)
 }
 
 /*| public_functions |*/
+TaskId
+{{prefix}}task_current(void)
+{
+    return current_task;
+}
+
 void
 {{prefix}}yield(void)
 {

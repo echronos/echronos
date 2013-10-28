@@ -1,0 +1,11 @@
+Task: LsIcQc-task-start
+==============================================================================
+
+Goals
+--------
+
+Add a task_start API to the rigel RTOS.
+A task can be automatically started, or only started after another task call "task_start".
+The design is that each task that isn't automatically started will block waiting on a signal.
+The implementation of "task_start" will simply send the appropriate signal to the task.
+This task will add the "start" configuration option to each task.

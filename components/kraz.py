@@ -31,4 +31,13 @@ class KrazModule(Module):
         {'input': 'rtos-kraz.c', 'render': True, 'type': 'c'},
     ]
 
+    def configure(self, xml_config):
+        config = super().configure(xml_config)
+
+        # Create signal_set definitions from signal definitions:
+        config['signal_sets'] = [{'name': sig['name'], 'value': 1 << sig['idx'], 'singleton': True}
+                                 for sig in config['signals']]
+
+        return config
+
 module = KrazModule()

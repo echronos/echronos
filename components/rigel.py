@@ -73,6 +73,10 @@ class RigelModule(Module):
         start_signal = {'name': '_rtos_util', 'idx': len(config['signals'])}
         config['signals'].append(start_signal)
 
+        # Create signal_set definitions from signal definitions:
+        config['signal_sets'] = [{'name': sig['name'], 'value': 1 << sig['idx'], 'singleton': True}
+                                 for sig in config['signals']]
+
         # Create a timer for each task
         for task in config['tasks']:
             timer = {'name': '_task_' + task['name'],

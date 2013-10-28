@@ -7,9 +7,7 @@
     </module>
     <module name="armv7m.rtos-rigel">
       <prefix>rtos_</prefix>
-      <taskid_size>8</taskid_size>
       <signalset_size>8</signalset_size>
-      <irqeventid_size>8</irqeventid_size>
       <fatal_error>fatal</fatal_error>
       <tasks>
 

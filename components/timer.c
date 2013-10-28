@@ -11,7 +11,7 @@ typedef uint16_t TicksRelative;
 /*| public_object_like_macros |*/
 #define TIMER_ID_C(x) ((TimerId) UINT8_C(x))
 {{#timers}}
-#define TIMER_ID_{{name|u}} SIGNAL_ID_C({{idx}})
+#define TIMER_ID_{{name|u}} TIMER_ID_C({{idx}})
 {{/timers}}
 
 /*| public_function_like_macros |*/

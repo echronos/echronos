@@ -1,0 +1,11 @@
+Task: jDXLSO-simply-signals
+==============================================================================
+
+Goals
+--------
+
+The goal of the task is to simplify the signal implementation.
+This changes the interface so that signal_wait_set will now return all the signals, rather than just a single one.
+Not only does this simplify the implementation, but also provides more flexibility to the user.
+
+This shall also simplify the types; a SignalId will now be an alias for SignalSet (but shall imply that the set is singleton).

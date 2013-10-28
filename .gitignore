@@ -20,3 +20,6 @@ prj_build*
 *.LOCAL.*
 *.BASE.*
 *.BACKUP.*
+
+# GDB file.
+.gdbinit*

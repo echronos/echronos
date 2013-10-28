@@ -115,6 +115,16 @@ handle_irq_event(IrqEventId irq_event_id)
     {{prefix}}signal_send_set(task, sig_set);
 }
 
+/* entry point trampolines */
+{{#tasks}}
+void _task_entry_{{name}}(void)
+{
+    {{^start}}{{prefix}}signal_wait(SIGNAL_ID__RTOS_UTIL);{{/start}}
+    {{entry}}();
+}
+
+{{/tasks}}
+
 /*| public_functions |*/
 void
 {{prefix}}yield(void)
@@ -134,7 +144,7 @@ void
 {{prefix}}start(void)
 {
     {{#tasks}}
-    context_init(get_task_context({{idx}}), {{entry}}, stack_{{idx}}, {{stack_size}});
+    context_init(get_task_context({{idx}}), _task_entry_{{name}}, stack_{{idx}}, {{stack_size}});
     sched_set_runnable({{idx}});
     {{/tasks}}
 

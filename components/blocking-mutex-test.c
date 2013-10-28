@@ -17,6 +17,7 @@ typedef uint8_t TaskId;
 /*| public_function_definitions |*/
 
 /*| headers |*/
+#include <stddef.h>
 #include "rtos-blocking-mutex-test.h"
 
 /*| object_like_macros |*/

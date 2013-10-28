@@ -14,8 +14,9 @@ typedef uint8_t TaskId;
 /*| public_function_definitions |*/
 
 /*| headers |*/
-#include "rtos-simple-semaphore-test.h"
 #include <stdio.h>
+#include <stddef.h>
+#include "rtos-simple-semaphore-test.h"
 
 /*| object_like_macros |*/
 #define TASK_ID_ZERO 0

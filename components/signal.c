@@ -10,15 +10,13 @@ typedef SignalId SignalIdOption;
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
-#define SIGNAL_ID_C(x) ((SignalId) UINT8_C(x))
-#define SIGNAL_ID_NONE ((SignalIdOption) SIGNAL_ID_C(0xff))
+#define SIGNAL_ID_NONE ((SignalIdOption) UINT{{signalset_size}}_MAX)
 {{#signals}}
-#define SIGNAL_ID_{{name|u}} SIGNAL_ID_C({{idx}})
+#define SIGNAL_ID_{{name|u}} ((SignalId) UINT{{signalset_size}}_C({{idx}}))
 {{/signals}}
 
-#define SIGNAL_SET_C(x) ((SignalSet) UINT{{signalset_size}}_C(x))
-#define SIGNAL_SET_NONE SIGNAL_SET_C(0)
-#define SIGNAL_SET_ALL SIGNAL_SET_C(UINT{{signalset_size}}_MAX)
+#define SIGNAL_SET_NONE ((SignalSet) UINT{{signalset_size}}_C(x))
+#define SIGNAL_SET_ALL ((SignalSet) UINT{{signalset_size}}_MAX)
 
 #define SIGNAL_ID_TO_SET(signal) ((SignalSet) (1u << signal))
 

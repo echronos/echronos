@@ -9,9 +9,8 @@ typedef uint16_t TicksRelative;
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
-#define TIMER_ID_C(x) ((TimerId) UINT8_C(x))
 {{#timers}}
-#define TIMER_ID_{{name|u}} TIMER_ID_C({{idx}})
+#define TIMER_ID_{{name|u}} ((TimerId) UINT8_C({{idx}}))
 {{/timers}}
 
 /*| public_function_like_macros |*/
@@ -33,8 +32,8 @@ void {{prefix}}timer_signal_set(TimerId timer_id, TaskId task_id, SignalSet sign
 #include <stdint.h>
 
 /*| object_like_macros |*/
-#define TIMER_ID_ZERO TIMER_ID_C(0)
-#define TIMER_ID_MAX TIMER_ID_C({{timers.length}} - 1U)
+#define TIMER_ID_ZERO ((TimerId) UINT8_C(0))
+#define TIMER_ID_MAX ((TimerId) UINT8_C({{timers.length}} - 1U))
 
 /*| type_definitions |*/
 typedef uint16_t TicksTimeout;

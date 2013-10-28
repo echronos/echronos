@@ -7,6 +7,9 @@ typedef uint{{taskid_size}}_t TaskId;
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
+{{#tasks}}
+#define TASK_ID_{{name|u}} ((TaskId) UINT{{taskid_size}}_C({{idx}}))
+{{/tasks}}
 
 /*| public_function_like_macros |*/
 
@@ -24,8 +27,8 @@ void {{prefix}}start(void);
 #include "rtos-acrux.h"
 
 /*| object_like_macros |*/
-#define TASK_ID_ZERO ((TaskId) 0u)
-#define TASK_ID_NONE ((TaskIdOption) 0xffU)
+#define TASK_ID_ZERO ((TaskId) UINT{{taskid_size}}_C(0))
+#define TASK_ID_NONE ((TaskIdOption) UINT{{taskid_size}}_MAX)
 
 /*| type_definitions |*/
 typedef TaskId TaskIdOption;

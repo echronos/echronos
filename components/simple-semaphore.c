@@ -9,9 +9,8 @@ typedef uint8_t SemId;
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
-#define SEM_ID_C(x) ((SemId) UINT8_C(x))
 {{#semaphores}}
-#define SEM_ID_{{name}} SEM_ID_C({{idx}})
+#define SEM_ID_{{name}} ((SemId) UINT8_C({{idx}}))
 {{/semaphores}}
 
 /*| public_function_like_macros |*/
@@ -26,9 +25,9 @@ void {{prefix}}sem_wait(SemId);
 /*| headers |*/
 
 /*| object_like_macros |*/
-#define SEM_ID_NONE ((SemIdOption) SEM_ID_C(UINT8_MAX))
-#define SEM_ID_ZERO SEM_ID_C(0)
-#define SEM_ID_MAX SEM_ID_C({{semaphores.length}})
+#define SEM_ID_NONE ((SemIdOption) UINT8_MAX)
+#define SEM_ID_ZERO ((SemId) UINT8_C(0))
+#define SEM_ID_MAX ((SemId) UINT8_C({{semaphores.length}}))
 #define SEM_VALUE_ZERO ((SemValue) UINT8_C(0))
 
 

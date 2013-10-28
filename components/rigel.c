@@ -9,7 +9,7 @@ typedef uint8_t ErrorId;
 
 /*| public_object_like_macros |*/
 {{#tasks}}
-#define TASK_ID_{{name|u}} {{idx}}
+#define TASK_ID_{{name|u}} ((TaskId) UINT{{taskid_size}}_C({{idx}}))
 {{/tasks}}
 
 {{#irq_events}}
@@ -30,11 +30,11 @@ void {{prefix}}sleep(TicksRelative ticks);
 #include "rtos-rigel.h"
 
 /*| object_like_macros |*/
-#define TASK_ID_ZERO ((TaskId) 0u)
-#define TASK_ID_NONE ((TaskIdOption) 0xffU)
+#define TASK_ID_ZERO ((TaskId) UINT{{taskid_size}}_C(0))
+#define TASK_ID_NONE ((TaskIdOption) UINT{{taskid_size}}_MAX)
 
-#define ERROR_ID_NONE ((ErrorId) 0u)
-#define ERROR_ID_TICK_OVERFLOW ((ErrorId) 1u)
+#define ERROR_ID_NONE ((ErrorId) UINT8_C(0))
+#define ERROR_ID_TICK_OVERFLOW ((ErrorId) UINT8_C(1))
 
 /*| type_definitions |*/
 typedef TaskId TaskIdOption;

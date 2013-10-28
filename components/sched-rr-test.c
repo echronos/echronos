@@ -16,8 +16,8 @@
 #include <stdint.h>
 
 /*| object_like_macros |*/
-#define TASK_ID_ZERO ((TaskId) 0u)
-#define TASK_ID_NONE ((TaskIdOption) 0xffU)
+#define TASK_ID_ZERO ((TaskId) UINT8_C(0))
+#define TASK_ID_NONE ((TaskIdOption) UINT8_MAX)
 
 /*| type_definitions |*/
 typedef uint8_t TaskId;

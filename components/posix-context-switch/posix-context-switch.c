@@ -14,6 +14,8 @@
 
 /*| headers |*/
 #include <ucontext.h>
+#include <stdint.h>
+#include <stddef.h>
 
 /*| object_like_macros |*/
 

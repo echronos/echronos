@@ -13,7 +13,6 @@
 /*| public_function_definitions |*/
 
 /*| headers |*/
-#include <stdbool.h>
 
 /*| object_like_macros |*/
 #define SCHED_INDEX_ZERO ((SchedIndex) TASK_ID_ZERO)

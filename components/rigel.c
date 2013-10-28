@@ -28,6 +28,7 @@ void {{prefix}}task_start(TaskId task);
 TaskId {{prefix}}task_current(void);
 
 /*| headers |*/
+#include <stdint.h>
 #include "rtos-rigel.h"
 
 /*| object_like_macros |*/

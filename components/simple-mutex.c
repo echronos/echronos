@@ -24,6 +24,7 @@ bool {{prefix}}mutex_try_lock(MutexId);
 void {{prefix}}mutex_unlock(MutexId);
 
 /*| headers |*/
+#include <stdbool.h>
 
 /*| object_like_macros |*/
 

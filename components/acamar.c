@@ -17,6 +17,7 @@ void {{prefix}}yield_to(TaskId);
 void {{prefix}}start(void);
 
 /*| headers |*/
+#include <stdint.h>
 #include "rtos-acamar.h"
 
 /*| object_like_macros |*/

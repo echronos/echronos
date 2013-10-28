@@ -20,7 +20,7 @@ void {{prefix}}unblock(TaskId task);
 void {{prefix}}start(void);
 
 /*| headers |*/
-#include <stdbool.h>
+#include <stdint.h>
 #include "rtos-acrux.h"
 
 /*| object_like_macros |*/

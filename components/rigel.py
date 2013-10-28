@@ -62,6 +62,17 @@ class RigelModule(Module):
         timer_signal = {'name': '_task_timer', 'idx': len(config['signals'])}
         config['signals'].append(timer_signal)
 
+        # The RTOS utility signal is used in the following conditions:
+        #   1. To start the task.
+        #   2. To notify the task when a mutex is unlocked.
+        #   3. To notify the task when a message queue has available messages / space
+        #
+        # The same signal is re-used to avoid excessive allocation of signals.
+        # This is safe as a task can not be simultanesouly waiting to start,
+        # waiting for a mutex, and waiting on a message queue.
+        start_signal = {'name': '_rtos_util', 'idx': len(config['signals'])}
+        config['signals'].append(start_signal)
+
         # Create a timer for each task
         for task in config['tasks']:
             timer = {'name': '_task_' + task['name'],

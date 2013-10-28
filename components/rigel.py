@@ -4,9 +4,7 @@ from prj import SystemParseError, Module
 class RigelModule(Module):
     xml_schema = """
   <schema>
-   <entry name="taskid_size" type="int" default="8"/>
    <entry name="signalset_size" type="int" default="8"/>
-   <entry name="irqeventid_size" type="int" default="8"/>
    <entry name="prefix" type="c_ident" default="rtos_" />
    <entry name="fatal_error" type="c_ident" />
    <entry name="signals" type="list" auto_index_field="idx">
@@ -57,6 +55,12 @@ class RigelModule(Module):
         # Ensure that at least one task is runnable.
         if not any(task['start'] for task in config['tasks']):
             raise SystemParseError("At least one task must be configured to start.")
+
+        # Semi-configurable items
+        # These are configurable in the code, but for simplicitly they are not supported as
+        # user configuration at this stage.
+        config['irqeventid_size'] = 8
+        config['taskid_size'] = 8
 
         # Create builtin signals
         timer_signal = {'name': '_task_timer', 'idx': len(config['signals'])}

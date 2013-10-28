@@ -44,9 +44,7 @@ fn_a(void)
     volatile int i;
     uint8_t count;
 
-    /* FIXME: This is necessary to ensure all tasks are started */
-    rtos_signal_send_set(0, 0);
-    rtos_signal_send_set(1, 0);
+    rtos_task_start(TASK_ID_B);
 
     debug_println("task a: taking lock");
     rtos_mutex_lock(MUTEX_ID_TEST);

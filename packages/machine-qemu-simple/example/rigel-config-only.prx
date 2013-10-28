@@ -17,6 +17,7 @@
           <name>a</name>
           <entry>fn_a</entry>
           <stack_size>64</stack_size>
+          <start>true</start>
         </task>
 
         <task>

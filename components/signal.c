@@ -3,53 +3,43 @@
 #include <stdint.h>
 
 /*| public_type_definitions |*/
-typedef uint8_t SignalId;
 typedef uint{{signalset_size}}_t SignalSet;
-typedef SignalId SignalIdOption;
+typedef SignalSet SignalId;
 
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
-#define SIGNAL_ID_NONE ((SignalIdOption) UINT{{signalset_size}}_MAX)
-{{#signals}}
-#define SIGNAL_ID_{{name|u}} ((SignalId) UINT{{signalset_size}}_C({{idx}}))
-{{/signals}}
-
-#define SIGNAL_SET_NONE ((SignalSet) UINT{{signalset_size}}_C(x))
+#define SIGNAL_SET_EMPTY ((SignalSet) UINT{{signalset_size}}_C(0))
 #define SIGNAL_SET_ALL ((SignalSet) UINT{{signalset_size}}_MAX)
-
-#define SIGNAL_ID_TO_SET(signal) ((SignalSet) (1u << signal))
-
+{{#signal_sets}}
+#define SIGNAL_SET_{{name|u}} ((SignalSet) UINT{{signalset_size}}_C({{value}}))
+{{#singleton}}#define SIGNAL_ID_{{name|u}} ((SignalId) SIGNAL_SET_{{name|u}}){{/singleton}}
+{{/signal_sets}}
 
 /*| public_function_like_macros |*/
-#define {{prefix}}signal_send(task_id, signal_id) \
-    {{prefix}}signal_send_set(task_id, SIGNAL_ID_TO_SET(signal_id))
+#define {{prefix}}signal_wait(requested_signal) \
+    (void) {{prefix}}signal_wait_set(requested_signal)
 
-#define {{prefix}}signal_peek(signal_id) \
-    {{prefix}}signal_peek_set(SIGNAL_ID_TO_SET(signal_id))
+#define {{prefix}}signal_poll(requested_signal) \
+    ({{prefix}}signal_poll_set(requested_signal) != SIGNAL_SET_EMPTY)
 
-#define {{prefix}}signal_wait(signal_id) \
-    (void) {{prefix}}signal_wait_set(SIGNAL_ID_TO_SET(signal_id))
+#define {{prefix}}signal_peek(requested_signal) \
+    ({{prefix}}signal_peek_set(requested_signal) != SIGNAL_SET_EMPTY)
 
-#define {{prefix}}signal_poll(signal_id) \
-    ({{prefix}}signal_poll_set(SIGNAL_ID_TO_SET(signal_id)) == signal_id)
-
+#define {{prefix}}signal_send(task_id, signal) \
+    {{prefix}}signal_send_set(task_id, signal)
 
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-SignalId {{prefix}}signal_wait_set(SignalSet signal_set);
-void {{prefix}}signal_send_set(TaskId task_id, SignalSet signal_set);
-SignalIdOption {{prefix}}signal_poll_set(SignalSet signal_set);
-bool {{prefix}}signal_peek_set(SignalSet signal_set);
+SignalSet {{prefix}}signal_wait_set(SignalSet requested_signals);
+SignalSet {{prefix}}signal_poll_set(SignalSet requested_signals);
+SignalSet {{prefix}}signal_peek_set(SignalSet requested_signals);
+void {{prefix}}signal_send_set(TaskId task_id, SignalSet signals);
 
 /*| headers |*/
 
 /*| object_like_macros |*/
-/* Sanity check; should be impossible (since there is no uint256_t!) */
-#if {{signalset_size}} > UINT8_MAX
-#  error "signalset_size ({{signalset_size}}) is greater than UINT8_MAX"
-#endif
 
 /*| type_definitions |*/
 
@@ -71,44 +61,30 @@ static SignalId _signal_recv(SignalSet *const cur_task_signals, const SignalSet 
 static struct signal signal_tasks;
 
 /*| function_like_macros |*/
-#define _signal_peek(cur_task_signals, mask) ((*(cur_task_signals) & (mask)) != 0)
-#define _signal_pending(task_id, mask) ((SIGNAL_OBJ(task_id).signals & mask) == mask)
-#define SIGNAL_OBJ(task_id) signal_tasks.tasks[task_id]
+#define _signal_peek(pending_signals, requested_signals) (((pending_signals) & (requested_signals)) != SIGNAL_SET_EMPTY)
+#define _signal_pending(task_id, mask) ((PENDING_SIGNALS(task_id) & mask) == mask)
+#define PENDING_SIGNALS(task_id) signal_tasks.tasks[task_id].signals
 
 /*| functions |*/
-static SignalId
-_signal_recv(SignalSet *const cur_task_signals, const SignalSet mask)
+static SignalSet
+_signal_recv(SignalSet *const pending_signals, const SignalSet requested_signals)
 {
-    SignalSet signal_mask, signal_inverse;
-    SignalId signal;
+    const SignalSet received_signals = *pending_signals & requested_signals;
+    *pending_signals &= ~received_signals;
 
-    signal_mask = *cur_task_signals & mask;
-
-    signal_inverse = 1U;
-    signal = 0;
-
-    while ((signal_mask & 1U) == 0)
-    {
-        signal_mask >>= 1;
-        signal_inverse <<= 1;
-        signal++;
-    }
-
-    *cur_task_signals = *cur_task_signals & ~signal_inverse;
-
-    return signal;
+    return received_signals;
 }
 
 /*| public_functions |*/
-SignalId
-{{prefix}}signal_wait_set(const SignalSet sig_set)
+SignalSet
+{{prefix}}signal_wait_set(const SignalSet requested_signals)
 {
-    SignalSet *const cur_task_signals = &SIGNAL_OBJ(get_current_task()).signals;
-    SignalId r;
+    SignalSet *const pending_signals = &PENDING_SIGNALS(get_current_task());
+    SignalId received_signals;
 
     preempt_disable();
 
-    if (_signal_peek(cur_task_signals, sig_set))
+    if (_signal_peek(*pending_signals, requested_signals))
     {
         {{prefix}}yield();
     }
@@ -117,49 +93,44 @@ SignalId
         do
         {
             _block();
-        } while (!_signal_peek(cur_task_signals, sig_set));
+        } while (!_signal_peek(*pending_signals, requested_signals));
     }
 
-    r = _signal_recv(cur_task_signals, sig_set);
+    received_signals = _signal_recv(pending_signals, requested_signals);
 
     preempt_enable();
 
-    return r;
+    return received_signals;
+}
+
+SignalSet
+{{prefix}}signal_poll_set(SignalSet requested_signals)
+{
+    SignalSet *const pending_signals = &PENDING_SIGNALS(get_current_task());
+    SignalSet received_signals;
+
+    preempt_disable();
+
+    received_signals = _signal_recv(pending_signals, requested_signals);
+
+    preempt_enable();
+
+    return received_signals;
+}
+
+SignalSet
+{{prefix}}signal_peek_set(SignalSet requested_signals)
+{
+    return _signal_peek(PENDING_SIGNALS(get_current_task()), requested_signals);
 }
 
 void
-{{prefix}}signal_send_set(const TaskId task_id, const SignalSet sig_set)
+{{prefix}}signal_send_set(const TaskId task_id, const SignalSet signals)
 {
     preempt_disable();
 
-    SIGNAL_OBJ(task_id).signals |= sig_set;
+    PENDING_SIGNALS(task_id) |= signals;
     _unblock(task_id);
 
     preempt_enable();
-}
-
-bool
-{{prefix}}signal_peek_set(SignalSet sig_set)
-{
-    SignalSet *const cur_task_signals = &SIGNAL_OBJ(get_current_task()).signals;
-
-    return _signal_peek(cur_task_signals, sig_set);
-}
-
-SignalIdOption
-{{prefix}}signal_poll_set(SignalSet sig_set)
-{
-    SignalSet *const cur_task_signals = &SIGNAL_OBJ(get_current_task()).signals;
-    SignalIdOption r = SIGNAL_ID_NONE;
-
-    preempt_disable();
-
-    if (_signal_peek(cur_task_signals, sig_set))
-    {
-        r = _signal_recv(cur_task_signals, sig_set);
-    }
-
-    preempt_enable();
-
-    return r;
 }

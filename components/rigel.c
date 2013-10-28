@@ -24,6 +24,7 @@ typedef uint8_t ErrorId;
 void {{prefix}}start(void);
 void {{prefix}}yield(void);
 void {{prefix}}sleep(TicksRelative ticks);
+void {{prefix}}task_start(TaskId task);
 
 /*| headers |*/
 #include "rtos-rigel.h"
@@ -126,6 +127,12 @@ void _task_entry_{{name}}(void)
 {{/tasks}}
 
 /*| public_functions |*/
+void
+{{prefix}}task_start(TaskId task)
+{
+    {{prefix}}signal_send(task, SIGNAL_ID__RTOS_UTIL);
+}
+
 void
 {{prefix}}yield(void)
 {

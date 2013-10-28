@@ -26,6 +26,7 @@ void {{prefix}}yield(void);
 void {{prefix}}sleep(TicksRelative ticks);
 
 /*| headers |*/
+#include <stdint.h>
 #include "rtos-rigel.h"
 
 /*| object_like_macros |*/

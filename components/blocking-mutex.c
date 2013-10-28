@@ -1,8 +1,6 @@
 /*| public_headers |*/
 #include <stdbool.h>
-#include <stddef.h>
 #include <stdint.h>
-#include <stdio.h>
 
 /*| public_type_definitions |*/
 typedef uint8_t MutexId;

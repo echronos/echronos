@@ -14,6 +14,8 @@
 void {{prefix}}irq_event_raise(IrqEventId);
 
 /*| headers |*/
+#include <stdint.h>
+#include <stdbool.h>
 #include "bitband.h"
 
 /*| object_like_macros |*/

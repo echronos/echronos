@@ -13,6 +13,7 @@
 /*| public_function_definitions |*/
 
 /*| headers |*/
+#include <stdint.h>
 #include <stddef.h>
 
 /*| object_like_macros |*/

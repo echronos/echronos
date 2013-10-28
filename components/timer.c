@@ -30,6 +30,7 @@ void {{prefix}}timer_signal_set(TimerId timer_id, TaskId task_id, SignalSet sign
 
 /*| headers |*/
 #include <stdbool.h>
+#include <stdint.h>
 
 /*| object_like_macros |*/
 #define TIMER_ID_ZERO TIMER_ID_C(0)

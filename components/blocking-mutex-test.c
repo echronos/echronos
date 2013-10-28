@@ -1,4 +1,5 @@
 /*| public_headers |*/
+#include <stdint.h>
 
 /*| public_type_definitions |*/
 typedef uint8_t TaskId;

@@ -48,6 +48,15 @@ fn_a(void)
     rtos_signal_send_set(0, 0);
     rtos_signal_send_set(1, 0);
 
+    if (rtos_task_current() != TASK_ID_A)
+    {
+        debug_println("task a: wrong task??");
+        for (;;)
+        {
+        }
+    }
+
+
     debug_println("task a: taking lock");
     rtos_mutex_lock(MUTEX_ID_TEST);
     rtos_yield();

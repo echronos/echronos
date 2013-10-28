@@ -1,0 +1,19 @@
+Task: ESr9Fh-config-improvement
+==============================================================================
+
+Goals
+--------
+
+The goal of this task is to improve the configuration specification.
+During the writing of the rigel user manual a number of improvements to the configuration was determined.
+These improvements are:
+
+1: Change task "entry" => "function" (entry was a low-level detail, however function provides better semantics.)
+
+2: For rigel remove taskid_size and irqeventid_size as user-configurable items (current rigel specification limits number of tasks and irqevents to 255 so 8-bit IDs are sufficient always).
+
+3: Update the prefix to be used consistently for all API items (not just functions), and default the prefix to empty.
+
+4: Change signals definition to "signal_labels".
+
+Note: The updated user manual also includes improvements regarding specification of signal sets, however this is not included in this branch.

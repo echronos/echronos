@@ -1,4 +1,4 @@
-from prj import Module
+from prj import SystemParseError, Module
 
 
 class RigelModule(Module):
@@ -18,6 +18,7 @@ class RigelModule(Module):
      <entry name="task" type="dict">
       <entry name="entry" type="c_ident" />
       <entry name="name" type="ident" />
+      <entry name="start" type="bool" default="false" />
       <entry name="stack_size" type="int" />
      </entry>
    </entry>
@@ -52,6 +53,11 @@ class RigelModule(Module):
 
     def configure(self, xml_config):
         config = super().configure(xml_config)
+
+        # Ensure that at least one task is runnable.
+        if not any(task['start'] for task in config['tasks']):
+            raise SystemParseError("At least one task must be configured to start.")
+
         # Create builtin signals
         timer_signal = {'name': '_task_timer', 'idx': len(config['signals'])}
         config['signals'].append(timer_signal)

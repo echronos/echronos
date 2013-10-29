@@ -44,9 +44,9 @@ fn_a(void)
     volatile int i;
     uint8_t count;
 
-    rtos_task_start(TASK_ID_B);
+    rtos_task_start(RTOS_TASK_ID_B);
 
-    if (rtos_task_current() != TASK_ID_A)
+    if (rtos_task_current() != RTOS_TASK_ID_A)
     {
         debug_println("task a: wrong task??");
         for (;;)
@@ -56,9 +56,9 @@ fn_a(void)
 
 
     debug_println("task a: taking lock");
-    rtos_mutex_lock(MUTEX_ID_TEST);
+    rtos_mutex_lock(RTOS_MUTEX_ID_TEST);
     rtos_yield();
-    if (rtos_mutex_try_lock(MUTEX_ID_TEST))
+    if (rtos_mutex_try_lock(RTOS_MUTEX_ID_TEST))
     {
         debug_println("task a: ERROR: unexpected mutex not locked.");
     }
@@ -72,7 +72,7 @@ fn_a(void)
         if (count % 5 == 0)
         {
             debug_println("task a: unblocking b");
-            rtos_signal_send(TASK_ID_B, SIGNAL_ID_TEST);
+            rtos_signal_send(RTOS_TASK_ID_B, RTOS_SIGNAL_ID_TEST);
         }
         debug_println("task a: yield");
         rtos_yield();
@@ -88,18 +88,18 @@ fn_a(void)
 
     do {
         debug_print("task a: remaining test - ");
-        debug_printhex32(rtos_timer_remaining(TIMER_ID_TEST));
+        debug_printhex32(rtos_timer_remaining(RTOS_TIMER_ID_TEST));
         debug_print(" - remaining supervisor - ");
-        debug_printhex32(rtos_timer_remaining(TIMER_ID_SUPERVISOR));
+        debug_printhex32(rtos_timer_remaining(RTOS_TIMER_ID_SUPERVISOR));
         debug_print(" - ticks - ");
         debug_printhex32(rtos_timer_current_ticks);
         debug_println("");
         rtos_yield();
-    } while (!rtos_timer_check_overflow(TIMER_ID_TEST));
+    } while (!rtos_timer_check_overflow(RTOS_TIMER_ID_TEST));
 
 
 
-    if (!rtos_signal_poll(SIGNAL_ID_TIMER))
+    if (!rtos_signal_poll(RTOS_SIGNAL_ID_TIMER))
     {
         debug_println("ERROR: couldn't poll expected timer.");
     }
@@ -119,7 +119,7 @@ fn_a(void)
     debug_println("task a: now waiting for ticks");
     for (;;)
     {
-        rtos_signal_wait(SIGNAL_ID_TIMER);
+        rtos_signal_wait(RTOS_SIGNAL_ID_TIMER);
         debug_println("task a: timer tick");
     }
 }

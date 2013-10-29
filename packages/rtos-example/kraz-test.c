@@ -16,16 +16,16 @@ fn_a(void)
     rtos_signal_send_set(1, 0);
 
     debug_println("task a: taking lock");
-    rtos_mutex_lock(MUTEX_ID_TEST);
+    rtos_mutex_lock(RTOS_MUTEX_ID_TEST);
     debug_println("task a: got lock");
     rtos_yield();
     debug_println("task a: yielded");
-    if (rtos_mutex_try_lock(MUTEX_ID_TEST))
+    if (rtos_mutex_try_lock(RTOS_MUTEX_ID_TEST))
     {
         debug_println("task a: ERROR: mutex not locked.");
     }
     debug_println("task a: releasing lock");
-    rtos_mutex_unlock(MUTEX_ID_TEST);
+    rtos_mutex_unlock(RTOS_MUTEX_ID_TEST);
     rtos_yield();
 
     for (count = 0; count < 10; count++)
@@ -34,14 +34,14 @@ fn_a(void)
         if (count % 5 == 0)
         {
             debug_println("task a: unblocking b");
-            rtos_signal_send(TASK_ID_B, SIGNAL_ID_TEST);
+            rtos_signal_send(RTOS_TASK_ID_B, RTOS_SIGNAL_ID_TEST);
         }
         rtos_yield();
     }
 
     debug_println("task a: finished sending signals");
 
-    rtos_signal_send(TASK_ID_B, SIGNAL_ID_TEST);
+    rtos_signal_send(RTOS_TASK_ID_B, RTOS_SIGNAL_ID_TEST);
 
     debug_println("task a: completed.");
 
@@ -57,7 +57,7 @@ fn_b(void)
     uint8_t count;
 
     debug_println("task b: attempting lock");
-    rtos_mutex_lock(MUTEX_ID_TEST);
+    rtos_mutex_lock(RTOS_MUTEX_ID_TEST);
     debug_println("task b: got lock");
 
     for (count = 0; count < 8; count++)
@@ -66,7 +66,7 @@ fn_b(void)
         if (count % 4 == 0)
         {
             debug_println("task b: blocking");
-            rtos_signal_wait(SIGNAL_ID_TEST);
+            rtos_signal_wait(RTOS_SIGNAL_ID_TEST);
             debug_println("task b: unblocked");
         }
         else
@@ -79,10 +79,10 @@ fn_b(void)
 
     for (count = 0; ; count++)
     {
-        if (rtos_signal_peek(SIGNAL_ID_TEST))
+        if (rtos_signal_peek(RTOS_SIGNAL_ID_TEST))
         {
             debug_println("task b: signal available on peek");
-            if (!rtos_signal_poll(SIGNAL_ID_TEST))
+            if (!rtos_signal_poll(RTOS_SIGNAL_ID_TEST))
             {
                 debug_println("task b: ERROR: unable to poll after peek.");
             }
@@ -95,7 +95,7 @@ fn_b(void)
         else
         {
             debug_println("task b: no signal available on peek");
-            if (rtos_signal_poll(SIGNAL_ID_TEST))
+            if (rtos_signal_poll(RTOS_SIGNAL_ID_TEST))
             {
                 debug_println("task b: ERROR: poll available no-peek.");
             }

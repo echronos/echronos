@@ -15,7 +15,7 @@
 /*| headers |*/
 
 /*| object_like_macros |*/
-#define SCHED_INDEX_ZERO ((SchedIndex) TASK_ID_ZERO)
+#define SCHED_INDEX_ZERO ((SchedIndex) {{prefix_const}}TASK_ID_ZERO)
 
 /*| type_definitions |*/
 typedef {{prefix_type}}TaskId SchedIndex;

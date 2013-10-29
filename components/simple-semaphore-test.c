@@ -6,6 +6,8 @@ typedef uint8_t {{prefix_type}}TaskId;
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
+#define {{prefix_const}}TASK_ID_ZERO (({{prefix_type}}TaskId) 0)
+#define {{prefix_const}}TASK_ID_MAX (({{prefix_type}}TaskId)({{tasks.length}} - 1))
 
 /*| public_function_like_macros |*/
 
@@ -19,8 +21,6 @@ typedef uint8_t {{prefix_type}}TaskId;
 #include "rtos-simple-semaphore-test.h"
 
 /*| object_like_macros |*/
-#define TASK_ID_ZERO 0
-#define TASK_ID_MAX ({{tasks.length}} - 1)
 
 /*| type_definitions |*/
 
@@ -66,7 +66,7 @@ get_current_task(void)
         return get_current_task_ptr();
     }
 
-    return TASK_ID_ZERO;
+    return {{prefix_const}}TASK_ID_ZERO;
 }
 
 /*| public_functions |*/

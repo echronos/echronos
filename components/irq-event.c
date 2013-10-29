@@ -8,7 +8,7 @@ typedef uint{{irqeventid_size}}_t {{prefix_type}}IrqEventId;
 
 /*| public_object_like_macros |*/
 {{#irq_events}}
-#define IRQ_EVENT_ID_{{name|u}} (({{prefix_type}}IrqEventId) UINT{{irqeventid_size}}_C({{idx}}))
+#define {{prefix_const}}IRQ_EVENT_ID_{{name|u}} (({{prefix_type}}IrqEventId) UINT{{irqeventid_size}}_C({{idx}}))
 {{/irq_events}}
 
 /*| public_function_like_macros |*/

@@ -10,7 +10,7 @@ typedef uint8_t {{prefix_type}}MutexId;
 
 /*| public_object_like_macros |*/
 {{#mutexes}}
-#define MUTEX_ID_{{name|u}} (({{prefix_type}}MutexId) UINT8_C({{idx}}))
+#define {{prefix_const}}MUTEX_ID_{{name|u}} (({{prefix_type}}MutexId) UINT8_C({{idx}}))
 {{/mutexes}}
 
 /*| public_function_like_macros |*/

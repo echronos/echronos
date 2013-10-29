@@ -7,8 +7,10 @@ typedef uint{{taskid_size}}_t {{prefix_type}}TaskId;
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
+#define {{prefix_const}}TASK_ID_ZERO (({{prefix_type}}TaskId) 0)
+#define {{prefix_const}}TASK_ID_MAX (({{prefix_type}}TaskId)({{tasks.length}} - 1))
 {{#tasks}}
-#define TASK_ID_{{name|u}} (({{prefix_type}}TaskId) UINT{{taskid_size}}_C({{idx}}))
+#define {{prefix_const}}TASK_ID_{{name|u}} (({{prefix_type}}TaskId) UINT{{taskid_size}}_C({{idx}}))
 {{/tasks}}
 
 /*| public_function_like_macros |*/
@@ -24,7 +26,6 @@ void {{prefix_func}}start(void);
 #include "rtos-kraz.h"
 
 /*| object_like_macros |*/
-#define TASK_ID_ZERO (({{prefix_type}}TaskId) UINT{{taskid_size}}_C(0))
 #define TASK_ID_NONE ((TaskIdOption) UINT{{taskid_size}}_MAX)
 
 /*| type_definitions |*/
@@ -93,5 +94,5 @@ void
     context_init(get_task_context({{idx}}), {{function}}, stack_{{idx}}, {{stack_size}});
     {{/tasks}}
 
-    context_switch_first(get_task_context(TASK_ID_ZERO));
+    context_switch_first(get_task_context({{prefix_const}}TASK_ID_ZERO));
 }

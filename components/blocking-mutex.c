@@ -8,10 +8,10 @@ typedef uint8_t {{prefix_type}}MutexId;
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
-#define MUTEX_ID_ZERO (({{prefix_type}}MutexId) UINT8_C(0))
-#define MUTEX_ID_MAX (({{prefix_type}}MutexId) UINT8_C({{mutexes.length}} - 1))
+#define {{prefix_const}}MUTEX_ID_ZERO (({{prefix_type}}MutexId) UINT8_C(0))
+#define {{prefix_const}}MUTEX_ID_MAX (({{prefix_type}}MutexId) UINT8_C({{mutexes.length}} - 1))
 {{#mutexes}}
-#define MUTEX_ID_{{name|u}} (({{prefix_type}}MutexId) UINT8_C({{idx}}))
+#define {{prefix_const}}MUTEX_ID_{{name|u}} (({{prefix_type}}MutexId) UINT8_C({{idx}}))
 {{/mutexes}}
 
 /*| public_function_like_macros |*/
@@ -53,7 +53,7 @@ mutex_init(void)
 {
     {{prefix_type}}TaskId t;
 
-    for (t = TASK_ID_ZERO; t <= TASK_ID_MAX; t++)
+    for (t = {{prefix_const}}TASK_ID_ZERO; t <= {{prefix_const}}TASK_ID_MAX; t++)
     {
         waiters[t] = MUTEX_ID_NONE;
     }
@@ -75,7 +75,7 @@ void
 {
     {{prefix_type}}TaskId t;
 
-    for (t = TASK_ID_ZERO; t <= TASK_ID_MAX; t++)
+    for (t = {{prefix_const}}TASK_ID_ZERO; t <= {{prefix_const}}TASK_ID_MAX; t++)
     {
         if (waiters[t] == m)
         {

@@ -10,7 +10,7 @@ typedef uint16_t {{prefix_type}}TicksRelative;
 
 /*| public_object_like_macros |*/
 {{#timers}}
-#define TIMER_ID_{{name|u}} (({{prefix_type}}TimerId) UINT8_C({{idx}}))
+#define {{prefix_const}}TIMER_ID_{{name|u}} (({{prefix_type}}TimerId) UINT8_C({{idx}}))
 {{/timers}}
 
 /*| public_function_like_macros |*/
@@ -70,7 +70,7 @@ static struct timer timers[{{timers.length}}] = {
         {{#enabled}}{{reload}}{{/enabled}}{{^enabled}}0{{/enabled}},
         {{reload}},
         {{error}},
-        {{#task}}TASK_ID_{{name|u}}{{/task}}{{^task}}TASK_ID_NONE{{/task}},
+        {{#task}}{{prefix_const}}TASK_ID_{{name|u}}{{/task}}{{^task}}TASK_ID_NONE{{/task}},
         {{#sig_set}}{{.}}{{/sig_set}}{{^sig_set}}0{{/sig_set}}
     },
 {{/timers}}

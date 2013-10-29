@@ -8,12 +8,14 @@ typedef uint8_t {{prefix_type}}ErrorId;
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
+#define {{prefix_const}}TASK_ID_ZERO (({{prefix_type}}TaskId) 0)
+#define {{prefix_const}}TASK_ID_MAX (({{prefix_type}}TaskId)({{tasks.length}} - 1))
 {{#tasks}}
-#define TASK_ID_{{name|u}} (({{prefix_type}}TaskId) UINT{{taskid_size}}_C({{idx}}))
+#define {{prefix_const}}TASK_ID_{{name|u}} (({{prefix_type}}TaskId) UINT{{taskid_size}}_C({{idx}}))
 {{/tasks}}
 
 {{#irq_events}}
-#define SIGNAL_SET_IRQ_{{name|u}} {{sig_set}}
+#define {{prefix_const}}SIGNAL_SET_IRQ_{{name|u}} {{sig_set}}
 {{/irq_events}}
 
 /*| public_function_like_macros |*/
@@ -32,7 +34,6 @@ void {{prefix_func}}task_start({{prefix_type}}TaskId task);
 #include "rtos-rigel.h"
 
 /*| object_like_macros |*/
-#define TASK_ID_ZERO (({{prefix_type}}TaskId) UINT{{taskid_size}}_C(0))
 #define TASK_ID_NONE ((TaskIdOption) UINT{{taskid_size}}_MAX)
 
 #define ERROR_ID_NONE (({{prefix_type}}ErrorId) UINT8_C(0))
@@ -70,13 +71,13 @@ static {{prefix_type}}TaskId current_task;
 static struct task tasks[{{tasks.length}}];
 static {{prefix_type}}TimerId task_timers[{{tasks.length}}] = {
 {{#tasks}}
-    TIMER_ID_{{timer.name|u}},
+    {{prefix_const}}TIMER_ID_{{timer.name|u}},
 {{/tasks}}
 };
 
 struct irq_event_handler irq_events[{{irq_events.length}}] = {
 {{#irq_events}}
- { TASK_ID_{{task.name|u}}, SIGNAL_SET_IRQ_{{name|u}} },
+{ {{prefix_const}}TASK_ID_{{task.name|u}}, {{prefix_const}}SIGNAL_SET_IRQ_{{name|u}} },
 {{/irq_events}}
 };
 
@@ -122,7 +123,7 @@ handle_irq_event({{prefix_type}}IrqEventId irq_event_id)
 {{#tasks}}
 void _task_entry_{{name}}(void)
 {
-    {{^start}}{{prefix_func}}signal_wait(SIGNAL_ID__RTOS_UTIL);{{/start}}
+    {{^start}}{{prefix_func}}signal_wait({{prefix_const}}SIGNAL_ID__RTOS_UTIL);{{/start}}
     {{function}}();
 }
 
@@ -138,7 +139,7 @@ void _task_entry_{{name}}(void)
 void
 {{prefix_func}}task_start({{prefix_type}}TaskId task)
 {
-    {{prefix_func}}signal_send(task, SIGNAL_ID__RTOS_UTIL);
+    {{prefix_func}}signal_send(task, {{prefix_const}}SIGNAL_ID__RTOS_UTIL);
 }
 
 void
@@ -152,7 +153,7 @@ void
 {{prefix_func}}sleep({{prefix_type}}TicksRelative ticks)
 {
     {{prefix_func}}timer_oneshot(task_timers[get_current_task()], ticks);
-    {{prefix_func}}signal_wait(SIGNAL_ID__TASK_TIMER);
+    {{prefix_func}}signal_wait({{prefix_const}}SIGNAL_ID__TASK_TIMER);
 }
 
 void
@@ -163,5 +164,5 @@ void
     sched_set_runnable({{idx}});
     {{/tasks}}
 
-    context_switch_first(get_task_context(TASK_ID_ZERO));
+    context_switch_first(get_task_context({{prefix_const}}TASK_ID_ZERO));
 }

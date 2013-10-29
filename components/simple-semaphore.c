@@ -10,7 +10,7 @@ typedef uint8_t {{prefix_type}}SemId;
 
 /*| public_object_like_macros |*/
 {{#semaphores}}
-#define SEM_ID_{{name}} (({{prefix_type}}SemId) UINT8_C({{idx}}))
+#define {{prefix_const}}SEM_ID_{{name}} (({{prefix_type}}SemId) UINT8_C({{idx}}))
 {{/semaphores}}
 
 /*| public_function_like_macros |*/
@@ -58,7 +58,7 @@ sem_init(void)
 {
     {{prefix_type}}TaskId t;
 
-    for (t = TASK_ID_ZERO; t <= TASK_ID_MAX; t++)
+    for (t = {{prefix_const}}TASK_ID_ZERO; t <= {{prefix_const}}TASK_ID_MAX; t++)
     {
         waiters[t] = SEM_ID_NONE;
     }
@@ -103,7 +103,7 @@ void
 
     if (semaphores[s].value == SEM_VALUE_ZERO)
     {
-        for (t = TASK_ID_ZERO; t <= TASK_ID_MAX; t++)
+        for (t = {{prefix_const}}TASK_ID_ZERO; t <= {{prefix_const}}TASK_ID_MAX; t++)
         {
             if (waiters[t] == s)
             {

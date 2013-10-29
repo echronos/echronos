@@ -7,8 +7,8 @@ typedef uint8_t {{prefix_type}}TaskId;
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
-#define TASK_ID_ZERO (({{prefix_type}}TaskId) 0)
-#define TASK_ID_MAX (({{prefix_type}}TaskId)({{tasks.length}} - 1))
+#define {{prefix_const}}TASK_ID_ZERO (({{prefix_type}}TaskId) 0)
+#define {{prefix_const}}TASK_ID_MAX (({{prefix_type}}TaskId)({{tasks.length}} - 1))
 
 /*| public_function_like_macros |*/
 
@@ -68,7 +68,7 @@ get_current_task(void)
     {
         return get_current_task_ptr();
     }
-    return TASK_ID_ZERO;
+    return {{prefix_const}}TASK_ID_ZERO;
 }
 
 /*| public_functions |*/
@@ -98,7 +98,7 @@ void pub_mutex_init(void)
     {{prefix_type}}MutexId mutex_id;
     mutex_init();
     /* For testing purposes we also reset all mutexes */
-    for (mutex_id = MUTEX_ID_ZERO; mutex_id <= MUTEX_ID_MAX; mutex_id++)
+    for (mutex_id = {{prefix_const}}MUTEX_ID_ZERO; mutex_id <= {{prefix_const}}MUTEX_ID_MAX; mutex_id++)
     {
         mutexes[mutex_id].holder = TASK_ID_NONE;
     }

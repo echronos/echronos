@@ -9,11 +9,11 @@ typedef {{prefix_type}}SignalSet {{prefix_type}}SignalId;
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
-#define SIGNAL_SET_EMPTY (({{prefix_type}}SignalSet) UINT{{signalset_size}}_C(0))
-#define SIGNAL_SET_ALL (({{prefix_type}}SignalSet) UINT{{signalset_size}}_MAX)
+#define {{prefix_const}}SIGNAL_SET_EMPTY (({{prefix_type}}SignalSet) UINT{{signalset_size}}_C(0))
+#define {{prefix_const}}SIGNAL_SET_ALL (({{prefix_type}}SignalSet) UINT{{signalset_size}}_MAX)
 {{#signal_sets}}
-#define SIGNAL_SET_{{name|u}} (({{prefix_type}}SignalSet) UINT{{signalset_size}}_C({{value}}))
-{{#singleton}}#define SIGNAL_ID_{{name|u}} (({{prefix_type}}SignalId) SIGNAL_SET_{{name|u}}){{/singleton}}
+#define {{prefix_const}}SIGNAL_SET_{{name|u}} (({{prefix_type}}SignalSet) UINT{{signalset_size}}_C({{value}}))
+{{#singleton}}#define {{prefix_const}}SIGNAL_ID_{{name|u}} (({{prefix_type}}SignalId) {{prefix_const}}SIGNAL_SET_{{name|u}}){{/singleton}}
 {{/signal_sets}}
 
 /*| public_function_like_macros |*/
@@ -21,10 +21,10 @@ typedef {{prefix_type}}SignalSet {{prefix_type}}SignalId;
     (void) {{prefix_func}}signal_wait_set(requested_signal)
 
 #define {{prefix_func}}signal_poll(requested_signal) \
-    ({{prefix_func}}signal_poll_set(requested_signal) != SIGNAL_SET_EMPTY)
+    ({{prefix_func}}signal_poll_set(requested_signal) != {{prefix_const}}SIGNAL_SET_EMPTY)
 
 #define {{prefix_func}}signal_peek(requested_signal) \
-    ({{prefix_func}}signal_peek_set(requested_signal) != SIGNAL_SET_EMPTY)
+    ({{prefix_func}}signal_peek_set(requested_signal) != {{prefix_const}}SIGNAL_SET_EMPTY)
 
 #define {{prefix_func}}signal_send(task_id, signal) \
     {{prefix_func}}signal_send_set(task_id, signal)
@@ -61,7 +61,7 @@ static {{prefix_type}}SignalSet _signal_recv({{prefix_type}}SignalSet *const cur
 static struct signal signal_tasks;
 
 /*| function_like_macros |*/
-#define _signal_peek(pending_signals, requested_signals) (((pending_signals) & (requested_signals)) != SIGNAL_SET_EMPTY)
+#define _signal_peek(pending_signals, requested_signals) (((pending_signals) & (requested_signals)) != {{prefix_const}}SIGNAL_SET_EMPTY)
 #define _signal_pending(task_id, mask) ((PENDING_SIGNALS(task_id) & mask) == mask)
 #define PENDING_SIGNALS(task_id) signal_tasks.tasks[task_id].signals
 

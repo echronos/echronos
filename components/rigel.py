@@ -7,17 +7,25 @@ class RigelModule(Module):
    <entry name="signalset_size" type="int" default="8"/>
    <entry name="prefix" type="ident" optional="true" />
    <entry name="fatal_error" type="c_ident" />
-   <entry name="signal_labels" type="list" auto_index_field="idx">
-     <entry name="signal_label" type="dict">
-       <entry name="name" type="ident" />
-     </entry>
-   </entry>
    <entry name="tasks" type="list" auto_index_field="idx">
      <entry name="task" type="dict">
       <entry name="function" type="c_ident" />
       <entry name="name" type="ident" />
       <entry name="start" type="bool" default="false" />
       <entry name="stack_size" type="int" />
+     </entry>
+   </entry>
+   <entry name="signal_labels" type="list">
+     <entry name="signal_label" type="dict">
+       <entry name="name" type="ident" />
+       <entry name="global" type="bool" optional="true" />
+       <entry name="tasks" type="list" optional="true">
+         <entry name="task" type="object" group="tasks" />
+       </entry>
+       <constraint type="one_of">
+         <entry>global</entry>
+         <entry>tasks</entry>
+       </constraint>
      </entry>
    </entry>
    <entry name="irq_events" type="list" auto_index_field="idx">
@@ -78,8 +86,21 @@ class RigelModule(Module):
         # The same signal is re-used to avoid excessive allocation of signals.
         # This is safe as a task can not be simultanesouly waiting to start,
         # waiting for a mutex, and waiting on a message queue.
-        start_signal = {'name': '_rtos_util', 'idx': len(config['signal_labels'])}
-        config['signal_labels'].append(start_signal)
+        config['signal_labels'].append({'name': '_rtos_util', 'global': True})
+
+        # Assign signal ids
+        sig_sets = []
+        for task in config['tasks']:
+            sig_set = []
+            for sig in config['signal_labels']:
+                print(sig)
+                if sig.get('global', False) or task['name'] in [t['name'] for t in sig['tasks']]:
+                    sig_set.append(sig['name'])
+            sig_sets.append(sig_set)
+
+        label_ids = assign_signal_vals(sig_sets)
+        for sig in config['signal_labels']:
+            sig['idx'] = label_ids[sig['name']]
 
         # Create signal_set definitions from signal definitions:
         config['signal_sets'] = [{'name': sig['name'], 'value': 1 << sig['idx'], 'singleton': True}
@@ -97,5 +118,29 @@ class RigelModule(Module):
             task['timer'] = timer
             config['timers'].append(timer)
         return config
+
+
+def assign_signal_vals(sig_sets):
+    """Assign values to each signal in a list of signal sets.
+
+    Values are assigned so that the values in each set are unique.
+
+    A greedy algorithm is used to minimise the signal values used.
+
+    A dictionary of signal values index by signal is returned.
+
+    """
+    signals = set().union(*sig_sets)
+    possible_vals = set(range(len(signals)))
+
+    assigned = {}
+    for sig in signals:
+        used_vals = [{assigned.get(ss) for ss in sig_set} for sig_set in sig_sets if sig in sig_set]
+        assigned[sig] = min(possible_vals.difference(*used_vals))
+
+    assert all(len({assigned[x] for x in sig_set}) == len(sig_set) for sig_set in sig_sets)
+
+    return assigned
+
 
 module = RigelModule()

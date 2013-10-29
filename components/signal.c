@@ -55,7 +55,7 @@ struct signal {
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static SignalId _signal_recv(SignalSet *const cur_task_signals, const SignalSet mask);
+static SignalSet _signal_recv(SignalSet *const cur_task_signals, const SignalSet mask);
 
 /*| state |*/
 static struct signal signal_tasks;
@@ -80,7 +80,7 @@ SignalSet
 {{prefix}}signal_wait_set(const SignalSet requested_signals)
 {
     SignalSet *const pending_signals = &PENDING_SIGNALS(get_current_task());
-    SignalId received_signals;
+    SignalSet received_signals;
 
     preempt_disable();
 

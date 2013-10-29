@@ -18,7 +18,7 @@
 /*| object_like_macros |*/
 
 /*| type_definitions |*/
-typedef TaskId SchedIndex;
+typedef {{prefix_type}}TaskId SchedIndex;
 
 /*| structure_definitions |*/
 struct sched_task {
@@ -33,9 +33,9 @@ struct sched {
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static void sched_set_runnable(const TaskId task_id);
-static void sched_set_blocked(const TaskId task_id);
-static [[#assume_runnable]]TaskId[[/assume_runnable]][[^assume_runnable]]TaskIdOption[[/assume_runnable]] sched_get_next(void);
+static void sched_set_runnable(const {{prefix_type}}TaskId task_id);
+static void sched_set_blocked(const {{prefix_type}}TaskId task_id);
+static [[#assume_runnable]]{{prefix_type}}TaskId[[/assume_runnable]][[^assume_runnable]]TaskIdOption[[/assume_runnable]] sched_get_next(void);
 
 /*| state |*/
 static struct sched sched_tasks;
@@ -46,26 +46,26 @@ static struct sched sched_tasks;
 #define sched_get_cur_index() (sched_tasks.cur)
 #define sched_set_cur_index(idx) sched_tasks.cur = (idx)
 #define sched_max_index() (SchedIndex)({{tasks.length}} - 1U)
-#define sched_index_to_taskid(sched_index) (TaskId)(sched_index)
+#define sched_index_to_taskid(sched_index) ({{prefix_type}}TaskId)(sched_index)
 #define SCHED_OBJ(task_id) sched_tasks.tasks[task_id]
 
 /*| functions |*/
 static void
-sched_set_runnable(const TaskId task_id)
+sched_set_runnable(const {{prefix_type}}TaskId task_id)
 {
     SCHED_OBJ(task_id).runnable = true;
 }
 
 static void
-sched_set_blocked(const TaskId task_id)
+sched_set_blocked(const {{prefix_type}}TaskId task_id)
 {
     SCHED_OBJ(task_id).runnable = false;
 }
 
-static [[#assume_runnable]]TaskId[[/assume_runnable]][[^assume_runnable]]TaskIdOption[[/assume_runnable]]
+static [[#assume_runnable]]{{prefix_type}}TaskId[[/assume_runnable]][[^assume_runnable]]TaskIdOption[[/assume_runnable]]
 sched_get_next(void)
 {
-    [[#assume_runnable]]TaskId[[/assume_runnable]][[^assume_runnable]]TaskIdOption[[/assume_runnable]] task;
+    [[#assume_runnable]]{{prefix_type}}TaskId[[/assume_runnable]][[^assume_runnable]]TaskIdOption[[/assume_runnable]] task;
     SchedIndex next = sched_get_cur_index();
     bool found = false;
 

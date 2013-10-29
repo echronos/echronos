@@ -3,17 +3,17 @@
 #include <stdint.h>
 
 /*| public_type_definitions |*/
-typedef uint{{signalset_size}}_t SignalSet;
-typedef SignalSet SignalId;
+typedef uint{{signalset_size}}_t {{prefix_type}}SignalSet;
+typedef {{prefix_type}}SignalSet {{prefix_type}}SignalId;
 
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
-#define SIGNAL_SET_EMPTY ((SignalSet) UINT{{signalset_size}}_C(0))
-#define SIGNAL_SET_ALL ((SignalSet) UINT{{signalset_size}}_MAX)
+#define SIGNAL_SET_EMPTY (({{prefix_type}}SignalSet) UINT{{signalset_size}}_C(0))
+#define SIGNAL_SET_ALL (({{prefix_type}}SignalSet) UINT{{signalset_size}}_MAX)
 {{#signal_sets}}
-#define SIGNAL_SET_{{name|u}} ((SignalSet) UINT{{signalset_size}}_C({{value}}))
-{{#singleton}}#define SIGNAL_ID_{{name|u}} ((SignalId) SIGNAL_SET_{{name|u}}){{/singleton}}
+#define SIGNAL_SET_{{name|u}} (({{prefix_type}}SignalSet) UINT{{signalset_size}}_C({{value}}))
+{{#singleton}}#define SIGNAL_ID_{{name|u}} (({{prefix_type}}SignalId) SIGNAL_SET_{{name|u}}){{/singleton}}
 {{/signal_sets}}
 
 /*| public_function_like_macros |*/
@@ -32,10 +32,10 @@ typedef SignalSet SignalId;
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-SignalSet {{prefix_func}}signal_wait_set(SignalSet requested_signals);
-SignalSet {{prefix_func}}signal_poll_set(SignalSet requested_signals);
-SignalSet {{prefix_func}}signal_peek_set(SignalSet requested_signals);
-void {{prefix_func}}signal_send_set(TaskId task_id, SignalSet signals);
+{{prefix_type}}SignalSet {{prefix_func}}signal_wait_set({{prefix_type}}SignalSet requested_signals);
+{{prefix_type}}SignalSet {{prefix_func}}signal_poll_set({{prefix_type}}SignalSet requested_signals);
+{{prefix_type}}SignalSet {{prefix_func}}signal_peek_set({{prefix_type}}SignalSet requested_signals);
+void {{prefix_func}}signal_send_set({{prefix_type}}TaskId task_id, {{prefix_type}}SignalSet signals);
 
 /*| headers |*/
 
@@ -45,7 +45,7 @@ void {{prefix_func}}signal_send_set(TaskId task_id, SignalSet signals);
 
 /*| structure_definitions |*/
 struct signal_task {
-    SignalSet signals;
+    {{prefix_type}}SignalSet signals;
 };
 
 struct signal {
@@ -55,7 +55,7 @@ struct signal {
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static SignalSet _signal_recv(SignalSet *const cur_task_signals, const SignalSet mask);
+static {{prefix_type}}SignalSet _signal_recv({{prefix_type}}SignalSet *const cur_task_signals, const {{prefix_type}}SignalSet mask);
 
 /*| state |*/
 static struct signal signal_tasks;
@@ -66,21 +66,21 @@ static struct signal signal_tasks;
 #define PENDING_SIGNALS(task_id) signal_tasks.tasks[task_id].signals
 
 /*| functions |*/
-static SignalSet
-_signal_recv(SignalSet *const pending_signals, const SignalSet requested_signals)
+static {{prefix_type}}SignalSet
+_signal_recv({{prefix_type}}SignalSet *const pending_signals, const {{prefix_type}}SignalSet requested_signals)
 {
-    const SignalSet received_signals = *pending_signals & requested_signals;
+    const {{prefix_type}}SignalSet received_signals = *pending_signals & requested_signals;
     *pending_signals &= ~received_signals;
 
     return received_signals;
 }
 
 /*| public_functions |*/
-SignalSet
-{{prefix_func}}signal_wait_set(const SignalSet requested_signals)
+{{prefix_type}}SignalSet
+{{prefix_func}}signal_wait_set(const {{prefix_type}}SignalSet requested_signals)
 {
-    SignalSet *const pending_signals = &PENDING_SIGNALS(get_current_task());
-    SignalSet received_signals;
+    {{prefix_type}}SignalSet *const pending_signals = &PENDING_SIGNALS(get_current_task());
+    {{prefix_type}}SignalSet received_signals;
 
     preempt_disable();
 
@@ -103,11 +103,11 @@ SignalSet
     return received_signals;
 }
 
-SignalSet
-{{prefix_func}}signal_poll_set(const SignalSet requested_signals)
+{{prefix_type}}SignalSet
+{{prefix_func}}signal_poll_set(const {{prefix_type}}SignalSet requested_signals)
 {
-    SignalSet *const pending_signals = &PENDING_SIGNALS(get_current_task());
-    SignalSet received_signals;
+    {{prefix_type}}SignalSet *const pending_signals = &PENDING_SIGNALS(get_current_task());
+    {{prefix_type}}SignalSet received_signals;
 
     preempt_disable();
 
@@ -118,14 +118,14 @@ SignalSet
     return received_signals;
 }
 
-SignalSet
-{{prefix_func}}signal_peek_set(const SignalSet requested_signals)
+{{prefix_type}}SignalSet
+{{prefix_func}}signal_peek_set(const {{prefix_type}}SignalSet requested_signals)
 {
     return _signal_peek(PENDING_SIGNALS(get_current_task()), requested_signals);
 }
 
 void
-{{prefix_func}}signal_send_set(const TaskId task_id, const SignalSet signals)
+{{prefix_func}}signal_send_set(const {{prefix_type}}TaskId task_id, const {{prefix_type}}SignalSet signals)
 {
     preempt_disable();
 

@@ -2,38 +2,38 @@
 #include <stdint.h>
 
 /*| public_type_definitions |*/
-typedef uint8_t TimerId;
-typedef uint32_t TicksAbsolute;
-typedef uint16_t TicksRelative;
+typedef uint8_t {{prefix_type}}TimerId;
+typedef uint32_t {{prefix_type}}TicksAbsolute;
+typedef uint16_t {{prefix_type}}TicksRelative;
 
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
 {{#timers}}
-#define TIMER_ID_{{name|u}} ((TimerId) UINT8_C({{idx}}))
+#define TIMER_ID_{{name|u}} (({{prefix_type}}TimerId) UINT8_C({{idx}}))
 {{/timers}}
 
 /*| public_function_like_macros |*/
 
 /*| public_extern_definitions |*/
-extern TicksAbsolute {{prefix_func}}timer_current_ticks;
+extern {{prefix_type}}TicksAbsolute {{prefix_func}}timer_current_ticks;
 
 /*| public_function_definitions |*/
-void {{prefix_func}}timer_enable(TimerId timer_id);
-void {{prefix_func}}timer_disable(TimerId timer_id);
-void {{prefix_func}}timer_oneshot(TimerId timer_id, TicksRelative timeout);
-bool {{prefix_func}}timer_check_overflow(TimerId timer_id);
-TicksRelative {{prefix_func}}timer_remaining(TimerId timer_id);
-void {{prefix_func}}timer_reload_set(TimerId timer_id, TicksRelative reload);
-void {{prefix_func}}timer_signal_set(TimerId timer_id, TaskId task_id, SignalSet signal_set);
+void {{prefix_func}}timer_enable({{prefix_type}}TimerId timer_id);
+void {{prefix_func}}timer_disable({{prefix_type}}TimerId timer_id);
+void {{prefix_func}}timer_oneshot({{prefix_type}}TimerId timer_id, {{prefix_type}}TicksRelative timeout);
+bool {{prefix_func}}timer_check_overflow({{prefix_type}}TimerId timer_id);
+{{prefix_type}}TicksRelative {{prefix_func}}timer_remaining({{prefix_type}}TimerId timer_id);
+void {{prefix_func}}timer_reload_set({{prefix_type}}TimerId timer_id, {{prefix_type}}TicksRelative reload);
+void {{prefix_func}}timer_signal_set({{prefix_type}}TimerId timer_id, {{prefix_type}}TaskId task_id, {{prefix_type}}SignalSet signal_set);
 
 /*| headers |*/
 #include <stdbool.h>
 #include <stdint.h>
 
 /*| object_like_macros |*/
-#define TIMER_ID_ZERO ((TimerId) UINT8_C(0))
-#define TIMER_ID_MAX ((TimerId) UINT8_C({{timers.length}} - 1U))
+#define TIMER_ID_ZERO (({{prefix_type}}TimerId) UINT8_C(0))
+#define TIMER_ID_MAX (({{prefix_type}}TimerId) UINT8_C({{timers.length}} - 1U))
 
 /*| type_definitions |*/
 typedef uint16_t TicksTimeout;
@@ -44,16 +44,16 @@ struct timer
     bool enabled;
     bool overflow;
     TicksTimeout expiry;
-    TicksRelative reload;
+    {{prefix_type}}TicksRelative reload;
 
     /*
      * when error_id is not ERROR_ID_NONE, the timer calls
      * the application error function with this error_id.
      */
-    ErrorId error_id;
+    {{prefix_type}}ErrorId error_id;
 
-    TaskId task_id;
-    SignalSet signal_set;
+    {{prefix_type}}TaskId task_id;
+    {{prefix_type}}SignalSet signal_set;
 };
 
 /*| extern_definitions |*/
@@ -61,7 +61,7 @@ struct timer
 /*| function_definitions |*/
 
 /*| state |*/
-TicksAbsolute {{prefix_func}}timer_current_ticks;
+{{prefix_type}}TicksAbsolute {{prefix_func}}timer_current_ticks;
 static struct timer timers[{{timers.length}}] = {
 {{#timers}}
     {
@@ -112,7 +112,7 @@ timer_process_one(struct timer *const timer)
 static void
 timer_process(void)
 {
-    TimerId timer_id;
+    {{prefix_type}}TimerId timer_id;
     struct timer *timer;
     TicksTimeout timeout;
 
@@ -131,7 +131,7 @@ timer_process(void)
 
 /*| public_functions |*/
 void
-{{prefix_func}}timer_enable(const TimerId timer_id)
+{{prefix_func}}timer_enable(const {{prefix_type}}TimerId timer_id)
 {
     if (timers[timer_id].reload == 0)
     {
@@ -145,13 +145,13 @@ void
 }
 
 void
-{{prefix_func}}timer_disable(const TimerId timer_id)
+{{prefix_func}}timer_disable(const {{prefix_type}}TimerId timer_id)
 {
     timers[timer_id].enabled = false;
 }
 
 void
-{{prefix_func}}timer_oneshot(const TimerId timer_id, const TicksRelative timeout)
+{{prefix_func}}timer_oneshot(const {{prefix_type}}TimerId timer_id, const {{prefix_type}}TicksRelative timeout)
 {
     {{prefix_func}}timer_reload_set(timer_id, timeout);
     {{prefix_func}}timer_enable(timer_id);
@@ -159,28 +159,28 @@ void
 }
 
 bool
-{{prefix_func}}timer_check_overflow(const TimerId timer_id)
+{{prefix_func}}timer_check_overflow(const {{prefix_type}}TimerId timer_id)
 {
     bool r = timers[timer_id].overflow;
     timers[timer_id].overflow = false;
     return r;
 }
 
-TicksRelative
-{{prefix_func}}timer_remaining(const TimerId timer_id)
+{{prefix_type}}TicksRelative
+{{prefix_func}}timer_remaining(const {{prefix_type}}TimerId timer_id)
 {
     return timers[timer_id].enabled ? timers[timer_id].expiry - current_timeout() : 0;
 }
 
 /* Configuration functions */
 void
-{{prefix_func}}timer_reload_set(const TimerId timer_id, const TicksRelative reload)
+{{prefix_func}}timer_reload_set(const {{prefix_type}}TimerId timer_id, const {{prefix_type}}TicksRelative reload)
 {
     timers[timer_id].reload = reload;
 }
 
 void
-{{prefix_func}}timer_signal_set(const TimerId timer_id, const TaskId task_id, const SignalSet signal_set)
+{{prefix_func}}timer_signal_set(const {{prefix_type}}TimerId timer_id, const {{prefix_type}}TaskId task_id, const {{prefix_type}}SignalSet signal_set)
 {
     timers[timer_id].error_id = ERROR_ID_NONE;
     timers[timer_id].task_id = task_id;
@@ -188,7 +188,7 @@ void
 }
 
 void
-{{prefix_func}}timer_error_set(const TimerId timer_id, const ErrorId error_id)
+{{prefix_func}}timer_error_set(const {{prefix_type}}TimerId timer_id, const {{prefix_type}}ErrorId error_id)
 {
     timers[timer_id].error_id = error_id;
 }

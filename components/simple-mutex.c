@@ -4,13 +4,13 @@
 #include <stdint.h>
 
 /*| public_type_definitions |*/
-typedef uint8_t MutexId;
+typedef uint8_t {{prefix_type}}MutexId;
 
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
 {{#mutexes}}
-#define MUTEX_ID_{{name|u}} ((MutexId) UINT8_C({{idx}}))
+#define MUTEX_ID_{{name|u}} (({{prefix_type}}MutexId) UINT8_C({{idx}}))
 {{/mutexes}}
 
 /*| public_function_like_macros |*/
@@ -18,9 +18,9 @@ typedef uint8_t MutexId;
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-void {{prefix_func}}mutex_lock(MutexId);
-bool {{prefix_func}}mutex_try_lock(MutexId);
-void {{prefix_func}}mutex_unlock(MutexId);
+void {{prefix_func}}mutex_lock({{prefix_type}}MutexId);
+bool {{prefix_func}}mutex_try_lock({{prefix_type}}MutexId);
+void {{prefix_func}}mutex_unlock({{prefix_type}}MutexId);
 
 /*| headers |*/
 #include <stdbool.h>
@@ -46,7 +46,7 @@ static struct mutex mutexes[{{mutexes.length}}];
 
 /*| functions |*/
 static bool
-internal_mutex_try_lock(const MutexId m)
+internal_mutex_try_lock(const {{prefix_type}}MutexId m)
 {
     if (mutexes[m].locked)
     {
@@ -61,7 +61,7 @@ internal_mutex_try_lock(const MutexId m)
 
 /*| public_functions |*/
 void
-{{prefix_func}}mutex_lock(const MutexId m)
+{{prefix_func}}mutex_lock(const {{prefix_type}}MutexId m)
 {
     preempt_disable();
 
@@ -74,14 +74,14 @@ void
 }
 
 void
-{{prefix_func}}mutex_unlock(const MutexId m)
+{{prefix_func}}mutex_unlock(const {{prefix_type}}MutexId m)
 {
     /* Note: assumes writing a single word is atomic */
     mutexes[m].locked = false;
 }
 
 bool
-{{prefix_func}}mutex_try_lock(const MutexId m)
+{{prefix_func}}mutex_try_lock(const {{prefix_type}}MutexId m)
 {
     bool r;
 

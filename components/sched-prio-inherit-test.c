@@ -16,12 +16,12 @@
 #include <stdint.h>
 
 /*| object_like_macros |*/
-#define TASK_ID_ZERO ((TaskId) UINT8_C(0))
+#define TASK_ID_ZERO (({{prefix_type}}TaskId) UINT8_C(0))
 #define TASK_ID_NONE ((TaskIdOption) UINT8_MAX)
 
 /*| type_definitions |*/
-typedef uint8_t TaskId;
-typedef TaskId TaskIdOption;
+typedef uint8_t {{prefix_type}}TaskId;
+typedef {{prefix_type}}TaskId TaskIdOption;
 
 
 /*| structure_definitions |*/
@@ -40,19 +40,19 @@ typedef TaskId TaskIdOption;
 
 /*| public_functions |*/
 void
-pub_sched_set_runnable(const TaskId task_id)
+pub_sched_set_runnable(const {{prefix_type}}TaskId task_id)
 {
     sched_set_runnable(task_id);
 }
 
 void
-pub_sched_set_blocked(const TaskId task_id)
+pub_sched_set_blocked(const {{prefix_type}}TaskId task_id)
 {
     sched_set_blocked(task_id);
 }
 
 void
-pub_sched_set_blocked_on(const TaskId task_id, const TaskId blocked_on)
+pub_sched_set_blocked_on(const {{prefix_type}}TaskId task_id, const {{prefix_type}}TaskId blocked_on)
 {
     sched_set_blocked_on(task_id, blocked_on);
 }

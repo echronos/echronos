@@ -3,15 +3,15 @@
 #include <stdint.h>
 
 /*| public_type_definitions |*/
-typedef uint8_t MutexId;
+typedef uint8_t {{prefix_type}}MutexId;
 
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
-#define MUTEX_ID_ZERO ((MutexId) UINT8_C(0))
-#define MUTEX_ID_MAX ((MutexId) UINT8_C({{mutexes.length}} - 1))
+#define MUTEX_ID_ZERO (({{prefix_type}}MutexId) UINT8_C(0))
+#define MUTEX_ID_MAX (({{prefix_type}}MutexId) UINT8_C({{mutexes.length}} - 1))
 {{#mutexes}}
-#define MUTEX_ID_{{name|u}} ((MutexId) UINT8_C({{idx}}))
+#define MUTEX_ID_{{name|u}} (({{prefix_type}}MutexId) UINT8_C({{idx}}))
 {{/mutexes}}
 
 /*| public_function_like_macros |*/
@@ -19,9 +19,9 @@ typedef uint8_t MutexId;
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-void {{prefix_func}}mutex_lock(MutexId);
-bool {{prefix_func}}mutex_try_lock(MutexId);
-void {{prefix_func}}mutex_unlock(MutexId);
+void {{prefix_func}}mutex_lock({{prefix_type}}MutexId);
+bool {{prefix_func}}mutex_try_lock({{prefix_type}}MutexId);
+void {{prefix_func}}mutex_unlock({{prefix_type}}MutexId);
 
 /*| headers |*/
 
@@ -29,7 +29,7 @@ void {{prefix_func}}mutex_unlock(MutexId);
 #define MUTEX_ID_NONE ((MutexIdOption) UINT8_MAX)
 
 /*| type_definitions |*/
-typedef MutexId MutexIdOption;
+typedef {{prefix_type}}MutexId MutexIdOption;
 
 /*| structure_definitions |*/
 
@@ -51,7 +51,7 @@ static MutexIdOption waiters[{{tasks.length}}];
 static void
 mutex_init(void)
 {
-    TaskId t;
+    {{prefix_type}}TaskId t;
 
     for (t = TASK_ID_ZERO; t <= TASK_ID_MAX; t++)
     {
@@ -61,7 +61,7 @@ mutex_init(void)
 
 /*| public_functions |*/
 void
-{{prefix_func}}mutex_lock(const MutexId m)
+{{prefix_func}}mutex_lock(const {{prefix_type}}MutexId m)
 {
     while (!{{prefix_func}}mutex_try_lock(m))
     {
@@ -71,9 +71,9 @@ void
 }
 
 void
-{{prefix_func}}mutex_unlock(const MutexId m)
+{{prefix_func}}mutex_unlock(const {{prefix_type}}MutexId m)
 {
-    TaskId t;
+    {{prefix_type}}TaskId t;
 
     for (t = TASK_ID_ZERO; t <= TASK_ID_MAX; t++)
     {
@@ -88,7 +88,7 @@ void
 }
 
 bool
-{{prefix_func}}mutex_try_lock(const MutexId m)
+{{prefix_func}}mutex_try_lock(const {{prefix_type}}MutexId m)
 {
     if (mutexes[m].holder != TASK_ID_NONE)
     {

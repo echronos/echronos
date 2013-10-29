@@ -11,7 +11,7 @@
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-void {{prefix_func}}irq_event_raise(IrqEventId);
+void {{prefix_func}}irq_event_raise({{prefix_type}}IrqEventId event);
 
 /*| headers |*/
 #include <stdint.h>
@@ -43,7 +43,7 @@ irq_event_process(void)
     uint32_t tmp = irq_event;
     while (tmp != 0)
     {
-        IrqEventId i = __builtin_ffs(tmp) - 1;
+        {{prefix_type}}IrqEventId i = __builtin_ffs(tmp) - 1;
         irq_event_bitband[i] = 0;
         handle_irq_event(i);
         tmp &= ~(1U << i);
@@ -70,7 +70,7 @@ irq_event_wait(void)
 
 /*| public_functions |*/
 void
-{{prefix_func}}irq_event_raise(IrqEventId irq_event_id)
+{{prefix_func}}irq_event_raise({{prefix_type}}IrqEventId irq_event_id)
 {
     irq_event_bitband[irq_event_id] = 1;
 }

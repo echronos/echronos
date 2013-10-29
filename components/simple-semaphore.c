@@ -4,13 +4,13 @@
 #include <stdint.h>
 
 /*| public_type_definitions |*/
-typedef uint8_t SemId;
+typedef uint8_t {{prefix_type}}SemId;
 
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
 {{#semaphores}}
-#define SEM_ID_{{name}} ((SemId) UINT8_C({{idx}}))
+#define SEM_ID_{{name}} (({{prefix_type}}SemId) UINT8_C({{idx}}))
 {{/semaphores}}
 
 /*| public_function_like_macros |*/
@@ -18,22 +18,22 @@ typedef uint8_t SemId;
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-void {{prefix_func}}sem_post(SemId);
-bool {{prefix_func}}sem_try_wait(SemId);
-void {{prefix_func}}sem_wait(SemId);
+void {{prefix_func}}sem_post({{prefix_type}}SemId);
+bool {{prefix_func}}sem_try_wait({{prefix_type}}SemId);
+void {{prefix_func}}sem_wait({{prefix_type}}SemId);
 
 /*| headers |*/
 
 /*| object_like_macros |*/
 #define SEM_ID_NONE ((SemIdOption) UINT8_MAX)
-#define SEM_ID_ZERO ((SemId) UINT8_C(0))
-#define SEM_ID_MAX ((SemId) UINT8_C({{semaphores.length}}))
+#define SEM_ID_ZERO (({{prefix_type}}SemId) UINT8_C(0))
+#define SEM_ID_MAX (({{prefix_type}}SemId) UINT8_C({{semaphores.length}}))
 #define SEM_VALUE_ZERO ((SemValue) UINT8_C(0))
 
 
 /*| type_definitions |*/
 typedef uint8_t SemValue;
-typedef SemId SemIdOption;
+typedef {{prefix_type}}SemId SemIdOption;
 
 /*| structure_definitions |*/
 
@@ -44,7 +44,7 @@ struct semaphore {
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static bool internal_sem_try_wait(const SemId s);
+static bool internal_sem_try_wait(const {{prefix_type}}SemId s);
 
 /*| state |*/
 static struct semaphore semaphores[{{semaphores.length}}];
@@ -56,7 +56,7 @@ static SemIdOption waiters[{{tasks.length}}];
 static void
 sem_init(void)
 {
-    TaskId t;
+    {{prefix_type}}TaskId t;
 
     for (t = TASK_ID_ZERO; t <= TASK_ID_MAX; t++)
     {
@@ -65,7 +65,7 @@ sem_init(void)
 }
 
 static bool
-internal_sem_try_wait(const SemId s)
+internal_sem_try_wait(const {{prefix_type}}SemId s)
 {
     /* Must be called with pre-emption disabled */
     if (semaphores[s].value == SEM_VALUE_ZERO)
@@ -81,7 +81,7 @@ internal_sem_try_wait(const SemId s)
 
 /*| public_functions |*/
 void
-{{prefix_func}}sem_wait(const SemId s)
+{{prefix_func}}sem_wait(const {{prefix_type}}SemId s)
 {
     preempt_disable();
 
@@ -95,9 +95,9 @@ void
 }
 
 void
-{{prefix_func}}sem_post(const SemId s)
+{{prefix_func}}sem_post(const {{prefix_type}}SemId s)
 {
-    TaskId t;
+    {{prefix_type}}TaskId t;
 
     preempt_disable();
 
@@ -119,7 +119,7 @@ void
 }
 
 bool
-{{prefix_func}}sem_try_wait(const SemId s)
+{{prefix_func}}sem_try_wait(const {{prefix_type}}SemId s)
 {
     bool r;
 

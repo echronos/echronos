@@ -2,14 +2,14 @@
 #include <stdint.h>
 
 /*| public_type_definitions |*/
-typedef uint{{taskid_size}}_t TaskId;
-typedef uint8_t ErrorId;
+typedef uint{{taskid_size}}_t {{prefix_type}}TaskId;
+typedef uint8_t {{prefix_type}}ErrorId;
 
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
 {{#tasks}}
-#define TASK_ID_{{name|u}} ((TaskId) UINT{{taskid_size}}_C({{idx}}))
+#define TASK_ID_{{name|u}} (({{prefix_type}}TaskId) UINT{{taskid_size}}_C({{idx}}))
 {{/tasks}}
 
 {{#irq_events}}
@@ -23,23 +23,23 @@ typedef uint8_t ErrorId;
 /*| public_function_definitions |*/
 void {{prefix_func}}start(void);
 void {{prefix_func}}yield(void);
-void {{prefix_func}}sleep(TicksRelative ticks);
-void {{prefix_func}}task_start(TaskId task);
-TaskId {{prefix_func}}task_current(void);
+void {{prefix_func}}sleep({{prefix_type}}TicksRelative ticks);
+void {{prefix_func}}task_start({{prefix_type}}TaskId task);
+{{prefix_type}}TaskId {{prefix_func}}task_current(void);
 
 /*| headers |*/
 #include <stdint.h>
 #include "rtos-rigel.h"
 
 /*| object_like_macros |*/
-#define TASK_ID_ZERO ((TaskId) UINT{{taskid_size}}_C(0))
+#define TASK_ID_ZERO (({{prefix_type}}TaskId) UINT{{taskid_size}}_C(0))
 #define TASK_ID_NONE ((TaskIdOption) UINT{{taskid_size}}_MAX)
 
-#define ERROR_ID_NONE ((ErrorId) UINT8_C(0))
-#define ERROR_ID_TICK_OVERFLOW ((ErrorId) UINT8_C(1))
+#define ERROR_ID_NONE (({{prefix_type}}ErrorId) UINT8_C(0))
+#define ERROR_ID_TICK_OVERFLOW (({{prefix_type}}ErrorId) UINT8_C(1))
 
 /*| type_definitions |*/
-typedef TaskId TaskIdOption;
+typedef {{prefix_type}}TaskId TaskIdOption;
 
 /*| structure_definitions |*/
 struct task
@@ -48,27 +48,27 @@ struct task
 };
 
 struct irq_event_handler {
-    TaskId task;
-    SignalSet sig_set;
+    {{prefix_type}}TaskId task;
+    {{prefix_type}}SignalSet sig_set;
 };
 
 /*| extern_definitions |*/
 {{#tasks}}
 extern void {{function}}(void);
 {{/tasks}}
-extern void {{fatal_error}}(ErrorId error_id);
+extern void {{fatal_error}}({{prefix_type}}ErrorId error_id);
 
 /*| function_definitions |*/
-static void _yield_to(TaskId to);
+static void _yield_to({{prefix_type}}TaskId to);
 static void _block(void);
-static void _unblock(TaskId task);
-static void handle_irq_event(IrqEventId irq_event_id);
+static void _unblock({{prefix_type}}TaskId task);
+static void handle_irq_event({{prefix_type}}IrqEventId irq_event_id);
 
 
 /*| state |*/
-static TaskId current_task;
+static {{prefix_type}}TaskId current_task;
 static struct task tasks[{{tasks.length}}];
-static TimerId task_timers[{{tasks.length}}] = {
+static {{prefix_type}}TimerId task_timers[{{tasks.length}}] = {
 {{#tasks}}
     TIMER_ID_{{timer.name|u}},
 {{/tasks}}
@@ -85,13 +85,13 @@ struct irq_event_handler irq_events[{{irq_events.length}}] = {
 #define preempt_enable()
 #define get_current_task() current_task
 #define get_task_context(task_id) &tasks[task_id].ctx
-#define irq_event_id_to_taskid(irq_event_id) ((TaskId)(irq_event_id))
+#define irq_event_id_to_taskid(irq_event_id) (({{prefix_type}}TaskId)(irq_event_id))
 
 /*| functions |*/
 static void
-_yield_to(TaskId to)
+_yield_to({{prefix_type}}TaskId to)
 {
-    TaskId from = get_current_task();
+    {{prefix_type}}TaskId from = get_current_task();
     current_task = to;
     context_switch(get_task_context(from), get_task_context(to));
 }
@@ -104,16 +104,16 @@ _block(void)
 }
 
 static void
-_unblock(TaskId task)
+_unblock({{prefix_type}}TaskId task)
 {
     sched_set_runnable(task);
 }
 
 static void
-handle_irq_event(IrqEventId irq_event_id)
+handle_irq_event({{prefix_type}}IrqEventId irq_event_id)
 {
-    TaskId task = irq_events[irq_event_id].task;
-    SignalSet sig_set = irq_events[irq_event_id].sig_set;
+    {{prefix_type}}TaskId task = irq_events[irq_event_id].task;
+    {{prefix_type}}SignalSet sig_set = irq_events[irq_event_id].sig_set;
 
     {{prefix_func}}signal_send_set(task, sig_set);
 }
@@ -129,14 +129,14 @@ void _task_entry_{{name}}(void)
 {{/tasks}}
 
 /*| public_functions |*/
-TaskId
+{{prefix_type}}TaskId
 {{prefix_func}}task_current(void)
 {
     return current_task;
 }
 
 void
-{{prefix_func}}task_start(TaskId task)
+{{prefix_func}}task_start({{prefix_type}}TaskId task)
 {
     {{prefix_func}}signal_send(task, SIGNAL_ID__RTOS_UTIL);
 }
@@ -144,12 +144,12 @@ void
 void
 {{prefix_func}}yield(void)
 {
-    TaskId to = irq_event_get_next();
+    {{prefix_type}}TaskId to = irq_event_get_next();
     _yield_to(to);
 }
 
 void
-{{prefix_func}}sleep(TicksRelative ticks)
+{{prefix_func}}sleep({{prefix_type}}TicksRelative ticks)
 {
     {{prefix_func}}timer_oneshot(task_timers[get_current_task()], ticks);
     {{prefix_func}}signal_wait(SIGNAL_ID__TASK_TIMER);

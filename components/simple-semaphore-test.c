@@ -1,7 +1,7 @@
 /*| public_headers |*/
 
 /*| public_type_definitions |*/
-typedef uint8_t TaskId;
+typedef uint8_t {{prefix_type}}TaskId;
 
 /*| public_structure_definitions |*/
 
@@ -32,8 +32,8 @@ typedef uint8_t TaskId;
 
 /*| state |*/
 static void (*block_ptr)(void);
-static void (*unblock_ptr)(TaskId);
-static TaskId (*get_current_task_ptr)(void);
+static void (*unblock_ptr)({{prefix_type}}TaskId);
+static {{prefix_type}}TaskId (*get_current_task_ptr)(void);
 
 /*| function_like_macros |*/
 #define preempt_enable()
@@ -50,7 +50,7 @@ _block(void)
 }
 
 static void
-_unblock(TaskId task_id)
+_unblock({{prefix_type}}TaskId task_id)
 {
     if (unblock_ptr != NULL)
     {
@@ -58,7 +58,7 @@ _unblock(TaskId task_id)
     }
 }
 
-static TaskId
+static {{prefix_type}}TaskId
 get_current_task(void)
 {
     if (get_current_task_ptr != NULL)
@@ -72,26 +72,26 @@ get_current_task(void)
 /*| public_functions |*/
 
 struct semaphore * pub_semaphores = semaphores;
-TaskId * pub_waiters = waiters;
+{{prefix_type}}TaskId * pub_waiters = waiters;
 
 void pub_set_block_ptr(void (*fn)(void))
 {
     block_ptr = fn;
 }
 
-void pub_set_unblock_ptr(void (*fn)(TaskId))
+void pub_set_unblock_ptr(void (*fn)({{prefix_type}}TaskId))
 {
     unblock_ptr = fn;
 }
 
-void pub_set_get_current_task_ptr(TaskId (*y)(void))
+void pub_set_get_current_task_ptr({{prefix_type}}TaskId (*y)(void))
 {
     get_current_task_ptr = y;
 }
 
 void pub_sem_init(void)
 {
-    SemId sem_id;
+    {{prefix_type}}SemId sem_id;
     sem_init();
     /* For testing purposes we also reset the value of all semaphores to zero */
     for (sem_id = SEM_ID_ZERO; sem_id <= SEM_ID_MAX; sem_id++)

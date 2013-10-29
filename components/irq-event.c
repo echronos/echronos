@@ -2,13 +2,13 @@
 #include <stdint.h>
 
 /*| public_type_definitions |*/
-typedef uint{{irqeventid_size}}_t IrqEventId;
+typedef uint{{irqeventid_size}}_t {{prefix_type}}IrqEventId;
 
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
 {{#irq_events}}
-#define IRQ_EVENT_ID_{{name|u}} ((IrqEventId) UINT{{irqeventid_size}}_C({{idx}}))
+#define IRQ_EVENT_ID_{{name|u}} (({{prefix_type}}IrqEventId) UINT{{irqeventid_size}}_C({{idx}}))
 {{/irq_events}}
 
 /*| public_function_like_macros |*/
@@ -28,14 +28,14 @@ typedef uint{{irqeventid_size}}_t IrqEventId;
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static TaskId irq_event_get_next(void);
+static {{prefix_type}}TaskId irq_event_get_next(void);
 
 /*| state |*/
 
 /*| function_like_macros |*/
 
 /*| functions |*/
-static TaskId
+static {{prefix_type}}TaskId
 irq_event_get_next(void)
 {
     TaskIdOption next;

@@ -7,8 +7,8 @@ class RigelModule(Module):
    <entry name="signalset_size" type="int" default="8"/>
    <entry name="prefix" type="ident" optional="true" />
    <entry name="fatal_error" type="c_ident" />
-   <entry name="signals" type="list" auto_index_field="idx">
-     <entry name="signal" type="dict">
+   <entry name="signal_labels" type="list" auto_index_field="idx">
+     <entry name="signal_label" type="dict">
        <entry name="name" type="ident" />
      </entry>
    </entry>
@@ -67,8 +67,8 @@ class RigelModule(Module):
         config['taskid_size'] = 8
 
         # Create builtin signals
-        timer_signal = {'name': '_task_timer', 'idx': len(config['signals'])}
-        config['signals'].append(timer_signal)
+        timer_signal = {'name': '_task_timer', 'idx': len(config['signal_labels'])}
+        config['signal_labels'].append(timer_signal)
 
         # The RTOS utility signal is used in the following conditions:
         #   1. To start the task.
@@ -78,12 +78,12 @@ class RigelModule(Module):
         # The same signal is re-used to avoid excessive allocation of signals.
         # This is safe as a task can not be simultanesouly waiting to start,
         # waiting for a mutex, and waiting on a message queue.
-        start_signal = {'name': '_rtos_util', 'idx': len(config['signals'])}
-        config['signals'].append(start_signal)
+        start_signal = {'name': '_rtos_util', 'idx': len(config['signal_labels'])}
+        config['signal_labels'].append(start_signal)
 
         # Create signal_set definitions from signal definitions:
         config['signal_sets'] = [{'name': sig['name'], 'value': 1 << sig['idx'], 'singleton': True}
-                                 for sig in config['signals']]
+                                 for sig in config['signal_labels']]
 
         # Create a timer for each task
         for task in config['tasks']:

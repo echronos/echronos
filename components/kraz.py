@@ -7,8 +7,8 @@ class KrazModule(Module):
    <entry name="taskid_size" type="int" default="8"/>
    <entry name="signalset_size" type="int" default="8"/>
    <entry name="prefix" type="ident" optional="true" />
-   <entry name="signals" type="list" auto_index_field="idx">
-     <entry name="signal" type="dict">
+   <entry name="signal_labels" type="list" auto_index_field="idx">
+     <entry name="signal_label" type="dict">
        <entry name="name" type="ident" />
      </entry>
    </entry>
@@ -36,7 +36,7 @@ class KrazModule(Module):
 
         # Create signal_set definitions from signal definitions:
         config['signal_sets'] = [{'name': sig['name'], 'value': 1 << sig['idx'], 'singleton': True}
-                                 for sig in config['signals']]
+                                 for sig in config['signal_labels']]
 
         config['prefix_func'] = config['prefix'] + '_' if config['prefix'] is not None else ''
         config['prefix_type'] = config['prefix'].capitalize() if config['prefix'] is not None else ''

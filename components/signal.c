@@ -104,7 +104,7 @@ SignalSet
 }
 
 SignalSet
-{{prefix}}signal_poll_set(SignalSet requested_signals)
+{{prefix}}signal_poll_set(const SignalSet requested_signals)
 {
     SignalSet *const pending_signals = &PENDING_SIGNALS(get_current_task());
     SignalSet received_signals;
@@ -119,7 +119,7 @@ SignalSet
 }
 
 SignalSet
-{{prefix}}signal_peek_set(SignalSet requested_signals)
+{{prefix}}signal_peek_set(const SignalSet requested_signals)
 {
     return _signal_peek(PENDING_SIGNALS(get_current_task()), requested_signals);
 }

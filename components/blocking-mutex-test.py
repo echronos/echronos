@@ -4,7 +4,7 @@ from prj import Module
 class BlockingMutexTestModule(Module):
     xml_schema = """
   <schema>
-   <entry name="prefix" type="c_ident" default="rtos_" />
+   <entry name="prefix" type="ident" optional="true" />
    <entry name="mutexes" type="list" auto_index_field="idx">
      <entry name="mutex" type="dict">
       <entry name="name" type="ident" />

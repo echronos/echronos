@@ -6,7 +6,7 @@ class KrazModule(Module):
   <schema>
    <entry name="taskid_size" type="int" default="8"/>
    <entry name="signalset_size" type="int" default="8"/>
-   <entry name="prefix" type="c_ident" default="rtos_" />
+   <entry name="prefix" type="ident" optional="true" />
    <entry name="signals" type="list" auto_index_field="idx">
      <entry name="signal" type="dict">
        <entry name="name" type="ident" />

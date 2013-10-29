@@ -5,7 +5,7 @@ class RigelModule(Module):
     xml_schema = """
   <schema>
    <entry name="signalset_size" type="int" default="8"/>
-   <entry name="prefix" type="c_ident" default="rtos_" />
+   <entry name="prefix" type="ident" optional="true" />
    <entry name="fatal_error" type="c_ident" />
    <entry name="signals" type="list" auto_index_field="idx">
      <entry name="signal" type="dict">

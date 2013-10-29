@@ -5,7 +5,7 @@ Task name: jDXLSO-simply-signals
 Version reviewed: ef4733e58ceca50d71e92b213daf1a5280eeb65d
 Reviewer: joseph
 Date: 2013-10-29
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
@@ -13,8 +13,11 @@ Overall comments:
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: signal.c:83
+Comment: This should be SignalSet
 
-Location: filename:linenum
-Comment:
+Location: signal.c:16
+Comment: I think this should be SignalSet (given we want to remove SignalId and there are no uses of it within the api)
+
+Location: signal.c:7
+Comment: The intention was to get rid of this, no?

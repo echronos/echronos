@@ -14,7 +14,7 @@ class RigelModule(Module):
    </entry>
    <entry name="tasks" type="list" auto_index_field="idx">
      <entry name="task" type="dict">
-      <entry name="entry" type="c_ident" />
+      <entry name="function" type="c_ident" />
       <entry name="name" type="ident" />
       <entry name="start" type="bool" default="false" />
       <entry name="stack_size" type="int" />

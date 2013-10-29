@@ -15,13 +15,13 @@
       <taskid_size>8</taskid_size>
       <signalset_size>8</signalset_size>
 
-      <signals>
+      <signal_labels>
 
-        <signal>
+        <signal_label>
           <name>test</name>
-        </signal>
+        </signal_label>
 
-      </signals>
+      </signal_labels>
 
       <tasks>
 

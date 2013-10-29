@@ -17,17 +17,17 @@
       <signalset_size>8</signalset_size>
       <fatal_error>fatal</fatal_error>
 
-      <signals>
+      <signal_labels>
 
-        <signal>
+        <signal_label>
           <name>test</name>
-        </signal>
+        </signal_label>
 
-        <signal>
+        <signal_label>
           <name>timer</name>
-        </signal>
+        </signal_label>
 
-      </signals>
+      </signal_labels>
 
       <tasks>
 

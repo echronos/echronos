@@ -389,7 +389,7 @@ def ensure_only_whitespace_text_children(el):
         raise SystemParseError(xml_error_str(el, "Expected only non-whitespace children."))
 
 
-def element_children(el, ensure_unique=False, ensure_named=None, only_whitespace_text=False):
+def element_children(el, ensure_unique=False, ensure_named=None, matching=None, only_whitespace_text=False):
     """Return all element chidren.
 
     If `ensure_unique` is True, then a SystemParseError will be raised if the any of the child
@@ -403,6 +403,8 @@ def element_children(el, ensure_unique=False, ensure_named=None, only_whitespace
 
     """
     children = [c for c in el.childNodes if c.nodeType == c.ELEMENT_NODE]
+    if matching is not None:
+        children = [c for c in children if c.tagName == matching]
     if ensure_unique:
         ensure_unique_tag_names(children)
     if ensure_named:

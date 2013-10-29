@@ -1,0 +1,9 @@
+Task: o5WZRK-profiling-basics-and-task-uptime
+==============================================================================
+
+Goals
+--------
+
+Customer requirements call for the RTOS to provide profiling information about certain run-time system state.
+The main specific data point of interest is the relative execution duration of each task over a certain time.
+The goal of this branch is to add a very basic API for profiling functionality and to record data on task execution duration.

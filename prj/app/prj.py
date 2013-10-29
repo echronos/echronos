@@ -599,6 +599,9 @@ def check_ident(s):
     The first character should be a lower-case ascii. [a-z]
 
     """
+    if len(s) == 0:
+        raise ValueError("Ident string must not be empty.")
+
     if s[0] not in string.ascii_lowercase:
         raise ValueError("First character of an indent must be a lower-case ascii character.")
 

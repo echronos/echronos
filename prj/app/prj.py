@@ -503,6 +503,14 @@ def check_schema_is_valid(schema, key_path=None):
     if schema['type'] not in valid_schema_types:
         error("type '{}' is invalid.".format(schema['type']))
 
+    if 'default' in schema and schema['default'] is not None:
+        if schema['type'] == 'ident':
+            default = schema['default']
+            try:
+                check_ident(default)
+            except ValueError as e:
+                error("default value has a bad type ({})".format(e))
+
     if schema['type'] == 'dict':
         if not dict_has_keys(schema, 'dict_type'):
             error("when type is 'dict' except 'dict_type' to be defined.")

@@ -11,7 +11,7 @@
     </module>
 
     <module name="armv7m.rtos-acamar">
-      <prefix>rtos_</prefix>
+      <prefix>rtos</prefix>
       <taskid_size>8</taskid_size>
       <tasks>
 

@@ -13,7 +13,7 @@
     </module>
 
     <module name="armv7m.rtos-acrux">
-      <prefix>rtos_</prefix>
+      <prefix>rtos</prefix>
       <taskid_size>8</taskid_size>
       <tasks>
 

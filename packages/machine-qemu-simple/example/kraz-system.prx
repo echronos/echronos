@@ -11,7 +11,7 @@
     </module>
 
     <module name="armv7m.rtos-kraz">
-      <prefix>rtos_</prefix>
+      <prefix>rtos</prefix>
       <taskid_size>8</taskid_size>
       <signalset_size>8</signalset_size>
 

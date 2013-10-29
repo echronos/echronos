@@ -7,7 +7,7 @@
     </module>
 
     <module name="posix.rtos-simple-semaphore-test">
-
+      <prefix>rtos</prefix>
       <tasks>
         <task><name>t0</name></task>
         <task><name>t1</name></task>

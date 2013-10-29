@@ -22,7 +22,7 @@
     </module>
 
     <module name="armv7m.rtos-acamar">
-      <prefix>rtos_</prefix>
+      <prefix>rtos</prefix>
       <tasks>
 
         <task>

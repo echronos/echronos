@@ -6,7 +6,7 @@
       <systick>tick_irq</systick>
     </module>
     <module name="armv7m.rtos-rigel">
-      <prefix>rtos_</prefix>
+      <prefix>rtos</prefix>
       <signalset_size>8</signalset_size>
       <fatal_error>fatal</fatal_error>
       <tasks>

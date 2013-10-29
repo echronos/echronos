@@ -10,7 +10,7 @@
     </module>
 
     <module name="posix.rtos-acamar">
-      <prefix>rtos_</prefix>
+      <prefix>rtos</prefix>
       <taskid_size>8</taskid_size>
       <tasks>
 

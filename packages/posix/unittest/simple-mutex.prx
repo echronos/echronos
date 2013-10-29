@@ -7,6 +7,7 @@
     </module>
 
     <module name="posix.rtos-simple-mutex-test">
+      <prefix>rtos</prefix>
       <mutexes>
         <mutex><name>m1</name></mutex>
         <mutex><name>m2</name></mutex>

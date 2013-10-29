@@ -1,0 +1,17 @@
+Task: 3ETmyN-fix-timer-decl-error
+==============================================================================
+
+Goals
+--------
+Fix cut/paste error in components/timer.c:
+
+   11 /*| public_object_like_macros |*/
+   12 #define TIMER_ID_C(x) ((TimerId) UINT8_C(x))
+   13 {{#timers}}
+   14 #define TIMER_ID_{{name|u}} SIGNAL_ID_C({{idx}})
+   15 {{/timers}}
+   16
+
+Scope change:
+
+In fact, there is no TASK_ID_C, SIGNAL_ID_C, only some rtos variants have task_id macros, certain "xxx_NONE" types don't use xxxOption types, and many files don't have header files that match the types used in the body of the file. All these things can be made consistent.

@@ -53,6 +53,11 @@ irq_event_get_next(void)
         next = sched_get_next();
         if (next == TASK_ID_NONE)
         {
+            /* IMPROVE: reference to external 'current_task'; may require refactoring.
+             * For example, the system falling idle could be treated as an event that can be hooked into.
+             * Alternatively, this whole loop could be externalized and hooked into by components. */
+            current_task = TASK_ID_NONE;
+
             irq_event_wait();
         }
         else

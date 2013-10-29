@@ -2378,6 +2378,7 @@ CORE_SKELETONS = {
          ArchitectureComponent('irq_event_arch', 'irq-event'),
          Component('irq_event', 'irq-event', {'timer_process': True}),
          Component('mutex', 'simple-mutex'),
+         Component('profiling'),
          Component('rigel')],
     ),
 }

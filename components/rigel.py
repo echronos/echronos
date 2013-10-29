@@ -50,6 +50,9 @@ class RigelModule(Module):
       <entry name="sig_set" type="ident" optional="true" />
      </entry>
    </entry>
+   <entry name="profiling" type="dict" optional="true">
+    <entry name="task_uptime" type="bool" optional="true" default="true"/>
+   </entry>
   </schema>
 """
     files = [

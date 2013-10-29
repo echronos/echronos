@@ -8,8 +8,8 @@ typedef uint8_t {{prefix_type}}ErrorId;
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
-#define {{prefix_const}}TASK_ID_ZERO (({{prefix_type}}TaskId) 0)
-#define {{prefix_const}}TASK_ID_MAX (({{prefix_type}}TaskId)({{tasks.length}} - 1))
+#define {{prefix_const}}TASK_ID_ZERO (({{prefix_type}}TaskId) UINT{{taskid_size}}_C(0))
+#define {{prefix_const}}TASK_ID_MAX (({{prefix_type}}TaskId)UINT{{taskid_size}}_C({{tasks.length}} - 1))
 {{#tasks}}
 #define {{prefix_const}}TASK_ID_{{name|u}} (({{prefix_type}}TaskId) UINT{{taskid_size}}_C({{idx}}))
 {{/tasks}}

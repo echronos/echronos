@@ -12,7 +12,7 @@ Conclusion: Rework
 Specific comments
 =================
 
-Location: 
+Location:
 
 ./components/acamar.c:11:
 ./components/acrux.c:11:
@@ -26,3 +26,5 @@ Location:
 ./components/simple-semaphore-test.c:10:
 
 Comment: missing UINT8_C() around the constant value
+
+[[(benno): Fixed.]]

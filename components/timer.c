@@ -13,10 +13,6 @@ typedef uint16_t TicksRelative;
 #define TIMER_ID_{{name|u}} ((TimerId) UINT8_C({{idx}}))
 {{/timers}}
 
-{{#irq_events}}
-#define SIGNAL_SET_TIMER_{{name|u}} ((SignalSet) UINT{{signalset_size}}_C({{sig_set}}))
-{{/irq_events}}
-
 /*| public_function_like_macros |*/
 
 /*| public_extern_definitions |*/

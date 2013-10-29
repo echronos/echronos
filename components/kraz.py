@@ -39,6 +39,7 @@ class KrazModule(Module):
                                  for sig in config['signals']]
 
         config['prefix_func'] = config['prefix'] + '_' if config['prefix'] is not None else ''
+        config['prefix_type'] = config['prefix'].capitalize() if config['prefix'] is not None else ''
 
         return config
 

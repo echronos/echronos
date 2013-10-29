@@ -29,6 +29,7 @@ class GatriaModule(Module):
         config = super().configure(xml_config)
 
         config['prefix_func'] = config['prefix'] + '_' if config['prefix'] is not None else ''
+        config['prefix_type'] = config['prefix'].capitalize() if config['prefix'] is not None else ''
 
         return config
 

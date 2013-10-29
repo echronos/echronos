@@ -474,6 +474,20 @@ def dict_has_keys(d, *keys):
 
 valid_schema_types = ['dict', 'list', 'string', 'bool', 'int', 'c_ident', 'ident', 'object']
 
+valid_constraint_types = ['one_of']
+
+
+def check_constraint_is_valid(constraint):
+    """Raise SchemaInvalid exception is the constraint is not valid.
+
+
+    """
+    if not dict_has_keys(constraint, 'type', 'elements'):
+        raise SchemaInvalid("Constraint should have type and elements keys.")
+
+    if constraint['type'] not in valid_constraint_types:
+        raise SchemaInvalid("Constraint type {} is not valid.".format(constraint['type']))
+
 
 def check_schema_is_valid(schema, key_path=None):
     """Raise SchemaInvalid exception if the schema is not valid.
@@ -516,10 +530,13 @@ def check_schema_is_valid(schema, key_path=None):
     if schema['type'] == 'dict':
         if not dict_has_keys(schema, 'dict_type'):
             error("when type is 'dict' except 'dict_type' to be defined.")
-        if not isinstance(schema['dict_type'], collections.Sequence):
-            error("'dict_type' should be a sequence")
-        for each in schema['dict_type']:
+        if not isinstance(schema['dict_type'], tuple):
+            error("'dict_type' should be a tuple")
+        dict_schemas, constraints = schema['dict_type']
+        for each in dict_schemas:
             check_schema_is_valid(each, key_path + [schema['name']])
+        for each in constraints:
+            check_constraint_is_valid(each)
 
     if schema['type'] == 'list':
         if not dict_has_keys(schema, 'list_type'):
@@ -555,6 +572,18 @@ def xml2schema(el):
     If the `type` is dict, there should be more one or more sub-element describing the valid dictionary entries.
 
     """
+    def read_constraint(el):
+        constraint = {
+            'type': get_attribute(el, 'type'),
+            'elements': list(map(single_text_child,
+                                 element_children(el, matching='entry', only_whitespace_text=True)))
+        }
+        if constraint['type'] not in valid_constraint_types:
+            err_str = xml_error_str(el, "Invalid constraant type '{}'".format(constraint['type']))
+            raise SystemParseError(err_str)
+
+        return constraint
+
     def read_entry(el):
         entry = {
             'name': get_attribute(el, 'name'),
@@ -583,7 +612,11 @@ def xml2schema(el):
         return entry
 
     def read_dict_schema(el):
-        return list(map(read_entry, element_children(el, ensure_named='entry', only_whitespace_text=True)))
+        ensure_all_children_named(el, 'entry', 'constraint')
+        fields = list(map(read_entry, element_children(el, matching='entry', only_whitespace_text=True)))
+        constraint_els = element_children(el, matching='constraint', only_whitespace_text=True)
+        constraints = list(map(read_constraint, constraint_els))
+        return (fields, constraints)
 
     return {
         'name': 'module',
@@ -664,7 +697,9 @@ def xml2dict(el, schema=None):
       name: the name of the tag.
       type: describes the type: ['int', 'string', 'c_defn', 'dict', 'list']
       default: default value (not used for 'dict' or 'list').
-      dict_type: a dict of schema object (index by name) which describes the form of the dictionary.
+      dict_type: a tuple containing -
+          1: A list of of schema objects which describes the form of the dictionary.
+          2: A tuple containing constraints
       list_type: a single schema object which describes the form of list elements.
 
     """
@@ -690,7 +725,11 @@ def xml2dict(el, schema=None):
                 raise SystemParseError(xml_error_str(val.el, "Can't find object named '{}'".format(val.name)))
             util.util.config_set(dct, key, real_val)
 
-    def get_dict_val(el, schema):
+    def get_dict_val(el, dict_type):
+        if dict_type is not None:
+            schema, constraints = dict_type
+        else:
+            schema, constraints = None, []
         children = element_children(el, ensure_unique=True)
         if not schema:
             return {c.tagName: get_el_val(c, None, el) for c in children}
@@ -706,6 +745,14 @@ def xml2dict(el, schema=None):
         if len(els):
             fst = next(iter(els.values()))
             raise SystemParseError(xml_error_str(fst, "Unexpected configuration entry '{}'".format(fst.tagName)))
+
+        # Check constraints
+        for constraint in constraints:
+            if constraint['type'] == 'one_of':
+                msg = "Expected exactly one of the following elements: {}"
+                err_str = xml_error_str(el, msg.format(constraint['elements']))
+                if len([True for elem in constraint['elements'] if r[elem] is None]) != 1:
+                    raise SystemParseError(err_str)
 
         return r
 

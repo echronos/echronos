@@ -20,19 +20,19 @@ def test_schema_is_valid():
     good = {
         'type': 'dict',
         'name': 'module',
-        'dict_type':
-        [
-            {'type': 'string', 'name': 'target', 'default': ''}
-        ]
+        'dict_type': (
+            [{'type': 'string', 'name': 'target', 'default': ''}],
+            []
+        )
     }
     check_schema_is_valid(good)
 
     no_name = {
         'type': 'dict',
-        'dict_type':
-        [
-            {'type': 'string', 'name': 'target', 'default': ''}
-        ]
+        'dict_type': (
+            [{'type': 'string', 'name': 'target', 'default': ''}],
+            []
+        )
     }
     assert_raises(SchemaInvalid, check_schema_is_valid, no_name)
 
@@ -49,10 +49,10 @@ def test_schema_is_valid():
     invalid_nested = {
         'type': 'dict',
         'name': 'module',
-        'dict_type':
-        [
-            {'name': 'target', 'default': ''}
-        ]
+        'dict_type': (
+            [{'name': 'target', 'default': ''}],
+            []
+        )
     }
     assert_raises(SchemaInvalid, check_schema_is_valid, invalid_nested)
 
@@ -123,8 +123,8 @@ def test_schema_default_none():
     schema = {
         'type': 'dict',
         'name': 'foo',
-        'dict_type': [{'type': 'string',
-                       'name': 'foo'}]
+        'dict_type': ([{'type': 'string',
+                       'name': 'foo'}], [])
     }
     with assert_raises(SystemParseError):
         xml2dict(xml_parse_string(test_xml), schema)
@@ -134,9 +134,9 @@ def test_schema_default_value():
     schema = {
         'type': 'dict',
         'name': 'foo',
-        'dict_type': [{'type': 'string',
+        'dict_type': ([{'type': 'string',
                        'name': 'bar',
-                       'default': 'FOO'}]
+                       'default': 'FOO'}], [])
     }
     assert xml2dict(xml_parse_string("<foo></foo>"), schema) == {'bar': 'FOO'}
     assert xml2dict(xml_parse_string("<foo><bar>BAZ</bar></foo>"), schema) == {'bar': 'BAZ'}
@@ -156,7 +156,7 @@ def test_xml2dict_autoindex():
         'auto_index_field': 'idx',
         'list_type': {'type': 'dict',
                       'name': 'x',
-                      'dict_type': [{'name': 'name', 'type': 'string'}]}
+                      'dict_type': ([{'name': 'name', 'type': 'string'}], [])}
     }
     x = xml2dict(xml_parse_string(test_xml), schema)
 
@@ -185,8 +185,7 @@ def test_xml2dict_optional():
     schema = {
         'type': 'dict',
         'name': 'x',
-        'dict_type': [{'type': 'bool',
-                       'name': 'b'}]
+        'dict_type': ([{'type': 'bool', 'name': 'b'}], [])
     }
 
     test_xml = "<x><b>true</b></x>"
@@ -198,7 +197,7 @@ def test_xml2dict_optional():
         x = xml2dict(xml_parse_string(test_xml), schema)
 
     # Make the child element optional instead.
-    schema['dict_type'][0]['optional'] = True
+    schema['dict_type'][0][0]['optional'] = True
     x = xml2dict(xml_parse_string(test_xml), schema)
     assert x['b'] is None
 
@@ -216,17 +215,19 @@ def test_xml2dict_object():
     schema = {
         'type': 'dict',
         'name': 'foo',
-        'dict_type': [{'type': 'list',
-                       'name': 'bars',
-                       'list_type': {'type': 'dict',
-                                     'name': 'bar',
-                                     'dict_type': [{'name': 'name', 'type': 'string'}]}},
-                      {'type': 'list',
-                       'name': 'bazs',
-                       'list_type': {'type': 'dict',
-                                     'name': 'baz',
-                                     'dict_type': [{'name': 'name', 'type': 'string'},
-                                                   {'name': 'bar', 'type': 'object', 'object_group': 'bars'}]}}]
+        'dict_type': (
+            [{'type': 'list',
+              'name': 'bars',
+              'list_type': {'type': 'dict',
+                            'name': 'bar',
+                            'dict_type': ([{'name': 'name', 'type': 'string'}], [])}},
+             {'type': 'list',
+              'name': 'bazs',
+              'list_type': {'type': 'dict',
+                            'name': 'baz',
+                            'dict_type': ([{'name': 'name', 'type': 'string'},
+                                           {'name': 'bar', 'type': 'object', 'object_group': 'bars'}], [])}}],
+            [])
     }
     test_xml = """<foo>
 <bars>

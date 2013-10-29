@@ -28,7 +28,7 @@ tick_irq(void)
 }
 
 void
-fatal(ErrorId error_id)
+fatal(RtosErrorId error_id)
 {
     debug_print("FATAL ERROR: ");
     debug_printhex32(error_id);

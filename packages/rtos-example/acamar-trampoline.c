@@ -25,7 +25,7 @@
 
 extern void debug_println(const char *msg);
 
-static TaskId yield_next;
+static RtosTaskId yield_next;
 static uint8_t ticks;
 
 extern volatile uint8_t exception_preempt_disabled;
@@ -34,7 +34,7 @@ extern volatile uint8_t exception_preempt_pending;
 void
 special_yield(void)
 {
-    TaskId x = yield_next;
+    RtosTaskId x = yield_next;
 
     exception_preempt_disabled = 1;
 

@@ -26,11 +26,47 @@
 
       </tasks>
 
+      <signal_labels>
+
+        <signal_label>
+          <name>test</name>
+          <global>true</global>
+        </signal_label>
+
+        <signal_label>
+          <name>timer</name>
+          <tasks>
+            <task>a</task>
+            <task>b</task>
+          </tasks>
+        </signal_label>
+
+      </signal_labels>
+
+      <timers>
+
+        <timer>
+          <name>test</name>
+          <enabled>true</enabled>
+          <reload>10</reload>
+          <task>a</task>
+          <sig_set>timer</sig_set>
+        </timer>
+
+        <timer>
+          <name>supervisor</name>
+          <enabled>false</enabled>
+          <reload>10</reload>
+          <error>2</error>
+        </timer>
+
+      </timers>
+
       <irq_events>
         <irq_event>
           <name>tick</name>
           <task>a</task>
-          <sig_set>1</sig_set>
+          <sig_set>test</sig_set>
         </irq_event>
       </irq_events>
 

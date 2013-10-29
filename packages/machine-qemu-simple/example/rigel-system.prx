@@ -17,17 +17,6 @@
       <signalset_size>8</signalset_size>
       <fatal_error>fatal</fatal_error>
 
-      <signal_labels>
-
-        <signal_label>
-          <name>test</name>
-        </signal_label>
-
-        <signal_label>
-          <name>timer</name>
-        </signal_label>
-
-      </signal_labels>
 
       <tasks>
 
@@ -46,6 +35,24 @@
 
       </tasks>
 
+
+      <signal_labels>
+
+        <signal_label>
+          <name>test</name>
+          <global>true</global>
+        </signal_label>
+
+        <signal_label>
+          <name>timer</name>
+          <tasks>
+            <task>a</task>
+            <task>b</task>
+          </tasks>
+        </signal_label>
+
+      </signal_labels>
+
       <timers>
 
         <timer>
@@ -53,7 +60,7 @@
           <enabled>true</enabled>
           <reload>10</reload>
           <task>a</task>
-          <sig_set>2</sig_set>
+          <sig_set>timer</sig_set>
         </timer>
 
         <timer>
@@ -69,7 +76,7 @@
         <irq_event>
           <name>tick</name>
           <task>a</task>
-          <sig_set>1</sig_set>
+          <sig_set>test</sig_set>
         </irq_event>
       </irq_events>
 

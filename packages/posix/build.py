@@ -4,10 +4,7 @@ from prj import execute, SystemBuildError
 schema = {
     'type': 'dict',
     'name': 'module',
-    'dict_type':
-    [
-        {'type': 'string', 'name': 'output_type', 'default': 'executable'},
-    ]
+    'dict_type': ([{'type': 'string', 'name': 'output_type', 'default': 'executable'}], [])
 }
 
 

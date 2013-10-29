@@ -52,6 +52,8 @@ class RigelModule(Module):
     def configure(self, xml_config):
         config = super().configure(xml_config)
 
+        config['prefix_func'] = config['prefix'] + '_' if config['prefix'] is not None else ''
+
         # Ensure that at least one task is runnable.
         if not any(task['start'] for task in config['tasks']):
             raise SystemParseError("At least one task must be configured to start.")

@@ -22,4 +22,11 @@ class SimpleMutexTestModule(Module):
         {'input': 'rtos-simple-mutex-test.c', 'render': True, 'type': 'c'},
     ]
 
+    def configure(self, xml_config):
+        config = super().configure(xml_config)
+
+        config['prefix_func'] = config['prefix'] + '_' if config['prefix'] is not None else ''
+
+        return config
+
 module = SimpleMutexTestModule()

@@ -38,6 +38,8 @@ class KrazModule(Module):
         config['signal_sets'] = [{'name': sig['name'], 'value': 1 << sig['idx'], 'singleton': True}
                                  for sig in config['signals']]
 
+        config['prefix_func'] = config['prefix'] + '_' if config['prefix'] is not None else ''
+
         return config
 
 module = KrazModule()

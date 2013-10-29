@@ -40,6 +40,7 @@ class KrazModule(Module):
 
         config['prefix_func'] = config['prefix'] + '_' if config['prefix'] is not None else ''
         config['prefix_type'] = config['prefix'].capitalize() if config['prefix'] is not None else ''
+        config['prefix_const'] = config['prefix'].upper() + '_' if config['prefix'] is not None else ''
 
         return config
 

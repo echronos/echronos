@@ -54,6 +54,7 @@ class RigelModule(Module):
 
         config['prefix_func'] = config['prefix'] + '_' if config['prefix'] is not None else ''
         config['prefix_type'] = config['prefix'].capitalize() if config['prefix'] is not None else ''
+        config['prefix_const'] = config['prefix'].upper() + '_' if config['prefix'] is not None else ''
 
         # Ensure that at least one task is runnable.
         if not any(task['start'] for task in config['tasks']):

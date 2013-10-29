@@ -38,7 +38,7 @@ struct task
 
 /*| extern_definitions |*/
 {{#tasks}}
-extern void {{entry}}(void);
+extern void {{function}}(void);
 {{/tasks}}
 
 /*| function_definitions |*/
@@ -68,7 +68,7 @@ void
 {{prefix}}start(void)
 {
     {{#tasks}}
-    context_init(get_task_context({{idx}}), {{entry}}, stack_{{idx}}, {{stack_size}});
+    context_init(get_task_context({{idx}}), {{function}}, stack_{{idx}}, {{stack_size}});
     {{/tasks}}
 
     context_switch_first(get_task_context(TASK_ID_ZERO));

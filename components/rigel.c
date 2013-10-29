@@ -54,7 +54,7 @@ struct irq_event_handler {
 
 /*| extern_definitions |*/
 {{#tasks}}
-extern void {{entry}}(void);
+extern void {{function}}(void);
 {{/tasks}}
 extern void {{fatal_error}}(ErrorId error_id);
 
@@ -123,7 +123,7 @@ handle_irq_event(IrqEventId irq_event_id)
 void _task_entry_{{name}}(void)
 {
     {{^start}}{{prefix}}signal_wait(SIGNAL_ID__RTOS_UTIL);{{/start}}
-    {{entry}}();
+    {{function}}();
 }
 
 {{/tasks}}

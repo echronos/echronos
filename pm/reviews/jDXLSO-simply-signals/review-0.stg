@@ -20,7 +20,11 @@ Comment: Accepted
 The configure() functions contain duplicated code.
 Recommend to move code to, e.g., components/signal.py and re-use from there.
 
+[[(benno): Agree, but the machinery to do this doesn't exist yet and would require more overall platform improvements.]]
+
 Location: components/signal.c
 Comment: Accepted
 The parameters of signal_poll_set() and signal_peek_set() are not marked as constant although they could be.
 Recommend to declare them as constant for improved const correctness.
+
+[[(benno): Fixed.]]

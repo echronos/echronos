@@ -46,6 +46,15 @@ fn_a(void)
 
     rtos_task_start(TASK_ID_B);
 
+    if (rtos_task_current() != TASK_ID_A)
+    {
+        debug_println("task a: wrong task??");
+        for (;;)
+        {
+        }
+    }
+
+
     debug_println("task a: taking lock");
     rtos_mutex_lock(MUTEX_ID_TEST);
     rtos_yield();

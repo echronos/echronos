@@ -25,6 +25,7 @@ void {{prefix}}start(void);
 void {{prefix}}yield(void);
 void {{prefix}}sleep(TicksRelative ticks);
 void {{prefix}}task_start(TaskId task);
+TaskId {{prefix}}task_current(void);
 
 /*| headers |*/
 #include "rtos-rigel.h"
@@ -127,6 +128,12 @@ void _task_entry_{{name}}(void)
 {{/tasks}}
 
 /*| public_functions |*/
+TaskId
+{{prefix}}task_current(void)
+{
+    return current_task;
+}
+
 void
 {{prefix}}task_start(TaskId task)
 {

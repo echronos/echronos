@@ -1,0 +1,8 @@
+Task: DAuHQ1-current-task
+==============================================================================
+
+Goals
+--------
+
+Add an API 'task_current' that returns the current task.
+The use-case is that library code may be caled by multiple tasks, and may wish to set up per-task data structures.

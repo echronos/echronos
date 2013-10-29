@@ -326,6 +326,11 @@ def test_ensure_all_children_named_success():
     ensure_all_children_named(xml_parse_string(xml), 'bar')
 
 
+def test_ensure_all_children_named_multiple_success():
+    xml = "<foo><bar /><bar /><bar /><baz /></foo>"
+    ensure_all_children_named(xml_parse_string(xml), 'bar', 'baz')
+
+
 @raises(SystemParseError)
 def test_ensure_all_children_named_error():
     xml = "<foo><bar /><baz /><bar /></foo>"

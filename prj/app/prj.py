@@ -413,10 +413,10 @@ def element_children(el, ensure_unique=False, ensure_named=None, only_whitespace
     return children
 
 
-def ensure_all_children_named(el, name):
-    """Raise an exception if any of the children elements are not named 'name'."""
-    if any(not e.tagName == name for e in el.childNodes if e.nodeType == e.ELEMENT_NODE):
-        raise SystemParseError(xml_error_str(el, "Expected only element children named %s" % name))
+def ensure_all_children_named(el, *names):
+    """Raise an exception if any of the children elements are not in the list of 'names'."""
+    if any(e.tagName not in names for e in el.childNodes if e.nodeType == e.ELEMENT_NODE):
+        raise SystemParseError(xml_error_str(el, "Expected only element children named on of %s" % names))
 
 
 def ensure_unique_tag_names(els):

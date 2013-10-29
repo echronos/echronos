@@ -30,6 +30,10 @@
         </task>
 
       </tasks>
+
+      <mutexes>
+      </mutexes>
+
     </module>
 
     <module name="rtos-example.gatria-test" />

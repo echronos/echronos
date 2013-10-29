@@ -5,16 +5,22 @@ Task name: jDXLSO-simply-signals
 Version reviewed: ef4733e58ceca50d71e92b213daf1a5280eeb65d
 Reviewer: stg
 Date: 2013-10-29
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
 Overall comments:
+I like the more descriptive variable names.
+I like the improved const correctness.
 
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: components/kraz.py & components/rigel.py
+Comment: Accepted
+The configure() functions contain duplicated code.
+Recommend to move code to, e.g., components/signal.py and re-use from there.
 
-Location: filename:linenum
-Comment:
+Location: components/signal.c
+Comment: Accepted
+The parameters of signal_poll_set() and signal_peek_set() are not marked as constant although they could be.
+Recommend to declare them as constant for improved const correctness.

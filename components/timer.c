@@ -71,7 +71,7 @@ static struct timer timers[{{timers.length}}] = {
         {{reload}},
         {{error}},
         {{#task}}{{prefix_const}}TASK_ID_{{name|u}}{{/task}}{{^task}}TASK_ID_NONE{{/task}},
-        {{#sig_set}}{{.}}{{/sig_set}}{{^sig_set}}0{{/sig_set}}
+        {{#sig_set}}{{prefix_const}}SIGNAL_SET_{{.|u}}{{/sig_set}}{{^sig_set}}{{prefix_const}}SIGNAL_SET_EMPTY{{/sig_set}}
     },
 {{/timers}}
 };

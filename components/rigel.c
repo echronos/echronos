@@ -14,10 +14,6 @@ typedef uint8_t {{prefix_type}}ErrorId;
 #define {{prefix_const}}TASK_ID_{{name|u}} (({{prefix_type}}TaskId) UINT{{taskid_size}}_C({{idx}}))
 {{/tasks}}
 
-{{#irq_events}}
-#define {{prefix_const}}SIGNAL_SET_IRQ_{{name|u}} {{sig_set}}
-{{/irq_events}}
-
 /*| public_function_like_macros |*/
 
 /*| public_extern_definitions |*/
@@ -77,7 +73,7 @@ static {{prefix_type}}TimerId task_timers[{{tasks.length}}] = {
 
 struct irq_event_handler irq_events[{{irq_events.length}}] = {
 {{#irq_events}}
-{ {{prefix_const}}TASK_ID_{{task.name|u}}, {{prefix_const}}SIGNAL_SET_IRQ_{{name|u}} },
+    { {{prefix_const}}TASK_ID_{{task.name|u}}, {{prefix_const}}SIGNAL_SET_{{sig_set|u}} },
 {{/irq_events}}
 };
 

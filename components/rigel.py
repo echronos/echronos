@@ -32,7 +32,7 @@ class RigelModule(Module):
      <entry name="irq_event" type="dict">
       <entry name="name" type="ident" />
       <entry name="task" type="object" group="tasks" />
-      <entry name="sig_set" type="int" />
+      <entry name="sig_set" type="ident" />
      </entry>
    </entry>
    <entry name="mutexes" type="list" auto_index_field="idx">
@@ -47,7 +47,7 @@ class RigelModule(Module):
       <entry name="reload" type="int" />
       <entry name="error" type="int" default="0" />
       <entry name="task" type="object" group="tasks" optional="true" />
-      <entry name="sig_set" type="int" optional="true" />
+      <entry name="sig_set" type="ident" optional="true" />
      </entry>
    </entry>
   </schema>
@@ -75,8 +75,7 @@ class RigelModule(Module):
         config['taskid_size'] = 8
 
         # Create builtin signals
-        timer_signal = {'name': '_task_timer', 'idx': len(config['signal_labels'])}
-        config['signal_labels'].append(timer_signal)
+        config['signal_labels'].append({'name': '_task_timer', 'global': True})
 
         # The RTOS utility signal is used in the following conditions:
         #   1. To start the task.
@@ -106,6 +105,18 @@ class RigelModule(Module):
         config['signal_sets'] = [{'name': sig['name'], 'value': 1 << sig['idx'], 'singleton': True}
                                  for sig in config['signal_labels']]
 
+        signal_set_names = [sigset['name'] for sigset in config['signal_sets']]
+
+        for irq_event in config['irq_events']:
+            if irq_event['sig_set'] not in signal_set_names:
+                msg = "Unknown signal-set '{}' in irq_event '{}'"
+                raise SystemParseError(msg.format(irq_event['sig_set'], irq_event['name']))
+
+        for timer in config['timers']:
+            if timer['sig_set'] is not None and timer['sig_set'] not in signal_set_names:
+                msg = "Unknown signal-set '{}' in timer '{}'"
+                raise SystemParseError(msg.format(timer['sig_set'], timer['name']))
+
         # Create a timer for each task
         for task in config['tasks']:
             timer = {'name': '_task_' + task['name'],
@@ -114,7 +125,7 @@ class RigelModule(Module):
                      'task': task,
                      'idx': len(config['timers']),
                      'enabled': False,
-                     'sig_set': (1 << timer_signal['idx'])}
+                     'sig_set': '_task_timer'}
             task['timer'] = timer
             config['timers'].append(timer)
         return config

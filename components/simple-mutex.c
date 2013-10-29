@@ -18,9 +18,9 @@ typedef uint8_t MutexId;
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-void {{prefix}}mutex_lock(MutexId);
-bool {{prefix}}mutex_try_lock(MutexId);
-void {{prefix}}mutex_unlock(MutexId);
+void {{prefix_func}}mutex_lock(MutexId);
+bool {{prefix_func}}mutex_try_lock(MutexId);
+void {{prefix_func}}mutex_unlock(MutexId);
 
 /*| headers |*/
 #include <stdbool.h>
@@ -61,27 +61,27 @@ internal_mutex_try_lock(const MutexId m)
 
 /*| public_functions |*/
 void
-{{prefix}}mutex_lock(const MutexId m)
+{{prefix_func}}mutex_lock(const MutexId m)
 {
     preempt_disable();
 
     while (!internal_mutex_try_lock(m))
     {
-        {{prefix}}yield();
+        {{prefix_func}}yield();
     }
 
     preempt_enable();
 }
 
 void
-{{prefix}}mutex_unlock(const MutexId m)
+{{prefix_func}}mutex_unlock(const MutexId m)
 {
     /* Note: assumes writing a single word is atomic */
     mutexes[m].locked = false;
 }
 
 bool
-{{prefix}}mutex_try_lock(const MutexId m)
+{{prefix_func}}mutex_try_lock(const MutexId m)
 {
     bool r;
 

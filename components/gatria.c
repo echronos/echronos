@@ -16,11 +16,11 @@ typedef uint{{taskid_size}}_t TaskId;
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-void {{prefix}}yield_to(TaskId);
-void {{prefix}}yield(void);
-void {{prefix}}block(void);
-void {{prefix}}unblock(TaskId);
-void {{prefix}}start(void);
+void {{prefix_func}}yield_to(TaskId);
+void {{prefix_func}}yield(void);
+void {{prefix_func}}block(void);
+void {{prefix_func}}unblock(TaskId);
+void {{prefix_func}}start(void);
 
 /*| headers |*/
 #include <stdint.h>
@@ -60,7 +60,7 @@ static struct task tasks[{{tasks.length}}];
 
 /*| public_functions |*/
 void
-{{prefix}}yield_to(const TaskId to)
+{{prefix_func}}yield_to(const TaskId to)
 {
     const TaskId from = get_current_task();
     current_task = to;
@@ -68,27 +68,27 @@ void
 }
 
 void
-{{prefix}}yield(void)
+{{prefix_func}}yield(void)
 {
     TaskId to = sched_get_next();
-    {{prefix}}yield_to(to);
+    {{prefix_func}}yield_to(to);
 }
 
 void
-{{prefix}}block(void)
+{{prefix_func}}block(void)
 {
     sched_set_blocked(get_current_task());
-    {{prefix}}yield();
+    {{prefix_func}}yield();
 }
 
 void
-{{prefix}}unblock(const TaskId task)
+{{prefix_func}}unblock(const TaskId task)
 {
     sched_set_runnable(task);
 }
 
 void
-{{prefix}}start(void)
+{{prefix_func}}start(void)
 {
     {{#tasks}}
     context_init(get_task_context({{idx}}), {{function}}, stack_{{idx}}, {{stack_size}});

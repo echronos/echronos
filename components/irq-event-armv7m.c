@@ -11,7 +11,7 @@
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-void {{prefix}}irq_event_raise(IrqEventId);
+void {{prefix_func}}irq_event_raise(IrqEventId);
 
 /*| headers |*/
 #include <stdint.h>
@@ -70,7 +70,7 @@ irq_event_wait(void)
 
 /*| public_functions |*/
 void
-{{prefix}}irq_event_raise(IrqEventId irq_event_id)
+{{prefix_func}}irq_event_raise(IrqEventId irq_event_id)
 {
     irq_event_bitband[irq_event_id] = 1;
 }

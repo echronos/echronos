@@ -18,9 +18,9 @@ typedef uint8_t SemId;
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-void {{prefix}}sem_post(SemId);
-bool {{prefix}}sem_try_wait(SemId);
-void {{prefix}}sem_wait(SemId);
+void {{prefix_func}}sem_post(SemId);
+bool {{prefix_func}}sem_try_wait(SemId);
+void {{prefix_func}}sem_wait(SemId);
 
 /*| headers |*/
 
@@ -81,7 +81,7 @@ internal_sem_try_wait(const SemId s)
 
 /*| public_functions |*/
 void
-{{prefix}}sem_wait(const SemId s)
+{{prefix_func}}sem_wait(const SemId s)
 {
     preempt_disable();
 
@@ -95,7 +95,7 @@ void
 }
 
 void
-{{prefix}}sem_post(const SemId s)
+{{prefix_func}}sem_post(const SemId s)
 {
     TaskId t;
 
@@ -119,7 +119,7 @@ void
 }
 
 bool
-{{prefix}}sem_try_wait(const SemId s)
+{{prefix_func}}sem_try_wait(const SemId s)
 {
     bool r;
 

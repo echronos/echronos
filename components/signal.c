@@ -17,25 +17,25 @@ typedef SignalSet SignalId;
 {{/signal_sets}}
 
 /*| public_function_like_macros |*/
-#define {{prefix}}signal_wait(requested_signal) \
-    (void) {{prefix}}signal_wait_set(requested_signal)
+#define {{prefix_func}}signal_wait(requested_signal) \
+    (void) {{prefix_func}}signal_wait_set(requested_signal)
 
-#define {{prefix}}signal_poll(requested_signal) \
-    ({{prefix}}signal_poll_set(requested_signal) != SIGNAL_SET_EMPTY)
+#define {{prefix_func}}signal_poll(requested_signal) \
+    ({{prefix_func}}signal_poll_set(requested_signal) != SIGNAL_SET_EMPTY)
 
-#define {{prefix}}signal_peek(requested_signal) \
-    ({{prefix}}signal_peek_set(requested_signal) != SIGNAL_SET_EMPTY)
+#define {{prefix_func}}signal_peek(requested_signal) \
+    ({{prefix_func}}signal_peek_set(requested_signal) != SIGNAL_SET_EMPTY)
 
-#define {{prefix}}signal_send(task_id, signal) \
-    {{prefix}}signal_send_set(task_id, signal)
+#define {{prefix_func}}signal_send(task_id, signal) \
+    {{prefix_func}}signal_send_set(task_id, signal)
 
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-SignalSet {{prefix}}signal_wait_set(SignalSet requested_signals);
-SignalSet {{prefix}}signal_poll_set(SignalSet requested_signals);
-SignalSet {{prefix}}signal_peek_set(SignalSet requested_signals);
-void {{prefix}}signal_send_set(TaskId task_id, SignalSet signals);
+SignalSet {{prefix_func}}signal_wait_set(SignalSet requested_signals);
+SignalSet {{prefix_func}}signal_poll_set(SignalSet requested_signals);
+SignalSet {{prefix_func}}signal_peek_set(SignalSet requested_signals);
+void {{prefix_func}}signal_send_set(TaskId task_id, SignalSet signals);
 
 /*| headers |*/
 
@@ -77,7 +77,7 @@ _signal_recv(SignalSet *const pending_signals, const SignalSet requested_signals
 
 /*| public_functions |*/
 SignalSet
-{{prefix}}signal_wait_set(const SignalSet requested_signals)
+{{prefix_func}}signal_wait_set(const SignalSet requested_signals)
 {
     SignalSet *const pending_signals = &PENDING_SIGNALS(get_current_task());
     SignalSet received_signals;
@@ -86,7 +86,7 @@ SignalSet
 
     if (_signal_peek(*pending_signals, requested_signals))
     {
-        {{prefix}}yield();
+        {{prefix_func}}yield();
     }
     else
     {
@@ -104,7 +104,7 @@ SignalSet
 }
 
 SignalSet
-{{prefix}}signal_poll_set(const SignalSet requested_signals)
+{{prefix_func}}signal_poll_set(const SignalSet requested_signals)
 {
     SignalSet *const pending_signals = &PENDING_SIGNALS(get_current_task());
     SignalSet received_signals;
@@ -119,13 +119,13 @@ SignalSet
 }
 
 SignalSet
-{{prefix}}signal_peek_set(const SignalSet requested_signals)
+{{prefix_func}}signal_peek_set(const SignalSet requested_signals)
 {
     return _signal_peek(PENDING_SIGNALS(get_current_task()), requested_signals);
 }
 
 void
-{{prefix}}signal_send_set(const TaskId task_id, const SignalSet signals)
+{{prefix_func}}signal_send_set(const TaskId task_id, const SignalSet signals)
 {
     preempt_disable();
 

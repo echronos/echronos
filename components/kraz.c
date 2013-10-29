@@ -16,8 +16,8 @@ typedef uint{{taskid_size}}_t TaskId;
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-void {{prefix}}yield(void);
-void {{prefix}}start(void);
+void {{prefix_func}}yield(void);
+void {{prefix_func}}start(void);
 
 /*| headers |*/
 #include <stdint.h>
@@ -69,7 +69,7 @@ static void
 _block(void)
 {
     sched_set_blocked(get_current_task());
-    {{prefix}}yield();
+    {{prefix_func}}yield();
 }
 
 static void
@@ -80,14 +80,14 @@ _unblock(const TaskId task)
 
 /*| public_functions |*/
 void
-{{prefix}}yield(void)
+{{prefix_func}}yield(void)
 {
     TaskId to = sched_get_next();
     _yield_to(to);
 }
 
 void
-{{prefix}}start(void)
+{{prefix_func}}start(void)
 {
     {{#tasks}}
     context_init(get_task_context({{idx}}), {{function}}, stack_{{idx}}, {{stack_size}});

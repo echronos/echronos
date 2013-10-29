@@ -21,11 +21,11 @@ typedef uint8_t ErrorId;
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-void {{prefix}}start(void);
-void {{prefix}}yield(void);
-void {{prefix}}sleep(TicksRelative ticks);
-void {{prefix}}task_start(TaskId task);
-TaskId {{prefix}}task_current(void);
+void {{prefix_func}}start(void);
+void {{prefix_func}}yield(void);
+void {{prefix_func}}sleep(TicksRelative ticks);
+void {{prefix_func}}task_start(TaskId task);
+TaskId {{prefix_func}}task_current(void);
 
 /*| headers |*/
 #include <stdint.h>
@@ -100,7 +100,7 @@ static void
 _block(void)
 {
     sched_set_blocked(get_current_task());
-    {{prefix}}yield();
+    {{prefix_func}}yield();
 }
 
 static void
@@ -115,14 +115,14 @@ handle_irq_event(IrqEventId irq_event_id)
     TaskId task = irq_events[irq_event_id].task;
     SignalSet sig_set = irq_events[irq_event_id].sig_set;
 
-    {{prefix}}signal_send_set(task, sig_set);
+    {{prefix_func}}signal_send_set(task, sig_set);
 }
 
 /* entry point trampolines */
 {{#tasks}}
 void _task_entry_{{name}}(void)
 {
-    {{^start}}{{prefix}}signal_wait(SIGNAL_ID__RTOS_UTIL);{{/start}}
+    {{^start}}{{prefix_func}}signal_wait(SIGNAL_ID__RTOS_UTIL);{{/start}}
     {{function}}();
 }
 
@@ -130,33 +130,33 @@ void _task_entry_{{name}}(void)
 
 /*| public_functions |*/
 TaskId
-{{prefix}}task_current(void)
+{{prefix_func}}task_current(void)
 {
     return current_task;
 }
 
 void
-{{prefix}}task_start(TaskId task)
+{{prefix_func}}task_start(TaskId task)
 {
-    {{prefix}}signal_send(task, SIGNAL_ID__RTOS_UTIL);
+    {{prefix_func}}signal_send(task, SIGNAL_ID__RTOS_UTIL);
 }
 
 void
-{{prefix}}yield(void)
+{{prefix_func}}yield(void)
 {
     TaskId to = irq_event_get_next();
     _yield_to(to);
 }
 
 void
-{{prefix}}sleep(TicksRelative ticks)
+{{prefix_func}}sleep(TicksRelative ticks)
 {
-    {{prefix}}timer_oneshot(task_timers[get_current_task()], ticks);
-    {{prefix}}signal_wait(SIGNAL_ID__TASK_TIMER);
+    {{prefix_func}}timer_oneshot(task_timers[get_current_task()], ticks);
+    {{prefix_func}}signal_wait(SIGNAL_ID__TASK_TIMER);
 }
 
 void
-{{prefix}}start(void)
+{{prefix_func}}start(void)
 {
     {{#tasks}}
     context_init(get_task_context({{idx}}), _task_entry_{{name}}, stack_{{idx}}, {{stack_size}});

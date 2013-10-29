@@ -19,9 +19,9 @@ typedef uint8_t MutexId;
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-void {{prefix}}mutex_lock(MutexId);
-bool {{prefix}}mutex_try_lock(MutexId);
-void {{prefix}}mutex_unlock(MutexId);
+void {{prefix_func}}mutex_lock(MutexId);
+bool {{prefix_func}}mutex_try_lock(MutexId);
+void {{prefix_func}}mutex_unlock(MutexId);
 
 /*| headers |*/
 
@@ -61,9 +61,9 @@ mutex_init(void)
 
 /*| public_functions |*/
 void
-{{prefix}}mutex_lock(const MutexId m)
+{{prefix_func}}mutex_lock(const MutexId m)
 {
-    while (!{{prefix}}mutex_try_lock(m))
+    while (!{{prefix_func}}mutex_try_lock(m))
     {
         waiters[get_current_task()] = m;
         block_on(mutexes[m].holder);
@@ -71,7 +71,7 @@ void
 }
 
 void
-{{prefix}}mutex_unlock(const MutexId m)
+{{prefix_func}}mutex_unlock(const MutexId m)
 {
     TaskId t;
 
@@ -88,7 +88,7 @@ void
 }
 
 bool
-{{prefix}}mutex_try_lock(const MutexId m)
+{{prefix_func}}mutex_try_lock(const MutexId m)
 {
     if (mutexes[m].holder != TASK_ID_NONE)
     {

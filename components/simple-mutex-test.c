@@ -11,7 +11,7 @@
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-void {{prefix}}yield(void);
+void {{prefix_func}}yield(void);
 
 /*| headers |*/
 #include "rtos-simple-mutex-test.h"
@@ -44,7 +44,7 @@ void pub_set_yield_ptr(void (*y)(void))
     yield_ptr = y;
 }
 
-void {{prefix}}yield(void)
+void {{prefix_func}}yield(void)
 {
     if (yield_ptr != NULL)
     {

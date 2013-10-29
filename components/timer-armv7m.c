@@ -11,7 +11,7 @@
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-void {{prefix}}timer_tick(void);
+void {{prefix_func}}timer_tick(void);
 
 /*| headers |*/
 
@@ -57,7 +57,7 @@ timer_check(void)
 
 /*| public_functions |*/
 void
-{{prefix}}timer_tick(void)
+{{prefix_func}}timer_tick(void)
 {
     if (tick_pending)
     {

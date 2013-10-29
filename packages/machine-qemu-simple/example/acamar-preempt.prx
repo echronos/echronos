@@ -27,13 +27,13 @@
 
         <task>
           <name>a</name>
-          <entry>fn_a</entry>
+          <function>fn_a</function>
           <stack_size>8192</stack_size>
         </task>
 
         <task>
           <name>b</name>
-          <entry>fn_b</entry>
+          <function>fn_b</function>
           <stack_size>8192</stack_size>
         </task>
 

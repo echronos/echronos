@@ -59,7 +59,9 @@ extern void {{fatal_error}}({{prefix_type}}ErrorId error_id);
 static void _yield_to({{prefix_type}}TaskId to);
 static void _block(void);
 static void _unblock({{prefix_type}}TaskId task);
+{{#interrupt_events.length}}
 static void handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id);
+{{/interrupt_events.length}}
 
 
 /*| state |*/
@@ -106,6 +108,7 @@ _unblock({{prefix_type}}TaskId task)
     sched_set_runnable(task);
 }
 
+{{#interrupt_events.length}}
 static void
 handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id)
 {
@@ -114,6 +117,7 @@ handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id)
 
     {{prefix_func}}signal_send_set(task, sig_set);
 }
+{{/interrupt_events.length}}
 
 /* entry point trampolines */
 {{#tasks}}

@@ -28,7 +28,7 @@ class RigelModule(Module):
        </constraint>
      </entry>
    </entry>
-   <entry name="interrupt_events" type="list" auto_index_field="idx">
+   <entry name="interrupt_events" type="list" default="[]" auto_index_field="idx">
      <entry name="interrupt_event" type="dict">
       <entry name="name" type="ident" />
       <entry name="task" type="object" group="tasks" />

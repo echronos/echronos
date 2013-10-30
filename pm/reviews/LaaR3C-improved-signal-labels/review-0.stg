@@ -5,16 +5,38 @@ Task name: LaaR3C-improved-signal-labels
 Version reviewed: 221c4ec60a0ca5fce516d35e74c523797494e01f
 Reviewer: stg
 Date: 2013-10-30
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
-Overall comments:
-
+General comments
+================
+I like the stricter checks and the fewer chances of inconsistencies in the system definition files.
+I also like the introduction of constraints and the signal value assignment.
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: pm/tasks/LaaR3C-improved-signal-labels
+Comment: Rework
+Task description is empty, which does not conform with the Quality Manual
 
-Location: filename:linenum
-Comment:
+Location: components/rigel.py:112&117, potentially other components and files
+Comment: Rework
+Add as much information to error messages as possible (in particular the name of the system and if possible its file name, possible the name of available signal labels) to make it easy for users to fix the reported issue.
+(I personally find that I enjoy working with tools that make it quick and easy for me to fix my own mistakes.
+I think we want to deliver that kind of product.)
+
+Location: prj/app/prj.py:486ff
+Comment: Rework
+From how I read the code, it is very difficult to derive the source of the error from the error message.
+Suggest adding more error information.
+Please also review the other added error messages for sufficient information for the user to determine the source of the error.
+
+Location: prj/app/prj.py:702
+Comment: Rework
+The comment 'A tuple containing constraints' seems inconsistent with the code in line 619 which returns a list of constraints.
+Suggest to rephrase as 'iterable', 'sequence', 'unmodifiable sequence', or 'n-tuple' or some other appropriate type instead of 'tuple', depending on the intention.
+
+Location: prj/app/prj.py:751
+Comment: Accepted
+To implement per-constraint checks, polymorphism might be a better, more extensible pattern than an if/else block.
+In particular, it would allow to associate constraints more easily with state, e.g., to capture constraint properties in the future or to provide more meaningful error messages.

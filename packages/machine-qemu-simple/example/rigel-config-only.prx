@@ -62,14 +62,13 @@
 
       </timers>
 
-      <irq_events>
-        <irq_event>
+      <interrupt_events>
+        <interrupt_event>
           <name>tick</name>
           <task>a</task>
           <sig_set>test</sig_set>
-        </irq_event>
-      </irq_events>
-
+        </interrupt_event>
+      </interrupt_events>
 
       <mutexes>
         <mutex>

@@ -30,11 +30,11 @@
         </task>
 
       </tasks>
-      <irq_events>
-        <irq_event>
+      <interrupt_events>
+        <interrupt_event>
           <name>dummy</name>
-        </irq_event>
-      </irq_events>
+        </interrupt_event>
+      </interrupt_events>
 
       <mutexes>
         <mutex>

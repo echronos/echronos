@@ -5,16 +5,17 @@ Task name: bdBFw0-irq-to-interrupt
 Version reviewed: dc79a4a29c574613218bff07c690cf78db46eaf4
 Reviewer: joseph
 Date: 2013-10-30
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
+Not something to rework here but i think its good to avoid making any changes to files in the 
+commit where they are renamed. git diff and potentially other less intelligent diff tools
+dont show you that anything has changed.
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: prj.py:1422
+Comment: spelling mistake "moethod"
 
-Location: filename:linenum
-Comment:

@@ -579,7 +579,7 @@ def xml2schema(el):
                                  element_children(el, matching='entry', only_whitespace_text=True)))
         }
         if constraint['type'] not in valid_constraint_types:
-            err_str = xml_error_str(el, "Invalid constraant type '{}'".format(constraint['type']))
+            err_str = xml_error_str(el, "Invalid constraint type '{}'".format(constraint['type']))
             raise SystemParseError(err_str)
 
         return constraint

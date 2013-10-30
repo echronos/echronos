@@ -482,13 +482,13 @@ class Component:
         RTOS template file.
 
         'name' is the component name used in the RTOS template file.
-        For example, the properties of the irq event component are referred to as 'irq_event.xyz' in the
+        For example, the properties of the interrupt event component are referred to as 'interrupt_event.xyz' in the
         RTOS template files.
 
         'resource_name' is the base name of the source file of this component that is parsed to obtain this
         component's properties.
-        For example, the base name of the irq event component is 'irq-event', which expands to the on-disk
-        file name of irq-event.c.
+        For example, the base name of the interrupt event component is 'interrupt-event', which expands to the on-disk
+        file name of interrupt-event.c.
 
         'configuration' is a dictionary with configuration information.
         It is passed to the 'parse_sectioned_file()' function used to parse this component's source file.
@@ -2363,8 +2363,8 @@ CORE_SKELETONS = {
         [ArchitectureComponent('stack', 'stack'),
          ArchitectureComponent('ctxt_switch', 'context-switch'),
          Component('sched', 'sched-rr', {'assume_runnable': False}),
-         ArchitectureComponent('irq_event_arch', 'irq-event'),
-         Component('irq_event', 'irq-event', {'timer_process': False}),
+         ArchitectureComponent('interrupt_event_arch', 'interrupt-event'),
+         Component('interrupt_event', 'interrupt-event', {'timer_process': False}),
          Component('mutex', 'simple-mutex'),
          Component('acrux')]),
     'rigel': RtosSkeleton(
@@ -2375,8 +2375,8 @@ CORE_SKELETONS = {
          Component('signal'),
          ArchitectureComponent('timer_arch', 'timer'),
          Component('timer'),
-         ArchitectureComponent('irq_event_arch', 'irq-event'),
-         Component('irq_event', 'irq-event', {'timer_process': True}),
+         ArchitectureComponent('interrupt_event_arch', 'interrupt-event'),
+         Component('interrupt_event', 'interrupt-event', {'timer_process': True}),
          Component('mutex', 'simple-mutex'),
          Component('profiling'),
          Component('rigel')],

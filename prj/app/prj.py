@@ -909,6 +909,9 @@ class SystemLoadError(Exception):
 
 class EntityLoadError(Exception):
     """Raise when unable to resolve a entity reference."""
+    def __init__(self, msg, detail=None):
+        super().__init__(msg)
+        self.detail = detail
 
 
 class EntityNotFound(Exception):
@@ -1411,7 +1414,15 @@ class System:
                 raise EntityLoadError(xml_error_str(m_el, 'Error loading module {}'.format(name)))
 
             if isinstance(module, Module):
-                instance = ModuleInstance(module, self, module.configure(m_el))
+                try:
+                    config_data = module.configure(m_el)
+                except Exception as e:
+                    exc_type, exc_value, tb = sys.exc_info()
+                    tb_str = ''.join(traceback.format_exception(exc_type, exc_value, tb.tb_next, chain=False))
+                    msg = "Error running module '{}' configure moethod.".format(name)
+                    detail = "Traceback:\n{}".format(tb_str)
+                    raise EntityLoadError(msg, detail)
+                instance = ModuleInstance(module, self, config_data)
                 instances.append(instance)
             else:
                 raise EntityLoadError(xml_error_str(m_el, 'Entity {} has unexpected type {} and cannot be \
@@ -1835,6 +1846,8 @@ def main():
         return SUBCOMMAND_TABLE[args.command](args)
     except EntityLoadError as e:
         logger.error(str(e))
+        if e.detail is not None:
+            logger.error(e.detail)
         return 1
 
 

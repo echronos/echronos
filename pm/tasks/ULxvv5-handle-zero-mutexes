@@ -1,0 +1,7 @@
+Task: ULxvv5-handle-zero-mutexes
+==============================================================================
+
+Goals
+--------
+
+If there are not any mutexes specified in a configuration, then the mutex code should be excluded from the implementation.

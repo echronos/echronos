@@ -9,9 +9,12 @@ Conclusion: Rework
 
 Overall comments:
 
-Not something to rework here but i think its good to avoid making any changes to files in the 
+Not something to rework here but i think its good to avoid making any changes to files in the
 commit where they are renamed. git diff and potentially other less intelligent diff tools
 dont show you that anything has changed.
+
+[[(benno): Agreed, I dno't think this actually happened in this case though.]]
+
 
 Specific comments
 =================
@@ -19,3 +22,4 @@ Specific comments
 Location: prj.py:1422
 Comment: spelling mistake "moethod"
 
+[[(benno): Fixed.]]

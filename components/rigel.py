@@ -35,7 +35,7 @@ class RigelModule(Module):
       <entry name="sig_set" type="ident" />
      </entry>
    </entry>
-   <entry name="mutexes" type="list" auto_index_field="idx">
+   <entry name="mutexes" type="list" default="[]" auto_index_field="idx">
      <entry name="mutex" type="dict">
       <entry name="name" type="ident" />
      </entry>

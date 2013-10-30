@@ -699,7 +699,7 @@ def xml2dict(el, schema=None):
       default: default value (not used for 'dict' or 'list').
       dict_type: a tuple containing -
           1: A list of of schema objects which describes the form of the dictionary.
-          2: A tuple containing constraints
+          2: A list of constraints
       list_type: a single schema object which describes the form of list elements.
 
     """
@@ -748,6 +748,8 @@ def xml2dict(el, schema=None):
 
         # Check constraints
         for constraint in constraints:
+            # Implementation note: if/when the number of constraint types increases
+            # this may be better handled by a jump-table or other polymorphic approach.
             if constraint['type'] == 'one_of':
                 msg = "Expected exactly one of the following elements: {}"
                 err_str = xml_error_str(el, msg.format(constraint['elements']))

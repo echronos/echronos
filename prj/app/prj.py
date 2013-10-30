@@ -520,12 +520,15 @@ def check_schema_is_valid(schema, key_path=None):
         error("type '{}' is invalid.".format(schema['type']))
 
     if 'default' in schema and schema['default'] is not None:
+        default = schema['default']
         if schema['type'] == 'ident':
-            default = schema['default']
             try:
                 check_ident(default)
             except ValueError as e:
                 error("default value has a bad type ({})".format(e))
+        if schema['type'] == 'list':
+            if default != []:
+                error("list default can only be an empty list.")
 
     if schema['type'] == 'dict':
         if not dict_has_keys(schema, 'dict_type'):
@@ -604,6 +607,12 @@ def xml2schema(el):
         if _type == 'list':
             entry['list_type'] = read_entry(single_named_child(el, 'entry'))
             entry['auto_index_field'] = get_attribute(el, 'auto_index_field', None)
+            if entry['default'] is not None:
+                if entry['default'] != '[]':
+                    msg = "Invalid default '{}'. Only empty list '[]' is supported as a list default."
+                    raise SystemParseError(xml_error_str(el, msg.format(entry['default'])))
+                entry['default'] = util.util.LengthList([])
+                entry['optional'] = True
         elif _type == 'dict':
             entry['dict_type'] = read_dict_schema(el)
         elif _type == 'object':
@@ -803,7 +812,7 @@ def xml2dict(el, schema=None):
                 r = [get_el_val(c, schema['list_type'] if schema else None, el) for c in element_children(el)]
             else:
                 if schema.get('optional', False):
-                    return None
+                    return schema['default']
                 else:
                     msg = xml_error_str(parent, "Required config field '{}' missing.".format(schema['name']))
                     raise SystemParseError(msg)

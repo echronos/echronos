@@ -19,11 +19,15 @@ Location: pm/tasks/LaaR3C-improved-signal-labels
 Comment: Rework
 Task description is empty, which does not conform with the Quality Manual
 
+[[(benno): Fixed.]]
+
 Location: components/rigel.py:112&117, potentially other components and files
 Comment: Rework
 Add as much information to error messages as possible (in particular the name of the system and if possible its file name, possible the name of available signal labels) to make it easy for users to fix the reported issue.
 (I personally find that I enjoy working with tools that make it quick and easy for me to fix my own mistakes.
 I think we want to deliver that kind of product.)
+
+[[(benno): This is desirable, however requires some relatively large framework improvements to implement, so can't be done in this branch.]]
 
 Location: prj/app/prj.py:486ff
 Comment: Rework
@@ -31,12 +35,18 @@ From how I read the code, it is very difficult to derive the source of the error
 Suggest adding more error information.
 Please also review the other added error messages for sufficient information for the user to determine the source of the error.
 
+[[(benno): This error is an internal error, and should be debuggable via Python's normal traceback mechanisms.]]
+
 Location: prj/app/prj.py:702
 Comment: Rework
 The comment 'A tuple containing constraints' seems inconsistent with the code in line 619 which returns a list of constraints.
 Suggest to rephrase as 'iterable', 'sequence', 'unmodifiable sequence', or 'n-tuple' or some other appropriate type instead of 'tuple', depending on the intention.
 
+[[(benno): Documentation error, fixed to say "list of constraints".]]
+
 Location: prj/app/prj.py:751
 Comment: Accepted
 To implement per-constraint checks, polymorphism might be a better, more extensible pattern than an if/else block.
 In particular, it would allow to associate constraints more easily with state, e.g., to capture constraint properties in the future or to provide more meaningful error messages.
+
+[[(benno): Agreed, as number of constraint types grows there will be a point where that makes more sense; comment added to the code to that effect.]]

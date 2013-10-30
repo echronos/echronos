@@ -4,3 +4,8 @@ Task: LaaR3C-improved-signal-labels
 Goals
 --------
 
+The aim of this branch is to improve the way in which signal labels are defined and used in the rigel variant.
+The signal_label configuration item will be extended with configuration fields to describe which tasks the label is applicable too.
+It shall be possible to either list tasks individually, or specify all tasks.
+
+Additionally, existing configuration items that refer to signal sets with a raw value, shall be changed to use names instead.

@@ -22,7 +22,7 @@ extern void debug_println(const char *msg);
 void
 tick_irq(void)
 {
-    rtos_irq_event_raise(0);
+    rtos_interrupt_event_raise(0);
 }
 
 void

@@ -1419,7 +1419,7 @@ class System:
                 except Exception as e:
                     exc_type, exc_value, tb = sys.exc_info()
                     tb_str = ''.join(traceback.format_exception(exc_type, exc_value, tb.tb_next, chain=False))
-                    msg = "Error running module '{}' configure moethod.".format(name)
+                    msg = "Error running module '{}' configure method.".format(name)
                     detail = "Traceback:\n{}".format(tb_str)
                     raise EntityLoadError(msg, detail)
                 instance = ModuleInstance(module, self, config_data)

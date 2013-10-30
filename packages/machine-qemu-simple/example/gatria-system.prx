@@ -31,7 +31,7 @@
 
       <mutexes>
         <mutex>
-          <name>dummy</name>
+          <name>a</name>
         </mutex>
       </mutexes>
     </module>

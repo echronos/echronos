@@ -31,7 +31,11 @@
 
       </tasks>
 
+
       <mutexes>
+        <mutex>
+          <name>a</name>
+        </mutex>
       </mutexes>
 
     </module>

@@ -14,8 +14,8 @@ fn_a(void)
     rtos_unblock(1);
 
     debug_println("task a -- lock");
-    rtos_mutex_lock(0);
-    if (rtos_mutex_try_lock(0))
+    rtos_mutex_lock(RTOS_MUTEX_ID_A);
+    if (rtos_mutex_try_lock(RTOS_MUTEX_ID_A))
     {
         debug_println("unexpected mutex not locked.");
     }
@@ -24,7 +24,7 @@ fn_a(void)
         rtos_yield();
     }
     debug_println("task a -- unlock");
-    rtos_mutex_unlock(0);
+    rtos_mutex_unlock(RTOS_MUTEX_ID_A);
     rtos_yield();
 
     for (count = 0; ; count++)
@@ -45,7 +45,7 @@ fn_b(void)
     uint8_t count;
 
     debug_println("task b -- try lock");
-    rtos_mutex_lock(0);
+    rtos_mutex_lock(RTOS_MUTEX_ID_A);
     debug_println("task b -- got lock");
 
     for (count = 0; ; count++)

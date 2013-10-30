@@ -1,0 +1,9 @@
+Task: bdBFw0-irq-to-interrupt
+==============================================================================
+
+Goals
+--------
+
+The acronym IRQ means interrupt request line.
+As such an 'interrupt request line' event doesn't really make much sense.
+Change instances of 'irq_event' => 'interrupt_event'.

@@ -40,7 +40,7 @@ class RigelModule(Module):
       <entry name="name" type="ident" />
      </entry>
    </entry>
-   <entry name="timers" type="list" auto_index_field="idx">
+   <entry name="timers" type="list" default="[]" auto_index_field="idx">
      <entry name="timer" type="dict">
       <entry name="name" type="ident" />
       <entry name="enabled" type="bool" />

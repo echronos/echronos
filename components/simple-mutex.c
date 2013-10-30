@@ -4,7 +4,9 @@
 #include <stdint.h>
 
 /*| public_type_definitions |*/
+{{#mutexes.length}}
 typedef uint8_t {{prefix_type}}MutexId;
+{{/mutexes.length}}
 
 /*| public_structure_definitions |*/
 
@@ -18,33 +20,41 @@ typedef uint8_t {{prefix_type}}MutexId;
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
+{{#mutexes.length}}
 void {{prefix_func}}mutex_lock({{prefix_type}}MutexId);
 bool {{prefix_func}}mutex_try_lock({{prefix_type}}MutexId);
 void {{prefix_func}}mutex_unlock({{prefix_type}}MutexId);
+{{/mutexes.length}}
 
 /*| headers |*/
+{{#mutexes.length}}
 #include <stdbool.h>
+{{/mutexes.length}}
 
 /*| object_like_macros |*/
 
 /*| type_definitions |*/
 
 /*| structure_definitions |*/
-
+{{#mutexes.length}}
 struct mutex {
     bool locked;
 };
+{{/mutexes.length}}
 
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
 
 /*| state |*/
+{{#mutexes.length}}
 static struct mutex mutexes[{{mutexes.length}}];
+{{/mutexes.length}}
 
 /*| function_like_macros |*/
 
 /*| functions |*/
+{{#mutexes.length}}
 static bool
 internal_mutex_try_lock(const {{prefix_type}}MutexId m)
 {
@@ -58,8 +68,10 @@ internal_mutex_try_lock(const {{prefix_type}}MutexId m)
         return true;
     }
 }
+{{/mutexes.length}}
 
 /*| public_functions |*/
+{{#mutexes.length}}
 void
 {{prefix_func}}mutex_lock(const {{prefix_type}}MutexId m)
 {
@@ -91,3 +103,4 @@ bool
 
     return r;
 }
+{{/mutexes.length}}

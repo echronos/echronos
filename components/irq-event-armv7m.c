@@ -11,7 +11,7 @@
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-void {{prefix_func}}irq_event_raise({{prefix_type}}IrqEventId event);
+void {{prefix_func}}interrupt_event_raise({{prefix_type}}InterruptEventId event);
 
 /*| headers |*/
 #include <stdint.h>
@@ -27,41 +27,41 @@ void {{prefix_func}}irq_event_raise({{prefix_type}}IrqEventId event);
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static void irq_event_process(void);
-static inline bool irq_event_check(void);
-static inline void irq_event_wait(void);
+static void interrupt_event_process(void);
+static inline bool interrupt_event_check(void);
+static inline void interrupt_event_wait(void);
 
 /*| state |*/
-VOLATILE_BITBAND_VAR(uint32_t, irq_event);
+VOLATILE_BITBAND_VAR(uint32_t, interrupt_event);
 
 /*| function_like_macros |*/
 
 /*| functions |*/
 static void
-irq_event_process(void)
+interrupt_event_process(void)
 {
-    uint32_t tmp = irq_event;
+    uint32_t tmp = interrupt_event;
     while (tmp != 0)
     {
-        {{prefix_type}}IrqEventId i = __builtin_ffs(tmp) - 1;
-        irq_event_bitband[i] = 0;
-        handle_irq_event(i);
+        {{prefix_type}}InterruptEventId i = __builtin_ffs(tmp) - 1;
+        interrupt_event_bitband[i] = 0;
+        handle_interrupt_event(i);
         tmp &= ~(1U << i);
     }
 }
 
 static inline bool
-irq_event_check(void)
+interrupt_event_check(void)
 {
-    return irq_event != 0;
+    return interrupt_event != 0;
 }
 
 static inline void
-irq_event_wait(void)
+interrupt_event_wait(void)
 {
     asm volatile("cpsid i");
     asm volatile("isb");
-    if (!irq_event_check())
+    if (!interrupt_event_check())
     {
         asm volatile("wfi");
     }
@@ -70,7 +70,7 @@ irq_event_wait(void)
 
 /*| public_functions |*/
 void
-{{prefix_func}}irq_event_raise({{prefix_type}}IrqEventId irq_event_id)
+{{prefix_func}}interrupt_event_raise({{prefix_type}}InterruptEventId interrupt_event_id)
 {
-    irq_event_bitband[irq_event_id] = 1;
+    interrupt_event_bitband[interrupt_event_id] = 1;
 }

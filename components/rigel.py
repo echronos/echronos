@@ -28,8 +28,8 @@ class RigelModule(Module):
        </constraint>
      </entry>
    </entry>
-   <entry name="irq_events" type="list" auto_index_field="idx">
-     <entry name="irq_event" type="dict">
+   <entry name="interrupt_events" type="list" auto_index_field="idx">
+     <entry name="interrupt_event" type="dict">
       <entry name="name" type="ident" />
       <entry name="task" type="object" group="tasks" />
       <entry name="sig_set" type="ident" />
@@ -74,7 +74,7 @@ class RigelModule(Module):
         # Semi-configurable items
         # These are configurable in the code, but for simplicitly they are not supported as
         # user configuration at this stage.
-        config['irqeventid_size'] = 8
+        config['interrupteventid_size'] = 8
         config['taskid_size'] = 8
 
         # Create builtin signals
@@ -95,7 +95,6 @@ class RigelModule(Module):
         for task in config['tasks']:
             sig_set = []
             for sig in config['signal_labels']:
-                print(sig)
                 if sig.get('global', False) or task['name'] in [t['name'] for t in sig['tasks']]:
                     sig_set.append(sig['name'])
             sig_sets.append(sig_set)
@@ -110,10 +109,10 @@ class RigelModule(Module):
 
         signal_set_names = [sigset['name'] for sigset in config['signal_sets']]
 
-        for irq_event in config['irq_events']:
-            if irq_event['sig_set'] not in signal_set_names:
-                msg = "Unknown signal-set '{}' in irq_event '{}'"
-                raise SystemParseError(msg.format(irq_event['sig_set'], irq_event['name']))
+        for interrupt_event in config['interrupt_events']:
+            if interrupt_event['sig_set'] not in signal_set_names:
+                msg = "Unknown signal-set '{}' in interrupt_event '{}'"
+                raise SystemParseError(msg.format(interrupt_event['sig_set'], interrupt_event['name']))
 
         for timer in config['timers']:
             if timer['sig_set'] is not None and timer['sig_set'] not in signal_set_names:

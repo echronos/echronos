@@ -46,7 +46,7 @@ extern void {{function}}(void);
 {{/tasks}}
 
 /*| function_definitions |*/
-static void handle_irq_event({{prefix_type}}IrqEventId irq_event_id);
+static void handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id);
 
 /*| state |*/
 static {{prefix_type}}TaskId current_task;
@@ -57,13 +57,13 @@ static struct task tasks[{{tasks.length}}];
 #define preempt_enable()
 #define get_current_task() current_task
 #define get_task_context(task_id) &tasks[task_id].ctx
-#define irq_event_id_to_taskid(irq_event_id) (({{prefix_type}}TaskId)(irq_event_id))
+#define interrupt_event_id_to_taskid(interrupt_event_id) (({{prefix_type}}TaskId)(interrupt_event_id))
 
 /*| functions |*/
 static void
-handle_irq_event({{prefix_type}}IrqEventId irq_event_id)
+handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id)
 {
-    sched_set_runnable(irq_event_id_to_taskid(irq_event_id));
+    sched_set_runnable(interrupt_event_id_to_taskid(interrupt_event_id));
 }
 
 /*| public_functions |*/
@@ -78,7 +78,7 @@ void
 void
 {{prefix_func}}yield(void)
 {
-    {{prefix_type}}TaskId to = irq_event_get_next();
+    {{prefix_type}}TaskId to = interrupt_event_get_next();
     {{prefix_func}}yield_to(to);
 }
 

@@ -44,7 +44,7 @@ struct task
     context_t ctx;
 };
 
-struct irq_event_handler {
+struct interrupt_event_handler {
     {{prefix_type}}TaskId task;
     {{prefix_type}}SignalSet sig_set;
 };
@@ -59,7 +59,7 @@ extern void {{fatal_error}}({{prefix_type}}ErrorId error_id);
 static void _yield_to({{prefix_type}}TaskId to);
 static void _block(void);
 static void _unblock({{prefix_type}}TaskId task);
-static void handle_irq_event({{prefix_type}}IrqEventId irq_event_id);
+static void handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id);
 
 
 /*| state |*/
@@ -71,10 +71,10 @@ static {{prefix_type}}TimerId task_timers[{{tasks.length}}] = {
 {{/tasks}}
 };
 
-struct irq_event_handler irq_events[{{irq_events.length}}] = {
-{{#irq_events}}
+struct interrupt_event_handler interrupt_events[{{interrupt_events.length}}] = {
+{{#interrupt_events}}
     { {{prefix_const}}TASK_ID_{{task.name|u}}, {{prefix_const}}SIGNAL_SET_{{sig_set|u}} },
-{{/irq_events}}
+{{/interrupt_events}}
 };
 
 /*| function_like_macros |*/
@@ -82,7 +82,7 @@ struct irq_event_handler irq_events[{{irq_events.length}}] = {
 #define preempt_enable()
 #define get_current_task() current_task
 #define get_task_context(task_id) &tasks[task_id].ctx
-#define irq_event_id_to_taskid(irq_event_id) (({{prefix_type}}TaskId)(irq_event_id))
+#define interrupt_event_id_to_taskid(interrupt_event_id) (({{prefix_type}}TaskId)(interrupt_event_id))
 
 /*| functions |*/
 static void
@@ -107,10 +107,10 @@ _unblock({{prefix_type}}TaskId task)
 }
 
 static void
-handle_irq_event({{prefix_type}}IrqEventId irq_event_id)
+handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id)
 {
-    {{prefix_type}}TaskId task = irq_events[irq_event_id].task;
-    {{prefix_type}}SignalSet sig_set = irq_events[irq_event_id].sig_set;
+    {{prefix_type}}TaskId task = interrupt_events[interrupt_event_id].task;
+    {{prefix_type}}SignalSet sig_set = interrupt_events[interrupt_event_id].sig_set;
 
     {{prefix_func}}signal_send_set(task, sig_set);
 }
@@ -141,7 +141,7 @@ void
 void
 {{prefix_func}}yield(void)
 {
-    {{prefix_type}}TaskId to = irq_event_get_next();
+    {{prefix_type}}TaskId to = interrupt_event_get_next();
     _yield_to(to);
 }
 

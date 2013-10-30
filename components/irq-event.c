@@ -2,14 +2,14 @@
 #include <stdint.h>
 
 /*| public_type_definitions |*/
-typedef uint{{irqeventid_size}}_t {{prefix_type}}IrqEventId;
+typedef uint{{interrupteventid_size}}_t {{prefix_type}}InterruptEventId;
 
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
-{{#irq_events}}
-#define {{prefix_const}}IRQ_EVENT_ID_{{name|u}} (({{prefix_type}}IrqEventId) UINT{{irqeventid_size}}_C({{idx}}))
-{{/irq_events}}
+{{#interrupt_events}}
+#define {{prefix_const}}INTERRUPT_EVENT_ID_{{name|u}} (({{prefix_type}}InterruptEventId) UINT{{interrupteventid_size}}_C({{idx}}))
+{{/interrupt_events}}
 
 /*| public_function_like_macros |*/
 
@@ -28,7 +28,7 @@ typedef uint{{irqeventid_size}}_t {{prefix_type}}IrqEventId;
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static {{prefix_type}}TaskId irq_event_get_next(void);
+static {{prefix_type}}TaskId interrupt_event_get_next(void);
 
 /*| state |*/
 
@@ -36,13 +36,13 @@ static {{prefix_type}}TaskId irq_event_get_next(void);
 
 /*| functions |*/
 static {{prefix_type}}TaskId
-irq_event_get_next(void)
+interrupt_event_get_next(void)
 {
     TaskIdOption next;
 
     for (;;)
     {
-        irq_event_process();
+        interrupt_event_process();
 [[#timer_process]]
         /* IMPROVE: This indicates we may want to factor things differently in the future */
         if (timer_check())
@@ -58,7 +58,7 @@ irq_event_get_next(void)
              * Alternatively, this whole loop could be externalized and hooked into by components. */
             current_task = TASK_ID_NONE;
 
-            irq_event_wait();
+            interrupt_event_wait();
         }
         else
         {

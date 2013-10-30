@@ -283,7 +283,7 @@ The RTOS comes in a number of different *flavors*, each of varying complexity,
 code size and feature set. It is anticipated that the SMACCM project will use
 the *rigel* RTOS flavor.
 
-This RTOS supports tasks, round-robin scheduling, signals and IRQ
+This RTOS supports tasks, round-robin scheduling, signals and interrupt
 events which can trigger the sending of signals.
 
 There are a number of configuration options that should be set
@@ -310,9 +310,9 @@ The RTOS supports signal sets of varying sizes. Possible values
 are 8, 16 and 32. The signal set size places a limit on the number
 of individual signals that are available.
 
-### `irqeventid_size`
+### `interrupteventid_size`
 
-IRQ event identifiers may also vary in size. Valid values are 8, 16
+Interrupt event identifiers may also vary in size. Valid values are 8, 16
 and 32.
 
 ### `num_tasks`
@@ -324,9 +324,9 @@ Note: The tasks themselves must also be explicitly declared, so
 to some extent this option is redundant. This should be improved
 in an upcoming release.
 
-### `num_irq_events`
+### `num_interrupt_events`
 
-This represents the maximum number of IRQ events in the system.
+This represents the maximum number of interrupt events in the system.
 
 ### `tasks`
 
@@ -353,28 +353,28 @@ that takes zero arguments and never returns.
 
 Size of the stack allocated to this task.
 
-### `irq_events`
+### `interrupt_events`
 
-The configuration should include an `irq_events` element, with
-a number of `irq_event` child elements. The `irq_event` element
-defines each of the individual IRQ events. Each IRQ event has
+The configuration should include an `interrupt_events` element, with
+a number of `interrupt_event` child elements. The `interrupt_event` element
+defines each of the individual interrupt events. Each interrupt event has
 the following configuration elements:
 
 #### `idx`
 
-The IRQ event's identifier. Note: This may be automatically assigned in
-future version. IRQ event identifiers must be unique within the system.
+The interrupt event's identifier. Note: This may be automatically assigned in
+future version. interrupt event identifiers must be unique within the system.
 
 #### `name`
 
-The name of the IRQ event. This should be a valid C identifier. IRQ event names
-must be unique within the system.
+The name of the interrupt event. This should be a valid C identifier. interrupt
+event names must be unique within the system.
 
 #### `task`
 
-When an IRQ event is raised it sends a signal set to a specific task. The
-`task` configuration element specifies the task identifier.
+When an interrupt event is raised it sends a signal set to a specific task.
+The `task` configuration element specifies the task identifier.
 
 #### `sig_set`
 
-The signal set to send to the specified task when the IRQ event is raised.
+The signal set to send to the specified task when the interrupt event is raised.

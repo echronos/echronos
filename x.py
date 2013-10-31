@@ -2,7 +2,7 @@
 """
 Overview
 ---------
-`x.py` is the main *project management script* for the brtos project.
+`x.py` is the main *project management script* for the RTOS project.
 As a *project magement script* it should handle any actions related to working on the project, such as building
 artifacts for release, project management related tasks such as creating reviews, and similar task.
 Any project management related task should be added as a subcommand to `x.py`, rather than adding another script.
@@ -1396,8 +1396,8 @@ class LicenseOpener:
 
 
 def tar_info_filter(tarinfo):
-    tarinfo.uname = 'brtos'
-    tarinfo.gname = 'brtos'
+    tarinfo.uname = '_default_user_'
+    tarinfo.gname = '_default_group_'
     tarinfo.mtime = BASE_TIME
     tarinfo.uid = 1000
     tarinfo.gid = 1000
@@ -1488,7 +1488,7 @@ class ReleasePackage:
         return self._pkg.path
 
     def get_archive_name(self):
-        return '{}-{}'.format(self._pkg.name, self._rls_cfg.name)
+        return '{}-{}'.format(self._pkg.name, self._rls_cfg.release_name)
 
     def get_path_in_archive(self):
         return 'share/packages/{}'.format(self._pkg.name)
@@ -1531,7 +1531,7 @@ def build_manuals(args):
 class ReleaseMeta(type):
     """A pretty-printing meta-class for the Release class."""
     def __str__(cls):
-        return '{}-{}'.format(cls.name, cls.version)
+        return '{}-{}'.format(cls.release_name, cls.version)
 
 
 class Release(metaclass=ReleaseMeta):
@@ -1539,7 +1539,8 @@ class Release(metaclass=ReleaseMeta):
     packages = []
     platforms = []
     version = None
-    name = None
+    product_name = None
+    release_name = None
     enabled = False
     license = None
     top_level_license = None
@@ -1557,11 +1558,11 @@ def get_release_configs():
 
 def build_single_release(config):
     """Build a release archive for a specific release configuration."""
-    basename = 'brtos-{}-{}'.format(config.name, config.version)
+    basename = '{}-{}-{}'.format(config.product_name, config.release_name, config.version)
     logging.info("Building {}".format(basename))
     with tarfile_open(top_path('release', '{}.tar.gz'.format(basename)), 'w:gz', format=tarfile.GNU_FORMAT) as tf:
         for pkg in config.packages:
-            release_file_path = top_path('release', 'partials', '{}-{}.tar.gz'.format(pkg, config.name))
+            release_file_path = top_path('release', 'partials', '{}-{}.tar.gz'.format(pkg, config.release_name))
             with tarfile.open(release_file_path, 'r:gz') as in_f:
                 for m in in_f.getmembers():
                     m_f = in_f.extractfile(m)

@@ -31,8 +31,8 @@ typedef {{prefix_type}}TaskId TaskIdOption;
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static void block_on({{prefix_type}}TaskId task);
-static void unblock({{prefix_type}}TaskId task);
+static void mutex_block_on({{prefix_type}}TaskId task);
+static void mutex_unblock({{prefix_type}}TaskId task);
 static {{prefix_type}}TaskId get_current_task(void);
 
 /*| state |*/
@@ -44,7 +44,7 @@ void (*unblock_ptr)({{prefix_type}}TaskId);
 
 /*| functions |*/
 static void
-block_on({{prefix_type}}TaskId task)
+mutex_block_on({{prefix_type}}TaskId task)
 {
     if (block_on_ptr != NULL)
     {
@@ -53,7 +53,7 @@ block_on({{prefix_type}}TaskId task)
 }
 
 static void
-unblock({{prefix_type}}TaskId task)
+mutex_unblock({{prefix_type}}TaskId task)
 {
     if (unblock_ptr != NULL)
     {

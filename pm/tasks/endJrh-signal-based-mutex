@@ -1,0 +1,7 @@
+Task: endJrh-signal-based-mutex
+==============================================================================
+
+Goals
+--------
+
+Create a mutex implementation that uses signals for blocking/unblocking.

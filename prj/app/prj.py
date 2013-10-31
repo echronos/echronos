@@ -1427,11 +1427,8 @@ class System:
             name = get_attribute(m_el, 'name')
             if not valid_entity_name(name):
                 raise EntityLoadError(xml_error_str(m_el, "Invalid module name '{}'".format(name)))
-            try:
-                module = self.project.find(name)
-            except EntityLoadError as e:
-                logger.error(e)
-                raise EntityLoadError(xml_error_str(m_el, 'Error loading module {}'.format(name)))
+
+            module = self.project.find(name)
 
             if isinstance(module, Module):
                 try:
@@ -1659,9 +1656,12 @@ class Project:
             try:
                 py_module = imp.load_source("__prj.%s" % entity_name, path)
             except:
-                raise
-                # FIXME: Capture traceback for printing later.
-                raise EntityLoadError("An error occured while loading '{}'".format(path))
+                exc_type, exc_value, tb = sys.exc_info()
+                tb_str = ''.join(traceback.format_exception(exc_type, exc_value, tb.tb_next, chain=False))
+                msg = "An error occured while loading '{}'".format(path)
+                detail = "Traceback:\n{}".format(tb_str)
+                raise EntityLoadError(msg, detail)
+
             py_module.__path__ = os.path.dirname(py_module.__file__)
             if hasattr(py_module, 'system_build'):
                 return Builder(entity_name, py_module)

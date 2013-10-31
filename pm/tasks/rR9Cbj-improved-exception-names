@@ -1,0 +1,9 @@
+Task: rR9Cbj-improved-exception-names
+==============================================================================
+
+Goals
+--------
+
+Per PEP-8, exception classes should be named <name>Error.
+Not all exception classes in prj.py follow this pattern.
+Update prj.py to have correct exception names.

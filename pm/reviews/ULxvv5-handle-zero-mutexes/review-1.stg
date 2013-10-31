@@ -5,16 +5,4 @@ Task name: ULxvv5-handle-zero-mutexes
 Version reviewed: 57ea778ed064305c1c26c4a9b3f95ec8307d6a35
 Reviewer: stg
 Date: 2013-10-31
-Conclusion: Accepted/Rework
-
-Overall comments:
-
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Conclusion: Accepted

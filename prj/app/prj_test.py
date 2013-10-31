@@ -198,6 +198,7 @@ def test_xml2dict_optional():
 
     # Make the child element optional instead.
     schema['dict_type'][0][0]['optional'] = True
+    schema['dict_type'][0][0]['default'] = None
     x = xml2dict(xml_parse_string(test_xml), schema)
     assert x['b'] is None
 

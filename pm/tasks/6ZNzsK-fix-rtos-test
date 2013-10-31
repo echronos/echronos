@@ -1,0 +1,8 @@
+Task: 6ZNzsK-fix-rtos-test
+==============================================================================
+
+Goals
+--------
+
+The goal of this task is to make "./x.py rtos-test" work correctly.
+This test is not yet on the regression testing server, so a small configuration problem was overlooked.

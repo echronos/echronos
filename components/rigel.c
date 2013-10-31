@@ -34,6 +34,7 @@ void {{prefix_func}}task_start({{prefix_type}}TaskId task);
 
 #define ERROR_ID_NONE (({{prefix_type}}ErrorId) UINT8_C(0))
 #define ERROR_ID_TICK_OVERFLOW (({{prefix_type}}ErrorId) UINT8_C(1))
+#define ERROR_ID_NO_TASKS_AVAILABLE (({{prefix_type}}ErrorId) UINT8_C(2))
 
 /*| type_definitions |*/
 typedef {{prefix_type}}TaskId TaskIdOption;

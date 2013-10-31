@@ -68,7 +68,7 @@ interrupt_event_get_next(void)
             interrupt_event_wait();
 {{/interrupt_events.length}}
 {{^interrupt_events.length}}
-            {{fatal_error}}(0);
+            {{fatal_error}}(ERROR_ID_NO_TASKS_AVAILABLE);
 {{/interrupt_events.length}}
         }
         else

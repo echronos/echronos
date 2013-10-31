@@ -5,7 +5,7 @@ class SchedPrioInheritTestModule(Module):
     xml_schema = """
   <schema>
    <entry name="prefix" type="ident" optional="true" />
-   <entry name="semaphores" type="list" auto_index_field="idx">
+   <entry name="semaphores" type="list" default="[]" auto_index_field="idx">
      <entry name="semaphore" type="dict">
       <entry name="name" type="ident" />
      </entry>

@@ -10,7 +10,7 @@ class SimpleMutexTestModule(Module):
       <entry name="name" type="ident" />
      </entry>
    </entry>
-   <entry name="tasks" type="list" auto_index_field="idx">
+   <entry name="tasks" type="list" default="[]" auto_index_field="idx">
      <entry name="task" type="dict">
       <entry name="name" type="ident" />
      </entry>

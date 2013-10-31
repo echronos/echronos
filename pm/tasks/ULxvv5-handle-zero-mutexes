@@ -4,4 +4,6 @@ Task: ULxvv5-handle-zero-mutexes
 Goals
 --------
 
-If there are not any mutexes specified in a configuration, then the mutex code should be excluded from the implementation.
+The goal of this task is to update rigel so that RTOS code is excluded where possible.
+For example, if there are zero mutexes, the mutex code should be excluded.
+The same approach applies to other objects, such as timers and interrupt events.

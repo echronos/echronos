@@ -1846,6 +1846,13 @@ def get_command_line_arguments():
     return args
 
 
+def report_error(exception):
+    logger.error(str(exception))
+    if hasattr(exception, 'detail') and exception.detail is not None:
+        logger.error(exception.detail)
+    return 1
+
+
 def main():
     """Application main entry point. Parse arguments, and call specified sub-command."""
     args = get_command_line_arguments()
@@ -1854,8 +1861,7 @@ def main():
     try:
         args.project = Project(args.project, args.search_path, args.prx_inc_path)
     except (EntityLoadError, EntityNotFoundError, ProjectStartupError) as e:
-        logger.error(str(e))
-        return 1
+        return report_error(e)
     except FileNotFoundError as e:
         logger.error("Unable to initialise project from file [%s]. Exception: %s" % (args.project, e))
         return 1
@@ -1866,10 +1872,7 @@ def main():
     try:
         return SUBCOMMAND_TABLE[args.command](args)
     except EntityLoadError as e:
-        logger.error(str(e))
-        if e.detail is not None:
-            logger.error(e.detail)
-        return 1
+        return report_error(e)
 
 
 def _start():

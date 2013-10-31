@@ -519,6 +519,10 @@ def check_schema_is_valid(schema, key_path=None):
     if schema['type'] not in valid_schema_types:
         error("type '{}' is invalid.".format(schema['type']))
 
+    if schema.get('optional', False):
+        if 'default' not in schema:
+            error('Optional configuration elements also need to have default values')
+
     if 'default' in schema and schema['default'] is not None:
         default = schema['default']
         if schema['type'] == 'ident':

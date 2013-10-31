@@ -1119,10 +1119,13 @@ class Module:
             output_path = os.path.join(system.output, f.get('output', f['input']))
 
             logger.info("Preparing: template %s -> %s", input_path, output_path)
-            if f.get('render', False):
-                pystache_render(input_path, output_path, config)
-            else:
-                shutil.copy(input_path, output_path)
+            try:
+                if f.get('render', False):
+                    pystache_render(input_path, output_path, config)
+                else:
+                    shutil.copy(input_path, output_path)
+            except FileNotFoundError as e:
+                raise SystemBuildError("File not found error during template preparation '{}'.".format(e.filename))
 
             _type = f.get('type')
             if _type is None:

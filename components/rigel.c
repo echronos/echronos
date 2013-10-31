@@ -85,6 +85,9 @@ struct interrupt_event_handler interrupt_events[{{interrupt_events.length}}] = {
 #define get_current_task() current_task
 #define get_task_context(task_id) &tasks[task_id].ctx
 #define interrupt_event_id_to_taskid(interrupt_event_id) (({{prefix_type}}TaskId)(interrupt_event_id))
+#define mutex_block_on(unused_task) {{prefix_func}}signal_wait({{prefix_const}}SIGNAL_ID__RTOS_UTIL)
+#define mutex_unblock(task) {{prefix_func}}signal_send(task, {{prefix_const}}SIGNAL_ID__RTOS_UTIL)
+
 
 /*| functions |*/
 static void
@@ -159,6 +162,8 @@ void
 void
 {{prefix_func}}start(void)
 {
+    mutex_init();
+
     {{#tasks}}
     context_init(get_task_context({{idx}}), _task_entry_{{name}}, stack_{{idx}}, {{stack_size}});
     sched_set_runnable({{idx}});

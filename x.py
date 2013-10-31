@@ -2377,7 +2377,7 @@ CORE_SKELETONS = {
          Component('timer'),
          ArchitectureComponent('interrupt_event_arch', 'interrupt-event'),
          Component('interrupt_event', 'interrupt-event', {'timer_process': True}),
-         Component('mutex', 'simple-mutex'),
+         Component('mutex', 'blocking-mutex'),
          Component('profiling'),
          Component('rigel')],
     ),

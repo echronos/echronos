@@ -483,14 +483,14 @@ def check_constraint_is_valid(constraint):
 
     """
     if not dict_has_keys(constraint, 'type', 'elements'):
-        raise SchemaInvalid("Constraint should have type and elements keys.")
+        raise SchemaInvalidError("Constraint should have type and elements keys.")
 
     if constraint['type'] not in valid_constraint_types:
-        raise SchemaInvalid("Constraint type {} is not valid.".format(constraint['type']))
+        raise SchemaInvalidError("Constraint type {} is not valid.".format(constraint['type']))
 
 
 def check_schema_is_valid(schema, key_path=None):
-    """Raise SchemaInvalid exception if the schema is not valid.
+    """Raise SchemaInvalidError exception if the schema is not valid.
 
     The None object is a valid schema.
 
@@ -507,7 +507,7 @@ def check_schema_is_valid(schema, key_path=None):
         else:
             key_name = '.'.join(key_path + [name])
         key_msg = '' if key_name is None else 'key:{} '.format(key_name)
-        raise SchemaInvalid("Schema {}is invalid: {}".format(key_msg, msg))
+        raise SchemaInvalidError("Schema {}is invalid: {}".format(key_msg, msg))
 
     if schema is None:
         return
@@ -885,7 +885,7 @@ def asdict(lst, key=None, attr=None):
     return {lookup(x): x for x in lst}
 
 
-class SchemaInvalid(Exception):
+class SchemaInvalidError(Exception):
     """Raised by `check_schema_is_valid` if a schema is invalid."""
 
 
@@ -923,7 +923,7 @@ class EntityLoadError(Exception):
         self.detail = detail
 
 
-class EntityNotFound(Exception):
+class EntityNotFoundError(Exception):
     """Raised when an entity can not be found."""
 
 
@@ -1289,7 +1289,7 @@ class Action(NamedModule):
         if hasattr(py_module, 'schema'):
             try:
                 check_schema_is_valid(py_module.schema)
-            except SchemaInvalid as e:
+            except SchemaInvalidError as e:
                 raise SystemLoadError("The schema declared in module '{}' is invalid. {:s}".format(name, e))
             self.schema = py_module.schema
 
@@ -1615,15 +1615,15 @@ class Project:
                 break
 
         if path is None:
-            raise EntityNotFound("Unable to find entity named '{}'".format(entity_name))
+            raise EntityNotFoundError("Unable to find entity named '{}'".format(entity_name))
 
         if ext == '':
             if not os.path.isdir(path):
-                raise EntityNotFound("Unable to find entity named %s" % entity_name)
+                raise EntityNotFoundError("Unable to find entity named %s" % entity_name)
             # Search for an 'entity.<ext>' file.
             file_path, ext = search_inner(os.path.join(path, 'entity'))
             if file_path is None:
-                raise EntityNotFound("Couldn't find entity definition file in '{}'".format(path))
+                raise EntityNotFoundError("Couldn't find entity definition file in '{}'".format(path))
             path = file_path
 
         return path
@@ -1761,7 +1761,7 @@ def call_system_function(args, function, extra_args=None, sys_is_path=False):
     except EntityLoadError as e:
         logger.error("Unable to load system [{}]: {}".format(system_name, e))
         return 1
-    except EntityNotFound:
+    except EntityNotFoundError:
         logger.error("Unable to find system [{}].".format(system_name))
         return 1
 
@@ -1770,7 +1770,7 @@ def call_system_function(args, function, extra_args=None, sys_is_path=False):
 
     logger.info("Invoking '{}' on system '{}'".format(function.__name__, system.name))
     expected_exceptions = (SystemParseError, SystemLoadError, SystemBuildError, SystemConsistencyError,
-                           ResourceNotFoundError, EntityNotFound)
+                           ResourceNotFoundError, EntityNotFoundError)
     try:
         function(system, **extra_args)
     except expected_exceptions as e:
@@ -1841,7 +1841,7 @@ def main():
     # Initialise project
     try:
         args.project = Project(args.project, args.search_path, args.prx_inc_path)
-    except (EntityLoadError, EntityNotFound, ProjectStartupError) as e:
+    except (EntityLoadError, EntityNotFoundError, ProjectStartupError) as e:
         logger.error(str(e))
         return 1
     except FileNotFoundError as e:

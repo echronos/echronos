@@ -34,7 +34,7 @@ def test_schema_is_valid():
             []
         )
     }
-    assert_raises(SchemaInvalid, check_schema_is_valid, no_name)
+    assert_raises(SchemaInvalidError, check_schema_is_valid, no_name)
 
     bad_dict_type = {
         'name': 'module',
@@ -44,7 +44,7 @@ def test_schema_is_valid():
             'foo': {'type': 'string', 'name': 'target', 'default': ''}
         }
     }
-    assert_raises(SchemaInvalid, check_schema_is_valid, bad_dict_type)
+    assert_raises(SchemaInvalidError, check_schema_is_valid, bad_dict_type)
 
     invalid_nested = {
         'type': 'dict',
@@ -54,20 +54,20 @@ def test_schema_is_valid():
             []
         )
     }
-    assert_raises(SchemaInvalid, check_schema_is_valid, invalid_nested)
+    assert_raises(SchemaInvalidError, check_schema_is_valid, invalid_nested)
 
     list_no_type = {
         'type': 'list',
         'name': 'foo'
     }
-    assert_raises(SchemaInvalid, check_schema_is_valid, list_no_type)
+    assert_raises(SchemaInvalidError, check_schema_is_valid, list_no_type)
 
     list_nested_bad_dict = {
         'type': 'list',
         'name': 'foo',
         'list_type': {'type': 'dict_type', 'name': 'foo'}
     }
-    assert_raises(SchemaInvalid, check_schema_is_valid, list_nested_bad_dict)
+    assert_raises(SchemaInvalidError, check_schema_is_valid, list_nested_bad_dict)
 
 
 def test_list_all_equal():

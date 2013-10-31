@@ -13,7 +13,7 @@
 /*| public_function_definitions |*/
 {{#profiling}}
 
-void {{prefix}}profiling_record_sample(void);
+void {{prefix_func}}profiling_record_sample(void);
 
 {{/profiling}}
 
@@ -47,7 +47,7 @@ static uint32_t profiling_task_uptimes[{{tasks.length}} + 1];
 {{#profiling}}
 
 void
-{{prefix}}profiling_record_sample(void)
+{{prefix_func}}profiling_record_sample(void)
 {
     {{#profiling.task_uptime}}
     TaskId idx;

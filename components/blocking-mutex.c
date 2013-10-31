@@ -52,10 +52,15 @@ static void
 mutex_init(void)
 {
     {{prefix_type}}TaskId t;
+    {{prefix_type}}MutexId m;
 
     for (t = {{prefix_const}}TASK_ID_ZERO; t <= {{prefix_const}}TASK_ID_MAX; t++)
     {
         waiters[t] = MUTEX_ID_NONE;
+    }
+    for (m = {{prefix_const}}MUTEX_ID_ZERO; m <= {{prefix_const}}MUTEX_ID_MAX; m++)
+    {
+        mutexes[m].holder = TASK_ID_NONE;
     }
 }
 

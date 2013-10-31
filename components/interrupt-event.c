@@ -22,6 +22,7 @@ typedef uint{{interrupteventid_size}}_t {{prefix_type}}InterruptEventId;
 /*| public_function_definitions |*/
 
 /*| headers |*/
+#include <stdbool.h>
 
 /*| object_like_macros |*/
 
@@ -35,6 +36,7 @@ typedef uint{{interrupteventid_size}}_t {{prefix_type}}InterruptEventId;
 static {{prefix_type}}TaskId interrupt_event_get_next(void);
 
 /*| state |*/
+static bool system_is_idle;
 
 /*| function_like_macros |*/
 
@@ -57,13 +59,14 @@ interrupt_event_get_next(void)
         }
 [[/timer_process]]
         next = sched_get_next();
+
+        /* IMPROVE: reference to external 'current_task'; may require refactoring.
+         * For example, the system falling idle could be treated as an event that can be hooked into.
+         * Alternatively, this whole loop could be externalized and hooked into by components. */
+        system_is_idle = (next == TASK_ID_NONE);
+
         if (next == TASK_ID_NONE)
         {
-            /* IMPROVE: reference to external 'current_task'; may require refactoring.
-             * For example, the system falling idle could be treated as an event that can be hooked into.
-             * Alternatively, this whole loop could be externalized and hooked into by components. */
-            current_task = TASK_ID_NONE;
-
             interrupt_event_wait();
         }
         else

@@ -18,6 +18,7 @@ void {{prefix}}profiling_record_sample(void);
 {{/profiling}}
 
 /*| headers |*/
+#include <stdint.h>
 
 /*| object_like_macros |*/
 
@@ -49,9 +50,13 @@ void
 {{prefix}}profiling_record_sample(void)
 {
     {{#profiling.task_uptime}}
-    TaskId idx = get_current_task();
+    TaskId idx;
 
-    if (idx == TASK_ID_NONE)
+    if (!system_is_idle)
+    {
+        idx = get_current_task();
+    }
+    else
     {
         idx = {{tasks.length}};
     }

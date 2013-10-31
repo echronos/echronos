@@ -889,7 +889,16 @@ class SchemaInvalidError(Exception):
     """Raised by `check_schema_is_valid` if a schema is invalid."""
 
 
-class ResourceNotFoundError(Exception):
+class UserError(Exception):
+    """This is the base class for a set of exceptions that will be reported to the user.
+
+    These errors are raised due to an user input of some type and are ultimately display
+    to the end-user of the tool.
+
+    """
+
+
+class ResourceNotFoundError(UserError):
     """Raised when the system is unable to find a file or other resource.
 
     This is very similar to the builtin FileNotFoundError however, this
@@ -897,22 +906,22 @@ class ResourceNotFoundError(Exception):
     """
 
 
-class SystemParseError(Exception):
+class SystemParseError(UserError):
     """Raised when parsing system definition files."""
 
 
-class SystemConsistencyError(Exception):
+class SystemConsistencyError(UserError):
     """Indicates that the system, as instantiated from its system definition, is internally inconsistent.
     For example, a required module may be missing.
 
     """
 
 
-class SystemBuildError(Exception):
+class SystemBuildError(UserError):
     """Raised when an error occurs during system build."""
 
 
-class SystemLoadError(Exception):
+class SystemLoadError(UserError):
     """Raised when an error occurs while loading and starting a system image on a device."""
 
 
@@ -923,7 +932,7 @@ class EntityLoadError(Exception):
         self.detail = detail
 
 
-class EntityNotFoundError(Exception):
+class EntityNotFoundError(UserError):
     """Raised when an entity can not be found."""
 
 
@@ -1769,11 +1778,9 @@ def call_system_function(args, function, extra_args=None, sys_is_path=False):
         system.output = args.output
 
     logger.info("Invoking '{}' on system '{}'".format(function.__name__, system.name))
-    expected_exceptions = (SystemParseError, SystemLoadError, SystemBuildError, SystemConsistencyError,
-                           ResourceNotFoundError, EntityNotFoundError)
     try:
         function(system, **extra_args)
-    except expected_exceptions as e:
+    except UserError as e:
         logger.error(str(e))
         return 1
 

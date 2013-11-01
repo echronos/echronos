@@ -1,0 +1,11 @@
+Task: tpCCBQ-assertions
+==============================================================================
+
+Goals
+--------
+
+The aim of this task is to add a set of assertions to the RTOS implementation.
+The assertions will either be 'api_asserts' or 'internal_asserts'.
+The API asserts are designed to find usage errors.
+The internal asserts are designed to protect against (detect) bugs in the RTOS.
+Both sets of asserts will be configurable from the system PRX file.

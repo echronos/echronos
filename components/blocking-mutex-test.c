@@ -96,7 +96,6 @@ pub_set_get_current_task_ptr({{prefix_type}}TaskId (*y)(void))
 void pub_mutex_init(void)
 {
     {{prefix_type}}MutexId mutex_id;
-    mutex_init();
     /* For testing purposes we also reset all mutexes */
     for (mutex_id = {{prefix_const}}MUTEX_ID_ZERO; mutex_id <= {{prefix_const}}MUTEX_ID_MAX; mutex_id++)
     {

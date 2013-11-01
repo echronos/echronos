@@ -162,8 +162,6 @@ void
 void
 {{prefix_func}}start(void)
 {
-    mutex_init();
-
     {{#tasks}}
     context_init(get_task_context({{idx}}), _task_entry_{{name}}, stack_{{idx}}, {{stack_size}});
     sched_set_runnable({{idx}});

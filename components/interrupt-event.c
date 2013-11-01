@@ -60,17 +60,14 @@ interrupt_event_get_next(void)
 [[/timer_process]]
         next = sched_get_next();
 
-        /* IMPROVE: reference to external 'current_task'; may require refactoring.
-         * For example, the system falling idle could be treated as an event that can be hooked into.
-         * Alternatively, this whole loop could be externalized and hooked into by components. */
-        system_is_idle = (next == TASK_ID_NONE);
-
         if (next == TASK_ID_NONE)
         {
+            system_is_idle = true;
             interrupt_event_wait();
         }
         else
         {
+            system_is_idle = false;
             break;
         }
     }

@@ -6,5 +6,10 @@ Goals
 
 The interrupt component sets the current_task variable to TASK_ID_NONE to mark the system as idle, which is required for profiling.
 However, this is unsafe because the context_switch component relies on current_task to retain a valid value and not be TASK_ID_NONE.
+
+With current_task == TASK_ID_NONE, context_switch indexes the task array with TASK_ID_NONE to retrieve the memory location where to store the stack pointer of the current task.
+By design, TASK_ID_NONE is not a valid index into the task array.
+This leads to an out-of-bounds array access and the stack pointer value being written to an undefined memory location.
+
 The goal of this task is to not set current_task to TASK_ID_NONE but record when the system is idle through a dedicated variable.
 The profiling component shall be adapted accordingly.

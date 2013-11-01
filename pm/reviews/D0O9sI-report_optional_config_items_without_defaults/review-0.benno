@@ -5,16 +5,12 @@ Task name: D0O9sI-report_optional_config_items_without_defaults
 Version reviewed: dc2ffd67b2e5a85b1f47091b2172ad569c777cfc
 Reviewer: benno
 Date: 2013-11-01
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
+The code is fine, however I think the task documentation should be clearer.
+Specifically, it should make it clear that the fix is related to the Python schema data structure, not the XML schema.
+i.e: when a python schema object is created from XML it already automaticallyes default=None for case where optional=True.
+The current task description makes it seem like both optional and default should be specified in the XML schema definition.
 
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:

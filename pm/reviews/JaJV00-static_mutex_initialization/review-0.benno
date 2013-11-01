@@ -5,16 +5,4 @@ Task name: JaJV00-static_mutex_initialization
 Version reviewed: 2efc3aba17c30c657002411fc9351bdc93cca6bb
 Reviewer: benno
 Date: 2013-11-01
-Conclusion: Accepted/Rework
-
-Overall comments:
-
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Conclusion: Accepted

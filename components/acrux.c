@@ -58,6 +58,8 @@ static struct task tasks[{{tasks.length}}];
 #define get_current_task() current_task
 #define get_task_context(task_id) &tasks[task_id].ctx
 #define interrupt_event_id_to_taskid(interrupt_event_id) (({{prefix_type}}TaskId)(interrupt_event_id))
+#define api_assert(expression, error_id) do { } while(0)
+#define assert_task_valid(task) api_assert(task < {{tasks.length}}, ERROR_ID_INVALID_ID)
 
 /*| functions |*/
 static void

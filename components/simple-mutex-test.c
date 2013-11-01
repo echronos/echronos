@@ -31,6 +31,7 @@ void {{prefix_func}}yield(void);
 /*| function_like_macros |*/
 #define preempt_enable()
 #define preempt_disable()
+#define api_assert(expression, error_id) do { } while(0)
 
 /*| functions |*/
 

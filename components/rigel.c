@@ -34,6 +34,10 @@ void {{prefix_func}}task_start({{prefix_type}}TaskId task);
 
 #define ERROR_ID_NONE (({{prefix_type}}ErrorId) UINT8_C(0))
 #define ERROR_ID_TICK_OVERFLOW (({{prefix_type}}ErrorId) UINT8_C(1))
+#define ERROR_ID_INVALID_ID (({{prefix_type}}ErrorId) UINT8_C(2))
+#define ERROR_ID_NOT_HOLDING_MUTEX (({{prefix_type}}ErrorId) UINT8_C(3))
+#define ERROR_ID_DEADLOCK (({{prefix_type}}ErrorId) UINT8_C(4))
+#define ERROR_ID_TASK_FUNCTION_RETURNS (({{prefix_type}}ErrorId) UINT8_C(5))
 
 /*| type_definitions |*/
 typedef {{prefix_type}}TaskId TaskIdOption;
@@ -87,7 +91,19 @@ struct interrupt_event_handler interrupt_events[{{interrupt_events.length}}] = {
 #define interrupt_event_id_to_taskid(interrupt_event_id) (({{prefix_type}}TaskId)(interrupt_event_id))
 #define mutex_block_on(unused_task) {{prefix_func}}signal_wait({{prefix_const}}SIGNAL_ID__RTOS_UTIL)
 #define mutex_unblock(task) {{prefix_func}}signal_send(task, {{prefix_const}}SIGNAL_ID__RTOS_UTIL)
-
+{{#api_asserts}}
+#define api_error(error_id) {{fatal_error}}(error_id)
+{{/api_asserts}}
+{{^api_asserts}}
+#define api_error(error_id) do { } while(0)
+{{/api_asserts}}
+{{#api_asserts}}
+#define api_assert(expression, error_id) do { if (!(expression)) { api_error(error_id); } } while(0)
+{{/api_asserts}}
+{{^api_asserts}}
+#define api_assert(expression, error_id) do { } while(0)
+{{/api_asserts}}
+#define assert_task_valid(task) api_assert(task < {{tasks.length}}, ERROR_ID_INVALID_ID)
 
 /*| functions |*/
 static void
@@ -128,6 +144,8 @@ void _task_entry_{{name}}(void)
 {
     {{^start}}{{prefix_func}}signal_wait({{prefix_const}}SIGNAL_ID__RTOS_UTIL);{{/start}}
     {{function}}();
+
+    api_error(ERROR_ID_TASK_FUNCTION_RETURNS);
 }
 
 {{/tasks}}
@@ -142,6 +160,7 @@ void _task_entry_{{name}}(void)
 void
 {{prefix_func}}task_start({{prefix_type}}TaskId task)
 {
+    assert_task_valid(task);
     {{prefix_func}}signal_send(task, {{prefix_const}}SIGNAL_ID__RTOS_UTIL);
 }
 

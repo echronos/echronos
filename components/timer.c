@@ -91,6 +91,8 @@ static struct timer timers[{{timers.length}}] = {
 #define current_timeout() ((TicksTimeout) {{prefix_func}}timer_current_ticks)
 #define TIMER_PTR(timer_id) (&timers[timer_id])
 {{/timers.length}}
+#define assert_timer_valid(timer) api_assert(timer_id < {{timers.length}}, ERROR_ID_INVALID_ID)
+
 
 /*| functions |*/
 {{#timers.length}}
@@ -151,6 +153,8 @@ timer_process(void)
 void
 {{prefix_func}}timer_enable(const {{prefix_type}}TimerId timer_id)
 {
+    assert_timer_valid(timer_id);
+
     if (timers[timer_id].reload == 0)
     {
         timer_process_one(&timers[timer_id]);
@@ -165,12 +169,16 @@ void
 void
 {{prefix_func}}timer_disable(const {{prefix_type}}TimerId timer_id)
 {
+    assert_timer_valid(timer_id);
+
     timers[timer_id].enabled = false;
 }
 
 void
 {{prefix_func}}timer_oneshot(const {{prefix_type}}TimerId timer_id, const {{prefix_type}}TicksRelative timeout)
 {
+    assert_timer_valid(timer_id);
+
     {{prefix_func}}timer_reload_set(timer_id, timeout);
     {{prefix_func}}timer_enable(timer_id);
     {{prefix_func}}timer_reload_set(timer_id, 0);
@@ -179,7 +187,11 @@ void
 bool
 {{prefix_func}}timer_check_overflow(const {{prefix_type}}TimerId timer_id)
 {
-    bool r = timers[timer_id].overflow;
+    bool r;
+
+    assert_timer_valid(timer_id);
+
+    r = timers[timer_id].overflow;
     timers[timer_id].overflow = false;
     return r;
 }
@@ -187,6 +199,8 @@ bool
 {{prefix_type}}TicksRelative
 {{prefix_func}}timer_remaining(const {{prefix_type}}TimerId timer_id)
 {
+    assert_timer_valid(timer_id);
+
     return timers[timer_id].enabled ? timers[timer_id].expiry - current_timeout() : 0;
 }
 
@@ -194,12 +208,16 @@ bool
 void
 {{prefix_func}}timer_reload_set(const {{prefix_type}}TimerId timer_id, const {{prefix_type}}TicksRelative reload)
 {
+    assert_timer_valid(timer_id);
+
     timers[timer_id].reload = reload;
 }
 
 void
 {{prefix_func}}timer_signal_set(const {{prefix_type}}TimerId timer_id, const {{prefix_type}}TaskId task_id, const {{prefix_type}}SignalSet signal_set)
 {
+    assert_timer_valid(timer_id);
+
     timers[timer_id].error_id = ERROR_ID_NONE;
     timers[timer_id].task_id = task_id;
     timers[timer_id].signal_set = signal_set;
@@ -208,6 +226,8 @@ void
 void
 {{prefix_func}}timer_error_set(const {{prefix_type}}TimerId timer_id, const {{prefix_type}}ErrorId error_id)
 {
+    assert_timer_valid(timer_id);
+
     timers[timer_id].error_id = error_id;
 }
 {{/timers.length}}

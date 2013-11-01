@@ -7,6 +7,7 @@ class RigelModule(Module):
    <entry name="signalset_size" type="int" default="8"/>
    <entry name="prefix" type="ident" optional="true" />
    <entry name="fatal_error" type="c_ident" />
+   <entry name="api_asserts" type="bool" default="true" />
    <entry name="tasks" type="list" auto_index_field="idx">
      <entry name="task" type="dict">
       <entry name="function" type="c_ident" />

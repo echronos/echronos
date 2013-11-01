@@ -56,6 +56,8 @@ static struct task tasks[{{tasks.length}}];
 #define preempt_enable()
 #define get_current_task() current_task
 #define get_task_context(task_id) &tasks[task_id].ctx
+#define api_assert(expression, error_id) do { } while(0)
+#define assert_task_valid(task) api_assert(task < {{tasks.length}}, ERROR_ID_INVALID_ID)
 
 /*| functions |*/
 

@@ -52,6 +52,7 @@ static struct mutex mutexes[{{mutexes.length}}];
 {{/mutexes.length}}
 
 /*| function_like_macros |*/
+#define assert_mutex_valid(mutex) api_assert(mutex < {{mutexes.length}}, ERROR_ID_INVALID_ID)
 
 /*| functions |*/
 {{#mutexes.length}}
@@ -75,6 +76,8 @@ internal_mutex_try_lock(const {{prefix_type}}MutexId m)
 void
 {{prefix_func}}mutex_lock(const {{prefix_type}}MutexId m)
 {
+    assert_mutex_valid(m);
+
     preempt_disable();
 
     while (!internal_mutex_try_lock(m))
@@ -88,6 +91,8 @@ void
 void
 {{prefix_func}}mutex_unlock(const {{prefix_type}}MutexId m)
 {
+    assert_mutex_valid(m);
+
     /* Note: assumes writing a single word is atomic */
     mutexes[m].locked = false;
 }
@@ -96,6 +101,8 @@ bool
 {{prefix_func}}mutex_try_lock(const {{prefix_type}}MutexId m)
 {
     bool r;
+
+    assert_mutex_valid(m);
 
     preempt_disable();
     r = internal_mutex_try_lock(m);

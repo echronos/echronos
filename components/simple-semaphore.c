@@ -51,6 +51,7 @@ static struct semaphore semaphores[{{semaphores.length}}];
 static SemIdOption waiters[{{tasks.length}}];
 
 /*| function_like_macros |*/
+#define assert_sem_valid(sem) api_assert(sem < {{semaphores.length}}, ERROR_ID_INVALID_ID)
 
 /*| functions |*/
 static void
@@ -83,6 +84,8 @@ internal_sem_try_wait(const {{prefix_type}}SemId s)
 void
 {{prefix_func}}sem_wait(const {{prefix_type}}SemId s)
 {
+    assert_sem_valid(s);
+
     preempt_disable();
 
     while (!internal_sem_try_wait(s))
@@ -98,6 +101,8 @@ void
 {{prefix_func}}sem_post(const {{prefix_type}}SemId s)
 {
     {{prefix_type}}TaskId t;
+
+    assert_sem_valid(s);
 
     preempt_disable();
 
@@ -122,6 +127,8 @@ bool
 {{prefix_func}}sem_try_wait(const {{prefix_type}}SemId s)
 {
     bool r;
+
+    assert_sem_valid(s);
 
     preempt_disable();
     r = internal_sem_try_wait(s);

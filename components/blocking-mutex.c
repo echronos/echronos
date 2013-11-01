@@ -54,6 +54,7 @@ static MutexIdOption waiters[{{tasks.length}}] = {
 };
 
 /*| function_like_macros |*/
+#define assert_mutex_valid(mutex) api_assert(mutex < {{mutexes.length}}, ERROR_ID_INVALID_ID)
 
 /*| functions |*/
 
@@ -61,6 +62,9 @@ static MutexIdOption waiters[{{tasks.length}}] = {
 void
 {{prefix_func}}mutex_lock(const {{prefix_type}}MutexId m)
 {
+    assert_mutex_valid(m);
+    api_assert(mutexes[m].holder != get_current_task(), ERROR_ID_DEADLOCK);
+
     while (!{{prefix_func}}mutex_try_lock(m))
     {
         waiters[get_current_task()] = m;
@@ -72,6 +76,9 @@ void
 {{prefix_func}}mutex_unlock(const {{prefix_type}}MutexId m)
 {
     {{prefix_type}}TaskId t;
+
+    assert_mutex_valid(m);
+    api_assert(mutexes[m].holder == get_current_task(), ERROR_ID_NOT_HOLDING_MUTEX);
 
     for (t = {{prefix_const}}TASK_ID_ZERO; t <= {{prefix_const}}TASK_ID_MAX; t++)
     {
@@ -88,6 +95,8 @@ void
 bool
 {{prefix_func}}mutex_try_lock(const {{prefix_type}}MutexId m)
 {
+    assert_mutex_valid(m);
+
     if (mutexes[m].holder != TASK_ID_NONE)
     {
         return false;

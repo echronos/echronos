@@ -41,6 +41,7 @@ void (*unblock_ptr)({{prefix_type}}TaskId);
 {{prefix_type}}TaskId (*get_current_task_ptr)(void);
 
 /*| function_like_macros |*/
+#define api_assert(expression, error_id) do { } while(0)
 
 /*| functions |*/
 static void

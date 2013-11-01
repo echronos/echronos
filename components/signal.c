@@ -127,6 +127,8 @@ _signal_recv({{prefix_type}}SignalSet *const pending_signals, const {{prefix_typ
 void
 {{prefix_func}}signal_send_set(const {{prefix_type}}TaskId task_id, const {{prefix_type}}SignalSet signals)
 {
+    assert_task_valid(task_id);
+
     preempt_disable();
 
     PENDING_SIGNALS(task_id) |= signals;

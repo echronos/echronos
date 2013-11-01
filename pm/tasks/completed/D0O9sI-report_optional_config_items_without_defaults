@@ -1,0 +1,15 @@
+Task: D0O9sI-report_optional_config_items_without_defaults
+==============================================================================
+
+Goals
+--------
+
+When the prj tool processes an optional system configuration element without a default value, it aborts with a generic Python exception.
+This makes it difficult to determine the configuration element at fault.
+The goal of this task is to make this type of issue easier to debug.
+The approach is to check whether every optional system configuration element has a default value and to report the affected element if a default value is missing.
+
+Scope change:
+PRX schema elements have an implied default value of None.
+The correct approach for this task is to fix the code that leads to the KeyError exception when querying the schema element for a default value that hasn't been explicitly specified.
+It should return None in this case.

@@ -5,7 +5,8 @@ class Standard(Release):
     packages = ['armv7m', 'generic', 'rtos-example', 'machine-qemu-simple', 'machine-stm32f4-discovery']
     platforms = ['x86_64-apple-darwin', 'x86_64-unknown-linux-gnu']
     version = '0.0.2'
-    name = 'std'
+    product_name = 'eChronos'
+    release_name = 'std'
     enabled = True
     license = """
 Copyright (c) NIPR Pty Ltd 2013.
@@ -18,13 +19,13 @@ ABN 62 102 206 173.  All rights reserved.
 
 class StandardDarwin(Standard):
     platforms = ['x86_64-apple-darwin']
-    name = 'std_darwin'
+    release_name = 'std_darwin'
     enabled = True
 
 
 class StandardLinux(Standard):
     platforms = ['x86_64-unknown-linux-gnu']
-    name = 'std_linux'
+    release_name = 'std_linux'
     enabled = True
 
 
@@ -90,11 +91,11 @@ any conflicting contractual terms or conditions.
 
 class SmaccmLinux(SmaccmBase):
     platforms = ['x86_64-unknown-linux-gnu']
-    name = 'smaccm'
+    release_name = 'smaccm'
     enabled = True
 
 
 class SmaccmDarwin(SmaccmBase):
     platforms = ['x86_64-apple-darwin']
-    name = 'smaccm-darwin'
+    release_name = 'smaccm-darwin'
     enabled = True

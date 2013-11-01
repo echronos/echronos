@@ -1,0 +1,10 @@
+Task: yeamzc-configurable_release_name
+==============================================================================
+
+Goals
+--------
+
+The x tool generates release files with the prefix 'brtos'.
+'brtos' is deprecated at least for the product release to some customers.
+The goal of this task is use a different prefix for release files.
+The approach is to make the prefix configurable via the release configuration file.

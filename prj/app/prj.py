@@ -811,8 +811,10 @@ def xml2dict(el, schema=None):
             if el is not None:
                 r = [get_el_val(c, schema['list_type'] if schema else None, el) for c in element_children(el)]
             else:
-                if schema.get('optional', False):
+                if schema.get('default') is not None:
                     return schema['default']
+                elif schema.get('optional', False):
+                    return None
                 else:
                     msg = xml_error_str(parent, "Required config field '{}' missing.".format(schema['name']))
                     raise SystemParseError(msg)

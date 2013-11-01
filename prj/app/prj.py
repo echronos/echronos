@@ -1119,10 +1119,13 @@ class Module:
             output_path = os.path.join(system.output, f.get('output', f['input']))
 
             logger.info("Preparing: template %s -> %s", input_path, output_path)
-            if f.get('render', False):
-                pystache_render(input_path, output_path, config)
-            else:
-                shutil.copy(input_path, output_path)
+            try:
+                if f.get('render', False):
+                    pystache_render(input_path, output_path, config)
+                else:
+                    shutil.copy(input_path, output_path)
+            except FileNotFoundError as e:
+                raise SystemBuildError("File not found error during template preparation '{}'.".format(e.filename))
 
             _type = f.get('type')
             if _type is None:
@@ -1427,11 +1430,8 @@ class System:
             name = get_attribute(m_el, 'name')
             if not valid_entity_name(name):
                 raise EntityLoadError(xml_error_str(m_el, "Invalid module name '{}'".format(name)))
-            try:
-                module = self.project.find(name)
-            except EntityLoadError as e:
-                logger.error(e)
-                raise EntityLoadError(xml_error_str(m_el, 'Error loading module {}'.format(name)))
+
+            module = self.project.find(name)
 
             if isinstance(module, Module):
                 try:
@@ -1659,9 +1659,12 @@ class Project:
             try:
                 py_module = imp.load_source("__prj.%s" % entity_name, path)
             except:
-                raise
-                # FIXME: Capture traceback for printing later.
-                raise EntityLoadError("An error occured while loading '{}'".format(path))
+                exc_type, exc_value, tb = sys.exc_info()
+                tb_str = ''.join(traceback.format_exception(exc_type, exc_value, tb.tb_next, chain=False))
+                msg = "An error occured while loading '{}'".format(path)
+                detail = "Traceback:\n{}".format(tb_str)
+                raise EntityLoadError(msg, detail)
+
             py_module.__path__ = os.path.dirname(py_module.__file__)
             if hasattr(py_module, 'system_build'):
                 return Builder(entity_name, py_module)
@@ -1843,6 +1846,13 @@ def get_command_line_arguments():
     return args
 
 
+def report_error(exception):
+    logger.error(str(exception))
+    if hasattr(exception, 'detail') and exception.detail is not None:
+        logger.error(exception.detail)
+    return 1
+
+
 def main():
     """Application main entry point. Parse arguments, and call specified sub-command."""
     args = get_command_line_arguments()
@@ -1851,8 +1861,7 @@ def main():
     try:
         args.project = Project(args.project, args.search_path, args.prx_inc_path)
     except (EntityLoadError, EntityNotFoundError, ProjectStartupError) as e:
-        logger.error(str(e))
-        return 1
+        return report_error(e)
     except FileNotFoundError as e:
         logger.error("Unable to initialise project from file [%s]. Exception: %s" % (args.project, e))
         return 1
@@ -1863,10 +1872,7 @@ def main():
     try:
         return SUBCOMMAND_TABLE[args.command](args)
     except EntityLoadError as e:
-        logger.error(str(e))
-        if e.detail is not None:
-            logger.error(e.detail)
-        return 1
+        return report_error(e)
 
 
 def _start():

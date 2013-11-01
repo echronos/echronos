@@ -1,0 +1,12 @@
+Task: JaJV00-static_mutex_initialization
+==============================================================================
+
+Goals
+--------
+
+The blocking-mutex component currently initializes its data structures dynamically at run time.
+This has two drawbacks compared to static initialization:
+- it requires code space
+- the compiler for the c251 architecture has a defect that leads to an incorrect warning about the initialization loops of length one, which could be avoided
+
+The goal of this task is to replace the dynamic with static data initialization in the blocking-mutex component.

@@ -1,0 +1,9 @@
+Task: qMCsyB-improve-prj-error-reporting
+==============================================================================
+
+Goals
+--------
+
+There are a number of small prj errors that end up being exposed to the user.
+The goal of this task it to clean up some of these small errors.
+

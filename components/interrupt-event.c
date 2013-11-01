@@ -72,6 +72,8 @@ interrupt_event_get_next(void)
         }
     }
 
+    internal_assert_task_valid(next);
+
     return next;
 }
 

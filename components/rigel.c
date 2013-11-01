@@ -38,7 +38,8 @@ void {{prefix_func}}task_start({{prefix_type}}TaskId task);
 #define ERROR_ID_NOT_HOLDING_MUTEX (({{prefix_type}}ErrorId) UINT8_C(3))
 #define ERROR_ID_DEADLOCK (({{prefix_type}}ErrorId) UINT8_C(4))
 #define ERROR_ID_TASK_FUNCTION_RETURNS (({{prefix_type}}ErrorId) UINT8_C(5))
-
+#define ERROR_ID_INTERNAL_CURRENT_TASK_INVALID (({{prefix_type}}ErrorId) UINT8_C(6))
+#define ERROR_ID_INTERNAL_INVALID_ID (({{prefix_type}}ErrorId) UINT8_C(7))
 /*| type_definitions |*/
 typedef {{prefix_type}}TaskId TaskIdOption;
 
@@ -66,6 +67,9 @@ static void _unblock({{prefix_type}}TaskId task);
 {{#interrupt_events.length}}
 static void handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id);
 {{/interrupt_events.length}}
+{{#internal_asserts}}
+static {{prefix_type}}TaskId get_current_task_check(void);
+{{/internal_asserts}}
 
 
 /*| state |*/
@@ -86,7 +90,12 @@ struct interrupt_event_handler interrupt_events[{{interrupt_events.length}}] = {
 /*| function_like_macros |*/
 #define preempt_disable()
 #define preempt_enable()
+{{#internal_asserts}}
+#define get_current_task() get_current_task_check()
+{{/internal_asserts}}
+{{^internal_asserts}}
 #define get_current_task() current_task
+{{/internal_asserts}}
 #define get_task_context(task_id) &tasks[task_id].ctx
 #define interrupt_event_id_to_taskid(interrupt_event_id) (({{prefix_type}}TaskId)(interrupt_event_id))
 #define mutex_block_on(unused_task) {{prefix_func}}signal_wait({{prefix_const}}SIGNAL_ID__RTOS_UTIL)
@@ -105,11 +114,38 @@ struct interrupt_event_handler interrupt_events[{{interrupt_events.length}}] = {
 {{/api_asserts}}
 #define assert_task_valid(task) api_assert(task < {{tasks.length}}, ERROR_ID_INVALID_ID)
 
+{{#internal_asserts}}
+#define internal_error(error_id) {{fatal_error}}(error_id)
+{{/internal_asserts}}
+{{^internal_asserts}}
+#define internal_error(error_id) do { } while(0)
+{{/internal_asserts}}
+{{#internal_asserts}}
+#define internal_assert(expression, error_id) do { if (!(expression)) { internal_error(error_id); } } while(0)
+{{/internal_asserts}}
+{{^internal_asserts}}
+#define internal_assert(expression, error_id) do { } while(0)
+{{/internal_asserts}}
+#define internal_assert_task_valid(task) internal_assert(task < {{tasks.length}}, ERROR_ID_INTERNAL_INVALID_ID)
+
 /*| functions |*/
+{{#internal_asserts}}
+static {{prefix_type}}TaskId
+get_current_task_check(void)
+{
+    internal_assert(current_task < {{tasks.length}}, ERROR_ID_INTERNAL_CURRENT_TASK_INVALID);
+    return current_task;
+}
+{{/internal_asserts}}
+
 static void
 _yield_to({{prefix_type}}TaskId to)
 {
-    {{prefix_type}}TaskId from = get_current_task();
+    {{prefix_type}}TaskId from;
+
+    internal_assert(to < {{tasks.length}}, ERROR_ID_INTERNAL_INVALID_ID);
+
+    from = get_current_task();
     current_task = to;
     context_switch(get_task_context(from), get_task_context(to));
 }
@@ -131,8 +167,13 @@ _unblock({{prefix_type}}TaskId task)
 static void
 handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id)
 {
-    {{prefix_type}}TaskId task = interrupt_events[interrupt_event_id].task;
-    {{prefix_type}}SignalSet sig_set = interrupt_events[interrupt_event_id].sig_set;
+    {{prefix_type}}TaskId task;
+    {{prefix_type}}SignalSet sig_set;
+
+    internal_assert(interrupt_event_id < {{interrupt_events.length}}, ERROR_ID_INTERNAL_INVALID_ID);
+
+    task = interrupt_events[interrupt_event_id].task;
+    sig_set = interrupt_events[interrupt_event_id].sig_set;
 
     {{prefix_func}}signal_send_set(task, sig_set);
 }
@@ -154,7 +195,7 @@ void _task_entry_{{name}}(void)
 {{prefix_type}}TaskId
 {{prefix_func}}task_current(void)
 {
-    return current_task;
+    return get_current_task();
 }
 
 void

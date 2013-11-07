@@ -5,16 +5,4 @@ Task name: YFkoRx-fix_incorrect_type_name_in_profiling_component
 Version reviewed: 8ef25cc3545fbf051b630fd4a8a1ee882868920b
 Reviewer: joseph
 Date: 2013-11-07
-Conclusion: Accepted/Rework
-
-Overall comments:
-
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Conclusion: Accepted

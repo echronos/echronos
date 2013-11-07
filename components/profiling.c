@@ -50,7 +50,7 @@ void
 {{prefix_func}}profiling_record_sample(void)
 {
     {{#profiling.task_uptime}}
-    TaskId idx;
+    {{prefix_type}}TaskId idx;
 
     if (!system_is_idle)
     {

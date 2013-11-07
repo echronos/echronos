@@ -85,6 +85,10 @@
           <name>test</name>
         </mutex>
       </mutexes>
+
+      <profiling>
+        <task_uptime>true</task_uptime>
+      </profiling>
     </module>
 
     <module name="rtos-example.rigel-test" />

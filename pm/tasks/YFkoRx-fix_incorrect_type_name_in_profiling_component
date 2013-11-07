@@ -1,0 +1,19 @@
+Task: YFkoRx-fix_incorrect_type_name_in_profiling_component
+==============================================================================
+
+Goals
+--------
+
+The profiling component currently contains an outdated type name that was not updated along with the recent naming changes.
+The goal of this task is to fix this and ensure that the RTOS including the profiling componing builds correctly again.
+A regression test for this kind of issue shall be implemented.
+
+Test Plan
+---------
+#> . setenv
+#> ./x.py prj-build
+#> ./x.py build-partials
+#> ./x.py build-release
+#> ./x.py test-release
+
+The test-release command shall cover and build the profiling component and a successful test shall indicate that it builds correctly.

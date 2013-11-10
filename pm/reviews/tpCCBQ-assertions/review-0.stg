@@ -5,16 +5,20 @@ Task name: tpCCBQ-assertions
 Version reviewed: 3cbe7697547b2956a38fbcabb0a753aabcdfbff5
 Reviewer: stg
 Date: 2013-11-11
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
 Overall comments:
 
+I like how few assertions are necessary in the right places to cover such a wide range of code and data paths.
+
+It would be great to use this feature in the future to check whether a task receives only the signals it is configured to receive.
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Location: multiple
+Comment: Accepted
+The current implementation duplicates the definition of macros like 'api_assert()' in multiple files.
+This duplication may be exarcebated by RTOS variants introduced in the future.
+Is it possible to reduce this duplication?
+Would it be an option to by centralize the macro implementations in dedicated components, such as 'assertions.null' and 'assertions.fatal_error'?

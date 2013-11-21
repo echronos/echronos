@@ -1436,6 +1436,10 @@ class System:
             if isinstance(module, Module):
                 try:
                     config_data = module.configure(m_el)
+                except SystemParseError as e:
+                    # The module's configure module is allowed to raise a SystemParseError
+                    # we just re-raise it.
+                    raise
                 except Exception as e:
                     exc_type, exc_value, tb = sys.exc_info()
                     tb_str = ''.join(traceback.format_exception(exc_type, exc_value, tb.tb_next, chain=False))

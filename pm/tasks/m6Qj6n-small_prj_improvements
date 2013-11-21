@@ -1,0 +1,11 @@
+Task: m6Qj6n-small_prj_improvements
+==============================================================================
+
+Goals
+--------
+
+Add some small improvements to the prj tool.
+
+1) In verbose mode print out extra information when searching for entities.
+2) If a python module raises a SystemParseError during configure it should not show a traceback.
+

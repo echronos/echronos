@@ -1610,6 +1610,8 @@ class Project:
         Returns the path to the entity.
 
         """
+        logger.debug("searching %s", entity_name)
+
         # Search for a given entity name.
         extensions = ['', '.prx', '.py', '.c', '.s', '.asm']
 
@@ -1619,7 +1621,9 @@ class Project:
         def search_inner(base):
             for ext in extensions:
                 path = '%s%s' % (base, ext)
+                logger.debug("trying %s", path)
                 if os.path.exists(path):
+                    logger.debug("found %s @ %s", entity_name, path)
                     return path, ext
             return None, None
 

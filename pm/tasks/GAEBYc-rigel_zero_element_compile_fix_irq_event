@@ -1,0 +1,9 @@
+Task: GAEBYc-rigel_zero_element_compile_fix_irq_event
+==============================================================================
+
+Goals
+--------
+
+The previous attempted fix for allowing zero interrupt events was flawed as important system specific code relies on calling interrupt_event_process.
+The goal of this task is to fix this, and consider a different approach.
+

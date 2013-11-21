@@ -48,9 +48,7 @@ interrupt_event_get_next(void)
 
     for (;;)
     {
-{{#interrupt_events.length}}
         interrupt_event_process();
-{{/interrupt_events.length}}
 [[#timer_process]]
         /* IMPROVE: This indicates we may want to factor things differently in the future */
         if (timer_check())
@@ -63,12 +61,7 @@ interrupt_event_get_next(void)
         if (next == TASK_ID_NONE)
         {
             system_is_idle = true;
-{{^interrupt_events.length}}
-            interrupt_wait();
-{{/interrupt_events.length}}
-{{#interrupt_events.length}}
             interrupt_event_wait();
-{{/interrupt_events.length}}
         }
         else
         {

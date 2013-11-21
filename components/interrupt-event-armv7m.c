@@ -31,14 +31,9 @@ void {{prefix_func}}interrupt_event_raise({{prefix_type}}InterruptEventId event)
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-{{#interrupt_events.length}}
 static void interrupt_event_process(void);
 static inline bool interrupt_event_check(void);
 static inline void interrupt_event_wait(void);
-{{/interrupt_events.length}}
-{{^interrupt_events.length}}
-static inline void interrupt_wait(void);
-{{/interrupt_events.length}}
 
 /*| state |*/
 {{#interrupt_events.length}}
@@ -48,10 +43,10 @@ VOLATILE_BITBAND_VAR(uint32_t, interrupt_event);
 /*| function_like_macros |*/
 
 /*| functions |*/
-{{#interrupt_events.length}}
 static void
 interrupt_event_process(void)
 {
+{{#interrupt_events.length}}
     uint32_t tmp = interrupt_event;
     while (tmp != 0)
     {
@@ -60,12 +55,18 @@ interrupt_event_process(void)
         handle_interrupt_event(i);
         tmp &= ~(1U << i);
     }
+{{/interrupt_events.length}}
 }
 
 static inline bool
 interrupt_event_check(void)
 {
+{{#interrupt_events.length}}
     return interrupt_event != 0;
+{{/interrupt_events.length}}
+{{^interrupt_events.length}}
+    return false;
+{{/interrupt_events.length}}
 }
 
 static inline void
@@ -79,15 +80,6 @@ interrupt_event_wait(void)
     }
     asm volatile("cpsie i");
 }
-{{/interrupt_events.length}}
-
-{{^interrupt_events.length}}
-static inline void
-interrupt_wait(void)
-{
-    asm volatile("wfi");
-}
-{{/interrupt_events.length}}
 
 /*| public_functions |*/
 {{#interrupt_events.length}}

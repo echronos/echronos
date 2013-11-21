@@ -1,0 +1,7 @@
+Task: czwn8t-rigel_zero_element_compile
+==============================================================================
+
+Goals
+--------
+
+Ensure that a rigel system compiles when there are no signal labels, timers, interrupt events, mutxes.

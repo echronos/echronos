@@ -5,7 +5,7 @@ Task name: czwn8t-rigel_zero_element_compile
 Version reviewed: 0164d200c65f00e1717032fdda2aa7b965de16f0
 Reviewer: joe
 Date: 2013-11-21
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
 Overall comments:
 
@@ -13,8 +13,9 @@ Overall comments:
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: rigel.c:52
+Comment: If there are no interrupt events, the associated struct shouldn't be defined
 
-Location: filename:linenum
-Comment:
+Location: interrupt-event.c:45
+Comment: Ideally, if there are no interrupt events, we should not name the scheduler function "interrupt_event_get_next"
+

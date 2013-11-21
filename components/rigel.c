@@ -81,11 +81,13 @@ static {{prefix_type}}TimerId task_timers[{{tasks.length}}] = {
 {{/tasks}}
 };
 
+{{#interrupt_events.length}}
 struct interrupt_event_handler interrupt_events[{{interrupt_events.length}}] = {
 {{#interrupt_events}}
     { {{prefix_const}}TASK_ID_{{task.name|u}}, {{prefix_const}}SIGNAL_SET_{{sig_set|u}} },
 {{/interrupt_events}}
 };
+{{/interrupt_events.length}}
 
 /*| function_like_macros |*/
 #define preempt_disable()

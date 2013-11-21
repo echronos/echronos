@@ -63,7 +63,12 @@ interrupt_event_get_next(void)
         if (next == TASK_ID_NONE)
         {
             system_is_idle = true;
+{{^interrupt_events.length}}
+            interrupt_wait();
+{{/interrupt_events.length}}
+{{#interrupt_events.length}}
             interrupt_event_wait();
+{{/interrupt_events.length}}
         }
         else
         {

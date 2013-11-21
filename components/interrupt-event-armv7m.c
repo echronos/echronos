@@ -36,6 +36,9 @@ static void interrupt_event_process(void);
 static inline bool interrupt_event_check(void);
 static inline void interrupt_event_wait(void);
 {{/interrupt_events.length}}
+{{^interrupt_events.length}}
+static inline void interrupt_wait(void);
+{{/interrupt_events.length}}
 
 /*| state |*/
 {{#interrupt_events.length}}
@@ -75,6 +78,14 @@ interrupt_event_wait(void)
         asm volatile("wfi");
     }
     asm volatile("cpsie i");
+}
+{{/interrupt_events.length}}
+
+{{^interrupt_events.length}}
+static inline void
+interrupt_wait(void)
+{
+    asm volatile("wfi");
 }
 {{/interrupt_events.length}}
 

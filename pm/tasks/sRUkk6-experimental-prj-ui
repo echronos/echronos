@@ -1,0 +1,13 @@
+Task: sRUkk6-experimental-prj-ui
+==============================================================================
+
+Goals
+--------
+
+The goal of this task to is experiment / prototype a user interface for the prj tool.
+
+The user interface will be html5 based as it is believed this is the most practical cross-platform user-interface / app development target.
+
+Additionally, this provides a separation of the app in to server-side parts and user-interface parts that has the potential to make for interesting usage scenarios in the future if development correctly.
+
+This initial task may be included, or may simply end up being a throw-away prototype.

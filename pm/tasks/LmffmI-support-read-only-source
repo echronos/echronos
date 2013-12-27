@@ -1,0 +1,9 @@
+Task: LmffmI-support-read-only-source
+==============================================================================
+
+Goals
+--------
+
+Support the case where the source code is stored read-only (for example when using Perforce).
+This specifically means that prj should copy remove the 'read-only' bit.
+

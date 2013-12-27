@@ -1247,7 +1247,7 @@ class RtosModule:
                 f.write('\n')
             f.write("\n#endif /* {}_H */".format(mod_name))
 
-        shutil.copy(self._python_file, python_output)
+        shutil.copyfile(self._python_file, python_output)
 
 
 def generate_rtos_module(skeleton, architectures):

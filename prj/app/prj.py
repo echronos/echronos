@@ -1123,7 +1123,7 @@ class Module:
                 if f.get('render', False):
                     pystache_render(input_path, output_path, config)
                 else:
-                    shutil.copy(input_path, output_path)
+                    shutil.copyfile(input_path, output_path)
             except FileNotFoundError as e:
                 raise SystemBuildError("File not found error during template preparation '{}'.".format(e.filename))
 
@@ -1267,7 +1267,7 @@ class SourceModule(NamedModule):
         if self.code_gen is None:
             if copy_all_files:
                 path = os.path.join(system.output, os.path.basename(self.filename))
-                shutil.copy(self.filename, path)
+                shutil.copyfile(self.filename, path)
                 logger.info("Preparing: copy %s -> %s", self.filename, path)
                 system.add_file(path)
             else:
@@ -1286,7 +1286,7 @@ class SourceModule(NamedModule):
             path = os.path.join(system.output, os.path.basename(header.path))
             try:
                 if header.code_gen is None:
-                        shutil.copy(header.path, path)
+                        shutil.copyfile(header.path, path)
                 elif header.code_gen == 'template':
                     logger.info("Preparing: template %s -> %s (%s)", header.path, path, config)
                     pystache_render(header.path, path, config)

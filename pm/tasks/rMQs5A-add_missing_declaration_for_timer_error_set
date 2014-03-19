@@ -1,0 +1,8 @@
+Task: rMQs5A-add_missing_declaration_for_timer_error_set
+==============================================================================
+
+Goals
+--------
+
+The API timer_error_set() is missing a public declaration.
+The goal of this task is to add this declaration so that applications can use this API.

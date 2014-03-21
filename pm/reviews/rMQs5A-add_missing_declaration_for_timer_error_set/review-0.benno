@@ -5,16 +5,4 @@ Task name: rMQs5A-add_missing_declaration_for_timer_error_set
 Version reviewed: de63fb21e5e33fba6a0bdbeaf85c799065fbd485
 Reviewer: benno
 Date: 2014-03-20
-Conclusion: Accepted/Rework
-
-Overall comments:
-
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Conclusion: Accepted

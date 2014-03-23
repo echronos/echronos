@@ -1,0 +1,15 @@
+Task: a4Bvgr-stack_protection
+==============================================================================
+
+Goals
+--------
+
+Some client repositories need to implement hardware stack protection in the rigel variant based on customer demand.
+
+The goal of this task is to extend the rigel configuration schema with:
+
+- an optional dictionary-type entry 'stack_protection'
+
+- an optional int-type sub-entry 'exc_cfg'
+
+Since these entries are optional, they have no impact on other rigel-related code in rtos-core.

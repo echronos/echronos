@@ -17,6 +17,9 @@ class RigelModule(Module):
       <entry name="stack_size" type="int" />
      </entry>
    </entry>
+   <entry name="stack_protection" type="dict" optional="true">
+    <entry name="exc_cfg" type="int" optional="true" />
+   </entry>
    <entry name="signal_labels" type="list" default="[]">
      <entry name="signal_label" type="dict">
        <entry name="name" type="ident" />

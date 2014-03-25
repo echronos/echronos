@@ -42,6 +42,9 @@ class RigelModule(Module):
       <entry name="name" type="ident" />
      </entry>
    </entry>
+   <entry name="mutex" type="dict" optional="true">
+    <entry name="stats" type="bool" optional="true" default="false" />
+   </entry>
    <entry name="timers" type="list" default="[]" auto_index_field="idx">
      <entry name="timer" type="dict">
       <entry name="name" type="ident" />

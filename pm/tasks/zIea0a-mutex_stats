@@ -1,0 +1,20 @@
+Task: zIea0a-mutex_stats
+==============================================================================
+
+Motivation
+----------
+Mutexes and locking can add significant complexity to the dynamic run-time behavior of a system.
+Understanding how tasks use mutexes can be extremely valuable in analyzing or debugging system behavior.
+Currently, the RTOS does not facilitate this kind of understanding or insight.
+
+Goals
+----------
+The goal of this task is to collect basic statistical information about how often each mutex in a system is accessed.
+This information shall in particular reveal whether a mutex is contended often or for long times.
+The collected data shall remain relatively compact in its memory size, with low DRAM impact having a higher priority than collecting detailed information.
+
+Test Plan
+----------
+The correctness of the existing mutex implementation is tested by the existing mutex tests.
+
+Test systems that include the blocking mutex component shall have mutex statistics enabled as a build regression test.

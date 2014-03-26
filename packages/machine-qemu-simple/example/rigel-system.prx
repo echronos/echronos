@@ -85,6 +85,9 @@
           <name>test</name>
         </mutex>
       </mutexes>
+      <mutex>
+        <stats>true</stats>
+      </mutex>
 
       <profiling>
         <task_uptime>true</task_uptime>

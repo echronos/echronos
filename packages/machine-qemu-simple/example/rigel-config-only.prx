@@ -75,6 +75,9 @@
           <name>dummy</name>
         </mutex>
       </mutexes>
+      <mutex>
+        <stats>true</stats>
+      </mutex>
 
     </module>
 

@@ -11,3 +11,8 @@ Overall comments:
 
 An rtos timer tick is an extremely long time when it comes to measuring mutex contention. Surely it would provide far more useful data to use the profiling counter? This seems more consistent as well (given this is a profiling tool)
 
+[stg: as per personal communication, this is improvement is indeed desirable.
+However, the system tick resolution is deemed sufficient for now to highlight extreme cases of long wait times on a mutex.
+The current approach keeps the profiling and the mutex stats features orthogonal.
+The profiling timer varies in its tick length with system clock switching.
+Thus, a higher time resolution but will be left out of scope for this task as a future improvement.]

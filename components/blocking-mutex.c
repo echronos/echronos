@@ -50,10 +50,9 @@ struct mutex {
 };
 {{#mutex.stats}}
 struct mutex_stat {
-    uint32_t request_counter;
-    uint32_t uncontended_counter;
-    uint32_t contended_counter;
-    {{prefix_type}}TicksRelative max_wait_time;
+    uint32_t mutex_lock_counter;
+    uint32_t mutex_lock_contended_counter;
+    {{prefix_type}}TicksRelative mutex_lock_max_wait_time;
 };
 {{/mutex.stats}}
 
@@ -76,7 +75,6 @@ static MutexIdOption waiters[{{tasks.length}}] = {
 {{#mutex.stats}}
 bool {{prefix_func}}mutex_stats_enabled;
 static struct mutex_stat mutex_stats[{{mutexes.length}}];
-static {{prefix_type}}TicksAbsolute mutex_stats_wait_start_ticks[{{tasks.length}}];
 {{/mutex.stats}}
 {{/mutexes.length}}
 
@@ -92,21 +90,38 @@ static {{prefix_type}}TicksAbsolute mutex_stats_wait_start_ticks[{{tasks.length}
 void
 {{prefix_func}}mutex_lock(const {{prefix_type}}MutexId m)
 {
+{{#mutex.stats}}
+    bool contended = false;
+    const {{prefix_type}}TicksAbsolute wait_start_ticks = {{prefix_func}}timer_current_ticks;
+
+{{/mutex.stats}}
     assert_mutex_valid(m);
     api_assert(mutexes[m].holder != get_current_task(), ERROR_ID_DEADLOCK);
-{{#mutex.stats}}
-
-    mutex_stats_wait_start_ticks[get_current_task()] = {{prefix_func}}timer_current_ticks;
-{{/mutex.stats}}
 
     while (!{{prefix_func}}mutex_try_lock(m))
     {
+{{#mutex.stats}}
+        contended = true;
+{{/mutex.stats}}
         waiters[get_current_task()] = m;
         mutex_block_on(mutexes[m].holder);
     }
 {{#mutex.stats}}
 
-    mutex_stats_wait_start_ticks[get_current_task()] = 0;
+    if ({{prefix_func}}mutex_stats_enabled)
+    {
+        mutex_stats[m].mutex_lock_counter += 1;
+        if (contended)
+        {
+            {{prefix_type}}TicksRelative wait_time = {{prefix_func}}timer_current_ticks - wait_start_ticks;
+
+            mutex_stats[m].mutex_lock_contended_counter += 1;
+            if (wait_time > mutex_stats[m].mutex_lock_max_wait_time)
+            {
+                mutex_stats[m].mutex_lock_max_wait_time = wait_time;
+            }
+        }
+    }
 {{/mutex.stats}}
 }
 
@@ -134,42 +149,14 @@ bool
 {{prefix_func}}mutex_try_lock(const {{prefix_type}}MutexId m)
 {
     assert_mutex_valid(m);
-{{#mutex.stats}}
-
-    if ({{prefix_func}}mutex_stats_enabled)
-    {
-        mutex_stats[m].request_counter += 1;
-    }
-    if (!mutex_stats_wait_start_ticks[get_current_task()])
-    {
-        mutex_stats_wait_start_ticks[get_current_task()] = {{prefix_func}}timer_current_ticks;
-    }
-{{/mutex.stats}}
 
     if (mutexes[m].holder != TASK_ID_NONE)
     {
-{{#mutex.stats}}
-        if ({{prefix_func}}mutex_stats_enabled)
-        {
-            mutex_stats[m].contended_counter += 1;
-        }
-{{/mutex.stats}}
         return false;
     }
     else
     {
         mutexes[m].holder = get_current_task();
-{{#mutex.stats}}
-        if ({{prefix_func}}mutex_stats_enabled)
-        {
-            {{prefix_type}}TicksRelative wait_time = {{prefix_func}}timer_current_ticks - mutex_stats_wait_start_ticks[get_current_task()];
-            if (wait_time > mutex_stats[m].max_wait_time)
-            {
-                mutex_stats[m].max_wait_time = wait_time;
-            }
-            mutex_stats[m].uncontended_counter += 1;
-        }
-{{/mutex.stats}}
         return true;
     }
 }
@@ -181,10 +168,9 @@ void {{prefix_func}}mutex_stats_clear(void)
     uint8_t mutex_index;
     for (mutex_index = 0; mutex_index < {{mutexes.length}}; mutex_index += 1)
     {
-        mutex_stats[mutex_index].request_counter = 0;
-        mutex_stats[mutex_index].uncontended_counter = 0;
-        mutex_stats[mutex_index].contended_counter = 0;
-        mutex_stats[mutex_index].max_wait_time = 0;
+        mutex_stats[mutex_index].mutex_lock_counter = 0;
+        mutex_stats[mutex_index].mutex_lock_contended_counter = 0;
+        mutex_stats[mutex_index].mutex_lock_max_wait_time = 0;
     }
 }
 {{/mutex.stats}}

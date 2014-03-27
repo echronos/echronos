@@ -5,16 +5,41 @@ Task name: zIea0a-mutex_stats
 Version reviewed: 51d7b618a2a966c86cf4d675a52593ddb2675c2a
 Reviewer: benno
 Date: 2014-03-27
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
+I think this is a really important feature for the RTOS, however I'm not sure the existing design provides the highest utility.
+A firmware developer is going to be most interesting in evaluating the performance / operating characteristics of the mutex_lock interface.
+I think the 'mutex lock attempts' should match to each time a mutex_lock() function is called be the application's tasks.
+I think 'mutex contention' should be the number of times that a 'mutex lock attempt' fails to be satisfied immediately.
+The 'mutex contention' count should be strictly less than the 'mutex lock attempts'.
+I think it is confusing to including trylock with the 'lock'.
+I could be convinced that a separate set of trylock statistics made sense (however since we don't use this in practise currently, I think it is lower priority).
+If we did have trylock stats, I think it would make sense for them to be separate from the internal use of trylock.
+Even though there is a trylock loop inside our mutex implementation, I think that is an implementation detail that shouldn't be exposed to the user in terms of the profiling statistics.
+As a very summary sketch I would think something like:
 
-Specific comments
-=================
+mutex_lock()
+{
+   bool contented = false;
+   time start_time = now();
 
-Location: filename:linenum
-Comment:
+   while (trylock fails)
+   {
+      contended = true;
+   }
 
-Location: filename:linenum
-Comment:
+   acquire_time = now - start_time();
+   if contended
+   {
+      num_contentions[current_task]++;
+      if (acquire_time > mutex_max_acquire[this_mutex])
+      {
+         mutex_max_acquire[this_mutex] = acquire_time;
+      }
+   }
+}
+
+I don't think we need to separately track contended and uncontended since uncontended is simply attempts - contended.
+

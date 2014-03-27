@@ -1,0 +1,9 @@
+Task: jCGUkV-mutex_holder_api
+==============================================================================
+
+Goals
+--------
+
+Customer applications need to determine if a given mutex has been acquired by a task and which.
+The API RtosTaskId mutex_holder_get(MutexId m) shall provide this information.
+The goal of this task is to implement this API.

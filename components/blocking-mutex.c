@@ -28,6 +28,7 @@ extern bool {{prefix_func}}mutex_stats_enabled;
 void {{prefix_func}}mutex_lock({{prefix_type}}MutexId);
 bool {{prefix_func}}mutex_try_lock({{prefix_type}}MutexId);
 void {{prefix_func}}mutex_unlock({{prefix_type}}MutexId);
+RtosTaskId {{prefix_func}}mutex_holder_get({{prefix_type}}MutexId);
 {{#mutex.stats}}
 void {{prefix_func}}mutex_stats_clear(void);
 {{/mutex.stats}}
@@ -159,6 +160,13 @@ bool
         mutexes[m].holder = get_current_task();
         return true;
     }
+}
+
+RtosTaskId
+{{prefix_func}}mutex_holder_get(const {{prefix_type}}MutexId m)
+{
+    assert_mutex_valid(m);
+    return mutexes[m].holder;
 }
 
 {{#mutex.stats}}

@@ -1,0 +1,21 @@
+Task: AUOPF4-add-interrupt_event_task_set-api
+==============================================================================
+
+Motivation
+----------
+
+The handler task of an interrupt event is currently configured statically.
+This is a limiting factor for applications which need to dynamically change the handler task for an interrupt event.
+For example, a driver might want to hand off the handling of an input event to the task that requested the input.
+
+Goals
+--------
+
+The goal of this task is to remove above limitation for applications.
+Specifically, the goal is to implement the RTOS API void interrupt_event_task_set(InterruptEventId, TaskId).
+It shall set the handler task for the given interrupt event to the given task at runtime.
+
+Test plan
+---------
+
+Due to the simplicity of the change, code review shall be sufficient.

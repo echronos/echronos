@@ -20,6 +20,11 @@ typedef uint{{interrupteventid_size}}_t {{prefix_type}}InterruptEventId;
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
+[[#task_set]]
+{{#interrupt_events.length}}
+void {{prefix_func}}interrupt_event_task_set({{prefix_type}}InterruptEventId interrupt_event_id, {{prefix_type}}TaskId task_id);
+{{/interrupt_events.length}}
+[[/task_set]]
 
 /*| headers |*/
 #include <stdbool.h>
@@ -76,3 +81,14 @@ interrupt_event_get_next(void)
 }
 
 /*| public_functions |*/
+[[#task_set]]
+{{#interrupt_events.length}}
+void
+{{prefix_func}}interrupt_event_task_set(const {{prefix_type}}InterruptEventId interrupt_event_id, const {{prefix_type}}TaskId task_id)
+{
+    api_assert(interrupt_event_id < {{interrupt_events.length}}, ERROR_ID_INVALID_ID);
+    api_assert(task_id < {{tasks.length}}, ERROR_ID_INVALID_ID);
+    interrupt_events[interrupt_event_id].task = task_id;
+}
+{{/interrupt_events.length}}
+[[/task_set]]

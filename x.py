@@ -2365,7 +2365,7 @@ CORE_SKELETONS = {
          ArchitectureComponent('ctxt_switch', 'context-switch'),
          Component('sched', 'sched-rr', {'assume_runnable': False}),
          ArchitectureComponent('interrupt_event_arch', 'interrupt-event'),
-         Component('interrupt_event', 'interrupt-event', {'timer_process': False}),
+         Component('interrupt_event', 'interrupt-event', {'timer_process': False, 'task_set': False}),
          Component('mutex', 'simple-mutex'),
          Component('acrux')]),
     'rigel': RtosSkeleton(
@@ -2377,7 +2377,7 @@ CORE_SKELETONS = {
          ArchitectureComponent('timer_arch', 'timer'),
          Component('timer'),
          ArchitectureComponent('interrupt_event_arch', 'interrupt-event'),
-         Component('interrupt_event', 'interrupt-event', {'timer_process': True}),
+         Component('interrupt_event', 'interrupt-event', {'timer_process': True, 'task_set': True}),
          Component('mutex', 'blocking-mutex'),
          Component('profiling'),
          Component('rigel')],

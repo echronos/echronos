@@ -58,6 +58,13 @@ class RigelModule(Module):
    <entry name="profiling" type="dict" optional="true">
     <entry name="task_uptime" type="bool" optional="true" default="true"/>
    </entry>
+   <entry name="message_queues" type="list" default="[]" auto_index_field="idx">
+    <entry name="message_queue" type="dict">
+     <entry name="name" type="ident" />
+     <entry name="message_size" type="int" />
+     <entry name="queue_length" type="int" />
+    </entry>
+   </entry>
   </schema>
 """
     files = [

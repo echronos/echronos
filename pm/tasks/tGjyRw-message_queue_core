@@ -1,0 +1,89 @@
+Task: tGjyRw-message_queue_core
+==============================================================================
+
+Motivation
+----------
+
+Due to customer demand, the RTOS feature Message Queues is documented based on a preliminary design as follows:
+
+Message queues provide a mechanism for transferring data between different tasks.
+Each message queue is defined with a fixed size message, and a maximum numbers of messages that the queue can hold.
+
+The RTOS provides a set of APIs to put a message in to the message queue, and to get a message from a message queue.
+The put and get operations copy the message to and from the message queue storage.
+
+Message queues operate in a first-in first-out basis.
+
+`MessageQueueId`
+
+A `MessageQueueId` refers to a specific message queue.
+The underlying type is an unsigned integer of a size large enough to represent all message queues[^MessageQueueId_width].
+The `MessageQueueId` should be treated an an opaque value.
+For all message queues in the system the configuration tool will create a constant with the name `MESSAGE_QUEUE_ID_<name>` that should be used in preference to raw values.
+
+[^MessageQueueId_width]: This is normally a uint8_t.
+
+`MESSAGE_QUEUE_ID_<name>`
+
+`MESSAGE_QUEUE_ID_<name>` has the type MessageQueue.
+A constant is created for each message queue in the system.
+Note that *name* is the upper-case conversion of the message queue's name.
+
+`void message_queue_put(MessageQueueId message_queue, void *message);`
+
+The message_queue_put API places a new message on the end of a message queue.
+The message pointer should point to a buffer of the correct size.
+The correct message size is based on the configured item size for the message queue.
+If the message queue is full then the task will block until there is space in the message queue.
+
+`bool message_queue_put_try(MessageQueueId message_queue, void *message);`
+
+The message_queue_put_try API will attempt to put a new message on the end of the specified message queue.
+The message pointer should point to a buffer of the correct size.
+The correct message size is based on the configured item size for the message queue.
+If there is space on the message queue then the function will return true, otherwise the function returns false.
+
+`bool message_queue_put_timeout(MessageQueueId message_queue, void *message, TickRelative timeout);`
+
+The message_queue_put_timeout API will attempt to put a new message on the end of the specified message queue.
+The message pointer should point to a buffer of the correct size.
+The correct message size is based on the configure item size for the message queue.
+If the message queue is full then the task will block until there is space in the message queue for a maximum of timeout ticks.
+If the message is delivered the function will return true, otherwise if the function times out false is returned.
+
+`void message_queue_get(MessageQueueId message_queue, void *message);`
+
+The message_queue_get API checks whether a message is available in the message queue message_queue.
+If no message is available, the API blocks until a message is available.
+Once a message is available, the API copies the data of the oldest message in message_queue to the memory location message.
+The API copies as many bytes of data as what is configured as message size for message_queue.
+The API then removes the message from message_queue.
+
+`bool message_queue_get_try(MessageQueueId message_queue, void *message);`
+
+The message_queue_get_try API checks whether a message is available in the message queue message_queue.
+If no message is available, it returns false.
+If a message is available, it behaves exactly as the message_queue_get API would and returns true.
+
+`bool message_queue_get_timeout(MessageQueueId message_queue, void *message, TickRelative timeout);`
+
+The message_queue_get_try API checks whether a message is available in the message queue message_queue.
+If a message is available, the API behaves exactly as the message_queue_try_get API would.
+If no message is available, the API blocks until either a message is available in message_queue or until timeout ticks pass.
+Once either of the two cases occurs, the API behaves exactly as the message_queue_try_get API would.
+
+
+Goals
+--------
+
+The goal of this task is to implement the core of the message queue API documented above that deals with the message handling.
+The aspect of blocking and unblocking tasks on full or empty queues may be left to a follow-up task.
+The API may be changed as necessary to accomodate a useful and efficient implementation.
+It must be ensured that the documentation in the RTOS manuals for the affected RTOS variants is consistent with the implementation.
+
+
+Test Plan
+---------
+
+Since this task may result in an implementation that is not fully functional, no code testing is required.
+Code review is sufficient.

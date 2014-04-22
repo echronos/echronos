@@ -2380,7 +2380,9 @@ CORE_SKELETONS = {
          Component('interrupt_event', 'interrupt-event', {'timer_process': True, 'task_set': True}),
          Component('mutex', 'blocking-mutex'),
          Component('profiling'),
-         Component('rigel')],
+         Component('rigel'),
+         Component('message-queue'),
+         ],
     ),
 }
 

@@ -55,23 +55,23 @@ import sys
 import os
 
 # FIXME: Use correct declaration vs definition.
-EXPECTED_SECTIONS = ['public_headers',
-                     'public_type_definitions',
-                     'public_structure_definitions',
-                     'public_object_like_macros',
-                     'public_function_like_macros',
-                     'public_extern_definitions',
-                     'public_function_definitions',
-                     'headers',
-                     'object_like_macros',
-                     'type_definitions',
-                     'structure_definitions',
-                     'extern_definitions',
-                     'function_definitions',
-                     'state',
-                     'function_like_macros',
-                     'functions',
-                     'public_functions']
+REQUIRED_COMPONENT_SECTIONS = ['public_headers',
+                               'public_type_definitions',
+                               'public_structure_definitions',
+                               'public_object_like_macros',
+                               'public_function_like_macros',
+                               'public_extern_definitions',
+                               'public_function_definitions',
+                               'headers',
+                               'object_like_macros',
+                               'type_definitions',
+                               'structure_definitions',
+                               'extern_definitions',
+                               'function_definitions',
+                               'state',
+                               'function_like_macros',
+                               'functions',
+                               'public_functions']
 
 
 def follow_link(l):
@@ -1101,9 +1101,9 @@ def parse_sectioned_file(fn, config={}):
     for key, value in sections.items():
         sections[key] = render_data('\n'.join(value).rstrip(), "{}: Section {}".format(fn, key), config)
 
-    for s in EXPECTED_SECTIONS:
+    for s in REQUIRED_COMPONENT_SECTIONS:
         if s not in sections:
-            raise Exception("Couldn't find exepcted section '{}' in file: '{}'".format(s, fn))
+            raise Exception("Couldn't find expected section '{}' in file: '{}'".format(s, fn))
 
     return sections
 
@@ -1159,7 +1159,7 @@ class RtosSkeleton:
         """
         component_sections = [c.parse(arch) for c in self._components]
         return  {s: '\n'.join(c[s] for c in component_sections)
-                 for s in EXPECTED_SECTIONS}
+                 for s in REQUIRED_COMPONENT_SECTIONS}
 
     def create_configured_module(self, arch):
         """Retrieve module configuration information and create a corresponding RtosModule instance.

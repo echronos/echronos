@@ -1157,9 +1157,14 @@ class RtosSkeleton:
         """Retrieve the sections necessary to generate an RtosModule from this skeleton.
 
         """
-        component_sections = [c.parse(arch) for c in self._components]
-        return  {s: '\n'.join(c[s] for c in component_sections)
-                 for s in REQUIRED_COMPONENT_SECTIONS}
+        module_sections = {}
+        for component in self._components:
+            for name, contents in component.parse(arch).items():
+                if name in module_sections:
+                    module_sections[name] += '\n' + contents
+                else:
+                    module_sections[name] = contents
+        return module_sections
 
     def create_configured_module(self, arch):
         """Retrieve module configuration information and create a corresponding RtosModule instance.

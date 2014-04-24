@@ -1063,6 +1063,7 @@ class Module:
     """
     schema = NOTHING
     xml_schema = NOTHING
+    xml_schema_path = NOTHING
     files = NOTHING
 
     def __init__(self):
@@ -1072,11 +1073,16 @@ class Module:
         If the xml_schema is set, initialisation will set the schema based on the xml_schema.
 
         """
-        if self.xml_schema is not NOTHING:
-            if self.schema is not NOTHING:
-                raise Exception("Class '{}' has both schema and xml_schema set.".format(self.__class__.__name__))
-            filename = sys.modules[self.__class__.__module__].__file__
-            self.schema = xml2schema(xml_parse_string(self.xml_schema, '{}!xml_schema'.format(filename)))
+        if len(set([self.schema, self.xml_schema, self.xml_schema_path])) > 2:
+            raise Exception("Class '{}' has multiple schema sources set.".format(self.__class__.__name__))
+
+        if self.schema is NOTHING:
+            if self.xml_schema_path is not NOTHING:
+                xml_schema_document = xml.dom.minidom.parse(self.xml_schema_path).documentElement
+            elif self.xml_schema is not NOTHING:
+                filename = sys.modules[self.__class__.__module__].__file__
+                xml_schema_document = xml_parse_string(self.xml_schema, '{}!xml_schema'.format(filename))
+            self.schema = xml2schema(xml_schema_document)
 
     def configure(self, xml_config):
         """Configure a module.

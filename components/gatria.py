@@ -1,25 +1,9 @@
+import os.path
 from prj import Module
 
 
 class GatriaModule(Module):
-    xml_schema = """
-  <schema>
-   <entry name="taskid_size" type="int" default="8"/>
-   <entry name="prefix" type="ident" optional="true" />
-   <entry name="tasks" type="list" auto_index_field="idx">
-     <entry name="task" type="dict">
-      <entry name="function" type="c_ident" />
-      <entry name="name" type="ident" />
-      <entry name="stack_size" type="int" />
-     </entry>
-   </entry>
-   <entry name="mutexes" type="list" auto_index_field="idx">
-     <entry name="mutex" type="dict">
-      <entry name="name" type="ident" />
-     </entry>
-   </entry>
-  </schema>
-"""
+    xml_schema_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'schema.xml')
     files = [
         {'input': 'rtos-gatria.h', 'render': True},
         {'input': 'rtos-gatria.c', 'render': True, 'type': 'c'},

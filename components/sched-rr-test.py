@@ -1,22 +1,9 @@
+import os.path
 from prj import Module
 
 
 class SchedRrTestModule(Module):
-    xml_schema = """
-  <schema>
-   <entry name="prefix" type="ident" optional="true" />
-   <entry name="semaphores" type="list" default="[]" auto_index_field="idx">
-     <entry name="semaphore" type="dict">
-      <entry name="name" type="ident" />
-     </entry>
-   </entry>
-   <entry name="tasks" type="list" auto_index_field="idx">
-     <entry name="task" type="dict">
-      <entry name="name" type="ident" />
-     </entry>
-   </entry>
-  </schema>
-"""
+    xml_schema_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'schema.xml')
     files = [
         {'input': 'rtos-sched-rr-test.h', 'render': True},
         {'input': 'rtos-sched-rr-test.c', 'render': True, 'type': 'c'},

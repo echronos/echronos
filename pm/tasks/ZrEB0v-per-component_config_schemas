@@ -1,0 +1,32 @@
+Task: ZrEB0v-per-component_config_schemas
+==============================================================================
+
+Motivation
+----------
+
+Currently, the configuration schema of an RTOS variant is defined in the variant's Python module (e.g., in components/acamar.py).
+This approach has two main downsides:
+
+* Non-locality of changes:
+  When adding, modifying, or deleting a configuration item in a component, the Python modules of all RTOS variants including that component need to be updated as well.
+  This is particularly problematic when the modified component is managed in a client repository, but the RTOS Python module needs to be updated in rtos-core.
+
+* Duplication:
+  The configuration schema of a component needs to be present in the Python module of each RTOS variant that includes the component.
+  This also makes it more difficult than necessary to maintain a consistent RTOS implementation.
+
+Goals
+--------
+
+The goal of this task is to alleviate the above downsides of central configuration schemas.
+
+The proposed approach is to store the configuration schema of each component in the component implementation file.
+x.py shall be extended to collect the configuration schema fragments of all components going into an RTOS variant.
+The collected fragments shall then be merged into a single configuration schema that shall be equivalent to the one currently stored in the variant's Python module.
+
+
+Test Plan
+---------
+
+In addition to code review, review an RTOS release before and after this task;
+they must match.

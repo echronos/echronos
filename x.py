@@ -1219,6 +1219,7 @@ class RtosModule:
         python_output = os.path.join(self._module_dir, 'entity.py')
         source_output = os.path.join(self._module_dir, self._module_name + '.c')
         header_output = os.path.join(self._module_dir, self._module_name + '.h')
+        config_output = os.path.join(self._module_dir, 'schema.xml')
 
         source_sections = ['headers', 'object_like_macros',
                            'type_definitions', 'structure_definitions',
@@ -1251,6 +1252,15 @@ class RtosModule:
                 f.write(data)
                 f.write('\n')
             f.write("\n#endif /* {}_H */".format(mod_name))
+
+        with open(config_output, 'w') as f:
+            f.write('''<?xml version="1.0" encoding="UTF-8" ?>
+<schema>
+''')
+            f.write(sections.get('schema', ''))
+            f.write('''
+</schema>
+''')
 
         shutil.copyfile(self._python_file, python_output)
 

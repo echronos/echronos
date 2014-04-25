@@ -1,5 +1,4 @@
 /*| schema |*/
-<entry name="signalset_size" type="int" default="8" />
 <entry name="prefix" type="ident" optional="true" />
 <entry name="fatal_error" type="c_ident" />
 <entry name="api_asserts" type="bool" default="true" />
@@ -14,7 +13,6 @@
 </entry>
 <entry name="signal_labels" type="list" default="[]">
     <entry name="signal_label" type="dict">
-        <entry name="name" type="ident" />
         <entry name="global" type="bool" optional="true" />
         <entry name="tasks" type="list" optional="true">
             <entry name="task" type="object" group="tasks" />

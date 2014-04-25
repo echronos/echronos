@@ -1,12 +1,6 @@
 /*| schema |*/
 <entry name="taskid_size" type="int" default="8"/>
-<entry name="signalset_size" type="int" default="8"/>
 <entry name="prefix" type="ident" optional="true" />
-<entry name="signal_labels" type="list" auto_index_field="idx">
-    <entry name="signal_label" type="dict">
-        <entry name="name" type="ident" />
-    </entry>
-</entry>
 <entry name="tasks" type="list" auto_index_field="idx">
     <entry name="task" type="dict">
         <entry name="function" type="c_ident" />

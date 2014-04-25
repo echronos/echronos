@@ -1160,10 +1160,9 @@ class RtosSkeleton:
         module_sections = {}
         for component in self._components:
             for name, contents in component.parse(arch).items():
-                if name in module_sections:
-                    module_sections[name] += '\n' + contents
-                else:
-                    module_sections[name] = contents
+                if name not in module_sections:
+                    module_sections[name] = []
+                module_sections[name].append(contents)
         return module_sections
 
     def create_configured_module(self, arch):
@@ -1233,10 +1232,9 @@ class RtosModule:
 
         with open(source_output, 'w') as f:
             for ss in source_sections:
+                data = '\n'.join(sections[ss])
                 if ss == 'type_definitions':
-                    data = sort_typedefs(sections[ss])
-                else:
-                    data = sections[ss]
+                    data = sort_typedefs(data)
                 f.write(data)
                 f.write('\n')
 
@@ -1245,19 +1243,16 @@ class RtosModule:
             f.write("#ifndef {}_H\n".format(mod_name))
             f.write("#define {}_H\n".format(mod_name))
             for ss in header_sections:
-                if ss == 'public_type_definitions':
-                    data = sections[ss]
-                else:
-                    data = sections[ss]
-                f.write(data)
-                f.write('\n')
+                for data in sections[ss]:
+                    f.write(data)
+                    f.write('\n')
             f.write("\n#endif /* {}_H */".format(mod_name))
 
         with open(config_output, 'w') as f:
             f.write('''<?xml version="1.0" encoding="UTF-8" ?>
 <schema>
 ''')
-            f.write(sections.get('schema', ''))
+            f.write('\n'.join(sections.get('schema', [])))
             f.write('''
 </schema>
 ''')

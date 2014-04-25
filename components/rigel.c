@@ -27,7 +27,6 @@
 </entry>
 <entry name="interrupt_events" type="list" default="[]" auto_index_field="idx">
     <entry name="interrupt_event" type="dict">
-        <entry name="name" type="ident" />
         <entry name="task" type="object" group="tasks" />
         <entry name="sig_set" type="ident" />
     </entry>

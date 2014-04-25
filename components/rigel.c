@@ -19,9 +19,9 @@
         <entry name="tasks" type="list" optional="true">
             <entry name="task" type="object" group="tasks" />
         </entry>
-        <constraint type="one_of">
-            <entry>global</entry>
-            <entry>tasks</entry>
+        <constraint name="constraint0" type="one_of">
+            <entry name="global">global</entry>
+            <entry name="tasks">tasks</entry>
         </constraint>
     </entry>
 </entry>

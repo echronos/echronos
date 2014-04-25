@@ -130,6 +130,7 @@ import tarfile
 import tempfile
 import time
 import unittest
+import xml.etree.ElementTree
 import zipfile
 from contextlib import contextmanager
 from glob import glob
@@ -415,6 +416,57 @@ def python_path(*paths):
         yield
     finally:
         del sys.path[:len(paths)]
+
+
+class SchemaFormatError(RuntimeError):
+    """To be raised when a component configuration schema violates assumptions or conventions."""
+    pass
+
+
+def merge_schema_entries(a, b, path=''):
+    """Recursively merge the entries of two XML component schemas.
+
+    'a' and 'b' (instances of xml.etree.ElementTree.Element) are the two schema entries to merge.
+    All entries from 'b' are merged into 'a'.
+    If 'a' contains an entry a* with the same name as an entry b* in 'b', they can only be merged if both a* and b*
+    have child entries themselves.
+    If either a* or b* does not have at least one child entry, this function raises a SchemaFormatError.
+
+    Within each of 'a' and 'b', the names of their entries must be unique.
+    In other words, no two entries in 'a' may have the same name.
+    The same applies to 'b'.
+
+    When the function returns, 'a' contains all entries from 'b' and 'b' is unmodified.
+
+    """
+    a_children = {child.attrib['name']: child for child in a}
+    for b_child in b:
+        try:
+            name = b_child.attrib['name']
+        except KeyError:
+            raise SchemaFormatError('A schema entry under "{}" does not contain a name attribute'.format(path))
+        if name in a_children:
+            try:
+                a_child = a_children[name]
+            except KeyError:
+                raise SchemaFormatError('A schema entry under "{}" does not contain a name attribute'.format(path))
+            if len(b_child) == 0 or len(a_child) == 0:
+                raise SchemaFormatError('Unable to merge two schemas: \
+the entry {}.{} is present in both schemas, but either or both entries have no children. \
+To be able to merge these two schemas, corresponding entries need both to have child entries.'.format(path, name))
+            merge_schema_entries(a_child, b_child, '{}.{}'.format(path, name))
+        else:
+            a.append(b_child)
+
+
+def merge_schema_sections(sections):
+    merged_schema = xml.etree.ElementTree.fromstring('<schema>\n</schema>')
+
+    for section in sections:
+        schema = xml.etree.ElementTree.fromstring('<schema>\n{}\n</schema>'.format(section))
+        merge_schema_entries(merged_schema, schema)
+
+    return xml.etree.ElementTree.tostring(merged_schema).decode()
 
 
 class Component:
@@ -1250,12 +1302,9 @@ class RtosModule:
 
         with open(config_output, 'w') as f:
             f.write('''<?xml version="1.0" encoding="UTF-8" ?>
-<schema>
 ''')
-            f.write('\n'.join(sections.get('schema', [])))
-            f.write('''
-</schema>
-''')
+            schema = merge_schema_sections(sections.get('schema', []))
+            f.write(schema)
 
         shutil.copyfile(self._python_file, python_output)
 

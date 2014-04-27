@@ -42,7 +42,7 @@ static {{prefix_type}}TaskId (*get_current_task_ptr)(void);
 
 /*| functions |*/
 static void
-_block(void)
+_block(void) {{prefix_const}}REENTRANT
 {
     if (block_ptr != NULL)
     {

@@ -25,7 +25,7 @@ extern bool {{prefix_func}}mutex_stats_enabled;
 
 /*| public_function_definitions |*/
 {{#mutexes.length}}
-void {{prefix_func}}mutex_lock({{prefix_type}}MutexId);
+void {{prefix_func}}mutex_lock({{prefix_type}}MutexId) {{prefix_const}}REENTRANT;
 bool {{prefix_func}}mutex_try_lock({{prefix_type}}MutexId);
 void {{prefix_func}}mutex_unlock({{prefix_type}}MutexId);
 RtosTaskId {{prefix_func}}mutex_holder_get({{prefix_type}}MutexId);
@@ -89,7 +89,7 @@ static struct mutex_stat mutex_stats[{{mutexes.length}}];
 /*| public_functions |*/
 {{#mutexes.length}}
 void
-{{prefix_func}}mutex_lock(const {{prefix_type}}MutexId m)
+{{prefix_func}}mutex_lock(const {{prefix_type}}MutexId m) {{prefix_const}}REENTRANT
 {
 {{#mutex.stats}}
     bool contended = false;

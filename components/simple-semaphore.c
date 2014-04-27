@@ -20,7 +20,7 @@ typedef uint8_t {{prefix_type}}SemId;
 /*| public_function_definitions |*/
 void {{prefix_func}}sem_post({{prefix_type}}SemId);
 bool {{prefix_func}}sem_try_wait({{prefix_type}}SemId);
-void {{prefix_func}}sem_wait({{prefix_type}}SemId);
+void {{prefix_func}}sem_wait({{prefix_type}}SemId) {{prefix_const}}REENTRANT;
 
 /*| headers |*/
 
@@ -82,7 +82,7 @@ internal_sem_try_wait(const {{prefix_type}}SemId s)
 
 /*| public_functions |*/
 void
-{{prefix_func}}sem_wait(const {{prefix_type}}SemId s)
+{{prefix_func}}sem_wait(const {{prefix_type}}SemId s) {{prefix_const}}REENTRANT
 {
     assert_sem_valid(s);
 

@@ -18,7 +18,7 @@ typedef uint{{taskid_size}}_t {{prefix_type}}TaskId;
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-void {{prefix_func}}yield_to({{prefix_type}}TaskId);
+void {{prefix_func}}yield_to({{prefix_type}}TaskId) {{prefix_const}}REENTRANT;
 void {{prefix_func}}start(void);
 
 /*| headers |*/
@@ -58,7 +58,7 @@ static struct task tasks[{{tasks.length}}];
 
 /*| public_functions |*/
 void
-{{prefix_func}}yield_to(const {{prefix_type}}TaskId to)
+{{prefix_func}}yield_to(const {{prefix_type}}TaskId to) {{prefix_const}}REENTRANT
 {
     const {{prefix_type}}TaskId from = get_current_task();
     current_task = to;

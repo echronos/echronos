@@ -45,7 +45,7 @@ void (*unblock_ptr)({{prefix_type}}TaskId);
 
 /*| functions |*/
 static void
-mutex_block_on({{prefix_type}}TaskId task)
+mutex_block_on({{prefix_type}}TaskId task) {{prefix_const}}REENTRANT
 {
     if (block_on_ptr != NULL)
     {

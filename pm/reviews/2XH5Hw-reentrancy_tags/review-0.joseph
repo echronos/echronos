@@ -4,17 +4,18 @@ Breakaway Task Review
 Task name: 2XH5Hw-reentrancy_tags
 Version reviewed: 53eaf7e60988f6ff711b46bebfdc93709c9c32f0
 Reviewer: joseph
-Date: 2014-04-27
-Conclusion: Accepted/Rework
+Date: 2014-04-28
+Conclusion: Rework
 
 Overall comments:
 
+There needs to be a mechanism for controlling whether the reentrant flag is turned on. While this is actually an architecture-specific issue, it will likely require an entry to the configuration schemata, which are in this repo.
+Alternatively, the preprocessor could be used to define away the macro unless it has already been defined:
 
-Specific comments
-=================
+#ifndef {{prefix_const}}REENTRANT
+#define {{prefix_const}}REENTRANT
+#endif
 
-Location: filename:linenum
-Comment:
+This may be preferrable in that architectures who dont care (which I suspect is probably all of them other than 80251) can then ignore it completely.
 
-Location: filename:linenum
-Comment:
+To use it, an application system would then define the symbol to whatever is desired as part of their build component.

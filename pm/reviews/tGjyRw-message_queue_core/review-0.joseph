@@ -4,17 +4,39 @@ Breakaway Task Review
 Task name: tGjyRw-message_queue_core
 Version reviewed: fcede007ffde8c73ed5c8a1025a1e3d1250113a9
 Reviewer: joseph
-Date: 2014-04-23
-Conclusion: Accepted/Rework
+Date: 2014-04-28
+Conclusion: Rework
 
 Overall comments:
 
+Although this task is not a complete implementation, unit tests that excercise the code that has been developed here would be very helpful, and would
+still be valuable in the final product.
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: rigel.py:64
+Comment: I think that the configuration schema is not the right place to define the message size. It would be much nicer to be able to use sizeof.
+I propose that the configuration schema instead specify the message type. That way we dont require the user to manually calculate message size, and also
+avoid subtle bugs if the message size changes.
 
-Location: filename:linenum
-Comment:
+As a further comment to this, one could potentially offer a type-aware (ie generic-typed) api in this case. Whether or not that would be desirable is probably
+beyond the scope of this task.
+
+Location: message-queue.c:22
+Comment: For consistency with mutex and other components, the api should be "try_put" and so on.
+
+Location: message-queue.c:23
+Comment: Other components do not have a separate _timeout api. More general functionality is already provided by waiting on a signal set that contains both a timer and a
+signal from the message queue, and/or by specifying a watchdog timer that will abort on timeout (assuming that signals are used for the message queue implementation, 
+that is). I think that it would be better to use this existing pattern than create a new set of functions that add timeouts to all of the components that may use them.
+
+Location: message-queue.c:80
+Comment: Wouldn't a macro be more suitable for this? Alternatively, (the above comment notwithstanding) you could provide the same functionality (get, get_try and get_timeout)
+with a single function
+
+message_queue_get(queue, message, timeout)
+
+where timeout may be 0 to indicate a _try, {{prefix_const}}TIMEOUT_INFINITE = UINT{{x}}_MAX or something inbetween
+
+

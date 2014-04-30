@@ -1,0 +1,23 @@
+Task: 5LMV5M-motivation_and_test_plan_for_task_description_template
+==============================================================================
+
+Motivation
+----------
+
+The template for task descriptions, such as this one, currently only contains the section 'Goals'.
+However, it improves overall project traceability and quality to have each task accompanied by
+* a reviewable justification why it is necessary
+* a reviewable test plan outlining metrics for the success of the task implementation
+These two aspects should be laid out at the outset of a task to provide context, focus, and guidance both to the implementation and the review process.
+
+
+Goals
+--------
+
+The goal of this task is to add a 'Motivation' and a 'Test Plan' section to the task description template.
+
+
+Test Plan
+---------
+
+Since this task has no impact on the release artifacts of the RTOS, code review is sufficient.

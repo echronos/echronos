@@ -1,3 +1,12 @@
+/*| schema |*/
+<entry name="message_queues" type="list" default="[]" auto_index_field="idx">
+    <entry name="message_queue" type="dict">
+        <entry name="name" type="ident" />
+        <entry name="message_size" type="int" />
+        <entry name="queue_length" type="int" />
+    </entry>
+</entry>
+
 /*| public_headers |*/
 #include <stdbool.h>
 #include <stdint.h>

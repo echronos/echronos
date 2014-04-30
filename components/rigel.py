@@ -1,65 +1,9 @@
+import os.path
 from prj import SystemParseError, Module
 
 
 class RigelModule(Module):
-    xml_schema = """
-  <schema>
-   <entry name="signalset_size" type="int" default="8"/>
-   <entry name="prefix" type="ident" optional="true" />
-   <entry name="fatal_error" type="c_ident" />
-   <entry name="api_asserts" type="bool" default="true" />
-   <entry name="internal_asserts" type="bool" default="false" />
-   <entry name="tasks" type="list" auto_index_field="idx">
-     <entry name="task" type="dict">
-      <entry name="function" type="c_ident" />
-      <entry name="name" type="ident" />
-      <entry name="start" type="bool" default="false" />
-      <entry name="stack_size" type="int" />
-     </entry>
-   </entry>
-   <entry name="signal_labels" type="list" default="[]">
-     <entry name="signal_label" type="dict">
-       <entry name="name" type="ident" />
-       <entry name="global" type="bool" optional="true" />
-       <entry name="tasks" type="list" optional="true">
-         <entry name="task" type="object" group="tasks" />
-       </entry>
-       <constraint type="one_of">
-         <entry>global</entry>
-         <entry>tasks</entry>
-       </constraint>
-     </entry>
-   </entry>
-   <entry name="interrupt_events" type="list" default="[]" auto_index_field="idx">
-     <entry name="interrupt_event" type="dict">
-      <entry name="name" type="ident" />
-      <entry name="task" type="object" group="tasks" />
-      <entry name="sig_set" type="ident" />
-     </entry>
-   </entry>
-   <entry name="mutexes" type="list" default="[]" auto_index_field="idx">
-     <entry name="mutex" type="dict">
-      <entry name="name" type="ident" />
-     </entry>
-   </entry>
-   <entry name="mutex" type="dict" optional="true">
-    <entry name="stats" type="bool" optional="true" default="false" />
-   </entry>
-   <entry name="timers" type="list" default="[]" auto_index_field="idx">
-     <entry name="timer" type="dict">
-      <entry name="name" type="ident" />
-      <entry name="enabled" type="bool" />
-      <entry name="reload" type="int" />
-      <entry name="error" type="int" default="0" />
-      <entry name="task" type="object" group="tasks" optional="true" />
-      <entry name="sig_set" type="ident" optional="true" />
-     </entry>
-   </entry>
-   <entry name="profiling" type="dict" optional="true">
-    <entry name="task_uptime" type="bool" optional="true" default="true"/>
-   </entry>
-  </schema>
-"""
+    xml_schema_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'schema.xml')
     files = [
         {'input': 'rtos-rigel.h', 'render': True},
         {'input': 'rtos-rigel.c', 'render': True, 'type': 'c'},

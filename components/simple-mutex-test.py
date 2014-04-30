@@ -1,22 +1,9 @@
+import os.path
 from prj import Module
 
 
 class SimpleMutexTestModule(Module):
-    xml_schema = """
-  <schema>
-   <entry name="prefix" type="ident" optional="true" />
-   <entry name="mutexes" type="list" auto_index_field="idx">
-     <entry name="mutex" type="dict">
-      <entry name="name" type="ident" />
-     </entry>
-   </entry>
-   <entry name="tasks" type="list" default="[]" auto_index_field="idx">
-     <entry name="task" type="dict">
-      <entry name="name" type="ident" />
-     </entry>
-   </entry>
-  </schema>
-"""
+    xml_schema_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'schema.xml')
     files = [
         {'input': 'rtos-simple-mutex-test.h', 'render': True},
         {'input': 'rtos-simple-mutex-test.c', 'render': True, 'type': 'c'},

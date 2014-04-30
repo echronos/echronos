@@ -1,3 +1,13 @@
+/*| schema |*/
+<entry name="taskid_size" type="int" default="8"/>
+<entry name="tasks" type="list" auto_index_field="idx">
+    <entry name="task" type="dict">
+        <entry name="function" type="c_ident" />
+        <entry name="name" type="ident" />
+        <entry name="stack_size" type="int" />
+    </entry>
+</entry>
+
 /*| public_headers |*/
 #include <stdint.h>
 
@@ -18,6 +28,7 @@ typedef uint{{taskid_size}}_t {{prefix_type}}TaskId;
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
+{{prefix_type}}TaskId {{prefix_func}}task_current(void);
 
 /*| headers |*/
 #include <stdint.h>
@@ -40,6 +51,9 @@ extern void {{function}}(void);
 {{/tasks}}
 
 /*| function_definitions |*/
+{{#internal_asserts}}
+static {{prefix_type}}TaskId get_current_task_check(void);
+{{/internal_asserts}}
 
 /*| state |*/
 static {{prefix_type}}TaskId current_task;
@@ -67,3 +81,8 @@ get_current_task_check(void)
 {{/internal_asserts}}
 
 /*| public_functions |*/
+{{prefix_type}}TaskId
+{{prefix_func}}task_current(void)
+{
+    return get_current_task();
+}

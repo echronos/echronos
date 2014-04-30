@@ -1,3 +1,8 @@
+/*| schema |*/
+<entry name="api_asserts" type="bool" default="true" />
+<entry name="internal_asserts" type="bool" default="false" />
+<entry name="fatal_error" type="c_ident" optional="true" />
+
 /*| public_headers |*/
 #include <stdint.h>
 
@@ -32,6 +37,9 @@ typedef uint8_t {{prefix_type}}ErrorId;
 /*| structure_definitions |*/
 
 /*| extern_definitions |*/
+{{#api_asserts}}
+extern void {{fatal_error}}({{prefix_type}}ErrorId error_id);
+{{/api_asserts}}
 
 /*| function_definitions |*/
 

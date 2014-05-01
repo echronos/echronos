@@ -1,5 +1,7 @@
 /*| schema |*/
 <entry name="prefix" type="ident" optional="true" />
+<entry name="api_asserts" type="bool" default="true" />
+<entry name="fatal_error" type="c_ident" optional="false" />
 <entry name="tasks" type="list" auto_index_field="idx">
     <entry name="task" type="dict">
         <entry name="start" type="bool" default="false" />

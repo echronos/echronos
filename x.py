@@ -450,11 +450,16 @@ def merge_schema_entries(a, b, path=''):
                 a_child = a_children[name]
             except KeyError:
                 raise SchemaFormatError('A schema entry under "{}" does not contain a name attribute'.format(path))
-            if len(b_child) == 0 or len(a_child) == 0:
+            if (len(b_child) == 0) != (len(a_child) == 0):
                 raise SchemaFormatError('Unable to merge two schemas: \
-the entry {}.{} is present in both schemas, but either or both entries have no children. \
-To be able to merge these two schemas, corresponding entries need both to have child entries.'.format(path, name))
-            merge_schema_entries(a_child, b_child, '{}.{}'.format(path, name))
+the entry {}.{} is present in both schemas, but it has children in one and no children in the other. \
+To merge two schemas, corresponding entries both need need to either have child entries or not.'.format(path, name))
+            if len(b_child) and len(a_child):
+                merge_schema_entries(a_child, b_child, '{}.{}'.format(path, name))
+            else:
+                # replace existing entry in a with the entry from b, allowing to override entries
+                a.remove(a_child)
+                a.append(b_child)
         else:
             a.append(b_child)
 

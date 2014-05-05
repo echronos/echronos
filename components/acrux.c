@@ -14,9 +14,9 @@
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-void {{prefix_func}}yield_to({{prefix_type}}TaskId to);
-void {{prefix_func}}yield(void);
-void {{prefix_func}}block(void);
+void {{prefix_func}}yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT;
+void {{prefix_func}}yield(void) {{prefix_const}}REENTRANT;
+void {{prefix_func}}block(void) {{prefix_const}}REENTRANT;
 void {{prefix_func}}unblock({{prefix_type}}TaskId task);
 void {{prefix_func}}start(void);
 
@@ -50,7 +50,7 @@ handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id)
 
 /*| public_functions |*/
 void
-{{prefix_func}}yield_to({{prefix_type}}TaskId to)
+{{prefix_func}}yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT
 {
     {{prefix_type}}TaskId from = get_current_task();
     current_task = to;
@@ -58,14 +58,14 @@ void
 }
 
 void
-{{prefix_func}}yield(void)
+{{prefix_func}}yield(void) {{prefix_const}}REENTRANT
 {
     {{prefix_type}}TaskId to = interrupt_event_get_next();
     {{prefix_func}}yield_to(to);
 }
 
 void
-{{prefix_func}}block(void)
+{{prefix_func}}block(void) {{prefix_const}}REENTRANT
 {
     sched_set_blocked(get_current_task());
     {{prefix_func}}yield();

@@ -35,8 +35,8 @@ typedef uint32_t* context_t;
 /*| structure_definitions |*/
 
 /*| extern_definitions |*/
-extern void armv7m_context_switch(context_t *, context_t *);
-extern void armv7m_context_switch_first(context_t *);
+extern void armv7m_context_switch(context_t *, context_t *) {{prefix_const}}REENTRANT;
+extern void armv7m_context_switch_first(context_t *) {{prefix_const}}REENTRANT;
 extern void armv7m_trampoline(void);
 
 /*| function_definitions |*/

@@ -1554,6 +1554,10 @@ class Project:
         ss_els = self.dom.getElementsByTagName('startup-script')
         for ss in ss_els:
             command = single_text_child(ss)
+            if command.split()[0].endswith('.py'):
+                # prepend full path of python interpreter as .py files are not necessarily executable on Windows
+                # and the command 'python3.3' is likely not in PATH
+                command = '{} {}'.format(sys.executable, command)
             ret_code = os.system(command)
             if ret_code != 0:
                 err = xml_error_str(ss, "Error running startup-script"

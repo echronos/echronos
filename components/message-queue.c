@@ -33,10 +33,10 @@ typedef uint8_t {{prefix_type}}MessageQueueId;
 /*| public_function_definitions |*/
 {{#message_queues.length}}
 void {{prefix_func}}message_queue_put({{prefix_type}}MessageQueueId message_queue, const void *message);
-bool {{prefix_func}}message_queue_put_try({{prefix_type}}MessageQueueId message_queue, const void *message);
+bool {{prefix_func}}message_queue_try_put({{prefix_type}}MessageQueueId message_queue, const void *message);
 bool {{prefix_func}}message_queue_put_timeout({{prefix_type}}MessageQueueId message_queue, const void *message, {{prefix_type}}TicksRelative timeout);
 void {{prefix_func}}message_queue_get({{prefix_type}}MessageQueueId message_queue, void *message);
-bool {{prefix_func}}message_queue_get_try({{prefix_type}}MessageQueueId message_queue, void *message);
+bool {{prefix_func}}message_queue_try_get({{prefix_type}}MessageQueueId message_queue, void *message);
 bool {{prefix_func}}message_queue_get_timeout({{prefix_type}}MessageQueueId message_queue, void *message, {{prefix_type}}TicksRelative timeout);
 
 {{/message_queues.length}}
@@ -107,7 +107,7 @@ void {{prefix_func}}message_queue_put(const {{prefix_type}}MessageQueueId messag
     (void){{prefix_func}}message_queue_put_timeout(message_queue, message, 0);
 }
 
-bool {{prefix_func}}message_queue_put_try(const {{prefix_type}}MessageQueueId message_queue, const void *message)
+bool {{prefix_func}}message_queue_try_put(const {{prefix_type}}MessageQueueId message_queue, const void *message)
 {
     struct message_queue *const mq = &message_queues[message_queue];
 
@@ -133,7 +133,7 @@ bool {{prefix_func}}message_queue_put_timeout(const {{prefix_type}}MessageQueueI
 {
     const {{prefix_type}}TicksAbsolute absolute_timeout = {{prefix_func}}timer_current_ticks + timeout;
 
-    while (!{{prefix_func}}message_queue_put_try(message_queue, message))
+    while (!{{prefix_func}}message_queue_try_put(message_queue, message))
     {
         /* The !timeout part is not meant to be final; it just allows an implementation shortcut for this prototype */
         if (!timeout || {{prefix_func}}timer_current_ticks < absolute_timeout)
@@ -154,7 +154,7 @@ void {{prefix_func}}message_queue_get(const {{prefix_type}}MessageQueueId messag
     (void){{prefix_func}}message_queue_get_timeout(message_queue, message, 0);
 }
 
-bool {{prefix_func}}message_queue_get_try(const {{prefix_type}}MessageQueueId message_queue, void *message)
+bool {{prefix_func}}message_queue_try_get(const {{prefix_type}}MessageQueueId message_queue, void *message)
 {
     struct message_queue *const mq = &message_queues[message_queue];
 
@@ -179,7 +179,7 @@ bool {{prefix_func}}message_queue_get_timeout(const {{prefix_type}}MessageQueueI
 {
     const {{prefix_type}}TicksAbsolute absolute_timeout = {{prefix_func}}timer_current_ticks + timeout;
 
-    while (!{{prefix_func}}message_queue_get_try(message_queue, message))
+    while (!{{prefix_func}}message_queue_try_get(message_queue, message))
     {
         /* The !timeout part is not meant to be final; it just allows an implementation shortcut for this prototype */
         if ((!timeout) || ({{prefix_func}}timer_current_ticks < absolute_timeout))

@@ -33,6 +33,8 @@ beyond the scope of this task.
 Location: message-queue.c:22
 Comment: For consistency with mutex and other components, the api should be "try_put" and so on.
 
+[stg: agree, changed as suggested]
+
 Location: message-queue.c:23
 Comment: Other components do not have a separate _timeout api. More general functionality is already provided by waiting on a signal set that contains both a timer and a
 signal from the message queue, and/or by specifying a watchdog timer that will abort on timeout (assuming that signals are used for the message queue implementation,

@@ -40,7 +40,7 @@ typedef {{prefix_type}}SignalSet {{prefix_type}}SignalId;
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-{{prefix_type}}SignalSet {{prefix_func}}signal_wait_set({{prefix_type}}SignalSet requested_signals);
+{{prefix_type}}SignalSet {{prefix_func}}signal_wait_set({{prefix_type}}SignalSet requested_signals) {{prefix_const}}REENTRANT;
 {{prefix_type}}SignalSet {{prefix_func}}signal_poll_set({{prefix_type}}SignalSet requested_signals);
 {{prefix_type}}SignalSet {{prefix_func}}signal_peek_set({{prefix_type}}SignalSet requested_signals);
 void {{prefix_func}}signal_send_set({{prefix_type}}TaskId task_id, {{prefix_type}}SignalSet signals);
@@ -85,7 +85,7 @@ _signal_recv({{prefix_type}}SignalSet *const pending_signals, const {{prefix_typ
 
 /*| public_functions |*/
 {{prefix_type}}SignalSet
-{{prefix_func}}signal_wait_set(const {{prefix_type}}SignalSet requested_signals)
+{{prefix_func}}signal_wait_set(const {{prefix_type}}SignalSet requested_signals) {{prefix_const}}REENTRANT
 {
     {{prefix_type}}SignalSet *const pending_signals = &PENDING_SIGNALS(get_current_task());
     {{prefix_type}}SignalSet received_signals;

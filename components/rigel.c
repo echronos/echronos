@@ -52,8 +52,8 @@ typedef uint8_t {{prefix_type}}ErrorId;
 
 /*| public_function_definitions |*/
 void {{prefix_func}}start(void);
-void {{prefix_func}}yield(void);
-void {{prefix_func}}sleep({{prefix_type}}TicksRelative ticks);
+void {{prefix_func}}yield(void) {{prefix_const}}REENTRANT;
+void {{prefix_func}}sleep({{prefix_type}}TicksRelative ticks) {{prefix_const}}REENTRANT;
 void {{prefix_func}}task_start({{prefix_type}}TaskId task);
 {{prefix_type}}TaskId {{prefix_func}}task_current(void);
 
@@ -93,8 +93,8 @@ extern void {{function}}(void);
 extern void {{fatal_error}}({{prefix_type}}ErrorId error_id);
 
 /*| function_definitions |*/
-static void _yield_to({{prefix_type}}TaskId to);
-static void _block(void);
+static void _yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT;
+static void _block(void) {{prefix_const}}REENTRANT;
 static void _unblock({{prefix_type}}TaskId task);
 {{#interrupt_events.length}}
 static void handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id);
@@ -173,7 +173,7 @@ get_current_task_check(void)
 {{/internal_asserts}}
 
 static void
-_yield_to({{prefix_type}}TaskId to)
+_yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT
 {
     {{prefix_type}}TaskId from;
 
@@ -185,7 +185,7 @@ _yield_to({{prefix_type}}TaskId to)
 }
 
 static void
-_block(void)
+_block(void) {{prefix_const}}REENTRANT
 {
     sched_set_blocked(get_current_task());
     {{prefix_func}}yield();
@@ -240,14 +240,14 @@ void
 }
 
 void
-{{prefix_func}}yield(void)
+{{prefix_func}}yield(void) {{prefix_const}}REENTRANT
 {
     {{prefix_type}}TaskId to = interrupt_event_get_next();
     _yield_to(to);
 }
 
 void
-{{prefix_func}}sleep({{prefix_type}}TicksRelative ticks)
+{{prefix_func}}sleep({{prefix_type}}TicksRelative ticks) {{prefix_const}}REENTRANT
 {
     {{prefix_func}}timer_oneshot(task_timers[get_current_task()], ticks);
     {{prefix_func}}signal_wait({{prefix_const}}SIGNAL_ID__TASK_TIMER);

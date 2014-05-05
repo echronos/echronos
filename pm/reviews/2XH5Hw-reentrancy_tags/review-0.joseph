@@ -19,3 +19,6 @@ Alternatively, the preprocessor could be used to define away the macro unless it
 This may be preferrable in that architectures who dont care (which I suspect is probably all of them other than 80251) can then ignore it completely.
 
 To use it, an application system would then define the symbol to whatever is desired as part of their build component.
+
+[stg: as per personal communication, centralized the definition of the reentrancy tag in a non-architecture component and set its default configuration to the empty string.
+This gives the user control over the reentrancy tag value if necessary without impacting existing architectures.]

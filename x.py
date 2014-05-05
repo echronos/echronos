@@ -2384,43 +2384,43 @@ CORE_ARCHITECTURES = {
 CORE_SKELETONS = {
     'sched-rr-test': RtosSkeleton(
         'sched-rr-test',
-        [ArchitectureComponent('reentrancy', 'reentrancy'),
+        [Component('reentrant'),
          Component('sched', 'sched-rr', {'assume_runnable': False}),
          Component('sched-rr-test')]),
     'sched-prio-test': RtosSkeleton(
         'sched-prio-test',
-        [ArchitectureComponent('reentrancy', 'reentrancy'),
+        [Component('reentrant'),
          Component('sched', 'sched-prio', {'assume_runnable': False}),
          Component('sched-prio-test')]),
     'sched-prio-inherit-test': RtosSkeleton(
         'sched-prio-inherit-test',
-        [ArchitectureComponent('reentrancy', 'reentrancy'),
+        [Component('reentrant'),
          Component('sched', 'sched-prio-inherit', {'assume_runnable': False}),
          Component('sched-prio-inherit-test')]),
     'simple-mutex-test': RtosSkeleton(
         'simple-mutex-test',
-        [ArchitectureComponent('reentrancy', 'reentrancy'),
+        [Component('reentrant'),
          Component('mutex', 'simple-mutex'),
          Component('simple-mutex-test')]),
     'blocking-mutex-test': RtosSkeleton(
         'blocking-mutex-test',
-        [ArchitectureComponent('reentrancy', 'reentrancy'),
+        [Component('reentrant'),
          Component('mutex', 'blocking-mutex'),
          Component('blocking-mutex-test')]),
     'simple-semaphore-test': RtosSkeleton(
         'simple-semaphore-test',
-        [ArchitectureComponent('reentrancy', 'reentrancy'),
+        [Component('reentrant'),
          Component('semaphore', 'simple-semaphore'),
          Component('simple-semaphore-test')]),
     'acamar': RtosSkeleton(
         'acamar',
-        [ArchitectureComponent('reentrancy', 'reentrancy'),
+        [Component('reentrant'),
          Component('acamar'),
          ArchitectureComponent('stack', 'stack'),
          ArchitectureComponent('context_switch', 'context-switch')]),
     'gatria': RtosSkeleton(
         'gatria',
-        [ArchitectureComponent('reentrancy', 'reentrancy'),
+        [Component('reentrant'),
          ArchitectureComponent('stack', 'stack'),
          ArchitectureComponent('context_switch', 'context-switch'),
          Component('sched', 'sched-rr', {'assume_runnable': True}),
@@ -2428,7 +2428,7 @@ CORE_SKELETONS = {
          Component('gatria')]),
     'kraz': RtosSkeleton(
         'kraz',
-        [ArchitectureComponent('reentrancy', 'reentrancy'),
+        [Component('reentrant'),
          ArchitectureComponent('stack', 'stack'),
          ArchitectureComponent('ctxt_switch', 'context-switch'),
          Component('sched', 'sched-rr', {'assume_runnable': True}),
@@ -2437,7 +2437,7 @@ CORE_SKELETONS = {
          Component('kraz')]),
     'acrux': RtosSkeleton(
         'acrux',
-        [ArchitectureComponent('reentrancy', 'reentrancy'),
+        [Component('reentrant'),
          ArchitectureComponent('stack', 'stack'),
          ArchitectureComponent('ctxt_switch', 'context-switch'),
          Component('sched', 'sched-rr', {'assume_runnable': False}),
@@ -2447,7 +2447,7 @@ CORE_SKELETONS = {
          Component('acrux')]),
     'rigel': RtosSkeleton(
         'rigel',
-        [ArchitectureComponent('reentrancy', 'reentrancy'),
+        [Component('reentrant'),
          ArchitectureComponent('stack', 'stack'),
          ArchitectureComponent('ctxt_switch', 'context-switch'),
          Component('sched', 'sched-rr', {'assume_runnable': False}),

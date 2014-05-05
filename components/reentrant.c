@@ -1,3 +1,6 @@
+/*| schema |*/
+<entry name="reentrant" type="string" optional="true" default="" />
+
 /*| public_headers |*/
 
 /*| public_type_definitions |*/
@@ -5,7 +8,7 @@
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
-#define {{prefix_const}}REENTRANT
+#define {{prefix_const}}REENTRANT {{reentrant}}
 
 /*| public_function_like_macros |*/
 

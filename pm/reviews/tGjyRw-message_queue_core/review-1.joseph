@@ -4,17 +4,5 @@ Breakaway Task Review
 Task name: tGjyRw-message_queue_core
 Version reviewed: 546383bbaa76220028f624b51ff9674db69a85ea
 Reviewer: joseph
-Date: 2014-05-05
-Conclusion: Accepted/Rework
-
-Overall comments:
-
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Date: 2014-05-06  
+Conclusion: Accepted

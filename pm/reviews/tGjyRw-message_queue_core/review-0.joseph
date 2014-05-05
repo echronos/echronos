@@ -40,6 +40,10 @@ Comment: Other components do not have a separate _timeout api. More general func
 signal from the message queue, and/or by specifying a watchdog timer that will abort on timeout (assuming that signals are used for the message queue implementation,
 that is). I think that it would be better to use this existing pattern than create a new set of functions that add timeouts to all of the components that may use them.
 
+[stg: agree in principle, but this fundamental API design consideration is not in the scope of this task.
+The timeout API has been requested by the customer.
+Changing this would need to be tackled in a separate task in coordination with customers.]
+
 Location: message-queue.c:80
 Comment: Wouldn't a macro be more suitable for this? Alternatively, (the above comment notwithstanding) you could provide the same functionality (get, get_try and get_timeout)
 with a single function

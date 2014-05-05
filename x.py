@@ -450,11 +450,16 @@ def merge_schema_entries(a, b, path=''):
                 a_child = a_children[name]
             except KeyError:
                 raise SchemaFormatError('A schema entry under "{}" does not contain a name attribute'.format(path))
-            if len(b_child) == 0 or len(a_child) == 0:
+            if (len(b_child) == 0) != (len(a_child) == 0):
                 raise SchemaFormatError('Unable to merge two schemas: \
-the entry {}.{} is present in both schemas, but either or both entries have no children. \
-To be able to merge these two schemas, corresponding entries need both to have child entries.'.format(path, name))
-            merge_schema_entries(a_child, b_child, '{}.{}'.format(path, name))
+the entry {}.{} is present in both schemas, but it has children in one and no children in the other. \
+To merge two schemas, corresponding entries both need need to either have child entries or not.'.format(path, name))
+            if len(b_child) and len(a_child):
+                merge_schema_entries(a_child, b_child, '{}.{}'.format(path, name))
+            else:
+                # replace existing entry in a with the entry from b, allowing to override entries
+                a.remove(a_child)
+                a.append(b_child)
         else:
             a.append(b_child)
 
@@ -2417,7 +2422,10 @@ CORE_SKELETONS = {
         [Component('reentrant'),
          Component('acamar'),
          ArchitectureComponent('stack', 'stack'),
-         ArchitectureComponent('context_switch', 'context-switch')]),
+         ArchitectureComponent('context_switch', 'context-switch'),
+         Component('error'),
+         Component('task'),
+         ]),
     'gatria': RtosSkeleton(
         'gatria',
         [Component('reentrant'),
@@ -2425,7 +2433,10 @@ CORE_SKELETONS = {
          ArchitectureComponent('context_switch', 'context-switch'),
          Component('sched', 'sched-rr', {'assume_runnable': True}),
          Component('mutex', 'simple-mutex'),
-         Component('gatria')]),
+         Component('error'),
+         Component('task'),
+         Component('gatria'),
+         ]),
     'kraz': RtosSkeleton(
         'kraz',
         [Component('reentrant'),
@@ -2434,7 +2445,10 @@ CORE_SKELETONS = {
          Component('sched', 'sched-rr', {'assume_runnable': True}),
          Component('signal'),
          Component('mutex', 'simple-mutex'),
-         Component('kraz')]),
+         Component('error'),
+         Component('task'),
+         Component('kraz'),
+         ]),
     'acrux': RtosSkeleton(
         'acrux',
         [Component('reentrant'),
@@ -2444,7 +2458,10 @@ CORE_SKELETONS = {
          ArchitectureComponent('interrupt_event_arch', 'interrupt-event'),
          Component('interrupt_event', 'interrupt-event', {'timer_process': False, 'task_set': False}),
          Component('mutex', 'simple-mutex'),
-         Component('acrux')]),
+         Component('error'),
+         Component('task'),
+         Component('acrux'),
+         ]),
     'rigel': RtosSkeleton(
         'rigel',
         [Component('reentrant'),
@@ -2458,8 +2475,10 @@ CORE_SKELETONS = {
          Component('interrupt_event', 'interrupt-event', {'timer_process': True, 'task_set': True}),
          Component('mutex', 'blocking-mutex'),
          Component('profiling'),
-         Component('rigel'),
          Component('message-queue'),
+         Component('error'),
+         Component('task'),
+         Component('rigel'),
          ],
     ),
 }

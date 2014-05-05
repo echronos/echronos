@@ -25,6 +25,9 @@
         <mutex><name>m9</name></mutex>
         <mutex><name>m10</name></mutex>
       </mutexes>
+      <mutex>
+        <stats>false</stats>
+      </mutex>
     </module>
 
   </modules>

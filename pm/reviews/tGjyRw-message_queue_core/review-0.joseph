@@ -52,4 +52,5 @@ message_queue_get(queue, message, timeout)
 
 where timeout may be 0 to indicate a _try, {{prefix_const}}TIMEOUT_INFINITE = UINT{{x}}_MAX or something inbetween
 
-
+[stg: API redesign out of scope for this task.
+I personally prefer having an explicit, verbose API over encoding special cases in function argument values because it is easier to extend the former than the latter.]

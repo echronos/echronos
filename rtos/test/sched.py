@@ -1,13 +1,16 @@
-import os
 import ctypes
+import os
+import sys
+
 from rtos import sched
+from x import get_executable_extension
 
 
 class testRrSched:
     @classmethod
     def setUpClass(cls):
-        r = os.system("./prj/app/prj.py build posix.unittest.sched-rr")
-        system = "out/posix/unittest/sched-rr/system"
+        r = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.sched-rr")
+        system = "out/posix/unittest/sched-rr/system" + get_executable_extension()
         assert r == 0
         cls.impl = ctypes.CDLL(system)
         cls.impl_sched = ctypes.POINTER(sched.get_rr_sched_struct(10)).in_dll(cls.impl, 'pub_sched_tasks')[0]
@@ -26,8 +29,8 @@ class testRrSched:
 class testPrioSched:
     @classmethod
     def setUpClass(cls):
-        r = os.system("./prj/app/prj.py build posix.unittest.sched-prio")
-        system = "out/posix/unittest/sched-prio/system"
+        r = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.sched-prio")
+        system = "out/posix/unittest/sched-prio/system" + get_executable_extension()
         assert r == 0
         cls.impl = ctypes.CDLL(system)
         cls.impl_sched = ctypes.POINTER(sched.get_prio_sched_struct(10)).in_dll(cls.impl, 'pub_sched_tasks')[0]
@@ -48,8 +51,8 @@ class testPrioInheritSched:
 
     @classmethod
     def setUpClass(cls):
-        r = os.system("./prj/app/prj.py build posix.unittest.sched-prio-inherit")
-        system = "out/posix/unittest/sched-prio-inherit/system"
+        r = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.sched-prio-inherit")
+        system = "out/posix/unittest/sched-prio-inherit/system" + get_executable_extension()
         assert r == 0
         cls.impl = ctypes.CDLL(system)
         pub_sched_tasks = ctypes.POINTER(sched.get_prio_inherit_sched_struct(cls.test_size))

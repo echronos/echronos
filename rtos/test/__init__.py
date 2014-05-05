@@ -1,16 +1,18 @@
 __all__ = ['sched', 'simple_mutex', 'blocking_mutex', 'simple_semaphore']
 
-import os
 import ctypes
-import unittest
+import os
 import random
+import sys
+
+from x import get_executable_extension
 
 
 class testSimple:
     @classmethod
     def setUpClass(cls):
-        r = os.system("./prj/app/prj.py build posix.unittest.simple")
-        system = "out/posix/unittest/simple/system"
+        r = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.simple")
+        system = "out/posix/unittest/simple/system" + get_executable_extension()
         assert r == 0
         cls.simple = ctypes.CDLL(system)
 

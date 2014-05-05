@@ -12,6 +12,9 @@ Overall comments:
 Although this task is not a complete implementation, unit tests that excercise the code that has been developed here would be very helpful, and would
 still be valuable in the final product.
 
+[stg: the unit test framework currently only works on MacOS, but this platform is neither available to me nor for regression tests.
+Adding unit-test support for Windows or Linux is out of scope for this task.]
+
 Specific comments
 =================
 

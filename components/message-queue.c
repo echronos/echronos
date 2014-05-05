@@ -2,7 +2,12 @@
 <entry name="message_queues" type="list" default="[]" auto_index_field="idx">
     <entry name="message_queue" type="dict">
         <entry name="name" type="ident" />
-        <entry name="message_size" type="int" />
+        <entry name="message_size" type="int" optional="true" />
+        <entry name="message_type" type="string" optional="true" />
+        <constraint name="constraint0" type="one_of">
+            <entry name="message_size">message_size</entry>
+            <entry name="message_type">message_type</entry>
+        </constraint>
         <entry name="queue_length" type="int" />
     </entry>
 </entry>
@@ -74,7 +79,18 @@ static uint8_t message_queue_{{name}}_messages[{{queue_length}}][{{message_size}
 static struct message_queue message_queues[] =
 {
 {{#message_queues}}
-    { (uint8_t*)message_queue_{{name}}_messages, {{message_size}}, {{queue_length}}, 0, 0 },
+    {
+        (uint8_t*)message_queue_{{name}}_messages,
+{{#message_size}}
+        {{message_size}},
+{{/message_size}}
+{{#message_type}}
+        sizeof({{message_type}}),
+{{/message_type}}
+        {{queue_length}},
+        0,
+        0,
+    },
 {{/message_queues}}
 };
 

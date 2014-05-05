@@ -1,0 +1,39 @@
+Task: 9baKtY-win32_support_for_unittests
+==============================================================================
+
+Motivation
+----------
+
+The support for unit testing in x.py is currently limited to MacOSX.
+Since MacOSX is not available to some developers, and in particular not to the current regression test system, this leaves a gap in the RTOS test coverage.
+
+
+Goals
+--------
+
+The goal of this task is to close the gap in unit test coverage by supporting unit testing on Windows.
+Linux would be the preferred platform to support because it forms the basis for the rest of the regression test system and release management.
+However, the unit test framework depends on the Python ctypes module which is not available in the Python interpreter distributed with the RTOS.
+Thus, gaining support for unit tests requires a relatively large amount of effort since that Python interpreter needs to be rebuilt.
+This is not necessary under Windows, where the system Python interpreter is used.
+Furthermore, Windows also supported by the current regression test system and thus also help close the gap in the regression test coverage.
+
+Individual goals of this task are:
+
+- the prj tool shall be able to build the unit test systems
+
+- the x tool shall be able to execute the unit tests such that they are usable for regression testing
+
+- limitations and restrictions shall be documented and, ideally, checked for by the relevant tools
+
+- the regression test system shall be reconfigured to run the unit tests on Windows as part of the rest of all regression tests and these tests shall pass
+
+
+Test Plan
+---------
+
+- review the configuration of the regression test system (TeamCity) and verify that the unit tests are executed on Windows
+
+- review the test results and verify that the unit tests pass
+
+- review the source code changes and verify that they meet the RTOS quality standards

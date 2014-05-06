@@ -348,6 +348,19 @@ def get_host_platform_name():
         raise RuntimeError('Unsupported platform {}'.format(sys.platform))
 
 
+_executable_extension = None
+
+
+def get_executable_extension():
+    global _executable_extension
+    if _executable_extension is None:
+        _executable_extension = {'darwin': '',
+                                 'linux': '',
+                                 'win32': '.exe',
+                                 }[sys.platform]
+    return _executable_extension
+
+
 class TeamcityReport(pep8.StandardReport):
     """Collect results and print teamcity messages."""
 

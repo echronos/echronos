@@ -1,7 +1,9 @@
-import os
 import ctypes
+import os
 import sys
+
 from rtos import sched
+from x import get_executable_extension
 
 NUM_MUTEXES = 10
 
@@ -18,8 +20,8 @@ class MutexStruct(ctypes.Structure):
 class testBlockingMutex:
     @classmethod
     def setUpClass(cls):
-        r = os.system("./prj/app/prj.py build posix.unittest.blocking-mutex")
-        system = "out/posix/unittest/blocking-mutex/system"
+        r = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.blocking-mutex")
+        system = "out/posix/unittest/blocking-mutex/system" + get_executable_extension()
         assert r == 0
         cls.impl = ctypes.CDLL(system)
         cls.impl_mutex = (ctypes.POINTER(MutexStruct * NUM_MUTEXES)).in_dll(cls.impl, 'pub_mutexes')[0]

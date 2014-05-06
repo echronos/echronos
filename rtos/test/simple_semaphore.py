@@ -1,7 +1,10 @@
-import os
 import ctypes
-from rtos import sched
 import itertools
+import os
+import sys
+
+from rtos import sched
+from x import get_executable_extension
 
 NUM_SEMAPHORES = 10
 ALL_SEMAPHORES = list(range(NUM_SEMAPHORES))
@@ -23,8 +26,8 @@ class SemaphoreStruct(ctypes.Structure):
 class SemaphoreTest:
     @classmethod
     def setUpClass(cls):
-        r = os.system("./prj/app/prj.py build posix.unittest.simple-semaphore")
-        system = "out/posix/unittest/simple-semaphore/system"
+        r = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.simple-semaphore")
+        system = "out/posix/unittest/simple-semaphore/system" + get_executable_extension()
         assert r == 0
         cls.impl = ctypes.CDLL(system)
         cls.impl_sem = ctypes.POINTER(SemaphoreStruct).in_dll(cls.impl, 'pub_semaphores')

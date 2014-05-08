@@ -44,8 +44,10 @@ bool {{prefix_func}}message_queue_get_timeout({{prefix_type}}MessageQueueId mess
 /*| headers |*/
 
 /*| object_like_macros |*/
+#define MESSAGE_QUEUE_ID_NONE ((MessageQueueIdOption)UINT8_C(255))
 
 /*| type_definitions |*/
+typedef uint8_t MessageQueueIdOption;
 
 /*| structure_definitions |*/
 /* representation of a message queue instance
@@ -93,18 +95,67 @@ static struct message_queue message_queues[] =
     },
 {{/message_queues}}
 };
+static MessageQueueIdOption message_queue_waiters[] =
+{
+{{#tasks}}
+    MESSAGE_QUEUE_ID_NONE,
+{{/tasks}}
+};
 
 {{/message_queues.length}}
 
 /*| function_like_macros |*/
 
 /*| functions |*/
+{{#message_queues.length}}
+static void message_queue_waiters_wakeup(const {{prefix_type}}MessageQueueId message_queue)
+{
+    {{prefix_type}}TaskId task;
+
+    for (task = {{prefix_const}}TASK_ID_ZERO; task < {{prefix_const}}TASK_ID_MAX; task += 1)
+    {
+        if (message_queue_waiters[task] == message_queue)
+        {
+            {{prefix_func}}signal_send(task, {{prefix_const}}SIGNAL_ID__TASK_TIMER);
+            message_queue_waiters[get_current_task()] = MESSAGE_QUEUE_ID_NONE;
+        }
+    }
+}
+
+static void message_queue_wait(const {{prefix_type}}MessageQueueId message_queue)
+{
+    message_queue_waiters[get_current_task()] = message_queue;
+    {{prefix_func}}signal_wait({{prefix_const}}SIGNAL_ID__TASK_TIMER);
+}
+
+static void message_queue_wait_timeout(const {{prefix_type}}MessageQueueId message_queue, const {{prefix_type}}TicksRelative timeout)
+{
+    message_queue_waiters[get_current_task()] = message_queue;
+    rtos_sleep(timeout);
+    message_queue_waiters[get_current_task()] = MESSAGE_QUEUE_ID_NONE;
+}
+
+/* assumptions: max length 255, no overlap of dst & src */
+static void memcpy(uint8_t *dst, const uint8_t *src, const uint8_t length)
+{
+    uint8_t *const dst_end = dst + length;
+
+    while (dst < dst_end)
+    {
+        *dst++ = *src++;
+    }
+}
+
+{{/message_queues.length}}
 
 /*| public_functions |*/
 {{#message_queues.length}}
 void {{prefix_func}}message_queue_put(const {{prefix_type}}MessageQueueId message_queue, const void *const message)
 {
-    (void){{prefix_func}}message_queue_put_timeout(message_queue, message, 0);
+    while (!{{prefix_func}}message_queue_try_put(message_queue, message))
+    {
+        message_queue_wait(message_queue);
+    }
 }
 
 bool {{prefix_func}}message_queue_try_put(const {{prefix_type}}MessageQueueId message_queue, const void *message)
@@ -119,12 +170,14 @@ bool {{prefix_func}}message_queue_try_put(const {{prefix_type}}MessageQueueId me
     {
         const uint8_t buffer_index = (mq->head + mq->available) % mq->queue_length;
         const uint16_t buffer_offset = buffer_index * mq->message_size;
-        uint8_t *buffer;
-        for (buffer = &mq->messages[buffer_offset]; buffer < &mq->messages[buffer_offset + mq->message_size]; buffer += 1)
-        {
-            *buffer = *(uint8_t*)message++;
-        }
+        memcpy(&mq->messages[buffer_offset], message, mq->message_size);
         mq->available += 1;
+
+        if (mq->available == 1)
+        {
+            message_queue_waiters_wakeup(message_queue);
+        }
+
         return true;
     }
 }
@@ -133,25 +186,21 @@ bool {{prefix_func}}message_queue_put_timeout(const {{prefix_type}}MessageQueueI
 {
     const {{prefix_type}}TicksAbsolute absolute_timeout = {{prefix_func}}timer_current_ticks + timeout;
 
-    while (!{{prefix_func}}message_queue_try_put(message_queue, message))
+    while ((message_queues[message_queue].available == message_queues[message_queue].queue_length) &&
+            (absolute_timeout > {{prefix_func}}timer_current_ticks))
     {
-        /* The !timeout part is not meant to be final; it just allows an implementation shortcut for this prototype */
-        if (!timeout || {{prefix_func}}timer_current_ticks < absolute_timeout)
-        {
-            {{prefix_func}}yield();
-        }
-        else
-        {
-            return false;
-        }
+        message_queue_wait_timeout(message_queue, absolute_timeout - {{prefix_func}}timer_current_ticks);
     }
 
-    return true;
+    return {{prefix_func}}message_queue_try_put(message_queue, message);
 }
 
 void {{prefix_func}}message_queue_get(const {{prefix_type}}MessageQueueId message_queue, void *const message)
 {
-    (void){{prefix_func}}message_queue_get_timeout(message_queue, message, 0);
+    while (!{{prefix_func}}message_queue_try_get(message_queue, message))
+    {
+        message_queue_wait(message_queue);
+    }
 }
 
 bool {{prefix_func}}message_queue_try_get(const {{prefix_type}}MessageQueueId message_queue, void *message)
@@ -165,12 +214,14 @@ bool {{prefix_func}}message_queue_try_get(const {{prefix_type}}MessageQueueId me
     else
     {
         const uint16_t buffer_offset = mq->head * mq->message_size;
-        uint8_t *buffer;
-        for (buffer = &mq->messages[buffer_offset]; buffer < &mq->messages[buffer_offset + mq->message_size]; buffer += 1)
-        {
-            *(uint8_t*)message++ = *buffer;
-        }
+        memcpy((uint8_t*)message, &mq->messages[buffer_offset], mq->message_size);
         mq->available -= 1;
+
+        if (mq->available == ({{message_queues.length}} - 1))
+        {
+            message_queue_waiters_wakeup(message_queue);
+        }
+
         return true;
     }
 }
@@ -179,20 +230,13 @@ bool {{prefix_func}}message_queue_get_timeout(const {{prefix_type}}MessageQueueI
 {
     const {{prefix_type}}TicksAbsolute absolute_timeout = {{prefix_func}}timer_current_ticks + timeout;
 
-    while (!{{prefix_func}}message_queue_try_get(message_queue, message))
+    while ((message_queues[message_queue].available == 0) &&
+            (absolute_timeout > {{prefix_func}}timer_current_ticks))
     {
-        /* The !timeout part is not meant to be final; it just allows an implementation shortcut for this prototype */
-        if ((!timeout) || ({{prefix_func}}timer_current_ticks < absolute_timeout))
-        {
-            {{prefix_func}}yield();
-        }
-        else
-        {
-            return false;
-        }
+        message_queue_wait_timeout(message_queue, absolute_timeout - {{prefix_func}}timer_current_ticks);
     }
 
-    return true;
+    return {{prefix_func}}message_queue_try_get(message_queue, message);
 }
 
 {{/message_queues.length}}

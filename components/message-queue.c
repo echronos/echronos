@@ -112,7 +112,7 @@ static void message_queue_waiters_wakeup(const {{prefix_type}}MessageQueueId mes
 {
     {{prefix_type}}TaskId task;
 
-    for (task = {{prefix_const}}TASK_ID_ZERO; task < {{prefix_const}}TASK_ID_MAX; task += 1)
+    for (task = {{prefix_const}}TASK_ID_ZERO; task <= {{prefix_const}}TASK_ID_MAX; task += 1)
     {
         if (message_queue_waiters[task] == message_queue)
         {

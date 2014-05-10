@@ -109,6 +109,11 @@ static MessageQueueIdOption message_queue_waiters[] =
 {{/message_queues.length}}
 
 /*| function_like_macros |*/
+{{#mutexes.length}}
+#define message_queue_api_assert_valid(message_queue) api_assert(message_queue < {{message_queues.length}}, ERROR_ID_INVALID_ID)
+#define message_queue_internal_assert_valid(message_queue) api_assert(message_queue < {{message_queues.length}}, ERROR_ID_INVALID_ID)
+
+{{/mutexes.length}}
 
 /*| functions |*/
 {{#message_queues.length}}
@@ -116,6 +121,8 @@ static void
 message_queue_waiters_wakeup(const {{prefix_type}}MessageQueueId message_queue)
 {
     {{prefix_type}}TaskId task;
+
+    message_queue_internal_assert_valid(message_queue);
 
     for (task = {{prefix_const}}TASK_ID_ZERO; task <= {{prefix_const}}TASK_ID_MAX; task += 1)
     {
@@ -130,6 +137,8 @@ message_queue_waiters_wakeup(const {{prefix_type}}MessageQueueId message_queue)
 static void
 message_queue_wait(const {{prefix_type}}MessageQueueId message_queue) {{prefix_const}}REENTRANT
 {
+    message_queue_internal_assert_valid(message_queue);
+
     message_queue_waiters[get_current_task()] = message_queue;
     message_queue_core_block();
 }
@@ -138,6 +147,9 @@ static void
 message_queue_wait_timeout(const {{prefix_type}}MessageQueueId message_queue,
                            const {{prefix_type}}TicksRelative timeout) {{prefix_const}}REENTRANT
 {
+    message_queue_internal_assert_valid(message_queue);
+    internal_assert(timeout, ERROR_ID_MESSAGE_QUEUE_INTERNAL_ZERO_TIMEOUT);
+
     message_queue_waiters[get_current_task()] = message_queue;
     message_queue_core_block_timeout(timeout);
     message_queue_waiters[get_current_task()] = MESSAGE_QUEUE_ID_NONE;
@@ -148,6 +160,8 @@ static void
 memcpy(uint8_t *dst, const uint8_t *src, const uint8_t length)
 {
     uint8_t *const dst_end = dst + length;
+
+    api_assert((dst < src) || (dst > (src + length)), ERROR_ID_MESSAGE_QUEUE_BUFFER_OVERLAP);
 
     while (dst < dst_end)
     {
@@ -163,6 +177,9 @@ void
 {{prefix_func}}message_queue_put(const {{prefix_type}}MessageQueueId message_queue, const void *const message)
         {{prefix_const}}REENTRANT
 {
+    message_queue_api_assert_valid(message_queue);
+    api_assert(message, ERROR_ID_MESSAGE_QUEUE_INVALID_POINTER);
+
     while (!{{prefix_func}}message_queue_try_put(message_queue, message))
     {
         message_queue_wait(message_queue);
@@ -172,25 +189,30 @@ void
 bool
 {{prefix_func}}message_queue_try_put(const {{prefix_type}}MessageQueueId message_queue, const void *message)
 {
-    struct message_queue *const mq = &message_queues[message_queue];
+    message_queue_api_assert_valid(message_queue);
+    api_assert(message, ERROR_ID_MESSAGE_QUEUE_INVALID_POINTER);
 
-    if (mq->available == mq->queue_length)
     {
-        return false;
-    }
-    else
-    {
-        const uint8_t buffer_index = (mq->head + mq->available) % mq->queue_length;
-        const uint16_t buffer_offset = buffer_index * mq->message_size;
-        memcpy(&mq->messages[buffer_offset], message, mq->message_size);
-        mq->available += 1;
+        struct message_queue *const mq = &message_queues[message_queue];
 
-        if (mq->available == 1)
+        if (mq->available == mq->queue_length)
         {
-            message_queue_waiters_wakeup(message_queue);
+            return false;
         }
+        else
+        {
+            const uint8_t buffer_index = (mq->head + mq->available) % mq->queue_length;
+            const uint16_t buffer_offset = buffer_index * mq->message_size;
+            memcpy(&mq->messages[buffer_offset], message, mq->message_size);
+            mq->available += 1;
 
-        return true;
+            if (mq->available == 1)
+            {
+                message_queue_waiters_wakeup(message_queue);
+            }
+
+            return true;
+        }
     }
 }
 
@@ -199,6 +221,11 @@ bool
                                          const {{prefix_type}}TicksRelative timeout) {{prefix_const}}REENTRANT
 {
     const {{prefix_type}}TicksAbsolute absolute_timeout = {{prefix_func}}timer_current_ticks + timeout;
+
+    message_queue_api_assert_valid(message_queue);
+    api_assert(message, ERROR_ID_MESSAGE_QUEUE_INVALID_POINTER);
+    api_assert(timeout, ERROR_ID_MESSAGE_QUEUE_ZERO_TIMEOUT);
+    internal_assert({{prefix_func}}timer_current_ticks < (UINT32_MAX - timeout), ERROR_ID_MESSAGE_QUEUE_INTERNAL_TICK_OVERFLOW);
 
     while ((message_queues[message_queue].available == message_queues[message_queue].queue_length) &&
             (absolute_timeout > {{prefix_func}}timer_current_ticks))
@@ -213,6 +240,9 @@ void
 {{prefix_func}}message_queue_get(const {{prefix_type}}MessageQueueId message_queue, void *const message)
         {{prefix_const}}REENTRANT
 {
+    message_queue_api_assert_valid(message_queue);
+    api_assert(message, ERROR_ID_MESSAGE_QUEUE_INVALID_POINTER);
+
     while (!{{prefix_func}}message_queue_try_get(message_queue, message))
     {
         message_queue_wait(message_queue);
@@ -222,24 +252,29 @@ void
 bool
 {{prefix_func}}message_queue_try_get(const {{prefix_type}}MessageQueueId message_queue, void *message)
 {
-    struct message_queue *const mq = &message_queues[message_queue];
+    message_queue_api_assert_valid(message_queue);
+    api_assert(message, ERROR_ID_MESSAGE_QUEUE_INVALID_POINTER);
 
-    if (mq->available == 0)
     {
-        return false;
-    }
-    else
-    {
-        const uint16_t buffer_offset = mq->head * mq->message_size;
-        memcpy((uint8_t*)message, &mq->messages[buffer_offset], mq->message_size);
-        mq->available -= 1;
+        struct message_queue *const mq = &message_queues[message_queue];
 
-        if (mq->available == ({{message_queues.length}} - 1))
+        if (mq->available == 0)
         {
-            message_queue_waiters_wakeup(message_queue);
+            return false;
         }
+        else
+        {
+            const uint16_t buffer_offset = mq->head * mq->message_size;
+            memcpy((uint8_t*)message, &mq->messages[buffer_offset], mq->message_size);
+            mq->available -= 1;
 
-        return true;
+            if (mq->available == ({{message_queues.length}} - 1))
+            {
+                message_queue_waiters_wakeup(message_queue);
+            }
+
+            return true;
+        }
     }
 }
 
@@ -248,6 +283,11 @@ bool
                                          const {{prefix_type}}TicksRelative timeout) {{prefix_const}}REENTRANT
 {
     const {{prefix_type}}TicksAbsolute absolute_timeout = {{prefix_func}}timer_current_ticks + timeout;
+
+    message_queue_api_assert_valid(message_queue);
+    api_assert(message, ERROR_ID_MESSAGE_QUEUE_INVALID_POINTER);
+    api_assert(timeout, ERROR_ID_MESSAGE_QUEUE_ZERO_TIMEOUT);
+    internal_assert({{prefix_func}}timer_current_ticks < (UINT32_MAX - timeout), ERROR_ID_MESSAGE_QUEUE_INTERNAL_TICK_OVERFLOW);
 
     while ((message_queues[message_queue].available == 0) &&
             (absolute_timeout > {{prefix_func}}timer_current_ticks))

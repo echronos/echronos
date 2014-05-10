@@ -175,6 +175,8 @@ void
 void
 {{prefix_func}}start(void)
 {
+    message_queue_init();
+
     {{#tasks}}
     context_init(get_task_context({{idx}}), _task_entry_{{name}}, stack_{{idx}}, {{stack_size}});
     sched_set_runnable({{idx}});

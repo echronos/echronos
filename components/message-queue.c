@@ -112,11 +112,39 @@ static MessageQueueIdOption message_queue_waiters[] =
 {{#mutexes.length}}
 #define message_queue_api_assert_valid(message_queue) api_assert(message_queue < {{message_queues.length}}, ERROR_ID_INVALID_ID)
 #define message_queue_internal_assert_valid(message_queue) api_assert(message_queue < {{message_queues.length}}, ERROR_ID_INVALID_ID)
+{{^internal_asserts}}
+#define message_queue_init() do {} while(0)
+{{/internal_asserts}}
+
 
 {{/mutexes.length}}
 
 /*| functions |*/
 {{#message_queues.length}}
+{{#internal_asserts}}
+static void message_queue_init(void)
+{
+    {{prefix_type}}MessageQueueId message_queue;
+    {{prefix_type}}TaskId task;
+
+    for (message_queue = 0; message_queue < {{message_queues.length}}; message_queue += 1)
+    {
+        const struct message_queue *const mq = &message_queues[message_queue];
+
+        internal_assert(mq->messages &&
+                        mq->message_size &&
+                        mq->queue_length &&
+                        !mq->head &&
+                        !mq->available, ERROR_ID_MESSAGE_QUEUE_INTERNAL_INCORRECT_INITIALIZATION);
+    }
+
+    for (task = 0; task <= TASK_ID_MAX; task += 1)
+    {
+        internal_assert(message_queue_waiters[task] == MESSAGE_QUEUE_ID_NONE, ERROR_ID_MESSAGE_QUEUE_INTERNAL_INCORRECT_INITIALIZATION);
+    }
+}
+{{/internal_asserts}}
+
 static void
 message_queue_waiters_wakeup(const {{prefix_type}}MessageQueueId message_queue)
 {

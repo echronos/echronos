@@ -95,6 +95,7 @@ struct interrupt_event_handler interrupt_events[{{interrupt_events.length}}] = {
 #define message_queue_core_block() {{prefix_func}}signal_wait({{prefix_const}}SIGNAL_ID__TASK_TIMER)
 #define message_queue_core_block_timeout(timeout) {{prefix_func}}sleep((timeout))
 #define message_queue_core_unblock(task) {{prefix_func}}signal_send((task), {{prefix_const}}SIGNAL_ID__TASK_TIMER)
+#define message_queue_core_is_unblocked(task) sched_runnable((task))
 
 /*| functions |*/
 static void

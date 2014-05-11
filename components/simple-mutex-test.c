@@ -1,3 +1,11 @@
+/*| schema |*/
+<entry name="prefix" type="ident" optional="true" />
+<entry name="tasks" type="list" default="[]" auto_index_field="idx">
+    <entry name="task" type="dict">
+        <entry name="name" type="ident" />
+    </entry>
+</entry>
+
 /*| public_headers |*/
 
 /*| public_type_definitions |*/
@@ -11,7 +19,7 @@
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-void {{prefix_func}}yield(void);
+void {{prefix_func}}yield(void) {{prefix_const}}REENTRANT;
 
 /*| headers |*/
 #include "rtos-simple-mutex-test.h"
@@ -45,7 +53,7 @@ void pub_set_yield_ptr(void (*y)(void))
     yield_ptr = y;
 }
 
-void {{prefix_func}}yield(void)
+void {{prefix_func}}yield(void) {{prefix_const}}REENTRANT
 {
     if (yield_ptr != NULL)
     {

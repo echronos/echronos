@@ -1,13 +1,16 @@
-import os
 import ctypes
+import os
+import sys
+
 from rtos import sched
+from x import get_executable_extension
 
 
 class testSimpleMutex:
     @classmethod
     def setUpClass(cls):
-        r = os.system("./prj/app/prj.py build posix.unittest.simple-mutex")
-        system = "out/posix/unittest/simple-mutex/system"
+        r = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.simple-mutex")
+        system = "out/posix/unittest/simple-mutex/system" + get_executable_extension()
         assert r == 0
         cls.impl = ctypes.CDLL(system)
         cls.impl_mutex = ctypes.POINTER(sched.get_rr_sched_struct(10)).in_dll(cls.impl, 'pub_mutexes')[0]

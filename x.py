@@ -55,23 +55,23 @@ import sys
 import os
 
 # FIXME: Use correct declaration vs definition.
-EXPECTED_SECTIONS = ['public_headers',
-                     'public_type_definitions',
-                     'public_structure_definitions',
-                     'public_object_like_macros',
-                     'public_function_like_macros',
-                     'public_extern_definitions',
-                     'public_function_definitions',
-                     'headers',
-                     'object_like_macros',
-                     'type_definitions',
-                     'structure_definitions',
-                     'extern_definitions',
-                     'function_definitions',
-                     'state',
-                     'function_like_macros',
-                     'functions',
-                     'public_functions']
+REQUIRED_COMPONENT_SECTIONS = ['public_headers',
+                               'public_type_definitions',
+                               'public_structure_definitions',
+                               'public_object_like_macros',
+                               'public_function_like_macros',
+                               'public_extern_definitions',
+                               'public_function_definitions',
+                               'headers',
+                               'object_like_macros',
+                               'type_definitions',
+                               'structure_definitions',
+                               'extern_definitions',
+                               'function_definitions',
+                               'state',
+                               'function_like_macros',
+                               'functions',
+                               'public_functions']
 
 
 def follow_link(l):
@@ -130,6 +130,7 @@ import tarfile
 import tempfile
 import time
 import unittest
+import xml.etree.ElementTree
 import zipfile
 from contextlib import contextmanager
 from glob import glob
@@ -347,6 +348,19 @@ def get_host_platform_name():
         raise RuntimeError('Unsupported platform {}'.format(sys.platform))
 
 
+_executable_extension = None
+
+
+def get_executable_extension():
+    global _executable_extension
+    if _executable_extension is None:
+        _executable_extension = {'darwin': '',
+                                 'linux': '',
+                                 'win32': '.exe',
+                                 }[sys.platform]
+    return _executable_extension
+
+
 class TeamcityReport(pep8.StandardReport):
     """Collect results and print teamcity messages."""
 
@@ -415,6 +429,62 @@ def python_path(*paths):
         yield
     finally:
         del sys.path[:len(paths)]
+
+
+class SchemaFormatError(RuntimeError):
+    """To be raised when a component configuration schema violates assumptions or conventions."""
+    pass
+
+
+def merge_schema_entries(a, b, path=''):
+    """Recursively merge the entries of two XML component schemas.
+
+    'a' and 'b' (instances of xml.etree.ElementTree.Element) are the two schema entries to merge.
+    All entries from 'b' are merged into 'a'.
+    If 'a' contains an entry a* with the same name as an entry b* in 'b', they can only be merged if both a* and b*
+    have child entries themselves.
+    If either a* or b* does not have at least one child entry, this function raises a SchemaFormatError.
+
+    Within each of 'a' and 'b', the names of their entries must be unique.
+    In other words, no two entries in 'a' may have the same name.
+    The same applies to 'b'.
+
+    When the function returns, 'a' contains all entries from 'b' and 'b' is unmodified.
+
+    """
+    a_children = {child.attrib['name']: child for child in a}
+    for b_child in b:
+        try:
+            name = b_child.attrib['name']
+        except KeyError:
+            raise SchemaFormatError('A schema entry under "{}" does not contain a name attribute'.format(path))
+        if name in a_children:
+            try:
+                a_child = a_children[name]
+            except KeyError:
+                raise SchemaFormatError('A schema entry under "{}" does not contain a name attribute'.format(path))
+            if (len(b_child) == 0) != (len(a_child) == 0):
+                raise SchemaFormatError('Unable to merge two schemas: \
+the entry {}.{} is present in both schemas, but it has children in one and no children in the other. \
+To merge two schemas, corresponding entries both need need to either have child entries or not.'.format(path, name))
+            if len(b_child) and len(a_child):
+                merge_schema_entries(a_child, b_child, '{}.{}'.format(path, name))
+            else:
+                # replace existing entry in a with the entry from b, allowing to override entries
+                a.remove(a_child)
+                a.append(b_child)
+        else:
+            a.append(b_child)
+
+
+def merge_schema_sections(sections):
+    merged_schema = xml.etree.ElementTree.fromstring('<schema>\n</schema>')
+
+    for section in sections:
+        schema = xml.etree.ElementTree.fromstring('<schema>\n{}\n</schema>'.format(section))
+        merge_schema_entries(merged_schema, schema)
+
+    return xml.etree.ElementTree.tostring(merged_schema).decode()
 
 
 class Component:
@@ -1035,8 +1105,16 @@ def new_review(args):
 task_template = """Task: {}
 ==============================================================================
 
+Motivation
+----------
+
+
 Goals
 --------
+
+
+Test Plan
+---------
 
 """
 
@@ -1101,9 +1179,9 @@ def parse_sectioned_file(fn, config={}):
     for key, value in sections.items():
         sections[key] = render_data('\n'.join(value).rstrip(), "{}: Section {}".format(fn, key), config)
 
-    for s in EXPECTED_SECTIONS:
+    for s in REQUIRED_COMPONENT_SECTIONS:
         if s not in sections:
-            raise Exception("Couldn't find exepcted section '{}' in file: '{}'".format(s, fn))
+            raise Exception("Couldn't find expected section '{}' in file: '{}'".format(s, fn))
 
     return sections
 
@@ -1157,9 +1235,13 @@ class RtosSkeleton:
         """Retrieve the sections necessary to generate an RtosModule from this skeleton.
 
         """
-        component_sections = [c.parse(arch) for c in self._components]
-        return  {s: '\n'.join(c[s] for c in component_sections)
-                 for s in EXPECTED_SECTIONS}
+        module_sections = {}
+        for component in self._components:
+            for name, contents in component.parse(arch).items():
+                if name not in module_sections:
+                    module_sections[name] = []
+                module_sections[name].append(contents)
+        return module_sections
 
     def create_configured_module(self, arch):
         """Retrieve module configuration information and create a corresponding RtosModule instance.
@@ -1214,6 +1296,7 @@ class RtosModule:
         python_output = os.path.join(self._module_dir, 'entity.py')
         source_output = os.path.join(self._module_dir, self._module_name + '.c')
         header_output = os.path.join(self._module_dir, self._module_name + '.h')
+        config_output = os.path.join(self._module_dir, 'schema.xml')
 
         source_sections = ['headers', 'object_like_macros',
                            'type_definitions', 'structure_definitions',
@@ -1227,10 +1310,9 @@ class RtosModule:
 
         with open(source_output, 'w') as f:
             for ss in source_sections:
+                data = '\n'.join(sections[ss])
                 if ss == 'type_definitions':
-                    data = sort_typedefs(sections[ss])
-                else:
-                    data = sections[ss]
+                    data = sort_typedefs(data)
                 f.write(data)
                 f.write('\n')
 
@@ -1239,13 +1321,16 @@ class RtosModule:
             f.write("#ifndef {}_H\n".format(mod_name))
             f.write("#define {}_H\n".format(mod_name))
             for ss in header_sections:
-                if ss == 'public_type_definitions':
-                    data = sections[ss]
-                else:
-                    data = sections[ss]
-                f.write(data)
-                f.write('\n')
+                for data in sections[ss]:
+                    f.write(data)
+                    f.write('\n')
             f.write("\n#endif /* {}_H */".format(mod_name))
+
+        with open(config_output, 'w') as f:
+            f.write('''<?xml version="1.0" encoding="UTF-8" ?>
+''')
+            schema = merge_schema_sections(sections.get('schema', []))
+            f.write(schema)
 
         shutil.copyfile(self._python_file, python_output)
 
@@ -2317,60 +2402,83 @@ CORE_ARCHITECTURES = {
 CORE_SKELETONS = {
     'sched-rr-test': RtosSkeleton(
         'sched-rr-test',
-        [Component('sched', 'sched-rr', {'assume_runnable': False}),
+        [Component('reentrant'),
+         Component('sched', 'sched-rr', {'assume_runnable': False}),
          Component('sched-rr-test')]),
     'sched-prio-test': RtosSkeleton(
         'sched-prio-test',
-        [Component('sched', 'sched-prio', {'assume_runnable': False}),
+        [Component('reentrant'),
+         Component('sched', 'sched-prio', {'assume_runnable': False}),
          Component('sched-prio-test')]),
     'sched-prio-inherit-test': RtosSkeleton(
         'sched-prio-inherit-test',
-        [Component('sched', 'sched-prio-inherit', {'assume_runnable': False}),
+        [Component('reentrant'),
+         Component('sched', 'sched-prio-inherit', {'assume_runnable': False}),
          Component('sched-prio-inherit-test')]),
     'simple-mutex-test': RtosSkeleton(
         'simple-mutex-test',
-        [Component('mutex', 'simple-mutex'),
+        [Component('reentrant'),
+         Component('mutex', 'simple-mutex'),
          Component('simple-mutex-test')]),
     'blocking-mutex-test': RtosSkeleton(
         'blocking-mutex-test',
-        [Component('mutex', 'blocking-mutex'),
+        [Component('reentrant'),
+         Component('mutex', 'blocking-mutex'),
          Component('blocking-mutex-test')]),
     'simple-semaphore-test': RtosSkeleton(
         'simple-semaphore-test',
-        [Component('semaphore', 'simple-semaphore'),
+        [Component('reentrant'),
+         Component('semaphore', 'simple-semaphore'),
          Component('simple-semaphore-test')]),
     'acamar': RtosSkeleton(
         'acamar',
-        [Component('acamar'),
+        [Component('reentrant'),
+         Component('acamar'),
          ArchitectureComponent('stack', 'stack'),
-         ArchitectureComponent('context_switch', 'context-switch')]),
+         ArchitectureComponent('context_switch', 'context-switch'),
+         Component('error'),
+         Component('task'),
+         ]),
     'gatria': RtosSkeleton(
         'gatria',
-        [ArchitectureComponent('stack', 'stack'),
+        [Component('reentrant'),
+         ArchitectureComponent('stack', 'stack'),
          ArchitectureComponent('context_switch', 'context-switch'),
          Component('sched', 'sched-rr', {'assume_runnable': True}),
          Component('mutex', 'simple-mutex'),
-         Component('gatria')]),
+         Component('error'),
+         Component('task'),
+         Component('gatria'),
+         ]),
     'kraz': RtosSkeleton(
         'kraz',
-        [ArchitectureComponent('stack', 'stack'),
+        [Component('reentrant'),
+         ArchitectureComponent('stack', 'stack'),
          ArchitectureComponent('ctxt_switch', 'context-switch'),
          Component('sched', 'sched-rr', {'assume_runnable': True}),
          Component('signal'),
          Component('mutex', 'simple-mutex'),
-         Component('kraz')]),
+         Component('error'),
+         Component('task'),
+         Component('kraz'),
+         ]),
     'acrux': RtosSkeleton(
         'acrux',
-        [ArchitectureComponent('stack', 'stack'),
+        [Component('reentrant'),
+         ArchitectureComponent('stack', 'stack'),
          ArchitectureComponent('ctxt_switch', 'context-switch'),
          Component('sched', 'sched-rr', {'assume_runnable': False}),
          ArchitectureComponent('interrupt_event_arch', 'interrupt-event'),
          Component('interrupt_event', 'interrupt-event', {'timer_process': False, 'task_set': False}),
          Component('mutex', 'simple-mutex'),
-         Component('acrux')]),
+         Component('error'),
+         Component('task'),
+         Component('acrux'),
+         ]),
     'rigel': RtosSkeleton(
         'rigel',
-        [ArchitectureComponent('stack', 'stack'),
+        [Component('reentrant'),
+         ArchitectureComponent('stack', 'stack'),
          ArchitectureComponent('ctxt_switch', 'context-switch'),
          Component('sched', 'sched-rr', {'assume_runnable': False}),
          Component('signal'),
@@ -2380,7 +2488,11 @@ CORE_SKELETONS = {
          Component('interrupt_event', 'interrupt-event', {'timer_process': True, 'task_set': True}),
          Component('mutex', 'blocking-mutex'),
          Component('profiling'),
-         Component('rigel')],
+         Component('message-queue'),
+         Component('error'),
+         Component('task'),
+         Component('rigel'),
+         ],
     ),
 }
 

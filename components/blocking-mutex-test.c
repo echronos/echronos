@@ -1,3 +1,11 @@
+/*| schema |*/
+<entry name="prefix" type="ident" optional="true" />
+<entry name="tasks" type="list" auto_index_field="idx">
+    <entry name="task" type="dict">
+        <entry name="name" type="ident" />
+    </entry>
+</entry>
+
 /*| public_headers |*/
 #include <stdint.h>
 
@@ -45,7 +53,7 @@ void (*unblock_ptr)({{prefix_type}}TaskId);
 
 /*| functions |*/
 static void
-mutex_block_on({{prefix_type}}TaskId task)
+mutex_block_on({{prefix_type}}TaskId task) {{prefix_const}}REENTRANT
 {
     if (block_on_ptr != NULL)
     {

@@ -1,3 +1,5 @@
+/*| schema |*/
+
 /*| public_headers |*/
 
 /*| public_type_definitions |*/

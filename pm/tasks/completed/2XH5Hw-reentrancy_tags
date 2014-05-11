@@ -1,0 +1,26 @@
+Task: 2XH5Hw-reentrancy_tags
+==============================================================================
+
+Motivation
+----------
+
+On some platforms, compilers can apply optimizations to functions known to not be reentrant or recursive.
+Since this information is currently not available for RTOS functions, such optimizations currently cannot be applied.
+
+
+Goals
+--------
+
+The goal of this task is to tag reentrant and recursive functions as such.
+This shall be done in a manner that is transparent to platforms where this information is irrelevant.
+
+The declaration and definition of every reentrant or recursive function shall be augmented with the preprocessor macro `{{prefix_const}}REENTRANT` after the list of function parameters.
+For example, `void {{prefix_func}}mutex_lock({{prefix_type}}MutexId);` shall be changed to `void {{prefix_func}}mutex_lock({{prefix_type}}MutexId) {{prefix_const}}REENTRANT;`.
+The `{{prefix_const}}REENTRANT` macro shall be defined in an architecture component so that each architecture can define its value as appropriate.
+
+
+Test Plan
+---------
+
+There is currently no automated check in place that could ensure the consistency of the reentrancy tags.
+Thus, careful code review must ensure the correctness of the applied tags.

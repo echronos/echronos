@@ -1,0 +1,26 @@
+Task: zmPPJH-task_component
+==============================================================================
+
+Motivation
+----------
+
+The RTOS variant components (acamar.py, acrux.py, etc.) contain a lot of duplicate code.
+It covers fundamental task-related code, such as task IDs and contexts.
+This duplication makes it difficult to maintenance this code and create new variants.
+
+
+Goals
+--------
+
+The goal of this task is to avoid this duplication.
+To meet this goal, the common code shall be moved into a reusable task component.
+Other reusable components shall be created as necessary.
+It is acceptable that the code or configuration of the individual RTOS variants is modified slightly if it is necessary to reduce code duplication.
+
+
+Test Plan
+---------
+
+This is an overall change to how RTOS variants are generated that cannot be tested specifically.
+Reviewers shall inspect the generated RTOS variant modules (i.e., the rtos-<variant>.[ch] files) before and after this task and verify that the differences have no detrimental impact on released RTOS code.
+All existing regression tests must pass.

@@ -1,3 +1,10 @@
+/*| schema |*/
+<entry name="mutexes" type="list" default="[]" auto_index_field="idx">
+    <entry name="mutex" type="dict">
+        <entry name="name" type="ident" />
+    </entry>
+</entry>
+
 /*| public_headers |*/
 #include <stdbool.h>
 #include <stddef.h>
@@ -21,7 +28,7 @@ typedef uint8_t {{prefix_type}}MutexId;
 
 /*| public_function_definitions |*/
 {{#mutexes.length}}
-void {{prefix_func}}mutex_lock({{prefix_type}}MutexId);
+void {{prefix_func}}mutex_lock({{prefix_type}}MutexId) {{prefix_const}}REENTRANT;
 bool {{prefix_func}}mutex_try_lock({{prefix_type}}MutexId);
 void {{prefix_func}}mutex_unlock({{prefix_type}}MutexId);
 {{/mutexes.length}}
@@ -74,7 +81,7 @@ internal_mutex_try_lock(const {{prefix_type}}MutexId m)
 /*| public_functions |*/
 {{#mutexes.length}}
 void
-{{prefix_func}}mutex_lock(const {{prefix_type}}MutexId m)
+{{prefix_func}}mutex_lock(const {{prefix_type}}MutexId m) {{prefix_const}}REENTRANT
 {
     assert_mutex_valid(m);
 

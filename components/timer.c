@@ -127,18 +127,20 @@ timer_process_one(struct timer *const timer)
 static void
 timer_tick_process(void)
 {
-    if (timer_tick_check())
+    const uint8_t pending_ticks = timer_pending_ticks_get_and_clear_atomically();
+
+    if (pending_ticks > 1)
+    {
+        {{fatal_error}}(ERROR_ID_TICK_OVERFLOW);
+    }
+
+    if (pending_ticks)
     {
 {{#timers.length}}
         {{prefix_type}}TimerId timer_id;
         struct timer *timer;
         TicksTimeout timeout;
 {{/timers.length}}
-
-        if (timer_tick_overflow_check())
-        {
-            {{fatal_error}}(ERROR_ID_TICK_OVERFLOW);
-        }
 
         {{prefix_func}}timer_current_ticks++;
 
@@ -154,8 +156,6 @@ timer_tick_process(void)
            }
        }
 {{/timers.length}}
-
-        timer_tick_clear();
     }
 }
 

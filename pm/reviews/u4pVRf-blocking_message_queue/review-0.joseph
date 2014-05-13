@@ -21,4 +21,4 @@ Comment: This needs a comment to point out that because the message queue shares
 Location: message_queue.c:134
 Comment: should be {{prefix_func}} not rtos_
 
-
+[stg: fixed]

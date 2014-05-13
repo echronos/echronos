@@ -16,6 +16,8 @@ Specific comments
 Location: message_queue.c:134
 Comment: This needs a comment to point out that because the message queue shares the sleep timer signal this won't behave lile rtos_sleep normally does. Nice trick btw.
 
+[stg: comment added]
+
 Location: message_queue.c:134
 Comment: should be {{prefix_func}} not rtos_
 

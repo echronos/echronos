@@ -131,6 +131,7 @@ static void message_queue_wait(const {{prefix_type}}MessageQueueId message_queue
 static void message_queue_wait_timeout(const {{prefix_type}}MessageQueueId message_queue, const {{prefix_type}}TicksRelative timeout)
 {
     message_queue_waiters[get_current_task()] = message_queue;
+    /* This sleep may end prematurely when another task calls put()/get() resulting in the timer signal being sent */
     rtos_sleep(timeout);
     message_queue_waiters[get_current_task()] = MESSAGE_QUEUE_ID_NONE;
 }

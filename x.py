@@ -114,7 +114,6 @@ import inspect
 import io
 import ice
 import logging
-import pep8
 import pystache
 import signal
 import shutil
@@ -127,7 +126,7 @@ from contextlib import contextmanager
 from glob import glob
 
 from pylib.tasks import new_review, new_task, tasks, integrate, Git
-from pylib.tests import prj_test, x_test, pystache_test, rtos_test
+from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8
 
 # Set up a specific logger with our desired output level
 logger = logging.getLogger()
@@ -343,60 +342,6 @@ def get_executable_extension():
                                  'win32': '.exe',
                                  }[sys.platform]
     return _executable_extension
-
-
-class TeamcityReport(pep8.StandardReport):
-    """Collect results and print teamcity messages."""
-
-    def __init__(self, options):
-        super(TeamcityReport, self).__init__(options)
-
-    def get_file_results(self):
-        ret = super(TeamcityReport, self).get_file_results()
-        if self.file_errors:
-            self._teamcity("testFailed name='%s'" % self._test_name())
-        self._teamcity("testFinished name='%s'" % self._test_name())
-        return ret
-
-    def init_file(self, filename, lines, expected, line_offset):
-        ret = super(TeamcityReport, self).init_file(filename, lines, expected, line_offset)
-        self._teamcity("testStarted name='%s' captureStandardOutput='true'" % self._test_name())
-        return ret
-
-    def _teamcity(self, msg):
-        print("##teamcity[{}]".format(msg))
-
-    def _test_name(self):
-        return self.filename[:-3].replace("|", "||").replace("'", "|'").replace("[", "|[") \
-            .replace("]", "|]").replace("\n", "|n").replace("\r", "|r")
-
-
-def check_pep8(args):
-    """Check for PEP8 compliance with the pep8 tool.
-
-    This implements conventions lupHw1 and u1wSS9.
-    The enforced maximum line length follows convention TZb0Uv.
-
-    When the pep8 tool finds all project Python files to be compliant, this function returns None.
-    When a non-compliant file is found, details about the non-compliance are printed on the standard output stream and
-    this function returns 1.
-    Runtime errors encountered by the pep8 tool are printed on the standard error stream and raised as the appropriate
-    exceptions.
-
-    """
-    excludes = ['external_tools', 'pystache', 'tools', 'ply'] + args.excludes
-    exclude_patterns = ','.join(excludes)
-    options = ['--exclude=' + exclude_patterns, '--max-line-length', '118', top_path('.')]
-
-    logging.info('pep8 check: ' + ' '.join(options))
-
-    pep8style = pep8.StyleGuide(arglist=options)
-    if args.teamcity:
-        pep8style.init_report(TeamcityReport)
-    report = pep8style.check_files()
-    if report.total_errors:
-        logging.error('pep8 check found non-compliant files')  # details on stdout
-        return 1
 
 
 class SchemaFormatError(RuntimeError):
@@ -1401,21 +1346,23 @@ configurations = CORE_CONFIGURATIONS.copy()
 def main():
     """Application main entry point. Parse arguments, and call specified sub-command."""
     SUBCOMMAND_TABLE = {
-        'check-pep8': check_pep8,
-        'prj-test': prj_test,
-        'pystache-test': pystache_test,
         'prj-build': prj_build,
         'build': build,
         'test-release': release_test,
         'build-release': build_release,
         'build-partials': build_partials,
         'build-manuals': build_manuals,
+        # Testing
+        'check-pep8': check_pep8,
+        'prj-test': prj_test,
+        'pystache-test': pystache_test,
+        'x-test': x_test,
+        'rtos-test': rtos_test,
+        # Tasks management
         'new-review': new_review,
         'new-task': new_task,
         'tasks': tasks,
         'integrate': integrate,
-        'x-test': x_test,
-        'rtos-test': rtos_test,
     }
 
     # create the top-level parser

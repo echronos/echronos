@@ -1,0 +1,15 @@
+Breakaway Task Review
+=======================
+
+Task name: chvVia-separate_timer_and_interrupt_components
+Version reviewed: 65b235ac49250887761dddb11a9b92dc520926d3
+Reviewer: benno
+Date: 2014-04-16
+Conclusion: Rework
+
+Overall comments:
+
+I think it is not necessary to have both a timer_tick_pending and a timer_interrupt_flag maintained.
+It should be sufficient to treat the interrupt_flag as equivalent to pending.
+The current approach appears to add additional state that is unnecessary.
+

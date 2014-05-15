@@ -137,28 +137,38 @@ timer_process_one(struct timer *const timer)
 {{/timers.length}}
 
 static void
-timer_process(void)
+timer_tick_process(void)
 {
-{{#timers.length}}
-    {{prefix_type}}TimerId timer_id;
-    struct timer *timer;
-    TicksTimeout timeout;
-{{/timers.length}}
+    const uint8_t pending_ticks = timer_pending_ticks_get_and_clear_atomically();
 
-    {{prefix_func}}timer_current_ticks++;
-
-{{#timers.length}}
-    timeout = current_timeout();
-
-    for (timer_id = TIMER_ID_ZERO; timer_id <= TIMER_ID_MAX; timer_id++)
+    if (pending_ticks > 1)
     {
-        timer = TIMER_PTR(timer_id);
-        if (timer_expired(timer, timeout))
-        {
-            timer_process_one(timer);
-       }
-   }
+        {{fatal_error}}(ERROR_ID_TICK_OVERFLOW);
+    }
+
+    if (pending_ticks)
+    {
+{{#timers.length}}
+        {{prefix_type}}TimerId timer_id;
+        struct timer *timer;
+        TicksTimeout timeout;
 {{/timers.length}}
+
+        {{prefix_func}}timer_current_ticks++;
+
+{{#timers.length}}
+        timeout = current_timeout();
+
+        for (timer_id = TIMER_ID_ZERO; timer_id <= TIMER_ID_MAX; timer_id++)
+        {
+            timer = TIMER_PTR(timer_id);
+            if (timer_expired(timer, timeout))
+            {
+                timer_process_one(timer);
+           }
+       }
+{{/timers.length}}
+    }
 }
 
 /*| public_functions |*/

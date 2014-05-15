@@ -1,0 +1,40 @@
+Task: chvVia-separate_timer_and_interrupt_components
+==============================================================================
+
+Motivation
+----------
+
+The combination of the timer and interrupt components contain a race that can lead to incorrect system behavior.
+Specifically, the function interrupt_event_wait() does not check for pending timer ticks before assuming the system to be idle and going to a low-power state.
+This may lead to timer ticks not being serviced on time.
+This may in turn result in unexpected timing behavior of the system or, depending on the timer implementation, unnecessary tick overflows which stop the system with a fatal error.
+
+Adding the necessary timer tick check directly in interrupt_event_wait() would lead to very close coupling between the architecture specific code of the timer and the interrupt components.
+This is undesirable.
+
+
+Goals
+--------
+
+The goal of this task is to remove the race described above in a manner that avoids even tighter coupling between the timer and interrupt components.
+
+The proposal to meet this goal outlines as follows:
+
+- refactor interrupt component to provide a better separation between architecture-dependent and -independent code
+
+- distinguish between application-defined interrupts and system-defined interrupts;
+  this distinction is already made informally as the timer interrupt is not handled in the same manner that application-defined interrupts are;
+  the stronger distinction shall clarify that both kinds of interrupts need to be checked before assuming the system to be idle;
+  it shall also allow to support additional system interrupts in the future;
+  it shall also serve as a more principled point of interaction between the interrupt component and other system component which make use of interrupts.
+
+- refactor the platform-specific timer implementations such that they clearly separate between interrupt sensitive code (handling timer tick interrupts) and interrupt agnostic code (processing timer ticks);
+  this shall include an API change that allows to either atomically check for pending timer interrupts and timer ticks (before assuming the system to be idle) or non-atomically check for pending timer ticks (before processing them);
+  this distinction shall primarily allow implementing the correct system behavior, avoiding the above race;
+  secondarily, it shall obviate the intended functionality and readability of the timer implementation.
+
+
+Test plan
+---------
+
+Since this change affects a certain aspect of the overall system behavior and timing, it shall be tested manually in existing application code.

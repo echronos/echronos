@@ -108,7 +108,8 @@ static MessageQueueIdOption message_queue_waiters[] =
 
 /*| functions |*/
 {{#message_queues.length}}
-static void message_queue_waiters_wakeup(const {{prefix_type}}MessageQueueId message_queue)
+static void
+message_queue_waiters_wakeup(const {{prefix_type}}MessageQueueId message_queue)
 {
     {{prefix_type}}TaskId task;
 
@@ -122,13 +123,15 @@ static void message_queue_waiters_wakeup(const {{prefix_type}}MessageQueueId mes
     }
 }
 
-static void message_queue_wait(const {{prefix_type}}MessageQueueId message_queue) {{prefix_const}}REENTRANT
+static void
+message_queue_wait(const {{prefix_type}}MessageQueueId message_queue) {{prefix_const}}REENTRANT
 {
     message_queue_waiters[get_current_task()] = message_queue;
     {{prefix_func}}signal_wait({{prefix_const}}SIGNAL_ID__TASK_TIMER);
 }
 
-static void message_queue_wait_timeout(const {{prefix_type}}MessageQueueId message_queue, const {{prefix_type}}TicksRelative timeout) {{prefix_const}}REENTRANT
+static void
+message_queue_wait_timeout(const {{prefix_type}}MessageQueueId message_queue, const {{prefix_type}}TicksRelative timeout) {{prefix_const}}REENTRANT
 {
     message_queue_waiters[get_current_task()] = message_queue;
     /* This sleep may end prematurely when another task calls put()/get() resulting in the timer signal being sent */
@@ -137,7 +140,8 @@ static void message_queue_wait_timeout(const {{prefix_type}}MessageQueueId messa
 }
 
 /* assumptions: max length 255, no overlap of dst & src */
-static void memcpy(uint8_t *dst, const uint8_t *src, const uint8_t length)
+static void
+memcpy(uint8_t *dst, const uint8_t *src, const uint8_t length)
 {
     uint8_t *const dst_end = dst + length;
 
@@ -151,7 +155,8 @@ static void memcpy(uint8_t *dst, const uint8_t *src, const uint8_t length)
 
 /*| public_functions |*/
 {{#message_queues.length}}
-void {{prefix_func}}message_queue_put(const {{prefix_type}}MessageQueueId message_queue, const void *const message) {{prefix_const}}REENTRANT
+void
+{{prefix_func}}message_queue_put(const {{prefix_type}}MessageQueueId message_queue, const void *const message) {{prefix_const}}REENTRANT
 {
     while (!{{prefix_func}}message_queue_try_put(message_queue, message))
     {
@@ -159,7 +164,8 @@ void {{prefix_func}}message_queue_put(const {{prefix_type}}MessageQueueId messag
     }
 }
 
-bool {{prefix_func}}message_queue_try_put(const {{prefix_type}}MessageQueueId message_queue, const void *message)
+bool
+{{prefix_func}}message_queue_try_put(const {{prefix_type}}MessageQueueId message_queue, const void *message)
 {
     struct message_queue *const mq = &message_queues[message_queue];
 
@@ -183,7 +189,8 @@ bool {{prefix_func}}message_queue_try_put(const {{prefix_type}}MessageQueueId me
     }
 }
 
-bool {{prefix_func}}message_queue_put_timeout(const {{prefix_type}}MessageQueueId message_queue, const void *const message, const {{prefix_type}}TicksRelative timeout) {{prefix_const}}REENTRANT
+bool
+{{prefix_func}}message_queue_put_timeout(const {{prefix_type}}MessageQueueId message_queue, const void *const message, const {{prefix_type}}TicksRelative timeout) {{prefix_const}}REENTRANT
 {
     const {{prefix_type}}TicksAbsolute absolute_timeout = {{prefix_func}}timer_current_ticks + timeout;
 
@@ -196,7 +203,8 @@ bool {{prefix_func}}message_queue_put_timeout(const {{prefix_type}}MessageQueueI
     return {{prefix_func}}message_queue_try_put(message_queue, message);
 }
 
-void {{prefix_func}}message_queue_get(const {{prefix_type}}MessageQueueId message_queue, void *const message) {{prefix_const}}REENTRANT
+void
+{{prefix_func}}message_queue_get(const {{prefix_type}}MessageQueueId message_queue, void *const message) {{prefix_const}}REENTRANT
 {
     while (!{{prefix_func}}message_queue_try_get(message_queue, message))
     {
@@ -204,7 +212,8 @@ void {{prefix_func}}message_queue_get(const {{prefix_type}}MessageQueueId messag
     }
 }
 
-bool {{prefix_func}}message_queue_try_get(const {{prefix_type}}MessageQueueId message_queue, void *message)
+bool
+{{prefix_func}}message_queue_try_get(const {{prefix_type}}MessageQueueId message_queue, void *message)
 {
     struct message_queue *const mq = &message_queues[message_queue];
 
@@ -227,7 +236,8 @@ bool {{prefix_func}}message_queue_try_get(const {{prefix_type}}MessageQueueId me
     }
 }
 
-bool {{prefix_func}}message_queue_get_timeout(const {{prefix_type}}MessageQueueId message_queue, void *const message, const {{prefix_type}}TicksRelative timeout) {{prefix_const}}REENTRANT
+bool
+{{prefix_func}}message_queue_get_timeout(const {{prefix_type}}MessageQueueId message_queue, void *const message, const {{prefix_type}}TicksRelative timeout) {{prefix_const}}REENTRANT
 {
     const {{prefix_type}}TicksAbsolute absolute_timeout = {{prefix_func}}timer_current_ticks + timeout;
 

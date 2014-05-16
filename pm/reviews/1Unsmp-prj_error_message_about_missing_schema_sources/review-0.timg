@@ -15,3 +15,5 @@ Location: prj/app/prj.py:1078
 Comment: The close-paren at the end of this line needs to be moved.   It should be:
 format(self.__class__.__name__,
        os.path.abspath(inspect.getfile(self.__class__))))
+
+[stg: brilliant catch! fixed]

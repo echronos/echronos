@@ -5,16 +5,4 @@ Task name: 1Unsmp-prj_error_message_about_missing_schema_sources
 Version reviewed: cea8c35aee6f45eacd521d19aae09dfef5bf7a7c
 Reviewer: benno
 Date: 2014-05-14
-Conclusion: Accepted/Rework
-
-Overall comments:
-
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Conclusion: Accepted

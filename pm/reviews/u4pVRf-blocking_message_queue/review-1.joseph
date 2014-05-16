@@ -4,17 +4,5 @@ Breakaway Task Review
 Task name: u4pVRf-blocking_message_queue
 Version reviewed: 275d9019148a846413ff9f29b3f0bec7bb16a5da
 Reviewer: joseph
-Date: 2014-05-15
-Conclusion: Accepted/Rework
-
-Overall comments:
-
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Date: 2014-05-16
+Conclusion: Accepted

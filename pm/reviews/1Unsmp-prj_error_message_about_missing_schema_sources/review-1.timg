@@ -4,17 +4,5 @@ Breakaway Task Review
 Task name: 1Unsmp-prj_error_message_about_missing_schema_sources
 Version reviewed: 78548db33fcbf56f91670b7f0fe1762a6a5112d0
 Reviewer: timg
-Date: 2014-05-16
-Conclusion: Accepted/Rework
-
-Overall comments:
-
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Date: 2014-05-20
+Conclusion: Accepted

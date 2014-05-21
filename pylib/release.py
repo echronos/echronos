@@ -244,7 +244,7 @@ def mk_partial(pkg, topdir):
 
 def build_partials(args):
     build(args)
-    os.makedirs(top_path(args.topdir, 'release', 'partials'),  exist_ok=True)
+    os.makedirs(top_path(args.topdir, 'release', 'partials'), exist_ok=True)
     packages = Package.create_from_disk(args.topdir).values()
     for pkg in packages:
         for config in get_release_configs():
@@ -333,7 +333,7 @@ def release_test_one(archive):
                         raise e
                 pkgs = []
                 pkg_root = './share/packages/'
-                for root, _dir, files in os.walk(pkg_root):
+                for root, _, files in os.walk(pkg_root):
                     for f in files:
                         if f.endswith('.prx'):
                             pkg = os.path.join(root, f)[len(pkg_root):-4].replace(os.sep, '.')

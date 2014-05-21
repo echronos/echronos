@@ -59,7 +59,7 @@ def _run_module_tests_with_args(modules, directories, args):
     return _run_module_tests(modules, directories, patterns, verbosity, print_only, topdir)
 
 
-def _run_module_tests(modules, directories, patterns=[], verbosity=0, print_only=False, topdir=""):
+def _run_module_tests(modules, directories, patterns=None, verbosity=0, print_only=False, topdir=""):
     """Discover and run the tests associated with the given modules and located in the given directories.
 
     'modules' is list of module names as a sequence of strings.
@@ -87,7 +87,7 @@ def _run_module_tests(modules, directories, patterns=[], verbosity=0, print_only
     result = 0
 
     paths = [os.path.join(topdir, dir) for dir in directories]
-    if all(map(os.path.exists, paths)):
+    if all([os.path.exists(p) for p in paths]):
         with _python_path(*paths):
             all_tests = discover_tests(*modules)
 
@@ -144,7 +144,8 @@ class _TeamcityReport(pep8.StandardReport):
         self._teamcity("testStarted name='%s' captureStandardOutput='true'" % self._test_name())
         return ret
 
-    def _teamcity(self, msg):
+    @staticmethod
+    def _teamcity(msg):
         print("##teamcity[{}]".format(msg))
 
     def _test_name(self):

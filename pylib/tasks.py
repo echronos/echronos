@@ -8,6 +8,14 @@ from random import choice
 from .utils import Git
 
 
+def _task_dir(topdir, *args):
+    return os.path.join(topdir, 'pm', 'tasks', *args)
+
+
+def _review_dir(topdir, *args):
+    return os.path.join(topdir, 'pm', 'reviews', *args)
+
+
 def _gen_tag():
     tag_length = 6
     tag_chars = string.ascii_letters + string.digits
@@ -46,7 +54,7 @@ def new_review(args):
         return 1
 
     branch = subprocess.check_output(['git', 'symbolic-ref', 'HEAD'], cwd=args.topdir).decode().strip().split('/')[-1]
-    review_dir = os.path.join(args.topdir, 'pm', 'reviews', branch)
+    review_dir = _review_dir(args.topdir, branch)
 
     sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=args.topdir).decode().strip()
 
@@ -106,7 +114,6 @@ def new_task(args):
     """Create a new task."""
     remote = 'origin'
     branch_from = remote + '/development'
-    tasks_dir = os.path.join(args.topdir, 'pm', 'tasks')
 
     git = Git(local_repository=args.topdir)
     if not git.working_dir_clean():
@@ -123,7 +130,7 @@ def new_task(args):
     git.push(fullname, fullname, set_upstream=True)
     git.checkout(fullname)
 
-    task_fn = os.path.join(tasks_dir, fullname)
+    task_fn = _task_dir(args.topdir, fullname)
     with open(task_fn, 'w', newline='\n') as f:
         f.write(_task_template.format(fullname))
 
@@ -222,7 +229,7 @@ class _Task:
 
         git = Git(local_repository=top_directory)
         task = _Task(name, top_directory, git)
-        assert os.path.exists(task.get_description_file_name())
+        assert os.path.exists(_task_dir(task.top_directory, task.name))
 
         return task
 
@@ -237,12 +244,11 @@ class _Task:
         assert os.path.isdir(top_directory)
         self.name = name
         self.top_directory = top_directory
-        self._reviews = None
         self._git = git
         self.is_local = name in git.branches
         self.is_remote = name in git.origin_branches
         self.is_archived_remote = 'archive/' + name in git.origin_branches
-        self.is_pm = os.path.exists(os.path.join(top_directory, 'pm', 'tasks', name))
+        self.is_pm = os.path.exists(_task_dir(top_directory, name))
 
     def integrate(self, target_branch='development', archive_prefix='archive'):
         """
@@ -279,9 +285,8 @@ class _Task:
         """
         Check whether all authors of completed reviews arrive at the 'accepted' conclusion in their final reviews.
         """
-        all_reviews = self._get_most_recent_reviews_from_all_authors()
-        done_reviews = filter(_Review.is_done, all_reviews)
-        if len(list(done_reviews)) == 0:
+        done_reviews = [r for r in self._get_most_recent_reviews_from_all_authors() if r.is_done()]
+        if done_reviews == []:
             raise _InvalidTaskStateError('Task {} has not been reviewed'.format(self.name))
         for review in done_reviews:
             if not review.is_accepted():
@@ -294,7 +299,7 @@ class _Task:
         of _Review instances.
         """
         reviews_by_author = {}
-        for review in self.reviews:
+        for review in self._get_reviews():
             if review.author in reviews_by_author:
                 if reviews_by_author[review.author].round < review.round:
                     reviews_by_author[review.author] = review
@@ -302,22 +307,13 @@ class _Task:
                 reviews_by_author[review.author] = review
         return reviews_by_author.values()
 
-    @property
-    def reviews(self):
-        """
-        Return a list of _Review instances that represents all reviews of this task, even uncompleted ones.
-        """
-        if not self._reviews:
-            self._reviews = self._get_reviews()
-        return self._reviews
-
     def _get_reviews(self):
         """
         Retrieve and return a list of _Review instances that represents all reviews of this task, even uncompleted
         ones.
         """
         reviews = []
-        review_directory = os.path.join(self.top_directory, 'pm', 'reviews', self.name)
+        review_directory = _review_dir(self.top_directory, self.name)
         directory_contents = os.listdir(review_directory)
         directory_contents.sort()
         for relative_path in directory_contents:
@@ -343,10 +339,11 @@ class _Task:
         Mark this taks as complete in the currently active git branch by moving the task description file into the
         'completed' sub-directory and committing the result.
         """
-        src = os.path.join('pm', 'tasks', self.name)
-        dst = os.path.join('pm', 'tasks', 'completed', self.name)
+        task_dir = _task_dir(self.top_directory)
+        src = os.path.join(task_dir, self.name)
+        dst = os.path.join(task_dir, 'completed', self.name)
         self._git.move(src, dst)
-        self._git.commit(msg='Mark task {} as completed'.format(self.name), files=[os.path.join('pm', 'tasks')])
+        self._git.commit(msg='Mark task {} as completed'.format(self.name), files=[task_dir])
 
     def _archive(self, archive_prefix):
         """
@@ -358,27 +355,6 @@ class _Task:
         self._git.rename_branch(self.name, archived_name)
         self._git.push(archived_name, archived_name)
         self._git.delete_remote_branch(self.name)
-
-    @property
-    def description(self):
-        """
-        Return the (potentially cached) description of this task as a string.
-        """
-        if self._description is None:
-            self._description = self._get_description()
-        return self._description
-
-    def _get_description(self):
-        """
-        Retrieve the description of this task from the file system and return it as a string.
-        """
-        return open(self.get_description_file_name()).read()
-
-    def get_description_file_name(self):
-        """
-        Return the name of the description file of this task as a string.
-        """
-        return os.path.join(self.top_directory, 'pm', 'tasks', self.name)
 
     def related_branches(self):
         """Return a set of branch names that are related to this branch.
@@ -440,7 +416,7 @@ class _Task:
 
 def tasks(args):
     git = Git(local_repository=args.topdir)
-    task_dir = os.path.join(args.topdir, 'pm', 'tasks')
+    task_dir = _task_dir(args.topdir)
     skipped_branches = ['development', 'master']
     task_names = set.union({t for t in os.listdir(task_dir) if
                             os.path.isfile(os.path.join(task_dir, t))},
@@ -472,9 +448,9 @@ def tasks(args):
     print("D: described in pm/tasks  L: local branch  R: remote branch  A: archived branch")
 
 
-def integrate(command_line_options):
+def integrate(args):
     """
     Integrate a completed development task/branch into the main upstream branch.
     """
-    task = _Task.create(command_line_options.name, command_line_options.repo)
-    task.integrate(command_line_options.target, command_line_options.archive)
+    task = _Task.create(args.name, args.repo)
+    task.integrate(args.target, args.archive)

@@ -73,24 +73,9 @@ REQUIRED_COMPONENT_SECTIONS = ['public_headers',
                                'functions',
                                'public_functions']
 
-
-def follow_link(l):
-    """Return the underlying file from a symbolic link.
-
-    This will (recursively) follow links until a non-symbolic link is found.
-    No cycle checks are performed by this function.
-
-    """
-    if not os.path.islink(l):
-        return l
-    p = os.readlink(l)
-    if os.path.isabs(p):
-        return p
-    return follow_link(os.path.join(os.path.dirname(l), p))
-
-
 externals = ['pep8', 'nose', 'ice']
-BASE_DIR = os.path.normpath(os.path.dirname(follow_link(__file__)))
+from pylib.utils import BASE_DIR
+
 sys.path = [os.path.join(BASE_DIR, 'external_tools', e) for e in externals] + sys.path
 sys.path.insert(0, os.path.join(BASE_DIR, 'prj/app/pystache'))
 if __name__ == '__main__':

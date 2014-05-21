@@ -104,7 +104,6 @@ import signal
 import shutil
 import subprocess
 import tarfile
-import tempfile
 import xml.etree.ElementTree
 import zipfile
 from contextlib import contextmanager
@@ -112,6 +111,7 @@ from glob import glob
 
 from pylib.tasks import new_review, new_task, tasks, integrate, Git
 from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8
+from pylib.utils import base_path, top_path, base_to_top_paths, chdir, tempdir
 
 # Set up a specific logger with our desired output level
 logger = logging.getLogger()
@@ -189,120 +189,6 @@ def sort_typedefs(typedef_lines):
                 typedefs.remove((new, old))
 
     return '\n'.join(['typedef {} {};'.format(old, new) for (new, old) in r])
-
-
-@contextmanager
-def chdir(path):
-    """Current-working directory context manager.
-
-    Makes the current working directory the specified `path` for the duration of the context.
-
-    Example:
-
-    with chdir("newdir"):
-        # Do stuff in the new directory
-        pass
-
-    """
-    cwd = os.getcwd()
-    os.chdir(path)
-    try:
-        yield
-    finally:
-        os.chdir(cwd)
-
-
-@contextmanager
-def tempdir():
-    tmpdir = tempfile.mkdtemp()
-    try:
-        yield tmpdir
-    finally:
-        shutil.rmtree(tmpdir)
-
-
-def walk(path, flt=None):
-    """Return a list of all files in a given path. flt can be used to filter
-    any unwanted files."""
-    def always_true(x):
-        return True
-
-    if flt is None:
-        flt = always_true
-
-    file_list = []
-    for root, dirs, files in os.walk(path):
-        file_list.extend([os.path.join(root, f) for f in files if not flt(os.path.join(root, f))])
-    return file_list
-
-
-def base_path(*path):
-    """Join one or more pathname components to the directory in which the
-    script resides.
-
-    The goal of this script is to easily allow pathnames that are relative
-    to the directory in which the script resides.
-
-    If the script is run as `./x.py` `base_path('foo')` will return
-    ./foo.
-
-    If the script is run by an absolute path (e.g.: `/path/to/x.py`)
-    `base_path('foo')` will return `/path/to/foo`.
-
-    If user is in the `./bar` directory and runs the script as
-    `../x.py`, `base_path('foo')` will return `../bar`.
-
-    The path returned by `base_path` will allow access to the file
-    assuming that the current working directory has not been changed.
-    """
-    return os.path.join(BASE_DIR, *path)
-
-
-def top_path(*path):
-    """Return a path relative to the directory in which the x tool or wrapper was invoked.
-
-    This function is equivalent to base_path(), except when the x tool is invoked in a client repository through a
-    wrapper.
-    In that case, the specified path is not appended to the directory containing the core x.py file, but the directory
-    containing the wrapper x.py file invoked by the user.
-
-    """
-    return os.path.join(topdir, *path)
-
-
-def base_to_top_paths(*path):
-    """For each directory from BASE_DIR up to topdir in the directory tree, append the specified path and return the
-    resulting sequence.
-
-    For example, if topdir is '/rtos/', BASE_DIR is '/rtos/core/', and *path is ['packages'], this function returns
-    ['/rtos/core/packages', '/rtos/packages']
-
-    If topdir equals BASE_DIR, the result of this function is a sequence with a single element and equal to
-    [base_path(*path)]
-
-    """
-    result = []
-
-    cur_dir = os.path.abspath(BASE_DIR)
-    stop_dir = os.path.abspath(topdir)
-    iterate = True
-    while iterate:
-        result.append(os.path.join(cur_dir, *path))
-        iterate = (cur_dir != stop_dir)
-        cur_dir = os.path.dirname(cur_dir)
-
-    return result
-
-
-def un_base_path(path):
-    """Reverse the operation performed by `base_path`.
-
-    For all `x`, `un_base_path(base_path(x)) == x`.
-    """
-    if BASE_DIR == '':
-        return path
-    else:
-        return path[len(BASE_DIR) + 1:]
 
 
 def get_host_platform_name():
@@ -540,7 +426,7 @@ def prj_build(args):
         print("Building prj currently unsupported on {}".format(sys.platform))
         return 1
 
-    prj_build_path = top_path('prj_build_{}'.format(host))
+    prj_build_path = top_path(topdir, 'prj_build_{}'.format(host))
     os.makedirs(prj_build_path, exist_ok=True)
 
     if sys.platform == 'win32':
@@ -960,7 +846,7 @@ class Package:
 
         """
         pkgs = {}
-        for pkg_parent_dir in base_to_top_paths('packages'):
+        for pkg_parent_dir in base_to_top_paths(topdir, 'packages'):
             pkg_names = os.listdir(pkg_parent_dir)
             for pkg_name in pkg_names:
                 pkg_path = os.path.join(pkg_parent_dir, pkg_name)
@@ -1003,14 +889,14 @@ class ReleasePackage:
 
 
 def mk_partial(pkg):
-    fn = top_path('release', 'partials', '{}.tar.gz'.format(pkg.get_archive_name()))
+    fn = top_path(topdir, 'release', 'partials', '{}.tar.gz'.format(pkg.get_archive_name()))
     src_prefix = 'share/packages/{}'.format(pkg.get_name())
     tar_gz_with_license(fn, pkg.get_path(), src_prefix, pkg.get_license())
 
 
 def build_partials(args):
     build([])
-    os.makedirs(top_path('release', 'partials'),  exist_ok=True)
+    os.makedirs(top_path(topdir, 'release', 'partials'),  exist_ok=True)
     packages = Package.create_from_disk().values()
     for pkg in packages:
         for config in get_release_configs():
@@ -1065,10 +951,11 @@ def build_single_release(config):
     """Build a release archive for a specific release configuration."""
     basename = '{}-{}-{}'.format(config.product_name, config.release_name, config.version)
     logging.info("Building {}".format(basename))
-    with tarfile_open(top_path('release', '{}.tar.gz'.format(basename)), 'w:gz', format=tarfile.GNU_FORMAT) as tf:
+    tarfilename = top_path(topdir, 'release', '{}.tar.gz'.format(basename))
+    with tarfile_open(tarfilename, 'w:gz', format=tarfile.GNU_FORMAT) as tf:
         for pkg in config.packages:
-            release_file_path = top_path('release', 'partials', '{}-{}.tar.gz'.format(pkg, config.release_name))
-            with tarfile.open(release_file_path, 'r:gz') as in_f:
+            release_file_path = top_path(topdir, 'release', 'partials', '{}-{}.tar.gz')
+            with tarfile.open(release_file_path.format(pkg, config.release_name), 'r:gz') as in_f:
                 for m in in_f.getmembers():
                     m_f = in_f.extractfile(m)
                     m.name = basename + '/' + m.name
@@ -1190,7 +1077,7 @@ def release_test(args):
     This command is used to perform sanity checks and testing of the full release.
 
     """
-    for rel in glob(top_path('release', '*.tar.gz')):
+    for rel in glob(top_path(topdir, 'release', '*.tar.gz')):
         release_test_one(rel)
 
 

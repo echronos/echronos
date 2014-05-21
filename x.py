@@ -426,7 +426,7 @@ def prj_build(args):
         print("Building prj currently unsupported on {}".format(sys.platform))
         return 1
 
-    prj_build_path = top_path(topdir, 'prj_build_{}'.format(host))
+    prj_build_path = top_path(args.topdir, 'prj_build_{}'.format(host))
     os.makedirs(prj_build_path, exist_ok=True)
 
     if sys.platform == 'win32':
@@ -838,7 +838,7 @@ class Package:
 
     """
     @staticmethod
-    def create_from_disk():
+    def create_from_disk(topdir):
         """Return a dictionary that contains a Package instance for each package on disk in a 'package' directory.
 
         The dictionary keys are the package names.
@@ -888,7 +888,7 @@ class ReleasePackage:
         return self._rls_cfg.license
 
 
-def mk_partial(pkg):
+def mk_partial(pkg, topdir):
     fn = top_path(topdir, 'release', 'partials', '{}.tar.gz'.format(pkg.get_archive_name()))
     src_prefix = 'share/packages/{}'.format(pkg.get_name())
     tar_gz_with_license(fn, pkg.get_path(), src_prefix, pkg.get_license())
@@ -896,12 +896,12 @@ def mk_partial(pkg):
 
 def build_partials(args):
     build([])
-    os.makedirs(top_path(topdir, 'release', 'partials'),  exist_ok=True)
-    packages = Package.create_from_disk().values()
+    os.makedirs(top_path(args.topdir, 'release', 'partials'),  exist_ok=True)
+    packages = Package.create_from_disk(args.topdir).values()
     for pkg in packages:
         for config in get_release_configs():
             release_package = ReleasePackage(pkg, config)
-            mk_partial(release_package)
+            mk_partial(release_package, args.topdir)
 
 
 def build_manual(pkg):
@@ -947,7 +947,7 @@ def get_release_configs():
     return enabled_configs
 
 
-def build_single_release(config):
+def build_single_release(config, topdir):
     """Build a release archive for a specific release configuration."""
     basename = '{}-{}-{}'.format(config.product_name, config.release_name, config.version)
     logging.info("Building {}".format(basename))
@@ -992,7 +992,7 @@ def build_release(args):
     """
     for config in get_release_configs():
         try:
-            build_single_release(config)
+            build_single_release(config, args.topdir)
         except FileNotFoundError as e:
             logging.warning("Unable to build '{}'. File not found: '{}'".format(config, e.filename))
 
@@ -1077,7 +1077,7 @@ def release_test(args):
     This command is used to perform sanity checks and testing of the full release.
 
     """
-    for rel in glob(top_path(topdir, 'release', '*.tar.gz')):
+    for rel in glob(top_path(args.topdir, 'release', '*.tar.gz')):
         release_test_one(rel)
 
 

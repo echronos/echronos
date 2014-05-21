@@ -52,6 +52,8 @@ static {{prefix_type}}TaskId interrupt_event_get_next(void);
 static bool system_is_idle;
 
 /*| function_like_macros |*/
+#define interrupt_event_check() (interrupt_application_event_check() || interrupt_system_event_check())
+#define interrupt_system_event_check() [[#timer_process]]timer_pending_ticks_check()[[/timer_process]][[^timer_process]]false[[/timer_process]]
 
 /*| functions |*/
 static {{prefix_type}}TaskId
@@ -63,11 +65,7 @@ interrupt_event_get_next(void)
     {
         interrupt_event_process();
 [[#timer_process]]
-        /* IMPROVE: This indicates we may want to factor things differently in the future */
-        if (timer_check())
-        {
-            timer_process();
-        }
+        timer_tick_process();
 [[/timer_process]]
         next = sched_get_next();
 

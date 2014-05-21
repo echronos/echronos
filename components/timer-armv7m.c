@@ -14,6 +14,8 @@
 void {{prefix_func}}timer_tick(void);
 
 /*| headers |*/
+#include <stdbool.h>
+#include <stdint.h>
 
 /*| object_like_macros |*/
 
@@ -24,44 +26,32 @@ void {{prefix_func}}timer_tick(void);
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static bool timer_check(void);
+static uint8_t timer_pending_ticks_get_and_clear_atomically(void);
 
 /*| state |*/
-static bool tick_pending;
-static bool tick_overflow;
+static volatile uint8_t timer_pending_ticks;
 
 /*| function_like_macros |*/
+#define timer_pending_ticks_check() ((bool)timer_pending_ticks)
 
 /*| functions |*/
-static bool
-timer_check(void)
+static uint8_t
+timer_pending_ticks_get_and_clear_atomically(void)
 {
-    bool r = false;
-
+    uint8_t pending_ticks;
     asm volatile("cpsid i");
-
-    if (tick_pending)
-    {
-        if (tick_overflow)
-        {
-            {{fatal_error}}(ERROR_ID_TICK_OVERFLOW);
-        }
-        r = true;
-        tick_pending = false;
-    }
-
+    pending_ticks = timer_pending_ticks;
+    timer_pending_ticks = 0;
     asm volatile("cpsie i");
-
-    return r;
+    return pending_ticks;
 }
 
 /*| public_functions |*/
 void
 {{prefix_func}}timer_tick(void)
 {
-    if (tick_pending)
+    if (timer_pending_ticks < 2)
     {
-        tick_overflow = true;
+        timer_pending_ticks += 1;
     }
-    tick_pending = true;
 }

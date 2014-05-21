@@ -1,0 +1,12 @@
+Breakaway Task Review
+=======================
+
+Task name: chvVia-separate_timer_and_interrupt_components
+Version reviewed: 65b235ac49250887761dddb11a9b92dc520926d3
+Reviewer: timg
+Date: 2014-04-17
+Conclusion: Accepted
+
+Overall comments:
+Regarding testing: is there a way to reliably reproduce this behavior, such that 
+the new code can be meaningfully tested?

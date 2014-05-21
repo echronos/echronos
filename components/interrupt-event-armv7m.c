@@ -32,7 +32,7 @@ void {{prefix_func}}interrupt_event_raise({{prefix_type}}InterruptEventId event)
 
 /*| function_definitions |*/
 static void interrupt_event_process(void);
-static inline bool interrupt_event_check(void);
+static inline bool interrupt_application_event_check(void);
 static inline void interrupt_event_wait(void);
 
 /*| state |*/
@@ -59,7 +59,7 @@ interrupt_event_process(void)
 }
 
 static inline bool
-interrupt_event_check(void)
+interrupt_application_event_check(void)
 {
 {{#interrupt_events.length}}
     return interrupt_event != 0;

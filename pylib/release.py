@@ -11,13 +11,13 @@ from .utils import chdir, tempdir, get_host_platform_name, BASE_TIME, top_path, 
 from .components import build
 
 
-class ReleaseMeta(type):
+class _ReleaseMeta(type):
     """A pretty-printing meta-class for the Release class."""
     def __str__(cls):
         return '{}-{}'.format(cls.release_name, cls.version)
 
 
-class Release(metaclass=ReleaseMeta):
+class Release(metaclass=_ReleaseMeta):
     """The Release base class is used by the release configuration."""
     packages = []
     platforms = []
@@ -60,7 +60,7 @@ class Package:
         self.name = os.path.basename(self.path)
 
 
-class ReleasePackage:
+class _ReleasePackage:
     """Represents a Package instance that is refined for a specific release configuration.
 
     Configuring a Package instance for release results in additional properties of a package, relevant when creating
@@ -88,7 +88,7 @@ class ReleasePackage:
 
 
 @contextmanager
-def tarfile_open(name, mode, **kwargs):
+def _tarfile_open(name, mode, **kwargs):
     assert mode.startswith('w')
     with tarfile.open(name, mode, **kwargs) as f:
         try:
@@ -98,12 +98,12 @@ def tarfile_open(name, mode, **kwargs):
             raise
 
 
-class FileWithLicense:
-    """FileWithLicense provides a read-only file-like object that automatically includes license text when reading
+class _FileWithLicense:
+    """_FileWithLicense provides a read-only file-like object that automatically includes license text when reading
     from the underlying file object.
 
-    The FileWithLicense object takes ownership of the underlying file object.
-    The original file object should not be used after passing it to the FileWithLicense object.
+    The _FileWithLicense object takes ownership of the underlying file object.
+    The original file object should not be used after passing it to the _FileWithLicense object.
 
     """
     def __init__(self, f, lic, xml_mode):
@@ -146,7 +146,7 @@ class FileWithLicense:
         self.close()
 
 
-class LicenseOpener:
+class _LicenseOpener:
     """The license opener provides a single 'open' method, that can be used instead of the built-in 'open' function.
 
     This open will return a file-like object that modifies the underlying file to include an appropriate license
@@ -182,16 +182,16 @@ class LicenseOpener:
 
         f = open(filename, mode)
         lic, is_xml = self._get_lic(filename)
-        return FileWithLicense(f, lic, is_xml)
+        return _FileWithLicense(f, lic, is_xml)
 
     def tar_info_filter(self, tarinfo):
         if tarinfo.isreg():
             lic, _ = self._get_lic(tarinfo.name)
             tarinfo.size += len(lic)
-        return tar_info_filter(tarinfo)
+        return _tar_info_filter(tarinfo)
 
 
-def tar_info_filter(tarinfo):
+def _tar_info_filter(tarinfo):
     tarinfo.uname = '_default_user_'
     tarinfo.gname = '_default_group_'
     tarinfo.mtime = BASE_TIME
@@ -200,7 +200,7 @@ def tar_info_filter(tarinfo):
     return tarinfo
 
 
-def tar_add_data(tf, arcname, data, ti_filter=None):
+def _tar_add_data(tf, arcname, data, ti_filter=None):
     """Directly add data to a tarfile.
 
     tf is a tarfile.TarFile object.
@@ -216,7 +216,7 @@ def tar_add_data(tf, arcname, data, ti_filter=None):
     tf.addfile(ti, io.BytesIO(data))
 
 
-def tar_gz_with_license(output, tree, prefix, license):
+def _tar_gz_with_license(output, tree, prefix, license):
 
     """Create a tar.gz file named `output` from a specified directory tree.
 
@@ -225,7 +225,7 @@ def tar_gz_with_license(output, tree, prefix, license):
     When creating the tar.gz a standard set of meta-data will be used to help ensure things are consistent.
 
     """
-    lo = LicenseOpener(license)
+    lo = _LicenseOpener(license)
     try:
         with tarfile.open(output, 'w:gz', format=tarfile.GNU_FORMAT) as tf:
             tarfile.bltn_open = lo.open
@@ -236,10 +236,10 @@ def tar_gz_with_license(output, tree, prefix, license):
         tarfile.bltn_open = open
 
 
-def mk_partial(pkg, topdir):
+def _mk_partial(pkg, topdir):
     fn = top_path(topdir, 'release', 'partials', '{}.tar.gz'.format(pkg.get_archive_name()))
     src_prefix = 'share/packages/{}'.format(pkg.get_name())
-    tar_gz_with_license(fn, pkg.get_path(), src_prefix, pkg.get_license())
+    _tar_gz_with_license(fn, pkg.get_path(), src_prefix, pkg.get_license())
 
 
 def build_partials(args):
@@ -248,8 +248,8 @@ def build_partials(args):
     packages = Package.create_from_disk(args.topdir).values()
     for pkg in packages:
         for config in get_release_configs():
-            release_package = ReleasePackage(pkg, config)
-            mk_partial(release_package, args.topdir)
+            release_package = _ReleasePackage(pkg, config)
+            _mk_partial(release_package, args.topdir)
 
 
 def build_single_release(config, topdir):
@@ -257,7 +257,7 @@ def build_single_release(config, topdir):
     basename = '{}-{}-{}'.format(config.product_name, config.release_name, config.version)
     logging.info("Building {}".format(basename))
     tarfilename = top_path(topdir, 'release', '{}.tar.gz'.format(basename))
-    with tarfile_open(tarfilename, 'w:gz', format=tarfile.GNU_FORMAT) as tf:
+    with _tarfile_open(tarfilename, 'w:gz', format=tarfile.GNU_FORMAT) as tf:
         for pkg in config.packages:
             release_file_path = top_path(topdir, 'release', 'partials', '{}-{}.tar.gz')
             with tarfile.open(release_file_path.format(pkg, config.release_name), 'r:gz') as in_f:
@@ -267,14 +267,14 @@ def build_single_release(config, topdir):
                     tf.addfile(m, m_f)
         for plat in config.platforms:
             arcname = '{}/{}/bin/prj'.format(basename, plat)
-            tf.add('prj_build_{}/prj'.format(plat), arcname=arcname, filter=tar_info_filter)
+            tf.add('prj_build_{}/prj'.format(plat), arcname=arcname, filter=_tar_info_filter)
         if config.top_level_license is not None:
-            tar_add_data(tf, '{}/LICENSE'.format(basename),
-                         config.top_level_license.encode('utf8'),
-                         tar_info_filter)
+            _tar_add_data(tf, '{}/LICENSE'.format(basename),
+                          config.top_level_license.encode('utf8'),
+                          _tar_info_filter)
 
         for arcname, filename in config.extra_files:
-            tf.add(filename, arcname='{}/{}'.format(basename, arcname), filter=tar_info_filter)
+            tf.add(filename, arcname='{}/{}'.format(basename, arcname), filter=_tar_info_filter)
 
         if 'TEAMCITY_VERSION' in os.environ:
             build_info = os.environ['BUILD_VCS_NUMBER']
@@ -284,7 +284,7 @@ def build_single_release(config, topdir):
             if not g.working_dir_clean():
                 build_info += "-unclean"
         build_info += '\n'
-        tar_add_data(tf, '{}/build_info'.format(basename), build_info.encode('utf8'), tar_info_filter)
+        _tar_add_data(tf, '{}/build_info'.format(basename), build_info.encode('utf8'), _tar_info_filter)
 
 
 def release_test_one(archive):

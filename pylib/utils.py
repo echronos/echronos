@@ -148,3 +148,16 @@ def get_host_platform_name():
         return 'win32'
     else:
         raise RuntimeError('Unsupported platform {}'.format(sys.platform))
+
+
+_executable_extension = None
+
+
+def get_executable_extension():
+    global _executable_extension
+    if _executable_extension is None:
+        _executable_extension = {'darwin': '',
+                                 'linux': '',
+                                 'win32': '.exe',
+                                 }[sys.platform]
+    return _executable_extension

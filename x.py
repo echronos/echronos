@@ -96,19 +96,6 @@ logger.setLevel(logging.INFO)
 topdir = os.path.normpath(os.path.dirname(__file__))
 
 
-_executable_extension = None
-
-
-def get_executable_extension():
-    global _executable_extension
-    if _executable_extension is None:
-        _executable_extension = {'darwin': '',
-                                 'linux': '',
-                                 'win32': '.exe',
-                                 }[sys.platform]
-    return _executable_extension
-
-
 def build_manual(pkg):
     manual_file = os.path.join(BASE_DIR, 'packages', pkg, '{}-manual'.format(pkg))
     if not os.path.exists(manual_file):

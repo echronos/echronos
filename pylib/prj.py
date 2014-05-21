@@ -5,19 +5,13 @@ import signal
 import zipfile
 from .utils import get_host_platform_name, top_path, chdir, base_path
 
-_SIG_NAMES = dict((k, v) for v, k in signal.__dict__.items() if v.startswith('SIG'))
-
-
-def _show_exit(exit_code):
-    sig_num = exit_code & 0xff
-    exit_status = exit_code >> 8
-    if sig_num == 0:
-        return "exit: {}".format(exit_status)
-    else:
-        return "signal: {}".format(_SIG_NAMES.get(sig_num, 'Unknown signal {}'.format(sig_num)))
-
 
 def prj_build(args):
+    """
+    Build a standalone version of the 'prj' tool in the directory
+    prj_build_<host>. This tool is bundled with the release in the
+    build-release step.
+    """
     host = get_host_platform_name()
 
     prj_build_path = top_path(args.topdir, 'prj_build_{}'.format(host))
@@ -57,6 +51,16 @@ def _prj_build_unix(output_dir, host):
         r = os.system(cmd)
         if r != 0:
             print("Error building {}. cmd={}. ".format(_show_exit(r), cmd))
+
+
+def _show_exit(exit_code):
+    sig_num = exit_code & 0xff
+    exit_status = exit_code >> 8
+    if sig_num == 0:
+        return "exit: {}".format(exit_status)
+    else:
+        _SIG_NAMES = {k: v for v, k in signal.__dict__.items() if v.startswith('SIG')}
+        return "signal: {}".format(_SIG_NAMES.get(sig_num, 'Unknown signal {}'.format(sig_num)))
 
 
 def _prj_build_win32(output_dir):

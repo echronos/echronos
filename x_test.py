@@ -1,5 +1,5 @@
 from pylib.xunittest import teamcityskip
-from pylib.tasks import Git
+from pylib.utils import Git
 from pylib.components import sort_typedefs
 import itertools
 

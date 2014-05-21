@@ -3,6 +3,7 @@ import sys
 import shutil
 import tempfile
 import calendar
+import subprocess
 from contextlib import contextmanager
 
 
@@ -161,3 +162,298 @@ def get_executable_extension():
                                  'win32': '.exe',
                                  }[sys.platform]
     return _executable_extension
+
+
+class Git:
+    """
+    Represents common state applicable to a series of git invocations and provides a pythonic interface to git.
+    """
+    def __init__(self, local_repository=os.getcwd(), remote_repository='origin'):
+        """
+        Create a Git instance with which all commands operate with the given local and remote repositories.
+        """
+        assert isinstance(local_repository, str)
+        assert isinstance(remote_repository, str)
+        # Check whether the local repository is a directory managed by git.
+        # Note that '.git' can be a directory in case of a git repository or a file in case of a git submodule
+        assert os.path.exists(os.path.join(local_repository, '.git'))
+        self.local_repository = local_repository
+        self.remote_repository = remote_repository
+        self._sep = None
+        self._branches = None
+        self._remote_branches = None
+
+    def convert_path_separators(self, files):
+        """
+        If necessary, convert the path separators in the path or paths given in 'files' to the path separator expected
+        by the command-line git tool.
+        These separators differ when a cygwin git command-line tool is used with a native Windows python installation.
+        """
+        assert isinstance(files, (str, list))
+        if isinstance(files, str):
+            return files.replace(os.sep, self.sep)
+        else:
+            return [file.replace(os.sep, self.sep) for file in files]
+
+    @property
+    def sep(self):
+        """
+        Return the (potentially cached) path separator expected by the git command-line tool.
+        """
+        if self._sep is None:
+            self._sep = self._get_sep()
+        return self._sep
+
+    def _get_sep(self):
+        """
+        Determine the path separator expected by the git command-line tool.
+        """
+        output = self._do(['ls-tree', '-r', '--name-only', 'HEAD:pm/tasks'])
+        for line in output.splitlines():
+            if line.startswith('completed'):
+                line = line.replace('completed', '', 1)
+                return line[0]
+        raise LookupError('git ls-tree does not list any files in pm/tasks/completed as expected')
+
+    @property
+    def branches(self):
+        """List of local branches."""
+        if self._branches is None:
+            self._branches = self._get_branches()
+        return self._branches
+
+    def _get_branches(self):
+        """Return a list of local branches."""
+        return [x[2:] for x in self._do(['branch'], as_lines=True)]
+
+    @property
+    def origin_branches(self):
+        """List of origin-remote branches"""
+        return self.get_remote_branches()
+
+    def get_remote_branches(self, remote='origin'):
+        """Return a list of remote branches. Remote defaults to 'origin'."""
+        if self._remote_branches is None:
+            self._remote_branches = [x[2:].strip() for x in self._do(['branch', '-r'], as_lines=True)]
+        return [x[len(remote) + 1:] for x in self._remote_branches if x.startswith(remote + '/')]
+
+    def _do(self, parameters, as_lines=False):
+        """
+        Execute the git command line tool with the given command-line parameters and return the console output as a
+        string.
+        """
+        assert type(parameters) == list
+        raw_data = subprocess.check_output(['git'] + parameters, cwd=self.local_repository).decode()
+        if as_lines:
+            return raw_data.splitlines()
+        else:
+            return raw_data
+
+    def get_active_branch(self):
+        """
+        Determine the currently active branch in the local git repository and return its name as a string.
+        """
+        pattern = '* '
+        for line in self._do(['branch'], as_lines=True):
+            if line.startswith(pattern):
+                return line.split(' ', maxsplit=1)[1].strip()
+        raise LookupError('No active branch in git repository ' + self.local_repository)
+
+    def branch(self, name, start_point=None, *, track=None):
+        """Create a new branch, optionally from a specific start point.
+
+        If track is set to True, then '--track' will be passed to git.
+        If track is set to False, then '--no-track' will be passed to git.
+        If track is None, then no tracking flag will be passed to git.
+
+        """
+        params = ['branch']
+        if not track is None:
+            params.append('--track' if track else '--no-track')
+        params.append(name)
+        if not start_point is None:
+            params.append(start_point)
+        return self._do(params)
+
+    def set_upstream(self, upstream, branch=None):
+        """Set the upstream / tracking branch of a given branch.
+
+        If branch is None, it defaults to the current branch.
+
+        """
+        params = ['branch', '-u', upstream]
+        if branch:
+            params.append(branch)
+
+        return self._do(params)
+
+    def checkout(self, revid):
+        """
+        Check out the specified revision ID (typically a branch name) in the local repository.
+        """
+        assert isinstance(revid, str)
+        return self._do(['checkout', revid])
+
+    def merge_into_active_branch(self, revid):
+        """
+        Merge the specified revision ID into the currently active branch.
+        """
+        assert isinstance(revid, str)
+        return self._do(['merge', revid])
+
+    def fetch(self):
+        """Fetch from the remote origin."""
+        return self._do(['fetch'])
+
+    def push(self, src=None, dst=None, *, force=False, set_upstream=False):
+        """Push the local revision 'src' into the remote branch 'dst', optionally forcing the update.
+
+        If 'set_upstream' evaluates to True, 'dst' is set as the upstream / tracking branch of 'src'.
+
+        """
+        assert src is None or isinstance(src, str)
+        assert dst is None or isinstance(dst, str)
+        assert isinstance(force, bool)
+        revspec = ''
+        if src:
+            revspec = src
+        if dst:
+            revspec += ':' + dst
+        if revspec == '':
+            revspec_args = []
+        else:
+            revspec_args = [revspec]
+        if force:
+            force_option = ['--force']
+        else:
+            force_option = []
+        if set_upstream:
+            set_upstream_option = ['-u']
+        else:
+            set_upstream_option = []
+        return self._do(['push'] + force_option + set_upstream_option + [self.remote_repository] + revspec_args)
+
+    def move(self, src, dst):
+        """
+        Rename a local resource from its old name 'src' to its new name 'dst' or move a list of local files 'src' into
+        a directory 'dst'.
+        """
+        assert isinstance(src, (str, list))
+        assert isinstance(dst, str)
+        if type(src) == str:
+            src_list = [src]
+        else:
+            src_list = src
+        return self._do(['mv'] + self.convert_path_separators(src_list) + [self.convert_path_separators(dst)])
+
+    def add(self, files):
+        """Add the list of files to the index in preparation of a future commit."""
+        return self._do(['add'] + self.convert_path_separators(files))
+
+    def commit(self, msg, files=None):
+        """Commit the changes in the specified 'files' with the given 'message' to the currently active branch.
+
+        If 'files' is None (or unspecified), all staged files are committed.
+
+        """
+        assert isinstance(msg, str)
+        assert files is None or isinstance(files, list)
+        if files is None:
+            file_args = []
+        else:
+            file_args = self.convert_path_separators(files)
+        return self._do(['commit', '-m', msg] + file_args)
+
+    def rename_branch(self, src, dst):
+        """
+        Rename a local branch from its current name 'src' to the new name 'dst'.
+        """
+        assert isinstance(src, str)
+        assert isinstance(dst, str)
+        return self._do(['branch', '-m', src, dst])
+
+    def delete_remote_branch(self, branch):
+        assert isinstance(branch, str)
+        return self.push(dst=branch)
+
+    def ahead_list(self, branch, base_branch):
+        """Return a list of SHAs for the commits that are in branch, but not base_branch"""
+        return self._do(['log', '{}..{}'.format(base_branch, branch), '--pretty=format:%H'], as_lines=True)
+
+    def branch_contains(self, commits):
+        """Return a set of branches that contain any of the commits."""
+        contains = set()
+        for c in commits:
+            for b in self._do(['branch', '--contains', c], as_lines=True):
+                contains.add(b[2:])
+        return contains
+
+    def count_commits(self, since, until):
+        """Return the number of commit between two commits 'since' and 'until'.
+
+        See git log --help for more details.
+
+        """
+        return len(self._do(['log', '{}..{}'.format(since, until), '--pretty=oneline'], as_lines=True))
+
+    def ahead_behind(self, branch, base_branch):
+        """Return the a tuple for how many commits ahead/behind a branch is when compared
+        to a base_branch.
+
+        """
+        return self.count_commits(base_branch, branch), self.count_commits(branch, base_branch)
+
+    def ahead_behind_string(self, branch, base_branch):
+        """Format git_ahead_behind() as a string for presentation to the user.
+
+        """
+        ahead, behind = self.ahead_behind(branch, base_branch)
+        r = ''
+        if behind > 0:
+            r = '-{:<4} '.format(behind)
+        else:
+            r = '      '
+        if ahead > 0:
+            r += '+{:<4}'.format(ahead)
+        return r
+
+    def _log_pretty(self, pretty_fmt, branch=None):
+        """Return information from the latest commit with a specified `pretty` format.
+
+        The log from a specified branch may be specified.
+        See `git log` man page for possible pretty formats.
+
+        """
+        # Future directions: Rather than just the latest commit, allow the caller
+        # specify the number of commits. This requires additional parsing of the
+        # result to return a list, rather than just a single item.
+        # Additionally, the caller could pass a 'conversion' function which would
+        # convert the string into a a more useful data-type.
+        # As this method may be changed in the future, it is marked as a private
+        # function (for now).
+        cmd = ['log']
+        if branch is not None:
+            cmd.append(branch)
+        cmd.append('-1')
+        cmd.append('--pretty=format:{}'.format(pretty_fmt))
+        return self._do(cmd).strip()
+
+    def branch_date(self, branch=None):
+        """Return the date of the latest commit on a given branch as a UNIX timestamp.
+
+        The branch may be ommitted, in which case it defaults to the current head.
+
+        """
+        return int(self._log_pretty('%at', branch=branch))
+
+    def branch_hash(self, branch=None):
+        """Return the hash of the latest commit on a given branch as a UNIX timestamp.
+
+        The branch may be ommitted, in which case it defaults to the current head.
+
+        """
+        return self._log_pretty('%H', branch=branch)
+
+    def working_dir_clean(self):
+        """Return True is the working directory is clean."""
+        return self._do(['status', '--porcelain']) == ''

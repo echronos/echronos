@@ -7,9 +7,8 @@ import tarfile
 import subprocess
 from glob import glob
 from contextlib import contextmanager
-from .utils import chdir, tempdir, get_host_platform_name, BASE_TIME, top_path, base_to_top_paths
+from .utils import chdir, tempdir, get_host_platform_name, BASE_TIME, top_path, base_to_top_paths, Git
 from .components import build
-from .tasks import Git
 
 
 class ReleaseMeta(type):

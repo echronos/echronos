@@ -16,7 +16,7 @@ def prj_test(args):
                    os.path.join('prj', 'app', 'pystache'),
                    os.path.join('prj', 'app', 'lib')]
 
-    return run_module_tests_with_args(modules, directories, args)
+    return _run_module_tests_with_args(modules, directories, args)
 
 
 def x_test(args):
@@ -24,7 +24,7 @@ def x_test(args):
     modules = ['x']
     directories = ['.']
 
-    return run_module_tests_with_args(modules, directories, args)
+    return _run_module_tests_with_args(modules, directories, args)
 
 
 def pystache_test(args):
@@ -37,11 +37,11 @@ def rtos_test(args):
     modules = ['rtos']
     directories = ['.']
 
-    return run_module_tests_with_args(modules, directories, args)
+    return _run_module_tests_with_args(modules, directories, args)
 
 
-def run_module_tests_with_args(modules, directories, args):
-    """Call a fixed set of modules in specific directories, deriving all input for a call to run_module_tests() from
+def _run_module_tests_with_args(modules, directories, args):
+    """Call a fixed set of modules in specific directories, deriving all input for a call to _run_module_tests() from
     the given command line arguments.
 
     See `run_modules_tests` for more information.
@@ -56,10 +56,10 @@ def run_module_tests_with_args(modules, directories, args):
     print_only = args.list
     topdir = args.topdir
 
-    return run_module_tests(modules, directories, patterns, verbosity, print_only, topdir)
+    return _run_module_tests(modules, directories, patterns, verbosity, print_only, topdir)
 
 
-def run_module_tests(modules, directories, patterns=[], verbosity=0, print_only=False, topdir=""):
+def _run_module_tests(modules, directories, patterns=[], verbosity=0, print_only=False, topdir=""):
     """Discover and run the tests associated with the given modules and located in the given directories.
 
     'modules' is list of module names as a sequence of strings.
@@ -88,7 +88,7 @@ def run_module_tests(modules, directories, patterns=[], verbosity=0, print_only=
 
     paths = [os.path.join(topdir, dir) for dir in directories]
     if all(map(os.path.exists, paths)):
-        with python_path(*paths):
+        with _python_path(*paths):
             all_tests = discover_tests(*modules)
 
             if patterns:
@@ -111,11 +111,11 @@ def run_module_tests(modules, directories, patterns=[], verbosity=0, print_only=
 
 
 @contextmanager
-def python_path(*paths):
+def _python_path(*paths):
     """A context manager that adds (and removes) one or more directories from the Python path.
 
     This allows extending the Python path temporarily to load certain modules.
-    The directories are expected as individual arguments, e.g., "with python_path('foo', 'bar'):"
+    The directories are expected as individual arguments, e.g., "with _python_path('foo', 'bar'):"
 
     """
     paths = [os.path.abspath(path) for path in paths]
@@ -126,21 +126,21 @@ def python_path(*paths):
         del sys.path[:len(paths)]
 
 
-class TeamcityReport(pep8.StandardReport):
+class _TeamcityReport(pep8.StandardReport):
     """Collect results and print teamcity messages."""
 
     def __init__(self, options):
-        super(TeamcityReport, self).__init__(options)
+        super(_TeamcityReport, self).__init__(options)
 
     def get_file_results(self):
-        ret = super(TeamcityReport, self).get_file_results()
+        ret = super(_TeamcityReport, self).get_file_results()
         if self.file_errors:
             self._teamcity("testFailed name='%s'" % self._test_name())
         self._teamcity("testFinished name='%s'" % self._test_name())
         return ret
 
     def init_file(self, filename, lines, expected, line_offset):
-        ret = super(TeamcityReport, self).init_file(filename, lines, expected, line_offset)
+        ret = super(_TeamcityReport, self).init_file(filename, lines, expected, line_offset)
         self._teamcity("testStarted name='%s' captureStandardOutput='true'" % self._test_name())
         return ret
 
@@ -173,7 +173,7 @@ def check_pep8(args):
 
     pep8style = pep8.StyleGuide(arglist=options)
     if args.teamcity:
-        pep8style.init_report(TeamcityReport)
+        pep8style.init_report(_TeamcityReport)
     report = pep8style.check_files()
     if report.total_errors:
         logging.error('pep8 check found non-compliant files')  # details on stdout

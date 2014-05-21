@@ -5,15 +5,16 @@ import string
 import datetime
 import subprocess
 from random import choice
+from .utils import Git
 
 
-def gen_tag():
+def _gen_tag():
     tag_length = 6
     tag_chars = string.ascii_letters + string.digits
     return ''.join(choice(tag_chars) for _ in range(tag_length))
 
 
-review_template = """Breakaway Task Review
+_review_template = """Breakaway Task Review
 =======================
 
 Task name: %(branch)s
@@ -74,7 +75,7 @@ def new_review(args):
         review_files.append(review_fn)
         with open(review_fn, 'w', newline='\n') as f:
             params['reviewer'] = reviewer
-            f.write(review_template % params)
+            f.write(_review_template % params)
 
     git = Git(local_repository=args.topdir)
     # now, git add, git commit -m <msg> and git push.
@@ -84,7 +85,7 @@ def new_review(args):
     git.push(branch, branch)
 
 
-task_template = """Task: {}
+_task_template = """Task: {}
 ==============================================================================
 
 Motivation
@@ -117,321 +118,26 @@ def new_task(args):
         # from.
         git.fetch()
 
-    fullname = gen_tag() + '-' + args.taskname
+    fullname = _gen_tag() + '-' + args.taskname
     git.branch(fullname, branch_from, track=False)
     git.push(fullname, fullname, set_upstream=True)
     git.checkout(fullname)
 
     task_fn = os.path.join(tasks_dir, fullname)
     with open(task_fn, 'w', newline='\n') as f:
-        f.write(task_template.format(fullname))
+        f.write(_task_template.format(fullname))
 
     print("Edit file: {} then add/commit/push.".format(task_fn))
     print('Suggest committing as: git commit -m "New task: {}"'.format(fullname))
 
 
-class Git:
-    """
-    Represents common state applicable to a series of git invocations and provides a pythonic interface to git.
-    """
-    def __init__(self, local_repository=os.getcwd(), remote_repository='origin'):
-        """
-        Create a Git instance with which all commands operate with the given local and remote repositories.
-        """
-        assert isinstance(local_repository, str)
-        assert isinstance(remote_repository, str)
-        # Check whether the local repository is a directory managed by git.
-        # Note that '.git' can be a directory in case of a git repository or a file in case of a git submodule
-        assert os.path.exists(os.path.join(local_repository, '.git'))
-        self.local_repository = local_repository
-        self.remote_repository = remote_repository
-        self._sep = None
-        self._branches = None
-        self._remote_branches = None
-
-    def convert_path_separators(self, files):
-        """
-        If necessary, convert the path separators in the path or paths given in 'files' to the path separator expected
-        by the command-line git tool.
-        These separators differ when a cygwin git command-line tool is used with a native Windows python installation.
-        """
-        assert isinstance(files, (str, list))
-        if isinstance(files, str):
-            return files.replace(os.sep, self.sep)
-        else:
-            return [file.replace(os.sep, self.sep) for file in files]
-
-    @property
-    def sep(self):
-        """
-        Return the (potentially cached) path separator expected by the git command-line tool.
-        """
-        if self._sep is None:
-            self._sep = self._get_sep()
-        return self._sep
-
-    def _get_sep(self):
-        """
-        Determine the path separator expected by the git command-line tool.
-        """
-        output = self._do(['ls-tree', '-r', '--name-only', 'HEAD:pm/tasks'])
-        for line in output.splitlines():
-            if line.startswith('completed'):
-                line = line.replace('completed', '', 1)
-                return line[0]
-        raise LookupError('git ls-tree does not list any files in pm/tasks/completed as expected')
-
-    @property
-    def branches(self):
-        """List of local branches."""
-        if self._branches is None:
-            self._branches = self._get_branches()
-        return self._branches
-
-    def _get_branches(self):
-        """Return a list of local branches."""
-        return [x[2:] for x in self._do(['branch'], as_lines=True)]
-
-    @property
-    def origin_branches(self):
-        """List of origin-remote branches"""
-        return self.get_remote_branches()
-
-    def get_remote_branches(self, remote='origin'):
-        """Return a list of remote branches. Remote defaults to 'origin'."""
-        if self._remote_branches is None:
-            self._remote_branches = [x[2:].strip() for x in self._do(['branch', '-r'], as_lines=True)]
-        return [x[len(remote) + 1:] for x in self._remote_branches if x.startswith(remote + '/')]
-
-    def _do(self, parameters, as_lines=False):
-        """
-        Execute the git command line tool with the given command-line parameters and return the console output as a
-        string.
-        """
-        assert type(parameters) == list
-        raw_data = subprocess.check_output(['git'] + parameters, cwd=self.local_repository).decode()
-        if as_lines:
-            return raw_data.splitlines()
-        else:
-            return raw_data
-
-    def get_active_branch(self):
-        """
-        Determine the currently active branch in the local git repository and return its name as a string.
-        """
-        pattern = '* '
-        for line in self._do(['branch'], as_lines=True):
-            if line.startswith(pattern):
-                return line.split(' ', maxsplit=1)[1].strip()
-        raise LookupError('No active branch in git repository ' + self.local_repository)
-
-    def branch(self, name, start_point=None, *, track=None):
-        """Create a new branch, optionally from a specific start point.
-
-        If track is set to True, then '--track' will be passed to git.
-        If track is set to False, then '--no-track' will be passed to git.
-        If track is None, then no tracking flag will be passed to git.
-
-        """
-        params = ['branch']
-        if not track is None:
-            params.append('--track' if track else '--no-track')
-        params.append(name)
-        if not start_point is None:
-            params.append(start_point)
-        return self._do(params)
-
-    def set_upstream(self, upstream, branch=None):
-        """Set the upstream / tracking branch of a given branch.
-
-        If branch is None, it defaults to the current branch.
-
-        """
-        params = ['branch', '-u', upstream]
-        if branch:
-            params.append(branch)
-
-        return self._do(params)
-
-    def checkout(self, revid):
-        """
-        Check out the specified revision ID (typically a branch name) in the local repository.
-        """
-        assert isinstance(revid, str)
-        return self._do(['checkout', revid])
-
-    def merge_into_active_branch(self, revid):
-        """
-        Merge the specified revision ID into the currently active branch.
-        """
-        assert isinstance(revid, str)
-        return self._do(['merge', revid])
-
-    def fetch(self):
-        """Fetch from the remote origin."""
-        return self._do(['fetch'])
-
-    def push(self, src=None, dst=None, *, force=False, set_upstream=False):
-        """Push the local revision 'src' into the remote branch 'dst', optionally forcing the update.
-
-        If 'set_upstream' evaluates to True, 'dst' is set as the upstream / tracking branch of 'src'.
-
-        """
-        assert src is None or isinstance(src, str)
-        assert dst is None or isinstance(dst, str)
-        assert isinstance(force, bool)
-        revspec = ''
-        if src:
-            revspec = src
-        if dst:
-            revspec += ':' + dst
-        if revspec == '':
-            revspec_args = []
-        else:
-            revspec_args = [revspec]
-        if force:
-            force_option = ['--force']
-        else:
-            force_option = []
-        if set_upstream:
-            set_upstream_option = ['-u']
-        else:
-            set_upstream_option = []
-        return self._do(['push'] + force_option + set_upstream_option + [self.remote_repository] + revspec_args)
-
-    def move(self, src, dst):
-        """
-        Rename a local resource from its old name 'src' to its new name 'dst' or move a list of local files 'src' into
-        a directory 'dst'.
-        """
-        assert isinstance(src, (str, list))
-        assert isinstance(dst, str)
-        if type(src) == str:
-            src_list = [src]
-        else:
-            src_list = src
-        return self._do(['mv'] + self.convert_path_separators(src_list) + [self.convert_path_separators(dst)])
-
-    def add(self, files):
-        """Add the list of files to the index in preparation of a future commit."""
-        return self._do(['add'] + self.convert_path_separators(files))
-
-    def commit(self, msg, files=None):
-        """Commit the changes in the specified 'files' with the given 'message' to the currently active branch.
-
-        If 'files' is None (or unspecified), all staged files are committed.
-
-        """
-        assert isinstance(msg, str)
-        assert files is None or isinstance(files, list)
-        if files is None:
-            file_args = []
-        else:
-            file_args = self.convert_path_separators(files)
-        return self._do(['commit', '-m', msg] + file_args)
-
-    def rename_branch(self, src, dst):
-        """
-        Rename a local branch from its current name 'src' to the new name 'dst'.
-        """
-        assert isinstance(src, str)
-        assert isinstance(dst, str)
-        return self._do(['branch', '-m', src, dst])
-
-    def delete_remote_branch(self, branch):
-        assert isinstance(branch, str)
-        return self.push(dst=branch)
-
-    def ahead_list(self, branch, base_branch):
-        """Return a list of SHAs for the commits that are in branch, but not base_branch"""
-        return self._do(['log', '{}..{}'.format(base_branch, branch), '--pretty=format:%H'], as_lines=True)
-
-    def branch_contains(self, commits):
-        """Return a set of branches that contain any of the commits."""
-        contains = set()
-        for c in commits:
-            for b in self._do(['branch', '--contains', c], as_lines=True):
-                contains.add(b[2:])
-        return contains
-
-    def count_commits(self, since, until):
-        """Return the number of commit between two commits 'since' and 'until'.
-
-        See git log --help for more details.
-
-        """
-        return len(self._do(['log', '{}..{}'.format(since, until), '--pretty=oneline'], as_lines=True))
-
-    def ahead_behind(self, branch, base_branch):
-        """Return the a tuple for how many commits ahead/behind a branch is when compared
-        to a base_branch.
-
-        """
-        return self.count_commits(base_branch, branch), self.count_commits(branch, base_branch)
-
-    def ahead_behind_string(self, branch, base_branch):
-        """Format git_ahead_behind() as a string for presentation to the user.
-
-        """
-        ahead, behind = self.ahead_behind(branch, base_branch)
-        r = ''
-        if behind > 0:
-            r = '-{:<4} '.format(behind)
-        else:
-            r = '      '
-        if ahead > 0:
-            r += '+{:<4}'.format(ahead)
-        return r
-
-    def _log_pretty(self, pretty_fmt, branch=None):
-        """Return information from the latest commit with a specified `pretty` format.
-
-        The log from a specified branch may be specified.
-        See `git log` man page for possible pretty formats.
-
-        """
-        # Future directions: Rather than just the latest commit, allow the caller
-        # specify the number of commits. This requires additional parsing of the
-        # result to return a list, rather than just a single item.
-        # Additionally, the caller could pass a 'conversion' function which would
-        # convert the string into a a more useful data-type.
-        # As this method may be changed in the future, it is marked as a private
-        # function (for now).
-        cmd = ['log']
-        if branch is not None:
-            cmd.append(branch)
-        cmd.append('-1')
-        cmd.append('--pretty=format:{}'.format(pretty_fmt))
-        return self._do(cmd).strip()
-
-    def branch_date(self, branch=None):
-        """Return the date of the latest commit on a given branch as a UNIX timestamp.
-
-        The branch may be ommitted, in which case it defaults to the current head.
-
-        """
-        return int(self._log_pretty('%at', branch=branch))
-
-    def branch_hash(self, branch=None):
-        """Return the hash of the latest commit on a given branch as a UNIX timestamp.
-
-        The branch may be ommitted, in which case it defaults to the current head.
-
-        """
-        return self._log_pretty('%H', branch=branch)
-
-    def working_dir_clean(self):
-        """Return True is the working directory is clean."""
-        return self._do(['status', '--porcelain']) == ''
-
-
-class Review:
+class _Review:
     """
     Represents a review on a development task/branch.
     """
     def __init__(self, file_path):
         """
-        Create a Review instance representing the review in the given 'file_path'.
+        Create a _Review instance representing the review in the given 'file_path'.
         This provides easy access to the review's review round, author, and conclusion.
         """
         assert isinstance(file_path, str)
@@ -479,7 +185,7 @@ class Review:
         return self.conclusion != 'accepted/rework'
 
 
-class InvalidTaskStateError(RuntimeError):
+class _InvalidTaskStateError(RuntimeError):
     """
     To be raised when a task state transition cannot be performed because the task is not in the appropriate source
     state.
@@ -487,7 +193,7 @@ class InvalidTaskStateError(RuntimeError):
     pass
 
 
-class Task:
+class _Task:
     """
     Represents a development task.
     Each task is associated with several task-related resources, such as the corresponding git branch, a description
@@ -499,7 +205,7 @@ class Task:
     @staticmethod
     def create(name=None, top_directory=None):
         """
-        Create and return a new Task instance, falling back to defaults if the optional task name and repository
+        Create and return a new _Task instance, falling back to defaults if the optional task name and repository
         directory are not specified.
         If 'top_directory' is not specified, it defaults to the current working directory which must be a valid local
         git repository.
@@ -515,7 +221,7 @@ class Task:
         assert name
 
         git = Git(local_repository=top_directory)
-        task = Task(name, top_directory, git)
+        task = _Task(name, top_directory, git)
         assert os.path.exists(task.get_description_file_name())
 
         return task
@@ -557,8 +263,8 @@ class Task:
         try:
             self._check_is_active_branch()
             self._check_is_accepted()
-        except InvalidTaskStateError as e:
-            raise InvalidTaskStateError('Task {} is not ready for integration: {}'.format(self.name, e))
+        except _InvalidTaskStateError as e:
+            raise _InvalidTaskStateError('Task {} is not ready for integration: {}'.format(self.name, e))
 
     def _check_is_active_branch(self):
         """
@@ -566,26 +272,26 @@ class Task:
         """
         active_branch = self._git.get_active_branch()
         if active_branch != self.name:
-            raise InvalidTaskStateError('Task {} is not the active checked-out branch ({}) in repository {}'.
-                                        format(self.name, active_branch, self.top_directory))
+            raise _InvalidTaskStateError('Task {} is not the active checked-out branch ({}) in repository {}'.
+                                         format(self.name, active_branch, self.top_directory))
 
     def _check_is_accepted(self):
         """
         Check whether all authors of completed reviews arrive at the 'accepted' conclusion in their final reviews.
         """
         all_reviews = self._get_most_recent_reviews_from_all_authors()
-        done_reviews = filter(Review.is_done, all_reviews)
+        done_reviews = filter(_Review.is_done, all_reviews)
         if len(list(done_reviews)) == 0:
-            raise InvalidTaskStateError('Task {} has not been reviewed'.format(self.name))
+            raise _InvalidTaskStateError('Task {} has not been reviewed'.format(self.name))
         for review in done_reviews:
             if not review.is_accepted():
-                raise InvalidTaskStateError('The conclusion of review {} for task {} is not "accepted"'.
-                                            format(review.file_path, self.name))
+                raise _InvalidTaskStateError('The conclusion of review {} for task {} is not "accepted"'.
+                                             format(review.file_path, self.name))
 
     def _get_most_recent_reviews_from_all_authors(self):
         """
         For any reviewer having reviewed this task, determine the most recent review and return all of them as a list
-        of Review instances.
+        of _Review instances.
         """
         reviews_by_author = {}
         for review in self.reviews:
@@ -599,7 +305,7 @@ class Task:
     @property
     def reviews(self):
         """
-        Return a list of Review instances that represents all reviews of this task, even uncompleted ones.
+        Return a list of _Review instances that represents all reviews of this task, even uncompleted ones.
         """
         if not self._reviews:
             self._reviews = self._get_reviews()
@@ -607,7 +313,7 @@ class Task:
 
     def _get_reviews(self):
         """
-        Retrieve and return a list of Review instances that represents all reviews of this task, even uncompleted
+        Retrieve and return a list of _Review instances that represents all reviews of this task, even uncompleted
         ones.
         """
         reviews = []
@@ -617,7 +323,7 @@ class Task:
         for relative_path in directory_contents:
             absolute_path = os.path.join(review_directory, relative_path)
             if os.path.isfile(absolute_path):
-                review = Review(absolute_path)
+                review = _Review(absolute_path)
                 reviews.append(review)
         return reviews
 
@@ -743,7 +449,7 @@ def tasks(args):
 
     print("flags| last commit          | +- vs origin | +- vs devel  | name")
     for t in sorted(task_names):
-        task = Task(t, args.topdir, git)
+        task = _Task(t, args.topdir, git)
         print(task.report_line())
         for rel in task.related_branches():
             if rel in skipped_branches:
@@ -770,5 +476,5 @@ def integrate(command_line_options):
     """
     Integrate a completed development task/branch into the main upstream branch.
     """
-    task = Task.create(command_line_options.name, command_line_options.repo)
+    task = _Task.create(command_line_options.name, command_line_options.repo)
     task.integrate(command_line_options.target, command_line_options.archive)

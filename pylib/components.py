@@ -6,38 +6,38 @@ from .utils import BASE_DIR, base_path
 
 
 # FIXME: Use correct declaration vs definition.
-REQUIRED_COMPONENT_SECTIONS = ['public_headers',
-                               'public_type_definitions',
-                               'public_structure_definitions',
-                               'public_object_like_macros',
-                               'public_function_like_macros',
-                               'public_extern_definitions',
-                               'public_function_definitions',
-                               'headers',
-                               'object_like_macros',
-                               'type_definitions',
-                               'structure_definitions',
-                               'extern_definitions',
-                               'function_definitions',
-                               'state',
-                               'function_like_macros',
-                               'functions',
-                               'public_functions']
+_REQUIRED_COMPONENT_SECTIONS = ['public_headers',
+                                'public_type_definitions',
+                                'public_structure_definitions',
+                                'public_object_like_macros',
+                                'public_function_like_macros',
+                                'public_extern_definitions',
+                                'public_function_definitions',
+                                'headers',
+                                'object_like_macros',
+                                'type_definitions',
+                                'structure_definitions',
+                                'extern_definitions',
+                                'function_definitions',
+                                'state',
+                                'function_like_macros',
+                                'functions',
+                                'public_functions']
 
 
-class SchemaFormatError(RuntimeError):
+class _SchemaFormatError(RuntimeError):
     """To be raised when a component configuration schema violates assumptions or conventions."""
     pass
 
 
-def merge_schema_entries(a, b, path=''):
+def _merge_schema_entries(a, b, path=''):
     """Recursively merge the entries of two XML component schemas.
 
     'a' and 'b' (instances of xml.etree.ElementTree.Element) are the two schema entries to merge.
     All entries from 'b' are merged into 'a'.
     If 'a' contains an entry a* with the same name as an entry b* in 'b', they can only be merged if both a* and b*
     have child entries themselves.
-    If either a* or b* does not have at least one child entry, this function raises a SchemaFormatError.
+    If either a* or b* does not have at least one child entry, this function raises a _SchemaFormatError.
 
     Within each of 'a' and 'b', the names of their entries must be unique.
     In other words, no two entries in 'a' may have the same name.
@@ -51,18 +51,18 @@ def merge_schema_entries(a, b, path=''):
         try:
             name = b_child.attrib['name']
         except KeyError:
-            raise SchemaFormatError('A schema entry under "{}" does not contain a name attribute'.format(path))
+            raise _SchemaFormatError('A schema entry under "{}" does not contain a name attribute'.format(path))
         if name in a_children:
             try:
                 a_child = a_children[name]
             except KeyError:
-                raise SchemaFormatError('A schema entry under "{}" does not contain a name attribute'.format(path))
+                raise _SchemaFormatError('A schema entry under "{}" does not contain a name attribute'.format(path))
             if (len(b_child) == 0) != (len(a_child) == 0):
-                raise SchemaFormatError('Unable to merge two schemas: \
+                raise _SchemaFormatError('Unable to merge two schemas: \
 the entry {}.{} is present in both schemas, but it has children in one and no children in the other. \
 To merge two schemas, corresponding entries both need need to either have child entries or not.'.format(path, name))
             if len(b_child) and len(a_child):
-                merge_schema_entries(a_child, b_child, '{}.{}'.format(path, name))
+                _merge_schema_entries(a_child, b_child, '{}.{}'.format(path, name))
             else:
                 # replace existing entry in a with the entry from b, allowing to override entries
                 a.remove(a_child)
@@ -71,12 +71,12 @@ To merge two schemas, corresponding entries both need need to either have child 
             a.append(b_child)
 
 
-def merge_schema_sections(sections):
+def _merge_schema_sections(sections):
     merged_schema = xml.etree.ElementTree.fromstring('<schema>\n</schema>')
 
     for section in sections:
         schema = xml.etree.ElementTree.fromstring('<schema>\n{}\n</schema>'.format(section))
-        merge_schema_entries(merged_schema, schema)
+        _merge_schema_entries(merged_schema, schema)
 
     return xml.etree.ElementTree.tostring(merged_schema).decode()
 
@@ -130,7 +130,7 @@ def sort_typedefs(typedef_lines):
     return '\n'.join(['typedef {} {};'.format(old, new) for (new, old) in r])
 
 
-def render_data(in_data, name, config):
+def _render_data(in_data, name, config):
     """Render input data (`in_data`) using a given `config`. The result is returned."""
     pystache.defaults.MISSING_TAGS = 'strict'
     pystache.defaults.DELIMITERS = ('[[', ']]')
@@ -138,7 +138,7 @@ def render_data(in_data, name, config):
     return pystache.render(in_data, config, name=name)
 
 
-def parse_sectioned_file(fn, config={}):
+def _parse_sectioned_file(fn, config={}):
     """Given a sectioned C-like file, returns a dictionary of { section: content }
 
     For example an input of:
@@ -167,9 +167,9 @@ def parse_sectioned_file(fn, config={}):
                 current_lines.append(line)
 
     for key, value in sections.items():
-        sections[key] = render_data('\n'.join(value).rstrip(), "{}: Section {}".format(fn, key), config)
+        sections[key] = _render_data('\n'.join(value).rstrip(), "{}: Section {}".format(fn, key), config)
 
-    for s in REQUIRED_COMPONENT_SECTIONS:
+    for s in _REQUIRED_COMPONENT_SECTIONS:
         if s not in sections:
             raise Exception("Couldn't find expected section '{}' in file: '{}'".format(s, fn))
 
@@ -250,7 +250,7 @@ class Component:
         file name of interrupt-event.c.
 
         'configuration' is a dictionary with configuration information.
-        It is passed to the 'parse_sectioned_file()' function used to parse this component's source file.
+        It is passed to the '_parse_sectioned_file()' function used to parse this component's source file.
 
         """
         self.name = name
@@ -286,7 +286,7 @@ class Component:
         if component is None:
             raise KeyError('Unable to find component "{}"'.format(self._resource_name))
 
-        return parse_sectioned_file(component, configuration)
+        return _parse_sectioned_file(component, configuration)
 
 
 class ArchitectureComponent(Component):
@@ -316,7 +316,7 @@ class ArchitectureComponent(Component):
         if component is None:
             raise KeyError('Unable to find component "{}" for architecture {}'.format(self._resource_name, arch.name))
 
-        return parse_sectioned_file(component, self._configuration)
+        return _parse_sectioned_file(component, self._configuration)
 
 
 class Architecture:
@@ -454,7 +454,7 @@ class RtosModule:
         with open(config_output, 'w') as f:
             f.write('''<?xml version="1.0" encoding="UTF-8" ?>
 ''')
-            schema = merge_schema_sections(sections.get('schema', []))
+            schema = _merge_schema_sections(sections.get('schema', []))
             f.write(schema)
 
         shutil.copyfile(self._python_file, python_output)

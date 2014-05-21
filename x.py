@@ -91,7 +91,7 @@ from glob import glob
 from pylib.tasks import new_review, new_task, tasks, integrate, Git
 from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8
 from pylib.utils import base_path, top_path, base_to_top_paths, chdir, tempdir
-from pylib.components import Component, ArchitectureComponent, Architecture, RtosSkeleton
+from pylib.components import Component, ArchitectureComponent, Architecture, RtosSkeleton, build, generate_rtos_module
 
 # Set up a specific logger with our desired output level
 logger = logging.getLogger()
@@ -212,19 +212,6 @@ def prj_build_win32(output_dir):
                 zip.write(file_path, archive_file_path)
     with open(os.path.join(output_dir, 'prj.bat'), 'w') as f:
         f.write('@ECHO OFF\npython %~dp0\\prj')
-
-
-def build(args):
-    # Generate RTOSes
-    for rtos_name, arch_names in configurations.items():
-        generate_rtos_module(skeletons[rtos_name], [architectures[arch] for arch in arch_names])
-
-
-def generate_rtos_module(skeleton, architectures):
-    """Generate RTOS modules for several architectures from a given skeleton."""
-    for arch in architectures:
-        rtos_module = skeleton.create_configured_module(arch)
-        rtos_module.generate()
 
 
 @contextmanager
@@ -440,7 +427,7 @@ def mk_partial(pkg, topdir):
 
 
 def build_partials(args):
-    build([])
+    build(args)
     os.makedirs(top_path(args.topdir, 'release', 'partials'),  exist_ok=True)
     packages = Package.create_from_disk(args.topdir).values()
     for pkg in packages:
@@ -458,7 +445,7 @@ def build_manual(pkg):
 
 
 def build_manuals(args):
-    build([])
+    build(args)
     packages = os.listdir(os.path.join(BASE_DIR, 'packages'))
     for pkg in packages:
         build_manual(pkg)
@@ -851,6 +838,9 @@ Defaults to "archive".', default='archive')
     if args.command is None:
         args.command = 'build'
     args.topdir = topdir
+    args.configurations = configurations
+    args.skeletons = skeletons
+    args.architectures = architectures
 
     return SUBCOMMAND_TABLE[args.command](args)
 

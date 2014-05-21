@@ -25,7 +25,6 @@ REQUIRED_COMPONENT_SECTIONS = ['public_headers',
                                'public_functions']
 
 
-
 class SchemaFormatError(RuntimeError):
     """To be raised when a component configuration schema violates assumptions or conventions."""
     pass
@@ -459,3 +458,16 @@ class RtosModule:
             f.write(schema)
 
         shutil.copyfile(self._python_file, python_output)
+
+
+def build(args):
+    # Generate RTOSes
+    for rtos_name, arch_names in args.configurations.items():
+        generate_rtos_module(args.skeletons[rtos_name], [args.architectures[arch] for arch in arch_names])
+
+
+def generate_rtos_module(skeleton, architectures):
+    """Generate RTOS modules for several architectures from a given skeleton."""
+    for arch in architectures:
+        rtos_module = skeleton.create_configured_module(arch)
+        rtos_module.generate()

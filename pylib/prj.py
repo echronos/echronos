@@ -5,58 +5,60 @@ import signal
 import zipfile
 from .utils import get_host_platform_name, top_path, chdir, base_path
 
-SIG_NAMES = dict((k, v) for v, k in signal.__dict__.items() if v.startswith('SIG'))
+_SIG_NAMES = dict((k, v) for v, k in signal.__dict__.items() if v.startswith('SIG'))
 
 
-def show_exit(exit_code):
+def _show_exit(exit_code):
     sig_num = exit_code & 0xff
     exit_status = exit_code >> 8
     if sig_num == 0:
         return "exit: {}".format(exit_status)
     else:
-        return "signal: {}".format(SIG_NAMES.get(sig_num, 'Unknown signal {}'.format(sig_num)))
+        return "signal: {}".format(_SIG_NAMES.get(sig_num, 'Unknown signal {}'.format(sig_num)))
 
 
 def prj_build(args):
     host = get_host_platform_name()
-    if sys.platform == 'darwin':
-        extras = ['-framework', 'CoreFoundation', '-lz']
-    elif sys.platform == 'linux':
-        extras = ['-lz', '-lm', '-lpthread', '-lrt', '-ldl', '-lcrypt', '-lutil']
-    elif sys.platform == 'win32':
-        pass
-    else:
-        print("Building prj currently unsupported on {}".format(sys.platform))
-        return 1
 
     prj_build_path = top_path(args.topdir, 'prj_build_{}'.format(host))
     os.makedirs(prj_build_path, exist_ok=True)
 
     if sys.platform == 'win32':
-        prj_build_win32(prj_build_path)
+        _prj_build_win32(prj_build_path)
     else:
-        with chdir(prj_build_path):
-            ice.create_lib('prj', '../prj/app', main='prj')
-            ice.create_lib('prjlib', '../prj/app/lib')
-            ice.create_lib('pystache', '../prj/app/pystache',
-                           excluded=['setup', 'pystache.tests', 'pystache.commands'])
-            ice.create_lib('ply', '../prj/app/ply', excluded=['setup'])
-            ice.create_stdlib()
-            ice.create_app(['stdlib', 'prj', 'prjlib', 'pystache', 'ply'])
+        _prj_build_unix(prj_build_path, host)
 
-            cmd = ['gcc', '*.c', '-o', 'prj', '-I../tools/include/python3.3m/',
-                   '-I../tools/{}/include/python3.3m/'.format(host),
-                   '-L../tools/{}/lib/python3.3/config-3.3m'.format(host),
-                   '-lpython3.3m']
-            cmd += extras
+def _prj_build_unix(output_dir, host):
+    if sys.platform == 'darwin':
+        extras = ['-framework', 'CoreFoundation', '-lz']
+    elif sys.platform == 'linux':
+        extras = ['-lz', '-lm', '-lpthread', '-lrt', '-ldl', '-lcrypt', '-lutil']
+    else:
+        print("Building prj currently unsupported on {}".format(sys.platform))
+        return 1
 
-            cmd = ' '.join(cmd)
-            r = os.system(cmd)
-            if r != 0:
-                print("Error building {}. cmd={}. ".format(show_exit(r), cmd))
+    with chdir(output_dir):
+        ice.create_lib('prj', '../prj/app', main='prj')
+        ice.create_lib('prjlib', '../prj/app/lib')
+        ice.create_lib('pystache', '../prj/app/pystache',
+                       excluded=['setup', 'pystache.tests', 'pystache.commands'])
+        ice.create_lib('ply', '../prj/app/ply', excluded=['setup'])
+        ice.create_stdlib()
+        ice.create_app(['stdlib', 'prj', 'prjlib', 'pystache', 'ply'])
+
+        cmd = ['gcc', '*.c', '-o', 'prj', '-I../tools/include/python3.3m/',
+               '-I../tools/{}/include/python3.3m/'.format(host),
+               '-L../tools/{}/lib/python3.3/config-3.3m'.format(host),
+               '-lpython3.3m']
+        cmd += extras
+
+        cmd = ' '.join(cmd)
+        r = os.system(cmd)
+        if r != 0:
+            print("Error building {}. cmd={}. ".format(_show_exit(r), cmd))
 
 
-def prj_build_win32(output_dir):
+def _prj_build_win32(output_dir):
     """Create a distributable version of prj.py.
 
     We currently do not have the infrastructure in place to statically compile and link prj.py and its dependencies

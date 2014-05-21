@@ -128,7 +128,7 @@ def tempdir():
 def walk(path, flt=None):
     """Return a list of all files in a given path. flt can be used to filter
     any unwanted files."""
-    def always_true(x):
+    def always_true(_):
         return True
 
     if flt is None:

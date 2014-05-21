@@ -27,7 +27,7 @@ def x_test(args):
     return _run_module_tests_with_args(modules, directories, args)
 
 
-def pystache_test(args):
+def pystache_test(_):
     """Run tests assocaited with pystache modules."""
     return subprocess.call([sys.executable, os.path.join('prj', 'app', 'pystache', 'test_pystache.py')])
 

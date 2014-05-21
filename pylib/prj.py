@@ -28,6 +28,7 @@ def prj_build(args):
     else:
         _prj_build_unix(prj_build_path, host)
 
+
 def _prj_build_unix(output_dir, host):
     if sys.platform == 'darwin':
         extras = ['-framework', 'CoreFoundation', '-lz']

@@ -1,5 +1,6 @@
-from x import *
 from pylib.xunittest import teamcityskip
+from pylib.tasks import Git
+from pylib.components import sort_typedefs
 import itertools
 
 # The constants refer to the base (initial) commit.

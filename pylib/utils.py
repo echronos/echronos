@@ -1,6 +1,8 @@
 import os
+import sys
 import shutil
 import tempfile
+import calendar
 from contextlib import contextmanager
 
 
@@ -20,6 +22,7 @@ def follow_link(l):
 
 
 BASE_DIR = os.path.normpath(os.path.join(os.path.dirname(follow_link(__file__)), ".."))
+BASE_TIME = calendar.timegm((2013, 1, 1, 0, 0, 0, 0, 0, 0))
 
 
 def base_path(*path):
@@ -134,3 +137,14 @@ def walk(path, flt=None):
     for root, _, files in os.walk(path):
         file_list.extend([os.path.join(root, f) for f in files if not flt(os.path.join(root, f))])
     return file_list
+
+
+def get_host_platform_name():
+    if sys.platform == 'darwin':
+        return 'x86_64-apple-darwin'
+    elif sys.platform == 'linux':
+        return 'x86_64-unknown-linux-gnu'
+    elif sys.platform == 'win32':
+        return 'win32'
+    else:
+        raise RuntimeError('Unsupported platform {}'.format(sys.platform))

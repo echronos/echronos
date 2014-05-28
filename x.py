@@ -81,6 +81,7 @@ from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8
 from pylib.components import Component, ArchitectureComponent, Architecture, RtosSkeleton, build, generate_rtos_module
 from pylib.release import release_test, build_release, build_partials
 from pylib.prj import prj_build
+from pylib.manuals import build_manuals
 
 # Set up a specific logger with our desired output level
 logger = logging.getLogger()
@@ -94,21 +95,6 @@ logger.setLevel(logging.INFO)
 # topdir defaults to the core directory.
 # It may be modified by an appropriate invocation of main().
 topdir = os.path.normpath(os.path.dirname(__file__))
-
-
-def build_manual(pkg):
-    manual_file = os.path.join(BASE_DIR, 'packages', pkg, '{}-manual'.format(pkg))
-    if not os.path.exists(manual_file):
-        print("Manual '{}' does not exist.".format(manual_file))
-    else:
-        print("Transforming manual '{}'".format(manual_file))
-
-
-def build_manuals(args):
-    build(args)
-    packages = os.listdir(os.path.join(BASE_DIR, 'packages'))
-    for pkg in packages:
-        build_manual(pkg)
 
 
 class OverrideFunctor:

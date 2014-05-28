@@ -55,6 +55,10 @@ import sys
 import os
 
 externals = ['pep8', 'nose', 'ice']
+
+# Make pylib available
+sys.path.append(os.path.dirname(__file__))
+
 from pylib.utils import BASE_DIR
 
 sys.path = [os.path.join(BASE_DIR, 'external_tools', e) for e in externals] + sys.path

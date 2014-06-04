@@ -3,7 +3,7 @@ import os
 import sys
 
 from rtos import sched
-from x import get_executable_extension
+from pylib.utils import get_executable_extension
 
 
 class testSimpleMutex:

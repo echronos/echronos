@@ -228,14 +228,13 @@ configurations = CORE_CONFIGURATIONS.copy()
 def main():
     """Application main entry point. Parse arguments, and call specified sub-command."""
     SUBCOMMAND_TABLE = {
-        # prj tool
-        'prj-build': prj_build,
         # Releases
-        'build': build,
+        'prj-build': prj_build,
+        'generate': build,
         'build-release': build_release,
         'build-partials': build_partials,
-        # Manuals
         'build-manuals': build_manuals,
+
         # Testing
         'check-pep8': check_pep8,
         'prj-test': prj_test,
@@ -243,6 +242,7 @@ def main():
         'x-test': x_test,
         'rtos-test': rtos_test,
         'test-release': release_test,
+
         # Tasks management
         'new-review': new_review,
         'new-task': new_task,
@@ -281,11 +281,14 @@ def main():
     test_subparsers.add_parser('pystache-test', help='Test pystache')
     test_subparsers.add_parser('test-release', help='Test final release')
 
-    subparsers.add_parser('prj-build', help='Build prj')
-    subparsers.add_parser('build-release', help='Build final release')
-    subparsers.add_parser('build-partials', help='Build partial release files')
-    subparsers.add_parser('build-manuals', help='Build PDF manuals')
-    subparsers.add_parser('build', help='Build all release files')
+    build_parser = subparsers.add_parser("build", help="Build release stuff...")
+    build_subparsers = build_parser.add_subparsers(title="Build options", dest="build_command")
+
+    build_subparsers.add_parser('prj-build', help='Build prj')
+    build_subparsers.add_parser('build-release', help='Build final release')
+    build_subparsers.add_parser('build-partials', help='Build partial release files')
+    build_subparsers.add_parser('build-manuals', help='Build PDF manuals')
+    build_subparsers.add_parser('generate', help='Generate packages from components')
 
     task_parser = subparsers.add_parser("tasks", help="Task management")
     task_subparsers = task_parser.add_subparsers(title="Task management operations", dest="task_command")
@@ -311,14 +314,20 @@ Defaults to "archive".', default='archive')
     args = parser.parse_args()
 
     # Default to building
-    if args.command is None:
-        args.command = 'build'
-
     if args.command == "test":
         args.command = args.test_command
+        if args.command is None:
+            args.command = "test-x"
 
     if args.command == "tasks":
         args.command = args.task_command
+        if args.command is None:
+            args.command = "list"
+
+    if args.command == "build":
+        args.command = args.build_command
+        if args.command is None:
+            args.command = "build-release"
 
     args.topdir = topdir
     args.configurations = configurations

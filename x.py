@@ -232,7 +232,6 @@ def main():
         'prj-build': prj_build,
         # Releases
         'build': build,
-        'test-release': release_test,
         'build-release': build_release,
         'build-partials': build_partials,
         # Manuals
@@ -243,6 +242,7 @@ def main():
         'pystache-test': pystache_test,
         'x-test': x_test,
         'rtos-test': rtos_test,
+        'test-release': release_test,
         # Tasks management
         'new-review': new_review,
         'new-task': new_task,
@@ -255,18 +255,18 @@ def main():
 
     subparsers = parser.add_subparsers(title='subcommands', dest='command')
 
-    # create the parser for the "prj.pep8" command
+    test_parser = subparsers.add_parser("test", help="Run tests")
+    test_subparsers = test_parser.add_subparsers(title="Test suites", dest="test_command")
 
-    _parser = subparsers.add_parser('check-pep8', help='Run PEP8 on project Python files')
+    _parser = test_subparsers.add_parser('check-pep8', help='Run PEP8 on project Python files')
     _parser.add_argument('--teamcity', action='store_true',
                          help="Provide teamcity output for tests",
                          default=False)
     _parser.add_argument('--excludes', nargs='*',
                          help="Exclude directories from pep8 checks",
                          default=[])
-
     for component_name in ['prj', 'x', 'rtos']:
-        _parser = subparsers.add_parser(component_name + '-test', help='Run {} unittests'.format(component_name))
+        _parser = test_subparsers.add_parser(component_name + '-test', help='Run {} unittests'.format(component_name))
         _parser.add_argument('tests', metavar='TEST', nargs='*',
                              help="Specific test", default=[])
         _parser.add_argument('--list', action='store_true',
@@ -278,17 +278,17 @@ def main():
         _parser.add_argument('--quiet', action='store_true',
                              help="Less output",
                              default=False)
-    subparsers.add_parser('prj-build', help='Build prj')
+    test_subparsers.add_parser('pystache-test', help='Test pystache')
+    test_subparsers.add_parser('test-release', help='Test final release')
 
-    subparsers.add_parser('pystache-test', help='Test pystache')
+    subparsers.add_parser('prj-build', help='Build prj')
     subparsers.add_parser('build-release', help='Build final release')
-    subparsers.add_parser('test-release', help='Test final release')
     subparsers.add_parser('build-partials', help='Build partial release files')
     subparsers.add_parser('build-manuals', help='Build PDF manuals')
     subparsers.add_parser('build', help='Build all release files')
 
     task_parser = subparsers.add_parser("tasks", help="Task management")
-    task_subparsers = task_parser.add_subparsers(title="Task management operations", dest="foo")
+    task_subparsers = task_parser.add_subparsers(title="Task management operations", dest="task_command")
 
     task_subparsers.add_parser('list', help="List tasks")
     _parser = task_subparsers.add_parser('new-review', help='Create a new review')
@@ -313,6 +313,13 @@ Defaults to "archive".', default='archive')
     # Default to building
     if args.command is None:
         args.command = 'build'
+
+    if args.command == "test":
+        args.command = args.test_command
+
+    if args.command == "tasks":
+        args.command = args.task_command
+
     args.topdir = topdir
     args.configurations = configurations
     args.skeletons = skeletons

@@ -82,7 +82,7 @@ import logging
 
 from pylib.tasks import new_review, new_task, tasks, integrate
 from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8
-from pylib.components import Component, ArchitectureComponent, Architecture, RtosSkeleton, build, generate_rtos_module
+from pylib.components import Component, ArchitectureComponent, Architecture, RtosSkeleton, build
 from pylib.release import release_test, build_release, build_partials
 from pylib.prj import prj_build
 from pylib.manuals import build_manuals
@@ -99,16 +99,6 @@ logger.setLevel(logging.INFO)
 # topdir defaults to the core directory.
 # It may be modified by an appropriate invocation of main().
 topdir = os.path.normpath(os.path.dirname(__file__))
-
-
-class OverrideFunctor:
-    def __init__(self, function, *args, **kwargs):
-        self.function = function
-        self.args = args
-        self.kwargs = kwargs
-
-    def __call__(self, *args, **kwargs):
-        return self.function(*self.args, **self.kwargs)
 
 
 CORE_ARCHITECTURES = {
@@ -317,13 +307,6 @@ Defaults to active branch in repository.')
 Defaults to "development".', default='development')
     _parser.add_argument('--archive', help='Prefix to add to task branch name when archiving it. \
 Defaults to "archive".', default='archive')
-
-    # generate parsers and command table entries for generating RTOS variants
-    for rtos_name, arch_names in configurations.items():
-        SUBCOMMAND_TABLE[rtos_name + '-gen'] = OverrideFunctor(generate_rtos_module,
-                                                               skeletons[rtos_name],
-                                                               [architectures[arch] for arch in arch_names])
-        subparsers.add_parser(rtos_name + '-gen', help="Generate {} RTOS".format(rtos_name))
 
     args = parser.parse_args()
 

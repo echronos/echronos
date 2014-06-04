@@ -266,7 +266,6 @@ def main():
     subparsers = parser.add_subparsers(title='subcommands', dest='command')
 
     # create the parser for the "prj.pep8" command
-    subparsers.add_parser('tasks', help="List tasks")
 
     _parser = subparsers.add_parser('check-pep8', help='Run PEP8 on project Python files')
     _parser.add_argument('--teamcity', action='store_true',
@@ -297,23 +296,19 @@ def main():
     subparsers.add_parser('build-partials', help='Build partial release files')
     subparsers.add_parser('build-manuals', help='Build PDF manuals')
     subparsers.add_parser('build', help='Build all release files')
-    _parser = subparsers.add_parser('new-review', help='Create a new review')
+
+    task_parser = subparsers.add_parser("tasks", help="Task management")
+    task_subparsers = task_parser.add_subparsers(title="Task management operations", dest="foo")
+
+    task_subparsers.add_parser('list', help="List tasks")
+    _parser = task_subparsers.add_parser('new-review', help='Create a new review')
     _parser.add_argument('reviewers', metavar='REVIEWER', nargs='+',
                          help='Username of reviewer')
-
-    _parser = subparsers.add_parser('new-task', help='Create a new task')
+    _parser = task_subparsers.add_parser('new-task', help='Create a new task')
     _parser.add_argument('taskname', metavar='TASKNAME', help='Name of the new task')
     _parser.add_argument('--no-fetch', dest='fetch', action='store_false', default='true', help='Disable fetchign')
-
-    # generate parsers and command table entries for generating RTOS variants
-    for rtos_name, arch_names in configurations.items():
-        SUBCOMMAND_TABLE[rtos_name + '-gen'] = OverrideFunctor(generate_rtos_module,
-                                                               skeletons[rtos_name],
-                                                               [architectures[arch] for arch in arch_names])
-        subparsers.add_parser(rtos_name + '-gen', help="Generate {} RTOS".format(rtos_name))
-
-    _parser = subparsers.add_parser('integrate', help='Integrate a completed development task/branch into the main \
-upstream branch.')
+    _parser = task_subparsers.add_parser('integrate', help='Integrate a completed development task/branch \
+into the main upstream branch.')
     _parser.add_argument('--repo', help='Path of git repository to operate in. \
 Defaults to current working directory.')
     _parser.add_argument('--name', help='Name of the task branch to integrate. \
@@ -322,6 +317,13 @@ Defaults to active branch in repository.')
 Defaults to "development".', default='development')
     _parser.add_argument('--archive', help='Prefix to add to task branch name when archiving it. \
 Defaults to "archive".', default='archive')
+
+    # generate parsers and command table entries for generating RTOS variants
+    for rtos_name, arch_names in configurations.items():
+        SUBCOMMAND_TABLE[rtos_name + '-gen'] = OverrideFunctor(generate_rtos_module,
+                                                               skeletons[rtos_name],
+                                                               [architectures[arch] for arch in arch_names])
+        subparsers.add_parser(rtos_name + '-gen', help="Generate {} RTOS".format(rtos_name))
 
     args = parser.parse_args()
 

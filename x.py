@@ -313,28 +313,30 @@ Defaults to "archive".', default='archive')
 
     args = parser.parse_args()
 
-    # Default to building
-    if args.command == "test":
-        args.command = args.test_command
-        if args.command is None:
-            args.command = "test-x"
+    if args.command is None:
+        parser.print_help()
+    else:
+        if args.command == "test":
+            args.command = args.test_command
+            if args.command is None:
+                args.command = "test-x"
 
-    if args.command == "tasks":
-        args.command = args.task_command
-        if args.command is None:
-            args.command = "list"
+        if args.command == "tasks":
+            args.command = args.task_command
+            if args.command is None:
+                args.command = "list"
 
-    if args.command == "build":
-        args.command = args.build_command
-        if args.command is None:
-            args.command = "build-release"
+        if args.command == "build":
+            args.command = args.build_command
+            if args.command is None:
+                args.command = "build-release"
 
-    args.topdir = topdir
-    args.configurations = configurations
-    args.skeletons = skeletons
-    args.architectures = architectures
+        args.topdir = topdir
+        args.configurations = configurations
+        args.skeletons = skeletons
+        args.architectures = architectures
 
-    return SUBCOMMAND_TABLE[args.command](args)
+        return SUBCOMMAND_TABLE[args.command](args)
 
 
 if __name__ == "__main__":

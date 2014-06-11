@@ -246,7 +246,7 @@ def main():
         # Tasks management
         'new-review': new_review,
         'new-task': new_task,
-        'tasks': tasks,
+        'list': tasks,
         'integrate': integrate,
     }
 
@@ -317,19 +317,19 @@ Defaults to "archive".', default='archive')
         parser.print_help()
     else:
         if args.command == "test":
+            if args.test_command is None:
+                args = parser.parse_args(["test", "x-test"])
             args.command = args.test_command
-            if args.command is None:
-                args.command = "test-x"
 
         if args.command == "tasks":
+            if args.task_command is None:
+                args = parser.parse_args(["tasks", "list"])
             args.command = args.task_command
-            if args.command is None:
-                args.command = "list"
 
         if args.command == "build":
+            if args.build_command is None:
+                args = parser.parse_args(["build", "build-release"])
             args.command = args.build_command
-            if args.command is None:
-                args.command = "build-release"
 
         args.topdir = topdir
         args.configurations = configurations

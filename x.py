@@ -316,20 +316,11 @@ Defaults to "archive".', default='archive')
     if args.command is None:
         parser.print_help()
     else:
-        if args.command == "test":
-            if args.test_command is None:
-                args = parser.parse_args(["test", "x-test"])
-            args.command = args.test_command
-
-        if args.command == "tasks":
-            if args.task_command is None:
-                args = parser.parse_args(["tasks", "list"])
-            args.command = args.task_command
-
-        if args.command == "build":
-            if args.build_command is None:
-                args = parser.parse_args(["build", "build-release"])
-            args.command = args.build_command
+        for cmd, subcommand in ([("test", "test_command"), ("tasks", "task_command"), ("build", "build_command")]):
+            if args.command == cmd:
+                if vars(args)[subcommand] is None:
+                    args = parser.parse_args([cmd, "-h"])
+                args.command = vars(args)[subcommand]
 
         args.topdir = topdir
         args.configurations = configurations

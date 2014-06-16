@@ -2397,6 +2397,7 @@ class OverrideFunctor:
 CORE_ARCHITECTURES = {
     'posix': Architecture('posix', {}),
     'armv7m': Architecture('armv7m', {}),
+    'ppc': Architecture('ppc', {}),
 }
 
 CORE_SKELETONS = {
@@ -2504,7 +2505,7 @@ CORE_CONFIGURATIONS = {
     'blocking-mutex-test': ['posix'],
     'simple-semaphore-test': ['posix'],
     'sched-prio-test': ['posix'],
-    'acamar': ['posix', 'armv7m'],
+    'acamar': ['posix', 'armv7m', 'ppc'],
     'gatria': ['posix', 'armv7m'],
     'kraz': ['posix', 'armv7m'],
     'acrux': ['armv7m'],

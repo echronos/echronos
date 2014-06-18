@@ -21,6 +21,10 @@ hello
   ~ A system that does the standard *Hello, world*.
 acamar-system
   ~ A system demonstrating context switch between two tasks via `yield_to()`.
+gatria-system
+  ~ A system demonstrating coordination between two tasks via `yield()`, `unblock()`, and mutexes.
+kraz-system
+  ~ A system demonstrating coordination between two tasks via `yield()`, mutexes, and signals.
 
 These systems can be run on qemu-ppc, provided with standard apt package installations of qemu.
 

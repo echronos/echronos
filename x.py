@@ -2510,8 +2510,8 @@ CORE_CONFIGURATIONS = {
     'simple-semaphore-test': ['posix'],
     'sched-prio-test': ['posix'],
     'acamar': ['posix', 'armv7m', 'ppc'],
-    'gatria': ['posix', 'armv7m'],
-    'kraz': ['posix', 'armv7m'],
+    'gatria': ['posix', 'armv7m', 'ppc'],
+    'kraz': ['posix', 'armv7m', 'ppc'],
     'acrux': ['armv7m'],
     'rigel': ['armv7m'],
 }

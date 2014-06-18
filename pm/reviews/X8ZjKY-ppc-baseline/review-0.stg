@@ -19,11 +19,15 @@ Ensure that source code comments observe the project style guide lines by
 - having as few line breaks in a sentence as possible while observing the maximum line length
 This affects, e.g., components/ppc-context-switch/ppc-context-switch.c:142
 
+[rsison: fixed; tidied up as requested]
+
 Comment 3: [Rework]
 Currently, x.py is not able to generate a release of acamar for PPC because there is no release definition in release_cfg.py.
 I recommend creating a new release definition for a very targeted, specific release that only includes acamar for PPC for now, and only the modules that will be required by the customer's application firmware down the line.
 Please check with Ihor what a good name would be (probably not SMACCM?).
 Being able to create a release will also be the basis for automated testing of the port.
+
+[rsison: fixed; new release target is named smaccm-ppc]
 
 
 Specific comments
@@ -35,30 +39,42 @@ Is including stddef.h strictly necessary?
 I.e., does the code in this file depend on any definition in stddef.h?
 If not, remove the #include statement.
 
+[rsison: looks like it's needed for size_t. Leaving it in this file]
+
 Location: components/ppc-context-switch/ppc-context-switch.c:138
 Comment 5: [Rework]
 The variable i is never used as a signed value.
 It should thus be unsigned.
+
+[rsison: removed; unused after removing zero-initialization of stack frame re: Comment 6]
 
 Location: components/ppc-context-switch/ppc-context-switch.c:154
 Comment 6: [Rework]
 Is it strictly necessary to initialize a context's stack frame to 0?
 If not, this code should be removed.
 
+[rsison: not strictly necessary; removed]
+
 Location: components/stack-ppc.c:17
 Comment 7: [Rework]
 Is including stddef.h necessary?
 If not, remove the #include statement.
 
+[rsison: not needed for anything in this file; removed]
+
 Location: packages/ppc/build.py:1
 Comment 8: [Rework]
 Remove the unused import of SystemBuildError
+
+[rsison: my bad; removed]
 
 Location: packages/ppc/default.ld
 Comment 9: [Rework]
 What is the provenance of this file?
 Is this your genuine creation or was it copied from somewhere?
 If it was copied or adapted from some other source, its licensing situation needs to be clarified.
+
+[rsison: not applicable; code is adapted from internal linker script for ARM]
 
 Location: packages/ppc/entry.py
 Comment 10: [Accepted]
@@ -69,3 +85,5 @@ Location: packages/ppc/ppc-manual:3
 Comment 11: [Rework]
 Replace DUMMY with 6 randomly chosen alphanumerical characters.
 If you feel like it, add a command to x.py, such as gen-tag that prints the result of the gen_tag() function on stdout.
+
+[rsison: fixed; added a gen-tag subcommand to x.py and picked one for the document]

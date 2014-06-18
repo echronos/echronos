@@ -135,13 +135,12 @@ static void
 context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack_base, const size_t stack_size)
 {
     uint32_t *context, *init_context;
-    int i;
 
     init_context = stack_base + stack_size - CONTEXT_HEADER_SIZE;
     /**
-     * Set up a dummy stack frame header containing just the back chain word
-     * and the LR save word (which we set to the task entry point)
-     * The EABI specification doesn't specify how to terminate the back chain. Here we NULL-terminate it.
+     * Set up an initial stack frame header containing just the back chain word and the LR save word.
+     * The EABI specification doesn't specify how to terminate the back chain - here we NULL-terminate it.
+     * We set the LR save word to the task entry point.
      */
     init_context[CONTEXT_BC_IDX] = 0;
     init_context[CONTEXT_LR_IDX] = (uint32_t) fn;
@@ -151,9 +150,6 @@ context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack
      * the initial context. LR and back chain words in this frame are ignored by ppc_context_switch (ctxt-switch.s)
      */
     context = init_context - CONTEXT_SIZE;
-    for (i = 0; i < CONTEXT_SIZE; i++) {
-        context[i] = 0;
-    }
     *ctx = context;
 }
 

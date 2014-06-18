@@ -1,4 +1,4 @@
-from prj import execute, SystemBuildError
+from prj import execute
 import os
 
 

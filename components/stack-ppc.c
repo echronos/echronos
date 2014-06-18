@@ -14,7 +14,6 @@
 
 /*| headers |*/
 #include <stdint.h>
-#include <stddef.h>
 
 /*| object_like_macros |*/
 

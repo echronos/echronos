@@ -62,6 +62,21 @@ In the future, it may be possible to extract requirements from additional source
 Individual tasks may update requirements, implementation or both.
 It is not necessary that an individual task fulfils all requirements for a given sub-project (unless that is the goal of the task).
 
+The `tasks` subcommand to `x.py` provides tools to assist with project management.
+
+usage: x.py tasks [-h] {list,new-review,new-task,integrate} ...
+
+optional arguments:
+  -h, --help            show this help message and exit
+
+Task management operations:
+  {list,new-review,new-task,integrate}
+    list                List tasks
+    new-review          Create a new review
+    new-task            Create a new task
+    integrate           Integrate a completed development task/branch into the
+                        main upstream branch.
+
 RTOS composition / generation
 ------------------------------
 

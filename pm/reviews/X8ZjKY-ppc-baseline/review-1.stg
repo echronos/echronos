@@ -5,16 +5,19 @@ Task name: X8ZjKY-ppc-baseline
 Version reviewed: fa47cecb431bb7079cd1a93f903d16d33936ed06
 Reviewer: stg
 Date: 2014-06-18
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
+
+Comment 1: Rework
+The RTOS shall contain no superfluous code.
+Remove all unused #include statements and all unused imported Python packages.
+This affects, for example, components/ppc-context-switch/ppc-context-switch.c (stddef.h) and packages/ppc/entry.py (SystemBuildError etc.).
 
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Location: packages/ppc/debug.c:3
+Comment 2: Rework
+The development branch shall not contain comments such as FIXME or TODO.

@@ -14,6 +14,8 @@ The RTOS shall contain no superfluous code.
 Remove all unused #include statements and all unused imported Python packages.
 This affects, for example, components/ppc-context-switch/ppc-context-switch.c (stddef.h) and packages/ppc/entry.py (SystemBuildError etc.).
 
+[rsison: stddef.h in ppc-context-switch.c is needed for size_t. The rest have been cleaned up]
+
 
 Specific comments
 =================
@@ -21,3 +23,5 @@ Specific comments
 Location: packages/ppc/debug.c:3
 Comment 2: Rework
 The development branch shall not contain comments such as FIXME or TODO.
+
+[rsison: removed]

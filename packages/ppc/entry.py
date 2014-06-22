@@ -1,7 +1,5 @@
-from prj import SystemBuildError, Module, ModuleInstance, pystache_render, xml2dict, xml2schema, xml_parse_string
+from prj import Module
 import logging
-import os
-import shutil
 logger = logging.getLogger()
 
 

@@ -44,11 +44,11 @@
  *
  * PowerPC EABI stack frame:
  *     +------------------------------------------------------------+ Highest address
- *     | FPR save area (optional, not implemented FIXME)            |
+ *     | FPR save area (optional, not implemented)                  |
  *     +------------------------------------------------------------+
  *     | GPR save area (optional, implemented here)                 |
  *     +------------------------------------------------------------+
- *     | CR save word (optional, not implemented FIXME)             |
+ *     | CR save word (optional, not implemented)                   |
  *     +------------------------------------------------------------+
  *     | Local variables area (optional, not implemented)           |
  *     +------------------------------------------------------------+
@@ -67,27 +67,25 @@
 #define CONTEXT_BC_IDX 0
 #define CONTEXT_LR_IDX 1
 #define CONTEXT_HEADER_SIZE (CONTEXT_LR_IDX + 1)
-#define CONTEXT_DUMMY2_IDX 2 /* FIXME: GPR2 for EABI SDA? */
-#define CONTEXT_DUMMY13_IDX 3 /* FIXME: GPR13 for EABI SDA? */
-#define CONTEXT_GPR14_IDX 4
-#define CONTEXT_GPR15_IDX 5
-#define CONTEXT_GPR16_IDX 6
-#define CONTEXT_GPR17_IDX 7
-#define CONTEXT_GPR18_IDX 8
-#define CONTEXT_GPR19_IDX 9
-#define CONTEXT_GPR20_IDX 10
-#define CONTEXT_GPR21_IDX 11
-#define CONTEXT_GPR22_IDX 12
-#define CONTEXT_GPR23_IDX 13
-#define CONTEXT_GPR24_IDX 14
-#define CONTEXT_GPR25_IDX 15
-#define CONTEXT_GPR26_IDX 16
-#define CONTEXT_GPR27_IDX 17
-#define CONTEXT_GPR28_IDX 18
-#define CONTEXT_GPR29_IDX 19
-#define CONTEXT_GPR30_IDX 20
-#define CONTEXT_GPR31_IDX 21
-#define CONTEXT_SIZE (CONTEXT_GPR31_IDX + 1)
+#define CONTEXT_GPR14_IDX 2
+#define CONTEXT_GPR15_IDX 3
+#define CONTEXT_GPR16_IDX 4
+#define CONTEXT_GPR17_IDX 5
+#define CONTEXT_GPR18_IDX 6
+#define CONTEXT_GPR19_IDX 7
+#define CONTEXT_GPR20_IDX 8
+#define CONTEXT_GPR21_IDX 9
+#define CONTEXT_GPR22_IDX 10
+#define CONTEXT_GPR23_IDX 11
+#define CONTEXT_GPR24_IDX 12
+#define CONTEXT_GPR25_IDX 13
+#define CONTEXT_GPR26_IDX 14
+#define CONTEXT_GPR27_IDX 15
+#define CONTEXT_GPR28_IDX 16
+#define CONTEXT_GPR29_IDX 17
+#define CONTEXT_GPR30_IDX 18
+#define CONTEXT_GPR31_IDX 19
+#define CONTEXT_FRAME_SIZE (CONTEXT_GPR31_IDX + 1)
 
 /*| type_definitions |*/
 typedef uint32_t* context_t;
@@ -149,7 +147,7 @@ context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack
      * Immediately below the dummy stack frame header, create a full-size stack frame containing register values for
      * the initial context. LR and back chain words in this frame are ignored by ppc_context_switch (ctxt-switch.s)
      */
-    context = init_context - CONTEXT_SIZE;
+    context = init_context - CONTEXT_FRAME_SIZE;
     *ctx = context;
 }
 

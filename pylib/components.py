@@ -311,18 +311,6 @@ class RtosSkeleton:
         self._components = components
         self._configuration = configuration
 
-    def get_module_sections(self, arch, required_components, ext, ):
-        """Retrieve the sections necessary to generate an RtosModule from this skeleton.
-
-        """
-        module_sections = {}
-        for component in self._components:
-            for name, contents in component.parse(ext, required_components).items():
-                if name not in module_sections:
-                    module_sections[name] = []
-                module_sections[name].append(contents)
-        return module_sections
-
     def create_configured_module(self, arch):
         """Retrieve module configuration information and create a corresponding RtosModule instance.
 
@@ -331,8 +319,8 @@ class RtosSkeleton:
         """
         for component in self._components:
             component.bind(arch)
-        c_sections = self.get_module_sections(arch, _REQUIRED_C_SECTIONS, ext=".c")
-        h_sections = self.get_module_sections(arch, _REQUIRED_H_SECTIONS, ext=".h")
+        c_sections = [component.parse(".c", _REQUIRED_C_SECTIONS) for component in self._components]
+        h_sections = [component.parse(".h", _REQUIRED_H_SECTIONS) for component in self._components]
         xml_files = [os.path.join(component._path, 'schema.xml') for component in self._components]
         return RtosModule(self.name, arch, c_sections, h_sections, xml_files, self.python_file)
 
@@ -357,8 +345,6 @@ class RtosModule:
         """
         assert isinstance(name, str)
         assert isinstance(arch, Architecture)
-        assert isinstance(c_sections, dict)
-        assert isinstance(h_sections, dict)
         self._name = name
         self._arch = arch
         self._c_sections = c_sections
@@ -399,7 +385,7 @@ class RtosModule:
 
         with open(source_output, 'w') as f:
             for ss in source_sections:
-                data = '\n'.join(c_sections[ss])
+                data = "\n".join(c_section[ss] for c_section in c_sections)
                 if ss == 'type_definitions':
                     data = sort_typedefs(data)
                 f.write(data)
@@ -410,9 +396,7 @@ class RtosModule:
             f.write("#ifndef {}_H\n".format(mod_name))
             f.write("#define {}_H\n".format(mod_name))
             for ss in header_sections:
-                for data in h_sections[ss]:
-                    f.write(data)
-                    f.write('\n')
+                f.write("\n".join(h_section[ss] for h_section in h_sections) + "\n")
             f.write("\n#endif /* {}_H */".format(mod_name))
 
         with open(config_output, 'w') as f:

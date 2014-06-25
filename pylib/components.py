@@ -228,7 +228,7 @@ class Component:
         return Component._search_paths
 
     @staticmethod
-    def find(partial_path):
+    def _find(partial_path):
         """Find the component partial_path in the core repository or client repositories further up in the directory
         tree."""
         for search_path in Component.get_search_paths():
@@ -259,30 +259,35 @@ class Component:
         self._configuration = configuration
         self._arch_component = arch_component
 
-    def bind(self, arch):
+    def bind(self, arch_name):
         if self._arch_component:
-            self._resource_name = '{0}-{1}'.format(self._base_name, arch.name)
-        self._path = Component.find(self._resource_name)
+            self._resource_name = '{0}-{1}'.format(self._base_name, arch_name)
+        self._path = Component._find(self._resource_name)
 
-    def parse(self, ext, required_components):
+        self.c_sections = self._parse(".c", _REQUIRED_C_SECTIONS, self._path)
+        self.h_sections = self._parse(".h", _REQUIRED_H_SECTIONS, self._path)
+        self.xml_file = os.path.join(self._path, 'schema.xml')
+
+    def _parse(self, ext, required_components, path):
         """Retrieve the properties of this component by parsing its corresponding source file.
 
         This function returns a dictionary containing configuration information that can be used to render an RTOS
         template.
 
         """
-        component = os.path.join(self._path, '{0}{1}'.format(self._resource_name, ext))
+        component = os.path.join(path, '{0}{1}'.format(self._resource_name, ext))
         return _parse_sectioned_file(component, self._configuration, required_components)
 
 
-Architecture = namedtuple('Architecture', ['name', 'configuration'])
-RtosSkeleton = namedtuple('RtosSkeleton', ['name', 'components'])
-
-
-def _generate(name, arch, c_sections, h_sections, xml_files, python_file):
+def _generate(rtos_name, components, arch_name):
     """Generate the RTOS module to disk, so it is available as a compile and link unit to projects."""
-    module_name = 'rtos-' + name
-    module_dir = base_path('packages', arch.name, module_name)
+
+    # Set up the data structures for all the components
+    for component in components:
+        component.bind(arch_name)
+
+    module_name = 'rtos-' + rtos_name
+    module_dir = base_path('packages', arch_name, module_name)
 
     os.makedirs(module_dir, exist_ok=True)
     python_output = os.path.join(module_dir, 'entity.py')
@@ -301,7 +306,7 @@ def _generate(name, arch, c_sections, h_sections, xml_files, python_file):
 
     with open(source_output, 'w') as f:
         for ss in source_sections:
-            data = "\n".join(c_section[ss] for c_section in c_sections)
+            data = "\n".join(comp.c_sections[ss] for comp in components)
             if ss == 'type_definitions':
                 data = sort_typedefs(data)
             f.write(data)
@@ -312,32 +317,26 @@ def _generate(name, arch, c_sections, h_sections, xml_files, python_file):
         f.write("#ifndef {}_H\n".format(mod_name))
         f.write("#define {}_H\n".format(mod_name))
         for ss in header_sections:
-            f.write("\n".join(h_section[ss] for h_section in h_sections) + "\n")
+            f.write("\n".join(comp.h_sections[ss] for comp in components) + "\n")
         f.write("\n#endif /* {}_H */".format(mod_name))
 
     with open(config_output, 'w') as f:
         f.write('''<?xml version="1.0" encoding="UTF-8" ?>
 ''')
-        schema = _merge_schema_files(xml_files)
+        schema = _merge_schema_files([comp.xml_file for comp in components])
         f.write(schema)
 
+    python_file = os.path.join(BASE_DIR, 'components', '{}.py'.format(rtos_name))
     shutil.copyfile(python_file, python_output)
 
 
 def build(args):
     # Generate RTOSes
     for rtos_name, arch_names in args.configurations.items():
-        generate_rtos_module(args.skeletons[rtos_name], [args.architectures[arch] for arch in arch_names])
+        generate_rtos_module(rtos_name, args.skeletons[rtos_name], arch_names)
 
 
-def generate_rtos_module(skeleton, architectures):
+def generate_rtos_module(rtos_name, components, arch_names):
     """Generate RTOS modules for several architectures from a given skeleton."""
-    for arch in architectures:
-        for component in skeleton.components:
-            component.bind(arch)
-        c_sections = [component.parse(".c", _REQUIRED_C_SECTIONS) for component in skeleton.components]
-        h_sections = [component.parse(".h", _REQUIRED_H_SECTIONS) for component in skeleton.components]
-        xml_files = [os.path.join(component._path, 'schema.xml') for component in skeleton.components]
-        python_file = os.path.join(BASE_DIR, 'components', '{}.py'.format(skeleton.name))
-
-        _generate(skeleton.name, arch, c_sections, h_sections, xml_files, python_file)
+    for arch_name in arch_names:
+        _generate(rtos_name, components, arch_name)

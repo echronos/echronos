@@ -82,7 +82,7 @@ import logging
 
 from pylib.tasks import new_review, new_task, tasks, integrate
 from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8
-from pylib.components import Component, Architecture, RtosSkeleton, build, generate_rtos_module
+from pylib.components import Component, build, generate_rtos_module
 from pylib.release import release_test, build_release, build_partials
 from pylib.prj import prj_build
 from pylib.manuals import build_manuals
@@ -111,108 +111,87 @@ class OverrideFunctor:
         return self.function(*self.args, **self.kwargs)
 
 
-CORE_ARCHITECTURES = {
-    'posix': Architecture('posix', {}),
-    'armv7m': Architecture('armv7m', {}),
-}
+CORE_ARCHITECTURES = ['posix', 'armv7m']
 
 CORE_SKELETONS = {
-    'sched-rr-test': RtosSkeleton(
-        'sched-rr-test',
-        [Component('reentrant'),
-         Component('sched-rr', {'assume_runnable': False}),
-         Component('sched-rr-test')]),
-    'sched-prio-test': RtosSkeleton(
-        'sched-prio-test',
-        [Component('reentrant'),
-         Component('sched-prio', {'assume_runnable': False}),
-         Component('sched-prio-test')]),
-    'sched-prio-inherit-test': RtosSkeleton(
-        'sched-prio-inherit-test',
-        [Component('reentrant'),
-         Component('sched-prio-inherit', {'assume_runnable': False}),
-         Component('sched-prio-inherit-test')]),
-    'simple-mutex-test': RtosSkeleton(
-        'simple-mutex-test',
-        [Component('reentrant'),
-         Component('simple-mutex'),
-         Component('simple-mutex-test')]),
-    'blocking-mutex-test': RtosSkeleton(
-        'blocking-mutex-test',
-        [Component('reentrant'),
-         Component('blocking-mutex'),
-         Component('blocking-mutex-test')]),
-    'simple-semaphore-test': RtosSkeleton(
-        'simple-semaphore-test',
-        [Component('reentrant'),
-         Component('simple-semaphore'),
-         Component('simple-semaphore-test')]),
-    'acamar': RtosSkeleton(
-        'acamar',
-        [Component('reentrant'),
-         Component('acamar'),
-         Component('stack', arch_component=True),
-         Component('context-switch', arch_component=True),
-         Component('error'),
-         Component('task'),
-         ]),
-    'gatria': RtosSkeleton(
-        'gatria',
-        [Component('reentrant'),
-         Component('stack', arch_component=True),
-         Component('context-switch', arch_component=True),
-         Component('sched-rr', {'assume_runnable': True}),
-         Component('simple-mutex'),
-         Component('error'),
-         Component('task'),
-         Component('gatria'),
-         ]),
-    'kraz': RtosSkeleton(
-        'kraz',
-        [Component('reentrant'),
-         Component('stack', arch_component=True),
-         Component('context-switch', arch_component=True),
-         Component('sched-rr', {'assume_runnable': True}),
-         Component('signal'),
-         Component('simple-mutex'),
-         Component('error'),
-         Component('task'),
-         Component('kraz'),
-         ]),
-    'acrux': RtosSkeleton(
-        'acrux',
-        [Component('reentrant'),
-         Component('stack', arch_component=True),
-         Component('context-switch', arch_component=True),
-         Component('sched-rr', {'assume_runnable': False}),
-         Component('interrupt-event', arch_component=True),
-         Component('interrupt-event', {'timer_process': False, 'task_set': False}),
-         Component('simple-mutex'),
-         Component('error'),
-         Component('task'),
-         Component('acrux'),
-         ]),
-    'rigel': RtosSkeleton(
-        'rigel',
-        [Component('reentrant'),
-         Component('stack', arch_component=True),
-         Component('context-switch', arch_component=True),
-         Component('sched-rr', {'assume_runnable': False}),
-         Component('signal'),
-         Component('timer', arch_component=True),
-         Component('timer'),
-         Component('interrupt-event', arch_component=True),
-         Component('interrupt-event', {'timer_process': True, 'task_set': True}),
-         Component('blocking-mutex'),
-         Component('profiling'),
-         Component('message-queue'),
-         Component('error'),
-         Component('task'),
-         Component('rigel'),
-         ],
-    ),
+    'sched-rr-test': [Component('reentrant'),
+                      Component('sched-rr', {'assume_runnable': False}),
+                      Component('sched-rr-test'),
+                      ],
+    'sched-prio-test': [Component('reentrant'),
+                        Component('sched-prio', {'assume_runnable': False}),
+                        Component('sched-prio-test'),
+                        ],
+    'sched-prio-inherit-test': [Component('reentrant'),
+                                Component('sched-prio-inherit', {'assume_runnable': False}),
+                                Component('sched-prio-inherit-test'),
+                                ],
+    'simple-mutex-test': [Component('reentrant'),
+                          Component('simple-mutex'),
+                          Component('simple-mutex-test'),
+                          ],
+    'blocking-mutex-test': [Component('reentrant'),
+                            Component('blocking-mutex'),
+                            Component('blocking-mutex-test'),
+                            ],
+    'simple-semaphore-test': [Component('reentrant'),
+                              Component('simple-semaphore'),
+                              Component('simple-semaphore-test'),
+                              ],
+    'acamar': [Component('reentrant'),
+               Component('acamar'),
+               Component('stack', arch_component=True),
+               Component('context-switch', arch_component=True),
+               Component('error'),
+               Component('task'),
+               ],
+    'gatria': [Component('reentrant'),
+               Component('stack', arch_component=True),
+               Component('context-switch', arch_component=True),
+               Component('sched-rr', {'assume_runnable': True}),
+               Component('simple-mutex'),
+               Component('error'),
+               Component('task'),
+               Component('gatria'),
+               ],
+    'kraz': [Component('reentrant'),
+             Component('stack', arch_component=True),
+             Component('context-switch', arch_component=True),
+             Component('sched-rr', {'assume_runnable': True}),
+             Component('signal'),
+             Component('simple-mutex'),
+             Component('error'),
+             Component('task'),
+             Component('kraz'),
+             ],
+    'acrux': [Component('reentrant'),
+              Component('stack', arch_component=True),
+              Component('context-switch', arch_component=True),
+              Component('sched-rr', {'assume_runnable': False}),
+              Component('interrupt-event', arch_component=True),
+              Component('interrupt-event', {'timer_process': False, 'task_set': False}),
+              Component('simple-mutex'),
+              Component('error'),
+              Component('task'),
+              Component('acrux'),
+              ],
+    'rigel': [Component('reentrant'),
+              Component('stack', arch_component=True),
+              Component('context-switch', arch_component=True),
+              Component('sched-rr', {'assume_runnable': False}),
+              Component('signal'),
+              Component('timer', arch_component=True),
+              Component('timer'),
+              Component('interrupt-event', arch_component=True),
+              Component('interrupt-event', {'timer_process': True, 'task_set': True}),
+              Component('blocking-mutex'),
+              Component('profiling'),
+              Component('message-queue'),
+              Component('error'),
+              Component('task'),
+              Component('rigel'),
+              ],
 }
-
 
 CORE_CONFIGURATIONS = {
     'sched-rr-test': ['posix'],
@@ -308,8 +287,9 @@ def main():
     # generate parsers and command table entries for generating RTOS variants
     for rtos_name, arch_names in configurations.items():
         SUBCOMMAND_TABLE[rtos_name + '-gen'] = OverrideFunctor(generate_rtos_module,
+                                                               rtos_name,
                                                                skeletons[rtos_name],
-                                                               [architectures[arch] for arch in arch_names])
+                                                               arch_names)
         subparsers.add_parser(rtos_name + '-gen', help="Generate {} RTOS".format(rtos_name))
 
     _parser = subparsers.add_parser('integrate', help='Integrate a completed development task/branch into the main \

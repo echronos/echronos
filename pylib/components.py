@@ -6,23 +6,25 @@ from .utils import BASE_DIR, base_path
 
 
 # FIXME: Use correct declaration vs definition.
-_REQUIRED_COMPONENT_SECTIONS = ['public_headers',
-                                'public_type_definitions',
-                                'public_structure_definitions',
-                                'public_object_like_macros',
-                                'public_function_like_macros',
-                                'public_extern_definitions',
-                                'public_function_definitions',
-                                'headers',
-                                'object_like_macros',
-                                'type_definitions',
-                                'structure_definitions',
-                                'extern_definitions',
-                                'function_definitions',
-                                'state',
-                                'function_like_macros',
-                                'functions',
-                                'public_functions']
+_REQUIRED_H_SECTIONS = ['public_headers',
+                        'public_type_definitions',
+                        'public_structure_definitions',  # FIXME: not collected!
+                        'public_object_like_macros',
+                        'public_function_like_macros',
+                        'public_extern_definitions',
+                        'public_function_definitions',
+                        ]
+
+_REQUIRED_C_SECTIONS = ['headers',
+                        'object_like_macros',
+                        'type_definitions',
+                        'structure_definitions',
+                        'extern_definitions',
+                        'function_definitions',
+                        'state',
+                        'function_like_macros',
+                        'functions',
+                        'public_functions']
 
 
 class _SchemaFormatError(RuntimeError):
@@ -139,7 +141,7 @@ def _render_data(in_data, name, config):
     return pystache.render(in_data, config, name=name)
 
 
-def _parse_sectioned_file(fn, config={}):
+def _parse_sectioned_file(fn, config, required_components):
     """Given a sectioned C-like file, returns a dictionary of { section: content }
 
     For example an input of:
@@ -170,7 +172,7 @@ def _parse_sectioned_file(fn, config={}):
     for key, value in sections.items():
         sections[key] = _render_data('\n'.join(value).rstrip(), "{}: Section {}".format(fn, key), config)
 
-    for s in _REQUIRED_COMPONENT_SECTIONS:
+    for s in required_components:
         if s not in sections:
             raise Exception("Couldn't find expected section '{}' in file: '{}'".format(s, fn))
 
@@ -261,15 +263,15 @@ class Component:
             self._resource_name = '{0}-{1}'.format(self._base_name, arch.name)
         self._path = Component.find(self._resource_name)
 
-    def parse(self):
+    def parse(self, ext, required_components):
         """Retrieve the properties of this component by parsing its corresponding source file.
 
         This function returns a dictionary containing configuration information that can be used to render an RTOS
         template.
 
         """
-        component = os.path.join(self._path, '{0}.c'.format(self._resource_name))
-        return _parse_sectioned_file(component, self._configuration)
+        component = os.path.join(self._path, '{0}{1}'.format(self._resource_name, ext))
+        return _parse_sectioned_file(component, self._configuration, required_components)
 
 
 class Architecture:
@@ -309,13 +311,13 @@ class RtosSkeleton:
         self._components = components
         self._configuration = configuration
 
-    def get_module_sections(self, arch):
+    def get_module_sections(self, arch, required_components, ext, ):
         """Retrieve the sections necessary to generate an RtosModule from this skeleton.
 
         """
         module_sections = {}
         for component in self._components:
-            for name, contents in component.parse().items():
+            for name, contents in component.parse(ext, required_components).items():
                 if name not in module_sections:
                     module_sections[name] = []
                 module_sections[name].append(contents)
@@ -329,9 +331,10 @@ class RtosSkeleton:
         """
         for component in self._components:
             component.bind(arch)
-        sections = self.get_module_sections(arch)
+        c_sections = self.get_module_sections(arch, _REQUIRED_C_SECTIONS, ext=".c")
+        h_sections = self.get_module_sections(arch, _REQUIRED_H_SECTIONS, ext=".h")
         xml_files = [os.path.join(component._path, 'schema.xml') for component in self._components]
-        return RtosModule(self.name, arch, sections, xml_files, self.python_file)
+        return RtosModule(self.name, arch, c_sections, h_sections, xml_files, self.python_file)
 
 
 class RtosModule:
@@ -341,7 +344,7 @@ class RtosModule:
     This class encapsulates the act of rendering an RTOS template given an RTOS configuration into a module on disk.
 
     """
-    def __init__(self, name, arch, sections, xml_files, python_file):
+    def __init__(self, name, arch, c_sections, h_sections, xml_files, python_file):
         """Create an RtosModule instance.
 
         'name', a string, is the name of the RTOS, i.e., the same as the underlying RtosSkeleton.
@@ -354,10 +357,12 @@ class RtosModule:
         """
         assert isinstance(name, str)
         assert isinstance(arch, Architecture)
-        assert isinstance(sections, dict)
+        assert isinstance(c_sections, dict)
+        assert isinstance(h_sections, dict)
         self._name = name
         self._arch = arch
-        self._sections = sections
+        self._c_sections = c_sections
+        self._h_sections = h_sections
         self._xml_files = xml_files
         self._python_file = python_file
 
@@ -389,11 +394,12 @@ class RtosModule:
         header_sections = ['public_headers', 'public_type_definitions',
                            'public_object_like_macros', 'public_function_like_macros',
                            'public_extern_definitions', 'public_function_definitions']
-        sections = self._sections
+        c_sections = self._c_sections
+        h_sections = self._h_sections
 
         with open(source_output, 'w') as f:
             for ss in source_sections:
-                data = '\n'.join(sections[ss])
+                data = '\n'.join(c_sections[ss])
                 if ss == 'type_definitions':
                     data = sort_typedefs(data)
                 f.write(data)
@@ -404,7 +410,7 @@ class RtosModule:
             f.write("#ifndef {}_H\n".format(mod_name))
             f.write("#define {}_H\n".format(mod_name))
             for ss in header_sections:
-                for data in sections[ss]:
+                for data in h_sections[ss]:
                     f.write(data)
                     f.write('\n')
             f.write("\n#endif /* {}_H */".format(mod_name))

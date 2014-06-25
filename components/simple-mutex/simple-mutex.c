@@ -1,31 +1,3 @@
-/*| public_headers |*/
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
-/*| public_type_definitions |*/
-{{#mutexes.length}}
-typedef uint8_t {{prefix_type}}MutexId;
-{{/mutexes.length}}
-
-/*| public_structure_definitions |*/
-
-/*| public_object_like_macros |*/
-{{#mutexes}}
-#define {{prefix_const}}MUTEX_ID_{{name|u}} (({{prefix_type}}MutexId) UINT8_C({{idx}}))
-{{/mutexes}}
-
-/*| public_function_like_macros |*/
-
-/*| public_extern_definitions |*/
-
-/*| public_function_definitions |*/
-{{#mutexes.length}}
-void {{prefix_func}}mutex_lock({{prefix_type}}MutexId) {{prefix_const}}REENTRANT;
-bool {{prefix_func}}mutex_try_lock({{prefix_type}}MutexId);
-void {{prefix_func}}mutex_unlock({{prefix_type}}MutexId);
-{{/mutexes.length}}
-
 /*| headers |*/
 {{#mutexes.length}}
 #include <stdbool.h>

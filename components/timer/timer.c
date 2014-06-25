@@ -1,15 +1,3 @@
-/*| schema |*/
-<entry name="timers" type="list" default="[]" auto_index_field="idx">
-    <entry name="timer" type="dict">
-        <entry name="name" type="ident" />
-        <entry name="enabled" type="bool" />
-        <entry name="reload" type="int" />
-        <entry name="error" type="int" default="0" />
-        <entry name="task" type="object" group="tasks" optional="true" />
-        <entry name="sig_set" type="ident" optional="true" />
-    </entry>
-</entry>
-
 /*| public_headers |*/
 #include <stdint.h>
 

@@ -1,8 +1,3 @@
-/*| schema |*/
-<entry name="api_asserts" type="bool" default="false" />
-<entry name="internal_asserts" type="bool" default="false" />
-<entry name="fatal_error" type="c_ident" optional="true" />
-
 /*| public_headers |*/
 #include <stdint.h>
 

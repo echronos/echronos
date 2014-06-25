@@ -71,9 +71,10 @@ To merge two schemas, corresponding entries both need need to either have child 
             a.append(b_child)
 
 
-def _merge_schema_sections(sections):
+def _merge_schema_files(xml_files):
     merged_schema = xml.etree.ElementTree.fromstring('<schema>\n</schema>')
 
+    sections = [open(xml_file).read().strip() for xml_file in xml_files if os.path.exists(xml_file)]
     for section in sections:
         schema = xml.etree.ElementTree.fromstring('<schema>\n{}\n</schema>'.format(section))
         _merge_schema_entries(merged_schema, schema)
@@ -250,21 +251,25 @@ class Component:
 
         'arch_component' is a boolean indicating whether this component is architecture dependent.
         """
+        self._base_name = name
         self._resource_name = name
         self._configuration = configuration
         self._arch_component = arch_component
 
-    def parse(self, arch):
+
+    def bind(self, arch):
+        if self._arch_component:
+            self._resource_name = '{0}-{1}'.format(self._base_name, arch.name)
+        self._path = Component.find(self._resource_name)
+
+    def parse(self):
         """Retrieve the properties of this component by parsing its corresponding source file.
 
         This function returns a dictionary containing configuration information that can be used to render an RTOS
         template.
 
         """
-        if self._arch_component:
-            component = Component.find('{0}-{1}/{0}-{1}.c'.format(self._resource_name, arch.name))
-        else:
-            component = Component.find('{0}/{0}.c'.format(self._resource_name))
+        component = os.path.join(self._path, '{0}.c'.format(self._resource_name))
         return _parse_sectioned_file(component, self._configuration)
 
 
@@ -311,7 +316,7 @@ class RtosSkeleton:
         """
         module_sections = {}
         for component in self._components:
-            for name, contents in component.parse(arch).items():
+            for name, contents in component.parse().items():
                 if name not in module_sections:
                     module_sections[name] = []
                 module_sections[name].append(contents)
@@ -323,7 +328,11 @@ class RtosSkeleton:
         This is only a convenience function.
 
         """
-        return RtosModule(self.name, arch, self.get_module_sections(arch), self.python_file)
+        for component in self._components:
+            component.bind(arch)
+        sections = self.get_module_sections(arch)
+        xml_files = [os.path.join(component._path, 'schema.xml') for component in self._components]
+        return RtosModule(self.name, arch, sections, xml_files, self.python_file)
 
 
 class RtosModule:
@@ -333,7 +342,7 @@ class RtosModule:
     This class encapsulates the act of rendering an RTOS template given an RTOS configuration into a module on disk.
 
     """
-    def __init__(self, name, arch, sections, python_file):
+    def __init__(self, name, arch, sections, xml_files, python_file):
         """Create an RtosModule instance.
 
         'name', a string, is the name of the RTOS, i.e., the same as the underlying RtosSkeleton.
@@ -350,6 +359,7 @@ class RtosModule:
         self._name = name
         self._arch = arch
         self._sections = sections
+        self._xml_files = xml_files
         self._python_file = python_file
 
     @property
@@ -403,7 +413,7 @@ class RtosModule:
         with open(config_output, 'w') as f:
             f.write('''<?xml version="1.0" encoding="UTF-8" ?>
 ''')
-            schema = _merge_schema_sections(sections.get('schema', []))
+            schema = _merge_schema_files(self._xml_files)
             f.write(schema)
 
         shutil.copyfile(self._python_file, python_output)

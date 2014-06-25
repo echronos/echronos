@@ -1,17 +1,3 @@
-/*| schema |*/
-<entry name="message_queues" type="list" default="[]" auto_index_field="idx">
-    <entry name="message_queue" type="dict">
-        <entry name="name" type="ident" />
-        <entry name="message_size" type="int" optional="true" />
-        <entry name="message_type" type="string" optional="true" />
-        <constraint name="constraint0" type="one_of">
-            <entry name="message_size">message_size</entry>
-            <entry name="message_type">message_type</entry>
-        </constraint>
-        <entry name="queue_length" type="int" />
-    </entry>
-</entry>
-
 /*| public_headers |*/
 #include <stdbool.h>
 #include <stdint.h>

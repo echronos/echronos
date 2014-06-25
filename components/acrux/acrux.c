@@ -1,6 +1,3 @@
-/*| schema |*/
-<entry name="prefix" type="ident" optional="true" />
-
 /*| public_headers |*/
 
 /*| public_type_definitions |*/

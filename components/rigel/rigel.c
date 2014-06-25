@@ -1,31 +1,3 @@
-/*| schema |*/
-<entry name="prefix" type="ident" optional="true" />
-<entry name="api_asserts" type="bool" default="true" />
-<entry name="fatal_error" type="c_ident" optional="false" />
-<entry name="tasks" type="list" auto_index_field="idx">
-    <entry name="task" type="dict">
-        <entry name="start" type="bool" default="false" />
-    </entry>
-</entry>
-<entry name="signal_labels" type="list" default="[]">
-    <entry name="signal_label" type="dict">
-        <entry name="global" type="bool" optional="true" />
-        <entry name="tasks" type="list" optional="true">
-            <entry name="task" type="object" group="tasks" />
-        </entry>
-        <constraint name="constraint0" type="one_of">
-            <entry name="global">global</entry>
-            <entry name="tasks">tasks</entry>
-        </constraint>
-    </entry>
-</entry>
-<entry name="interrupt_events" type="list" default="[]" auto_index_field="idx">
-    <entry name="interrupt_event" type="dict">
-        <entry name="task" type="object" group="tasks" />
-        <entry name="sig_set" type="ident" />
-    </entry>
-</entry>
-
 /*| public_headers |*/
 
 /*| public_type_definitions |*/

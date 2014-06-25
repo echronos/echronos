@@ -1,8 +1,3 @@
-/*| schema |*/
-<entry name="profiling" type="dict" optional="true">
-    <entry name="task_uptime" type="bool" optional="true" default="true" />
-</entry>
-
 /*| public_headers |*/
 
 /*| public_type_definitions |*/

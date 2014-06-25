@@ -1,6 +1,3 @@
-/*| schema |*/
-<entry name="reentrant" type="string" optional="true" default="" />
-
 /*| public_headers |*/
 
 /*| public_type_definitions |*/

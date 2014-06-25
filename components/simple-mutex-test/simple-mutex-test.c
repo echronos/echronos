@@ -1,11 +1,3 @@
-/*| schema |*/
-<entry name="prefix" type="ident" optional="true" />
-<entry name="tasks" type="list" default="[]" auto_index_field="idx">
-    <entry name="task" type="dict">
-        <entry name="name" type="ident" />
-    </entry>
-</entry>
-
 /*| public_headers |*/
 
 /*| public_type_definitions |*/

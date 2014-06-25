@@ -1,11 +1,3 @@
-/*| schema |*/
-<entry name="signalset_size" type="int" default="8"/>
-<entry name="signal_labels" type="list" default="[]" auto_index_field="idx">
-    <entry name="signal_label" type="dict">
-        <entry name="name" type="ident" />
-    </entry>
-</entry>
-
 /*| public_headers |*/
 #include <stdbool.h>
 #include <stdint.h>

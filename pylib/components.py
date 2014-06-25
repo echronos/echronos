@@ -210,7 +210,7 @@ def get_search_paths():
     return search_paths
 
 
-BoundComponent = namedtuple("BoundComponent", ['name', 'path', 'config'])
+BoundComponent = namedtuple("BoundComponent", ['path', 'config'])
 
 
 class Component:
@@ -244,17 +244,6 @@ class Component:
         self._configuration = configuration
         self._arch_component = arch_component
 
-def _parse(ext, required_sections, path, resource_name, configuration):
-    """Retrieve the properties of this component by parsing its corresponding source file.
-
-    This function returns a dictionary containing configuration information that can be used to render an RTOS
-    template.
-
-    """
-    filename = os.path.join(path, '{0}{1}'.format(resource_name, ext))
-    return _parse_sectioned_file(filename, configuration, required_sections)
-
-
 def _generate(rtos_name, components, arch_name, search_paths):
     """Generate the RTOS module to disk, so it is available as a compile and link unit to projects."""
 
@@ -273,7 +262,7 @@ def _generate(rtos_name, components, arch_name, search_paths):
                 break
         else:
             raise KeyError('Unable to find component "{}"'.format(resource_name))
-        bound_components.append(BoundComponent(resource_name, path, component._configuration))
+        bound_components.append(BoundComponent(path, component._configuration))
 
     # Create module name and output directory
     module_name = 'rtos-' + rtos_name
@@ -281,7 +270,7 @@ def _generate(rtos_name, components, arch_name, search_paths):
     os.makedirs(module_dir, exist_ok=True)
 
     # Generate .c file
-    all_c_sections = [_parse(".c", _REQUIRED_C_SECTIONS, bc.path, bc.name, bc.config) for bc in bound_components]
+    all_c_sections = [_parse_sectioned_file(os.path.join(bc.path, "implementation.c"), bc.config, _REQUIRED_C_SECTIONS) for bc in bound_components]
     source_output = os.path.join(module_dir, module_name + '.c')
     source_sections = ['headers', 'object_like_macros',
                        'type_definitions', 'structure_definitions',
@@ -297,7 +286,7 @@ def _generate(rtos_name, components, arch_name, search_paths):
             f.write('\n')
 
     # Generate .h file
-    all_h_sections = [_parse(".h", _REQUIRED_H_SECTIONS, bc.path, bc.name, bc.config) for bc in bound_components]
+    all_h_sections = [_parse_sectioned_file(os.path.join(bc.path, "header.h"), bc.config, _REQUIRED_H_SECTIONS) for bc in bound_components]
     header_output = os.path.join(module_dir, module_name + '.h')
     header_sections = ['public_headers', 'public_type_definitions',
                        'public_object_like_macros', 'public_function_like_macros',

@@ -276,16 +276,7 @@ class Component:
         else:
             configuration = self._configuration
 
-        component = None
-        for name in [f.format(self._resource_name) for f in ['{0}.c', '{0}/{0}.c']]:
-            try:
-                component = Component.find(name)
-                break
-            except KeyError:
-                pass
-        if component is None:
-            raise KeyError('Unable to find component "{}"'.format(self._resource_name))
-
+        component = Component.find('{0}/{0}.c'.format(self._resource_name))
         return _parse_sectioned_file(component, configuration)
 
 
@@ -306,16 +297,7 @@ class ArchitectureComponent(Component):
         """
         assert isinstance(arch, Architecture)
 
-        component = None
-        for name in [f.format(arch.name, self._resource_name) for f in ['{0}-{1}/{0}-{1}.c', '{1}-{0}.c']]:
-            try:
-                component = Component.find(name)
-                break
-            except KeyError:
-                pass
-        if component is None:
-            raise KeyError('Unable to find component "{}" for architecture {}'.format(self._resource_name, arch.name))
-
+        component = Component.find('{0}-{1}/{0}-{1}.c'.format(self._resource_name, arch.name))
         return _parse_sectioned_file(component, self._configuration)
 
 

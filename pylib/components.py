@@ -142,7 +142,7 @@ def _render_data(in_data, name, config):
     return pystache.render(in_data, config, name=name)
 
 
-def _parse_sectioned_file(fn, config, required_components):
+def _parse_sectioned_file(fn, config, required_sections):
     """Given a sectioned C-like file, returns a dictionary of { section: content }
 
     For example an input of:
@@ -173,11 +173,44 @@ def _parse_sectioned_file(fn, config, required_components):
     for key, value in sections.items():
         sections[key] = _render_data('\n'.join(value).rstrip(), "{}: Section {}".format(fn, key), config)
 
-    for s in required_components:
+    for s in required_sections:
         if s not in sections:
             raise Exception("Couldn't find expected section '{}' in file: '{}'".format(s, fn))
 
     return sections
+
+
+def get_search_paths():
+    """Find and return the directories that, by convention, are expected to contain component modules.
+
+    As search directories qualify all directories called 'components' in the BASE_DIR or its parent directories.
+    The search for such directories upwards in the directory tree from BASE_DIR stops at the first parent
+    directory not containing a 'components' directory.
+
+    """
+    search_paths = []
+
+    current_dir = BASE_DIR
+    while True:
+        components_dir = os.path.join(current_dir, 'components')
+        if os.path.isdir(components_dir):
+            search_paths.append(components_dir)
+            next_dir = os.path.dirname(current_dir)
+            if next_dir != current_dir:
+                current_dir = next_dir
+            else:
+                break
+        else:
+            break
+
+    # reverse the search paths so that they are sorted by increasing depth in the directory tree
+    # this is expected to lead to components in client repositories to override those in the core repository
+    search_paths.reverse()
+
+    return search_paths
+
+
+BoundComponent = namedtuple("BoundComponent", ['name', 'path', 'config'])
 
 
 class Component:
@@ -189,53 +222,6 @@ class Component:
     used when generating an RtosModule.
 
     """
-    _search_paths = None
-
-    @staticmethod
-    def _get_search_paths():
-        search_paths = []
-
-        current_dir = BASE_DIR
-        while True:
-            components_dir = os.path.join(current_dir, 'components')
-            if os.path.isdir(components_dir):
-                search_paths.append(components_dir)
-                next_dir = os.path.dirname(current_dir)
-                if next_dir != current_dir:
-                    current_dir = next_dir
-                else:
-                    break
-            else:
-                break
-
-        # reverse the search paths so that they are sorted by increasing depth in the directory tree
-        # this is expected to lead to components in client repositories to override those in the core repository
-        search_paths.reverse()
-
-        return search_paths
-
-    @staticmethod
-    def get_search_paths():
-        """Find and return the directories that, by convention, are expected to contain component modules.
-
-        As search directories qualify all directories called 'components' in the BASE_DIR or its parent directories.
-        The search for such directories upwards in the directory tree from BASE_DIR stops at the first parent
-        directory not containing a 'components' directory.
-
-        """
-        if Component._search_paths is None:
-            Component._search_paths = Component._get_search_paths()
-        return Component._search_paths
-
-    @staticmethod
-    def _find(partial_path):
-        """Find the component partial_path in the core repository or client repositories further up in the directory
-        tree."""
-        for search_path in Component.get_search_paths():
-            component_path = os.path.join(search_path, partial_path)
-            if os.path.exists(component_path):
-                return component_path
-        raise KeyError('Unable to find component "{}"'.format(partial_path))
 
     def __init__(self, name, configuration={}, arch_component=False):
         """Create a component object.
@@ -255,77 +241,85 @@ class Component:
         'arch_component' is a boolean indicating whether this component is architecture dependent.
         """
         self._base_name = name
-        self._resource_name = name
         self._configuration = configuration
         self._arch_component = arch_component
 
-    def bind(self, arch_name):
-        if self._arch_component:
-            self._resource_name = '{0}-{1}'.format(self._base_name, arch_name)
-        self._path = Component._find(self._resource_name)
+def _parse(ext, required_sections, path, resource_name, configuration):
+    """Retrieve the properties of this component by parsing its corresponding source file.
 
-        self.c_sections = self._parse(".c", _REQUIRED_C_SECTIONS, self._path)
-        self.h_sections = self._parse(".h", _REQUIRED_H_SECTIONS, self._path)
-        self.xml_file = os.path.join(self._path, 'schema.xml')
+    This function returns a dictionary containing configuration information that can be used to render an RTOS
+    template.
 
-    def _parse(self, ext, required_components, path):
-        """Retrieve the properties of this component by parsing its corresponding source file.
-
-        This function returns a dictionary containing configuration information that can be used to render an RTOS
-        template.
-
-        """
-        component = os.path.join(path, '{0}{1}'.format(self._resource_name, ext))
-        return _parse_sectioned_file(component, self._configuration, required_components)
+    """
+    filename = os.path.join(path, '{0}{1}'.format(resource_name, ext))
+    return _parse_sectioned_file(filename, configuration, required_sections)
 
 
-def _generate(rtos_name, components, arch_name):
+def _generate(rtos_name, components, arch_name, search_paths):
     """Generate the RTOS module to disk, so it is available as a compile and link unit to projects."""
 
-    # Set up the data structures for all the components
+    # Locate all component directories
+    # [Component] -> [BoundComponent]
+    bound_components = []
     for component in components:
-        component.bind(arch_name)
+        if component._arch_component:
+            resource_name = '{0}-{1}'.format(component._base_name, arch_name)
+        else:
+            resource_name = component._base_name
 
+        for search_path in search_paths:
+            path = os.path.join(search_path, resource_name)
+            if os.path.exists(path):
+                break
+        else:
+            raise KeyError('Unable to find component "{}"'.format(resource_name))
+        bound_components.append(BoundComponent(resource_name, path, component._configuration))
+
+    # Create module name and output directory
     module_name = 'rtos-' + rtos_name
     module_dir = base_path('packages', arch_name, module_name)
-
     os.makedirs(module_dir, exist_ok=True)
-    python_output = os.path.join(module_dir, 'entity.py')
-    source_output = os.path.join(module_dir, module_name + '.c')
-    header_output = os.path.join(module_dir, module_name + '.h')
-    config_output = os.path.join(module_dir, 'schema.xml')
 
+    # Generate .c file
+    all_c_sections = [_parse(".c", _REQUIRED_C_SECTIONS, bc.path, bc.name, bc.config) for bc in bound_components]
+    source_output = os.path.join(module_dir, module_name + '.c')
     source_sections = ['headers', 'object_like_macros',
                        'type_definitions', 'structure_definitions',
                        'extern_definitions', 'function_definitions',
                        'state', 'function_like_macros',
                        'functions', 'public_functions']
-    header_sections = ['public_headers', 'public_type_definitions',
-                       'public_object_like_macros', 'public_function_like_macros',
-                       'public_extern_definitions', 'public_function_definitions']
-
     with open(source_output, 'w') as f:
         for ss in source_sections:
-            data = "\n".join(comp.c_sections[ss] for comp in components)
+            data = "\n".join(c_sections[ss] for c_sections in all_c_sections)
             if ss == 'type_definitions':
                 data = sort_typedefs(data)
             f.write(data)
             f.write('\n')
 
+    # Generate .h file
+    all_h_sections = [_parse(".h", _REQUIRED_H_SECTIONS, bc.path, bc.name, bc.config) for bc in bound_components]
+    header_output = os.path.join(module_dir, module_name + '.h')
+    header_sections = ['public_headers', 'public_type_definitions',
+                       'public_object_like_macros', 'public_function_like_macros',
+                       'public_extern_definitions', 'public_function_definitions']
     with open(header_output, 'w') as f:
         mod_name = module_name.upper().replace('-', '_')
         f.write("#ifndef {}_H\n".format(mod_name))
         f.write("#define {}_H\n".format(mod_name))
         for ss in header_sections:
-            f.write("\n".join(comp.h_sections[ss] for comp in components) + "\n")
+            f.write("\n".join(h_sections[ss] for h_sections in all_h_sections) + "\n")
         f.write("\n#endif /* {}_H */".format(mod_name))
 
+    # Generate .xml file
+    config_output = os.path.join(module_dir, 'schema.xml')
     with open(config_output, 'w') as f:
-        f.write('''<?xml version="1.0" encoding="UTF-8" ?>
-''')
-        schema = _merge_schema_files([comp.xml_file for comp in components])
+        f.write('<?xml version="1.0" encoding="UTF-8" ?>\n')
+        xml_files = [os.path.join(bc.path, "schema.xml") for bc in bound_components]
+        schema = _merge_schema_files(xml_files)
         f.write(schema)
 
+    # Generate .py file
+    python_output = os.path.join(module_dir, 'entity.py')
     python_file = os.path.join(BASE_DIR, 'components', '{}.py'.format(rtos_name))
     shutil.copyfile(python_file, python_output)
 
@@ -338,5 +332,6 @@ def build(args):
 
 def generate_rtos_module(rtos_name, components, arch_names):
     """Generate RTOS modules for several architectures from a given skeleton."""
+    search_paths = get_search_paths()
     for arch_name in arch_names:
-        _generate(rtos_name, components, arch_name)
+        _generate(rtos_name, components, arch_name, search_paths)

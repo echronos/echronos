@@ -256,7 +256,6 @@ class Component:
         self._configuration = configuration
         self._arch_component = arch_component
 
-
     def bind(self, arch):
         if self._arch_component:
             self._resource_name = '{0}-{1}'.format(self._base_name, arch.name)

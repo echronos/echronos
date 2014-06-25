@@ -159,7 +159,7 @@ CORE_SKELETONS = {
     'gatria': RtosSkeleton(
         'gatria',
         [Component('reentrant'),
-         Component('stack',arch_component=True),
+         Component('stack', arch_component=True),
          Component('context-switch', arch_component=True),
          Component('sched-rr', {'assume_runnable': True}),
          Component('simple-mutex'),

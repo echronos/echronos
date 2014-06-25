@@ -5,7 +5,7 @@ import os
 import random
 import sys
 
-from x import get_executable_extension
+from pylib.utils import get_executable_extension
 
 
 class testSimple:

@@ -1,5 +1,6 @@
 import os
 import shutil
+from collections import namedtuple
 import pystache
 import xml.etree.ElementTree
 from .utils import BASE_DIR, base_path
@@ -274,138 +275,53 @@ class Component:
         return _parse_sectioned_file(component, self._configuration, required_components)
 
 
-class Architecture:
-    """Represents the properties of a target architecture for which an RtosModule can be generated."""
-    def __init__(self, name, configuration):
-        assert isinstance(name, str)
-        assert isinstance(configuration, dict)
-        self.name = name
-        self.configuration = configuration
+Architecture = namedtuple('Architecture', ['name', 'configuration'])
+RtosSkeleton = namedtuple('RtosSkeleton', ['name', 'components'])
 
 
-class RtosSkeleton:
-    """Represents an RTOS variant as defined by a set of components / functionalities.
+def _generate(name, arch, c_sections, h_sections, xml_files, python_file):
+    """Generate the RTOS module to disk, so it is available as a compile and link unit to projects."""
+    module_name = 'rtos-' + name
+    module_dir = base_path('packages', arch.name, module_name)
 
-    For example, the specific RTOS variant gatria consists exactly of a context-switch and a scheduler component.
+    os.makedirs(module_dir, exist_ok=True)
+    python_output = os.path.join(module_dir, 'entity.py')
+    source_output = os.path.join(module_dir, module_name + '.c')
+    header_output = os.path.join(module_dir, module_name + '.h')
+    config_output = os.path.join(module_dir, 'schema.xml')
 
-    This class encapsulates the act of deriving an RtosModule for a specific configuration and target architecture.
+    source_sections = ['headers', 'object_like_macros',
+                       'type_definitions', 'structure_definitions',
+                       'extern_definitions', 'function_definitions',
+                       'state', 'function_like_macros',
+                       'functions', 'public_functions']
+    header_sections = ['public_headers', 'public_type_definitions',
+                       'public_object_like_macros', 'public_function_like_macros',
+                       'public_extern_definitions', 'public_function_definitions']
 
-    """
-    def __init__(self, name, components, configuration={}):
-        """Create an RTOS skeleton based on its core properties.
+    with open(source_output, 'w') as f:
+        for ss in source_sections:
+            data = "\n".join(c_section[ss] for c_section in c_sections)
+            if ss == 'type_definitions':
+                data = sort_typedefs(data)
+            f.write(data)
+            f.write('\n')
 
-        'name', a string, is the unique name of the RTOS skeleton.
+    with open(header_output, 'w') as f:
+        mod_name = module_name.upper().replace('-', '_')
+        f.write("#ifndef {}_H\n".format(mod_name))
+        f.write("#define {}_H\n".format(mod_name))
+        for ss in header_sections:
+            f.write("\n".join(h_section[ss] for h_section in h_sections) + "\n")
+        f.write("\n#endif /* {}_H */".format(mod_name))
 
-        'components', a sequence of Component instances, is the set of components that define this RTOS variant.
-
-        'configuration', a dictionary, contains configuration information specific to this RTOS variant.
-        It is used when generating an RtosModule from this skeleton.
-
-        """
-        assert isinstance(name, str)
-        assert isinstance(components, list)
-        assert isinstance(configuration, dict)
-        self.name = name
-        self.python_file = os.path.join(BASE_DIR, 'components', '{}.py'.format(self.name))
-
-        self._components = components
-        self._configuration = configuration
-
-    def create_configured_module(self, arch):
-        """Retrieve module configuration information and create a corresponding RtosModule instance.
-
-        This is only a convenience function.
-
-        """
-        for component in self._components:
-            component.bind(arch)
-        c_sections = [component.parse(".c", _REQUIRED_C_SECTIONS) for component in self._components]
-        h_sections = [component.parse(".h", _REQUIRED_H_SECTIONS) for component in self._components]
-        xml_files = [os.path.join(component._path, 'schema.xml') for component in self._components]
-        return RtosModule(self.name, arch, c_sections, h_sections, xml_files, self.python_file)
-
-
-class RtosModule:
-    """Represents an instance of an RtosSkeleton (or RTOS variant) with a specific configuration, in particular for a
-    specific target architecture.
-
-    This class encapsulates the act of rendering an RTOS template given an RTOS configuration into a module on disk.
-
-    """
-    def __init__(self, name, arch, c_sections, h_sections, xml_files, python_file):
-        """Create an RtosModule instance.
-
-        'name', a string, is the name of the RTOS, i.e., the same as the underlying RtosSkeleton.
-
-        'arch', an instance of Architecture, is the architecture this module is targetted for.
-
-        'sections', a dictionary, containing all the merged sections from the RTOS components.
-        It is typically obtained via RtosSkeleton.get_module_configuration().
-
-        """
-        assert isinstance(name, str)
-        assert isinstance(arch, Architecture)
-        self._name = name
-        self._arch = arch
-        self._c_sections = c_sections
-        self._h_sections = h_sections
-        self._xml_files = xml_files
-        self._python_file = python_file
-
-    @property
-    def _module_name(self):
-        return 'rtos-' + self._name
-
-    @property
-    def _module_dir(self):
-        module_dir = base_path('packages', self._arch.name, self._module_name)
-        os.makedirs(module_dir, exist_ok=True)
-        return module_dir
-
-    def generate(self):
-        """Generate the RTOS module to disk, so it is available as a compile and link unit to projects."""
-        self._render()
-
-    def _render(self):
-        python_output = os.path.join(self._module_dir, 'entity.py')
-        source_output = os.path.join(self._module_dir, self._module_name + '.c')
-        header_output = os.path.join(self._module_dir, self._module_name + '.h')
-        config_output = os.path.join(self._module_dir, 'schema.xml')
-
-        source_sections = ['headers', 'object_like_macros',
-                           'type_definitions', 'structure_definitions',
-                           'extern_definitions', 'function_definitions',
-                           'state', 'function_like_macros',
-                           'functions', 'public_functions']
-        header_sections = ['public_headers', 'public_type_definitions',
-                           'public_object_like_macros', 'public_function_like_macros',
-                           'public_extern_definitions', 'public_function_definitions']
-        c_sections = self._c_sections
-        h_sections = self._h_sections
-
-        with open(source_output, 'w') as f:
-            for ss in source_sections:
-                data = "\n".join(c_section[ss] for c_section in c_sections)
-                if ss == 'type_definitions':
-                    data = sort_typedefs(data)
-                f.write(data)
-                f.write('\n')
-
-        with open(header_output, 'w') as f:
-            mod_name = self._module_name.upper().replace('-', '_')
-            f.write("#ifndef {}_H\n".format(mod_name))
-            f.write("#define {}_H\n".format(mod_name))
-            for ss in header_sections:
-                f.write("\n".join(h_section[ss] for h_section in h_sections) + "\n")
-            f.write("\n#endif /* {}_H */".format(mod_name))
-
-        with open(config_output, 'w') as f:
-            f.write('''<?xml version="1.0" encoding="UTF-8" ?>
+    with open(config_output, 'w') as f:
+        f.write('''<?xml version="1.0" encoding="UTF-8" ?>
 ''')
-            schema = _merge_schema_files(self._xml_files)
-            f.write(schema)
+        schema = _merge_schema_files(xml_files)
+        f.write(schema)
 
-        shutil.copyfile(self._python_file, python_output)
+    shutil.copyfile(python_file, python_output)
 
 
 def build(args):
@@ -417,5 +333,11 @@ def build(args):
 def generate_rtos_module(skeleton, architectures):
     """Generate RTOS modules for several architectures from a given skeleton."""
     for arch in architectures:
-        rtos_module = skeleton.create_configured_module(arch)
-        rtos_module.generate()
+        for component in skeleton.components:
+            component.bind(arch)
+        c_sections = [component.parse(".c", _REQUIRED_C_SECTIONS) for component in skeleton.components]
+        h_sections = [component.parse(".h", _REQUIRED_H_SECTIONS) for component in skeleton.components]
+        xml_files = [os.path.join(component._path, 'schema.xml') for component in skeleton.components]
+        python_file = os.path.join(BASE_DIR, 'components', '{}.py'.format(skeleton.name))
+
+        _generate(skeleton.name, arch, c_sections, h_sections, xml_files, python_file)

@@ -233,71 +233,38 @@ class Component:
                 return component_path
         raise KeyError('Unable to find component "{}"'.format(partial_path))
 
-    def __init__(self, name, resource_name=None, configuration={}):
+    def __init__(self, name, configuration={}, arch_component=False):
         """Create a component object.
 
         Such objects encapsulate the act of parsing a corresponding source file.
         The parsed data is converted into configuration information used when generating an RtosModule by rendering an
         RTOS template file.
 
-        'name' is the component name used in the RTOS template file.
-        For example, the properties of the interrupt event component are referred to as 'interrupt_event.xyz' in the
-        RTOS template files.
-
-        'resource_name' is the base name of the source file of this component that is parsed to obtain this
+        'name' is the base name of the source file of this component that is parsed to obtain this
         component's properties.
         For example, the base name of the interrupt event component is 'interrupt-event', which expands to the on-disk
-        file name of interrupt-event.c.
+        file name of components/interrupt-event/interrupt-event.c.
 
         'configuration' is a dictionary with configuration information.
         It is passed to the '_parse_sectioned_file()' function used to parse this component's source file.
 
+        'arch_component' is a boolean indicating whether this component is architecture dependent.
         """
-        self.name = name
-        if resource_name is not None:
-            self._resource_name = resource_name
-        else:
-            self._resource_name = name
+        self._resource_name = name
         self._configuration = configuration
+        self._arch_component = arch_component
 
-    def parse(self, parsing_configuration={}):
+    def parse(self, arch):
         """Retrieve the properties of this component by parsing its corresponding source file.
-
-        'parsing_configuration' is an optional dictionary that is merged with the component's base configuration and
-        passed to the parsing function.
 
         This function returns a dictionary containing configuration information that can be used to render an RTOS
         template.
 
         """
-        if isinstance(parsing_configuration, dict):
-            configuration = self._configuration.copy()
-            configuration.update(parsing_configuration)
+        if self._arch_component:
+            component = Component.find('{0}-{1}/{0}-{1}.c'.format(self._resource_name, arch.name))
         else:
-            configuration = self._configuration
-
-        component = Component.find('{0}/{0}.c'.format(self._resource_name))
-        return _parse_sectioned_file(component, configuration)
-
-
-class ArchitectureComponent(Component):
-    """This refinement of the Component class represents an architecture-specific component.
-
-    This class encapsulates the act of finding the architecture-specific source file corresponding to this component.
-    This is opposed to the base Component class which is unaware of architecture-specific file naming conventions.
-
-    """
-    def parse(self, arch):
-        """Retrieve the properties of this component by parsing its architecture-specific source file.
-
-        'arch', an instance of Architecture, identifies the architecture of the source file to parse.
-
-        Otherwise, this function behaves as Component.parse().
-
-        """
-        assert isinstance(arch, Architecture)
-
-        component = Component.find('{0}-{1}/{0}-{1}.c'.format(self._resource_name, arch.name))
+            component = Component.find('{0}/{0}.c'.format(self._resource_name))
         return _parse_sectioned_file(component, self._configuration)
 
 

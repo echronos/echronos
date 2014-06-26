@@ -145,7 +145,8 @@ context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack
 
     /**
      * Immediately below the dummy stack frame header, create a full-size stack frame containing register values for
-     * the initial context. LR and back chain words in this frame are ignored by ppc_context_switch (ctxt-switch.s)
+     * the initial context.
+     * LR and back chain words in this frame are ignored by ppc_context_switch (ctxt-switch.s)
      */
     context = init_context - CONTEXT_FRAME_SIZE;
     *ctx = context;

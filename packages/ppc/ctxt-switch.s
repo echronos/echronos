@@ -1,6 +1,9 @@
 .section .text
 
-/* Based on function prologue/epilogue example given in PowerPC EABI specification. See ppc-context-switch.c */
+/*
+ * Based on function prologue/epilogue example given in PowerPC EABI specification.
+ * See ppc-context-switch.c
+ */
 
 .global ppc_context_switch
 .type ppc_context_switch,STT_FUNC

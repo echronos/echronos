@@ -15,3 +15,5 @@ Ensure that all source code comments observe the project style guide lines by
 - keeping lines at most 120 characters long
 - having as few line breaks in a sentence as possible while observing the maximum line length
 This affects, e.g., components/ppc-context-switch/ppc-context-switch.c:148 and components/stack-ppc.c
+
+[rsison: Fixed]

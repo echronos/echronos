@@ -20,6 +20,10 @@
 /**
  * This implementation follows the conventions of the PowerPC EABI specification, obtained from:
  *
+ * http://www.freescale.com/files/32bit/doc/app_note/PPCEABI.pdf
+ *
+ * The PowerPC EABI is also documented in detail in the following application note:
+ *
  * https://www-01.ibm.com/chips/techlib/techlib.nsf/techdocs/852569B20050FF77852569970071B0D6/
  *
  * PowerPC EABI register usage:
@@ -40,19 +44,25 @@
  *  (Other CR fields)   Volatile
  *  (Other registers)   Volatile
  *
- * On context switch, non-volatile registers are pushed onto the stack following the EABI stack frame convention.
+ * R0-R31 are the general-purpose registers (GPRs) and F0-F31 are the floating-point registers (FPRs).
+ * CRn refers to the n'th of the eight 4-bit fields of the 32-bit condition register (CR).
+ *
+ * On context switch, we push non-volatile registers onto the stack following the EABI stack frame conventions:
+ * The stack grows downwards, from high to low addresses, and is padded to ensure each stack frame is 8-byte aligned.
+ * The creation of a stack frame takes place in the prologue of a function being called, and is optional in the sense
+ * that leaf functions (that do not call any other functions) may opt not to do this.
  *
  * PowerPC EABI stack frame:
  *     +------------------------------------------------------------+ Highest address
- *     | FPR save area (optional, not implemented)                  |
+ *     | FPR save area (optional)                                   |
  *     +------------------------------------------------------------+
- *     | GPR save area (optional, implemented here)                 |
+ *     | GPR save area (optional)                                   |
  *     +------------------------------------------------------------+
- *     | CR save word (optional, not implemented)                   |
+ *     | CR save word (optional)                                    |
  *     +------------------------------------------------------------+
- *     | Local variables area (optional, not implemented)           |
+ *     | Local variables area (optional)                            |
  *     +------------------------------------------------------------+
- *     | Function parameters area (optional, not implemented)       |
+ *     | Function parameters area (optional)                        |
  *     +------------------------------------------------------------+
  *     | Padding to adjust size to multiple of 8 bytes (1-7 bytes)  |
  *     +------------------------------------------------------------+
@@ -61,8 +71,12 @@
  *     | Back Chain Word                                            |
  *     +------------------------------------------------------------+ Lowest address
  *
- * The bottom two words (LR Save and Back Chain) comprise the stack frame's header.
+ * The bottom two words (LR Save & Back Chain) comprise the stack frame's header, and are the only compulsory fields.
+ * The LR is the link register, used to track function return addresses.
+ * The EABI states that the LR is to be saved in the LR save word of calling function's stack frame, not in the stack
+ * frame of the currently executing function.
  * The back chain word points to the previous stack frame's back chain word field, forming a linked list.
+ * The first (uppermost) stack frame shall have a back chain of 0 (NULL).
  */
 #define CONTEXT_BC_IDX 0
 #define CONTEXT_LR_IDX 1
@@ -137,7 +151,7 @@ context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack
     init_context = stack_base + stack_size - CONTEXT_HEADER_SIZE;
     /**
      * Set up an initial stack frame header containing just the back chain word and the LR save word.
-     * The EABI specification doesn't specify how to terminate the back chain - here we NULL-terminate it.
+     * The EABI specification requires that the back chain be NULL-terminated.
      * We set the LR save word to the task entry point.
      */
     init_context[CONTEXT_BC_IDX] = 0;
@@ -146,9 +160,11 @@ context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack
     /**
      * Immediately below the dummy stack frame header, create a full-size stack frame containing register values for
      * the initial context.
-     * LR and back chain words in this frame are ignored by ppc_context_switch (ctxt-switch.s)
+     * The EABI spec requires that the back chain word always points to the previous frame's back chain word field.
+     * LR save and back chain words in this frame are ignored by ppc_context_switch (ctxt-switch.s)
      */
     context = init_context - CONTEXT_FRAME_SIZE;
+    context[CONTEXT_BC_IDX] = (uint32_t) &init_context[CONTEXT_BC_IDX];
     *ctx = context;
 }
 

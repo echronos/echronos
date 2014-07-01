@@ -4,6 +4,7 @@ logger = logging.getLogger()
 
 
 class EntryModule(Module):
+    # Default values are arbitrary.
     xml_schema = """
 <schema>
     <entry name="code_addr" type="int" default="0" />

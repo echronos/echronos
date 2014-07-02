@@ -85,7 +85,7 @@ def _merge_schema_files(xml_files):
     return xml.etree.ElementTree.tostring(merged_schema).decode()
 
 
-def sort_typedefs(typedef_lines):
+def _sort_typedefs(typedef_lines):
     """Given a string containing multiple lines of typedefs, sort the lines so that the typedefs are in the 'correct'
     order.
 
@@ -180,51 +180,25 @@ def _parse_sectioned_file(fn, config, required_sections):
     return sections
 
 
-def _get_search_paths():
-    """Find and return the directories that, by convention, are expected to contain component modules.
-
-    As search directories qualify all directories called 'components' in the BASE_DIR or its parent directories.
-    The search for such directories upwards in the directory tree from BASE_DIR stops at the first parent
-    directory not containing a 'components' directory.
-
-    """
-    search_paths = []
-
-    current_dir = BASE_DIR
-    while True:
-        components_dir = os.path.join(current_dir, 'components')
-        if os.path.isdir(components_dir):
-            search_paths.append(components_dir)
-            next_dir = os.path.dirname(current_dir)
-            if next_dir != current_dir:
-                current_dir = next_dir
-            else:
-                break
-        else:
-            break
-
-    # reverse the search paths so that they are sorted by increasing depth in the directory tree
-    # this is expected to lead to components in client repositories to override those in the core repository
-    search_paths.reverse()
-
-    return search_paths
+def _get_sections(bound_components, filename, sections):
+    return [_parse_sectioned_file(os.path.join(bc.path, filename), bc.config, sections) for bc in bound_components]
 
 
-BoundComponent = namedtuple("BoundComponent", ['path', 'config'])
+_BoundComponent = namedtuple("_BoundComponent", ['path', 'config'])
 
 
-class Component(namedtuple('Component', ['name', 'configuration', 'arch_component'])):
-    def __new__(cls, name, configuration={}, arch_component=False):
-        return super(Component, cls).__new__(cls, name, configuration, arch_component)
+class Component(namedtuple('Component', ['name', 'configuration', 'pkg_component'])):
+    def __new__(cls, name, configuration={}, pkg_component=False):
+        return super(Component, cls).__new__(cls, name, configuration, pkg_component)
 
 
-def _bind_components(components, arch_name, search_paths):
+def _bind_components(components, pkg_name, search_paths):
     # Locate all component directories
-    # [Component] -> [BoundComponent]
+    # [Component] -> [_BoundComponent]
     bound_components = []
     for component in components:
-        if component.arch_component:
-            resource_name = '{0}-{1}'.format(component.name, arch_name)
+        if component.pkg_component:
+            resource_name = '{0}-{1}'.format(component.name, pkg_name)
         else:
             resource_name = component.name
 
@@ -233,23 +207,19 @@ def _bind_components(components, arch_name, search_paths):
             if os.path.exists(path):
                 break
         else:
-            raise KeyError('Unable to find component "{}"'.format(resource_name))
-        bound_components.append(BoundComponent(path, component.configuration))
+            raise KeyError('Unable to find component "{}" in {}'.format(resource_name, search_paths))
+        bound_components.append(_BoundComponent(path, component.configuration))
     return bound_components
 
 
-def _get_sections(bound_components, filename, sections):
-    return [_parse_sectioned_file(os.path.join(bc.path, filename), bc.config, sections) for bc in bound_components]
-
-
-def _generate(rtos_name, components, arch_name, search_paths):
+def _generate(rtos_name, components, pkg_name, search_paths):
     """Generate the RTOS module to disk, so it is available as a compile and link unit to projects."""
 
-    bound_components = _bind_components(components, arch_name, search_paths)
+    bound_components = _bind_components(components, pkg_name, search_paths)
 
     # Create module name and output directory
     module_name = 'rtos-' + rtos_name
-    module_dir = base_path('packages', arch_name, module_name)
+    module_dir = base_path('packages', pkg_name, module_name)
     os.makedirs(module_dir, exist_ok=True)
 
     # Generate .c file
@@ -259,7 +229,7 @@ def _generate(rtos_name, components, arch_name, search_paths):
         for ss in _REQUIRED_C_SECTIONS:
             data = "\n".join(c_sections[ss] for c_sections in all_c_sections)
             if ss == 'type_definitions':
-                data = sort_typedefs(data)
+                data = _sort_typedefs(data)
             f.write(data)
             f.write('\n')
 
@@ -288,14 +258,37 @@ def _generate(rtos_name, components, arch_name, search_paths):
     shutil.copyfile(python_file, python_output)
 
 
+def _get_search_paths():
+    """Find and return the directories that, by convention, are expected to contain component modules.
+
+    As search directories qualify all directories called 'components' in the BASE_DIR or its parent directories.
+    The search for such directories upwards in the directory tree from BASE_DIR stops at the first parent
+    directory not containing a 'components' directory.
+
+    """
+    search_paths = []
+
+    current_dir = BASE_DIR
+    while True:
+        components_dir = os.path.join(current_dir, 'components')
+        if os.path.isdir(components_dir):
+            search_paths.append(components_dir)
+            next_dir = os.path.dirname(current_dir)
+            if next_dir != current_dir:
+                current_dir = next_dir
+            else:
+                break
+        else:
+            break
+
+    # reverse the search paths so that they are sorted by increasing depth in the directory tree
+    # this is expected to lead to components in client repositories to override those in the core repository
+    return list(reversed(search_paths))
+
+
 def build(args):
     # Generate RTOSes
-    for rtos_name, arch_names in args.configurations.items():
-        generate_rtos_module(rtos_name, args.skeletons[rtos_name], arch_names)
-
-
-def generate_rtos_module(rtos_name, components, arch_names):
-    """Generate RTOS modules for several architectures from a given skeleton."""
     search_paths = _get_search_paths()
-    for arch_name in arch_names:
-        _generate(rtos_name, components, arch_name, search_paths)
+    for pkg_name, rtos_names in args.configurations.items():
+        for rtos_name in rtos_names:
+            _generate(rtos_name, args.skeletons[rtos_name], pkg_name, search_paths)

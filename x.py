@@ -101,17 +101,10 @@ logger.setLevel(logging.INFO)
 topdir = os.path.normpath(os.path.dirname(__file__))
 
 
-class OverrideFunctor:
-    def __init__(self, function, *args, **kwargs):
-        self.function = function
-        self.args = args
-        self.kwargs = kwargs
-
-    def __call__(self, *args, **kwargs):
-        return self.function(*self.args, **self.kwargs)
-
-
-CORE_ARCHITECTURES = ['posix', 'armv7m']
+CORE_CONFIGURATIONS = {"posix": ["sched-rr-test", "sched-prio-inherit-test", "simple-mutex-test",
+                                 "blocking-mutex-test", "simple-semaphore-test", "sched-prio-test",
+                                 "acamar", "gatria", "kraz"],
+                       "armv7m": ["acamar", "gatria", "kraz", "acrux", "rigel"]}
 
 CORE_SKELETONS = {
     'sched-rr-test': [Component('reentrant'),
@@ -140,14 +133,14 @@ CORE_SKELETONS = {
                               ],
     'acamar': [Component('reentrant'),
                Component('acamar'),
-               Component('stack', arch_component=True),
-               Component('context-switch', arch_component=True),
+               Component('stack', pkg_component=True),
+               Component('context-switch', pkg_component=True),
                Component('error'),
                Component('task'),
                ],
     'gatria': [Component('reentrant'),
-               Component('stack', arch_component=True),
-               Component('context-switch', arch_component=True),
+               Component('stack', pkg_component=True),
+               Component('context-switch', pkg_component=True),
                Component('sched-rr', {'assume_runnable': True}),
                Component('simple-mutex'),
                Component('error'),
@@ -155,8 +148,8 @@ CORE_SKELETONS = {
                Component('gatria'),
                ],
     'kraz': [Component('reentrant'),
-             Component('stack', arch_component=True),
-             Component('context-switch', arch_component=True),
+             Component('stack', pkg_component=True),
+             Component('context-switch', pkg_component=True),
              Component('sched-rr', {'assume_runnable': True}),
              Component('signal'),
              Component('simple-mutex'),
@@ -165,10 +158,10 @@ CORE_SKELETONS = {
              Component('kraz'),
              ],
     'acrux': [Component('reentrant'),
-              Component('stack', arch_component=True),
-              Component('context-switch', arch_component=True),
+              Component('stack', pkg_component=True),
+              Component('context-switch', pkg_component=True),
               Component('sched-rr', {'assume_runnable': False}),
-              Component('interrupt-event', arch_component=True),
+              Component('interrupt-event', pkg_component=True),
               Component('interrupt-event', {'timer_process': False, 'task_set': False}),
               Component('simple-mutex'),
               Component('error'),
@@ -176,13 +169,13 @@ CORE_SKELETONS = {
               Component('acrux'),
               ],
     'rigel': [Component('reentrant'),
-              Component('stack', arch_component=True),
-              Component('context-switch', arch_component=True),
+              Component('stack', pkg_component=True),
+              Component('context-switch', pkg_component=True),
               Component('sched-rr', {'assume_runnable': False}),
               Component('signal'),
-              Component('timer', arch_component=True),
+              Component('timer', pkg_component=True),
               Component('timer'),
-              Component('interrupt-event', arch_component=True),
+              Component('interrupt-event', pkg_component=True),
               Component('interrupt-event', {'timer_process': True, 'task_set': True}),
               Component('blocking-mutex'),
               Component('profiling'),
@@ -193,23 +186,7 @@ CORE_SKELETONS = {
               ],
 }
 
-CORE_CONFIGURATIONS = {
-    'sched-rr-test': ['posix'],
-    'sched-prio-inherit-test': ['posix'],
-    'simple-mutex-test': ['posix'],
-    'blocking-mutex-test': ['posix'],
-    'simple-semaphore-test': ['posix'],
-    'sched-prio-test': ['posix'],
-    'acamar': ['posix', 'armv7m'],
-    'gatria': ['posix', 'armv7m'],
-    'kraz': ['posix', 'armv7m'],
-    'acrux': ['armv7m'],
-    'rigel': ['armv7m'],
-}
-
-
 # client repositories may extend or override the following variables to control which configurations are available
-architectures = CORE_ARCHITECTURES.copy()
 skeletons = CORE_SKELETONS.copy()
 configurations = CORE_CONFIGURATIONS.copy()
 
@@ -303,7 +280,6 @@ Defaults to "archive".', default='archive')
     args.topdir = topdir
     args.configurations = configurations
     args.skeletons = skeletons
-    args.architectures = architectures
 
     return SUBCOMMAND_TABLE[args.command](args)
 

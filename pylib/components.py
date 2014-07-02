@@ -9,7 +9,7 @@ from .utils import BASE_DIR, base_path
 # FIXME: Use correct declaration vs definition.
 _REQUIRED_H_SECTIONS = ['public_headers',
                         'public_type_definitions',
-                        'public_structure_definitions',  # FIXME: not collected!
+                        'public_structure_definitions',
                         'public_object_like_macros',
                         'public_function_like_macros',
                         'public_extern_definitions',
@@ -213,36 +213,10 @@ def get_search_paths():
 BoundComponent = namedtuple("BoundComponent", ['path', 'config'])
 
 
-class Component:
-    """Represents an optional, exchangeable piece of functionality of an RTOS.
+class Component(namedtuple('Component', ['name', 'configuration', 'arch_component'])):
+    def __new__(cls, name, configuration={}, arch_component=False):
+        return super(Component, cls).__new__(cls, name, configuration, arch_component)
 
-    Components reside in the components/ directory of the core or sub-projects.
-    This class transparently finds components in any of the available core or sub-projects.
-    Instances of this class encapsulate the act of parsing a component file and converting it into configuration data
-    used when generating an RtosModule.
-
-    """
-
-    def __init__(self, name, configuration={}, arch_component=False):
-        """Create a component object.
-
-        Such objects encapsulate the act of parsing a corresponding source file.
-        The parsed data is converted into configuration information used when generating an RtosModule by rendering an
-        RTOS template file.
-
-        'name' is the base name of the source file of this component that is parsed to obtain this
-        component's properties.
-        For example, the base name of the interrupt event component is 'interrupt-event', which expands to the on-disk
-        file name of components/interrupt-event/interrupt-event.c.
-
-        'configuration' is a dictionary with configuration information.
-        It is passed to the '_parse_sectioned_file()' function used to parse this component's source file.
-
-        'arch_component' is a boolean indicating whether this component is architecture dependent.
-        """
-        self._base_name = name
-        self._configuration = configuration
-        self._arch_component = arch_component
 
 def _generate(rtos_name, components, arch_name, search_paths):
     """Generate the RTOS module to disk, so it is available as a compile and link unit to projects."""
@@ -251,10 +225,10 @@ def _generate(rtos_name, components, arch_name, search_paths):
     # [Component] -> [BoundComponent]
     bound_components = []
     for component in components:
-        if component._arch_component:
-            resource_name = '{0}-{1}'.format(component._base_name, arch_name)
+        if component.arch_component:
+            resource_name = '{0}-{1}'.format(component.name, arch_name)
         else:
-            resource_name = component._base_name
+            resource_name = component.name
 
         for search_path in search_paths:
             path = os.path.join(search_path, resource_name)
@@ -262,7 +236,7 @@ def _generate(rtos_name, components, arch_name, search_paths):
                 break
         else:
             raise KeyError('Unable to find component "{}"'.format(resource_name))
-        bound_components.append(BoundComponent(path, component._configuration))
+        bound_components.append(BoundComponent(path, component.configuration))
 
     # Create module name and output directory
     module_name = 'rtos-' + rtos_name
@@ -272,13 +246,8 @@ def _generate(rtos_name, components, arch_name, search_paths):
     # Generate .c file
     all_c_sections = [_parse_sectioned_file(os.path.join(bc.path, "implementation.c"), bc.config, _REQUIRED_C_SECTIONS) for bc in bound_components]
     source_output = os.path.join(module_dir, module_name + '.c')
-    source_sections = ['headers', 'object_like_macros',
-                       'type_definitions', 'structure_definitions',
-                       'extern_definitions', 'function_definitions',
-                       'state', 'function_like_macros',
-                       'functions', 'public_functions']
     with open(source_output, 'w') as f:
-        for ss in source_sections:
+        for ss in _REQUIRED_C_SECTIONS:
             data = "\n".join(c_sections[ss] for c_sections in all_c_sections)
             if ss == 'type_definitions':
                 data = sort_typedefs(data)
@@ -288,14 +257,11 @@ def _generate(rtos_name, components, arch_name, search_paths):
     # Generate .h file
     all_h_sections = [_parse_sectioned_file(os.path.join(bc.path, "header.h"), bc.config, _REQUIRED_H_SECTIONS) for bc in bound_components]
     header_output = os.path.join(module_dir, module_name + '.h')
-    header_sections = ['public_headers', 'public_type_definitions',
-                       'public_object_like_macros', 'public_function_like_macros',
-                       'public_extern_definitions', 'public_function_definitions']
     with open(header_output, 'w') as f:
         mod_name = module_name.upper().replace('-', '_')
         f.write("#ifndef {}_H\n".format(mod_name))
         f.write("#define {}_H\n".format(mod_name))
-        for ss in header_sections:
+        for ss in _REQUIRED_H_SECTIONS:
             f.write("\n".join(h_sections[ss] for h_sections in all_h_sections) + "\n")
         f.write("\n#endif /* {}_H */".format(mod_name))
 

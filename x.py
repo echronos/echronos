@@ -104,6 +104,7 @@ topdir = os.path.normpath(os.path.dirname(__file__))
 def gen_tag(args):
     return _gen_tag()
 
+
 class OverrideFunctor:
     def __init__(self, function, *args, **kwargs):
         self.function = function

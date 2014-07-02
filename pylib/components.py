@@ -180,7 +180,7 @@ def _parse_sectioned_file(fn, config, required_sections):
     return sections
 
 
-def get_search_paths():
+def _get_search_paths():
     """Find and return the directories that, by convention, are expected to contain component modules.
 
     As search directories qualify all directories called 'components' in the BASE_DIR or its parent directories.
@@ -218,9 +218,7 @@ class Component(namedtuple('Component', ['name', 'configuration', 'arch_componen
         return super(Component, cls).__new__(cls, name, configuration, arch_component)
 
 
-def _generate(rtos_name, components, arch_name, search_paths):
-    """Generate the RTOS module to disk, so it is available as a compile and link unit to projects."""
-
+def _bind_components(components, arch_name, search_paths):
     # Locate all component directories
     # [Component] -> [BoundComponent]
     bound_components = []
@@ -237,6 +235,17 @@ def _generate(rtos_name, components, arch_name, search_paths):
         else:
             raise KeyError('Unable to find component "{}"'.format(resource_name))
         bound_components.append(BoundComponent(path, component.configuration))
+    return bound_components
+
+
+def _get_sections(bound_components, filename, sections):
+    return [_parse_sectioned_file(os.path.join(bc.path, filename), bc.config, sections) for bc in bound_components]
+
+
+def _generate(rtos_name, components, arch_name, search_paths):
+    """Generate the RTOS module to disk, so it is available as a compile and link unit to projects."""
+
+    bound_components = _bind_components(components, arch_name, search_paths)
 
     # Create module name and output directory
     module_name = 'rtos-' + rtos_name
@@ -244,7 +253,7 @@ def _generate(rtos_name, components, arch_name, search_paths):
     os.makedirs(module_dir, exist_ok=True)
 
     # Generate .c file
-    all_c_sections = [_parse_sectioned_file(os.path.join(bc.path, "implementation.c"), bc.config, _REQUIRED_C_SECTIONS) for bc in bound_components]
+    all_c_sections = _get_sections(bound_components, "implementation.c", _REQUIRED_C_SECTIONS)
     source_output = os.path.join(module_dir, module_name + '.c')
     with open(source_output, 'w') as f:
         for ss in _REQUIRED_C_SECTIONS:
@@ -255,7 +264,7 @@ def _generate(rtos_name, components, arch_name, search_paths):
             f.write('\n')
 
     # Generate .h file
-    all_h_sections = [_parse_sectioned_file(os.path.join(bc.path, "header.h"), bc.config, _REQUIRED_H_SECTIONS) for bc in bound_components]
+    all_h_sections = _get_sections(bound_components, "header.h", _REQUIRED_H_SECTIONS)
     header_output = os.path.join(module_dir, module_name + '.h')
     with open(header_output, 'w') as f:
         mod_name = module_name.upper().replace('-', '_')
@@ -287,6 +296,6 @@ def build(args):
 
 def generate_rtos_module(rtos_name, components, arch_names):
     """Generate RTOS modules for several architectures from a given skeleton."""
-    search_paths = get_search_paths()
+    search_paths = _get_search_paths()
     for arch_name in arch_names:
         _generate(rtos_name, components, arch_name, search_paths)

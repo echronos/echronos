@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <modules>
+    <module name="ppc.build" />
+    <module name="ppc.entry" />
+    <module name="ppc.debug" />
+    <module name="generic.debug">
+      <ll_debug>ppc_</ll_debug>
+      <prefix></prefix>
+    </module>
+    <module name="generic.hello">
+        <phrase>Hello, qemu-ppc!</phrase>
+    </module>
+  </modules>
+</system>

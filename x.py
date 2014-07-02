@@ -80,7 +80,7 @@ if correct is not None and sys.executable != correct:
 import argparse
 import logging
 
-from pylib.tasks import new_review, new_task, tasks, integrate
+from pylib.tasks import new_review, new_task, tasks, integrate, _gen_tag
 from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8
 from pylib.components import Component, ArchitectureComponent, Architecture, RtosSkeleton, build, generate_rtos_module
 from pylib.release import release_test, build_release, build_partials
@@ -100,6 +100,9 @@ logger.setLevel(logging.INFO)
 # It may be modified by an appropriate invocation of main().
 topdir = os.path.normpath(os.path.dirname(__file__))
 
+
+def gen_tag(args):
+    return _gen_tag()
 
 class OverrideFunctor:
     def __init__(self, function, *args, **kwargs):
@@ -259,6 +262,8 @@ def main():
         'new-task': new_task,
         'tasks': tasks,
         'integrate': integrate,
+        # Tempalte management
+        'gen-tag': gen_tag,
     }
 
     # create the top-level parser

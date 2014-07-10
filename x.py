@@ -162,6 +162,10 @@ def gen_tag():
     return ''.join(choice(tag_chars) for _ in range(tag_length))
 
 
+def gen_tag_subcommand(args):
+    return gen_tag()
+
+
 SIG_NAMES = dict((k, v) for v, k in signal.__dict__.items() if v.startswith('SIG'))
 
 
@@ -2389,6 +2393,7 @@ class OverrideFunctor:
 CORE_ARCHITECTURES = {
     'posix': Architecture('posix', {}),
     'armv7m': Architecture('armv7m', {}),
+    'ppc': Architecture('ppc', {}),
 }
 
 CORE_SKELETONS = {
@@ -2497,9 +2502,9 @@ CORE_CONFIGURATIONS = {
     'blocking-mutex-test': ['posix'],
     'simple-semaphore-test': ['posix'],
     'sched-prio-test': ['posix'],
-    'acamar': ['posix', 'armv7m'],
-    'gatria': ['posix', 'armv7m'],
-    'kraz': ['posix', 'armv7m'],
+    'acamar': ['posix', 'armv7m', 'ppc'],
+    'gatria': ['posix', 'armv7m', 'ppc'],
+    'kraz': ['posix', 'armv7m', 'ppc'],
     'acrux': ['armv7m'],
     'rigel': ['armv7m'],
 }
@@ -2529,6 +2534,7 @@ def main():
         'integrate': integrate,
         'x-test': x_test,
         'rtos-test': rtos_test,
+        'gen-tag': gen_tag_subcommand,
     }
 
     # create the top-level parser
@@ -2593,6 +2599,8 @@ Defaults to active branch in repository.')
 Defaults to "development".', default='development')
     _parser.add_argument('--archive', help='Prefix to add to task branch name when archiving it. \
 Defaults to "archive".', default='archive')
+
+    subparsers.add_parser('gen-tag', help='Generate a random 6-char alphanumeric string')
 
     args = parser.parse_args()
 

@@ -99,3 +99,11 @@ class SmaccmDarwin(SmaccmBase):
     platforms = ['x86_64-apple-darwin']
     release_name = 'smaccm-darwin'
     enabled = True
+
+
+class SmaccmPowerPC(SmaccmBase):
+    packages = ['ppc', 'generic', 'rtos-example']
+    platforms = ['x86_64-unknown-linux-gnu']
+    release_name = 'smaccm-ppc'
+    enabled = True
+    extra_files = []

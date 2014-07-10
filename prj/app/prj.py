@@ -41,6 +41,7 @@ import collections
 import functools
 import glob
 import imp
+import inspect
 import os
 import pdb
 import pystache.parser
@@ -1074,7 +1075,8 @@ class Module:
 
         """
         if len(set([self.schema, self.xml_schema, self.xml_schema_path])) > 2:
-            raise Exception("Class '{}' has multiple schema sources set.".format(self.__class__.__name__))
+            raise Exception("Class '{}' in {} has multiple schema sources set.".format(self.__class__.__name__,
+                            os.path.abspath(inspect.getfile(self.__class__))))
 
         if self.schema is NOTHING:
             if self.xml_schema_path is not NOTHING:
@@ -1082,6 +1084,10 @@ class Module:
             elif self.xml_schema is not NOTHING:
                 filename = sys.modules[self.__class__.__module__].__file__
                 xml_schema_document = xml_parse_string(self.xml_schema, '{}!xml_schema'.format(filename))
+            else:
+                raise Exception("Class '{}' in {} has none of the possible schema sources (schema, xml_schema, \
+xml_schema_path) set as a class member.".format(self.__class__.__name__,
+                                                os.path.abspath(inspect.getfile(self.__class__))))
             self.schema = xml2schema(xml_schema_document)
 
     def configure(self, xml_config):

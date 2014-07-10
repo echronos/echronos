@@ -1,0 +1,18 @@
+Task: 1Unsmp-prj_error_message_about_missing_schema_sources
+==============================================================================
+
+Motivation
+----------
+
+prj currently throws exceptions when an instance of the Module class has multiple or none of the three available schema source class members set.
+This is not user friendly and difficult to debug because the Python file of the affected module is not part of the output and the class name may not be.
+
+Goals
+--------
+
+The goal of this task is to raise an exception with a more helpful exception message which identifies the name of the affected module and the file it is contained in.
+
+Test Plan
+---------
+
+This is a trivial change, so code review is considered sufficient.

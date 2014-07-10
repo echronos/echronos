@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <modules>
+    <module name="ppc.build" />
+    <module name="ppc.ctxt-switch" />
+    <module name="ppc.entry" />
+    <module name="ppc.debug" />
+    <module name="generic.debug">
+      <ll_debug>ppc_</ll_debug>
+      <prefix></prefix>
+    </module>
+
+    <module name="ppc.rtos-acamar">
+      <prefix>rtos</prefix>
+      <taskid_size>8</taskid_size>
+      <tasks>
+
+        <task>
+          <name>a</name>
+          <function>fn_a</function>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>b</name>
+          <function>fn_b</function>
+          <stack_size>8192</stack_size>
+        </task>
+
+      </tasks>
+    </module>
+
+    <module name="rtos-example.acamar-test" />
+
+  </modules>
+</system>

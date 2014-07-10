@@ -1,0 +1,22 @@
+Task: X8ZjKY-ppc-baseline
+==============================================================================
+
+Motivation
+----------
+
+We'd like to port eChronos to PowerPC and test it with QEMU emulation until boards can be obtained.
+
+
+Goals
+--------
+
+Add support to build PowerPC binaries that run on QEMU, assuming a locally installed `powerpc-linux-gnu` cross-compiler toolchain, obtainable via apt.
+Implement very basic context switch (only storing general-purpose registers), and show it works via the existing, unmodified acamar-system test.
+
+
+Test Plan
+---------
+
+Exercise build with `./x.py acamar-gen`, and use prj to build modules ppc.example.hello and ppc.example.acamar-system.
+Run on qemu-ppc with GDB attached, and a breakpoint set at debug_println.
+GDB can be built from source after configuring with `./configure --target=powerpc-linux-gnu`.

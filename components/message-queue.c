@@ -117,7 +117,7 @@ message_queue_waiters_wakeup(const {{prefix_type}}MessageQueueId message_queue)
     {
         if (message_queue_waiters[task] == message_queue)
         {
-            {{prefix_func}}signal_send(task, {{prefix_const}}SIGNAL_ID__TASK_TIMER);
+            message_queue_core_unblock(task);
             message_queue_waiters[get_current_task()] = MESSAGE_QUEUE_ID_NONE;
         }
     }
@@ -127,15 +127,14 @@ static void
 message_queue_wait(const {{prefix_type}}MessageQueueId message_queue) {{prefix_const}}REENTRANT
 {
     message_queue_waiters[get_current_task()] = message_queue;
-    {{prefix_func}}signal_wait({{prefix_const}}SIGNAL_ID__TASK_TIMER);
+    message_queue_core_block();
 }
 
 static void
 message_queue_wait_timeout(const {{prefix_type}}MessageQueueId message_queue, const {{prefix_type}}TicksRelative timeout) {{prefix_const}}REENTRANT
 {
     message_queue_waiters[get_current_task()] = message_queue;
-    /* This sleep may end prematurely when another task calls put()/get() resulting in the timer signal being sent */
-    {{prefix_func}}sleep(timeout);
+    message_queue_core_block_timeout(timeout);
     message_queue_waiters[get_current_task()] = MESSAGE_QUEUE_ID_NONE;
 }
 

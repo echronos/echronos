@@ -118,7 +118,7 @@ message_queue_waiters_wakeup(const {{prefix_type}}MessageQueueId message_queue)
         if (message_queue_waiters[task] == message_queue)
         {
             message_queue_core_unblock(task);
-            message_queue_waiters[get_current_task()] = MESSAGE_QUEUE_ID_NONE;
+            message_queue_waiters[task] = MESSAGE_QUEUE_ID_NONE;
         }
     }
 }

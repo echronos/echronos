@@ -1,0 +1,27 @@
+Task: q38zGJ-win32_build_support
+==============================================================================
+
+Motivation
+----------
+
+It is currently not possible to build systems for the posix target platform on the Windows host platform.
+In particular, this prevents building and executing unit tests on Windows.
+
+
+Goals
+--------
+
+Support for building systems for the posix target platform on Windows as the host platform.
+
+The main limitation on Windows is that neither the MinGW nor the Cygwin toolchains come with an implementation of the ucontext functionality.
+(The context-switch implementation for posix depends on this functionality.)
+Thus, this functionality needs to be imported and the build process needs to be extended such that it compiles and links in that functionality for posix builds on Windows.
+
+
+Test Plan
+---------
+
+Build any of the posix systems on Windows with Cygwin gcc or MinGW.
+For example:
+#> ./x.py acamar-gen
+#> ./prj/app/prj.py build posix.example.acamar-system

@@ -5,7 +5,7 @@ Motivation
 ----------
 
 It is currently not possible to build systems for the posix target platform on the Windows host platform.
-In particular, this prevents building and executing unit tests on Windows.
+In particular, this prevents building and executing system tests on Windows.
 
 
 Goals

@@ -110,8 +110,10 @@ static MessageQueueIdOption message_queue_waiters[] =
 
 /*| function_like_macros |*/
 {{#mutexes.length}}
-#define message_queue_api_assert_valid(message_queue) api_assert(message_queue < {{message_queues.length}}, ERROR_ID_INVALID_ID)
-#define message_queue_internal_assert_valid(message_queue) api_assert(message_queue < {{message_queues.length}}, ERROR_ID_INVALID_ID)
+#define message_queue_api_assert_valid(message_queue) api_assert(message_queue < {{message_queues.length}},\
+                                                                 ERROR_ID_INVALID_ID)
+#define message_queue_internal_assert_valid(message_queue) api_assert(message_queue < {{message_queues.length}},\
+                                                                      ERROR_ID_INVALID_ID)
 {{^internal_asserts}}
 #define message_queue_init() do {} while(0)
 #define message_queue_invariants_check() do {} while(0)
@@ -122,7 +124,8 @@ static MessageQueueIdOption message_queue_waiters[] =
 /*| functions |*/
 {{#message_queues.length}}
 {{#internal_asserts}}
-static void message_queue_init(void)
+static void
+message_queue_init(void)
 {
     {{prefix_type}}MessageQueueId message_queue = {{message_queues.length}} - 1;
     {{prefix_type}}TaskId task;
@@ -141,7 +144,8 @@ static void message_queue_init(void)
 
     for (task = 0; task <= {{prefix_const}}TASK_ID_MAX; task += 1)
     {
-        internal_assert(message_queue_waiters[task] == MESSAGE_QUEUE_ID_NONE, ERROR_ID_MESSAGE_QUEUE_INTERNAL_INCORRECT_INITIALIZATION);
+        internal_assert(message_queue_waiters[task] == MESSAGE_QUEUE_ID_NONE,\
+                        ERROR_ID_MESSAGE_QUEUE_INTERNAL_INCORRECT_INITIALIZATION);
     }
 }
 
@@ -166,17 +170,20 @@ message_queue_invariants_check(void)
     {
         message_queue = message_queue_waiters[task];
 
-        internal_assert((message_queue < {{message_queues.length}}) || (message_queue == MESSAGE_QUEUE_ID_NONE), ERROR_ID_MESSAGE_QUEUE_INTERNAL_VIOLATED_INVARIANT_INVALID_ID_IN_WAITERS);
+        internal_assert((message_queue < {{message_queues.length}}) || (message_queue == MESSAGE_QUEUE_ID_NONE),\
+                        ERROR_ID_MESSAGE_QUEUE_INTERNAL_VIOLATED_INVARIANT_INVALID_ID_IN_WAITERS);
 
         if (message_queue != MESSAGE_QUEUE_ID_NONE)
         {
             const struct message_queue *const mq = &message_queues[message_queue];
             if (mq->queue_length > 2)
             {
-                internal_assert((mq->available == 0) || (mq->available == mq->queue_length), ERROR_ID_MESSAGE_QUEUE_INTERNAL_VIOLATED_INVARIANT_TASKS_BLOCKED_DESPITE_AVAILABLE_MESSAGES);
+                internal_assert((mq->available == 0) || (mq->available == mq->queue_length),\
+                    ERROR_ID_MESSAGE_QUEUE_INTERNAL_VIOLATED_INVARIANT_TASKS_BLOCKED_DESPITE_AVAILABLE_MESSAGES);
             }
 
-            internal_assert(!message_queue_core_is_unblocked(task), ERROR_ID_MESSAGE_QUEUE_INTERNAL_VIOLATED_INVARIANT_WAITING_TASK_IS_NOT_BLOCKED);
+            internal_assert(!message_queue_core_is_unblocked(task),\
+                            ERROR_ID_MESSAGE_QUEUE_INTERNAL_VIOLATED_INVARIANT_WAITING_TASK_IS_NOT_BLOCKED);
         }
     }
 }
@@ -298,7 +305,8 @@ bool
     message_queue_api_assert_valid(message_queue);
     api_assert(message, ERROR_ID_MESSAGE_QUEUE_INVALID_POINTER);
     api_assert(timeout, ERROR_ID_MESSAGE_QUEUE_ZERO_TIMEOUT);
-    internal_assert({{prefix_func}}timer_current_ticks < (UINT32_MAX - timeout), ERROR_ID_MESSAGE_QUEUE_INTERNAL_TICK_OVERFLOW);
+    internal_assert({{prefix_func}}timer_current_ticks < (UINT32_MAX - timeout),\
+                    ERROR_ID_MESSAGE_QUEUE_INTERNAL_TICK_OVERFLOW);
     message_queue_invariants_check();
 
     while ((message_queues[message_queue].available == message_queues[message_queue].queue_length) &&
@@ -363,7 +371,8 @@ bool
     message_queue_api_assert_valid(message_queue);
     api_assert(message, ERROR_ID_MESSAGE_QUEUE_INVALID_POINTER);
     api_assert(timeout, ERROR_ID_MESSAGE_QUEUE_ZERO_TIMEOUT);
-    internal_assert({{prefix_func}}timer_current_ticks < (UINT32_MAX - timeout), ERROR_ID_MESSAGE_QUEUE_INTERNAL_TICK_OVERFLOW);
+    internal_assert({{prefix_func}}timer_current_ticks < (UINT32_MAX - timeout),\
+                    ERROR_ID_MESSAGE_QUEUE_INTERNAL_TICK_OVERFLOW);
     message_queue_invariants_check();
 
     while ((message_queues[message_queue].available == 0) &&

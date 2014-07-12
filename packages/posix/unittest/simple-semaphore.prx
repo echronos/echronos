@@ -5,6 +5,7 @@
     <module name="posix.build">
       <output_type>shared-library</output_type>
     </module>
+    <module name="posix.host_platform" />
 
     <module name="posix.rtos-simple-semaphore-test">
       <prefix>rtos</prefix>

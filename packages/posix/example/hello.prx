@@ -2,6 +2,7 @@
 <system>
   <modules>
     <module name="posix.build" />
+    <module name="posix.host_platform" />
     <module name="posix.debug" />
     <module name="generic.debug">
       <ll_debug>posix_</ll_debug>

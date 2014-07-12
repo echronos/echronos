@@ -1079,16 +1079,14 @@ class Module:
                             os.path.abspath(inspect.getfile(self.__class__))))
 
         if self.schema is NOTHING:
+            xml_schema_document = NOTHING
             if self.xml_schema_path is not NOTHING:
                 xml_schema_document = xml.dom.minidom.parse(self.xml_schema_path).documentElement
             elif self.xml_schema is not NOTHING:
                 filename = sys.modules[self.__class__.__module__].__file__
                 xml_schema_document = xml_parse_string(self.xml_schema, '{}!xml_schema'.format(filename))
-            else:
-                raise Exception("Class '{}' in {} has none of the possible schema sources (schema, xml_schema, \
-xml_schema_path) set as a class member.".format(self.__class__.__name__,
-                                                os.path.abspath(inspect.getfile(self.__class__))))
-            self.schema = xml2schema(xml_schema_document)
+            if xml_schema_document is not NOTHING:
+                self.schema = xml2schema(xml_schema_document)
 
     def configure(self, xml_config):
         """Configure a module.

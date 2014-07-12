@@ -155,6 +155,21 @@ message_queue_invariants_check(void)
     {{prefix_type}}MessageQueueId message_queue;
     {{prefix_type}}TaskId task;
 
+{{#message_queues}}
+    internal_assert(message_queues[{{idx}}].messages == (uint8_t*)message_queue_{{name}}_messages,
+                    ERROR_ID_MESSAGE_QUEUE_INTERNAL_VIOLATED_INVARIANT_INVALID_MESSAGES_POINTER);
+{{#message_size}}
+    internal_assert(message_queues[{{idx}}].message_size == {{message_size}},
+                    ERROR_ID_MESSAGE_QUEUE_INTERNAL_VIOLATED_INVARIANT_INVALID_MESSAGE_SIZE);
+{{/message_size}}
+{{#message_type}}
+    internal_assert(message_queues[{{idx}}].message_size == sizeof({{message_type}}),
+                    ERROR_ID_MESSAGE_QUEUE_INTERNAL_VIOLATED_INVARIANT_INVALID_MESSAGE_SIZE);
+{{/message_type}}
+    internal_assert(message_queues[{{idx}}].queue_length == {{queue_length}},
+                    ERROR_ID_MESSAGE_QUEUE_INTERNAL_VIOLATED_INVARIANT_INVALID_QUEUE_LENGTH);
+{{/message_queues}}
+
     for (message_queue = 0; message_queue < {{message_queues.length}}; message_queue += 1)
     {
         const struct message_queue *const mq = &message_queues[message_queue];

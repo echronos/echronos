@@ -1074,7 +1074,7 @@ class Module:
         If the xml_schema is set, initialisation will set the schema based on the xml_schema.
 
         """
-        if len(set([self.schema, self.xml_schema, self.xml_schema_path])) > 2:
+        if len([s for s in [self.schema, self.xml_schema, self.xml_schema_path] if s is not NOTHING]) > 2:
             raise Exception("Class '{}' in {} has multiple schema sources set.".format(self.__class__.__name__,
                             os.path.abspath(inspect.getfile(self.__class__))))
 

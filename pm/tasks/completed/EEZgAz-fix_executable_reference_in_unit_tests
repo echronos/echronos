@@ -1,0 +1,23 @@
+Task: EEZgAz-fix_executable_reference_in_unit_tests
+==============================================================================
+
+Motivation
+----------
+
+When running the unit tests on Windows, they currently fail due to a linker failure.
+The cause of this failure is that, while building the unit test system, the linker cannot write the system.exe file.
+This is in turn caused by the system.exe file still executing as part of the previous unit test.
+The specific tests are simple_semaphore.testSimpleSemaphore.test_simple() (last one succeeding) and simple_semaphore.testSimpleSemaphoreWhiteBox.test_block() (first one failing).
+Theoretically, the two different test classes (testSimpleSemaphore and testSimpleSemaphoreWhiteBox) do not share any resources.
+However, they share the same base class through which they also share a reference to the same ctypes instance.
+This is why the executable is still executing when the testSimpleSemaphoreWhiteBox test cases are run.
+
+Goals
+--------
+
+- avoid the linker error and make the unit tests run to completion
+
+Test Plan
+---------
+
+#> x.py rtos-test

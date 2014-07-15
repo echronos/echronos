@@ -2605,7 +2605,7 @@ CORE_CONFIGURATIONS = {
     'acamar': ['posix', 'armv7m', 'ppc'],
     'gatria': ['posix', 'armv7m', 'ppc'],
     'kraz': ['posix', 'armv7m', 'ppc'],
-    'acrux': ['armv7m'],
+    'acrux': ['armv7m', 'ppc'],
     'rigel': ['armv7m'],
 }
 

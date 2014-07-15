@@ -1,12 +1,14 @@
 OUTPUT_FORMAT("elf32-powerpc", "elf32-powerpc", "elf32-powerpcle")
 OUTPUT_ARCH(powerpc)
-ENTRY(main)
+ENTRY(_entry)
 SECTIONS
 {
         . = {{code_addr}};
         .ro_start = .;
+        .vectors : AT (0)
+        { *(.vectors) }
 
-        .text :
+        .text : AT (LOADADDR(.vectors) + SIZEOF(.vectors))
         { *(.text.startup) *(.text) }
 
         .rodata : AT (LOADADDR (.text) + SIZEOF(.text))

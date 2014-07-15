@@ -3,14 +3,16 @@
   <modules>
     <module name="ppc.build" />
     <module name="ppc.ctxt-switch" />
-    <module name="ppc.vectable" />
+    <module name="ppc.vectable">
+      <fixed_interval_timer>tick_irq</fixed_interval_timer>
+    </module>
     <module name="ppc.debug" />
     <module name="generic.debug">
       <ll_debug>ppc_</ll_debug>
       <prefix></prefix>
     </module>
 
-    <module name="ppc.rtos-acamar">
+    <module name="ppc.rtos-acrux">
       <prefix>rtos</prefix>
       <taskid_size>8</taskid_size>
       <tasks>
@@ -18,19 +20,31 @@
         <task>
           <name>a</name>
           <function>fn_a</function>
-          <stack_size>8192</stack_size>
+          <stack_size>256</stack_size>
         </task>
 
         <task>
           <name>b</name>
           <function>fn_b</function>
-          <stack_size>8192</stack_size>
+          <stack_size>256</stack_size>
         </task>
 
       </tasks>
+      <interrupt_events>
+        <interrupt_event>
+          <name>dummy</name>
+        </interrupt_event>
+      </interrupt_events>
+
+      <mutexes>
+        <mutex>
+          <name>dummy</name>
+        </mutex>
+      </mutexes>
+
     </module>
 
-    <module name="rtos-example.acamar-test" />
+    <module name="ppc.example.acrux-test" />
 
   </modules>
 </system>

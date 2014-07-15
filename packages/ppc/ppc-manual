@@ -25,8 +25,13 @@ gatria-system
   ~ A system demonstrating coordination between two tasks via `yield()`, `unblock()`, and mutexes.
 kraz-system
   ~ A system demonstrating coordination between two tasks via `yield()`, mutexes, and signals.
+acrux-system
+  ~ A system demonstrating coordination between two tasks via `yield()` and mutexes, driven by timer interrupt events.
 
-These systems can be run on qemu-ppc, provided with standard apt package installations of qemu.
+These systems can be run on qemu-system-ppc, provided with standard apt package installations of qemu, emulating the
+e500 core:
+
+    qemu-system-ppc -S -nographic -gdb tcp::1234 -M ppce500 -kernel path/to/system
 
 `ppc/build`
 ==============

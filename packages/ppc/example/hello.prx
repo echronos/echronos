@@ -2,7 +2,7 @@
 <system>
   <modules>
     <module name="ppc.build" />
-    <module name="ppc.entry" />
+    <module name="ppc.vectable" />
     <module name="ppc.debug" />
     <module name="generic.debug">
       <ll_debug>ppc_</ll_debug>

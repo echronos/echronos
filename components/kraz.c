@@ -36,6 +36,7 @@ static void _unblock(const {{prefix_type}}TaskId task);
 /*| state |*/
 
 /*| function_like_macros |*/
+#define _yield() {{prefix_func}}yield()
 #define preempt_disable()
 #define preempt_enable()
 

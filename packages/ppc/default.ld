@@ -14,7 +14,7 @@ SECTIONS
 
         .ro_end = ALIGN(4);
 
-        .data : AT ({{data_addr}})
+        .data :
         {
               *(.data)
               . = ALIGN(4);

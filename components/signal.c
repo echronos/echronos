@@ -94,7 +94,7 @@ _signal_recv({{prefix_type}}SignalSet *const pending_signals, const {{prefix_typ
 
     if (_signal_peek(*pending_signals, requested_signals))
     {
-        {{prefix_func}}yield();
+        _yield();
     }
     else
     {

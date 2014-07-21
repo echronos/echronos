@@ -8,7 +8,6 @@ class EntryModule(Module):
     xml_schema = """
 <schema>
     <entry name="code_addr" type="int" default="0" />
-    <entry name="data_addr" type="int" default="0x20000000" />
     <entry name="stack_size" type="int" default="0x1000" />
 </schema>"""
 

@@ -101,6 +101,8 @@ static struct mutex_stat mutex_stats[{{mutexes.length}}];
 void
 {{prefix_func}}mutex_lock(const {{prefix_type}}MutexId m) {{prefix_const}}REENTRANT
 {
+    preempt_disable();
+
 {{#mutex.stats}}
     bool contended = false;
     const {{prefix_type}}TicksAbsolute wait_start_ticks = {{prefix_func}}timer_current_ticks;
@@ -134,12 +136,16 @@ void
         }
     }
 {{/mutex.stats}}
+
+    preempt_enable();
 }
 
 void
 {{prefix_func}}mutex_unlock(const {{prefix_type}}MutexId m)
 {
     {{prefix_type}}TaskId t;
+
+    preempt_disable();
 
     assert_mutex_valid(m);
     api_assert(mutexes[m].holder == get_current_task(), ERROR_ID_NOT_HOLDING_MUTEX);
@@ -154,22 +160,32 @@ void
     }
 
     mutexes[m].holder = TASK_ID_NONE;
+
+    preempt_enable();
 }
 
 bool
 {{prefix_func}}mutex_try_lock(const {{prefix_type}}MutexId m)
 {
+    bool r;
+
+    preempt_disable();
+
     assert_mutex_valid(m);
 
     if (mutexes[m].holder != TASK_ID_NONE)
     {
-        return false;
+        r = false;
     }
     else
     {
         mutexes[m].holder = get_current_task();
-        return true;
+        r = true;
     }
+
+    preempt_enable();
+
+    return r;
 }
 
 RtosTaskId

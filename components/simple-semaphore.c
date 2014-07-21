@@ -1,3 +1,10 @@
+/*| schema |*/
+<entry name="semaphores" type="list" default="[]" auto_index_field="idx">
+    <entry name="semaphore" type="dict">
+        <entry name="name" type="ident" />
+    </entry>
+</entry>
+
 /*| public_headers |*/
 #include <stdbool.h>
 #include <stddef.h>

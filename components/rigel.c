@@ -84,6 +84,7 @@ struct interrupt_event_handler interrupt_events[{{interrupt_events.length}}] = {
 {{/interrupt_events.length}}
 
 /*| function_like_macros |*/
+#define _yield() {{prefix_func}}yield()
 #define preempt_disable()
 #define preempt_enable()
 #define interrupt_event_id_to_taskid(interrupt_event_id) (({{prefix_type}}TaskId)(interrupt_event_id))

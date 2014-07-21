@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <modules>
+    <module name="ppc.build" />
+    <module name="ppc.ctxt-switch" />
+    <module name="ppc.entry" />
+    <module name="ppc.debug" />
+    <module name="generic.debug">
+      <ll_debug>ppc_</ll_debug>
+      <prefix></prefix>
+    </module>
+
+    <module name="ppc.rtos-kochab">
+      <prefix>rtos</prefix>
+      <taskid_size>8</taskid_size>
+      <signalset_size>8</signalset_size>
+
+      <signal_labels>
+
+        <signal_label>
+          <name>demo_helper</name>
+        </signal_label>
+
+      </signal_labels>
+
+      <tasks>
+
+        <task>
+          <name>a</name>
+          <function>fn_a</function>
+          <priority>30</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>b</name>
+          <function>fn_b</function>
+          <priority>10</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>z</name>
+          <function>fn_z</function>
+          <priority>5</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+      </tasks>
+
+      <semaphores>
+        <semaphore>
+          <name>sem0</name>
+        </semaphore>
+      </semaphores>
+
+      <mutexes>
+        <mutex>
+          <name>dummy</name>
+        </mutex>
+      </mutexes>
+      <mutex>
+        <stats>false</stats>
+      </mutex>
+    </module>
+
+    <!-- main .c file: -->
+    <module name="rtos-example.kochab-sem-demo" />
+
+  </modules>
+</system>

@@ -25,8 +25,17 @@ gatria-system
   ~ A system demonstrating coordination between two tasks via `yield()`, `unblock()`, and mutexes.
 kraz-system
   ~ A system demonstrating coordination between two tasks via `yield()`, mutexes, and signals.
+kochab-signal-demo
+  ~ A system demonstrating signal functionality on the kochab variant.
+kochab-mutex-demo
+  ~ A system demonstrating mutex functionality on the kochab variant.
+kochab-sem-demo
+  ~ A system demonstrating semaphore functionality on the kochab variant.
 
-These systems can be run on qemu-ppc, provided with standard apt package installations of qemu.
+These systems can be run on qemu-system-ppc, provided with standard apt package installations of qemu, emulating the
+e500 core:
+
+    qemu-system-ppc -S -nographic -gdb tcp::1234 -M ppce500 -kernel path/to/system
 
 `ppc/build`
 ==============

@@ -2592,6 +2592,20 @@ CORE_SKELETONS = {
          Component('rigel'),
          ],
     ),
+    # This is a preliminary, incomplete version of kochab without yet interrupts or preemption
+    'kochab': RtosSkeleton(
+        'kochab',
+        [Component('reentrant'),
+         ArchitectureComponent('stack', 'stack'),
+         ArchitectureComponent('ctxt_switch', 'context-switch'),
+         Component('sched', 'sched-prio-inherit', {'assume_runnable': False}),
+         Component('signal'),
+         Component('mutex', 'blocking-mutex'),
+         Component('semaphore', 'simple-semaphore'),
+         Component('error'),
+         Component('task'),
+         Component('kochab'),
+         ]),
 }
 
 
@@ -2607,6 +2621,7 @@ CORE_CONFIGURATIONS = {
     'kraz': ['posix', 'armv7m', 'ppc'],
     'acrux': ['armv7m'],
     'rigel': ['armv7m'],
+    'kochab': ['ppc'],
 }
 
 

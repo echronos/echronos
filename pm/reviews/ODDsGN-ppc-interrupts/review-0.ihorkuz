@@ -5,16 +5,35 @@ Task name: ODDsGN-ppc-interrupts
 Version reviewed: de38625c7cbf2d2259cc809095a5b917998e7385
 Reviewer: ihorkuz
 Date: 2014-07-15
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
+this "ppc" work seems to be e500 specific.  so should all the ppc refernces be ppc-e500 or something? (in the same way that is armv7m rather than just arm)
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: components/interrupt-event-ppc.c:45 [rework]
+Comment: in interrupt_event_process, add a comment for what the line with __builtin_ffs does.
 
-Location: filename:linenum
-Comment:
+Location: packages/ppc/default.ld:11 [accept]
+Comment: is the AT ... necessary.  i.e. do you know what it does and why it's there?
+.text : AT (LOADADDR(.vectors) + SIZEOF(.vectors))
+
+Location: packages/ppc/vectable.s:2 [rework]
+Comment: comment what "undefined" is for here (it's explained in a different file, but a reminder here would be nice)
+
+Location: packages/ppc/vectable.s:5 [rework]
+Comment: The comment re "Stack frame to stow interrupted context registers:" is pretty sparse.  Would be nice to have a description like you do with context switch code. Or link to the more verbose description.
+
+Location: packages/ppc/vectable.s:20, 33, 48, 69  [rework]
+Comment: Add comments explaining goal of macros: create_irq_frame_set_ctr, irq_frame_stow_remaining_regs, restore_regs_dismantle_irq_frame, unset_msr_wait_enable target 
+
+Location: packages/ppc/vectable.s:75 [rework]
+Comment: Add comment giving an overview of the vectable structure on PPC and how interrupts/exceptions work on the platform
+
+Location: packages/ppc/vectable.s:120: [rework]
+Comment: The comment /* Note: the given handler must be responsible for clearing the condition that caused this interrupt */ seems important but hidden in the source code.
+It would be good to have this information somewhere less obscure than in this .s file.  Maybe in the  .py file? or in manual?
+

@@ -5,7 +5,7 @@ Task name: W44OOP-ppc-kochab-prelim
 Version reviewed: c3360486a4dd7b0e7d327dbc2791d9dccdb67010
 Reviewer: stg
 Date: 2014-07-21
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
@@ -13,8 +13,15 @@ Overall comments:
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: pm/tasks/W44OOP-ppc-kochab-prelim
+Comment 1: Rework
+Only source files have a maximum line length of 118 characters.
+Non-source files have no such maximum so a sentence should reside on only a single line.
+No need to rework this for files under pm/, but please rework for more permanent files, such as manuals.
 
-Location: filename:linenum
-Comment:
+Location: components/blocking-mutex.c:104
+Comment 2: Rework
+mutex_lock() first disables preemptions, then calls mutex_try_lock() which itself disables, then enables preemptions.
+Thus, mutex_lock() runs with preemptions enabled after the first call to mutex_try_lock().
+This is clearly not as intended.
+You might need to adopt a similar solution as on task branch lLGoAN-kochab-rtos-variant.

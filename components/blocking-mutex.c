@@ -96,6 +96,18 @@ static struct mutex_stat mutex_stats[{{mutexes.length}}];
 
 /*| functions |*/
 
+static bool
+_mutex_try_lock(const {{prefix_type}}MutexId m)
+{
+    const bool r = mutexes[m].holder == TASK_ID_NONE;
+    if (r)
+    {
+        mutexes[m].holder = get_current_task();
+    }
+
+    return r;
+}
+
 /*| public_functions |*/
 {{#mutexes.length}}
 void
@@ -111,7 +123,7 @@ void
     assert_mutex_valid(m);
     api_assert(mutexes[m].holder != get_current_task(), ERROR_ID_DEADLOCK);
 
-    while (!{{prefix_func}}mutex_try_lock(m))
+    while (!_mutex_try_lock(m))
     {
 {{#mutex.stats}}
         contended = true;
@@ -173,15 +185,7 @@ bool
 
     assert_mutex_valid(m);
 
-    if (mutexes[m].holder != TASK_ID_NONE)
-    {
-        r = false;
-    }
-    else
-    {
-        mutexes[m].holder = get_current_task();
-        r = true;
-    }
+    r = _mutex_try_lock(m);
 
     preempt_enable();
 

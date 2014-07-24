@@ -20,13 +20,10 @@ kochab-sem-demo
 
 This system demonstrates the eChronos/kochab signal functionality:
 
-  Part 0 has one task (A) demonstrate peeking and polling of signals, as well as waits returning immediately if a
-  signal in the set is already available.
+  Part 0 has one task (A) demonstrate peeking and polling of signals, as well as waits returning immediately if a signal in the set is already available.
 
-  Part 1 shows a higher priority task (A) block waiting on a signal set, and being unblocked by a lower priority task
-  (B) sending it signals in the set.
-  Signals not in the set will not wake task (A), but will remain pending such that (A) will return immediately if it
-  tries to wait on them subsequently.
+  Part 1 shows a higher priority task (A) block waiting on a signal set, and being unblocked by a lower priority task (B) sending it signals in the set.
+  Signals not in the set will not wake task (A), but will remain pending such that (A) will return immediately if it tries to wait on them subsequently.
 
 There is no LED activity in this system, only debug prints via GDB.
 The following is the expected output of the signal demo, continuing from a breakpoint set at `rtos_start`:
@@ -80,26 +77,20 @@ The following is the expected output of the signal demo, continuing from a break
 
 This system demonstrates the eChronos/kochab mutex functionality:
 
-  Part 0 has one task (A) demonstrate trying and releasing of a mutex, as well as taking of a mutex when the mutex is
-  available.
+  Part 0 has one task (A) demonstrate trying and releasing of a mutex, as well as taking of a mutex when the mutex is available.
 
-  Part 1 shows a lower priority task (B) unblocking a higher priority task (A) by releasing a mutex it is blocked
-  waiting on.
+  Part 1 shows a lower priority task (B) unblocking a higher priority task (A) by releasing a mutex it is blocked waiting on.
 
-  Part 2 demonstrates the lowest-priority task (Z) inheriting the priority of the highest priority task (A), due to
-  task (Z) holding a mutex that task (A) is blocked waiting on.
+  Part 2 demonstrates the lowest-priority task (Z) inheriting the priority of the highest priority task (A), due to task (Z) holding a mutex that task (A) is blocked waiting on.
   Thus, task (Z) is scheduled over tasks (B) and (Y), despite them normally having a priority higher than task (Z).
 
   Part 3 demonstrates that priority inheritance is transitive.
   Task (A) is blocked by one mutex held by task (Y), and task (Y) is blocked by another mutex held by task (Z).
-  Therefore, task (Z) inherits the priority of task (A) via task (Y), and is thus scheduled ahead of task (B), even
-  though task (B) normally has a higher priority than both (Y) and (Z).
+  Therefore, task (Z) inherits the priority of task (A) via task (Y), and is thus scheduled ahead of task (B), even though task (B) normally has a higher priority than both (Y) and (Z).
 
-  Part 4 demonstrates that if two tasks (B) and (Y) are both waiting to acquire a mutex, the higher-priority task (B)
-  will be given ownership of the mutex in preference to the lower-priority task (Y).
+  Part 4 demonstrates that if two tasks (B) and (Y) are both waiting to acquire a mutex, the higher-priority task (B) will be given ownership of the mutex in preference to the lower-priority task (Y).
 
-  Part 5 demonstrates that the higher-priority task (B) will be given preference over the lower priority task (Y)
-  regardless of which of the two tasks attempted to acquire the mutex first.
+  Part 5 demonstrates that the higher-priority task (B) will be given preference over the lower priority task (Y) regardless of which of the two tasks attempted to acquire the mutex first.
 
 There is no LED activity in this system, only debug prints via GDB.
 The following is the expected output of the mutex demo, continuing from a breakpoint set at `rtos_start`:
@@ -198,17 +189,12 @@ The following is the expected output of the mutex demo, continuing from a breakp
 
 This system demonstrates the eChronos/kochab semaphore functionality:
 
-  Part 0 has one task (A) demonstrate posting (denoted `V`) and trying to wait (denoted `P`) on a semaphore, as well
-  as returning immediately from waiting on a semaphore that has already been posted.
+  Part 0 has one task (A) demonstrate posting (denoted `V`) and trying to wait (denoted `P`) on a semaphore, as well as returning immediately from waiting on a semaphore that has already been posted.
 
-  Part 1 has a lower-priority task (B) unblock a higher-priority task (A) by posting to a semaphore that task (A) is
-  blocked waiting on.
-  It also shows the basic property of semaphores that (A) can only wait the same number of times (B) has posted to the
-  semaphore, before a wait attempt would block (A).
+  Part 1 has a lower-priority task (B) unblock a higher-priority task (A) by posting to a semaphore that task (A) is blocked waiting on.
+  It also shows the basic property of semaphores that (A) can only wait the same number of times (B) has posted to the semaphore, before a wait attempt would block (A).
 
-  Part 2 shows that if two tasks are both blocked waiting on a semaphore, the higher priority task (A) will be woken
-  in preference to the lower priority task (B) when some other task (Z) posts to the semaphore, regardless of whether
-  task (A) or task (B) attempted to wait on the semaphore first.
+  Part 2 shows that if two tasks are both blocked waiting on a semaphore, the higher priority task (A) will be woken in preference to the lower priority task (B) when some other task (Z) posts to the semaphore, regardless of whether task (A) or task (B) attempted to wait on the semaphore first.
 
 There is no LED activity in this system, only debug prints via GDB.
 The following is the expected output of the semaphore demo, continuing from a breakpoint set at `rtos_start`:

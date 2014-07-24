@@ -19,9 +19,13 @@ Only source files have a maximum line length of 118 characters.
 Non-source files have no such maximum so a sentence should reside on only a single line.
 No need to rework this for files under pm/, but please rework for more permanent files, such as manuals.
 
+[rsison: fixed ppc-manual and rtos-example-manual]
+
 Location: components/blocking-mutex.c:104
 Comment 2: Rework
 mutex_lock() first disables preemptions, then calls mutex_try_lock() which itself disables, then enables preemptions.
 Thus, mutex_lock() runs with preemptions enabled after the first call to mutex_try_lock().
 This is clearly not as intended.
 You might need to adopt a similar solution as on task branch lLGoAN-kochab-rtos-variant.
+
+[rsison: sorry, pretty careless error. Thanks for catching, and fixed]

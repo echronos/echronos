@@ -17,23 +17,36 @@ Specific comments
 Location: components/interrupt-event-ppc.c:45 [rework]
 Comment: in interrupt_event_process, add a comment for what the line with __builtin_ffs does.
 
+[rsison: added]
+
 Location: packages/ppc/default.ld:11 [accept]
 Comment: is the AT ... necessary.  i.e. do you know what it does and why it's there?
 .text : AT (LOADADDR(.vectors) + SIZEOF(.vectors))
 
+[rsison: you're right, it's not necessary. Removed, along with unhelpful config options]
+
 Location: packages/ppc/vectable.s:2 [rework]
 Comment: comment what "undefined" is for here (it's explained in a different file, but a reminder here would be nice)
+
+[rsison: added]
 
 Location: packages/ppc/vectable.s:5 [rework]
 Comment: The comment re "Stack frame to stow interrupted context registers:" is pretty sparse.  Would be nice to have a description like you do with context switch code. Or link to the more verbose description.
 
+[rsison: added more detail and a link for the relevant part]
+
 Location: packages/ppc/vectable.s:20, 33, 48, 69  [rework]
 Comment: Add comments explaining goal of macros: create_irq_frame_set_ctr, irq_frame_stow_remaining_regs, restore_regs_dismantle_irq_frame, unset_msr_wait_enable target 
 
+[rsison: added explanations for the purpose of each]
+
 Location: packages/ppc/vectable.s:75 [rework]
 Comment: Add comment giving an overview of the vectable structure on PPC and how interrupts/exceptions work on the platform
+
+[rsison: done]
 
 Location: packages/ppc/vectable.s:120: [rework]
 Comment: The comment /* Note: the given handler must be responsible for clearing the condition that caused this interrupt */ seems important but hidden in the source code.
 It would be good to have this information somewhere less obscure than in this .s file.  Maybe in the  .py file? or in manual?
 
+[rsison: I've moved it to the .py file and also made it more accurate]

@@ -1,28 +1,72 @@
 .section .vectors, "a"
+/* This is here to catch unconfigured interrupts, or any other (deliberate or erroneous) jumps to address NULL. */
 undefined:
         b undefined
 
 /*
- * Stack frame to stow interrupted context registers:
- * 152 (stack frame size, 8-byte aligned)
- * 36 r3-r31
- * 32 r0
- * 28 CR
- * 24 CTR
- * 20 XER
- * 16 M/C/SRR1
- * 12 M/C/SRR0
- * 8 LR from interrupted context
- * 4 LR save (placeholder) for next function
- * 0 back chain word
+ * On a PowerPC interrupt, the CPU stores machine state into the interrupt save/restore registers:
+ *   MCSRR/CSRR/SRR0 holds the address to resume at on return from interrupt (rfmci/rfci/rfi)
+ *   MCSRR/CSRR/SRR1 holds the machine state register (MSR) of the interrupted context
+ *
+ * The Book E specification (e* core families) classes interrupts into noncritical and critical.
+ * Noncritical interrupts use SRR0/1, and critical interrupts have a separate pair of save/restore registers CSRR0/1.
+ * Additionally, the e500 core defines the machine check interrupt as its own class, with its own registers MCSRR0/1.
+ *
+ * These classes are ordered in priority such that if a noncritical interrupt is taken, the CPU will automatically
+ * modify the MSR to mask out all noncritical interrupts, but critical and machine check interrupts may still occur.
+ * Likewise, a critical interrupt will mask out all noncritical and critical interrupts (but not machine check
+ * interrupts, on the e500).
+ * Finally, on the e500 a machine check interrupt will mask out the enable bits of all types of interrupts.
+ *
+ * Despite this masking, an interrupt handler may still re-enable certain types of interrupts by re-setting the
+ * relevant interrupt enable bits in the MSR.
+ * In this case the M/C/SRRs should be saved to the stack since their contents will be lost if an interrupt is taken.
+ *
+ * Apart from the M/C/SRRs, all of the user-level registers remain as they were at the time the interrupt was taken,
+ * and the handler must take responsibility for saving them if the potential exists for them to be corrupted.
+
+ * In order to support arbitrary, project-defined handlers potentially implemented in C, we therefore define the
+ * following stack frame structure in which to preserve the interrupted context:
+ *
+ * 152 +------------------------------------------------------------+ Highest address
+ *     | r31                                                        |
+ *     ... (r4-r30)                                               ...
+ *     | r3                                                         |
+ *  36 +------------------------------------------------------------+
+ *     | r0                                                         |
+ *  32 +------------------------------------------------------------+
+ *     | CR (condition register)                                    |
+ *  28 +------------------------------------------------------------+
+ *     | CTR (count register)                                       |
+ *  24 +------------------------------------------------------------+
+ *     | XER (integer exception register)                           |
+ *  20 +------------------------------------------------------------+
+ *     | MCSRR/CSRR/SRR1                                            |
+ *  16 +------------------------------------------------------------+
+ *     | MCSRR/CSRR/SRR0                                            |
+ *  12 +------------------------------------------------------------+
+ *     | LR (link register) from interrupted context                |
+ *   8 +------------------------------------------------------------+
+ *     | LR save word (placeholder) for next function               |
+ *   4 +------------------------------------------------------------+
+ *     | Back chain word                                            |
+ *   0 +------------------------------------------------------------+ Lowest address
+ *
+ * The lowest two words (LR save and back chain word) follow the stack frame header convention of the EABI
+ * specification (see ppc-context-switch.c for more detail).
  */
 
+/* This macro defines the first half of storing the interrupted context to stack.
+ * First it creates the stack frame and stores the contents of r3 so that it can be used as a scratch register.
+ * Secondly, it stores the CTR contents on the stack and puts the given handler address into the CTR, because later, a
+ * 'bctrl' instruction will be used which branches to the address stored in the CTR.
+ * This macro is intended to be called from individual vector entry points before jumping to common code. */
 .macro create_irq_frame_set_ctr handler
-        /* Create stack frame and stow r3 for working */
+        /* Create stack frame and store r3 for working */
         stwu %sp,-152(%sp)
         stw %r3,36(%sp)
 
-        /* Stow CTR and replace with handler address */
+        /* Store CTR and replace with handler address */
         mfctr %r3
         stw %r3,24(%sp)
         li %r3,\handler@l
@@ -30,12 +74,14 @@ undefined:
         mtctr %r3
 .endm
 
-.macro irq_frame_stow_remaining_regs
-        /* Stow link register */
+/* This macro stores the remaining registers of the interrupted context, NOT including the per-interrupt-class SRRs.
+ * It is intended to be called from per-interrupt-class common code that takes care of the M/C/SRRs accordingly. */
+.macro irq_frame_store_remaining_regs
+        /* Store link register */
         mflr %r3
         stw %r3,8(%sp)
 
-        /* Stow XER and CR */
+        /* Store XER and CR */
         mfxer %r3
         stw %r3,20(%sp)
         mfcr %r3
@@ -45,6 +91,9 @@ undefined:
         stmw %r4,40(%sp) /* r4-r31 */
 .endm
 
+/* This macro restores registers of the interrupted context, NOT including the per-interrupt-class SRRs, and then
+ * dismantles the stack frame by incrementing the stack pointer.
+ * It is intended to be called after the interrupt has been handled, and prior to return from interrupt. */
 .macro restore_regs_dismantle_irq_frame
         lwz %r0,32(%sp)
         lmw %r4,40(%sp) /* r4-r31 */
@@ -66,15 +115,22 @@ undefined:
         addi %sp,%sp,152
 .endm
 
+/* This macro sets to zero the MSR wait-enable (WE) bit of the "target" register, trashing the "scratch" register.
+ * It is intended to be used on M/C/SRR1 prior to rf(m/c)i to wake up the interrupted context, if it was sleeping. */
 .macro unset_msr_wait_enable target scratch
         lis \scratch,0xfffb /* upper 16 bits excluding 0x4 for MSR[WE] */
         ori \scratch,\scratch,0xffff /* lower 16 bits */
         and \target,\target,\scratch
 .endm
 
-/* These have to be spaced and aligned to 0x10 because the bottom 4 bits of IVOR are ignored.
- * For PowerPC, .align takes an exponent of 2.
- * We'll put the first one at 0x100, and space them by 0x10 after that. */
+/*
+ * The PowerPC interrupt vectors are configured at runtime by setting the IVPR (interrupt vector prefix) and IVOR
+ * (interrupt vector offset) registers, which are indeterminate upon reset.
+ * Since the bottom 4 bits of IVOR are ignored, the following vectors have to be spaced and aligned to 0x10.
+ * For PowerPC, the .align assembler directive takes an exponent of 2.
+ * We'll put the first one at 0x100, and space them by 0x10 after that.
+ * The order of placement of these vectors in this file is arbitrary.
+ */
 .align 8
 {{#critical_input}}
 crit_vector:
@@ -117,7 +173,6 @@ istor_vector:   b istor_vector
 
 .align 4
 {{#external_input}}
-/* Note: the given handler must be responsible for clearing the condition that caused this interrupt */
 exti_vector:
         create_irq_frame_set_ctr {{external_input}}
         b noncrit_irq_common
@@ -301,7 +356,7 @@ eis_perfmon_vector: b eis_perfmon_vector
 
 {{#machine_check}}
 machine_check_irq:
-        /* Stow machine check interrupt save/restore registers:
+        /* Store machine check interrupt save/restore registers:
          *   MCSRR0 holds address to resume at
          *   MCSRR1 holds machine state
          * We do this in case a handler manually re-sets MSR[ME], allowing further machine check interrupts. */
@@ -310,7 +365,7 @@ machine_check_irq:
         mfmcsrr1 %r3
         stw %r3,16(%sp)
 
-        irq_frame_stow_remaining_regs
+        irq_frame_store_remaining_regs
 
         /* Jump to handler function loaded into CTR */
         bctrl
@@ -328,7 +383,7 @@ machine_check_irq:
 {{/machine_check}}
 
 critical_irq_common:
-        /* Stow critical interrupt save/restore registers:
+        /* Store critical interrupt save/restore registers:
          *   CSRR0 holds address to resume at
          *   CSRR1 holds machine state
          * A machine check irq may come in at any time.
@@ -338,7 +393,7 @@ critical_irq_common:
         mfcsrr1 %r3
         stw %r3,16(%sp)
 
-        irq_frame_stow_remaining_regs
+        irq_frame_store_remaining_regs
 
         /* Jump to handler function loaded into CTR */
         bctrl
@@ -355,7 +410,7 @@ critical_irq_common:
         rfci
 
 noncrit_irq_common:
-        /* Stow interrupt save/restore registers:
+        /* Store interrupt save/restore registers:
          *   SRR0 holds address to resume at
          *   SRR1 holds machine state
          * A critical or machine check interrupt may come in at any time.
@@ -365,7 +420,7 @@ noncrit_irq_common:
         mfsrr1 %r3
         stw %r3,16(%sp)
 
-        irq_frame_stow_remaining_regs
+        irq_frame_store_remaining_regs
 
         /* Jump to handler function loaded into CTR */
         bctrl
@@ -382,9 +437,20 @@ noncrit_irq_common:
         rfi
 
 .section .text
+/* The _entry function initialises the C run-time and then jumps to main (which should never return!)
+ * If there is a Reset_Handler function defined, then this will be invoked.
+ * It should never return. */
+.weak Reset_Handler
 .global _entry
 .type _entry,STT_FUNC
 _entry:
+        /* If there is a Reset_Handler call it - it shouldn't return. */
+        lis %r3,Reset_Handler@h
+        ori %r3,%r3,Reset_Handler@l
+        cmpi 0,%r3,0
+        beq 1f
+        b Reset_Handler
+1:
         /* IVPR, IVOR contents are indeterminate upon reset and must be initialized by system software.
          * IVPR is the 16 bit address prefix of ALL interrupt vectors */
         li %r3,0

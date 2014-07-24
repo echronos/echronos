@@ -3,20 +3,19 @@ OUTPUT_ARCH(powerpc)
 ENTRY(_entry)
 SECTIONS
 {
-        . = {{code_addr}};
         .ro_start = .;
-        .vectors : AT (0)
+        .vectors :
         { *(.vectors) }
 
-        .text : AT (LOADADDR(.vectors) + SIZEOF(.vectors))
+        .text :
         { *(.text.startup) *(.text) }
 
-        .rodata : AT (LOADADDR (.text) + SIZEOF(.text))
+        .rodata :
         { *(.rodata*) }
 
         .ro_end = ALIGN(4);
 
-        .data : AT ({{data_addr}})
+        .data :
         {
               *(.data)
               . = ALIGN(4);

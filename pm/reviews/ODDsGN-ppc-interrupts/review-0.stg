@@ -16,3 +16,5 @@ I recommend adding a GDB script and describing what the expected result of runni
 Comment 2: Rework
 'Store' is a much more common term for writing a value to a storage location than 'stow'.
 I recommend to replace 'stow' with 'store' for consistency and readability.
+
+[rsison: fixed]

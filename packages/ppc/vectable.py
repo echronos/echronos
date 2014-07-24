@@ -4,14 +4,14 @@ logger = logging.getLogger()
 
 
 class EntryModule(Module):
-    # Default address and stack size values are arbitrary.
+    # Default stack size value is arbitrary.
     # For interrupt handlers an empty string (the default) will simply generate a vector that loops forever on itself.
     # Alternatively, setting the handler to "undefined" will generate a handler that first creates a stack frame for
-    # the interrupted context and stows its registers there before looping forever at location "undefined".
+    # the interrupted context and stores its registers there before looping forever at location "undefined".
+    # Apart from the few handlers whose handler-wrappers (defined in vectable.s) clear their relevant MSR bits, the
+    # given handler must be responsible for clearing the condition that caused its interrupt.
     xml_schema = """
 <schema>
-    <entry name="code_addr" type="int" default="0" />
-    <entry name="data_addr" type="int" default="0x20000000" />
     <entry name="stack_size" type="int" default="0x1000" />
 
     <entry name="critical_input" type="c_ident" default="" />

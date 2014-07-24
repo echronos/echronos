@@ -1,11 +1,11 @@
-%title PowerPC package: user manual
+%title PowerPC e500 package: user manual
 %version 1-draft
 %docid r2BkWF
 
 Introduction
 -------------
 
-The PowerPC package provides support for a QEMU emulated PowerPC machine.
+The PowerPC e500 package provides support for a QEMU emulated PowerPC e500 machine.
 It provides the following modules:
 
 build
@@ -60,7 +60,7 @@ Exit GDB with:
 After exiting GDB, the escape sequence to exit qemu-system-ppc is `ctrl-A, X`.
 
 
-`ppc/build`
+`ppce500/build`
 ==============
 
 The build module supports the *system build* interface.
@@ -70,15 +70,15 @@ This toolchain can be obtained via a standard installation of the apt package `g
 The system must also have an assigned linker-script.
 It is recommended that the `entry` module is used to provide a functional linker-script.
 
-`ppc/debug`
+`ppce500/debug`
 ==============
 
 The debug module supports the *low-level debug* interface.
-It provides the `ppc_debug_putc` function.
+It provides the `ppce500_debug_putc` function.
 
-### `ppc_debug_putc`
+### `ppce500_debug_putc`
 
-    void ppc_debug_putc(char c)
+    void ppce500_debug_putc(char c)
 
 This function is not currently implemented, and is only a placeholder stub to assist GDB debugging.
 Alternatively, the generic `debug_println` function may be another convenient location to place a breakpoint.

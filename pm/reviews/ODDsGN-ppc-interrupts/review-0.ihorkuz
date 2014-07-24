@@ -11,6 +11,8 @@ Overall comments:
 
 this "ppc" work seems to be e500 specific.  so should all the ppc refernces be ppc-e500 or something? (in the same way that is armv7m rather than just arm)
 
+[rsison: refactored to "ppce500", which is the string that QEMU uses to identify the e500]
+
 Specific comments
 =================
 

@@ -53,7 +53,7 @@ undefined:
  *   0 +------------------------------------------------------------+ Lowest address
  *
  * The lowest two words (LR save and back chain word) follow the stack frame header convention of the EABI
- * specification (see ppc-context-switch.c for more detail).
+ * specification (see ppce500-context-switch.c for more detail).
  */
 
 /* This macro defines the first half of storing the interrupted context to stack.

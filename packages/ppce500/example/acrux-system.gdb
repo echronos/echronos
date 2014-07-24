@@ -1,5 +1,5 @@
-# qemu-system-ppc -S -nographic -gdb tcp::18181 -M ppce500 -kernel out/ppc/example/acrux-system/system
-# powerpc-linux-gnu-gdb out/ppc/example/acrux-system/system -x packages/ppc/example/acrux-system.gdb
+# qemu-system-ppc -S -nographic -gdb tcp::18181 -M ppce500 -kernel out/ppce500/example/acrux-system/system
+# powerpc-linux-gnu-gdb out/ppce500/example/acrux-system/system -x packages/ppce500/example/acrux-system.gdb
 target remote :18181
 # Don't prompt for terminal input
 set height 0

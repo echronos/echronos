@@ -9,7 +9,7 @@
       <prefix></prefix>
     </module>
     <module name="generic.hello">
-        <phrase>Hello, qemu-ppc!</phrase>
+        <phrase>Hello, PowerPC!</phrase>
     </module>
   </modules>
 </system>

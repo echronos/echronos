@@ -13,3 +13,5 @@ Comment 1: Accepted
 The implementation of the interrupt_event_wait() function effectively prevents ISRs for critical and MC interrupts from using interrupt events and thus RTOS functionality.
 This approach is acceptable as such.
 However, it is critical that it is documented so that application developers are able to implement ISRs correctly.
+
+[rsison: added note to ppce500-manual]

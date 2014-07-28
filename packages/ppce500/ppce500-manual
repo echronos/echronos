@@ -28,7 +28,10 @@ kraz-system
 acrux-system
   ~ A system demonstrating coordination between two tasks via `yield()` and mutexes, driven by timer interrupt events.
 
-These systems can be run on qemu-system-ppc, provided with standard apt package installations of QEMU, emulating the e500 core:
+Please note that RTOS variants that provide interrupt events only support their use by *noncritical external* interrupts on PowerPC, and will not enable or disable any other types of interrupts.
+Projects that define handlers for debug, critical, or machine check interrupts must enable them as needed, and cannot use the interrupt_event_raise() API or any other RTOS functionality.
+
+The systems in this package can be run on qemu-system-ppc, provided with standard apt package installations of QEMU, emulating the e500 core:
 
     qemu-system-ppc -S -nographic -gdb tcp::1234 -M ppce500 -kernel path/to/system
 

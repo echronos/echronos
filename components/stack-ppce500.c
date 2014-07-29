@@ -28,7 +28,7 @@
 /*| state |*/
 /*
  * PowerPC EABI stack is 8-byte aligned.
- * See ppc-context-switch.c
+ * See ppce500-context-switch.c
  */
 {{#tasks}}
 static uint32_t stack_{{idx}}[{{stack_size}}] __attribute__((aligned(8)));

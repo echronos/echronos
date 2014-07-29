@@ -1,0 +1,21 @@
+Task: ODDsGN-ppc-interrupts
+==============================================================================
+
+Motivation
+----------
+
+We want RTOS variants with interrupt-related features to be able to configure and make use of interrupts on PowerPC.
+
+
+Goals
+--------
+
+Implement vector table and interrupt events on PowerPC and show they work via an adaptation of the existing acrux-test.
+Also develop support for projects to specify their own interrupt handlers via the .prx file.
+
+
+Test Plan
+---------
+
+Use x.py to build the eChronos-smaccm-ppc release, and use prj to build module ppc.example.acrux-system.
+Run on qemu-ppc with GDB attached, and breakpoints set at debug_println, tick_irq, and interrupt_event_wait.

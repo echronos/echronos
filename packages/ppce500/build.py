@@ -17,14 +17,16 @@ def system_build(system):
 
     for c, o in zip(system.c_files, c_obj_files):
         os.makedirs(os.path.dirname(o), exist_ok=True)
-        execute(['powerpc-linux-gnu-gcc', '-meabi', '-ffreestanding', '-c', c, '-o', o, '-Wall', '-Werror'] +
+        # gcc options for the PowerPC e500
+        execute(['powerpc-linux-gnu-gcc', '-mcpu=8548', '-mfloat-gprs=double', '-meabi', '-ffreestanding', '-c', c,
+                '-o', o, '-Wall', '-Werror'] +
                 c_flags + inc_path_args)
 
     # Assemble all asm files.
     asm_obj_files = [os.path.join(system.output, os.path.basename(s.replace('.s', '.o'))) for s in system.asm_files]
     for s, o in zip(system.asm_files, asm_obj_files):
         os.makedirs(os.path.dirname(o), exist_ok=True)
-        execute(['powerpc-linux-gnu-as', '-o', o, s] + a_flags + inc_path_args)
+        execute(['powerpc-linux-gnu-as', '-me500', '-o', o, s] + a_flags + inc_path_args)
 
     # Perform final link
     obj_files = asm_obj_files + c_obj_files

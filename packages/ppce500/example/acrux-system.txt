@@ -1,0 +1,238 @@
+GNU gdb (GDB) 7.7.1
+Copyright (C) 2014 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "--host=x86_64-unknown-linux-gnu --target=powerpc-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+<http://www.gnu.org/software/gdb/documentation/>.
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from out/ppce500/example/acrux-system/system...done.
+_entry () at out/ppce500/example/acrux-system/vectable.s:269
+269	        lis %r3,Reset_Handler@h
+Breakpoint 1 at 0x504: file out/ppce500/example/acrux-system/generic.debug.c, line 31.
+Breakpoint 2 at 0x1048: file packages/ppce500/example/acrux-test.c, line 83.
+Breakpoint 3 at 0xe98: file packages/ppce500/example/acrux-test.c, line 12.
+Breakpoint 4 at 0x9c0: file out/ppce500/example/acrux-system/rtos-acrux.c, line 323.
+
+Breakpoint 2, main () at packages/ppce500/example/acrux-test.c:83
+83	    asm volatile(
+
+Breakpoint 3, tick_irq () at packages/ppce500/example/acrux-test.c:12
+12	    rtos_interrupt_event_raise(0);
+
+Breakpoint 1, debug_println (msg=0x105c "task a: taking lock") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10d0 "task b: attempting lock")
+    at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1090 "task a: releasing lock")
+    at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10e8 "task b: got lock") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10fc "task b") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1104 "b blocking") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10a8 "task a") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10b0 "unblocking b") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10c0 "task a blocking") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10fc "task b") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10fc "task b") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10fc "task b") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10fc "task b") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1104 "b blocking") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 4, interrupt_event_wait () at out/ppce500/example/acrux-system/rtos-acrux.c:323
+323	    asm volatile("wrteei 0"); /* Clear MSR[EE] to disable noncritical external input interrupts */
+
+Breakpoint 3, tick_irq () at packages/ppce500/example/acrux-test.c:12
+12	    rtos_interrupt_event_raise(0);
+Tick 1-1
+Breakpoint 1, debug_println (msg=0x10a8 "task a") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10c0 "task a blocking") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 4, interrupt_event_wait () at out/ppce500/example/acrux-system/rtos-acrux.c:323
+323	    asm volatile("wrteei 0"); /* Clear MSR[EE] to disable noncritical external input interrupts */
+
+Breakpoint 3, tick_irq () at packages/ppce500/example/acrux-test.c:12
+12	    rtos_interrupt_event_raise(0);
+Tick 1-2
+Breakpoint 1, debug_println (msg=0x10a8 "task a") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10c0 "task a blocking") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 4, interrupt_event_wait () at out/ppce500/example/acrux-system/rtos-acrux.c:323
+323	    asm volatile("wrteei 0"); /* Clear MSR[EE] to disable noncritical external input interrupts */
+
+Breakpoint 3, tick_irq () at packages/ppce500/example/acrux-test.c:12
+12	    rtos_interrupt_event_raise(0);
+Tick 1-3
+Breakpoint 1, debug_println (msg=0x10a8 "task a") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10c0 "task a blocking") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 4, interrupt_event_wait () at out/ppce500/example/acrux-system/rtos-acrux.c:323
+323	    asm volatile("wrteei 0"); /* Clear MSR[EE] to disable noncritical external input interrupts */
+
+Breakpoint 3, tick_irq () at packages/ppce500/example/acrux-test.c:12
+12	    rtos_interrupt_event_raise(0);
+Tick 1-4
+Breakpoint 1, debug_println (msg=0x10a8 "task a") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10c0 "task a blocking") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 4, interrupt_event_wait () at out/ppce500/example/acrux-system/rtos-acrux.c:323
+323	    asm volatile("wrteei 0"); /* Clear MSR[EE] to disable noncritical external input interrupts */
+
+Breakpoint 3, tick_irq () at packages/ppce500/example/acrux-test.c:12
+12	    rtos_interrupt_event_raise(0);
+Tick 1-5
+Breakpoint 1, debug_println (msg=0x10a8 "task a") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10b0 "unblocking b") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10c0 "task a blocking") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10fc "task b") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10fc "task b") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10fc "task b") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10fc "task b") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1104 "b blocking") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 4, interrupt_event_wait () at out/ppce500/example/acrux-system/rtos-acrux.c:323
+323	    asm volatile("wrteei 0"); /* Clear MSR[EE] to disable noncritical external input interrupts */
+
+Breakpoint 3, tick_irq () at packages/ppce500/example/acrux-test.c:12
+12	    rtos_interrupt_event_raise(0);
+Tick 2-1
+Breakpoint 1, debug_println (msg=0x10a8 "task a") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10c0 "task a blocking") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 4, interrupt_event_wait () at out/ppce500/example/acrux-system/rtos-acrux.c:323
+323	    asm volatile("wrteei 0"); /* Clear MSR[EE] to disable noncritical external input interrupts */
+
+Breakpoint 3, tick_irq () at packages/ppce500/example/acrux-test.c:12
+12	    rtos_interrupt_event_raise(0);
+Tick 2-2
+Breakpoint 1, debug_println (msg=0x10a8 "task a") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10c0 "task a blocking") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 4, interrupt_event_wait () at out/ppce500/example/acrux-system/rtos-acrux.c:323
+323	    asm volatile("wrteei 0"); /* Clear MSR[EE] to disable noncritical external input interrupts */
+
+Breakpoint 3, tick_irq () at packages/ppce500/example/acrux-test.c:12
+12	    rtos_interrupt_event_raise(0);
+Tick 2-3
+Breakpoint 1, debug_println (msg=0x10a8 "task a") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10c0 "task a blocking") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 4, interrupt_event_wait () at out/ppce500/example/acrux-system/rtos-acrux.c:323
+323	    asm volatile("wrteei 0"); /* Clear MSR[EE] to disable noncritical external input interrupts */
+
+Breakpoint 3, tick_irq () at packages/ppce500/example/acrux-test.c:12
+12	    rtos_interrupt_event_raise(0);
+Tick 2-4
+Breakpoint 1, debug_println (msg=0x10a8 "task a") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10c0 "task a blocking") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 4, interrupt_event_wait () at out/ppce500/example/acrux-system/rtos-acrux.c:323
+323	    asm volatile("wrteei 0"); /* Clear MSR[EE] to disable noncritical external input interrupts */
+
+Breakpoint 3, tick_irq () at packages/ppce500/example/acrux-test.c:12
+12	    rtos_interrupt_event_raise(0);
+Tick 2-5
+Breakpoint 1, debug_println (msg=0x10a8 "task a") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10b0 "unblocking b") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10c0 "task a blocking") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10fc "task b") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10fc "task b") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10fc "task b") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x10fc "task b") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1104 "b blocking") at out/ppce500/example/acrux-system/generic.debug.c:31
+31	    debug_print(msg);
+
+Breakpoint 4, interrupt_event_wait () at out/ppce500/example/acrux-system/rtos-acrux.c:323
+323	    asm volatile("wrteei 0"); /* Clear MSR[EE] to disable noncritical external input interrupts */
+
+Breakpoint 3, tick_irq () at packages/ppce500/example/acrux-test.c:12
+12	    rtos_interrupt_event_raise(0);
+Tick 3, Done.A debugging session is active.
+
+	Inferior 1 [Remote target] will be killed.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]

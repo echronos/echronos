@@ -5,16 +5,26 @@ Task name: q38zGJ-win32_build_support
 Version reviewed: 64fd041359f921391b0fd349ffe8d2d0a0ea4a85
 Reviewer: benno
 Date: 2014-07-12
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
 
-Specific comments
-=================
+host_platform.py and ucontext.[ch] have CRLF line-endings (should be just LF).
 
-Location: filename:linenum
-Comment:
+Overall, I'm not sure how I feel about having the 'host_platform' stuff; I have multiple possibly contradicting concerns.
+'host_platform' as a name seems wrong to start with, as it is really the target platform support (i.e: the target platform in this case is win32, and there is specific support required for win32).
+The ucontext.[ch] appears to not really be win32 related at all, but rather it appears to be x86 specific.
+Currently the only platform which supports ucontext natively is Linux, so possibly, the existing support should just be called Linux.
+On the other hand, I'm pretty sure that Linux could use the ucontext.[ch] implementation included in this changeset instead of the glibc version.
+Additionally, I'm pretty sure that OS X would work with the ucontext.[ch] implementation as well.
+Assuming the above is true, it seems like it would make more sense to have a C99/x86 as the target platform.
+i.e: the deps here are that you can compile something that has a standard main() entry point, and otherwise uses the context switch code.
 
-Location: filename:linenum
-Comment:
+Of course, once we get to that logical conclusion, if we are including 'ucontext' code, then we might as well just include *real* context switch code.
+i.e: provide a native x86 context switch module, rather than the 'posix' context switch code.
+This would also avoid the need to have LGPL code in the code base which is also a slight concern to me at this point as it limits the ability to license to third parties.
+
+So, I think what we really want to do in summary, is create an x86 (not sure if this should be x86 or x86-64, needs some analysis, but probably the latter).
+Then create a 'C' machine which uses the x86 CPU type.
+

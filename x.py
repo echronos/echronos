@@ -2578,7 +2578,6 @@ CORE_SKELETONS = {
          Component('interrupt_event', 'interrupt-event', {'timer_process': True, 'task_set': True}),
          Component('mutex', 'blocking-mutex'),
          Component('profiling'),
-         Component('message-queue-core-timer-signal'),
          Component('message-queue'),
          Component('error'),
          Component('task'),

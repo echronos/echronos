@@ -5,16 +5,4 @@ Task name: u4pVRf-blocking_message_queue
 Version reviewed: cc75f8ba804cc069b7c62e22961cc7ea3774b3d7
 Reviewer: benno
 Date: 2014-07-30
-Conclusion: Accepted/Rework
-
-Overall comments:
-
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Conclusion: Accepted

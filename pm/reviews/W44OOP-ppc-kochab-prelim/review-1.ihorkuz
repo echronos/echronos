@@ -16,12 +16,16 @@ Specific comments
 Location: components/blocking-mutex.c:
 Comment: some of the _ functions run with preemption disabled (i.e. they are called from functins that disable preemption, e.g.: _mutex_try_lock called from prefix_mutex_lock).  Is this a precondition of the function, or does it not care? If it is a precondition it should probably be documented.  But this brings even more preemption-related stuff into a component that can be used in a variant without preemption.
 
+[rsison: I think better to have too much information than not enough. Added]
+
 Location: kraz.c: 39
 Comment: 
 #define _yield() {{prefix_func}}yield()
 prefer to have it as:
 #define {{prefix_func}}yield() _yield()
 And then change the name of  {{prefix_func}}yield() to _yield
+
+[rsison: as discussed, defining as a wrapper instead so _yield wouldn't have to get exported]
 
 Location: rigel.c: 87
 Comment: 
@@ -30,20 +34,28 @@ prefer to have it as:
 #define {{prefix_func}}yield() _yield()
 And then change the name of  {{prefix_func}}yield() to _yield
 
+[rsison: fixed by defining as a wrapper]
+
 Location: kochab.c: 24
 Comment:  why does kochab.c have:
 void {{prefix_func}}yield(void);
 I thought this was removed from the API?
+
+[rsison: removed. this is a mistake]
 
 Location: kochab.c: 52
 Comment: 
 #define preempt_enable() _preempt_enable()
 Why is _preempt_enable necessary?  Why not just implement its functionality in preempt_enable()?
 
+[rsison: done]
+
 Location: kochab.c: 53
 Comment: 
 #define _preempt_pend() preempt_pending = true
 seems strange. In particular because you have preempt_enable and preempt_disable without the initial underscore
+
+[rsison: removed, only used in one place anyway]
 
 Location: kochab.c: 112
 Comment: 
@@ -58,6 +70,10 @@ _preempt_enable(void)
 }
 I think this should have a loop, to drain all pending_preempts before exiting? i.e. while(preempt_pending) { ... }
 
+[rsison: done]
+
 Location: packages/ppc/example/kochab-signal-demo.prx: 72
 Comment: why does this have a mutex defined? I don't think the code uses a mutex?
 
+[rsison: Removed by fixing some conditionally generated code guards, and same for kochab-sem-demo.prx.
+The cost of fixing this issue for kochab is having to pollute sched-prio-inherit with {{mutexes.length}} guards, and the sched-prio-inherit-test with a dummy schema element and .prx entry.]

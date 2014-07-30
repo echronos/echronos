@@ -21,7 +21,6 @@
 
 /*| public_function_definitions |*/
 void {{prefix_func}}start(void);
-void {{prefix_func}}yield(void);
 
 /*| headers |*/
 #include "rtos-kochab.h"
@@ -41,7 +40,7 @@ extern void {{function}}(void);
 static void _yield(void);
 static void _block(void);
 static void _unblock({{prefix_type}}TaskId task);
-static void _preempt_enable(void);
+static void preempt_enable(void);
 
 /*| state |*/
 /* Simulate kochab's desired "yield on unblock" behaviour until we implement preemption */
@@ -49,10 +48,11 @@ static volatile bool preempt_pending;
 
 /*| function_like_macros |*/
 #define preempt_disable()
-#define preempt_enable() _preempt_enable()
-#define _preempt_pend() preempt_pending = true
 #define mutex_block_on(task) _block_on(task)
 #define mutex_unblock(task) _unblock(task)
+#define precondition_preemption_disabled()
+#define postcondition_preemption_disabled()
+#define postcondition_preemption_enabled()
 
 /*| functions |*/
 {{#tasks}}
@@ -67,56 +67,69 @@ entry_{{name}}(void)
 static void
 _yield(void)
 {
-    /* pre-condition: preemption disabled */
-    const {{prefix_type}}TaskId from = get_current_task();
-    const {{prefix_type}}TaskId to = sched_get_next();
-    current_task = to;
-    context_switch(get_task_context(from), get_task_context(to));
-    /* post-condition: preemption disabled */
+    precondition_preemption_disabled();
+    {
+        const {{prefix_type}}TaskId from = get_current_task();
+        const {{prefix_type}}TaskId to = sched_get_next();
+        current_task = to;
+        context_switch(get_task_context(from), get_task_context(to));
+    }
+    postcondition_preemption_disabled();
 }
 
 static void
 _block(void)
 {
-    /* pre-condition: preemption disabled */
+    precondition_preemption_disabled();
+
     sched_set_blocked(get_current_task());
     _yield();
-    /* post-condition: preemption disabled */
+
+    postcondition_preemption_disabled();
 }
 
+{{#mutexes.length}}
 static void
 _block_on({{prefix_type}}TaskId t)
 {
-    /* pre-condition: preemption disabled */
+    precondition_preemption_disabled();
+
     sched_set_blocked_on(get_current_task(), t);
     _yield();
-    /* post-condition: preemption disabled */
+
+    postcondition_preemption_disabled();
 }
+{{/mutexes.length}}
 
 static void
 _unblock({{prefix_type}}TaskId task)
 {
-    /* pre-condition: preemption disabled */
+    precondition_preemption_disabled();
+
     sched_set_runnable(task);
 
     /*
      * Note: When preemption is enabled a yield should be forced
      * as a higher priority task may have been scheduled.
      */
-    _preempt_pend();
+    preempt_pending = true;
 
-    /* post-condition: preemption disabled */
+    postcondition_preemption_disabled();
 }
 
 static void
-_preempt_enable(void)
+preempt_enable(void)
 {
+    precondition_preemption_disabled();
+
     /* This simulates kochab's desired "yield on unblock" behaviour until we implement preemption */
-    if (preempt_pending)
+    while (preempt_pending)
     {
         preempt_pending = false;
         _yield();
     }
+
+    postcondition_preemption_enabled();
 }
 
 /*| public_functions |*/

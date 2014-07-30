@@ -78,7 +78,12 @@ static {{prefix_type}}SignalSet
 _signal_recv({{prefix_type}}SignalSet *const pending_signals, const {{prefix_type}}SignalSet requested_signals)
 {
     const {{prefix_type}}SignalSet received_signals = *pending_signals & requested_signals;
+
+    precondition_preemption_disabled();
+
     *pending_signals &= ~received_signals;
+
+    postcondition_preemption_disabled();
 
     return received_signals;
 }

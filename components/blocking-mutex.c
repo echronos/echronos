@@ -95,26 +95,30 @@ static struct mutex_stat mutex_stats[{{mutexes.length}}];
 {{/mutexes.length}}
 
 /*| functions |*/
-
+{{#mutexes.length}}
 static bool
 _mutex_try_lock(const {{prefix_type}}MutexId m)
 {
     const bool r = mutexes[m].holder == TASK_ID_NONE;
+
+    precondition_preemption_disabled();
+
     if (r)
     {
         mutexes[m].holder = get_current_task();
     }
 
+    postcondition_preemption_disabled();
+
     return r;
 }
+{{/mutexes.length}}
 
 /*| public_functions |*/
 {{#mutexes.length}}
 void
 {{prefix_func}}mutex_lock(const {{prefix_type}}MutexId m) {{prefix_const}}REENTRANT
 {
-    preempt_disable();
-
 {{#mutex.stats}}
     bool contended = false;
     const {{prefix_type}}TicksAbsolute wait_start_ticks = {{prefix_func}}timer_current_ticks;
@@ -122,6 +126,8 @@ void
 {{/mutex.stats}}
     assert_mutex_valid(m);
     api_assert(mutexes[m].holder != get_current_task(), ERROR_ID_DEADLOCK);
+
+    preempt_disable();
 
     while (!_mutex_try_lock(m))
     {
@@ -131,6 +137,8 @@ void
         waiters[get_current_task()] = m;
         mutex_block_on(mutexes[m].holder);
     }
+
+    preempt_enable();
 {{#mutex.stats}}
 
     if ({{prefix_func}}mutex_stats_enabled)
@@ -148,8 +156,6 @@ void
         }
     }
 {{/mutex.stats}}
-
-    preempt_enable();
 }
 
 void
@@ -157,10 +163,10 @@ void
 {
     {{prefix_type}}TaskId t;
 
-    preempt_disable();
-
     assert_mutex_valid(m);
     api_assert(mutexes[m].holder == get_current_task(), ERROR_ID_NOT_HOLDING_MUTEX);
+
+    preempt_disable();
 
     for (t = {{prefix_const}}TASK_ID_ZERO; t <= {{prefix_const}}TASK_ID_MAX; t++)
     {
@@ -181,9 +187,9 @@ bool
 {
     bool r;
 
-    preempt_disable();
-
     assert_mutex_valid(m);
+
+    preempt_disable();
 
     r = _mutex_try_lock(m);
 

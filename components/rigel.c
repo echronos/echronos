@@ -61,6 +61,7 @@ struct interrupt_event_handler {
 
 /*| function_definitions |*/
 static void _yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT;
+static void _yield(void) {{prefix_const}}REENTRANT;
 static void _block(void) {{prefix_const}}REENTRANT;
 static void _unblock({{prefix_type}}TaskId task);
 {{#interrupt_events.length}}
@@ -84,9 +85,10 @@ struct interrupt_event_handler interrupt_events[{{interrupt_events.length}}] = {
 {{/interrupt_events.length}}
 
 /*| function_like_macros |*/
-#define _yield() {{prefix_func}}yield()
 #define preempt_disable()
 #define preempt_enable()
+#define precondition_preemption_disabled()
+#define postcondition_preemption_disabled()
 #define interrupt_event_id_to_taskid(interrupt_event_id) (({{prefix_type}}TaskId)(interrupt_event_id))
 #define mutex_block_on(unused_task) {{prefix_func}}signal_wait({{prefix_const}}SIGNAL_ID__RTOS_UTIL)
 #define mutex_unblock(task) {{prefix_func}}signal_send(task, {{prefix_const}}SIGNAL_ID__RTOS_UTIL)
@@ -102,6 +104,13 @@ _yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT
     from = get_current_task();
     current_task = to;
     context_switch(get_task_context(from), get_task_context(to));
+}
+
+static void
+_yield(void) {{prefix_const}}REENTRANT
+{
+    {{prefix_type}}TaskId to = interrupt_event_get_next();
+    _yield_to(to);
 }
 
 static void
@@ -156,8 +165,7 @@ void
 void
 {{prefix_func}}yield(void) {{prefix_const}}REENTRANT
 {
-    {{prefix_type}}TaskId to = interrupt_event_get_next();
-    _yield_to(to);
+    _yield();
 }
 
 void

@@ -69,11 +69,6 @@
 
       </tasks>
 
-      <mutexes>
-        <mutex>
-          <name>dummy</name>
-        </mutex>
-      </mutexes>
       <mutex>
         <stats>false</stats>
       </mutex>

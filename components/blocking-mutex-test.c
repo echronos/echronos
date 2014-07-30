@@ -51,6 +51,8 @@ void (*unblock_ptr)({{prefix_type}}TaskId);
 /*| function_like_macros |*/
 #define preempt_disable()
 #define preempt_enable()
+#define precondition_preemption_disabled()
+#define postcondition_preemption_disabled()
 #define api_assert(expression, error_id) do { } while(0)
 
 /*| functions |*/

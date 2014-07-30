@@ -14,6 +14,12 @@
         <task><name>t3</name></task>
         <task><name>t4</name></task>
       </tasks>
+
+      <mutexes>
+          <mutex>
+              <name>dummy</name>
+          </mutex>
+      </mutexes>
     </module>
 
   </modules>

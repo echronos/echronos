@@ -54,11 +54,6 @@
         </semaphore>
       </semaphores>
 
-      <mutexes>
-        <mutex>
-          <name>dummy</name>
-        </mutex>
-      </mutexes>
       <mutex>
         <stats>false</stats>
       </mutex>

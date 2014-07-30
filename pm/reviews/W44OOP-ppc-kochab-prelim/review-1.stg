@@ -19,6 +19,7 @@ Please add a macro that can be used both for two purposes:
 in this instance for example, we are after a compare and swap operation that is atomic at the level of tasks;
 different RTOS variants would ensure these consistency constraints in different ways (no yield for non-preemptive variants, no preemption for preemptive variants, etc.)
 
+[rsison: added asserts to kochab]
 
 Specific comments
 =================
@@ -30,8 +31,12 @@ This is not valid in ANSI C and will lead to a compilation error if mutex statis
 Please move the call to preempt_disable() below the variable declarations.
 In general, preemption should be disabled only for the smallest possible scope.
 
+[rsison: fixed]
+
 Location: components/blocking-mutex.c:184 and others
 Comment 3: Rework
 Preemptions are disabled before checking assertions.
 This is not strictly necessary because the assertion tests work with preemptions enabled.
 Please change this and other instances of preempt_disable() such that only the smallest possible amount of code runs with preemptions disabled.
+
+[rsison: fixed]

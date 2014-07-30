@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <system>
   <modules>
-    <module name="ppc.build" />
-    <module name="ppc.ctxt-switch" />
-    <module name="ppc.entry" />
-    <module name="ppc.debug" />
+    <module name="ppce500.build" />
+    <module name="ppce500.ctxt-switch" />
+    <module name="ppce500.vectable" />
+    <module name="ppce500.debug" />
     <module name="generic.debug">
-      <ll_debug>ppc_</ll_debug>
+      <ll_debug>ppce500_</ll_debug>
       <prefix></prefix>
     </module>
 
-    <module name="ppc.rtos-acamar">
+    <module name="ppce500.rtos-gatria">
       <prefix>rtos</prefix>
       <taskid_size>8</taskid_size>
       <tasks>
@@ -28,9 +28,16 @@
         </task>
 
       </tasks>
+
+      <mutexes>
+        <mutex>
+          <name>a</name>
+        </mutex>
+      </mutexes>
+
     </module>
 
-    <module name="rtos-example.acamar-test" />
+    <module name="rtos-example.gatria-test" />
 
   </modules>
 </system>

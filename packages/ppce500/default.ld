@@ -1,15 +1,16 @@
 OUTPUT_FORMAT("elf32-powerpc", "elf32-powerpc", "elf32-powerpcle")
 OUTPUT_ARCH(powerpc)
-ENTRY(main)
+ENTRY(_entry)
 SECTIONS
 {
-        . = {{code_addr}};
         .ro_start = .;
+        .vectors :
+        { *(.vectors) }
 
         .text :
         { *(.text.startup) *(.text) }
 
-        .rodata : AT (LOADADDR (.text) + SIZEOF(.text))
+        .rodata :
         { *(.rodata*) }
 
         .ro_end = ALIGN(4);

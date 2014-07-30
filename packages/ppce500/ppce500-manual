@@ -1,11 +1,11 @@
-%title PowerPC package: user manual
+%title PowerPC e500 package: user manual
 %version 1-draft
 %docid r2BkWF
 
 Introduction
 -------------
 
-The PowerPC package provides support for a QEMU emulated PowerPC machine.
+The PowerPC e500 package provides support for a QEMU emulated PowerPC e500 machine.
 It provides the following modules:
 
 build
@@ -25,6 +25,8 @@ gatria-system
   ~ A system demonstrating coordination between two tasks via `yield()`, `unblock()`, and mutexes.
 kraz-system
   ~ A system demonstrating coordination between two tasks via `yield()`, mutexes, and signals.
+acrux-system
+  ~ A system demonstrating coordination between two tasks via `yield()` and mutexes, driven by timer interrupt events.
 kochab-signal-demo
   ~ A system demonstrating signal functionality on the kochab variant.
 kochab-mutex-demo
@@ -32,33 +34,14 @@ kochab-mutex-demo
 kochab-sem-demo
   ~ A system demonstrating semaphore functionality on the kochab variant.
 
-These systems can be run on qemu-system-ppc, provided with standard apt package installations of qemu, emulating the e500 core:
+Please note that RTOS variants that provide interrupt events only support their use by *noncritical external* interrupts on PowerPC, and will not enable or disable any other types of interrupts.
+Projects that define handlers for debug, critical, or machine check interrupts must enable them as needed, and cannot use the interrupt_event_raise() API or any other RTOS functionality.
+
+The systems in this package can be run on qemu-system-ppc, provided with standard apt package installations of QEMU, emulating the e500 core:
 
     qemu-system-ppc -S -nographic -gdb tcp::1234 -M ppce500 -kernel path/to/system
 
-`ppc/build`
-==============
-
-The build module supports the *system build* interface.
-It assumes the presence of a GNU PowerPC cross-compiler on PATH with toolchain prefix `powerpc-linux-gnu-`.
-This toolchain can be obtained via a standard installation of the apt package `gcc-powerpc-linux-gnu`.
-
-The system must also have an assigned linker-script.
-It is recommended that the `entry` module is used to provide a functional linker-script.
-
-`ppc/debug`
-==============
-
-The debug module supports the *low-level debug* interface.
-It provides the `ppc_debug_putc` function.
-
-### `ppc_debug_putc`
-
-    void ppc_debug_putc(char c)
-
-This function is not currently implemented, and is only a placeholder stub to assist GDB debugging.
-Alternatively, the generic `debug_println` function may be another convenient location to place a breakpoint.
-
+This will wait for a GDB connection.
 To obtain a PowerPC-compatible build of GDB:
 
     * clone git repository `git://sourceware.org/git/binutils-gdb.git`
@@ -68,3 +51,43 @@ To obtain a PowerPC-compatible build of GDB:
     * run `./configure --target=powerpc-linux-gnu`
 
     * run `make`
+
+In a separate window, run GDB:
+
+    powerpc-linux-gnu-gdb path/to/system
+
+To connect to QEMU, set a breakpoint at the debug_println stub, and start the system:
+
+    (gdb) target remote :1234
+    (gdb) b debug_println
+    (gdb) c
+
+Exit GDB with:
+    (gdb) quit
+    y
+
+After exiting GDB, the escape sequence to exit qemu-system-ppc is `ctrl-A, X`.
+
+
+`ppce500/build`
+==============
+
+The build module supports the *system build* interface.
+It assumes the presence of a GNU PowerPC cross-compiler on PATH with toolchain prefix `powerpc-linux-gnu-`.
+This toolchain can be obtained via a standard installation of the apt package `gcc-powerpc-linux-gnu`.
+
+The system must also have an assigned linker-script.
+It is recommended that the `entry` module is used to provide a functional linker-script.
+
+`ppce500/debug`
+==============
+
+The debug module supports the *low-level debug* interface.
+It provides the `ppce500_debug_putc` function.
+
+### `ppce500_debug_putc`
+
+    void ppce500_debug_putc(char c)
+
+This function is not currently implemented, and is only a placeholder stub to assist GDB debugging.
+Alternatively, the generic `debug_println` function may be another convenient location to place a breakpoint.

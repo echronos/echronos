@@ -1845,19 +1845,11 @@ def release_test_one(archive):
                     try:
                         subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
                     except subprocess.CalledProcessError as e:
-                        err_str = None
-                        for l in e.output.splitlines():
-                            l = l.decode()
-                            if l.startswith('ERROR'):
-                                err_str = l
-                                break
-                        if err_str is None:
-                            print(e.output)
-                            raise e
-                        elif 'missing or contains multiple Builder modules' in err_str:
+                        output = e.output.decode()
+                        if 'missing or contains multiple Builder modules' in output:
                             pass
                         else:
-                            print("Unexpected error:", err_str)
+                            print(output)
                             raise e
 
 

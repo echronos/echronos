@@ -1,0 +1,24 @@
+Breakaway Task Review
+=======================
+
+Task name: u4pVRf-blocking_message_queue
+Version reviewed: dddca60472debb54439d01e0f62d9a139329e483
+Reviewer: joseph
+Date: 2014-05-13
+Conclusion: Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: message_queue.c:134
+Comment: This needs a comment to point out that because the message queue shares the sleep timer signal this won't behave lile rtos_sleep normally does. Nice trick btw.
+
+[stg: comment added]
+
+Location: message_queue.c:134
+Comment: should be {{prefix_func}} not rtos_
+
+[stg: fixed]

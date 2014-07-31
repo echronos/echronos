@@ -14,3 +14,5 @@ Location: components/rigel.c:171
 Comment 1: Rework
 The function indirection yield()->_yield() may seem trivial but it incurs an overhead on some platforms that we are not willing to pay.
 Please make this a macro instead.
+
+[rsison: reverted to a macro for rigel and for kraz]

@@ -5,16 +5,12 @@ Task name: W44OOP-ppc-kochab-prelim
 Version reviewed: 3b311460b2b171353c3435eb70b2f7c4c88954c3
 Reviewer: stg
 Date: 2014-07-31
-Conclusion: Accepted/Rework
-
-Overall comments:
-
+Conclusion: Rework
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Location: components/rigel.c:171
+Comment 1: Rework
+The function indirection yield()->_yield() may seem trivial but it incurs an overhead on some platforms that we are not willing to pay.
+Please make this a macro instead.

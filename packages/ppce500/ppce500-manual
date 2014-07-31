@@ -10,8 +10,10 @@ It provides the following modules:
 
 build
   ~ A build module.
-entry
-  ~ A module that generates an appropriate linker script.
+ctxt-switch
+  ~ A module that implements context switching.
+vectable
+  ~ A module that generates an appropriate vector table.
 debug
   ~ A module that provides the *low-level debug* interface.
 
@@ -77,7 +79,7 @@ It assumes the presence of a GNU PowerPC cross-compiler on PATH with toolchain p
 This toolchain can be obtained via a standard installation of the apt package `gcc-powerpc-linux-gnu`.
 
 The system must also have an assigned linker-script.
-It is recommended that the `entry` module is used to provide a functional linker-script.
+It is recommended that the `vectable` module is used to provide a functional linker-script.
 
 `ppce500/debug`
 ==============

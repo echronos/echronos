@@ -102,8 +102,11 @@ class SmaccmDarwin(SmaccmBase):
 
 
 class SmaccmPowerPCe500(SmaccmBase):
-    packages = ['ppce500', 'generic', 'rtos-example']
+    packages = ['ppce500', 'generic', 'rtos-example', 'machine-qemu-ppce500']
     platforms = ['x86_64-unknown-linux-gnu']
+    version = 'Aug2014'
     release_name = 'smaccm-ppce500'
     enabled = True
-    extra_files = []
+    extra_files = [
+        ('README.md', 'docs/smaccm_ppc_readme'),
+    ]

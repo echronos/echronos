@@ -5,7 +5,7 @@ Task name: Wq3mjc-message_queue_assertions
 Version reviewed: 2bf949ac307d4d040f9751ab151c0d8e3c074ab6
 Reviewer: timg
 Date: 2014-08-04
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
@@ -13,8 +13,8 @@ Overall comments:
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: components/message-queue.c:257
+Comment: If dst == src+length, then the two don't overlap.  (dst > (src + length)) should be (dst >= (src + length)).
 
-Location: filename:linenum
-Comment:
+Location: components/message-queue.c:112
+Comment: The message_queue assert macros are inside {{#mutexes.length}} tags rather than {{#message_queues}}

@@ -191,12 +191,9 @@ message_queue_invariants_check(void)
         if (message_queue != MESSAGE_QUEUE_ID_NONE)
         {
             const struct message_queue *const mq = &message_queues[message_queue];
-            if (mq->queue_length > 2)
-            {
-                internal_assert((mq->available == 0) || (mq->available == mq->queue_length),\
-                    ERROR_ID_MESSAGE_QUEUE_INTERNAL_VIOLATED_INVARIANT_TASKS_BLOCKED_DESPITE_AVAILABLE_MESSAGES);
-            }
 
+            internal_assert((mq->available == 0) || (mq->available == mq->queue_length),\
+                ERROR_ID_MESSAGE_QUEUE_INTERNAL_VIOLATED_INVARIANT_TASKS_BLOCKED_DESPITE_AVAILABLE_MESSAGES);
             internal_assert(!message_queue_core_is_unblocked(task),\
                             ERROR_ID_MESSAGE_QUEUE_INTERNAL_VIOLATED_INVARIANT_WAITING_TASK_IS_NOT_BLOCKED);
         }

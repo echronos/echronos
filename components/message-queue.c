@@ -112,8 +112,8 @@ static MessageQueueIdOption message_queue_waiters[] =
 {{#message_queues.length}}
 #define message_queue_api_assert_valid(message_queue) api_assert(message_queue < {{message_queues.length}},\
                                                                  ERROR_ID_INVALID_ID)
-#define message_queue_internal_assert_valid(message_queue) api_assert(message_queue < {{message_queues.length}},\
-                                                                      ERROR_ID_INVALID_ID)
+#define message_queue_internal_assert_valid(message_queue) internal_assert(message_queue < {{message_queues.length}},\
+                                                                           ERROR_ID_INVALID_ID)
 {{^internal_asserts}}
 #define message_queue_init() do {} while(0)
 #define message_queue_invariants_check() do {} while(0)

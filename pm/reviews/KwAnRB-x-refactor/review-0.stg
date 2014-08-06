@@ -1,0 +1,21 @@
+Breakaway Task Review
+=======================
+
+Task name: KwAnRB-x-refactor
+Version reviewed: f7f3e4d9aa4dde5346e12c2598701aa1a17a85f4
+Reviewer: stg
+Date: 2014-05-28
+Conclusion: Rework
+
+Overall comments:
+
+Comment 0 [Accepted]
+Plain text documents are formatted in a "one sentence per line; one line per sentence" style.
+There is no maximum line length.
+Note that implementation files do have a maximum line length, although it is recommended to start each sentence in a comment section on a new line.
+
+Comment 1 [Rework]
+All client repositories still need to work together with the refactored x.py.
+If this is not the case out of the box, please create corresponding tasks in the client repositories.
+This is important to continue to be able to create releases from client repositories.
+If client repositories are demonstrated to not be affected by these changes, my conclusion is Accepted instead of Rework.

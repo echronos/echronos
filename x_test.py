@@ -1,7 +1,10 @@
 from pylib.xunittest import teamcityskip
 from pylib.utils import Git
 from pylib.components import sort_typedefs
+from pylib.tasks import _Review
 import itertools
+import os
+import tempfile
 
 # The constants refer to the base (initial) commit.
 # All branches should be dervied from this commit, so it
@@ -35,3 +38,14 @@ def test_sort_typedefs():
     expected = '\n'.join(typedefs)
     for x in itertools.permutations(typedefs):
         assert sort_typedefs('\n'.join(x)) == expected
+
+
+def test_full_stop_in_reviewer_name():
+    with tempfile.TemporaryDirectory() as dir:
+        round = 0
+        author = 'john.doe'
+        review_file_path = os.path.join(dir, 'review-{}.{}'.format(round, author))
+        open(review_file_path, 'w').close()
+        review = _Review(review_file_path)
+        assert review.author == author
+        assert review.round == round

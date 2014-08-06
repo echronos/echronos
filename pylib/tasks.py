@@ -150,10 +150,11 @@ class _Review:
         assert isinstance(file_path, str)
         assert os.path.isfile(file_path)
         self.file_path = file_path
-        trunk, self.author = os.path.splitext(file_path)
-        self.author = self.author[1:]
-        relative_trunk = os.path.basename(trunk)
-        self.round = int(relative_trunk.split('-')[-1])
+        basename = os.path.basename(file_path)
+        round_author = basename[7:]
+        round, author = round_author.split('.', maxsplit=1)
+        self.round = int(round)
+        self.author = author
         self._conclusion = None
 
     def _get_conclusion(self):

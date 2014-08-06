@@ -1,0 +1,42 @@
+Task: b9H794-support_full_stop_in_reviewer_names
+==============================================================================
+
+Motivation
+----------
+
+The command
+
+#> x.py task integrate
+
+currently fails with the following error message if the suffix of a review file name that is the reviewer's name contains a full stop:
+
+Traceback (most recent call last):
+  File "x.py", line 355, in <module>
+    sys.exit(main())
+  File "x.py", line 351, in main
+    return SUBCOMMAND_TABLE[args.command](args)
+  File "T:\rtos-clr\core\pylib\tasks.py", line 456, in integrate
+    task.integrate(args.target, args.archive)
+  File "T:\rtos-clr\core\pylib\tasks.py", line 261, in integrate
+    self._pre_integration_check()
+  File "T:\rtos-clr\core\pylib\tasks.py", line 271, in _pre_integration_check
+    self._check_is_accepted()
+  File "T:\rtos-clr\core\pylib\tasks.py", line 288, in _check_is_accepted
+    done_reviews = [r for r in self._get_most_recent_reviews_from_all_authors() if r.is_done()]
+  File "T:\rtos-clr\core\pylib\tasks.py", line 302, in _get_most_recent_reviews_from_all_authors
+    for review in self._get_reviews():
+  File "T:\rtos-clr\core\pylib\tasks.py", line 322, in _get_reviews
+    review = _Review(absolute_path)
+  File "T:\rtos-clr\core\pylib\tasks.py", line 156, in __init__
+    self.round = int(relative_trunk.split('-')[-1])
+ValueError: invalid literal for int() with base 10: '0.ihor'
+
+Goals
+--------
+
+Make the x.py task integrate command work under the above condition.
+
+Test Plan
+---------
+
+# Review the unit test test_full_stop_in_reviewer_name and run "x test x-test" to execute the unit test

@@ -384,7 +384,7 @@ def main():
         'tasks': tasks,
         'integrate': integrate,
         # Tempalte management
-        'gen-tag': gen_tag,
+        'gen-tag': _gen_tag,
     }
 
     # create the top-level parser

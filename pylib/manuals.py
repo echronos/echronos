@@ -107,6 +107,6 @@ def build_manual(pkg_dir, verbose=False):
 
 
 def build_manuals(args):
-    build([])
+    build(args)
     for pkg_dir in get_package_dirs(set(('documentation.markdown',))):
         build_manual(pkg_dir, args.verbose)

@@ -1,0 +1,16 @@
+Task: beuq8y-fix-release-cfg
+==============================================================================
+
+Motivation
+----------
+
+When using core as a sub-package out technique for identifying release configs
+does not work correctly.
+
+Goals
+--------
+
+
+Test Plan
+---------
+

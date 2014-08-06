@@ -16,7 +16,7 @@ def _review_dir(topdir, *args):
     return os.path.join(topdir, 'pm', 'reviews', *args)
 
 
-def _gen_tag():
+def _gen_tag(_):
     tag_length = 6
     tag_chars = string.ascii_letters + string.digits
     return ''.join(choice(tag_chars) for _ in range(tag_length))

@@ -125,7 +125,7 @@ def new_task(args):
         # from.
         git.fetch()
 
-    fullname = _gen_tag() + '-' + args.taskname
+    fullname = _gen_tag(None) + '-' + args.taskname
     git.branch(fullname, branch_from, track=False)
     git.push(fullname, fullname, set_upstream=True)
     git.checkout(fullname)

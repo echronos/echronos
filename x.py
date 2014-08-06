@@ -314,11 +314,11 @@ def main():
 
     task_subparsers.add_parser('list', help="List tasks")
     _parser = task_subparsers.add_parser('new', help='Create a new task')
+    _parser.add_argument('taskname', metavar='TASKNAME', help='Name of the new task')
+    _parser.add_argument('--no-fetch', dest='fetch', action='store_false', default='true', help='Disable fetchign')
     _parser = task_subparsers.add_parser('review', help='Create a new review')
     _parser.add_argument('reviewers', metavar='REVIEWER', nargs='+',
                          help='Username of reviewer')
-    _parser.add_argument('taskname', metavar='TASKNAME', help='Name of the new task')
-    _parser.add_argument('--no-fetch', dest='fetch', action='store_false', default='true', help='Disable fetchign')
     _parser = task_subparsers.add_parser('integrate', help='Integrate a completed development task/branch \
 into the main upstream branch.')
     _parser.add_argument('--repo', help='Path of git repository to operate in. \

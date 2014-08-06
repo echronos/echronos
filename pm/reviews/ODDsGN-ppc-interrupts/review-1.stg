@@ -1,0 +1,17 @@
+Breakaway Task Review
+=======================
+
+Task name: ODDsGN-ppc-interrupts
+Version reviewed: 9dd30dfc185a0114772a754d96e502ff8df8bdc6
+Reviewer: stg
+Date: 2014-07-24
+Conclusion: Accepted
+
+Overall comments:
+
+Comment 1: Accepted
+The implementation of the interrupt_event_wait() function effectively prevents ISRs for critical and MC interrupts from using interrupt events and thus RTOS functionality.
+This approach is acceptable as such.
+However, it is critical that it is documented so that application developers are able to implement ISRs correctly.
+
+[rsison: added note to ppce500-manual]

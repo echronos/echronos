@@ -1,0 +1,70 @@
+Breakaway Task Review
+=======================
+
+Task name: X8ZjKY-ppc-baseline
+Version reviewed: f087e73e404aa684bee93c60564efdc9fb3da5b2
+Reviewer: ihorkuz
+Date: 2014-06-26
+Conclusion: Rework
+
+Overall comments:
+
+Nitpicks about comments and use of magic numbers.  The review guidelines say that constructive pickyness is encouraged, so here it is.
+
+Specific comments
+=================
+
+Location: components/ppc-context-switch/ppc-context-switch.c:20-66 [Rework]	
+Comment:
+Some remarks and suggestions about the large explanatory comment:
+- in "This implementation follows the conventions of the PowerPC EABI specification, obtained from:" the document referred to is not actually a "specification" but a note on how to use the EABI. We should decide on an actual specification to follow and refer to that.
+- do the FPR in the stack layout refer to the F* in the register description, and the GPR to the R* in the register description? This should be made explicit.
+- possibly mention that LR is the link register, used to track function return addresses.
+- in the stack description, what do you mean by "optional, not implemented"? In particular, for function parameters and local variable areas, does it mean that they never get used in the EABI (or in echronos when calling functions)? or does it mean that the context switch code does not store that data on the stack?  I guess the latter, but it's not completely clear. 
+- some extra information about the stack and general EABI would be useful.  
+  + Does the stack grow up or down?
+  + possibly briefly summarise the calling convention (arguments in registers, spill over to stack, etc.)
+- Note: the EABI states that LR is to be saved in the *caller's* LR save area (page 26, EABI spec). This is a bit counterintuituve, as one would expect it to be saved in the current executing function's LR save area.  So I think it's worth mentioning.
+
+[rsison: Fixed; reworked to clarify the above points]
+
+Location: components/ppc-context-switch/ppc-context-switch.c:140 [Rework]
+Comment:
+The comment says: "* The EABI specification doesn't specify how to terminate the back chain - here we NULL-terminate it."
+The EABI *specification* I've seen actually specifies that for the first stack frame the BC shall have a value of NULL. So probably reword this, or refer to an actual specification.
+
+[rsison: Fixed; I still think the Power Architecture ABI (Embedded) spec you have is at the very least a different
+revision to what's termed the PowerPC EABI, because it specifies a different stack frame size.
+Still, I finally tracked down the EABI spec & it refers to the System V ABI spec, which does say to NULL-terminate it]
+
+Location: packages/ppc/ctxt-switch.s:3 [Rework]
+Comment:
+In the comment "/* Based on function prologue/epilogue example given in PowerPC EABI specification. See ppc-context-switch.c */" replace "EABI specification" with "EABI documentation"
+
+[rsison: Fixed]
+
+Location: packages/ppc/ctxt-switch.s:10-12, 21-24 [Rework]
+Comment:
+Use a constant rather than a magic number when dealing with stack size (where the constant is based on the stack size, so if you change it in ppc-context-switch.c it also changes here.  In the code it is 80, 84, and 8:
+stwu %r1,-80(%r1)   /* Move sp to create frame for r14-r31 + lr + sp */
+stw  %r0,+84(%r1)   /* Save lr to stack */
+stmw %r14,+8(%r1)   /* Save 18 non-volatiles (r14-r31) to stack */
+and
+lwz  %r0,+84(%r1)   /* Get saved lr from stack */
+lmw  %r14,+8(%r1)   /* Restore 18 non-volatiles (r14-r31) from stack */
+addi %r1,%r1,80     /* Move sp to remove stack frame */
+
+[rsison: Not fixed; the toolchain doesn't appear to provide a cost-free way to do this. Added a better comment]
+
+Location: packages/ppc/ctxt-switch.s:10 [Rework]
+Comment:
+The comment for this code should also say that sp is saved in backchain word.  The code:
+stwu %r1,-80(%r1)   /* Move sp to create frame for r14-r31 + lr + sp */
+
+[rsison: Fixed; comment clarified]
+
+Location: packages/ppc/entry.py [Accept]
+Comment:
+Do the defaults make sense? What are they based on?
+
+[rsison: Nothing special about these defaults, they're essentially arbitrary. Added a comment there]

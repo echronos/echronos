@@ -80,7 +80,7 @@ if correct is not None and sys.executable != correct:
 import argparse
 import logging
 
-from pylib.tasks import new_review, new_task, tasks, integrate
+from pylib.tasks import new_review, new_task, tasks, integrate, _gen_tag
 from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8
 from pylib.components import Component, ArchitectureComponent, Architecture, RtosSkeleton, build
 from pylib.release import release_test, build_release, build_partials
@@ -104,6 +104,7 @@ topdir = os.path.normpath(os.path.dirname(__file__))
 CORE_ARCHITECTURES = {
     'posix': Architecture('posix', {}),
     'armv7m': Architecture('armv7m', {}),
+    'ppce500': Architecture('ppce500', {}),
 }
 
 CORE_SKELETONS = {
@@ -201,6 +202,20 @@ CORE_SKELETONS = {
          Component('rigel'),
          ],
     ),
+    # This is a preliminary, incomplete version of kochab without yet interrupts or preemption
+    'kochab': RtosSkeleton(
+        'kochab',
+        [Component('reentrant'),
+         ArchitectureComponent('stack', 'stack'),
+         ArchitectureComponent('ctxt_switch', 'context-switch'),
+         Component('sched', 'sched-prio-inherit', {'assume_runnable': False}),
+         Component('signal'),
+         Component('mutex', 'blocking-mutex'),
+         Component('semaphore', 'simple-semaphore'),
+         Component('error'),
+         Component('task'),
+         Component('kochab'),
+         ]),
 }
 
 
@@ -211,11 +226,12 @@ CORE_CONFIGURATIONS = {
     'blocking-mutex-test': ['posix'],
     'simple-semaphore-test': ['posix'],
     'sched-prio-test': ['posix'],
-    'acamar': ['posix', 'armv7m'],
-    'gatria': ['posix', 'armv7m'],
-    'kraz': ['posix', 'armv7m'],
-    'acrux': ['armv7m'],
+    'acamar': ['posix', 'armv7m', 'ppce500'],
+    'gatria': ['posix', 'armv7m', 'ppce500'],
+    'kraz': ['posix', 'armv7m', 'ppce500'],
+    'acrux': ['armv7m', 'ppce500'],
     'rigel': ['armv7m'],
+    'kochab': ['ppce500'],
 }
 
 
@@ -248,6 +264,8 @@ def main():
         'new-task': new_task,
         'list': tasks,
         'integrate': integrate,
+        # Tempalte management
+        'gen-tag': _gen_tag,
     }
 
     # create the top-level parser
@@ -287,7 +305,8 @@ def main():
     build_subparsers.add_parser('prj-build', help='Build prj')
     build_subparsers.add_parser('build-release', help='Build final release')
     build_subparsers.add_parser('build-partials', help='Build partial release files')
-    build_subparsers.add_parser('build-manuals', help='Build PDF manuals')
+    _parser = build_subparsers.add_parser('build-manuals', help='Build PDF manuals')
+    _parser.add_argument('--verbose', '-v', action='store_true')
     build_subparsers.add_parser('generate', help='Generate packages from components')
 
     task_parser = subparsers.add_parser("tasks", help="Task management")
@@ -310,6 +329,8 @@ Defaults to active branch in repository.')
 Defaults to "development".', default='development')
     _parser.add_argument('--archive', help='Prefix to add to task branch name when archiving it. \
 Defaults to "archive".', default='archive')
+
+    subparsers.add_parser('gen-tag', help='Generate a random 6-char alphanumeric string')
 
     args = parser.parse_args()
 

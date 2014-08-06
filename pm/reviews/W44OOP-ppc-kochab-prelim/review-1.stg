@@ -1,0 +1,42 @@
+Breakaway Task Review
+=======================
+
+Task name: W44OOP-ppc-kochab-prelim
+Version reviewed: 2b88655fa5fa7e617d3e12a354e6f8d66421b34f
+Reviewer: stg
+Date: 2014-07-24
+Conclusion: Rework
+
+Overall comments:
+
+Comment 1: Rework
+Currently, preemptions are disabled where necessary.
+However, it is not clear where exactly that is necessary.
+Please add a macro that can be used both for two purposes:
+1. as a run-time assertion to check whether preemptions are disabled (it does not need to be fully implemented at this point);
+2. as a marker for static analysis indicating which functions or code blocks must run with preemptions disabled, i.e., which could be interpreted by static analysis as a pre- and post condition.
+(Ideally (but completely out of scope), we would have a more abstract form of specifying consistency requirements for code blocks;
+in this instance for example, we are after a compare and swap operation that is atomic at the level of tasks;
+different RTOS variants would ensure these consistency constraints in different ways (no yield for non-preemptive variants, no preemption for preemptive variants, etc.)
+
+[rsison: added asserts to kochab]
+
+Specific comments
+=================
+
+Location: components/blocking-mutex.c:116
+Comment 2: Rework
+preempt_disable() is called at the top of the function, before the declaration of the function's automatic variables.
+This is not valid in ANSI C and will lead to a compilation error if mutex statistics are enabled.
+Please move the call to preempt_disable() below the variable declarations.
+In general, preemption should be disabled only for the smallest possible scope.
+
+[rsison: fixed]
+
+Location: components/blocking-mutex.c:184 and others
+Comment 3: Rework
+Preemptions are disabled before checking assertions.
+This is not strictly necessary because the assertion tests work with preemptions enabled.
+Please change this and other instances of preempt_disable() such that only the smallest possible amount of code runs with preemptions disabled.
+
+[rsison: fixed]

@@ -92,6 +92,14 @@
       <profiling>
         <task_uptime>true</task_uptime>
       </profiling>
+
+      <message_queues>
+        <message_queue>
+          <name>test</name>
+          <message_size>2</message_size>
+          <queue_length>2</queue_length>
+        </message_queue>
+      </message_queues>
     </module>
 
     <module name="rtos-example.rigel-test" />

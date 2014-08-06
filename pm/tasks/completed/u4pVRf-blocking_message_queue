@@ -1,0 +1,40 @@
+Task: u4pVRf-blocking_message_queue
+==============================================================================
+
+Motivation
+----------
+
+The current message queue API relies solely on the yield() API to implement blocking operations.
+This can require significantly more CPU time than blocking the calling task and potentially allowing the system to enter a low power state.
+
+
+Goals
+--------
+
+The goal of this task is to modify the implementation of the message queue API so that tasks block instead of repeatedly yielding.
+
+The proposed design is as follows:
+
+- the message_queue_get/put_timeout() functions shall be based on the timer component
+
+- the message_queue_get/put() functions shall be based on the signal component to block and unblock tasks as necessary
+
+This general approach shall be implemented as follows in particular:
+
+- Instead of introducing a dedicated timer instance, the existing per-task timer instance (of the sleep() API) shall be used.
+  The rationale is that a given task can, at a certain point in time, use only either the sleep() or the message queue API.
+  Thus, the implementation of the message queue API can safely use the task timer instance.
+  It shall do so because it avoids an additional timer instance that is not strictly necessary.
+
+- Instead of introducing a dedicated signal, the existing task timer signal shall be used.
+  The reasoning is the same as above.
+
+The completion of this task shall allow a code review of the proposed design and the implemented approach.
+It is not necessary for this implementation to be perfectly complete or to be tested.
+Completion and testing shall be left to a follow-up task, once the design and implementation approach are approved of.
+
+
+Test Plan
+---------
+
+Code review, as per task goals.

@@ -101,9 +101,9 @@ class SmaccmDarwin(SmaccmBase):
     enabled = True
 
 
-class SmaccmPowerPC(SmaccmBase):
-    packages = ['ppc', 'generic', 'rtos-example']
+class SmaccmPowerPCe500(SmaccmBase):
+    packages = ['ppce500', 'generic', 'rtos-example']
     platforms = ['x86_64-unknown-linux-gnu']
-    release_name = 'smaccm-ppc'
+    release_name = 'smaccm-ppce500'
     enabled = True
     extra_files = []

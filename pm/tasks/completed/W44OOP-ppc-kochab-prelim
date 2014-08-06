@@ -1,0 +1,27 @@
+Task: W44OOP-ppc-kochab-prelim
+==============================================================================
+
+Motivation
+----------
+
+We want to bring up kochab on PowerPC but kochab is not yet in the development head.
+The introduction of kochab in smaller chunks will make it easier to review.
+This first task will just feature kochab's support for mutexes, semaphores and signals with a priority inheritance
+scheduler and implied yield-on-unblock semantics, but without irqs or preemption, which are arch-dependent.
+The introduction of interrupts and preemption for arm and ppc can then be done in separate tasks.
+
+
+Goals
+--------
+
+Introduce a cut-down 'kochab' variant with kochab's non-interrupt-dependent features as a base step for bringing
+kochab into mainline.
+Also provide test programs for that functionality.
+
+
+Test Plan
+---------
+
+New rtos-example programs kochab-mutex-demo, kochab-sem-demo and kochab-signal-demo will test the expected behaviour
+of those primitives in the presence of priority scheduling with inheritance.
+

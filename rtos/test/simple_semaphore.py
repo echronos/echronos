@@ -54,8 +54,8 @@ class SemaphoreTest:
         cls.impl.pub_set_get_current_task_ptr(cls.get_current_task_ptr)
 
 
-class testSimpleSemaphoreWhiteBox(SemaphoreTest):
-    """Semaphore tests (white-box)."""
+class testSimpleSemaphore(SemaphoreTest):
+    # Semaphore tests (white-box)
     def test_count(self):
         self.impl.pub_sem_init()
 
@@ -124,10 +124,7 @@ class testSimpleSemaphoreWhiteBox(SemaphoreTest):
                     else:
                         assert task_id not in unblocked
 
-
-class testSimpleSemaphore(SemaphoreTest):
-    """Semaphore tests (black-box)."""
-
+    # Semaphore tests (black-box)
     def test_simple(self):
         """Simple test of semaphore functionality."""
         self.impl.pub_sem_init()

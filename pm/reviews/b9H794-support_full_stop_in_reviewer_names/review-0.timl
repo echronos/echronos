@@ -5,16 +5,4 @@ Task name: b9H794-support_full_stop_in_reviewer_names
 Version reviewed: 130bb664f1c289939b08726f08f34fdbda8735bb
 Reviewer: timl
 Date: 2014-08-06
-Conclusion: Accepted/Rework
-
-Overall comments:
-
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Conclusion: Accepted

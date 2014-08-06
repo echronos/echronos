@@ -1,0 +1,19 @@
+Breakaway Task Review
+=======================
+
+Task name: X8ZjKY-ppc-baseline
+Version reviewed: 63fa0eae3c120b28e97bf9bc6f57342715d7c11f
+Reviewer: stg
+Date: 2014-06-23
+Conclusion: Rework
+
+Overall comments:
+
+Comment 1: Rework
+Ensure that all source code comments observe the project style guide lines by
+- starting each sentence on a new line
+- keeping lines at most 120 characters long
+- having as few line breaks in a sentence as possible while observing the maximum line length
+This affects, e.g., components/ppc-context-switch/ppc-context-switch.c:148 and components/stack-ppc.c
+
+[rsison: Fixed]

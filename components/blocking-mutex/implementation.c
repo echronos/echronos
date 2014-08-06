@@ -49,6 +49,24 @@ static struct mutex_stat mutex_stats[{{mutexes.length}}];
 {{/mutexes.length}}
 
 /*| functions |*/
+{{#mutexes.length}}
+static bool
+_mutex_try_lock(const {{prefix_type}}MutexId m)
+{
+    const bool r = mutexes[m].holder == TASK_ID_NONE;
+
+    precondition_preemption_disabled();
+
+    if (r)
+    {
+        mutexes[m].holder = get_current_task();
+    }
+
+    postcondition_preemption_disabled();
+
+    return r;
+}
+{{/mutexes.length}}
 
 /*| public_functions |*/
 {{#mutexes.length}}
@@ -63,7 +81,9 @@ void
     assert_mutex_valid(m);
     api_assert(mutexes[m].holder != get_current_task(), ERROR_ID_DEADLOCK);
 
-    while (!{{prefix_func}}mutex_try_lock(m))
+    preempt_disable();
+
+    while (!_mutex_try_lock(m))
     {
 {{#mutex.stats}}
         contended = true;
@@ -71,6 +91,8 @@ void
         waiters[get_current_task()] = m;
         mutex_block_on(mutexes[m].holder);
     }
+
+    preempt_enable();
 {{#mutex.stats}}
 
     if ({{prefix_func}}mutex_stats_enabled)
@@ -98,6 +120,8 @@ void
     assert_mutex_valid(m);
     api_assert(mutexes[m].holder == get_current_task(), ERROR_ID_NOT_HOLDING_MUTEX);
 
+    preempt_disable();
+
     for (t = {{prefix_const}}TASK_ID_ZERO; t <= {{prefix_const}}TASK_ID_MAX; t++)
     {
         if (waiters[t] == m)
@@ -108,22 +132,24 @@ void
     }
 
     mutexes[m].holder = TASK_ID_NONE;
+
+    preempt_enable();
 }
 
 bool
 {{prefix_func}}mutex_try_lock(const {{prefix_type}}MutexId m)
 {
+    bool r;
+
     assert_mutex_valid(m);
 
-    if (mutexes[m].holder != TASK_ID_NONE)
-    {
-        return false;
-    }
-    else
-    {
-        mutexes[m].holder = get_current_task();
-        return true;
-    }
+    preempt_disable();
+
+    r = _mutex_try_lock(m);
+
+    preempt_enable();
+
+    return r;
 }
 
 RtosTaskId

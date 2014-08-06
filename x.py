@@ -80,7 +80,7 @@ if correct is not None and sys.executable != correct:
 import argparse
 import logging
 
-from pylib.tasks import new_review, new_task, tasks, integrate
+from pylib.tasks import new_review, new_task, tasks, integrate, _gen_tag
 from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8
 from pylib.components import Component, build
 from pylib.release import release_test, build_release, build_partials
@@ -104,7 +104,8 @@ topdir = os.path.normpath(os.path.dirname(__file__))
 CORE_CONFIGURATIONS = {"posix": ["sched-rr-test", "sched-prio-inherit-test", "simple-mutex-test",
                                  "blocking-mutex-test", "simple-semaphore-test", "sched-prio-test",
                                  "acamar", "gatria", "kraz"],
-                       "armv7m": ["acamar", "gatria", "kraz", "acrux", "rigel"]}
+                       "armv7m": ["acamar", "gatria", "kraz", "acrux", "rigel"],
+                       "ppce500": ["acamar", "gatria", "kraz", "acrux", "kochab"]}
 
 CORE_SKELETONS = {
     'sched-rr-test': [Component('reentrant'),
@@ -184,6 +185,17 @@ CORE_SKELETONS = {
               Component('task'),
               Component('rigel'),
               ],
+    'kochab': [Component('reentrant'),
+               Component('stack', pkg_component=True),
+               Component('context-switch', pkg_component=True),
+               Component('sched-prio-inherit', {'assume_runnable': False}),
+               Component('signal'),
+               Component('blocking-mutex'),
+               Component('simple-semaphore'),
+               Component('error'),
+               Component('task'),
+               Component('kochab'),
+               ]
 }
 
 # client repositories may extend or override the following variables to control which configurations are available
@@ -194,26 +206,28 @@ configurations = CORE_CONFIGURATIONS.copy()
 def main():
     """Application main entry point. Parse arguments, and call specified sub-command."""
     SUBCOMMAND_TABLE = {
-        # prj tool
-        'prj-build': prj_build,
         # Releases
-        'build': build,
-        'test-release': release_test,
+        'prj-build': prj_build,
+        'generate': build,
         'build-release': build_release,
         'build-partials': build_partials,
-        # Manuals
         'build-manuals': build_manuals,
+
         # Testing
         'check-pep8': check_pep8,
         'prj-test': prj_test,
         'pystache-test': pystache_test,
         'x-test': x_test,
         'rtos-test': rtos_test,
+        'test-release': release_test,
+
         # Tasks management
         'new-review': new_review,
         'new-task': new_task,
-        'tasks': tasks,
+        'list': tasks,
         'integrate': integrate,
+        # Tempalte management
+        'gen-tag': _gen_tag,
     }
 
     # create the top-level parser
@@ -221,19 +235,18 @@ def main():
 
     subparsers = parser.add_subparsers(title='subcommands', dest='command')
 
-    # create the parser for the "prj.pep8" command
-    subparsers.add_parser('tasks', help="List tasks")
+    test_parser = subparsers.add_parser("test", help="Run tests")
+    test_subparsers = test_parser.add_subparsers(title="Test suites", dest="test_command")
 
-    _parser = subparsers.add_parser('check-pep8', help='Run PEP8 on project Python files')
+    _parser = test_subparsers.add_parser('check-pep8', help='Run PEP8 on project Python files')
     _parser.add_argument('--teamcity', action='store_true',
                          help="Provide teamcity output for tests",
                          default=False)
     _parser.add_argument('--excludes', nargs='*',
                          help="Exclude directories from pep8 checks",
                          default=[])
-
     for component_name in ['prj', 'x', 'rtos']:
-        _parser = subparsers.add_parser(component_name + '-test', help='Run {} unittests'.format(component_name))
+        _parser = test_subparsers.add_parser(component_name + '-test', help='Run {} unittests'.format(component_name))
         _parser.add_argument('tests', metavar='TEST', nargs='*',
                              help="Specific test", default=[])
         _parser.add_argument('--list', action='store_true',
@@ -245,24 +258,31 @@ def main():
         _parser.add_argument('--quiet', action='store_true',
                              help="Less output",
                              default=False)
-    subparsers.add_parser('prj-build', help='Build prj')
+    test_subparsers.add_parser('pystache-test', help='Test pystache')
+    test_subparsers.add_parser('test-release', help='Test final release')
 
-    subparsers.add_parser('pystache-test', help='Test pystache')
-    subparsers.add_parser('build-release', help='Build final release')
-    subparsers.add_parser('test-release', help='Test final release')
-    subparsers.add_parser('build-partials', help='Build partial release files')
-    subparsers.add_parser('build-manuals', help='Build PDF manuals')
-    subparsers.add_parser('build', help='Build all release files')
-    _parser = subparsers.add_parser('new-review', help='Create a new review')
+    build_parser = subparsers.add_parser("build", help="Build release stuff...")
+    build_subparsers = build_parser.add_subparsers(title="Build options", dest="build_command")
+
+    build_subparsers.add_parser('prj-build', help='Build prj')
+    build_subparsers.add_parser('build-release', help='Build final release')
+    build_subparsers.add_parser('build-partials', help='Build partial release files')
+    _parser = build_subparsers.add_parser('build-manuals', help='Build PDF manuals')
+    _parser.add_argument('--verbose', '-v', action='store_true')
+    build_subparsers.add_parser('generate', help='Generate packages from components')
+
+    task_parser = subparsers.add_parser("tasks", help="Task management")
+    task_subparsers = task_parser.add_subparsers(title="Task management operations", dest="task_command")
+
+    task_subparsers.add_parser('list', help="List tasks")
+    _parser = task_subparsers.add_parser('new-review', help='Create a new review')
     _parser.add_argument('reviewers', metavar='REVIEWER', nargs='+',
                          help='Username of reviewer')
-
-    _parser = subparsers.add_parser('new-task', help='Create a new task')
+    _parser = task_subparsers.add_parser('new-task', help='Create a new task')
     _parser.add_argument('taskname', metavar='TASKNAME', help='Name of the new task')
     _parser.add_argument('--no-fetch', dest='fetch', action='store_false', default='true', help='Disable fetchign')
-
-    _parser = subparsers.add_parser('integrate', help='Integrate a completed development task/branch into the main \
-upstream branch.')
+    _parser = task_subparsers.add_parser('integrate', help='Integrate a completed development task/branch \
+into the main upstream branch.')
     _parser.add_argument('--repo', help='Path of git repository to operate in. \
 Defaults to current working directory.')
     _parser.add_argument('--name', help='Name of the task branch to integrate. \
@@ -272,17 +292,24 @@ Defaults to "development".', default='development')
     _parser.add_argument('--archive', help='Prefix to add to task branch name when archiving it. \
 Defaults to "archive".', default='archive')
 
+    subparsers.add_parser('gen-tag', help='Generate a random 6-char alphanumeric string')
+
     args = parser.parse_args()
 
-    # Default to building
     if args.command is None:
-        args.command = 'build'
-    args.topdir = topdir
-    args.configurations = configurations
-    args.skeletons = skeletons
+        parser.print_help()
+    else:
+        for cmd, subcommand in ([("test", "test_command"), ("tasks", "task_command"), ("build", "build_command")]):
+            if args.command == cmd:
+                if vars(args)[subcommand] is None:
+                    args = parser.parse_args([cmd, "-h"])
+                args.command = vars(args)[subcommand]
 
-    return SUBCOMMAND_TABLE[args.command](args)
+        args.topdir = topdir
+        args.configurations = configurations
+        args.skeletons = skeletons
 
+        return SUBCOMMAND_TABLE[args.command](args)
 
 if __name__ == "__main__":
     sys.exit(main())

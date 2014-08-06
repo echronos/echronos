@@ -24,7 +24,9 @@ struct sched {
 /*| function_definitions |*/
 static void sched_set_runnable(const {{prefix_type}}TaskId task_id);
 static void sched_set_blocked(const {{prefix_type}}TaskId task_id);
+{{#mutexes.length}}
 static void sched_set_blocked_on(const {{prefix_type}}TaskId task_id, const {{prefix_type}}TaskId blocker);
+{{/mutexes.length}}
 static [[#assume_runnable]]{{prefix_type}}TaskId[[/assume_runnable]][[^assume_runnable]]TaskIdOption[[/assume_runnable]] sched_get_next(void);
 
 /*| state |*/
@@ -50,11 +52,13 @@ sched_set_blocked(const {{prefix_type}}TaskId task_id)
     SCHED_OBJ(task_id).blocked_on = TASK_ID_NONE;
 }
 
+{{#mutexes.length}}
 static void
 sched_set_blocked_on(const {{prefix_type}}TaskId task_id, const {{prefix_type}}TaskId blocker)
 {
     SCHED_OBJ(task_id).blocked_on = blocker;
 }
+{{/mutexes.length}}
 
 static [[#assume_runnable]]{{prefix_type}}TaskId[[/assume_runnable]][[^assume_runnable]]TaskIdOption[[/assume_runnable]]
 sched_get_next(void)

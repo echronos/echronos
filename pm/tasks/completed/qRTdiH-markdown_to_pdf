@@ -1,0 +1,192 @@
+Task: qRTdiH-markdown_to_pdf
+==============================================================================
+
+Motivation
+----------
+
+x.py currently lacks the ability to generate PDF documents (in particular: RTOS manuals) from markdown text.
+
+Goals
+--------
+
+- add functionality to x.py to create PDF documents from markdown
+
+- update the build-manual command so that it uses this new functionality to generate RTOS manuals
+
+Test Plan
+---------
+
+- run x.py rigel-gen
+
+- check out branch development in the rtos-clr repository
+
+    * cp rtos-clr/docs/rigel-manual packages/armv7m/rtos-rigel/documentation.markdown
+
+
+- cat > packages/armv7m/rtos-rigel/documentation_header.html <<EOF
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link rel="stylesheet" type="text/css" href="documentation_stylesheet.css">
+<script>
+  function subst() {
+    var vars={};
+    var x=window.location.search.substring(1).split('&');
+    for (var i in x) {var z=x[i].split('=',2);vars[z[0]] = unescape(z[1]);}
+    var x=['frompage','topage','page','webpage','section','subsection','subsubsection', 'title', 'docid'];
+    for (var i in x) {
+      var y = document.getElementsByClassName(x[i]);
+      for (var j=0; j<y.length; ++j) y[j].textContent = vars[x[i]];
+    }
+  }
+</script>
+</head>
+<body style="border: 0; margin: 0;" onload="subst()">
+<table width="100%" style="border-bottom: 1px solid black;">
+<tr>
+<td class="title" width="50%"></td>
+<td width="50%" align="right">Page <span class="page"></span> of <span class="topage"></span></td>
+</tr>
+</table>
+</body>
+</html>
+EOF
+
+
+- cat > packages/armv7m/rtos-rigel/documentation_footer.html <<EOF
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link rel="stylesheet" type="text/css" href="documentation_stylesheet.css">
+<script>
+  function subst() {
+    var vars={};
+    var x=window.location.search.substring(1).split('&');
+    for (var i in x) {var z=x[i].split('=',2);vars[z[0]] = unescape(z[1]);}
+    var x=['frompage','topage','page','webpage','section','subsection','subsubsection', 'title', 'docid'];
+    for (var i in x) {
+      var y = document.getElementsByClassName(x[i]);
+      for (var j=0; j<y.length; ++j) y[j].textContent = vars[x[i]];
+    }
+  }
+</script>
+</head>
+<body style="border: 0; margin: 0;" onload="subst()">
+<table width="100%" style="border-top: 1px solid black;">
+<tr>
+<td class="docid" width="50%"></td>
+<td width="50%" align="right">Breakaway Consulting</td>
+</tr>
+</table>
+</body>
+</html>
+EOF
+
+
+- cat > packages/armv7m/rtos-rigel/documentation_template.html <<EOF
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"$if(lang)$ lang="$lang$" xml:lang="$lang$"$endif$>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+$for(author-meta)$
+  <meta name="author" content="$author-meta$" />
+$endfor$
+$if(date-meta)$
+  <meta name="date" content="$date-meta$" />
+$endif$
+  <meta name="docid" content="$docid$" />
+  <meta name="version" content="$version$" />
+  <title>$title$</title>
+$if(highlighting-css)$
+  <style type="text/css">
+$highlighting-css$
+  </style>
+$endif$
+$for(css)$
+  <link rel="stylesheet" href="$css$" $if(html5)$$else$type="text/css" $endif$/>
+$endfor$
+$if(math)$
+  $math$
+$endif$
+$for(header-includes)$
+  $header-includes$
+$endfor$
+</head>
+<body>
+$for(include-before)$
+$include-before$
+$endfor$
+$if(title)$
+<div id="$idprefix$header">
+<div class="document_title">$title$</div>
+$for(author)$
+<h2 class="author">$author$</h2>
+$endfor$
+$if(date)$
+<h3 class="date">$date$</h3>
+$endif$
+</div>
+$endif$
+$if(toc)$
+<div id="$idprefix$TOC">
+<div class="toc">Table of Contents</div>
+$toc$
+</div>
+$endif$
+$body$
+$for(include-after)$
+$include-after$
+$endfor$
+</body>
+</html>
+EOF
+
+
+- cat > packages/armv7m/rtos-rigel/documentation_stylesheet.css <<EOF
+html {
+    font-family: "Helvetica Neue", Helvetica, sans-serif;
+    font-weight: 300;
+    font-size: 140%;
+}
+
+h1 {
+    font-weight: bold;
+    page-break-before: always;
+    color: DimGray;
+}
+
+.document_title {
+    font-size: 250%;
+    font-weight: bold;
+    padding-top: 5cm;
+    padding-bottom: 5cm;
+}
+
+p {
+    line-height: 140%;
+}
+
+a {
+    color: inherit;
+    text-decoration: inherit;
+}
+
+.toc {
+    font-size: 150%;
+    font-weight: bold;
+    color: DimGray;
+}
+
+#TOC {
+    font-size: 140%;
+    line-height: 200%
+}
+EOF
+
+
+- x.py build-manuals
+
+
+- verify that the PDF file packages/armv7m/rtos-rigel/documentation.pdf was generated

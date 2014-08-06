@@ -1,0 +1,20 @@
+Task: qSdSZE-x-interface
+==============================================================================
+
+Motivation
+----------
+
+The ./x.py command line interface has grown organically over time. As such, it
+can be confusing for a new developer trying to get up to speed. By simplifying
+the interface developers will be better able to understand what the tool does
+and to use it effectively.
+
+Goals
+--------
+ - Simplify the x.py interface, by removing obsolete subcommands and grouping
+   existing commands into logical groups
+ - Update the documentation to ensure it is consistent with the implementation
+
+Test Plan
+---------
+

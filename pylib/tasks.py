@@ -337,7 +337,7 @@ class _Task:
 
     def _complete(self):
         """
-        Mark this taks as complete in the currently active git branch by moving the task description file into the
+        Mark this task as complete in the currently active git branch by moving the task description file into the
         'completed' sub-directory and committing the result.
         """
         task_dir = _task_dir(self.top_directory)

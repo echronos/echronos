@@ -5,16 +5,19 @@ Task name: CW0VT7-pass_relative_paths_to_git
 Version reviewed: f15f1387dc0b4174eb25767e2005cd74df8fe237
 Reviewer: benno
 Date: 2014-08-07
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
 Overall comments:
 
+A general comment is that Python style is to eschew lambdas in favour of functions.
+For example:
 
-Specific comments
-=================
+    def square(x):
+        return x ** 2
 
-Location: filename:linenum
-Comment:
+is preferred over:
 
-Location: filename:linenum
-Comment:
+    square = lambda x: x ** 2
+
+In many ways I prefer the lambda as it forces it to be a single expression, but we should regocnise we are departing for normal Python practises.
+

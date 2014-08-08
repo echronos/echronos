@@ -32,18 +32,20 @@ def _prj_build_unix(output_dir, host):
         print("Building prj currently unsupported on {}".format(sys.platform))
         return 1
 
+    prj_app_path = base_path('prj', 'app')
+    tools_path = base_path('tools')
     with chdir(output_dir):
-        ice.create_lib('prj', '../prj/app', main='prj')
-        ice.create_lib('prjlib', '../prj/app/lib')
-        ice.create_lib('pystache', '../prj/app/pystache',
+        ice.create_lib('prj', prj_app_path, main='prj')
+        ice.create_lib('prjlib', os.path.join(prj_app_path, 'lib'))
+        ice.create_lib('pystache', os.path.join(prj_app_path, 'pystache'),
                        excluded=['setup', 'pystache.tests', 'pystache.commands'])
-        ice.create_lib('ply', '../prj/app/ply', excluded=['setup'])
+        ice.create_lib('ply', os.path.join(prj_app_path, 'ply'), excluded=['setup'])
         ice.create_stdlib()
         ice.create_app(['stdlib', 'prj', 'prjlib', 'pystache', 'ply'])
 
-        cmd = ['gcc', '*.c', '-o', 'prj', '-I../tools/include/python3.3m/',
-               '-I../tools/{}/include/python3.3m/'.format(host),
-               '-L../tools/{}/lib/python3.3/config-3.3m'.format(host),
+        cmd = ['gcc', '*.c', '-o', 'prj', '-I{}/include/python3.3m/'.format(tools_path),
+               '-I{}/{}/include/python3.3m/'.format(tools_path, host),
+               '-L{}/{}/lib/python3.3/config-3.3m'.format(tools_path, host),
                '-lpython3.3m']
         cmd += extras
 

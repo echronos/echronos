@@ -1,0 +1,21 @@
+Task: KwAnRB-x-refactor
+==============================================================================
+
+Motivation
+----------
+
+The x.py tool 2614 lines long, which is longer than we would like in other for
+the file to be easily maintained.
+
+Goals
+--------
+
+This tasks is to refactor x.py into a number of separate modules in order to
+ease maintainance and provide a structure on which future features can be added.
+
+Test Plan
+---------
+
+ * All existing tests on TeamCity will continue to pass
+ * pylint will be used to capture possible errors in un-tested branches of the code
+

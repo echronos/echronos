@@ -1,0 +1,16 @@
+Task: cUcYj2-fix-build-manuals
+==============================================================================
+
+Motivation
+----------
+
+x.py build build-manuals current fails on TeamCity
+
+Goals
+--------
+
+To fix x.py build build-manuals.
+
+Test Plan
+---------
+

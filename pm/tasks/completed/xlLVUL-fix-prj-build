@@ -1,0 +1,17 @@
+Task: xlLVUL-fix-prj-build
+==============================================================================
+
+Motivation
+----------
+
+x.py build prj-build is broken when x.py is used from an externl project such
+as clr-rtos, as it does not correctly compute relative paths.
+
+Goals
+--------
+
+Fix prj-build.
+
+Test Plan
+---------
+

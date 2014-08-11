@@ -4,7 +4,7 @@ import os
 import sys
 
 from rtos import sched
-from x import get_executable_extension
+from pylib.utils import get_executable_extension
 
 NUM_SEMAPHORES = 10
 ALL_SEMAPHORES = list(range(NUM_SEMAPHORES))

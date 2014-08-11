@@ -1,4 +1,4 @@
-from x import Release
+from pylib.release import Release
 
 
 class Standard(Release):

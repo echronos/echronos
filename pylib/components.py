@@ -2,7 +2,7 @@ import os
 import shutil
 import pystache
 import xml.etree.ElementTree
-from .utils import BASE_DIR, base_path
+from .utils import BASE_DIR, base_path, Node
 
 
 # FIXME: Use correct declaration vs definition.
@@ -138,6 +138,12 @@ def _render_data(in_data, name, config):
     return pystache.render(in_data, config, name=name)
 
 
+class Section:
+    def __init__(self, name, contents):
+        self.name = name
+        self.contents = contents
+
+
 def _parse_sectioned_file(fn, config={}):
     """Given a sectioned C-like file, returns a dictionary of { section: content }
 
@@ -150,33 +156,33 @@ def _parse_sectioned_file(fn, config={}):
 
     Would produce:
 
-    { 'foo' : "foo data....", 'bar' : "bar data...." }
+    { 'foo' : Section('foo', "foo data...."), 'bar' : Section('bar', "bar data....") }
     """
 
     with open(fn) as f:
         sections = {}
-        current_lines = None
+        section = None
         for line in f.readlines():
             line = line.rstrip()
 
             if line.startswith('/*|') and line.endswith('|*/'):
-                section = line[3:-3].strip()
-                current_lines = []
-                sections[section] = current_lines
-            elif current_lines is not None:
-                current_lines.append(line)
+                section = Section(line[3:-3].strip(), [])
+                sections[section.name] = section
+            elif section is not None:
+                section.contents.append(line)
 
-    for key, value in sections.items():
-        sections[key] = _render_data('\n'.join(value).rstrip(), "{}: Section {}".format(fn, key), config)
+    for section in sections.values():
+        section.contents = _render_data('\n'.join(section.contents).rstrip(),
+                                        '{}: Section {}'.format(fn, section.name), config)
 
     for s in _REQUIRED_COMPONENT_SECTIONS:
-        if s not in sections:
+        if s not in sections.keys():
             raise Exception("Couldn't find expected section '{}' in file: '{}'".format(s, fn))
 
     return sections
 
 
-class Component:
+class Component(Node):
     """Represents an optional, exchangeable piece of functionality of an RTOS.
 
     Components reside in the components/ directory of the core or sub-projects.
@@ -259,34 +265,43 @@ class Component:
         else:
             self._resource_name = name
         self._configuration = configuration
+        self.deps = set()
+        self.caps = set((self.name,))
 
-    def parse(self, parsing_configuration={}):
+    def __repr__(self):
+        return self.name
+
+    def parse(self, arch):
         """Retrieve the properties of this component by parsing its corresponding source file.
 
-        'parsing_configuration' is an optional dictionary that is merged with the component's base configuration and
-        passed to the parsing function.
+        'arch' is a string that identifies the architecture this component is to be customized for.
+        For non-architecture components, the value of 'arch' has no effect.
 
         This function returns a dictionary containing configuration information that can be used to render an RTOS
         template.
 
         """
-        if isinstance(parsing_configuration, dict):
-            configuration = self._configuration.copy()
-            configuration.update(parsing_configuration)
-        else:
-            configuration = self._configuration
+        component = self._get_path(arch)
+        sections = _parse_sectioned_file(component, self._configuration)
 
-        component = None
+        empty_section = Section('', '')
+        self.deps = set(sections.pop('dependencies', empty_section).contents.strip().split())
+        self.caps = set([self.name] + sections.pop('capabilities', empty_section).contents.strip().split())
+
+        return sections
+
+    def _get_path(self, arch):
+        """Find the file that implements this component and return its path."""
+        path = None
         for name in [f.format(self._resource_name) for f in ['{0}.c', '{0}/{0}.c']]:
             try:
-                component = Component.find(name)
+                path = Component.find(name)
                 break
             except KeyError:
                 pass
-        if component is None:
+        if path is None:
             raise KeyError('Unable to find component "{}"'.format(self._resource_name))
-
-        return _parse_sectioned_file(component, configuration)
+        return path
 
 
 class ArchitectureComponent(Component):
@@ -296,27 +311,18 @@ class ArchitectureComponent(Component):
     This is opposed to the base Component class which is unaware of architecture-specific file naming conventions.
 
     """
-    def parse(self, arch):
-        """Retrieve the properties of this component by parsing its architecture-specific source file.
-
-        'arch', an instance of Architecture, identifies the architecture of the source file to parse.
-
-        Otherwise, this function behaves as Component.parse().
-
-        """
-        assert isinstance(arch, Architecture)
-
-        component = None
+    def _get_path(self, arch):
+        """Find the file that implements this component and return its path."""
+        path = None
         for name in [f.format(arch.name, self._resource_name) for f in ['{0}-{1}/{0}-{1}.c', '{1}-{0}.c']]:
             try:
-                component = Component.find(name)
+                path = Component.find(name)
                 break
             except KeyError:
                 pass
-        if component is None:
+        if path is None:
             raise KeyError('Unable to find component "{}" for architecture {}'.format(self._resource_name, arch.name))
-
-        return _parse_sectioned_file(component, self._configuration)
+        return path
 
 
 class Architecture:
@@ -360,12 +366,16 @@ class RtosSkeleton:
         """Retrieve the sections necessary to generate an RtosModule from this skeleton.
 
         """
-        module_sections = {}
         for component in self._components:
-            for name, contents in component.parse(arch).items():
-                if name not in module_sections:
-                    module_sections[name] = []
-                module_sections[name].append(contents)
+            component.sections = component.parse(arch)
+
+        module_sections = {}
+        for component in Node.sort(self._components, fail_if_cyclic=False):
+            for section in component.sections.values():
+                if section.name not in module_sections:
+                    module_sections[section.name] = []
+                module_sections[section.name].append(section.contents)
+
         return module_sections
 
     def create_configured_module(self, arch):
@@ -422,6 +432,7 @@ class RtosModule:
         source_output = os.path.join(self._module_dir, self._module_name + '.c')
         header_output = os.path.join(self._module_dir, self._module_name + '.h')
         config_output = os.path.join(self._module_dir, 'schema.xml')
+        doc_output = os.path.join(self._module_dir, 'documentation.markdown')
 
         source_sections = ['headers', 'object_like_macros',
                            'type_definitions', 'structure_definitions',
@@ -431,6 +442,8 @@ class RtosModule:
         header_sections = ['public_headers', 'public_type_definitions',
                            'public_object_like_macros', 'public_function_like_macros',
                            'public_extern_definitions', 'public_function_definitions']
+        doc_sections = ['doc_header', 'doc_concepts', 'doc_api',
+                        'doc_configuration', 'doc_footer']
         sections = self._sections
 
         with open(source_output, 'w') as f:
@@ -450,6 +463,15 @@ class RtosModule:
                     f.write(data)
                     f.write('\n')
             f.write("\n#endif /* {}_H */".format(mod_name))
+
+        with open(doc_output, 'w') as f:
+            for ss in doc_sections:
+                doc_section = sections.get(ss)
+                if doc_section:
+                    for data in doc_section:
+                        f.write('\n')
+                        f.write(data)
+                        f.write('\n')
 
         with open(config_output, 'w') as f:
             f.write('''<?xml version="1.0" encoding="UTF-8" ?>

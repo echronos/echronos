@@ -138,22 +138,31 @@ distribute the contents in any form except as permitted under the terms of a
 separately executed license agreement with NICTA, such as (if applicable to
 you) one of the following:
 
-1. SMACCM Project License Agreement (Technical Area 4), by and between NICTA and Rockwell Collins, effective 29 January 2013.
-2. SMACCM Project Licence Agreement (Technical Area 4), by and between NICTA and Regents of the University of Minnesota, effective 5 April 2013.
-3. SMACCM Project Licence Agreement (Technical Area 3), by and between NICTA and Galois, Inc., effective 21 February 2013.
-4. SMACCM Project Licence Agreement (Technical Area 1), by and between NICTA andThe Boeing Company, effective 27 June 2013.
+1. SMACCM Project License Agreement (Technical Area 4), by and between
+NICTA and Rockwell Collins, effective 29 January 2013.
+
+2. SMACCM Project Licence Agreement (Technical Area 4), by and between
+NICTA and Regents of the University of Minnesota, effective 5 April 2013.
+
+3. SMACCM Project Licence Agreement (Technical Area 3), by and between
+NICTA and Galois, Inc., effective 21 February 2013.
+
+4. SMACCM Project Licence Agreement (Technical Area 1), by and between
+NICTA and The Boeing Company, effective 27 June 2013.
+
 
 COMMERCIAL LICENSE RIGHTS
 Agreement No.: FA8750-12-9-0179
 Contractor's Name; Rockwell Collins, Inc.
 Contractor's Address: 400 Collins Road N.E., Cedar Rapids, IA 52498
 
-The sources include the eChronos RTOS for the Power PC e500 platform, including tools, example applications, and supporting documentation.
+The sources include the eChronos RTOS for the Power PC e500 platform,
+including tools, example applications, and supporting documentation.
 
-By accepting delivery of the eChronos Code and Documentation, the Licensee 
-agrees that the software is "commercial" computer software within the 
-meaning of the applicable acquisition regulations (e.g., FAR 2.101 or 
+By accepting delivery of the eChronos Code and Documentation, the Licensee
+agrees that the software is "commercial" computer software within the
+meaning of the applicable acquisition regulations (e.g., FAR 2.101 or
 DFARS 227.7202-3).  The terms and conditions of this License shall pertain
-to the Licensee's use and disclosure of the software, and shall supersede 
+to the Licensee's use and disclosure of the software, and shall supersede
 any conflicting contractual terms or conditions.
     """

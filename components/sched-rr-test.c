@@ -1,3 +1,7 @@
+/*| capabilities |*/
+stack
+task
+
 /*| schema |*/
 <entry name="prefix" type="ident" optional="true" />
 <entry name="semaphores" type="list" default="[]" auto_index_field="idx">

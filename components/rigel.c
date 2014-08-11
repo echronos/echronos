@@ -1,3 +1,18 @@
+/*| dependencies |*/
+ctxt_switch
+documentation
+error
+interrupt_event
+message-queue
+mutex
+profiling
+reentrant
+sched
+signal
+stack
+task
+timer
+
 /*| schema |*/
 <entry name="prefix" type="ident" optional="true" />
 <entry name="api_asserts" type="bool" default="true" />

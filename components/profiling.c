@@ -1,3 +1,6 @@
+/*| dependencies |*/
+task
+
 /*| schema |*/
 <entry name="profiling" type="dict" optional="true">
     <entry name="task_uptime" type="bool" optional="true" default="true" />

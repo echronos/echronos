@@ -1,3 +1,9 @@
+/*| dependencies |*/
+ctxt_switch
+documentation
+stack
+task
+
 /*| schema |*/
 <entry name="prefix" type="ident" optional="true" />
 

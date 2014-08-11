@@ -1,3 +1,12 @@
+/*| dependencies |*/
+blocking_mutex
+reentrant
+
+/*| capabilities |*/
+error
+task
+timer
+
 /*| schema |*/
 <entry name="prefix" type="ident" optional="true" />
 <entry name="tasks" type="list" auto_index_field="idx">

@@ -61,21 +61,30 @@ def build_manual(pkg_dir, verbose=False):
     pdf_file = os.path.join(pkg_dir, 'documentation.pdf')
     html_file = os.path.join(pkg_dir, 'documentation.html')
 
-    pandoc_executable = get_executable_from_repo_or_system('pandoc')
     doc_vars = get_doc_vars(markdown_file)
+    if not doc_vars:
+        print('Not generating manual for {} because documentation is incomplete'.format(pkg_dir))
+        return
+
     pandoc_vars = ' '.join(['-V{}="{}"'.format(key, value) for key, value in doc_vars.items()])
     pandoc_cmd = '{}\
                   --write html\
                   --standalone\
                   --template="{}"\
-                  --css="documentation_stylesheet.css"\
+                  --css="{}"\
                   --toc --toc-depth=2\
                   {}\
                   --output="{}"\
                   "{}"'
+    pandoc_executable = get_executable_from_repo_or_system('pandoc')
     pandoc_cmd = pandoc_cmd.format(pandoc_executable,
                                    # pandoc fails if the template path is relative, so make it absolute:
-                                   os.path.abspath(os.path.join(pkg_dir, 'documentation_template.html')),
+                                   os.path.abspath(os.path.join('docs', 'manual_template',
+                                                                'documentation_template.html')),
+                                   # the generated HTML needs to refer to the stylesheet via a relative path
+                                   os.path.relpath(os.path.join('docs', 'manual_template',
+                                                                'documentation_stylesheet.css'),
+                                                   pkg_dir).replace(os.path.sep, '/'),
                                    pandoc_vars,
                                    html_file,
                                    markdown_file)
@@ -98,8 +107,8 @@ def build_manual(pkg_dir, verbose=False):
                --replace docid "Document ID: {}"\
                "{}" "{}"'
     wkh_cmd = wkh_cmd.format(wkh_executable,
-                             os.path.join(pkg_dir, 'documentation_header.html'),
-                             os.path.join(pkg_dir, 'documentation_footer.html'),
+                             os.path.join('docs', 'manual_template', 'documentation_header.html'),
+                             os.path.join('docs', 'manual_template', 'documentation_footer.html'),
                              doc_vars['docid'],
                              html_file,
                              pdf_file)

@@ -1,0 +1,38 @@
+html {
+    font-family: "Helvetica Neue", Helvetica, sans-serif;
+    font-weight: 300;
+    font-size: 140%;
+}
+
+h1 {
+    font-weight: bold;
+    page-break-before: always;
+    color: DimGray;
+}
+
+.document_title {
+    font-size: 250%;
+    font-weight: bold;
+    padding-top: 5cm;
+    padding-bottom: 5cm;
+}
+
+p {
+    line-height: 140%;
+}
+
+a {
+    color: inherit;
+    text-decoration: inherit;
+}
+
+.toc {
+    font-size: 150%;
+    font-weight: bold;
+    color: DimGray;
+}
+
+#TOC {
+    font-size: 140%;
+    line-height: 200%
+}

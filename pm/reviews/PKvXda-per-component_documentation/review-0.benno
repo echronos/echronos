@@ -5,16 +5,35 @@ Task name: PKvXda-per-component_documentation
 Version reviewed: 85418dbd2c470f82dbba0a5f2568276720c42231
 Reviewer: benno
 Date: 2014-08-12
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
 Overall comments:
 
+The following error is generated on my Mac (note that I have /usr/local/bin/pandoc)
 
-Specific comments
-=================
+benno@ff:~/brkawy/products/BRTOS/rtos-core(PKvXda-per-component_documentation)± ./x.py build build-manuals
+Not generating manual for /Users/benno/brkawy/products/BRTOS/rtos-core/packages/armv7m/rtos-acamar because documentation is incomplete
+Not generating manual for /Users/benno/brkawy/products/BRTOS/rtos-core/packages/armv7m/rtos-acrux because documentation is incomplete
+Not generating manual for /Users/benno/brkawy/products/BRTOS/rtos-core/packages/armv7m/rtos-gatria because documentation is incomplete
+Not generating manual for /Users/benno/brkawy/products/BRTOS/rtos-core/packages/armv7m/rtos-kraz because documentation is incomplete
+Traceback (most recent call last):
+  File "./x.py", line 361, in <module>
+    sys.exit(main())
+  File "./x.py", line 357, in main
+    return SUBCOMMAND_TABLE[args.command](args)
+  File "/Users/benno/brkawy/products/BRTOS/rtos-core/pylib/manuals.py", line 123, in build_manuals
+    build_manual(pkg_dir, args.verbose)
+  File "/Users/benno/brkawy/products/BRTOS/rtos-core/pylib/manuals.py", line 93, in build_manual
+    subprocess.check_call(pandoc_cmd)
+  File "/Users/benno/brkawy/products/BRTOS/rtos-core/tools/lib/python3.3/subprocess.py", line 540, in check_call
+    retcode = call(*popenargs, **kwargs)
+  File "/Users/benno/brkawy/products/BRTOS/rtos-core/tools/lib/python3.3/subprocess.py", line 521, in call
+    with Popen(*popenargs, **kwargs) as p:
+  File "/Users/benno/brkawy/products/BRTOS/rtos-core/tools/lib/python3.3/subprocess.py", line 818, in __init__
+    restore_signals, start_new_session)
+  File "/Users/benno/brkawy/products/BRTOS/rtos-core/tools/lib/python3.3/subprocess.py", line 1436, in _execute_child
+    raise child_exception_type(errno_num, err_msg)
+FileNotFoundError: [Errno 2] No such file or directory: '/usr/local/bin/pandoc                  --write html                  --standalone                  --template="/Users/benno/brkawy/products/BRTOS/rtos-core/docs/manual_template/documentation_template.html"                  --css="../../../docs/manual_template/documentation_stylesheet.css"                  --toc --toc-depth=2                  -Vdocid="Wq8tAN" -Vversion="0.2" -Vtitle="eChronos Manual: NEO-Dig Rigel Variant"                  --output="/Users/benno/brkawy/products/BRTOS/rtos-core/packages/armv7m/rtos-rigel/documentation.html"                  "/Users/benno/brkawy/products/BRTOS/rtos-core/packages/armv7m/rtos-rigel/documentation.markdown"'
 
-Location: filename:linenum
-Comment:
 
-Location: filename:linenum
-Comment:
+Some of the files have CRLF line endings, and should just be LF (e.g.: HTML headers).

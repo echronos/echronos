@@ -375,7 +375,7 @@ def get_release_configs():
     """Return a list of release configs."""
     import release_cfg
     maybe_configs = [getattr(release_cfg, cfg) for cfg in dir(release_cfg)]
-    configs = [cfg for cfg in maybe_configs if inspect.isclass(cfg) and issubclass(cfg, Release)]
+    configs = [cfg for cfg in maybe_configs if inspect.isclass(cfg) and issubclass(cfg, release_cfg.Release)]
     enabled_configs = [cfg for cfg in configs if cfg.enabled]
     return enabled_configs
 

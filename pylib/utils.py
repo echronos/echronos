@@ -183,17 +183,21 @@ class Git:
         self._branches = None
         self._remote_branches = None
 
-    def convert_path_separators(self, files):
+    def convert_paths(self, paths):
         """
-        If necessary, convert the path separators in the path or paths given in 'files' to the path separator expected
-        by the command-line git tool.
-        These separators differ when a cygwin git command-line tool is used with a native Windows python installation.
+        Convert a single path or a list of paths so that they are safe to pass as command line parameters to git.
+        This is necessary to account for differences in how git binaries handle paths across platforms.
+        In particular, when combining a native Python interpreter with a cygwin git binary on Windows, all paths
+        passed to git need to be relative and have Unix instead of Windows path separators.
+
         """
-        assert isinstance(files, (str, list))
-        if isinstance(files, str):
-            return files.replace(os.sep, self.sep)
+        assert isinstance(paths, (str, list))
+        make_relative = lambda path: os.path.relpath(path, self.local_repository) if os.path.isabs(path) else path
+        convert = lambda path: make_relative(path).replace(os.sep, self.sep)
+        if isinstance(paths, str):
+            return convert(paths)
         else:
-            return [file.replace(os.sep, self.sep) for file in files]
+            return [convert(path) for path in paths]
 
     @property
     def sep(self):
@@ -344,11 +348,11 @@ class Git:
             src_list = [src]
         else:
             src_list = src
-        return self._do(['mv'] + self.convert_path_separators(src_list) + [self.convert_path_separators(dst)])
+        return self._do(['mv'] + self.convert_paths(src_list) + [self.convert_paths(dst)])
 
     def add(self, files):
         """Add the list of files to the index in preparation of a future commit."""
-        return self._do(['add'] + self.convert_path_separators(files))
+        return self._do(['add'] + self.convert_paths(files))
 
     def commit(self, msg, files=None):
         """Commit the changes in the specified 'files' with the given 'message' to the currently active branch.
@@ -361,7 +365,7 @@ class Git:
         if files is None:
             file_args = []
         else:
-            file_args = self.convert_path_separators(files)
+            file_args = self.convert_paths(files)
         return self._do(['commit', '-m', msg] + file_args)
 
     def rename_branch(self, src, dst):

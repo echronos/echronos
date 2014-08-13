@@ -213,7 +213,13 @@ def _bind_components(components, pkg_name, search_paths):
 
 
 def _generate(rtos_name, components, pkg_name, search_paths):
-    """Generate the RTOS module to disk, so it is available as a compile and link unit to projects."""
+    """Generate the RTOS module to disk, so it is available as a compile and link unit to projects.
+
+    packages/<pkg_name>/rtos-<rtos_name>/rtos-<rtos_name>.c
+                                        /rtos-<rtos_name>.h
+                                        /schema.xml
+                                        /entity.py
+    """
 
     bound_components = _bind_components(components, pkg_name, search_paths)
 

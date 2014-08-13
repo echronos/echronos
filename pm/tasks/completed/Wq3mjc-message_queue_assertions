@@ -1,0 +1,23 @@
+Task: Wq3mjc-message_queue_assertions
+==============================================================================
+
+Motivation
+----------
+
+The current implementation of the message queue API does not contain any API or internal assertions.
+Thus, a wide range of consistency checks is not performed which can substantially simplify failure analysis and debugging.
+
+
+Goals
+--------
+
+The goal of this task is to extend the message queue implementation with API and internal assertions.
+These assertions shall check both potential mistakes in using the API and internal consistency of the message queue state.
+
+
+Test Plan
+---------
+
+The assertions shall be closely scrutinized for correctness.
+They shall also be tested at runtime via an example rigel system.
+This system may be a temporary out-of-tree system as the framework does currently not permit to implement runtime regression tests against rigel systems in rtos-core.

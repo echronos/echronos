@@ -222,8 +222,8 @@ def main():
         'test-release': release_test,
 
         # Tasks management
-        'new-review': new_review,
-        'new-task': new_task,
+        'review': new_review,
+        'new': new_task,
         'list': tasks,
         'integrate': integrate,
         # Tempalte management
@@ -271,16 +271,16 @@ def main():
     _parser.add_argument('--verbose', '-v', action='store_true')
     build_subparsers.add_parser('generate', help='Generate packages from components')
 
-    task_parser = subparsers.add_parser("tasks", help="Task management")
+    task_parser = subparsers.add_parser("task", help="Task management")
     task_subparsers = task_parser.add_subparsers(title="Task management operations", dest="task_command")
 
     task_subparsers.add_parser('list', help="List tasks")
-    _parser = task_subparsers.add_parser('new-review', help='Create a new review')
-    _parser.add_argument('reviewers', metavar='REVIEWER', nargs='+',
-                         help='Username of reviewer')
-    _parser = task_subparsers.add_parser('new-task', help='Create a new task')
+    _parser = task_subparsers.add_parser('new', help='Create a new task')
     _parser.add_argument('taskname', metavar='TASKNAME', help='Name of the new task')
     _parser.add_argument('--no-fetch', dest='fetch', action='store_false', default='true', help='Disable fetchign')
+    _parser = task_subparsers.add_parser('review', help='Create a new review')
+    _parser.add_argument('reviewers', metavar='REVIEWER', nargs='+',
+                         help='Username of reviewer')
     _parser = task_subparsers.add_parser('integrate', help='Integrate a completed development task/branch \
 into the main upstream branch.')
     _parser.add_argument('--repo', help='Path of git repository to operate in. \
@@ -299,7 +299,7 @@ Defaults to "archive".', default='archive')
     if args.command is None:
         parser.print_help()
     else:
-        for cmd, subcommand in ([("test", "test_command"), ("tasks", "task_command"), ("build", "build_command")]):
+        for cmd, subcommand in ([("test", "test_command"), ("task", "task_command"), ("build", "build_command")]):
             if args.command == cmd:
                 if vars(args)[subcommand] is None:
                     args = parser.parse_args([cmd, "-h"])

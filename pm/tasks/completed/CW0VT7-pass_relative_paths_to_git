@@ -1,0 +1,18 @@
+Task: CW0VT7-pass_relative_paths_to_git
+==============================================================================
+
+Motivation
+----------
+
+After other changes in x.py, git commands that operate on paths are now run with absolute instead of relative paths.
+That does not work on Windows with a cygwin git binary which expects Unix-style paths instead of Windows-style paths.
+
+Goals
+--------
+
+- pass only relative paths as arguments to the git binary to avoid platform dependencies in how absolute paths are encoded.
+
+Test Plan
+---------
+
+Code review

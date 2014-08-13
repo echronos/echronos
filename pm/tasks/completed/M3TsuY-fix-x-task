@@ -1,0 +1,16 @@
+Task: M3TsuY-fix-x-task
+==============================================================================
+
+Motivation
+----------
+
+The x-interface branch broken the x.py task new and x.py task review commands.
+
+Goals
+--------
+
+To fix the x.py task commands
+
+Test Plan
+---------
+

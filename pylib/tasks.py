@@ -125,7 +125,7 @@ def new_task(args):
         # from.
         git.fetch()
 
-    fullname = _gen_tag() + '-' + args.taskname
+    fullname = _gen_tag(None) + '-' + args.taskname
     git.branch(fullname, branch_from, track=False)
     git.push(fullname, fullname, set_upstream=True)
     git.checkout(fullname)
@@ -150,10 +150,11 @@ class _Review:
         assert isinstance(file_path, str)
         assert os.path.isfile(file_path)
         self.file_path = file_path
-        trunk, self.author = os.path.splitext(file_path)
-        self.author = self.author[1:]
-        relative_trunk = os.path.basename(trunk)
-        self.round = int(relative_trunk.split('-')[-1])
+        basename = os.path.basename(file_path)
+        round_author = basename[7:]
+        round, author = round_author.split('.', maxsplit=1)
+        self.round = int(round)
+        self.author = author
         self._conclusion = None
 
     def _get_conclusion(self):
@@ -336,7 +337,7 @@ class _Task:
 
     def _complete(self):
         """
-        Mark this taks as complete in the currently active git branch by moving the task description file into the
+        Mark this task as complete in the currently active git branch by moving the task description file into the
         'completed' sub-directory and committing the result.
         """
         task_dir = _task_dir(self.top_directory)

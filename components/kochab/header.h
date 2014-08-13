@@ -1,11 +1,3 @@
-/*| schema |*/
-<entry name="prefix" type="ident" optional="true" />
-<entry name="tasks" type="list" auto_index_field="idx">
-    <entry name="task" type="dict">
-        <entry name="priority" type="int" />
-    </entry>
-</entry>
-
 /*| public_headers |*/
 #include <stdint.h>
 

@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+import sys
 
 from .utils import BASE_DIR, get_host_platform_name, get_executable_extension
 from .components import build
@@ -100,7 +101,12 @@ def build_manual(pkg_dir, verbose=False):
                pdf_file]
     if verbose:
         print(wkh_cmd)
-    subprocess.check_call(wkh_cmd)
+    try:
+        subprocess.check_call(wkh_cmd)
+    except subprocess.CalledProcessError:
+        if not sys.platform.startswith('win'):
+            print('If wkhtmltopdf fails because it cannot connect to an X server, try installing xvfb and running your command as xvfb-run -a -s "-screen 0 640x480x16" ./x.py [...]')
+        raise
 
 
 def build_manuals(args):

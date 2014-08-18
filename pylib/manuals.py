@@ -105,7 +105,8 @@ def build_manual(pkg_dir, verbose=False):
         subprocess.check_call(wkh_cmd)
     except subprocess.CalledProcessError:
         if not sys.platform.startswith('win'):
-            print('If wkhtmltopdf fails because it cannot connect to an X server, try installing xvfb and running your command as xvfb-run -a -s "-screen 0 640x480x16" ./x.py [...]')
+            print('If wkhtmltopdf fails because it cannot connect to an X server, try installing xvfb and running \
+your command as xvfb-run -a -s "-screen 0 640x480x16" ./x.py [...]')
         raise
 
 

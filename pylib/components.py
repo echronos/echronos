@@ -2,7 +2,7 @@ import os
 import shutil
 import pystache
 import xml.etree.ElementTree
-from .utils import BASE_DIR, base_path
+from .utils import BASE_DIR, base_path, base_to_top_paths
 
 
 # FIXME: Use correct declaration vs definition.
@@ -185,53 +185,17 @@ class Component:
     used when generating an RtosModule.
 
     """
-    _search_paths = None
 
     @staticmethod
-    def _get_search_paths():
-        search_paths = []
-
-        current_dir = BASE_DIR
-        while True:
-            components_dir = os.path.join(current_dir, 'components')
-            if os.path.isdir(components_dir):
-                search_paths.append(components_dir)
-                next_dir = os.path.dirname(current_dir)
-                if next_dir != current_dir:
-                    current_dir = next_dir
-                else:
-                    break
-            else:
-                break
-
-        # reverse the search paths so that they are sorted by increasing depth in the directory tree
-        # this is expected to lead to components in client repositories to override those in the core repository
-        search_paths.reverse()
-
-        return search_paths
-
-    @staticmethod
-    def get_search_paths():
-        """Find and return the directories that, by convention, are expected to contain component modules.
-
-        As search directories qualify all directories called 'components' in the BASE_DIR or its parent directories.
-        The search for such directories upwards in the directory tree from BASE_DIR stops at the first parent
-        directory not containing a 'components' directory.
-
-        """
-        if Component._search_paths is None:
-            Component._search_paths = Component._get_search_paths()
-        return Component._search_paths
-
-    @staticmethod
-    def find(partial_path):
+    def find(topdir, partial_path):
         """Find the component partial_path in the core repository or client repositories further up in the directory
         tree."""
-        for search_path in Component.get_search_paths():
-            component_path = os.path.join(search_path, partial_path)
-            if os.path.exists(component_path):
-                return component_path
-        raise KeyError('Unable to find component "{}"'.format(partial_path))
+        paths = base_to_top_paths(topdir, 'components', partial_path)
+        paths.reverse()
+        for path in paths:
+            if os.path.exists(path):
+                return path
+        raise KeyError('Unable to find component "{}" in {}'.format(partial_path, paths))
 
     def __init__(self, name, resource_name=None, configuration={}):
         """Create a component object.
@@ -260,8 +224,11 @@ class Component:
             self._resource_name = name
         self._configuration = configuration
 
-    def parse(self, parsing_configuration={}):
+    def parse(self, topdir, parsing_configuration={}):
         """Retrieve the properties of this component by parsing its corresponding source file.
+
+        'topdir' is the absolute, normalized path of the directory of the active core or client repository from which
+        x.py was invoked.
 
         'parsing_configuration' is an optional dictionary that is merged with the component's base configuration and
         passed to the parsing function.
@@ -279,7 +246,7 @@ class Component:
         component = None
         for name in [f.format(self._resource_name) for f in ['{0}.c', '{0}/{0}.c']]:
             try:
-                component = Component.find(name)
+                component = Component.find(topdir, name)
                 break
             except KeyError:
                 pass
@@ -296,8 +263,11 @@ class ArchitectureComponent(Component):
     This is opposed to the base Component class which is unaware of architecture-specific file naming conventions.
 
     """
-    def parse(self, arch):
+    def parse(self, topdir, arch):
         """Retrieve the properties of this component by parsing its architecture-specific source file.
+
+        'topdir' is the absolute, normalized path of the directory of the active core or client repository from which
+        x.py was invoked.
 
         'arch', an instance of Architecture, identifies the architecture of the source file to parse.
 
@@ -309,7 +279,7 @@ class ArchitectureComponent(Component):
         component = None
         for name in [f.format(arch.name, self._resource_name) for f in ['{0}-{1}/{0}-{1}.c', '{1}-{0}.c']]:
             try:
-                component = Component.find(name)
+                component = Component.find(topdir, name)
                 break
             except KeyError:
                 pass
@@ -356,25 +326,25 @@ class RtosSkeleton:
         self._components = components
         self._configuration = configuration
 
-    def get_module_sections(self, arch):
+    def get_module_sections(self, topdir, arch):
         """Retrieve the sections necessary to generate an RtosModule from this skeleton.
 
         """
         module_sections = {}
         for component in self._components:
-            for name, contents in component.parse(arch).items():
+            for name, contents in component.parse(topdir, arch).items():
                 if name not in module_sections:
                     module_sections[name] = []
                 module_sections[name].append(contents)
         return module_sections
 
-    def create_configured_module(self, arch):
+    def create_configured_module(self, topdir, arch):
         """Retrieve module configuration information and create a corresponding RtosModule instance.
 
         This is only a convenience function.
 
         """
-        return RtosModule(self.name, arch, self.get_module_sections(arch), self.python_file)
+        return RtosModule(self.name, arch, self.get_module_sections(topdir, arch), self.python_file)
 
 
 class RtosModule:
@@ -463,11 +433,12 @@ class RtosModule:
 def build(args):
     # Generate RTOSes
     for rtos_name, arch_names in args.configurations.items():
-        generate_rtos_module(args.skeletons[rtos_name], [args.architectures[arch] for arch in arch_names])
+        generate_rtos_module(args.topdir, args.skeletons[rtos_name],
+                             [args.architectures[arch] for arch in arch_names])
 
 
-def generate_rtos_module(skeleton, architectures):
+def generate_rtos_module(topdir, skeleton, architectures):
     """Generate RTOS modules for several architectures from a given skeleton."""
     for arch in architectures:
-        rtos_module = skeleton.create_configured_module(arch)
+        rtos_module = skeleton.create_configured_module(topdir, arch)
         rtos_module.generate()

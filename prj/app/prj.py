@@ -37,21 +37,20 @@ _logging.basicConfig = error_fn
 from xml.parsers.expat import ExpatError
 import argparse
 import functools
-import glob
 import imp
 import inspect
 import os
 import pdb
 import pystache.parser
 import pystache.renderer
-import re
 import shutil
 import signal
 import subprocess
 import sys
 import traceback
 from util.xml import UserError, NOTHING, xml_parse_file, single_text_child, maybe_single_named_child,\
-    xml_parse_file_with_includes, xml_parse_string, get_attribute
+    xml_parse_file_with_includes, xml_parse_string, get_attribute, single_named_child, xml2schema,\
+    xml2dict, SystemParseError, xml_error_str, maybe_get_element_list, check_schema_is_valid, SchemaInvalidError
 
 # Configure the pystache module
 pystache.defaults.MISSING_TAGS = 'strict'
@@ -529,7 +528,7 @@ class SourceModule(NamedModule):
             path = os.path.join(system.output, os.path.basename(header.path))
             try:
                 if header.code_gen is None:
-                        shutil.copyfile(header.path, path)
+                    shutil.copyfile(header.path, path)
                 elif header.code_gen == 'template':
                     logger.info("Preparing: template %s -> %s (%s)", header.path, path, config)
                     pystache_render(header.path, path, config)

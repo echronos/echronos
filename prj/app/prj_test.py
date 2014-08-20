@@ -3,9 +3,10 @@ import subprocess
 import sys
 import tempfile
 from xml.parsers.expat import ExpatError
-from prj import get_command_line_arguments, Project
+from prj import get_command_line_arguments, Project, valid_entity_name, System
 from util.xml import SystemParseError, xml_parse_file_with_includes, xml_parse_string, xml_parse_file, xml2dict,\
-    valid_entity_name, single_text_child
+    single_text_child, dict_has_keys, check_schema_is_valid, SchemaInvalidError, list_all_equal,\
+    asdict, check_ident, get_attribute, ensure_unique_tag_names, element_children, ensure_all_children_named
 from nose.tools import assert_raises, raises
 
 base_dir = os.path.dirname(__file__)

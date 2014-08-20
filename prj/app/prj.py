@@ -50,7 +50,8 @@ import signal
 import subprocess
 import sys
 import traceback
-from util.xml import UserError, NOTHING, xml_parse_file, single_text_child, maybe_single_named_child
+from util.xml import UserError, NOTHING, xml_parse_file, single_text_child, maybe_single_named_child,\
+    xml_parse_file_with_includes, xml_parse_string, get_attribute
 
 # Configure the pystache module
 pystache.defaults.MISSING_TAGS = 'strict'

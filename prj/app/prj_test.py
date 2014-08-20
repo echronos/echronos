@@ -2,7 +2,9 @@ import os
 import subprocess
 import sys
 import tempfile
-from prj import *
+from xml.parsers.expat import ExpatError
+from prj import get_command_line_arguments, Project
+from util.xml import SystemParseError, xml_parse_file_with_includes, xml_parse_string, xml_parse_file, xml2dict, valid_entity_name, single_text_child
 from nose.tools import assert_raises, raises
 
 base_dir = os.path.dirname(__file__)

@@ -1,6 +1,3 @@
-/*| dependencies |*/
-documentation
-
 /*| doc_header |*/
 <!-- %title eChronos Manual: NEO-Dig Rigel Variant -->
 <!-- %version 0.2 -->
@@ -115,38 +112,4 @@ The specified function must be available at link time and should have the `type 
 The function should not return or use any RTOS interfaces.
 This is a mandatory configuration item.
 
-/*| schema |*/
-
-/*| public_headers |*/
-
-/*| public_type_definitions |*/
-
-/*| public_structure_definitions |*/
-
-/*| public_object_like_macros |*/
-
-/*| public_function_like_macros |*/
-
-/*| public_extern_definitions |*/
-
-/*| public_function_definitions |*/
-
-/*| headers |*/
-
-/*| object_like_macros |*/
-
-/*| type_definitions |*/
-
-/*| structure_definitions |*/
-
-/*| extern_definitions |*/
-
-/*| function_definitions |*/
-
-/*| state |*/
-
-/*| function_like_macros |*/
-
-/*| functions |*/
-
-/*| public_functions |*/
+/*| doc_footer |*/

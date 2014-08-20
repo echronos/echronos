@@ -257,7 +257,13 @@ def _generate(rtos_name, components, pkg_name, search_paths):
         f.write("\n#endif /* {}_H */".format(mod_name))
 
     # Generate docs
-    all_doc_sections = _get_sections(bound_components, "docs.md", _REQUIRED_DOC_SECTIONS)
+    for search_path in search_paths:
+        if os.path.exists(os.path.join(search_path, "docs.md")):
+            bc = _BoundComponent(search_path, {})
+            break
+    else:
+        raise Exception("Docs file not found")
+    all_doc_sections = _get_sections([bc] + bound_components, "docs.md", _REQUIRED_DOC_SECTIONS)
     doc_output = os.path.join(module_dir, 'documentation.markdown')
     with open(doc_output, 'w') as f:
         for ss in _REQUIRED_DOC_SECTIONS:

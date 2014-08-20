@@ -1,3 +1,5 @@
+/*| doc_header |*/
+
 /*| doc_concepts |*/
 ## Time and Timers
 
@@ -208,3 +210,5 @@ This configuration item is optional and defaults to the empty set.
 This configuration item specifies the error code that is passed to the `fatal_error` function when the timer expires.
 This configuration item is optional and defaults to zero.
 This should not be set if a task is specified.
+
+/*| doc_footer |*/

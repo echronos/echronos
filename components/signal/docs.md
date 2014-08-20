@@ -1,3 +1,5 @@
+/*| doc_header |*/
+
 /*| doc_concepts |*/
 ## Signals
 
@@ -170,3 +172,5 @@ This configuration specifies the name of the signal label.
 Signal label names must be unique.
 The name must be of an identifier type.
 This configuration is mandatory.
+
+/*| doc_footer |*/

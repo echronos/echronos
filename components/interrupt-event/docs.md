@@ -1,3 +1,5 @@
+/*| doc_header |*/
+
 /*| doc_concepts |*/
 ## Interrupt Service Routines
 
@@ -106,3 +108,5 @@ If the system designer does not set the task in the static configuration, it can
 This configuration item specifies the signal set that is sent to the interrupt event's associated task.
 A signal set is a list of one or more specified signal labels.
 This configuration item is optional and defaults to the empty set.
+
+/*| doc_footer |*/

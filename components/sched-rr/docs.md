@@ -1,3 +1,5 @@
+/*| doc_header |*/
+
 /*| doc_concepts |*/
 ## Scheduling algorithm
 
@@ -37,3 +39,9 @@ This algorithm has the property that task execution always occurs in a predictab
 For example, if A, B, and C are all runnable then the order of execution is always [A,B,C], and never, [B,A,C] or some other permutation.
 
 Tasks are considered in the same order in which they are defined in the system configuration.
+
+/*| doc_api |*/
+
+/*| doc_configuration |*/
+
+/*| doc_footer |*/

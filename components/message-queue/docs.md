@@ -1,3 +1,5 @@
+/*| doc_header |*/
+
 /*| doc_concepts |*/
 ## Message Queues
 
@@ -106,3 +108,5 @@ This is a mandatory configuration item with no default.
 
 This configuration item specifies the length of the message queue.
 This is a mandatory configuration item with no default.
+
+/*| doc_footer |*/

@@ -1,3 +1,5 @@
+/*| doc_header |*/
+
 /*| doc_concepts |*/
 ## Tasks
 
@@ -196,3 +198,5 @@ At least one task in the system must be configured with `start` as true.
 ### `signals`
 
 The task may specify a list of task-specific signal labels.
+
+/*| doc_footer |*/

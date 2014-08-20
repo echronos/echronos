@@ -1,3 +1,5 @@
+/*| doc_header |*/
+
 /*| doc_concepts |*/
 ## Mutexes
 
@@ -130,3 +132,5 @@ This configuration item specifies the maximum length of time that a mutex may be
 The hold time is specified in ticks, and the value must fit in a [<span class="api">TicksRelative</span>] type.
 If the hold time is specified as zero, the holding time of the mutex is not monitored.
 This configuration item is optional and defaults to zero.
+
+/*| doc_footer |*/

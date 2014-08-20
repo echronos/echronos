@@ -159,6 +159,9 @@ def _parse_sectioned_file(fn, config, required_sections):
 
     { 'foo' : "foo data....", 'bar' : "bar data...." }
     """
+    if not os.path.exists(fn):
+        # Skip non-existent files
+        return None
 
     with open(fn) as f:
         sections = {}
@@ -254,16 +257,14 @@ def _generate(rtos_name, components, pkg_name, search_paths):
         f.write("\n#endif /* {}_H */".format(mod_name))
 
     # Generate docs
-    doc_sections = _get_sections(bound_components, "docs.md", _REQUIRED_DOC_SECTIONS)
+    all_doc_sections = _get_sections(bound_components, "docs.md", _REQUIRED_DOC_SECTIONS)
     doc_output = os.path.join(module_dir, 'documentation.markdown')
     with open(doc_output, 'w') as f:
-        for ss in doc_sections:
-            doc_section = sections.get(ss)
-            if doc_section:
-                for data in doc_section:
-                    f.write('\n')
-                    f.write(data)
-                    f.write('\n')
+        for ss in _REQUIRED_DOC_SECTIONS:
+            data = "\n".join(doc_sections[ss] for doc_sections in all_doc_sections if doc_sections is not None)
+            f.write('\n')
+            f.write(data)
+            f.write('\n')
 
     # Generate .xml file
     config_output = os.path.join(module_dir, 'schema.xml')

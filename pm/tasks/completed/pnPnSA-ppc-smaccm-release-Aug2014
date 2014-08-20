@@ -1,0 +1,20 @@
+Task: pnPnSA-ppc-smaccm-release-Aug2014
+==============================================================================
+
+Motivation
+----------
+
+NICTA has a preliminary release due for a SMACCM partner today, which needs to include all progress so far on the PowerPC port.
+
+
+Goals
+--------
+
+Make cleanups and documentation fixes for release of PowerPC e500 port of eChronos to date.
+This includes moving the ppce500 example systems to their own, machine-qemu-ppce500 package.
+
+
+Test Plan
+---------
+
+Build then unpack release tarball and test it manually.

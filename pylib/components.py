@@ -1,28 +1,34 @@
 import os
 import shutil
+from collections import namedtuple
 import pystache
 import xml.etree.ElementTree
-from .utils import BASE_DIR, base_path, Node
+from .utils import BASE_DIR, base_path
 
 
 # FIXME: Use correct declaration vs definition.
-_REQUIRED_COMPONENT_SECTIONS = ['public_headers',
-                                'public_type_definitions',
-                                'public_structure_definitions',
-                                'public_object_like_macros',
-                                'public_function_like_macros',
-                                'public_extern_definitions',
-                                'public_function_definitions',
-                                'headers',
-                                'object_like_macros',
-                                'type_definitions',
-                                'structure_definitions',
-                                'extern_definitions',
-                                'function_definitions',
-                                'state',
-                                'function_like_macros',
-                                'functions',
-                                'public_functions']
+_REQUIRED_H_SECTIONS = ['public_headers',
+                        'public_type_definitions',
+                        'public_structure_definitions',
+                        'public_object_like_macros',
+                        'public_function_like_macros',
+                        'public_extern_definitions',
+                        'public_function_definitions',
+                        ]
+
+_REQUIRED_C_SECTIONS = ['headers',
+                        'object_like_macros',
+                        'type_definitions',
+                        'structure_definitions',
+                        'extern_definitions',
+                        'function_definitions',
+                        'state',
+                        'function_like_macros',
+                        'functions',
+                        'public_functions']
+
+_REQUIRED_DOC_SECTIONS = ['doc_header', 'doc_concepts', 'doc_api',
+                          'doc_configuration', 'doc_footer']
 
 
 class _SchemaFormatError(RuntimeError):
@@ -71,9 +77,10 @@ To merge two schemas, corresponding entries both need need to either have child 
             a.append(b_child)
 
 
-def _merge_schema_sections(sections):
+def _merge_schema_files(xml_files):
     merged_schema = xml.etree.ElementTree.fromstring('<schema>\n</schema>')
 
+    sections = [open(xml_file).read().strip() for xml_file in xml_files if os.path.exists(xml_file)]
     for section in sections:
         schema = xml.etree.ElementTree.fromstring('<schema>\n{}\n</schema>'.format(section))
         _merge_schema_entries(merged_schema, schema)
@@ -81,7 +88,7 @@ def _merge_schema_sections(sections):
     return xml.etree.ElementTree.tostring(merged_schema).decode()
 
 
-def sort_typedefs(typedef_lines):
+def _sort_typedefs(typedef_lines):
     """Given a string containing multiple lines of typedefs, sort the lines so that the typedefs are in the 'correct'
     order.
 
@@ -138,13 +145,7 @@ def _render_data(in_data, name, config):
     return pystache.render(in_data, config, name=name)
 
 
-class Section:
-    def __init__(self, name, contents):
-        self.name = name
-        self.contents = contents
-
-
-def _parse_sectioned_file(fn, config={}):
+def _parse_sectioned_file(fn, config, required_sections):
     """Given a sectioned C-like file, returns a dictionary of { section: content }
 
     For example an input of:
@@ -156,340 +157,159 @@ def _parse_sectioned_file(fn, config={}):
 
     Would produce:
 
-    { 'foo' : Section('foo', "foo data...."), 'bar' : Section('bar', "bar data....") }
+    { 'foo' : "foo data....", 'bar' : "bar data...." }
     """
 
     with open(fn) as f:
         sections = {}
-        section = None
+        current_lines = None
         for line in f.readlines():
             line = line.rstrip()
 
             if line.startswith('/*|') and line.endswith('|*/'):
-                section = Section(line[3:-3].strip(), [])
-                sections[section.name] = section
-            elif section is not None:
-                section.contents.append(line)
+                section = line[3:-3].strip()
+                current_lines = []
+                sections[section] = current_lines
+            elif current_lines is not None:
+                current_lines.append(line)
 
-    for section in sections.values():
-        section.contents = _render_data('\n'.join(section.contents).rstrip(),
-                                        '{}: Section {}'.format(fn, section.name), config)
+    for key, value in sections.items():
+        sections[key] = _render_data('\n'.join(value).rstrip(), "{}: Section {}".format(fn, key), config)
 
-    for s in _REQUIRED_COMPONENT_SECTIONS:
-        if s not in sections.keys():
+    for s in required_sections:
+        if s not in sections:
             raise Exception("Couldn't find expected section '{}' in file: '{}'".format(s, fn))
 
     return sections
 
 
-class Component(Node):
-    """Represents an optional, exchangeable piece of functionality of an RTOS.
+def _get_sections(bound_components, filename, sections):
+    return [_parse_sectioned_file(os.path.join(bc.path, filename), bc.config, sections) for bc in bound_components]
 
-    Components reside in the components/ directory of the core or sub-projects.
-    This class transparently finds components in any of the available core or sub-projects.
-    Instances of this class encapsulate the act of parsing a component file and converting it into configuration data
-    used when generating an RtosModule.
 
-    """
-    _search_paths = None
+_BoundComponent = namedtuple("_BoundComponent", ['path', 'config'])
 
-    @staticmethod
-    def _get_search_paths():
-        search_paths = []
 
-        current_dir = BASE_DIR
-        while True:
-            components_dir = os.path.join(current_dir, 'components')
-            if os.path.isdir(components_dir):
-                search_paths.append(components_dir)
-                next_dir = os.path.dirname(current_dir)
-                if next_dir != current_dir:
-                    current_dir = next_dir
-                else:
-                    break
-            else:
-                break
+class Component(namedtuple('Component', ['name', 'configuration', 'pkg_component'])):
+    def __new__(cls, name, configuration={}, pkg_component=False):
+        return super(Component, cls).__new__(cls, name, configuration, pkg_component)
 
-        # reverse the search paths so that they are sorted by increasing depth in the directory tree
-        # this is expected to lead to components in client repositories to override those in the core repository
-        search_paths.reverse()
 
-        return search_paths
-
-    @staticmethod
-    def get_search_paths():
-        """Find and return the directories that, by convention, are expected to contain component modules.
-
-        As search directories qualify all directories called 'components' in the BASE_DIR or its parent directories.
-        The search for such directories upwards in the directory tree from BASE_DIR stops at the first parent
-        directory not containing a 'components' directory.
-
-        """
-        if Component._search_paths is None:
-            Component._search_paths = Component._get_search_paths()
-        return Component._search_paths
-
-    @staticmethod
-    def find(partial_path):
-        """Find the component partial_path in the core repository or client repositories further up in the directory
-        tree."""
-        for search_path in Component.get_search_paths():
-            component_path = os.path.join(search_path, partial_path)
-            if os.path.exists(component_path):
-                return component_path
-        raise KeyError('Unable to find component "{}"'.format(partial_path))
-
-    def __init__(self, name, resource_name=None, configuration={}):
-        """Create a component object.
-
-        Such objects encapsulate the act of parsing a corresponding source file.
-        The parsed data is converted into configuration information used when generating an RtosModule by rendering an
-        RTOS template file.
-
-        'name' is the component name used in the RTOS template file.
-        For example, the properties of the interrupt event component are referred to as 'interrupt_event.xyz' in the
-        RTOS template files.
-
-        'resource_name' is the base name of the source file of this component that is parsed to obtain this
-        component's properties.
-        For example, the base name of the interrupt event component is 'interrupt-event', which expands to the on-disk
-        file name of interrupt-event.c.
-
-        'configuration' is a dictionary with configuration information.
-        It is passed to the '_parse_sectioned_file()' function used to parse this component's source file.
-
-        """
-        self.name = name
-        if resource_name is not None:
-            self._resource_name = resource_name
+def _bind_components(components, pkg_name, search_paths):
+    # Locate all component directories
+    # [Component] -> [_BoundComponent]
+    bound_components = []
+    for component in components:
+        if component.pkg_component:
+            resource_name = '{0}-{1}'.format(component.name, pkg_name)
         else:
-            self._resource_name = name
-        self._configuration = configuration
-        self.deps = set()
-        self.caps = set((self.name,))
+            resource_name = component.name
 
-    def __repr__(self):
-        return self.name
-
-    def parse(self, arch):
-        """Retrieve the properties of this component by parsing its corresponding source file.
-
-        'arch' is a string that identifies the architecture this component is to be customized for.
-        For non-architecture components, the value of 'arch' has no effect.
-
-        This function returns a dictionary containing configuration information that can be used to render an RTOS
-        template.
-
-        """
-        component = self._get_path(arch)
-        sections = _parse_sectioned_file(component, self._configuration)
-
-        empty_section = Section('', '')
-        self.deps = set(sections.pop('dependencies', empty_section).contents.strip().split())
-        self.caps = set([self.name] + sections.pop('capabilities', empty_section).contents.strip().split())
-
-        return sections
-
-    def _get_path(self, arch):
-        """Find the file that implements this component and return its path."""
-        path = None
-        for name in [f.format(self._resource_name) for f in ['{0}.c', '{0}/{0}.c']]:
-            try:
-                path = Component.find(name)
+        for search_path in search_paths:
+            path = os.path.join(search_path, resource_name)
+            if os.path.exists(path):
                 break
-            except KeyError:
-                pass
-        if path is None:
-            raise KeyError('Unable to find component "{}"'.format(self._resource_name))
-        return path
+        else:
+            raise KeyError('Unable to find component "{}" in {}'.format(resource_name, search_paths))
+        bound_components.append(_BoundComponent(path, component.configuration))
+    return bound_components
 
 
-class ArchitectureComponent(Component):
-    """This refinement of the Component class represents an architecture-specific component.
+def _generate(rtos_name, components, pkg_name, search_paths):
+    """Generate the RTOS module to disk, so it is available as a compile and link unit to projects.
 
-    This class encapsulates the act of finding the architecture-specific source file corresponding to this component.
-    This is opposed to the base Component class which is unaware of architecture-specific file naming conventions.
-
+    packages/<pkg_name>/rtos-<rtos_name>/rtos-<rtos_name>.c
+                                        /rtos-<rtos_name>.h
+                                        /schema.xml
+                                        /entity.py
     """
-    def _get_path(self, arch):
-        """Find the file that implements this component and return its path."""
-        path = None
-        for name in [f.format(arch.name, self._resource_name) for f in ['{0}-{1}/{0}-{1}.c', '{1}-{0}.c']]:
-            try:
-                path = Component.find(name)
-                break
-            except KeyError:
-                pass
-        if path is None:
-            raise KeyError('Unable to find component "{}" for architecture {}'.format(self._resource_name, arch.name))
-        return path
 
+    bound_components = _bind_components(components, pkg_name, search_paths)
 
-class Architecture:
-    """Represents the properties of a target architecture for which an RtosModule can be generated."""
-    def __init__(self, name, configuration):
-        assert isinstance(name, str)
-        assert isinstance(configuration, dict)
-        self.name = name
-        self.configuration = configuration
+    # Create module name and output directory
+    module_name = 'rtos-' + rtos_name
+    module_dir = base_path('packages', pkg_name, module_name)
+    os.makedirs(module_dir, exist_ok=True)
 
+    # Generate .c file
+    all_c_sections = _get_sections(bound_components, "implementation.c", _REQUIRED_C_SECTIONS)
+    source_output = os.path.join(module_dir, module_name + '.c')
+    with open(source_output, 'w') as f:
+        for ss in _REQUIRED_C_SECTIONS:
+            data = "\n".join(c_sections[ss] for c_sections in all_c_sections)
+            if ss == 'type_definitions':
+                data = _sort_typedefs(data)
+            f.write(data)
+            f.write('\n')
 
-class RtosSkeleton:
-    """Represents an RTOS variant as defined by a set of components / functionalities.
+    # Generate .h file
+    all_h_sections = _get_sections(bound_components, "header.h", _REQUIRED_H_SECTIONS)
+    header_output = os.path.join(module_dir, module_name + '.h')
+    with open(header_output, 'w') as f:
+        mod_name = module_name.upper().replace('-', '_')
+        f.write("#ifndef {}_H\n".format(mod_name))
+        f.write("#define {}_H\n".format(mod_name))
+        for ss in _REQUIRED_H_SECTIONS:
+            f.write("\n".join(h_sections[ss] for h_sections in all_h_sections) + "\n")
+        f.write("\n#endif /* {}_H */".format(mod_name))
 
-    For example, the specific RTOS variant gatria consists exactly of a context-switch and a scheduler component.
-
-    This class encapsulates the act of deriving an RtosModule for a specific configuration and target architecture.
-
-    """
-    def __init__(self, name, components, configuration={}):
-        """Create an RTOS skeleton based on its core properties.
-
-        'name', a string, is the unique name of the RTOS skeleton.
-
-        'components', a sequence of Component instances, is the set of components that define this RTOS variant.
-
-        'configuration', a dictionary, contains configuration information specific to this RTOS variant.
-        It is used when generating an RtosModule from this skeleton.
-
-        """
-        assert isinstance(name, str)
-        assert isinstance(components, list)
-        assert isinstance(configuration, dict)
-        self.name = name
-        self.python_file = os.path.join(BASE_DIR, 'components', '{}.py'.format(self.name))
-
-        self._components = components
-        self._configuration = configuration
-
-    def get_module_sections(self, arch):
-        """Retrieve the sections necessary to generate an RtosModule from this skeleton.
-
-        """
-        for component in self._components:
-            component.sections = component.parse(arch)
-
-        module_sections = {}
-        for component in Node.sort(self._components, fail_if_cyclic=False):
-            for section in component.sections.values():
-                if section.name not in module_sections:
-                    module_sections[section.name] = []
-                module_sections[section.name].append(section.contents)
-
-        return module_sections
-
-    def create_configured_module(self, arch):
-        """Retrieve module configuration information and create a corresponding RtosModule instance.
-
-        This is only a convenience function.
-
-        """
-        return RtosModule(self.name, arch, self.get_module_sections(arch), self.python_file)
-
-
-class RtosModule:
-    """Represents an instance of an RtosSkeleton (or RTOS variant) with a specific configuration, in particular for a
-    specific target architecture.
-
-    This class encapsulates the act of rendering an RTOS template given an RTOS configuration into a module on disk.
-
-    """
-    def __init__(self, name, arch, sections, python_file):
-        """Create an RtosModule instance.
-
-        'name', a string, is the name of the RTOS, i.e., the same as the underlying RtosSkeleton.
-
-        'arch', an instance of Architecture, is the architecture this module is targetted for.
-
-        'sections', a dictionary, containing all the merged sections from the RTOS components.
-        It is typically obtained via RtosSkeleton.get_module_configuration().
-
-        """
-        assert isinstance(name, str)
-        assert isinstance(arch, Architecture)
-        assert isinstance(sections, dict)
-        self._name = name
-        self._arch = arch
-        self._sections = sections
-        self._python_file = python_file
-
-    @property
-    def _module_name(self):
-        return 'rtos-' + self._name
-
-    @property
-    def _module_dir(self):
-        module_dir = base_path('packages', self._arch.name, self._module_name)
-        os.makedirs(module_dir, exist_ok=True)
-        return module_dir
-
-    def generate(self):
-        """Generate the RTOS module to disk, so it is available as a compile and link unit to projects."""
-        self._render()
-
-    def _render(self):
-        python_output = os.path.join(self._module_dir, 'entity.py')
-        source_output = os.path.join(self._module_dir, self._module_name + '.c')
-        header_output = os.path.join(self._module_dir, self._module_name + '.h')
-        config_output = os.path.join(self._module_dir, 'schema.xml')
-        doc_output = os.path.join(self._module_dir, 'documentation.markdown')
-
-        source_sections = ['headers', 'object_like_macros',
-                           'type_definitions', 'structure_definitions',
-                           'extern_definitions', 'function_definitions',
-                           'state', 'function_like_macros',
-                           'functions', 'public_functions']
-        header_sections = ['public_headers', 'public_type_definitions',
-                           'public_object_like_macros', 'public_function_like_macros',
-                           'public_extern_definitions', 'public_function_definitions']
-        doc_sections = ['doc_header', 'doc_concepts', 'doc_api',
-                        'doc_configuration', 'doc_footer']
-        sections = self._sections
-
-        with open(source_output, 'w') as f:
-            for ss in source_sections:
-                data = '\n'.join(sections[ss])
-                if ss == 'type_definitions':
-                    data = sort_typedefs(data)
-                f.write(data)
-                f.write('\n')
-
-        with open(header_output, 'w') as f:
-            mod_name = self._module_name.upper().replace('-', '_')
-            f.write("#ifndef {}_H\n".format(mod_name))
-            f.write("#define {}_H\n".format(mod_name))
-            for ss in header_sections:
-                for data in sections[ss]:
+    # Generate docs
+    doc_sections = _get_sections(bound_components, "docs.md", _REQUIRED_DOC_SECTIONS)
+    doc_output = os.path.join(module_dir, 'documentation.markdown')
+    with open(doc_output, 'w') as f:
+        for ss in doc_sections:
+            doc_section = sections.get(ss)
+            if doc_section:
+                for data in doc_section:
+                    f.write('\n')
                     f.write(data)
                     f.write('\n')
-            f.write("\n#endif /* {}_H */".format(mod_name))
 
-        with open(doc_output, 'w') as f:
-            for ss in doc_sections:
-                doc_section = sections.get(ss)
-                if doc_section:
-                    for data in doc_section:
-                        f.write('\n')
-                        f.write(data)
-                        f.write('\n')
+    # Generate .xml file
+    config_output = os.path.join(module_dir, 'schema.xml')
+    with open(config_output, 'w') as f:
+        f.write('<?xml version="1.0" encoding="UTF-8" ?>\n')
+        xml_files = [os.path.join(bc.path, "schema.xml") for bc in bound_components]
+        schema = _merge_schema_files(xml_files)
+        f.write(schema)
 
-        with open(config_output, 'w') as f:
-            f.write('''<?xml version="1.0" encoding="UTF-8" ?>
-''')
-            schema = _merge_schema_sections(sections.get('schema', []))
-            f.write(schema)
+    # Generate .py file
+    python_output = os.path.join(module_dir, 'entity.py')
+    python_file = os.path.join(BASE_DIR, 'components', '{}.py'.format(rtos_name))
+    shutil.copyfile(python_file, python_output)
 
-        shutil.copyfile(self._python_file, python_output)
+
+def _get_search_paths():
+    """Find and return the directories that, by convention, are expected to contain component modules.
+
+    As search directories qualify all directories called 'components' in the BASE_DIR or its parent directories.
+    The search for such directories upwards in the directory tree from BASE_DIR stops at the first parent
+    directory not containing a 'components' directory.
+
+    """
+    search_paths = []
+
+    current_dir = BASE_DIR
+    while True:
+        components_dir = os.path.join(current_dir, 'components')
+        if os.path.isdir(components_dir):
+            search_paths.append(components_dir)
+            next_dir = os.path.dirname(current_dir)
+            if next_dir != current_dir:
+                current_dir = next_dir
+            else:
+                break
+        else:
+            break
+
+    # reverse the search paths so that they are sorted by increasing depth in the directory tree
+    # this is expected to lead to components in client repositories to override those in the core repository
+    return list(reversed(search_paths))
 
 
 def build(args):
     # Generate RTOSes
-    for rtos_name, arch_names in args.configurations.items():
-        generate_rtos_module(args.skeletons[rtos_name], [args.architectures[arch] for arch in arch_names])
-
-
-def generate_rtos_module(skeleton, architectures):
-    """Generate RTOS modules for several architectures from a given skeleton."""
-    for arch in architectures:
-        rtos_module = skeleton.create_configured_module(arch)
-        rtos_module.generate()
+    search_paths = _get_search_paths()
+    for pkg_name, rtos_names in args.configurations.items():
+        for rtos_name in rtos_names:
+            _generate(rtos_name, args.skeletons[rtos_name], pkg_name, search_paths)

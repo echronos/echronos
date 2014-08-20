@@ -1,0 +1,30 @@
+Breakaway Task Review
+=======================
+
+Task name: pnPnSA-ppc-smaccm-release-Aug2014
+Version reviewed: cbee0ed1e6c17e4f1b84359d58569c0c0c11e7c1
+Reviewer: ihorkuz
+Date: 2014-08-11
+Conclusion: Rework
+
+Overall comments:
+Just a couple of minor issues in documentation.
+
+
+Specific comments
+=================
+
+Location: docs/smaccm_ppc_readme: 208
+iComment: typo: switching operation. This module does not have an configuration
+an -> *any*
+
+[rsison: fixed]
+
+Location: 293-295
+Comment: "(NOTE: Featured in this release is a preliminary version of kochab for
+PowerPC e500 that does not yet include support for interrupts and task
+preemption.)"
+Does this mean kochab doesn't support interrupts?  or just preemption caused by interrupts?
+
+[rsison: No support yet for interrupt *events* and task preemption - reworded note to reflect this.
+Could possibly configure an interrupt handler via ppce500.vectable module on this kochab but I haven't actually tried.]

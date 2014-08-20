@@ -1,0 +1,24 @@
+Breakaway Task Review
+=======================
+
+Task name: pnPnSA-ppc-smaccm-release-Aug2014
+Version reviewed: cbee0ed1e6c17e4f1b84359d58569c0c0c11e7c1
+Reviewer: stg
+Date: 2014-08-11
+Conclusion: Rework
+
+Specific comments
+=================
+
+Location: docs/smaccm_ppc_readme
+Comment 1: Rework
+As per project conventions, text files are not to be formatted with a maximum line length.
+Each sentence is to occupy exactly one line.
+If you are concerned about readability, I would suggest incorporating the text in this file into the actual manual.
+
+[rsison: Fixed]
+
+Location: release_cfg.py
+Comment 2: Accepted
+In case you prefer to not include customer details in the eChronos-core repository, there is a mechanism that allows you to conveniently manage such information in an external repository.
+Happy to elaborate.

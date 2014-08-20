@@ -1,0 +1,56 @@
+%title Machine QEMU PowerPC e500 package: user manual
+%version 1-draft
+%docid QS8J4i
+
+Introduction
+-------------
+
+The Machine QEMU PowerPC e500 package provides the following example systems for a QEMU emulated PowerPC e500 machine:
+
+hello
+  ~ A system that does the standard *Hello, world*.
+acamar-system
+  ~ A system demonstrating context switch between two tasks via `yield_to()`.
+gatria-system
+  ~ A system demonstrating coordination between two tasks via `yield()`, `unblock()`, and mutexes.
+kraz-system
+  ~ A system demonstrating coordination between two tasks via `yield()`, mutexes, and signals.
+acrux-system
+  ~ A system demonstrating coordination between two tasks via `yield()` and mutexes, driven by timer interrupt events.
+kochab-signal-demo
+  ~ A system demonstrating signal functionality on the kochab variant.
+kochab-mutex-demo
+  ~ A system demonstrating mutex functionality on the kochab variant.
+kochab-sem-demo
+  ~ A system demonstrating semaphore functionality on the kochab variant.
+
+The systems in this package can be run on qemu-system-ppc, provided with standard apt package installations of QEMU, emulating the e500 core:
+
+    qemu-system-ppc -S -nographic -gdb tcp::1234 -M ppce500 -kernel path/to/system
+
+This will wait for a GDB connection.
+To obtain a PowerPC-compatible build of GDB:
+
+    * clone git repository `git://sourceware.org/git/binutils-gdb.git`
+
+    * check out a branch from a stable release tag, e.g. `gdb-7.7.1-release`
+
+    * run `./configure --target=powerpc-linux-gnu`
+
+    * run `make`
+
+In a separate window, run GDB:
+
+    powerpc-linux-gnu-gdb path/to/system
+
+To connect to QEMU, set a breakpoint at the debug_println stub, and start the system:
+
+    (gdb) target remote :1234
+    (gdb) b debug_println
+    (gdb) c
+
+Exit GDB with:
+    (gdb) quit
+    y
+
+After exiting GDB, the escape sequence to exit qemu-system-ppc is `ctrl-A, X`.

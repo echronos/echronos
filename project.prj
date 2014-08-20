@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <project>
-  <startup-script>./x.py</startup-script>
+  <startup-script>./x.py build build-partials</startup-script>
   <search-path>packages</search-path>
   <search-path>example</search-path>
 </project>

@@ -267,7 +267,7 @@ def _generate(rtos_name, components, pkg_name, search_paths):
     doc_output = os.path.join(module_dir, 'documentation.markdown')
     with open(doc_output, 'w') as f:
         for ss in _REQUIRED_DOC_SECTIONS:
-            data = "\n".join(doc_sections[ss] for doc_sections in all_doc_sections if doc_sections is not None)
+            data = "\n\n".join(doc_sections[ss] for doc_sections in all_doc_sections if doc_sections is not None)
             f.write('\n')
             f.write(data)
             f.write('\n')

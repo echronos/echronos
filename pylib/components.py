@@ -272,6 +272,24 @@ def _generate(rtos_name, components, pkg_name, search_paths):
             f.write(data)
             f.write('\n')
 
+    output_dir = os.path.join(module_dir, 'docs')
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir, ignore_errors=True)
+    for bc in bound_components:
+        input_dir = os.path.join(bc.path, 'docs')
+        if os.path.isdir(input_dir):
+            # recursively copy contents of input_dir into output_dir
+            # shutil.copytree() cannot be used because it requires the destination to not yet exist
+            for parent, dirs, files in os.walk(input_dir):
+                for file in files:
+                    src = os.path.join(parent, file)
+                    dst = os.path.join(output_dir, os.path.relpath(src, input_dir))
+                    if os.path.exists(dst):
+                        print('Warning: the file {} overwrites the file {} which originates from a different \
+component'.format(src, dst))
+                    os.makedirs(os.path.dirname(dst), exist_ok=True)
+                    shutil.copy(src, dst)
+
     # Generate .xml file
     config_output = os.path.join(module_dir, 'schema.xml')
     with open(config_output, 'w') as f:

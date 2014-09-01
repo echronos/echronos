@@ -12,16 +12,16 @@ In the example on the left, A is the current task, and has just performed a yiel
 As A has just performed a yield operation it is in the runnable state.
 The algorithm firstly considers B, which is not runnable, and then consider C, which is runnable, so C is chosen.
 
-<img src="img/round_robin_1.png" width="33%" />
+<img src="docs/round_robin_1.png" width="33%" />
 
 The next diagram shows the state of the algorithm after choosing C.
 
-<img src="img/round_robin_2.png" width="33%" />
+<img src="docs/round_robin_2.png" width="33%" />
 
 While C is executing the task B may exit the blocked state and become runnable.
 If C now performs a yield operation, the scheduling algorithm continues and chooses the next runnable task D.
 
-<img src="img/round_robin_3.png" width="33%" />
+<img src="docs/round_robin_3.png" width="33%" />
 
 As D was runnable before B became runnable this behaviour is what would be expected in most cases (and is the same as would happen in a FIFO algorithm).
 
@@ -32,7 +32,7 @@ In this case E is chosen before the task B is chosen, even though it became runn
 Not only is E selected before B, it also selected before both F and G which were already runnable.
 This is different to how a FIFO based scheduling algorithm would operate.
 
-<img src="img/round_robin_4.png" width="33%" />
+<img src="docs/round_robin_4.png" width="33%" />
 
 For every revolution of the clock hand each task has an opportunity to be selected.
 This algorithm has the property that task execution always occurs in a predictable order.

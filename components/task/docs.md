@@ -19,7 +19,7 @@ As more demands are placed on the system the code in the *logic* part of the cod
         /*... logic ...*/
     }
 }</td></tr></table>
-<img src="img/arrow.png" width="100%"/></div>
+<img src="docs/arrow.png" width="100%"/></div>
 
 There are multiple ways that a system designer could start to address this complexity.
 The overarching design principle is separation of concerns, where logic that addresses different aspects of the system are separated in some manner to make the complexity more manageable.
@@ -53,7 +53,7 @@ The end of each arrow represents the point in time where the RTOS switches the m
     }
 }</td>
 </tr></table>
-<img src="img/task_arrows.png" /></div>
+<img src="docs/task_arrows.png" width="100%" /></div>
 
 Each task in the system has a unique name chosen by the system designer.
 The name is an ASCII string[^task_names] and should be chosen to describe the functionality of the task.
@@ -95,7 +95,7 @@ When a task moves to the blocked state, it is no longer current, so the RTOS mus
 The blocked task unblocks and becomes runnable when the entity it is waiting on is ready.
 For example, when a signal is delivered, a mutex is available, or a sleep duration has completed.
 
-<img src="img/task_states.png" width="100%" />
+<img src="docs/task_states.png" width="100%" />
 
 [^task_states]: There are some additional secondary states to support debugging.
 

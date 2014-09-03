@@ -5,9 +5,26 @@ html {
 }
 
 h1 {
+    font-size: 300%;
     font-weight: bold;
     page-break-before: always;
+    page-break-after: avoid;
     color: DimGray;
+    padding-top: 5cm;
+    padding-bottom: 1cm;
+}
+
+h2 {
+    padding-top: 1em;
+    page-break-after: avoid;
+}
+
+h3 {
+    page-break-after: avoid;
+}
+
+h4 {
+    page-break-after: avoid;
 }
 
 .document_title {
@@ -24,15 +41,32 @@ p {
 a {
     color: inherit;
     text-decoration: inherit;
+    border-bottom: 2px dashed Gray;
 }
 
 .toc {
-    font-size: 150%;
+    font-size: 300%;
     font-weight: bold;
+    page-break-before: always;
     color: DimGray;
+    padding-top: 5cm;
+    padding-bottom: 1cm;
 }
 
 #TOC {
-    font-size: 140%;
-    line-height: 200%
+}
+
+/* get central control over the formatting of APIs, but also allow to post process such elements in the source */
+.api {
+    font-family: monospace;
+}
+
+.codebox {
+    border: 1px solid Black;
+    background: LightGray;
+    padding: .5em .5em;
+    margin: 1px;
+    font-family: monospace;
+    font-size: 11pt;
+    page-break-inside: avoid;
 }

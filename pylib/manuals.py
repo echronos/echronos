@@ -99,7 +99,7 @@ def build_manual(pkg_dir, verbose=False):
                '--replace', 'docid', 'Document ID: {}'.format(doc_vars['docid']),
                html_file,
                pdf_file]
-    if verbose:
+    if verbose or True:
         print(wkh_cmd)
     try:
         subprocess.check_call(wkh_cmd)

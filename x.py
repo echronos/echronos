@@ -172,6 +172,7 @@ CORE_SKELETONS = {
     'rigel': [Component('reentrant'),
               Component('stack', pkg_component=True),
               Component('context-switch', pkg_component=True),
+              Component('context-switch-non-preemptive'),
               Component('sched-rr', {'assume_runnable': False}),
               Component('signal'),
               Component('timer', pkg_component=True),

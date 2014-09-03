@@ -1,0 +1,37 @@
+Task: bsmkCx-components-restructure
+==============================================================================
+
+Motivation
+----------
+
+Components are currently defined in a components/*.c.
+These files contain templated C code, documentation and XML snippets in sectioned blocks.
+As the complexity of components increases, this format is no longer ideal and needs to be updated to something more practical.
+
+Goals
+--------
+
+For each component create a directory within components/ and then break out the contents of the .c files into a number of separate files.
+
+components/<name>/implementation.c.stache.stache
+                 /header.h.stache.stache
+                 /schema.xml
+                 /documentation.md
+                 /<extra files>
+
+The output of the composition step will result in slightly different filenames.
+
+packages/<arch>/rtos-<name>/rtos-<name>.c.stache
+                           /rtos-<name>.h.stache
+                           /schema.xml
+                           /documentation.md
+                           /entity.py
+                           /<extra files>
+
+The .stache suffix is being added to files to indicate that they must be run through pystache before they can be considered a valid .[c|h] file.
+
+Test Plan
+---------
+
+All existing tests on TeamCity will pass on both the eChronos and clr-rtos projects.
+A corresponding task will be created on the clr-rtos project to make the appropriate changes to the clr-specific components.

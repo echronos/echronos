@@ -1,0 +1,16 @@
+Task: n4nJmP-prj-xml-factor
+==============================================================================
+
+Motivation
+----------
+The prj.py script is running at nearly 2000 LOC. In order to bring this number
+down the XML handling of this file can be factored out.
+
+Goals
+--------
+To move to XML handling aspects of prj.py into a separate module in utils.
+
+
+Test Plan
+---------
+

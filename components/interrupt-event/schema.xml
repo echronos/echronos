@@ -1,0 +1,6 @@
+<entry name="interrupteventid_size" type="int" default="8"/>
+<entry name="interrupt_events" type="list" default="[]" auto_index_field="idx">
+    <entry name="interrupt_event" type="dict">
+        <entry name="name" type="ident" />
+    </entry>
+</entry>

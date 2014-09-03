@@ -1,0 +1,22 @@
+Task: L9nuAF-limit_component_search_to_active_repository
+==============================================================================
+
+Motivation
+----------
+x.py generates RTOS variants from multiple component files.
+The code that searches for component files supports client repositories (i.e., multiple levels of repository-like parent directories containing component files of their own).
+It does so by searching for, e.g., the file 'components/tasks.c' in the base directory and any parent directory.
+This leads to unintended behaviour when x.py is invoked in the core repository and a component exists in a parent directory because in that case, the parent directories should be ignored.
+This then leads to that component file being picked up and integrated into the RTOS variant that was supposed to be only generated from components of the core repository.
+
+
+Goals
+--------
+
+The goal of this task is to address the above issue.
+When searching for component files, only files shall be found that are in the repository/directory in which x.py was invoked or a child directory thereof.
+
+Test Plan
+---------
+
+Code review

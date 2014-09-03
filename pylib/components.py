@@ -3,7 +3,7 @@ import shutil
 from collections import namedtuple
 import pystache
 import xml.etree.ElementTree
-from .utils import BASE_DIR, base_path
+from .utils import BASE_DIR, base_path, base_to_top_paths
 
 
 # FIXME: Use correct declaration vs definition.
@@ -286,7 +286,7 @@ def _generate(rtos_name, components, pkg_name, search_paths):
     shutil.copyfile(python_file, python_output)
 
 
-def _get_search_paths():
+def _get_search_paths(topdir):
     """Find and return the directories that, by convention, are expected to contain component modules.
 
     As search directories qualify all directories called 'components' in the BASE_DIR or its parent directories.
@@ -294,29 +294,14 @@ def _get_search_paths():
     directory not containing a 'components' directory.
 
     """
-    search_paths = []
-
-    current_dir = BASE_DIR
-    while True:
-        components_dir = os.path.join(current_dir, 'components')
-        if os.path.isdir(components_dir):
-            search_paths.append(components_dir)
-            next_dir = os.path.dirname(current_dir)
-            if next_dir != current_dir:
-                current_dir = next_dir
-            else:
-                break
-        else:
-            break
-
-    # reverse the search paths so that they are sorted by increasing depth in the directory tree
-    # this is expected to lead to components in client repositories to override those in the core repository
-    return list(reversed(search_paths))
+    paths = base_to_top_paths(topdir, 'components')
+    paths.reverse()
+    return paths
 
 
 def build(args):
     # Generate RTOSes
-    search_paths = _get_search_paths()
+    search_paths = _get_search_paths(args.topdir)
     for pkg_name, rtos_names in args.configurations.items():
         for rtos_name in rtos_names:
             _generate(rtos_name, args.skeletons[rtos_name], pkg_name, search_paths)

@@ -27,6 +27,9 @@ _REQUIRED_C_SECTIONS = ['headers',
                         'functions',
                         'public_functions']
 
+_REQUIRED_DOC_SECTIONS = ['doc_header', 'doc_concepts', 'doc_api',
+                          'doc_configuration', 'doc_footer']
+
 
 class _SchemaFormatError(RuntimeError):
     """To be raised when a component configuration schema violates assumptions or conventions."""
@@ -156,6 +159,9 @@ def _parse_sectioned_file(fn, config, required_sections):
 
     { 'foo' : "foo data....", 'bar' : "bar data...." }
     """
+    if not os.path.exists(fn):
+        # Skip non-existent files
+        return None
 
     with open(fn) as f:
         sections = {}
@@ -249,6 +255,22 @@ def _generate(rtos_name, components, pkg_name, search_paths):
         for ss in _REQUIRED_H_SECTIONS:
             f.write("\n".join(h_sections[ss] for h_sections in all_h_sections) + "\n")
         f.write("\n#endif /* {}_H */".format(mod_name))
+
+    # Generate docs
+    for search_path in search_paths:
+        if os.path.exists(os.path.join(search_path, "docs.md")):
+            bc = _BoundComponent(search_path, {})
+            break
+    else:
+        raise Exception("Docs file not found")
+    all_doc_sections = _get_sections([bc] + bound_components, "docs.md", _REQUIRED_DOC_SECTIONS)
+    doc_output = os.path.join(module_dir, 'documentation.markdown')
+    with open(doc_output, 'w') as f:
+        for ss in _REQUIRED_DOC_SECTIONS:
+            data = "\n\n".join(doc_sections[ss] for doc_sections in all_doc_sections if doc_sections is not None)
+            f.write('\n')
+            f.write(data)
+            f.write('\n')
 
     # Generate .xml file
     config_output = os.path.join(module_dir, 'schema.xml')

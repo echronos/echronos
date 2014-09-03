@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+import sys
 
 from .utils import BASE_DIR, get_host_platform_name, get_executable_extension
 from .components import build
@@ -61,51 +62,52 @@ def build_manual(pkg_dir, verbose=False):
     pdf_file = os.path.join(pkg_dir, 'documentation.pdf')
     html_file = os.path.join(pkg_dir, 'documentation.html')
 
-    pandoc_executable = get_executable_from_repo_or_system('pandoc')
     doc_vars = get_doc_vars(markdown_file)
-    pandoc_vars = ' '.join(['-V{}="{}"'.format(key, value) for key, value in doc_vars.items()])
-    pandoc_cmd = '{}\
-                  --write html\
-                  --standalone\
-                  --template="{}"\
-                  --css="documentation_stylesheet.css"\
-                  --toc --toc-depth=2\
-                  {}\
-                  --output="{}"\
-                  "{}"'
-    pandoc_cmd = pandoc_cmd.format(pandoc_executable,
-                                   # pandoc fails if the template path is relative, so make it absolute:
-                                   os.path.abspath(os.path.join(pkg_dir, 'documentation_template.html')),
-                                   pandoc_vars,
-                                   html_file,
-                                   markdown_file)
+    if not doc_vars:
+        print('Not generating manual for {} because documentation is incomplete'.format(pkg_dir))
+        return
+
+    pandoc_executable = get_executable_from_repo_or_system('pandoc')
+    pandoc_cmd = [pandoc_executable,
+                  '--write', 'html',
+                  '--standalone',
+                  '--template=' + os.path.abspath(os.path.join('docs', 'manual_template',
+                                                               'documentation_template.html')),
+                  '--css=' + os.path.relpath(os.path.join('docs', 'manual_template',
+                                                          'documentation_stylesheet.css'),
+                                             pkg_dir).replace(os.path.sep, '/'),
+                  '--toc', '--toc-depth=2'] +\
+                 ['-V{}={}'.format(key, value) for key, value in doc_vars.items()] +\
+                 ['--output=' + html_file,
+                  markdown_file]
     if verbose:
         print(pandoc_cmd)
     subprocess.check_call(pandoc_cmd)
 
     wkh_executable = get_executable_from_repo_or_system('wkhtmltopdf')
-    wkh_cmd = '{}\
-               --outline-depth 2\
-               --page-size A4\
-               --margin-top 20\
-               --margin-bottom 25\
-               --margin-left 20\
-               --margin-right 20\
-               --header-spacing 5\
-               --header-html "{}"\
-               --footer-spacing 5\
-               --footer-html "{}"\
-               --replace docid "Document ID: {}"\
-               "{}" "{}"'
-    wkh_cmd = wkh_cmd.format(wkh_executable,
-                             os.path.join(pkg_dir, 'documentation_header.html'),
-                             os.path.join(pkg_dir, 'documentation_footer.html'),
-                             doc_vars['docid'],
-                             html_file,
-                             pdf_file)
+    wkh_cmd = [wkh_executable,
+               '--outline-depth', '2',
+               '--page-size', 'A4',
+               '--margin-top', '20',
+               '--margin-bottom', '25',
+               '--margin-left', '20',
+               '--margin-right', '20',
+               '--header-spacing', '5',
+               '--header-html', os.path.join('docs', 'manual_template', 'documentation_header.html'),
+               '--footer-spacing', '5',
+               '--footer-html', os.path.join('docs', 'manual_template', 'documentation_footer.html'),
+               '--replace', 'docid', 'Document ID: {}'.format(doc_vars['docid']),
+               html_file,
+               pdf_file]
     if verbose:
         print(wkh_cmd)
-    subprocess.check_call(wkh_cmd)
+    try:
+        subprocess.check_call(wkh_cmd)
+    except subprocess.CalledProcessError:
+        if not sys.platform.startswith('win'):
+            print('If wkhtmltopdf fails because it cannot connect to an X server, try installing xvfb and running \
+your command as xvfb-run -a -s "-screen 0 640x480x16" ./x.py [...]')
+        raise
 
 
 def build_manuals(args):

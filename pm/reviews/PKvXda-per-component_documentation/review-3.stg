@@ -1,0 +1,15 @@
+Breakaway Task Review
+=======================
+
+Task name: PKvXda-per-component_documentation
+Version reviewed: a202b9b607ccc836a8a6d9cbf4aaff264cd9a647
+Reviewer: stg
+Date: 2014-08-20
+Conclusion: Rework
+
+Overall comments:
+
+Comment 1: Rework
+When sections are concatenated, they need to be separated by an extra blank line in the output.
+Otherwise, the markdown formatting may not be preserved.
+This affects, e.g., the 'Time and Timers' section header in the Concepts chapter.

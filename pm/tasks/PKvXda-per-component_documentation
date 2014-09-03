@@ -1,0 +1,42 @@
+Task: PKvXda-per-component_documentation
+==============================================================================
+
+Motivation
+----------
+
+Manuals and documentation are currently generated from monolithic markdown files.
+This leads to
+- duplication of contents
+- disconnect and hence inconsistencies between implementation and documentation
+
+
+Goals
+--------
+
+- extend x.py such that it can collect 'documentation' sections in component files into a markdown file for each RTOS package, similar to how the implementation files of RTOS packages are generated
+
+- as a proof of concept, break the monolithic neo rigel manual into its parts by component;
+  integrate these parts into the documentation sections of the respective component files
+
+- ensure that the generated markdown files contain the sections in an order that makes sense to a reader, i.e., sort them according to their dependencies
+
+- extend the x.py build-manuals command such that it generates PDF versions of the generated markdown manuals of the RTOS packages
+
+- add the necessary scaffolding and template files to generate reasonably appealing PDF
+
+
+The following are not goals of this task:
+
+- modifying the contents of the existing markdown documentation (e.g., to ensure correctness)
+
+- improving the generation of the PDF or its layout
+
+
+Test Plan
+---------
+
+- review changes
+
+- run 'x.py build build-manuals' and ensure that it does not fail
+
+- review the generated file packages/armv7m/rtos-rigel/documentation.pdf

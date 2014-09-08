@@ -79,6 +79,7 @@ if correct is not None and sys.executable != correct:
 
 import argparse
 import logging
+import inspect
 
 from pylib.tasks import new_review, new_task, tasks, integrate, _gen_tag
 from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8
@@ -86,6 +87,8 @@ from pylib.components import Component, build
 from pylib.release import release_test, build_release, build_partials
 from pylib.prj import prj_build
 from pylib.manuals import build_manuals
+
+import release_cfg
 
 # Set up a specific logger with our desired output level
 logger = logging.getLogger()
@@ -99,108 +102,6 @@ logger.setLevel(logging.INFO)
 # topdir defaults to the core directory.
 # It may be modified by an appropriate invocation of main().
 topdir = os.path.normpath(os.path.dirname(__file__))
-
-
-CORE_CONFIGURATIONS = {"posix": ["sched-rr-test", "sched-prio-inherit-test", "simple-mutex-test",
-                                 "blocking-mutex-test", "simple-semaphore-test", "sched-prio-test",
-                                 "acamar", "gatria", "kraz"],
-                       "armv7m": ["acamar", "gatria", "kraz", "acrux", "rigel"],
-                       "ppce500": ["acamar", "gatria", "kraz", "acrux", "kochab"]}
-
-CORE_SKELETONS = {
-    'sched-rr-test': [Component('reentrant'),
-                      Component('sched-rr', {'assume_runnable': False}),
-                      Component('sched-rr-test'),
-                      ],
-    'sched-prio-test': [Component('reentrant'),
-                        Component('sched-prio', {'assume_runnable': False}),
-                        Component('sched-prio-test'),
-                        ],
-    'sched-prio-inherit-test': [Component('reentrant'),
-                                Component('sched-prio-inherit', {'assume_runnable': False}),
-                                Component('sched-prio-inherit-test'),
-                                ],
-    'simple-mutex-test': [Component('reentrant'),
-                          Component('simple-mutex'),
-                          Component('simple-mutex-test'),
-                          ],
-    'blocking-mutex-test': [Component('reentrant'),
-                            Component('blocking-mutex'),
-                            Component('blocking-mutex-test'),
-                            ],
-    'simple-semaphore-test': [Component('reentrant'),
-                              Component('simple-semaphore'),
-                              Component('simple-semaphore-test'),
-                              ],
-    'acamar': [Component('reentrant'),
-               Component('acamar'),
-               Component('stack', pkg_component=True),
-               Component('context-switch', pkg_component=True),
-               Component('error'),
-               Component('task'),
-               ],
-    'gatria': [Component('reentrant'),
-               Component('stack', pkg_component=True),
-               Component('context-switch', pkg_component=True),
-               Component('sched-rr', {'assume_runnable': True}),
-               Component('simple-mutex'),
-               Component('error'),
-               Component('task'),
-               Component('gatria'),
-               ],
-    'kraz': [Component('reentrant'),
-             Component('stack', pkg_component=True),
-             Component('context-switch', pkg_component=True),
-             Component('sched-rr', {'assume_runnable': True}),
-             Component('signal'),
-             Component('simple-mutex'),
-             Component('error'),
-             Component('task'),
-             Component('kraz'),
-             ],
-    'acrux': [Component('reentrant'),
-              Component('stack', pkg_component=True),
-              Component('context-switch', pkg_component=True),
-              Component('sched-rr', {'assume_runnable': False}),
-              Component('interrupt-event', pkg_component=True),
-              Component('interrupt-event', {'timer_process': False, 'task_set': False}),
-              Component('simple-mutex'),
-              Component('error'),
-              Component('task'),
-              Component('acrux'),
-              ],
-    'rigel': [Component('reentrant'),
-              Component('stack', pkg_component=True),
-              Component('context-switch', pkg_component=True),
-              Component('sched-rr', {'assume_runnable': False}),
-              Component('signal'),
-              Component('timer', pkg_component=True),
-              Component('timer'),
-              Component('interrupt-event', pkg_component=True),
-              Component('interrupt-event', {'timer_process': True, 'task_set': True}),
-              Component('blocking-mutex'),
-              Component('profiling'),
-              Component('message-queue'),
-              Component('error'),
-              Component('task'),
-              Component('rigel'),
-              ],
-    'kochab': [Component('reentrant'),
-               Component('stack', pkg_component=True),
-               Component('context-switch', pkg_component=True),
-               Component('sched-prio-inherit', {'assume_runnable': False}),
-               Component('signal'),
-               Component('blocking-mutex'),
-               Component('simple-semaphore'),
-               Component('error'),
-               Component('task'),
-               Component('kochab'),
-               ]
-}
-
-# client repositories may extend or override the following variables to control which configurations are available
-skeletons = CORE_SKELETONS.copy()
-configurations = CORE_CONFIGURATIONS.copy()
 
 
 def main():
@@ -306,8 +207,12 @@ Defaults to "archive".', default='archive')
                 args.command = vars(args)[subcommand]
 
         args.topdir = topdir
-        args.configurations = configurations
-        args.skeletons = skeletons
+        args.configurations = release_cfg.CORE_CONFIGURATIONS
+        args.skeletons = release_cfg.CORE_SKELETONS
+
+        maybe_configs = [getattr(release_cfg, cfg) for cfg in dir(release_cfg)]
+        configs = [cfg for cfg in maybe_configs if inspect.isclass(cfg) and issubclass(cfg, release_cfg.Release)]
+        args.enabled_configs = [cfg for cfg in configs if cfg.enabled]
 
         return SUBCOMMAND_TABLE[args.command](args)
 

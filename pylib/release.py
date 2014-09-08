@@ -247,7 +247,7 @@ def build_partials(args):
     os.makedirs(top_path(args.topdir, 'release', 'partials'), exist_ok=True)
     packages = Package.create_from_disk(args.topdir).values()
     for pkg in packages:
-        for config in get_release_configs():
+        for config in args.enabled_configs:
             release_package = _ReleasePackage(pkg, config)
             _mk_partial(release_package, args.topdir)
 
@@ -371,15 +371,6 @@ def release_test(args):
         release_test_one(rel)
 
 
-def get_release_configs():
-    """Return a list of release configs."""
-    import release_cfg
-    maybe_configs = [getattr(release_cfg, cfg) for cfg in dir(release_cfg)]
-    configs = [cfg for cfg in maybe_configs if inspect.isclass(cfg) and issubclass(cfg, release_cfg.Release)]
-    enabled_configs = [cfg for cfg in configs if cfg.enabled]
-    return enabled_configs
-
-
 def build_release(args):
     """Implement the build-release command.
 
@@ -388,7 +379,7 @@ def build_release(args):
     Additionally, it takes the binary 'prj' files and adds it to the appropriate place in the release tar file.
 
     """
-    for config in get_release_configs():
+    for config in args.enabled_configs:
         try:
             build_single_release(config, args.topdir)
         except FileNotFoundError as e:

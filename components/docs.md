@@ -1,3 +1,8 @@
+/*| provides |*/
+docs
+
+/*| requires |*/
+
 /*| doc_header |*/
 
 /*| doc_concepts |*/
@@ -14,7 +19,7 @@ In addition to this documentation, RTOS training can provide a more hands-on, pr
 
 This chapter describes the runtime application programming interface (APIs) provided by the RTOS.
 
-## Incorrect API Usage
+## Correct API Usage
 
 The RTOS API design and implementation leave room for the application to use it incorrectly.
 For example, there are generally no safeguards in the RTOS itself against the application supplying invalid task-ID values to API functions.

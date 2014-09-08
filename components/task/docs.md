@@ -1,3 +1,10 @@
+/*| provides |*/
+task
+
+/*| requires |*/
+rtos
+error
+
 /*| doc_header |*/
 
 /*| doc_concepts |*/

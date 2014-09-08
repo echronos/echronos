@@ -1,3 +1,10 @@
+/*| provides |*/
+sched-rr
+sched
+
+/*| requires |*/
+task
+
 /*| doc_header |*/
 
 /*| doc_concepts |*/

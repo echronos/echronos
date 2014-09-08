@@ -1,3 +1,12 @@
+/*| provides |*/
+blocking-mutex
+mutex
+
+/*| requires |*/
+task
+preempt
+reentrant
+
 /*| doc_header |*/
 
 /*| doc_concepts |*/

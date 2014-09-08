@@ -178,6 +178,7 @@ CORE_SKELETONS = {
               Component('preempt-null'),
               Component('sched-rr', {'assume_runnable': False}),
               Component('signal'),
+              Component('signal-task'),
               Component('timer', pkg_component=True),
               Component('timer'),
               Component('interrupt-event', pkg_component=True),

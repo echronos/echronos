@@ -1,3 +1,10 @@
+/*| provides |*/
+interrupt-event-ppce500
+interrupt-event-arch
+
+/*| requires |*/
+interrupt-event
+
 /*| doc_header |*/
 /*| doc_concepts |*/
 /*| doc_api |*/

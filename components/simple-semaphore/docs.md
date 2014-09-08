@@ -1,3 +1,13 @@
+/*| provides |*/
+simple-semaphore
+semaphore
+
+/*| requires |*/
+reentrant
+task
+preempt
+sched
+
 /*| doc_header |*/
 
 /*| doc_concepts |*/

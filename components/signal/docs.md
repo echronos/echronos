@@ -1,3 +1,12 @@
+/*| provides |*/
+signal
+
+/*| requires |*/
+task
+preempt
+reentrant
+sched
+
 /*| doc_header |*/
 
 /*| doc_concepts |*/

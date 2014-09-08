@@ -1,3 +1,11 @@
+/*| provides |*/
+message-queue
+
+/*| requires |*/
+task
+timer
+sched
+
 /*| doc_header |*/
 
 /*| doc_concepts |*/

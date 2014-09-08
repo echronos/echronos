@@ -1,3 +1,12 @@
+/*| provides |*/
+timer
+
+/*| requires |*/
+task
+signal
+error
+interrupt-event-signal
+
 /*| doc_header |*/
 
 /*| doc_concepts |*/

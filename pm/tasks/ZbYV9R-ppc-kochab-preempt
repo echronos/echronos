@@ -1,0 +1,111 @@
+Task: ZbYV9R-ppc-kochab-preempt
+==============================================================================
+
+Motivation
+----------
+
+Task preemption by interrupts is a feature of the Kochab variant that is not currently implemented for any platform.
+A preliminary Kochab implementation (minus task preemption) currently exists on the development head for PowerPC e500.
+Implementing task preemption will complete the Kochab variant functionality for that platform, as well as preparing the way for a forward-port to development head of the existing ARMv7-M prototype that exists on various side repositories.
+
+
+Goals
+--------
+
+Implement task preemption by interrupts for the Kochab variant on PowerPC e500.
+
+The requirements gathered for the Kochab task preemption feature are appended in full at the bottom of this document.
+The scope of this current task branch will include strictly meeting all 'MUST' requirements.
+Regarding some of the optional ('SHOULD', 'MAY') requirements, this task will commit to the following scope:
+
+- KOCHAB020, KOCHAB021 are waived due to the platform imposing extra cost and complexity on strictly adhering to them.
+- We will support that interrupt handlers that never cause preemption can be indicated as such in the XML. (KOCHAB031a)
+- Interrupt handlers that may cause preemption must return 'true' if they have taken an action that can cause a task to become schedulable, and 'false' otherwise. (KOCHAB031b)
+- Any obligations on the user with regards to proper use of any implementation-specific options will be documented. (KOCHAB012c, KOCHAB031c)
+
+Add a simple test program and system for the task preemption functionality, and document its expected behaviour.
+
+
+Test Plan
+---------
+
+Exercise the expected preemption behaviour of the Kochab variant with a simple test system, roughly as follows:
+
+- Task A is configured to have a higher priority than Task B.
+- B alternates between busy-waiting and blocking on a signal that only A sends.
+- A blocks on a signal that is only sent by the RTOS when a periodic timer interrupt handler raises an interrupt event.
+
+The timer interrupt should immediately cause A to be scheduled regardless of whether B is busy-waiting or blocking.
+
+
+Appendix: Requirements
+----------------------
+
+Define the "strict priority with inheritance scheduling invariant":
+"The active task is the task with the highest priority in the set of schedulable tasks, where for tasks A, B and C:
+    - If A is blocked on B and B is blocked on C, then A is blocked on C.
+    - If A is blocked on lower-priority task B, B inherits the priority of A."
+hereby also referred to as "the scheduling invariant".
+
+yield: in Kochab, an RTOS internal operation in which the scheduler decides which task to run so as to maintain the scheduling invariant, and context switches to that task.
+
+preemption: a yield to a higher-priority task forced by the RTOS in response to the occurrence of an event that changes the set of schedulable tasks.
+
+For brevity "RTOS" will be used to refer to the Kochab variant of eChronos.
+
+KOCHAB001
+The RTOS implementation MUST enforce the scheduling invariant at all times outside of API call implementations and interrupt handler context, by triggering task preemption whenever necessary.
+
+KOCHAB002
+The RTOS implementation SHOULD only ever suspend the enforcement of the scheduling invariant for the smallest possible window necessary to protect internal data structures from concurrent access.
+
+KOCHAB010
+The RTOS user API MUST only provide and document a limited set of API calls that can potentially change the set of schedulable tasks:
+    - signal_send_set, mutex_unlock or sem_post called from a task may cause a task to become unblocked (added to the set of schedulable tasks).
+    - signal_wait_set, mutex_lock or sem_wait called from a task may cause the current task to become blocked (removed from the set of schedulable tasks).
+    - interrupt_event_raise called from an interrupt handler may cause a task to become unblocked (added to the set of schedulable tasks).
+
+KOCHAB011
+The RTOS user API MUST NOT expose a yield API call.
+
+KOCHAB012
+The RTOS configuration API MUST allow the user to supply the interrupt handler code.
+
+    KOCHAB012a
+    The RTOS implementation MAY assume that no user-supplied interrupt handler changes the set of schedulable tasks without triggering preemption.
+
+    KOCHAB012b
+    The RTOS user API MUST NOT provide explicit support for ensuring mutual exclusion between user-supplied interrupt handler code and bounded sections of user code.
+
+    KOCHAB012c
+    The RTOS implementation MAY allow for, and if so, clearly document an implementation-specific way to ensure mutual exclusion between user-supplied interrupt handler code and bounded sections of user code.
+
+KOCHAB020
+The RTOS implementation SHOULD maintain a separation of concerns between context switching and the entering/leaving of interrupt context.
+
+KOCHAB021
+The RTOS implementation SHOULD avoid running RTOS code in arbitrary interrupt handler contexts, in order to avoid giving rise to concurrency issues.
+
+KOCHAB030
+The RTOS implementation MAY be optimised for performance.
+
+    KOCHAB030a
+    The RTOS implementation MAY maintain state so as to trigger preemption only when necessary.
+
+    KOCHAB030b
+    The RTOS implementation MAY avoid running the scheduler more than once in a path before a context switch.
+
+KOCHAB031
+The RTOS user API MAY provide user support to optimise for performance.
+
+    KOCHAB031a
+    The RTOS configuration API MAY allow the user to specify at configuration time that an interrupt handler it supplies will never change the set of schedulable tasks, and therefore will never trigger preemption.
+
+    KOCHAB031b
+    The RTOS user API MAY allow a user-supplied interrupt handler to return a value indicating that it did not change the set of schedulable tasks, and therefore should not trigger preemption.
+
+    KOCHAB031c
+    The RTOS user API documentation MUST carefully document any optimisation support so that project developers understand where misuse of APIs may impact on the enforcement of invariants.
+
+KOCHAB032
+Any RTOS performance optimisations made SHOULD focus on the reduction of interrupt latency and real-time latencies in general, as opposed to improving throughput.

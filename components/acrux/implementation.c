@@ -8,6 +8,9 @@
 /*| structure_definitions |*/
 
 /*| extern_definitions |*/
+extern void rtos_internal_disable_interrupts(void);
+extern void rtos_internal_enable_interrupts(void);
+extern void rtos_internal_wait_for_interrupt(void);
 
 /*| function_definitions |*/
 static void handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id);
@@ -15,6 +18,9 @@ static void handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_eve
 /*| state |*/
 
 /*| function_like_macros |*/
+#define disable_interrupts() rtos_internal_disable_interrupts()
+#define enable_interrupts() rtos_internal_enable_interrupts()
+#define wait_for_interrupt() rtos_internal_wait_for_interrupt()
 #define preempt_disable()
 #define preempt_enable()
 #define interrupt_event_id_to_taskid(interrupt_event_id) (({{prefix_type}}TaskId)(interrupt_event_id))

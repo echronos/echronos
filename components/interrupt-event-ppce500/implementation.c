@@ -60,22 +60,12 @@ interrupt_application_event_check(void)
 static inline void
 interrupt_event_wait(void)
 {
-    asm volatile("wrteei 0"); /* Clear MSR[EE] to disable noncritical external input interrupts */
-    asm volatile("isync");
+    disable_interrupts();
     if (!interrupt_event_check())
     {
-        /* PowerPC e500 doesn't appear to implement the "wait" instruction, so we do things the e500 way.
-         * The msync-mtmsr(WE)-isync sequence is explicitly recommended by the e500 Core Family Reference Manual. */
-        asm volatile(
-            "mfmsr %%r3\n"
-            "oris %%r3,%%r3,0x4\n" /* Set 0x40000 = MSR[WE] to gate DOZE/NAP/SLEEP depending on how HID0 is set */
-            "ori %%r3,%%r3,0x8000\n" /* Set 0x8000 = MSR[EE] to enable noncritical external input interrupts */
-            "msync\n"
-            "mtmsr %%r3\n"
-            "isync\n"
-            ::: "r3");
+        wait_for_interrupt();
     }
-    asm volatile("wrteei 1"); /* Set MSR[EE] to enable noncritical external input interrupts */
+    enable_interrupts();
 }
 
 /*| public_functions |*/

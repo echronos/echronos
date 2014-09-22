@@ -54,3 +54,93 @@ It provides the `ppce500_debug_putc` function.
 
 This function is not currently implemented, and is only a placeholder stub to assist GDB debugging.
 Alternatively, the generic `debug_println` function may be another convenient location to place a breakpoint.
+
+`ppce500/vectable`
+=================
+
+On a PowerPC interrupt, the CPU stores machine state into the interrupt save/restore registers:
+  MCSRR/CSRR/SRR0 holds the address to resume at on return from interrupt (rfmci/rfci/rfi)
+  MCSRR/CSRR/SRR1 holds the machine state register (MSR) of the interrupted context
+
+The Book E specification (e* core families) classes interrupts into noncritical and critical.
+Noncritical interrupts use SRR0/1, and critical interrupts have a separate pair of save/restore registers CSRR0/1.
+Additionally, the e500 core defines the machine check interrupt as its own class, with its own registers MCSRR0/1.
+
+These classes are ordered in priority such that if a noncritical interrupt is taken, the CPU will automatically modify the MSR to mask out all noncritical interrupts, but critical and machine check interrupts may still occur.
+Likewise, a critical interrupt will mask out all noncritical and critical interrupts (but not machine check interrupts, on the e500).
+Finally, on the e500 a machine check interrupt will mask out the enable bits of all types of interrupts.
+
+Despite this masking, an interrupt handler may still re-enable certain types of interrupts by re-setting the relevant interrupt enable bits in the MSR.
+In this case the M/C/SRRs should be saved to the stack since their contents will be lost if an interrupt is taken.
+
+Apart from the M/C/SRRs, all of the user-level registers remain as they were at the time the interrupt was taken, and the handler must take responsibility for saving them if the potential exists for them to be corrupted.
+
+In order to support arbitrary, project-defined handlers potentially implemented in C, we therefore define the following stack frame structure in which to preserve the interrupted context:
+
+   76 +------------------------------------------------------------+ Highest address
+      | r12                                                        |
+      ... (r4-r11)   volatile general-purpose registers          ...
+      | r3                                                         |
+   36 +------------------------------------------------------------+
+      | r0                                                         |
+   32 +------------------------------------------------------------+
+      | CR (condition register)                                    |
+   28 +------------------------------------------------------------+
+      | CTR (count register)                                       |
+   24 +------------------------------------------------------------+
+      | XER (integer exception register)                           |
+   20 +------------------------------------------------------------+
+      | MCSRR/CSRR/SRR1                                            |
+   16 +------------------------------------------------------------+
+      | MCSRR/CSRR/SRR0                                            |
+   12 +------------------------------------------------------------+
+      | LR (link register) from interrupted context                |
+    8 +------------------------------------------------------------+
+      | LR save word (placeholder) for next function               |
+    4 +------------------------------------------------------------+
+      | Back chain word                                            |
+    0 +------------------------------------------------------------+ Lowest address
+
+Only the volatile registers (r3-r12) are preserved, because by the EABI convention, any handler would be responsible for preserving the contents of the nonvolatile registers (r14-r31).
+
+The lowest two words (LR save and back chain word) follow the stack frame header convention of the EABI specification (see ppce500-context-switch.c for more detail).
+
+`ppce500/vectable-preempt`
+==========================
+
+To support preemption, we unify the stack frame used for interrupted contexts and context switching.
+This allows us to prevent unnecessary stack frame operations once we determine that an interrupted context is to be preempted.
+
+  152 +------------------------------------------------------------+ Highest address
+      | Preempted context restore status flags                     |
+  148 +------------------------------------------------------------+
+      | r31                                                        |
+      ... (r15-r30)  nonvolatile general-purpose registers       ...
+      | r14                                                        |
+   76 +------------------------------------------------------------+
+      | r12                                                        |
+      ... (r4-r11)   volatile general-purpose registers          ...
+      | r3                                                         |
+   36 +------------------------------------------------------------+
+      | r0                                                         |
+   32 +------------------------------------------------------------+
+      | CR (condition register)                                    |
+   28 +------------------------------------------------------------+
+      | CTR (count register)                                       |
+   24 +------------------------------------------------------------+
+      | XER (integer exception register)                           |
+   20 +------------------------------------------------------------+
+      | MCSRR/CSRR/SRR1                                            |
+   16 +------------------------------------------------------------+
+      | MCSRR/CSRR/SRR0                                            |
+   12 +------------------------------------------------------------+
+      | LR (link register) from interrupted context                |
+    8 +------------------------------------------------------------+
+      | LR save word (placeholder) for next function               |
+    4 +------------------------------------------------------------+
+      | Back chain word                                            |
+    0 +------------------------------------------------------------+ Lowest address
+
+Again, the lowest two words (LR save and back chain word) follow the stack frame header convention of the EABI specification (see ppce500-context-switch.c for more detail).
+
+In addition to space for the volatile registers (r3-r12), we also set aside space to preserve the nonvolatile registers (r14-r31) in case the interrupted context needs to be preempted.

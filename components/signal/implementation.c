@@ -17,6 +17,7 @@ struct signal {
 
 /*| function_definitions |*/
 static {{prefix_type}}SignalSet _signal_recv({{prefix_type}}SignalSet *const cur_task_signals, const {{prefix_type}}SignalSet mask);
+static void signal_send_set(const {{prefix_type}}TaskId task_id, const {{prefix_type}}SignalSet signals);
 
 /*| state |*/
 static struct signal signal_tasks;
@@ -39,6 +40,17 @@ _signal_recv({{prefix_type}}SignalSet *const pending_signals, const {{prefix_typ
     postcondition_preemption_disabled();
 
     return received_signals;
+}
+
+static void
+signal_send_set(const {{prefix_type}}TaskId task_id, const {{prefix_type}}SignalSet signals)
+{
+    precondition_preemption_disabled();
+
+    PENDING_SIGNALS(task_id) |= signals;
+    _unblock(task_id);
+
+    postcondition_preemption_disabled();
 }
 
 /*| public_functions |*/
@@ -97,8 +109,7 @@ void
 
     preempt_disable();
 
-    PENDING_SIGNALS(task_id) |= signals;
-    _unblock(task_id);
+    signal_send_set(task_id, signals);
 
     preempt_enable();
 }

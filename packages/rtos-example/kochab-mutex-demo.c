@@ -2,6 +2,17 @@
 #include "debug.h"
 
 void
+fatal(RtosErrorId error_id)
+{
+    debug_print("FATAL ERROR: ");
+    debug_printhex32(error_id);
+    debug_println("");
+    for (;;)
+    {
+    }
+}
+
+void
 fn_a(void)
 {
     /* Part 0: Solo */

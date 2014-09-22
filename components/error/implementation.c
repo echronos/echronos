@@ -25,6 +25,8 @@
 #define ERROR_ID_MESSAGE_QUEUE_INTERNAL_VIOLATED_INVARIANT_INVALID_MESSAGES_POINTER (({{prefix_type}}ErrorId) UINT8_C(20))
 #define ERROR_ID_MESSAGE_QUEUE_INTERNAL_VIOLATED_INVARIANT_INVALID_MESSAGE_SIZE (({{prefix_type}}ErrorId) UINT8_C(21))
 #define ERROR_ID_MESSAGE_QUEUE_INTERNAL_VIOLATED_INVARIANT_INVALID_QUEUE_LENGTH (({{prefix_type}}ErrorId) UINT8_C(22))
+#define ERROR_ID_INTERNAL_PRECONDITION_VIOLATED (({{prefix_type}}ErrorId) UINT8_C(23))
+#define ERROR_ID_INTERNAL_POSTCONDITION_VIOLATED (({{prefix_type}}ErrorId) UINT8_C(24))
 
 /*| type_definitions |*/
 
@@ -34,6 +36,9 @@
 {{#api_asserts}}
 extern void {{fatal_error}}({{prefix_type}}ErrorId error_id);
 {{/api_asserts}}
+{{#internal_asserts}}
+extern void {{fatal_error}}({{prefix_type}}ErrorId error_id);
+{{/internal_asserts}}
 
 /*| function_definitions |*/
 

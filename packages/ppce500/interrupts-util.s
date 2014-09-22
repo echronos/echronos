@@ -29,3 +29,16 @@ rtos_internal_enable_interrupts:
         wrteei 1 /* Set MSR[EE] to enable noncritical external input interrupts */
         blr
 .size rtos_internal_enable_interrupts, .-rtos_internal_enable_interrupts
+
+.global rtos_internal_check_interrupts_enabled
+.type rtos_internal_check_interrupts_enabled,STT_FUNC
+/* bool rtos_internal_check_interrupts_enabled(void) */
+rtos_internal_check_interrupts_enabled:
+        mfmsr %r3
+        andi. %r3,%r3,0x8000;
+        cmpi 0,%r3,0
+        beq 1f
+        li %r3,1
+1:
+        blr
+.size rtos_internal_check_interrupts_enabled, .-rtos_internal_check_interrupts_enabled

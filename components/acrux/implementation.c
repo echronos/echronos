@@ -23,6 +23,7 @@ static void handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_eve
 #define wait_for_interrupt() rtos_internal_wait_for_interrupt()
 #define preempt_disable()
 #define preempt_enable()
+#define preempt_clear()
 #define interrupt_event_id_to_taskid(interrupt_event_id) (({{prefix_type}}TaskId)(interrupt_event_id))
 
 /*| functions |*/

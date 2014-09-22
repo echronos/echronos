@@ -2,11 +2,15 @@
 <system>
   <modules>
     <module name="ppce500.build" />
-    <module name="ppce500.ctxt-switch" />
     <module name="ppce500.default-linker" />
     <module name="ppce500.interrupts-util" />
     <module name="ppce500.vectable-common" />
-    <module name="ppce500.vectable-preempt" />
+    <module name="ppce500.vectable-preempt">
+      <fixed_interval_timer>
+          <handler>tick_irq</handler>
+          <preempting>true</preempting>
+      </fixed_interval_timer>
+    </module>
     <module name="ppce500.debug" />
     <module name="generic.debug">
       <ll_debug>ppce500_</ll_debug>
@@ -19,43 +23,7 @@
       <prefix>rtos</prefix>
       <taskid_size>8</taskid_size>
       <signalset_size>8</signalset_size>
-
-      <signal_labels>
-
-        <signal_label>
-          <name>dummy0</name>
-        </signal_label>
-
-        <signal_label>
-          <name>dummy1</name>
-        </signal_label>
-
-        <signal_label>
-          <name>dummy2</name>
-        </signal_label>
-
-        <signal_label>
-          <name>dummy3</name>
-        </signal_label>
-
-        <signal_label>
-          <name>dummy4</name>
-        </signal_label>
-
-        <signal_label>
-          <name>unblock</name>
-        </signal_label>
-
-        <signal_label>
-          <name>dummy6</name>
-        </signal_label>
-
-        <signal_label>
-          <name>dummy7</name>
-        </signal_label>
-
-      </signal_labels>
-
+      <interrupteventid_size>8</interrupteventid_size>
       <tasks>
 
         <task>
@@ -74,13 +42,26 @@
 
       </tasks>
 
+      <interrupt_events>
+        <interrupt_event>
+          <name>tick</name>
+          <task_name>a</task_name>
+          <sig_set>1</sig_set>
+        </interrupt_event>
+      </interrupt_events>
+
+      <mutexes>
+        <mutex>
+          <name>m0</name>
+        </mutex>
+      </mutexes>
       <mutex>
         <stats>false</stats>
       </mutex>
+
     </module>
 
-    <!-- main .c file: -->
-    <module name="rtos-example.kochab-signal-demo" />
+    <module name="machine-qemu-ppce500.example.kochab-test" />
 
   </modules>
 </system>

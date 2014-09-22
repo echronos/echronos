@@ -12,8 +12,12 @@ build
   ~ A build module.
 ctxt-switch
   ~ A module that implements context switching.
+vectable-common
+  ~ A module with code and macros common to all vector table implementations.
 vectable
-  ~ A module that generates an appropriate vector table.
+  ~ A module that generates an appropriate vector table for user configuration of interrupt handlers.
+vectable-preempt
+  ~ A module that generates an appropriate vector table with support for task preemption by interrupts.
 debug
   ~ A module that provides the *low-level debug* interface.
 rtos-acamar
@@ -24,9 +28,8 @@ rtos-kraz
   ~ A variant of eChronos that supports round-robin scheduling, `yield()`, mutexes, and signals.
 rtos-acrux
   ~ A variant of eChronos that supports round-robin scheduling, interrupt events, `yield()`, `block()`, `unblock()`, and mutexes.
-rtos-kochab (PRELIMINARY)
+rtos-kochab
   ~ A variant of eChronos that supports priority scheduling, mutexes with priority inheritance, semaphores, signals, and interrupts that cause task preemption and trigger the sending of signals.
-    This is a preliminary version of kochab that does not yet include support for interrupts and task preemption.
 
 Please note that RTOS variants that provide interrupt events only support their use by *noncritical external* interrupts on PowerPC, and will not enable or disable any other types of interrupts.
 Projects that define handlers for debug, critical, or machine check interrupts must enable them as needed, and cannot use the interrupt_event_raise() API or any other RTOS functionality.
@@ -143,4 +146,4 @@ This allows us to prevent unnecessary stack frame operations once we determine t
 
 Again, the lowest two words (LR save and back chain word) follow the stack frame header convention of the EABI specification (see ppce500-context-switch.c for more detail).
 
-In addition to space for the volatile registers (r3-r12), we also set aside space to preserve the nonvolatile registers (r14-r31) in case the interrupted context needs to be preempted.
+In addition to space for the volatile registers (r3-r12), we also set aside space to preserve the nonvolatile registers (r14-r31) in case the interrupted context needs to be preempted, as well as a field for implementation-specific preemption status flags.

@@ -6,52 +6,51 @@
 /*| type_definitions |*/
 
 /*| structure_definitions |*/
+struct interrupt_event_handler {
+    {{prefix_type}}TaskId task;
+    {{prefix_type}}SignalSet sig_set;
+};
 
 /*| extern_definitions |*/
+extern void rtos_internal_disable_interrupts(void);
+extern void rtos_internal_enable_interrupts(void);
+extern void rtos_internal_wait_for_interrupt(void);
 {{#tasks}}
 extern void {{function}}(void);
 {{/tasks}}
 
 /*| function_definitions |*/
-static void _yield(void);
 static void _block(void);
 static void _unblock({{prefix_type}}TaskId task);
-static void preempt_enable(void);
+{{#interrupt_events.length}}
+static void handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id);
+{{/interrupt_events.length}}
 
 /*| state |*/
-/* Simulate kochab's desired "yield on unblock" behaviour until we implement preemption */
-static volatile bool preempt_pending;
+struct interrupt_event_handler interrupt_events[{{interrupt_events.length}}] = {
+{{#interrupt_events}}
+ { {{prefix_const}}TASK_ID_{{task_name|u}}, {{prefix_const}}SIGNAL_SET_INTERRUPT_{{name|u}} },
+{{/interrupt_events}}
+};
 
 /*| function_like_macros |*/
-#define preempt_disable()
 #define mutex_block_on(task) _block_on(task)
 #define mutex_unblock(task) _unblock(task)
-#define precondition_preemption_disabled()
-#define postcondition_preemption_disabled()
-#define postcondition_preemption_enabled()
+#define disable_interrupts() rtos_internal_disable_interrupts()
+#define enable_interrupts() rtos_internal_enable_interrupts()
+#define wait_for_interrupt() rtos_internal_wait_for_interrupt()
 
 /*| functions |*/
 {{#tasks}}
 static void
 entry_{{name}}(void)
 {
+    precondition_preemption_disabled();
+
     preempt_enable();
     {{function}}();
 }
 {{/tasks}}
-
-static void
-_yield(void)
-{
-    precondition_preemption_disabled();
-    {
-        const {{prefix_type}}TaskId from = get_current_task();
-        const {{prefix_type}}TaskId to = sched_get_next();
-        current_task = to;
-        context_switch(get_task_context(from), get_task_context(to));
-    }
-    postcondition_preemption_disabled();
-}
 
 static void
 _block(void)
@@ -88,25 +87,25 @@ _unblock({{prefix_type}}TaskId task)
      * Note: When preemption is enabled a yield should be forced
      * as a higher priority task may have been scheduled.
      */
-    preempt_pending = true;
+    preempt_pend();
 
     postcondition_preemption_disabled();
 }
 
+{{#interrupt_events.length}}
 static void
-preempt_enable(void)
+handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id)
 {
     precondition_preemption_disabled();
 
-    /* This simulates kochab's desired "yield on unblock" behaviour until we implement preemption */
-    while (preempt_pending)
-    {
-        preempt_pending = false;
-        _yield();
-    }
+    {{prefix_type}}TaskId task = interrupt_events[interrupt_event_id].task;
+    {{prefix_type}}SignalSet sig_set = interrupt_events[interrupt_event_id].sig_set;
 
-    postcondition_preemption_enabled();
+    signal_send_set(task, sig_set);
+
+    postcondition_preemption_disabled();
 }
+{{/interrupt_events.length}}
 
 /*| public_functions |*/
 
@@ -120,5 +119,5 @@ void
     sched_set_runnable({{idx}});
     {{/tasks}}
 
-    context_switch_first(get_task_context({{prefix_const}}TASK_ID_ZERO));
+    context_preempt_first({{prefix_const}}TASK_ID_ZERO);
 }

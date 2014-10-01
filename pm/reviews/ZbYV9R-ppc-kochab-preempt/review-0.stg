@@ -5,7 +5,7 @@ Task name: ZbYV9R-ppc-kochab-preempt
 Version reviewed: 9a7e0e8e79c20a94acedebabc4038a639d25fffd
 Reviewer: stg
 Date: 2014-09-22
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
@@ -13,8 +13,42 @@ Overall comments:
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: components/acrux/implementation.c:11-13
+Comment: Rework
+These interrupt related functions are included in the RTOS header file since they are declared in the extern_definitions section.
+However, since they are not meant to be used by applications, they should not be visible in the RTOS header file.
+Therefore, they should move into the function_definitions section, so they are declared only internally and not in an application-visible file.
 
-Location: filename:linenum
-Comment:
+Location: components/acrux/implementation.c:11-13
+Comment: Rework
+These interrupt related functions have the naming pattern <verb>_<noun>.
+This contradicts the standard RTOS naming pattern <noun>_<verb>.
+Therefore, these functions should be renamed to, e.g., rtos_internal_interrupts_disable()
+
+Location: components/acrux/implementation.c:21-23
+Comment: Rework
+These interrupt related macros have the naming pattern <verb>_<noun>.
+This contradicts the standard RTOS naming pattern <noun>_<verb>.
+Therefore, these macros should be renamed to, e.g., interrupts_disable()
+
+Location: components/context-preempt-ppce500/implementation.c:92
+Comment: Question/Rework
+The function ppce500_context_preempt_first() is declared and defined as global instead of static.
+However, it is not apparent why it needs to be global.
+To avoid name-space pollution, it would be preferable to make it a static function.
+Please change it to static or document why it cannot be static.
+In the latter case, it should be prefixed with 'rtos_internal_'.
+
+Location: components/context-preempt-ppce500/implementation.c:98-99
+Comment: Question/Rework
+The variables preempt_disabled and preempt_pending are declared and defined as volatile uint8_t.
+Looking at their use, bool seems a more appropriate type for them.
+Please document why these variables need to have the type uint8_t or change it to bool.
+
+Location: components/context-preempt-ppce500/implementation.c:98-99
+Comment: Question/Rework
+The variables preempt_disabled and preempt_pending are declared and defined as volatile uint8_t.
+Looking at their use, it does not seem as if they need to be accessible to applications.
+Please document why these variables need to be public or change them to static variables.
+If they need to remain public, they need to receive the standard RTOS prefix to avoid name-space pollution.
+

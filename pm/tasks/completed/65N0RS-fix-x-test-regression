@@ -1,0 +1,20 @@
+Task: 65N0RS-fix-x-test-regression
+==============================================================================
+
+Motivation
+----------
+A regression has occured which makes the x-test test run zero tests. This is due
+to an import error in x_test.py which is silently dropped by the test framework.
+
+Goals
+--------
+Fix the existing regression and investigate possible improvements to the test
+system to make identifying this mode of failure more robust.
+
+- Update: testing for this mode of failure involves setting up teamcity to
+  work with the python unit test framework, which is a significant amount of
+  work and will not be undertaken in this task.
+
+Test Plan
+---------
+TC tests will run with the correct number of tests.

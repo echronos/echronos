@@ -43,11 +43,11 @@ interrupt_event_process(void)
      * not affect the current scheduling run, nor will it trigger a re-run of the scheduler.
      *
      * To prevent either case, we turn the two actions into a single atomic step by disabling interrupts. */
-    disable_interrupts();
-    /* FIXME: On RTOS variants where preempt_clear() is a noop, this disable/enable_interrupts() is unnecessary. */
+    interrupts_disable();
+    /* FIXME: On RTOS variants where preempt_clear() is a noop, this interrupts_disable/enable() is unnecessary. */
     preempt_clear();
     tmp = interrupt_event;
-    enable_interrupts();
+    interrupts_enable();
     while (tmp != 0)
     {
         /* __builtin_ffs(x) returns 1 + the index of the least significant 1-bit in x, or returns zero if x is 0 */
@@ -80,12 +80,12 @@ interrupt_application_event_check(void)
 static inline void
 interrupt_event_wait(void)
 {
-    disable_interrupts();
+    interrupts_disable();
     if (!interrupt_event_check())
     {
-        wait_for_interrupt();
+        interrupts_wait();
     }
-    enable_interrupts();
+    interrupts_enable();
 }
 
 /*| public_functions |*/

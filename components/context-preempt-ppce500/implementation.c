@@ -89,20 +89,19 @@ extern bool rtos_internal_check_interrupts_enabled(void);
  */
 static void context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack_base, const size_t stack_size);
 
-void ppce500_context_preempt_first({{prefix_type}}TaskId to);
-
+static void ppce500_context_preempt_first({{prefix_type}}TaskId to);
 static void ppce500_yield(void);
 static void preempt_enable(void);
 
 /*| state |*/
-volatile uint8_t preempt_disabled = 1;
-volatile uint8_t preempt_pending;
+static volatile bool preempt_disabled = true;
+static volatile bool preempt_pending;
 
 /*| function_like_macros |*/
 #define _yield ppce500_yield
-#define preempt_disable() preempt_disabled = 1
-#define preempt_pend() preempt_pending = 1
-#define preempt_clear() preempt_pending = 0
+#define preempt_disable() preempt_disabled = true
+#define preempt_pend() preempt_pending = true
+#define preempt_clear() preempt_pending = false
 #define context_preempt_first ppce500_context_preempt_first
 #define irqs_enabled() rtos_internal_check_interrupts_enabled()
 #define precondition_interrupts_disabled() internal_assert(!irqs_enabled(), ERROR_ID_INTERNAL_PRECONDITION_VIOLATED)
@@ -128,10 +127,10 @@ ppce500_yield_common(bool return_with_preempt_disabled)
             /* this unsets preempt_pending */
             to = interrupt_event_get_next();
 
-            disable_interrupts();
+            interrupts_disable();
 
             if (preempt_pending) {
-                enable_interrupts();
+                interrupts_enable();
                 continue;
             }
 
@@ -140,7 +139,7 @@ ppce500_yield_common(bool return_with_preempt_disabled)
                 rtos_internal_yield_syscall(to, return_with_preempt_disabled);
             } else {
                 preempt_disabled = return_with_preempt_disabled;
-                enable_interrupts();
+                interrupts_enable();
             }
 
             break;
@@ -184,12 +183,12 @@ preempt_irq_invoke_scheduler(void)
     precondition_preemption_disabled();
 
     do {
-        enable_interrupts();
+        interrupts_enable();
 
         /* this unsets preempt_pending */
         next = interrupt_event_get_next();
 
-        disable_interrupts();
+        interrupts_disable();
     } while (preempt_pending);
 
     postcondition_preemption_disabled();
@@ -203,7 +202,7 @@ preempt_irq_invoke_scheduler(void)
 {{prefix_type}}TaskId
 preempt_irq_handler_wrapper(bool (*handler)(void))
 {
-    uint8_t initial_preempt_disabled = preempt_disabled;
+    bool initial_preempt_disabled = preempt_disabled;
     {{prefix_type}}TaskId to = TASK_ID_NONE;
 
     precondition_interrupts_disabled();
@@ -213,13 +212,13 @@ preempt_irq_handler_wrapper(bool (*handler)(void))
         goto end;
     }
 
-    preempt_pending = 1;
+    preempt_pending = true;
 
     if (preempt_disabled) {
         goto end;
     }
 
-    preempt_disabled = 1;
+    preempt_disabled = true;
 
     to = preempt_irq_invoke_scheduler();
     if (to == get_current_task()) {
@@ -279,7 +278,7 @@ ppce500_context_preempt_first({{prefix_type}}TaskId to)
 
         if (!(ctxt_to[CONTEXT_PREEMPT_RESTORE_STATUS] & PREEMPT_RESTORE_DISABLED)) {
             /* only need the enable case because we entered with preemption disabled */
-            preempt_disabled = 0;
+            preempt_disabled = false;
         }
 
         if (ctxt_to[CONTEXT_PREEMPT_RESTORE_STATUS] & PREEMPT_RESTORE_VOLATILES) {

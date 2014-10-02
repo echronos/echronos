@@ -19,17 +19,23 @@ These interrupt related functions are included in the RTOS header file since the
 However, since they are not meant to be used by applications, they should not be visible in the RTOS header file.
 Therefore, they should move into the function_definitions section, so they are declared only internally and not in an application-visible file.
 
+[robs: Fixed]
+
 Location: components/acrux/implementation.c:11-13
 Comment: Rework
 These interrupt related functions have the naming pattern <verb>_<noun>.
 This contradicts the standard RTOS naming pattern <noun>_<verb>.
 Therefore, these functions should be renamed to, e.g., rtos_internal_interrupts_disable()
 
+[robs: Fixed]
+
 Location: components/acrux/implementation.c:21-23
 Comment: Rework
 These interrupt related macros have the naming pattern <verb>_<noun>.
 This contradicts the standard RTOS naming pattern <noun>_<verb>.
 Therefore, these macros should be renamed to, e.g., interrupts_disable()
+
+[robs: Fixed]
 
 Location: components/context-preempt-ppce500/implementation.c:92
 Comment: Question/Rework
@@ -39,11 +45,18 @@ To avoid name-space pollution, it would be preferable to make it a static functi
 Please change it to static or document why it cannot be static.
 In the latter case, it should be prefixed with 'rtos_internal_'.
 
+[robs: Thanks for spotting all these.
+This is an artifact from when I was originally had a once-only ``syscall_first'' vector calling it from asm.
+I soon realized it was unnecessary, but forgot to make the function static again.]
+
 Location: components/context-preempt-ppce500/implementation.c:98-99
 Comment: Question/Rework
 The variables preempt_disabled and preempt_pending are declared and defined as volatile uint8_t.
 Looking at their use, bool seems a more appropriate type for them.
 Please document why these variables need to have the type uint8_t or change it to bool.
+
+[robs: Sorry, an artifact from when these were being touched from asm and we needed to know the read/store width.
+I'll make them into bools.]
 
 Location: components/context-preempt-ppce500/implementation.c:98-99
 Comment: Question/Rework
@@ -52,3 +65,4 @@ Looking at their use, it does not seem as if they need to be accessible to appli
 Please document why these variables need to be public or change them to static variables.
 If they need to remain public, they need to receive the standard RTOS prefix to avoid name-space pollution.
 
+[robs: An artifact of when these were touched from a separate asm file, these can become static now.]

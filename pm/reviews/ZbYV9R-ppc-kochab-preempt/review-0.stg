@@ -72,6 +72,8 @@ Comment: Question/Rework
 It appears to me that the declarations in the header sections do not require stddef.h to be included.
 Please remove it unless it is required.
 
+[robs: Fixed]
+
 Location: components/context-preempt-ppce500/implementation.c:62-64
 Comment: Question/Rework
 These internal functions are declared in the extern_definitions section which makes them publicly visible to applications in the RTOS header file.
@@ -79,21 +81,29 @@ However, since they are internal functions, applications should not use them.
 Therefore, their declarations should not be visible to applications.
 Therefore, they need to be declared in the function_definitions section instead.
 
+[robs: Fixed]
+
 Location: components/context-preempt-ppce500/implementation.c:90
 Comment: Rework
 The declaration of the context_init() function marks its function arguments as const.
 However, by convention, const qualifiers for pass-by-value arguments must only be specified in function definitions, not their declarations.
 Therefore, the const qualifiers of the function arguments need to be removed.
 
+[robs: Fixed; and removed from the similar declaration in context-switch-ppce500 too]
+
 Location: components/context-preempt-ppce500/implementation.c:117ff
 Comment: Rework
 The function definition of ppce500_yield_common() and following functions does not establish full const correctness for its function arguments.
 As per convention, const qualifiers need to be added for maximum const correctness of function arguments.
 
+[robs: Fixed]
+
 Location: packages/ppce500/vectable.s:2-3
 Comment: Rework
 The imported package logging and the variable logger are unused.
 Please remove them.
+
+[robs: Fixed; removed from their new location at default-linker.py:2-3]
 
 Location: packages/ppce500/vectable.s and others
 Comment: Rework

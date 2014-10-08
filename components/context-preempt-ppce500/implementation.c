@@ -1,6 +1,5 @@
 /*| headers |*/
 #include <stdint.h>
-#include <stddef.h>
 
 /*| object_like_macros |*/
 #define PREEMPT_RESTORE_DISABLED 1
@@ -59,11 +58,12 @@ typedef uint32_t* context_t;
 /*| structure_definitions |*/
 
 /*| extern_definitions |*/
+
+/*| function_definitions |*/
 extern void rtos_internal_yield_syscall({{prefix_type}}TaskId to, bool return_with_preempt_disabled);
 extern void rtos_internal_restore_preempted_context(bool restore_volatiles, context_t ctxt_to);
 extern bool rtos_internal_check_interrupts_enabled(void);
 
-/*| function_definitions |*/
 /**
  * Set up the initial execution context of a task.
  * This function is invoked exactly once for each task in the system.
@@ -87,7 +87,7 @@ extern bool rtos_internal_check_interrupts_enabled(void);
  * @param stack_base Points to the lowest address of the memory area this execution context shall use as a stack.
  * @param stack_size The size in bytes of the stack memory area reserved for this execution context.
  */
-static void context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack_base, const size_t stack_size);
+static void context_init(context_t *ctx, void (*fn)(void), uint32_t *stack_base, size_t stack_size);
 
 static void ppce500_context_preempt_first({{prefix_type}}TaskId to);
 static void ppce500_yield(void);
@@ -114,7 +114,7 @@ static volatile bool preempt_pending;
 
 /*| functions |*/
 static void
-ppce500_yield_common(bool return_with_preempt_disabled)
+ppce500_yield_common(const bool return_with_preempt_disabled)
 {
     precondition_interrupts_enabled();
     precondition_preemption_disabled();
@@ -210,7 +210,7 @@ preempt_irq_invoke_scheduler(void)
 /* This function returns the (context_t *) to switch to, or TASK_ID_NONE if no context switch is required.
  * It is NOT responsible for setting current_task = to! */
 {{prefix_type}}TaskId
-preempt_irq_handler_wrapper(bool (*handler)(void))
+preempt_irq_handler_wrapper(bool (*const handler)(void))
 {
     bool initial_preempt_disabled = preempt_disabled;
     {{prefix_type}}TaskId to = TASK_ID_NONE;
@@ -248,7 +248,7 @@ end:
 }
 
 void
-ppce500_context_preempt({{prefix_type}}TaskId to, context_t sp, bool restore_preempt_disabled, bool restore_volatiles)
+ppce500_context_preempt(const {{prefix_type}}TaskId to, const context_t sp, const bool restore_preempt_disabled, const bool restore_volatiles)
 {
     precondition_interrupts_disabled();
     precondition_preemption_disabled();
@@ -274,7 +274,7 @@ ppce500_context_preempt({{prefix_type}}TaskId to, context_t sp, bool restore_pre
 }
 
 void
-ppce500_context_preempt_first({{prefix_type}}TaskId to)
+ppce500_context_preempt_first(const {{prefix_type}}TaskId to)
 {
     bool restore_volatiles;
 

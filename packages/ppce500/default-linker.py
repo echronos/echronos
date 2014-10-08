@@ -1,6 +1,4 @@
 from prj import Module
-import logging
-logger = logging.getLogger()
 
 
 class DefaultLinkerModule(Module):

@@ -120,7 +120,7 @@ extern void ppce500_context_switch_first(context_t *) {{prefix_const}}REENTRANT;
  * @param stack_base Points to the lowest address of the memory area this execution context shall use as a stack.
  * @param stack_size The size in bytes of the stack memory area reserved for this execution context.
  */
-static void context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack_base, const size_t stack_size);
+static void context_init(context_t *ctx, void (*fn)(void), uint32_t *stack_base, size_t stack_size);
 
 /*| state |*/
 

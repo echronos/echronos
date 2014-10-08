@@ -5,16 +5,261 @@ Task name: ZbYV9R-ppc-kochab-preempt
 Version reviewed: 9a7e0e8e79c20a94acedebabc4038a639d25fffd
 Reviewer: ikuz
 Date: 2014-09-22
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
+Some of the points are more discussion points than specfic rework points.  The discussion might lead to rework, but it might not.
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: pm/tasks/ZbYV9R-ppc-kochab-preempt:
+Comment: Rework 
 
-Location: filename:linenum
+7: "Task preemption by interrupts is a feature of the Kochab variant that is not currently implemented for any platform."  This is misleading, as it is implemented in the preliminary ARM version.
+
+21: " - KOCHAB020, KOCHAB021 are waived due to the platform imposing extra cost and complexity on strictly adhering to them." why exactly?
+
+29-38: Test Plan:  motivate why this is a sufficient test plan.  What does it test, why is it sufficient, what does it not test.  Are there corner case scenarios etc that need to be tested?
+
+46: "- If A is blocked on B and B is blocked on C, then A is blocked on C." why is this necessary?
+
+47: "- If A is blocked on lower-priority task B, B inherits the priority of A."" it's unclear what "blocked on a task" means here (i.e. how do you block on a task?). priority inheritance only occurs if you block on a mutex.
+
+78: "The RTOS user API MUST NOT provide explicit support for ensuring mutual exclusion between user-supplied interrupt handler code and bounded sections of user code." sounds strange to say MUST NOT here.
+
+
+Location: components/acrux/implementation.c:21-23
+Comment: Discussion
+#define interrupts_disable() rtos_internal_interrupts_disable()
+#define interrupts_enable() rtos_internal_interrupts_enable()
+#define interrupts_wait() rtos_internal_interrupts_wait()
+
+Why are these defines necessary?  Why are the functions not called interrupts_disable etc?
+- I suspect that this is because they are defined in a .s file and so need the rtos_internal prefix
+So why doesn't the internal code simply call rtos_internal_interrupts_disable()?
+- is this because interrupts_disable etc. is invoked in other components that don't know about the rtos_nternal_ versions?
+In that case could the defines not be part of the interrupt-utils package (like the rtos_internal_ functions)?  
+Or would that mean that interrupt-utils would have to be a component rather than a package?
+Could it be turned into a component then? Or is there a reasn it is a package and not a component (what is the guideline for when something is a package and when a compoenent)?
+
+Location: components/acrux/implementation.c:24-26
+Comment: Rework
+ 24 #define preempt_disable()
+ 25 #define preempt_enable()
+ 26 #define preempt_clear()
+Could this be put in a separate component (e.g. preempt-null) so that every rtos doesn't have to define this if it happens to use another component that requires these?
+
+Location: packages/ppce500/vectable-common.*:
+Comment: Discussion
+What is common about this? Is it common wrt to vectable without preempt and vectable with preempt?
+Would it make sense to combine common, preempt and non-preempt in to just vectable, and conditionally include code if preempt was desired or not? (this would avoid code duplication between vectable and vectable-preempt)
+
+Location: packages/ppce500/vectable.s
+Comment: Discussion
+Should this be vectable-nonpreempt to make it clear that it is an option with vectable-preempt (though see comment above)
+
+Location: packages/machine-qemu-ppce500/example/acrux-test.c:11-17
+Comment: Discussion
+Why is this inline asm and not a separate function?
+Would it be useful to provide a module (or maybe make it a part of vectable) with convenience functions to turn on/off specific interrupts or set device status registers?
+
+Location: packages/ppce500/ppce500-manual:85
+Comment: Rework
+"      ... (r4-r11)   volatile general-purpose registers          ..."
+this should really say "(r11-r4)"
+
+Location: packages/ppce500/ppce500-manual:109,  packages/ppce500/vectable.s:39-43, packages/ppce500/vectbale-preempt.s: 92-97
+Comment: Discussion
+" The lowest two words (LR save and back chain word) follow the stack frame header convention of the EABI specification (see ppce500-context-switch.c for more detail)."
+" The stack frame structure used here to preserve interrupted contexts is defined in ppce500-manual under 'ppce500/vectable'."
+" All magic numbers used in this file should match the stack frame structure documented in ppce500-manual."
+In general I'm not too comfortable with the documentation pointing to code for more detail, or for code pointing to documentation for detail needed to understand the code.
+However, I'm also not in favour of duplicating the documentation in two places, so I don't know what the right answer is (maybe extract relevant comments from code into documentation?) but it's a point for discussion.
+
+Location: packages/ppce500/vectable-common.h:15,28
+Comment: Rework
+".macro irq_frame_store_remaining_volatiles"
+".macro irq_frame_restore_volatile_gprs"
+Why does one have _gprs in its name and the other not?  Make the names consistent.
+
+Location: packages/ppce500/vectable-common.h:15,28,42,53,67,71,75,79,85,90,95
+Comment: Rework
+It would be nice to have some short comments explaining what these macros are meant to do (something slightly easier to read than the terse name and/or assembly)
+
+Location: packages/ppce500/vectable-common.h:101-102
+Comment: Rework
+101 /* This macro sets to zero the MSR wait-enable (WE) bit of the "target" register, trashing the "scratch" register.
+102  * It is intended to be used on M/C/SRR1 prior to rf(m/c)i to wake up the interrupted context, if it was sleeping. */
+I find the second line difficult to understand.  Please first explain that on this platform the CPU will go back to sleep after handling an interrupt if this is not done (is that true?).  Then explain how it should be used.
+
+Location: packages/ppce500/vectable-common.s: 7, 39, 72, 
+Comment: Rework
+I was confused why r3 wasn't being stored but was being restored.  After some code searching I found the answer.  It might be useful to add a comment here explaining that the caller is expected to store r3 using the appropriate macro before invoking these functions.
+
+Location: packages/ppce500/vectable.s: 30, 31 packages/ppce500/vectable-preempt.s: 83, 84
+Comment: Rework
+ 27 /*
+ 28  * For interrupt handlers an empty string (the default) will simply generate a vector that loops forever on itself.
+ 29  * Alternatively, setting the handler to "undefined" will generate a handler that first creates a stack frame for the
+ 30  * interrupted context and stores its registers there before looping forever at location "undefined".
+ 31  * The given handler MUST be responsible for clearing the condition that caused its interrupt.
+ 32  */
+line 30/83: It would be clearer to say 'at the label "undefined"'
+line 31/84: This is a bit confusing.  Is the last sentence related to the others? (it sounds like it is, but is "the given handler" referring to empty or undefined? if not, maybe say something like, "When an explicit handler is given, ..."
+
+Location: packages/ppce500/vectable.s: 47, 51 
+Comment: Rework 
+Some descriptive comments (e.g. reserve space needed by the context frame on the stack) would be nice here.
+
+Location: components/context-preempt-ppce500/implementation.c:
 Comment:
+I find the name of this component confusing.  What is context preempt? Should it be context-switch-preempt (context switch and preemption) or something like that?
+
+Location: components/context-preempt-ppce500/implementation.c: 67-89 
+Comment: Rework
+The comments for this function 9context_init) describe it in very general, platform independent, terms, however, this is in a platform specific file, so the generic language doesn't make sense.  should this be somewhere else or reworded?
+Overall the comment is pretty obtuse, and difficult to understand and could do with some clarity.
+Also, why does this function have an extensive description, but other functions don't?
+
+Location: components/context-preempt-ppce500/implementation.c: 
+Comment: Discussion
+Why do some functions have ppce500 prefix and others don't?  I would expect all the functions in here to be ppce500 specific?
+
+Location: components/context-preempt-ppce500/implementation.c: 107-113
+Comment: Discussion
+107 #define precondition_interrupts_disabled() internal_assert(!irqs_enabled(), ERROR_ID_INTERNAL_PRECONDITION_VIOLATED)
+108 #define precondition_interrupts_enabled() internal_assert(irqs_enabled(), ERROR_ID_INTERNAL_PRECONDITION_VIOLATED)
+109 #define postcondition_interrupts_disabled() internal_assert(!irqs_enabled(), ERROR_ID_INTERNAL_POSTCONDITION_VIOLATED)
+110 #define postcondition_interrupts_enabled() internal_assert(irqs_enabled(), ERROR_ID_INTERNAL_POSTCONDITION_VIOLATED)
+111 #define precondition_preemption_disabled() internal_assert(preempt_disabled, ERROR_ID_INTERNAL_PRECONDITION_VIOLATED)
+112 #define postcondition_preemption_disabled() internal_assert(preempt_disabled, ERROR_ID_INTERNAL_POSTCONDITION_VIOLATED)
+113 #define postcondition_preemption_enabled() internal_assert(!preempt_disabled, ERROR_ID_INTERNAL_POSTCONDITION_VIOLATED)
+Should all the pre/post condition stuff be in a separate component or module?
+
+Location: components/context-preempt-ppce500/implementation.c: 117
+Comment: Rework
+Why does 'ppce500_yield_common' not have a separate function definition? In general, why do only some functions get separate defintions (i.e. why are some functions from the "functions" section defined in the "function definitions" section and some not)?
+
+
+Location: components/context-preempt-ppce500/implementation.c: 117-155
+Comment: Rework
+I found the structure of this function makes it unclear what is going on here.  Would this be a more obvious structure?
+		do {
+			int enable // enable interrupts so that ...
+			to = get_next
+			int disable
+		} while (preempt_pending); // preempt_pending may have been set between int enable and disable, if so try again
+		if (from != to) {
+			do_yield(to);
+		}
+		int enable
+		preempt_disabled = true/false
+
+
+Location: components/context-preempt-ppce500/implementation.c: 119-147
+Comment: Discussion
+ppce500_yield_common(bool return_with_preempt_disabled)
+119     precondition_interrupts_enabled();
+120     precondition_preemption_disabled();
+121 
+122     {
+...
+147     }
+This is kind of yuck.  Is there another way to do it?
+Moreover, it is not used consistently. Sometimes variables are declared before the preconditions (usually because they need to be returned, but not always) and sometimes a block is not necessary so not used.
+
+
+Location: components/context-preempt-ppce500/implementation.c: 138-139 
+Comment: Discussion
+138                 /* This enables interrupts */
+139                 rtos_internal_yield_syscall(to, return_with_preempt_disabled);
+Why is rtos_internal_yield_syscall called with interrupts disabled and returns with interrupts enabled? It seems it would be cleaner if it returned the same way it was called, and that the function that disabled interrupts reenabled them again.  If there is a good reason, it should be explained clearly somewhere
+
+Location: components/context-preempt-ppce500/implementation.c: 168
+Comment: Rework
+168 preempt_enable(void)
+It would be nice to have a comment explaining preempt_enable since it's not obvious why it's a yield rather than just setting preempt-disabled to false.
+
+Location: components/context-preempt-ppce500/implementation.c: 186
+Comment: Rework
+186         interrupts_enable();
+Is it really horrible to be in a function with pre: int disabled, post: int disabled and in between enable and re-disable interrupts?  At least the description of the function should make it clear that this happens, since just checking the pre and post conditions doesn't trigger any alarms.
+
+
+Location: components/context-preempt-ppce500/implementation.c: 230-234
+Comment: Rework
+230     if (to == TASK_ID_NONE) {
+231         internal_assert(initial_preempt_disabled == preempt_disabled, ERROR_ID_INTERNAL_POSTCONDITION_VIOLATED);
+232     } else {
+233         postcondition_preemption_disabled();
+234     }
+This is an awkward postcondition and doesn't really make clear what is getting on (the meaning is lost in the code).  It might be clearer to have a conditional postcondition, something like: postcondition_conditional_preempt_disabled(to == TASK_ID_NONE, initial_preempt_disabled, true); (meaning if (to == TASK_ID_NONE) { assert(preempt_disabled == initial_preempt_disabled); } else { assert(preempt_disabled == true); } )
+
+Location: components/context-preempt-ppce500/implementation.c: 241
+Comment: Rework
+241 ppce500_context_preempt({{prefix_type}}TaskId to, context_t sp, bool restore_preempt_disabled, bool restore_volatiles)
+There is an assumption here that the context_t is a stack pointer, counter to the comment above (with the function definition of context_init) that it could be all sorts of things.  It would be nice to have an explanation of the arguments and the aim of this function.
+
+Location: components/context-preempt-ppce500/implementation.c: 246
+Comment: Rework
+246         context_t *from = get_task_context(get_current_task());
+Kind of confusing naming since 'to' is a task id but 'from' is a stack/context
+
+Location: components/context-preempt-ppce500/implementation.c: 263
+Comment: Rework
+263     ppce500_context_preempt_first(to);
+Should have a /* this never returns */ comment
+
+Location: components/context-preempt-ppce500/implementation.c: 267
+Comment: Rework
+267 ppce500_context_preempt_first({{prefix_type}}TaskId to)
+It would be nice to have a comment explaining this.
+
+Location: components/context-preempt-ppce500/implementation.c: 284-288
+Comment: Rework
+284         if (ctxt_to[CONTEXT_PREEMPT_RESTORE_STATUS] & PREEMPT_RESTORE_VOLATILES) {
+285             restore_volatiles = true;
+286         } else {
+287             restore_volatiles = false;
+288         }
+Can you do: restore_volatiles = (ctxt_to[CONTEXT_PREEMPT_RESTORE_STATUS] & PREEMPT_RESTORE_VOLATILES); ?
+
+Location: components/context-preempt-ppce500/implementation.c: 302,308
+Comment: Rework
+302      * Set up an initial stack frame header containing just the back chain word and the LR save word.
+308      * Immediately below the dummy stack frame header, create a full-size stack frame containing register values for
+Is the 'dummy stack' in 308 what you call 'initial stack frame' in 302? If so, change one or the other so the trms are consistent.
+
+
+Location: components/interrupt-event-ppce500/implementation.c: 46-50
+Comment: Discussion
+46     interrupts_disable();
+47     /* FIXME: On RTOS variants where preempt_clear() is a noop, this interrupts_disable/enable() is unnecessary. */
+48     preempt_clear();
+49     tmp = interrupt_event;
+50     interrupts_enable();
+Is it possible to use #ifdef and some configurtion define to avoid this. eg.
+#ifdef PREEMPTION_CONFIG
+       interrupts_disable()
+       preempt_clear
+       tmp = interrupt_event;
+       interrupts_enable();
+#else
+	tmp = interrupt_event;	
+#endif	
+
+
+Location: components/signal/implementation.c: 45-54
+Comment: Discussion
+Why is signal_send_set now a function?
+
+Location: packages/ppce500/vectable-preempt.s: 101, 105, 444, 472, 620, 626
+Comment: Rework 
+Some descriptive comments explaining the macros and functions would be nice here.
+
+Location: packages/ppce500/vectable-preempt.s: 613
+Comment: Rework 
+613         sc
+This really needs some comment as to what happens here!

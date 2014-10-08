@@ -167,11 +167,21 @@ ppce500_yield(void)
 static void
 preempt_enable(void)
 {
+    precondition_interrupts_enabled();
     precondition_preemption_disabled();
 
-    ppce500_yield_common(false);
+    /* Avoid invoking the scheduler if there's no preemption pending */
+    interrupts_disable();
+    if (preempt_pending) {
+        interrupts_enable();
+        ppce500_yield_common(false);
+    } else {
+        preempt_disabled = false;
+        interrupts_enable();
+    }
 
     postcondition_preemption_enabled();
+    postcondition_interrupts_enabled();
 }
 
 static {{prefix_type}}TaskId

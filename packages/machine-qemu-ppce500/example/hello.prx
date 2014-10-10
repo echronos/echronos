@@ -3,7 +3,6 @@
   <modules>
     <module name="ppce500.build" />
     <module name="ppce500.default-linker" />
-    <module name="ppce500.vectable-common" />
     <module name="ppce500.vectable" />
     <module name="ppce500.debug" />
     <module name="generic.debug">

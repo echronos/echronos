@@ -4,11 +4,11 @@
     <module name="ppce500.build" />
     <module name="ppce500.default-linker" />
     <module name="ppce500.interrupts-util" />
-    <module name="ppce500.vectable-common" />
-    <module name="ppce500.vectable-preempt">
+    <module name="ppce500.vectable">
+      <preemption>true</preemption>
       <fixed_interval_timer>
-          <handler>tick_irq</handler>
-          <preempting>true</preempting>
+        <handler>tick_irq</handler>
+        <preempting>true</preempting>
       </fixed_interval_timer>
     </module>
     <module name="ppce500.debug" />

@@ -56,19 +56,28 @@ Comment: Discussion
 What is common about this? Is it common wrt to vectable without preempt and vectable with preempt?
 Would it make sense to combine common, preempt and non-preempt in to just vectable, and conditionally include code if preempt was desired or not? (this would avoid code duplication between vectable and vectable-preempt)
 
+[robs: I've rolled them back together and made preemption a global config option]
+
 Location: packages/ppce500/vectable.s
 Comment: Discussion
 Should this be vectable-nonpreempt to make it clear that it is an option with vectable-preempt (though see comment above)
+
+[robs: Rolled back together into a single vectable.s]
 
 Location: packages/machine-qemu-ppce500/example/acrux-test.c:11-17
 Comment: Discussion
 Why is this inline asm and not a separate function?
 Would it be useful to provide a module (or maybe make it a part of vectable) with convenience functions to turn on/off specific interrupts or set device status registers?
 
+[robs: This is part of the test code, not the RTOS.
+I wanted the test to contain all it's responsible for, so it's clear as an example of what is user responsibility.]
+
 Location: packages/ppce500/ppce500-manual:85
 Comment: Rework
 "      ... (r4-r11)   volatile general-purpose registers          ..."
 this should really say "(r11-r4)"
+
+[robs: Moved back to vectable.s, and fixed]
 
 Location: packages/ppce500/ppce500-manual:109,  packages/ppce500/vectable.s:39-43, packages/ppce500/vectbale-preempt.s: 92-97
 Comment: Discussion
@@ -78,11 +87,15 @@ Comment: Discussion
 In general I'm not too comfortable with the documentation pointing to code for more detail, or for code pointing to documentation for detail needed to understand the code.
 However, I'm also not in favour of duplicating the documentation in two places, so I don't know what the right answer is (maybe extract relevant comments from code into documentation?) but it's a point for discussion.
 
+[robs: Since I've just recombined vectable.s, there's no duplication anymore so I've moved these back into the asm]
+
 Location: packages/ppce500/vectable-common.h:15,28
 Comment: Rework
 ".macro irq_frame_store_remaining_volatiles"
 ".macro irq_frame_restore_volatile_gprs"
 Why does one have _gprs in its name and the other not?  Make the names consistent.
+
+[robs: Fixed to prefer _gprs]
 
 Location: packages/ppce500/vectable-common.h:15,28,42,53,67,71,75,79,85,90,95
 Comment: Rework
@@ -108,6 +121,8 @@ Comment: Rework
  32  */
 line 30/83: It would be clearer to say 'at the label "undefined"'
 line 31/84: This is a bit confusing.  Is the last sentence related to the others? (it sounds like it is, but is "the given handler" referring to empty or undefined? if not, maybe say something like, "When an explicit handler is given, ..."
+
+[robs: Fixed]
 
 Location: packages/ppce500/vectable.s: 47, 51 
 Comment: Rework 

@@ -110,6 +110,8 @@ Comment: Rework
 The code duplication between the vector tables with and without preemption support is striking and less than ideal from a maintenance perspective.
 How about making the preemption support a configurable feature that can be controlled via a configuration item?
 
+[robs: I've rolled them back together and made preemption a module-level toggle config, hope the rework is satisfactory]
+
 Location: packages/ppce500/vectable-preempt.s:140 and others
 Comment: Rework
 The "should_not_be_here" mechanism to put a run-away ISR into an endless loop is inappropriate in my opinion because it does not lead to a more useful system behavior.
@@ -117,3 +119,5 @@ I recommend to improve this area.
 At the very least, it is unnecessary (I believe) that each vector has its own such loop and they could rather branch to a common label that is shared between all of the vectors.
 Another alternative is to simply remove this code entirely because an ISR in a tight loop is about as easy to debug as a run-away ISR.
 Another alternative is to call the fatal_error() function because its purpose is to cover exactly such cases.
+
+[robs: Fixed; just decided to remove them]

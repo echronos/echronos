@@ -39,10 +39,6 @@ struct interrupt_event_handler interrupt_events[{{interrupt_events.length}}] = {
 
 /*| function_like_macros |*/
 #define _yield() {{prefix_func}}yield()
-#define preempt_disable()
-#define preempt_enable()
-#define precondition_preemption_disabled()
-#define postcondition_preemption_disabled()
 #define interrupt_event_id_to_taskid(interrupt_event_id) (({{prefix_type}}TaskId)(interrupt_event_id))
 #define mutex_block_on(unused_task) {{prefix_func}}signal_wait({{prefix_const}}SIGNAL_ID__RTOS_UTIL)
 #define mutex_unblock(task) {{prefix_func}}signal_send(task, {{prefix_const}}SIGNAL_ID__RTOS_UTIL)

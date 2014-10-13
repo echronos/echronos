@@ -51,6 +51,8 @@ Comment: Rework
  26 #define preempt_clear()
 Could this be put in a separate component (e.g. preempt-null) so that every rtos doesn't have to define this if it happens to use another component that requires these?
 
+[robs: Done]
+
 Location: packages/ppce500/vectable-common.*:
 Comment: Discussion
 What is common about this? Is it common wrt to vectable without preempt and vectable with preempt?

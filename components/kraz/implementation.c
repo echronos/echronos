@@ -18,10 +18,6 @@ static void _unblock(const {{prefix_type}}TaskId task);
 
 /*| function_like_macros |*/
 #define _yield() {{prefix_func}}yield()
-#define preempt_disable()
-#define preempt_enable()
-#define precondition_preemption_disabled()
-#define postcondition_preemption_disabled()
 
 /*| functions |*/
 static void

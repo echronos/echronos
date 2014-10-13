@@ -1,15 +1,17 @@
 /*| headers |*/
 #include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
 
 /*| object_like_macros |*/
+#define PREEMPTION_SUPPORT
 #define PREEMPT_RESTORE_DISABLED 1
 #define PREEMPT_RESTORE_VOLATILES 2
 
 /*
  * The unified stack frame structure used here both to preserve interrupted contexts and to implement context switch
- * on RTOS variants that support task preemption by interrupts is defined in ppce500-manual under
- * 'ppce500/vectable-preempt'.
- * All magic numbers used in this file should match the stack frame structure documented in ppce500-manual.
+ * on RTOS variants that support task preemption by interrupts is defined in vectable.s, and all magic numbers used in
+ * this file should match the stack frame structure documented there.
  */
 #define CONTEXT_BC_IDX 0
 #define CONTEXT_LR_IDX 1
@@ -58,11 +60,20 @@ typedef uint32_t* context_t;
 /*| structure_definitions |*/
 
 /*| extern_definitions |*/
-
-/*| function_definitions |*/
 extern void rtos_internal_yield_syscall({{prefix_type}}TaskId to, bool return_with_preempt_disabled);
 extern void rtos_internal_restore_preempted_context(bool restore_volatiles, context_t ctxt_to);
 extern bool rtos_internal_check_interrupts_enabled(void);
+
+/*| function_definitions |*/
+static void yield_common(bool return_with_preempt_disabled);
+static void _yield(void);
+static void preempt_enable(void);
+static {{prefix_type}}TaskId preempt_irq_invoke_scheduler(void);
+
+{{prefix_type}}TaskId rtos_internal_preempt_irq_scheduler_wrapper(void);
+void rtos_internal_context_preempt({{prefix_type}}TaskId to, context_t sp, bool restore_preempt_disabled, bool restore_volatiles);
+
+static void context_preempt_first({{prefix_type}}TaskId to);
 
 /**
  * Set up the initial execution context of a task.
@@ -89,20 +100,14 @@ extern bool rtos_internal_check_interrupts_enabled(void);
  */
 static void context_init(context_t *ctx, void (*fn)(void), uint32_t *stack_base, size_t stack_size);
 
-static void ppce500_context_preempt_first({{prefix_type}}TaskId to);
-static void ppce500_yield(void);
-static void preempt_enable(void);
-
 /*| state |*/
 static volatile bool preempt_disabled = true;
 static volatile bool preempt_pending;
 
 /*| function_like_macros |*/
-#define _yield ppce500_yield
 #define preempt_disable() preempt_disabled = true
 #define preempt_pend() preempt_pending = true
 #define preempt_clear() preempt_pending = false
-#define context_preempt_first ppce500_context_preempt_first
 #define irqs_enabled() rtos_internal_check_interrupts_enabled()
 #define precondition_interrupts_disabled() internal_assert(!irqs_enabled(), ERROR_ID_INTERNAL_PRECONDITION_VIOLATED)
 #define precondition_interrupts_enabled() internal_assert(irqs_enabled(), ERROR_ID_INTERNAL_PRECONDITION_VIOLATED)
@@ -111,10 +116,16 @@ static volatile bool preempt_pending;
 #define precondition_preemption_disabled() internal_assert(preempt_disabled, ERROR_ID_INTERNAL_PRECONDITION_VIOLATED)
 #define postcondition_preemption_disabled() internal_assert(preempt_disabled, ERROR_ID_INTERNAL_POSTCONDITION_VIOLATED)
 #define postcondition_preemption_enabled() internal_assert(!preempt_disabled, ERROR_ID_INTERNAL_POSTCONDITION_VIOLATED)
+#define postcondition_conditional_preempt_disabled(cond, target) \
+        if (cond) { \
+            internal_assert(preempt_disabled == target, ERROR_ID_INTERNAL_POSTCONDITION_VIOLATED); \
+        } else { \
+            postcondition_preemption_disabled(); \
+        }
 
 /*| functions |*/
 static void
-ppce500_yield_common(const bool return_with_preempt_disabled)
+yield_common(const bool return_with_preempt_disabled)
 {
     precondition_interrupts_enabled();
     precondition_preemption_disabled();
@@ -123,43 +134,26 @@ ppce500_yield_common(const bool return_with_preempt_disabled)
         const {{prefix_type}}TaskId from = get_current_task();
         {{prefix_type}}TaskId to;
 
-        while (true) {
-            /* this unsets preempt_pending */
-            to = interrupt_event_get_next();
-
-            interrupts_disable();
-
-            if (preempt_pending) {
-                interrupts_enable();
-                continue;
-            }
-
-            if (from != to) {
-                /* This enables interrupts */
-                rtos_internal_yield_syscall(to, return_with_preempt_disabled);
-            } else {
-                preempt_disabled = return_with_preempt_disabled;
-                interrupts_enable();
-            }
-
-            break;
+        to = preempt_irq_invoke_scheduler();
+        if (from != to) {
+            /* This enables interrupts */
+            rtos_internal_yield_syscall(to, return_with_preempt_disabled);
+        } else {
+            preempt_disabled = return_with_preempt_disabled;
+            interrupts_enable();
         }
     }
 
-    if (return_with_preempt_disabled) {
-        postcondition_preemption_disabled();
-    } else {
-        postcondition_preemption_enabled();
-    }
+    postcondition_conditional_preempt_disabled(true, return_with_preempt_disabled);
     postcondition_interrupts_enabled();
 }
 
 static void
-ppce500_yield(void)
+_yield(void)
 {
     precondition_preemption_disabled();
 
-    ppce500_yield_common(true);
+    yield_common(true);
 
     postcondition_preemption_disabled();
 }
@@ -174,7 +168,7 @@ preempt_enable(void)
     interrupts_disable();
     if (preempt_pending) {
         interrupts_enable();
-        ppce500_yield_common(false);
+        yield_common(false);
     } else {
         preempt_disabled = false;
         interrupts_enable();
@@ -189,9 +183,11 @@ preempt_irq_invoke_scheduler(void)
 {
     {{prefix_type}}TaskId next;
 
-    precondition_interrupts_disabled();
+    /* Precondition: interrupts are allowed to be either enabled or disabled */
     precondition_preemption_disabled();
 
+    /* While interrupts are enabled in the following do-loop, another interrupt may set preempt_pending back to true,
+     * but the precondition that preemption is disabled ensures we don't get runaway interrupt recursion. */
     do {
         interrupts_enable();
 
@@ -208,39 +204,34 @@ preempt_irq_invoke_scheduler(void)
 }
 
 /* This function returns the (context_t *) to switch to, or TASK_ID_NONE if no context switch is required.
- * It is NOT responsible for setting current_task = to! */
+ * It is NOT responsible for setting current_task = to!
+ * Note also that although we impose a pre and postcondition that interrupts are disabled, the call to
+ * preempt_irq_invoke_scheduler will enable interrupts one or more times during its execution. */
 {{prefix_type}}TaskId
-preempt_irq_handler_wrapper(bool (*const handler)(void))
+rtos_internal_preempt_irq_scheduler_wrapper(void)
 {
-    bool initial_preempt_disabled = preempt_disabled;
     {{prefix_type}}TaskId to = TASK_ID_NONE;
 
     precondition_interrupts_disabled();
-    /* Note: preemption can be either enabled or disabled */
+    {
+        /* Precondition: preemption is allowed to be either enabled or disabled */
+        const bool initial_preempt_disabled = preempt_disabled;
 
-    if ((*handler)() == false) {
-        goto end;
-    }
+        preempt_pending = true;
 
-    preempt_pending = true;
+        if (preempt_disabled) {
+            goto end;
+        }
 
-    if (preempt_disabled) {
-        goto end;
-    }
+        preempt_disabled = true;
 
-    preempt_disabled = true;
-
-    to = preempt_irq_invoke_scheduler();
-    if (to == get_current_task()) {
-        to = TASK_ID_NONE;
-        preempt_disabled = initial_preempt_disabled;
-    }
-
+        to = preempt_irq_invoke_scheduler();
+        if (to == get_current_task()) {
+            to = TASK_ID_NONE;
+            preempt_disabled = initial_preempt_disabled;
+        }
 end:
-    if (to == TASK_ID_NONE) {
-        internal_assert(initial_preempt_disabled == preempt_disabled, ERROR_ID_INTERNAL_POSTCONDITION_VIOLATED);
-    } else {
-        postcondition_preemption_disabled();
+        postcondition_conditional_preempt_disabled(to == TASK_ID_NONE, initial_preempt_disabled);
     }
     postcondition_interrupts_disabled();
 
@@ -248,12 +239,12 @@ end:
 }
 
 void
-ppce500_context_preempt(const {{prefix_type}}TaskId to, const context_t sp, const bool restore_preempt_disabled, const bool restore_volatiles)
+rtos_internal_context_preempt(const {{prefix_type}}TaskId to, const context_t sp, const bool restore_preempt_disabled, const bool restore_volatiles)
 {
     precondition_interrupts_disabled();
     precondition_preemption_disabled();
     {
-        context_t *from = get_task_context(get_current_task());
+        context_t *const from = get_task_context(get_current_task());
         uint32_t preempt_status = 0;
 
         if (restore_preempt_disabled) {
@@ -270,18 +261,18 @@ ppce500_context_preempt(const {{prefix_type}}TaskId to, const context_t sp, cons
         *from = sp;
     }
 
-    ppce500_context_preempt_first(to);
+    /* This never returns */
+    context_preempt_first(to);
 }
 
-void
-ppce500_context_preempt_first(const {{prefix_type}}TaskId to)
+static void
+context_preempt_first(const {{prefix_type}}TaskId to)
 {
-    bool restore_volatiles;
-
     precondition_interrupts_disabled();
     precondition_preemption_disabled();
     {
-        context_t ctxt_to = *(get_task_context(to));
+        const context_t ctxt_to = *(get_task_context(to));
+        bool restore_volatiles;
 
         /* Set the current task id to the incoming one */
         current_task = to;
@@ -291,11 +282,7 @@ ppce500_context_preempt_first(const {{prefix_type}}TaskId to)
             preempt_disabled = false;
         }
 
-        if (ctxt_to[CONTEXT_PREEMPT_RESTORE_STATUS] & PREEMPT_RESTORE_VOLATILES) {
-            restore_volatiles = true;
-        } else {
-            restore_volatiles = false;
-        }
+        restore_volatiles = (ctxt_to[CONTEXT_PREEMPT_RESTORE_STATUS] & PREEMPT_RESTORE_VOLATILES);
 
         /* This never returns */
         rtos_internal_restore_preempted_context(restore_volatiles, ctxt_to);
@@ -305,9 +292,9 @@ ppce500_context_preempt_first(const {{prefix_type}}TaskId to)
 static void
 context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack_base, const size_t stack_size)
 {
-    uint32_t *init_context, *context;
+    uint32_t *const init_context = stack_base + stack_size - CONTEXT_HEADER_SIZE;
+    uint32_t *const context = init_context - CONTEXT_FRAME_SIZE;
 
-    init_context = stack_base + stack_size - CONTEXT_HEADER_SIZE;
     /**
      * Set up an initial stack frame header containing just the back chain word and the LR save word.
      * The EABI specification requires that the back chain be NULL-terminated.
@@ -315,11 +302,10 @@ context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack
     init_context[CONTEXT_BC_IDX] = 0;
 
     /**
-     * Immediately below the dummy stack frame header, create a full-size stack frame containing register values for
+     * Immediately below the initial stack frame header, create a full-size stack frame containing register values for
      * the initial context.
      * The EABI spec requires that the back chain word always points to the previous frame's back chain word field.
      */
-    context = init_context - CONTEXT_FRAME_SIZE;
     /* Set SRR0 to the task entry point */
     context[CONTEXT_SRR0_IDX] = (uint32_t) fn;
     /* Set MSR[EE] = 1 (interrupts enabled) initially for all tasks */

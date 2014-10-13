@@ -43,11 +43,14 @@ interrupt_event_process(void)
      * not affect the current scheduling run, nor will it trigger a re-run of the scheduler.
      *
      * To prevent either case, we turn the two actions into a single atomic step by disabling interrupts. */
+#ifdef PREEMPTION_SUPPORT
     interrupts_disable();
-    /* FIXME: On RTOS variants where preempt_clear() is a noop, this interrupts_disable/enable() is unnecessary. */
     preempt_clear();
     tmp = interrupt_event;
     interrupts_enable();
+#else
+    tmp = interrupt_event;
+#endif
     while (tmp != 0)
     {
         /* __builtin_ffs(x) returns 1 + the index of the least significant 1-bit in x, or returns zero if x is 0 */

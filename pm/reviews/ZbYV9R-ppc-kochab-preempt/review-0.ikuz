@@ -144,6 +144,8 @@ Location: components/context-preempt-ppce500/implementation.c:
 Comment: Discussion
 Why do some functions have ppce500 prefix and others don't?  I would expect all the functions in here to be ppce500 specific?
 
+[robs: No good reason for the prefix, removing it]
+
 Location: components/context-preempt-ppce500/implementation.c: 107-113
 Comment: Discussion
 107 #define precondition_interrupts_disabled() internal_assert(!irqs_enabled(), ERROR_ID_INTERNAL_PRECONDITION_VIOLATED)
@@ -159,6 +161,7 @@ Location: components/context-preempt-ppce500/implementation.c: 117
 Comment: Rework
 Why does 'ppce500_yield_common' not have a separate function definition? In general, why do only some functions get separate defintions (i.e. why are some functions from the "functions" section defined in the "function definitions" section and some not)?
 
+[robs: These had been forgotten, now fixed]
 
 Location: components/context-preempt-ppce500/implementation.c: 117-155
 Comment: Rework
@@ -174,6 +177,7 @@ I found the structure of this function makes it unclear what is going on here.  
 		int enable
 		preempt_disabled = true/false
 
+[robs: Restructured to favour code clarity]
 
 Location: components/context-preempt-ppce500/implementation.c: 119-147
 Comment: Discussion
@@ -187,6 +191,7 @@ ppce500_yield_common(bool return_with_preempt_disabled)
 This is kind of yuck.  Is there another way to do it?
 Moreover, it is not used consistently. Sometimes variables are declared before the preconditions (usually because they need to be returned, but not always) and sometimes a block is not necessary so not used.
 
+[robs: Fixed to make the usage of this rather ugly device at least consistent]
 
 Location: components/context-preempt-ppce500/implementation.c: 138-139 
 Comment: Discussion
@@ -214,6 +219,8 @@ Comment: Rework
 234     }
 This is an awkward postcondition and doesn't really make clear what is getting on (the meaning is lost in the code).  It might be clearer to have a conditional postcondition, something like: postcondition_conditional_preempt_disabled(to == TASK_ID_NONE, initial_preempt_disabled, true); (meaning if (to == TASK_ID_NONE) { assert(preempt_disabled == initial_preempt_disabled); } else { assert(preempt_disabled == true); } )
 
+[robs: Added, useful in a couple of places]
+
 Location: components/context-preempt-ppce500/implementation.c: 241
 Comment: Rework
 241 ppce500_context_preempt({{prefix_type}}TaskId to, context_t sp, bool restore_preempt_disabled, bool restore_volatiles)
@@ -229,6 +236,8 @@ Comment: Rework
 263     ppce500_context_preempt_first(to);
 Should have a /* this never returns */ comment
 
+[robs: Fixed]
+
 Location: components/context-preempt-ppce500/implementation.c: 267
 Comment: Rework
 267 ppce500_context_preempt_first({{prefix_type}}TaskId to)
@@ -243,12 +252,15 @@ Comment: Rework
 288         }
 Can you do: restore_volatiles = (ctxt_to[CONTEXT_PREEMPT_RESTORE_STATUS] & PREEMPT_RESTORE_VOLATILES); ?
 
+[robs: Done]
+
 Location: components/context-preempt-ppce500/implementation.c: 302,308
 Comment: Rework
 302      * Set up an initial stack frame header containing just the back chain word and the LR save word.
 308      * Immediately below the dummy stack frame header, create a full-size stack frame containing register values for
 Is the 'dummy stack' in 308 what you call 'initial stack frame' in 302? If so, change one or the other so the trms are consistent.
 
+[robs: Changed to prefer 'initial' over 'dummy']
 
 Location: components/interrupt-event-ppce500/implementation.c: 46-50
 Comment: Discussion
@@ -267,6 +279,7 @@ Is it possible to use #ifdef and some configurtion define to avoid this. eg.
 	tmp = interrupt_event;	
 #endif	
 
+[robs: Sure, going to name it PREEMPTION_SUPPORT though because it comes with choice of variant rather than config]
 
 Location: components/signal/implementation.c: 45-54
 Comment: Discussion

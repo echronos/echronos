@@ -651,7 +651,7 @@ syscall_vector:
         /* r3: Untouched "TaskId to" passed into syscall */
 
         /* This never returns */
-        b ppce500_context_preempt
+        b rtos_internal_context_preempt
 
 preempt_irq_common:
         irq_frame_store_remaining_volatile_gprs
@@ -665,18 +665,25 @@ preempt_irq_common:
         irq_frame_store_srr1 %r4
 
         /* r3 should still contain the function pointer of the handler */
-        bl preempt_irq_handler_wrapper
+        mtctr %r3
+        /* Jump to handler function loaded into CTR */
+        bctrl
+        /* If the handler returned 0 we restore the interrupted context */
+        cmpi 0,%r3,0
+        beq 1f
+
+        bl rtos_internal_preempt_irq_scheduler_wrapper
         /* r3 should now contain TaskId to */
 
         /* If to == TASK_ID_NONE we restore the interrupted context */
         cmpi 0,%r3,255 /* FIXME: TASK_ID_NONE depends on taskid_size */
-        bne 1f
+        bne 2f
 
-        /* r3: Task was interrupted, so we want to restore the volatiles */
+1:      /* r3: Task was interrupted, so we want to restore the volatiles */
         li %r3,1
         b preempt_irq_restore_context
 
-1:      /* Now we know we're context switching to a different task.
+2:      /* Now we know we're context switching to a different task.
          * Store the nonvolatiles, which should have been preserved by all of the function calls up to this point. */
         irq_frame_store_nonvolatile_gprs
 
@@ -689,7 +696,7 @@ preempt_irq_common:
         /* r3: Untouched "TaskId to" returned from preempt_irq_handler_wrapper */
 
         /* This never returns */
-        b ppce500_context_preempt
+        b rtos_internal_context_preempt
 {{/preemption}}
 
 machine_check_irq_common:

@@ -127,6 +127,8 @@ Comment: Rework
 The file does not include header files for all declarations it uses, such as the type bool.
 Please make sure for all files that are part of this branch that all header files are included that contain referenced declarations, such as stdbool.h for bool and stddef.h for size_t.
 
+[robs: Fixed]
+
 Location: components/context-preempt-ppce500/implementation.c:63-65
 Comment: Rework
 In an earlier comment I asked for these functions to be moved into the function_definitions section.
@@ -135,17 +137,23 @@ functions declared therein are not exposed in the header file.
 Therefore, these declarations should be moved back into the extern_definitions section.
 Apologies about that.
 
+[robs: Fixed]
+
 Location: components/context-preempt-ppce500/implementation.c:124
 Comment: Rework
 The automatic variable 'to' is declared in a bigger scope than necessary.
 Since it is only used inside the body of the while loop, that is where it needs to be declared.
 It can then also be declared as a constant.
 
+[robs: Fixed]
+
 Location: components/context-preempt-ppce500/implementation.c:188
 Comment: Rework
 The function preempt_irq_invoke_scheduler() has only a single call site.
 This produces unnecessary run-time and code-space overhead with compilers that do not support inlining.
 I therefore recommend to remove the function itself and move its functionality to the call site.
+
+[robs: yield_common has been recently restructured for clarity and can now make good use of this helper as was originally intended before it was mangled by my overzealous and premature quest for cycle savings.]
 
 Location: components/context-preempt-ppce500/implementation.c:213
 Comment: Rework
@@ -154,39 +162,57 @@ However, the use of function pointers is strongly discouraged in the RTOS due to
 I therefore recommend to avoid this function pointer in a manner that you see fit.
 I think that one approach could be to simply call the handler function outside of the preempt_irq_handler_wrapper() function and pass in its return value as a function argument into preempt_irq_handler_wrapper().
 
+[robs: Done]
+
 Location: components/context-preempt-ppce500/implementation.c:213
 Comment: Rework
 The function preempt_irq_handler_wrapper() is globally visible but has no RTOS specific name prefix which pollutes the global namespace.
 Please add the rtos_internal_ prefix to this function name to avoid the name space pollution and to match similar functions.
 
+[robs: Done]
+
 Location: components/context-preempt-ppce500/implementation.c:213
 Comment: Rework
 The variable initial_preempt_disabled is not modified in its scope and should therefore be declared and defined as a constant.
+
+[robs: Done]
 
 Location: components/context-preempt-ppce500/implementation.c:251
 Comment: Rework
 The function ppce500_context_preempt() and other functions below are declared as static but defined as global.
 Please make sure that declaration and definition are consistent and correct.
 
+[robs: Fixed]
+
 Location: components/context-preempt-ppce500/implementation.c:256
 Comment: Rework
 The data pointed to by the from pointer is not modified in its scope.
 It should therefore be declared as `const context_t *from`.
+
+[robs: Assuming you meant context_t *const from; fixed]
 
 Location: components/context-preempt-ppce500/implementation.c:279
 Comment: Rework
 The variable restore_volatiles is defined in an unnecessarily large scope.
 It should be moved into the same scope as the ctxt_to variable.
 
+[robs: Done]
+
 Location: components/context-preempt-ppce500/implementation.c:284
 Comment: Rework
 The variable ctxt_to is not modified within the scope it is declared in.
 It should therefore be declared as a constant.
 
+[robs: Done]
+
 Location: components/context-preempt-ppce500/implementation.c:294
 Comment: Rework
 This block should be simplified to `restore_volatiles = (ctxt_to[CONTEXT_PREEMPT_RESTORE_STATUS] & PREEMPT_RESTORE_VOLATILES);`
 
+[robs: Done]
+
 Location: components/context-preempt-ppce500/implementation.c:308
 Comment: Rework
 The variables init_context and context are not modified in their scope and should thus be declared and defined as constants.
+
+[robs: Fixed here and also in context-switch-ppce500/implementation.c]

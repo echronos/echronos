@@ -651,7 +651,7 @@ syscall_vector:
         /* r3: Untouched "TaskId to" passed into syscall */
 
         /* This never returns */
-        b rtos_internal_context_preempt
+        b rtos_internal_context_switch
 
 preempt_irq_common:
         irq_frame_store_remaining_volatile_gprs
@@ -696,7 +696,7 @@ preempt_irq_common:
         /* r3: Untouched "TaskId to" returned from preempt_irq_handler_wrapper */
 
         /* This never returns */
-        b rtos_internal_context_preempt
+        b rtos_internal_context_switch
 {{/preemption}}
 
 machine_check_irq_common:

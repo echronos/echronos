@@ -119,5 +119,5 @@ void
     sched_set_runnable({{idx}});
     {{/tasks}}
 
-    context_preempt_first({{prefix_const}}TASK_ID_ZERO);
+    context_switch_first({{prefix_const}}TASK_ID_ZERO);
 }

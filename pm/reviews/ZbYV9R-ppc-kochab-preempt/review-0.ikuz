@@ -134,6 +134,8 @@ Location: components/context-preempt-ppce500/implementation.c:
 Comment:
 I find the name of this component confusing.  What is context preempt? Should it be context-switch-preempt (context switch and preemption) or something like that?
 
+[robs: Fixed, renamed to context-switch-preempt-ppce500 and renamed some functions too]
+
 Location: components/context-preempt-ppce500/implementation.c: 67-89 
 Comment: Rework
 The comments for this function 9context_init) describe it in very general, platform independent, terms, however, this is in a platform specific file, so the generic language doesn't make sense.  should this be somewhere else or reworded?

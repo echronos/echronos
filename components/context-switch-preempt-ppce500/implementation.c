@@ -71,9 +71,9 @@ static void preempt_enable(void);
 static {{prefix_type}}TaskId preempt_irq_invoke_scheduler(void);
 
 {{prefix_type}}TaskId rtos_internal_preempt_irq_scheduler_wrapper(void);
-void rtos_internal_context_preempt({{prefix_type}}TaskId to, context_t sp, bool restore_preempt_disabled, bool restore_volatiles);
+void rtos_internal_context_switch({{prefix_type}}TaskId to, context_t sp, bool restore_preempt_disabled, bool restore_volatiles);
 
-static void context_preempt_first({{prefix_type}}TaskId to);
+static void context_switch_first({{prefix_type}}TaskId to);
 
 /**
  * Set up the initial execution context of a task.
@@ -239,7 +239,7 @@ end:
 }
 
 void
-rtos_internal_context_preempt(const {{prefix_type}}TaskId to, const context_t sp, const bool restore_preempt_disabled, const bool restore_volatiles)
+rtos_internal_context_switch(const {{prefix_type}}TaskId to, const context_t sp, const bool restore_preempt_disabled, const bool restore_volatiles)
 {
     precondition_interrupts_disabled();
     precondition_preemption_disabled();
@@ -262,11 +262,11 @@ rtos_internal_context_preempt(const {{prefix_type}}TaskId to, const context_t sp
     }
 
     /* This never returns */
-    context_preempt_first(to);
+    context_switch_first(to);
 }
 
 static void
-context_preempt_first(const {{prefix_type}}TaskId to)
+context_switch_first(const {{prefix_type}}TaskId to)
 {
     precondition_interrupts_disabled();
     precondition_preemption_disabled();

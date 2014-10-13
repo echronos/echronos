@@ -191,7 +191,7 @@ CORE_SKELETONS = {
               ],
     'kochab': [Component('reentrant'),
                Component('stack', pkg_component=True),
-               Component('context-preempt', pkg_component=True),
+               Component('context-switch-preempt', pkg_component=True),
                Component('sched-prio-inherit', {'assume_runnable': False}),
                Component('signal'),
                Component('interrupt-event', pkg_component=True),

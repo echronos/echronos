@@ -234,3 +234,13 @@ Comment: Rework
 The interrupt-related functions rtos_internal_interrupts_disable/enable/wait(void) and the related macros are only available and used on ppce500.
 Therefore, they must not be declared in the platform-agnostic acrux component.
 Please rearrange this code so that generic components do not contain platform-specific code.
+
+Location: components/context-preempt-ppce500/implementation.c:135
+Comment: Rework
+The variable to is not modified within its scope and should therefore be a constant.
+
+Location: components/context-preempt-ppce500/implementation.c:242 and others
+Comment: Rework
+The file contains several lines longer than the conventional maximum line length of 120 characters.
+Please break such long lines as appropriate.
+

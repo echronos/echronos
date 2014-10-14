@@ -216,3 +216,21 @@ Comment: Rework
 The variables init_context and context are not modified in their scope and should thus be declared and defined as constants.
 
 [robs: Fixed here and also in context-switch-ppce500/implementation.c]
+
+Location: components/interrupt-event-ppce500/implementation.c
+Comment: Rework
+This file contains instances of the 'inline' keyword which is compiler specific.
+It is RTOS policy to have only standards-compliant C code that is not compiler specific.
+Please remove the inline keyword words and potentially convert the functions to macros as you see fit.
+
+Location: components/interrupt-event-ppce500/implementation.c:47
+Comment: Rework
+FIXME, TODO, and similar comments are not acceptable in code to be integrated.
+Please address the underlying issue or rephrase the comment if FIXME is not actually appropriate (as is the case in this instance).
+Please go through all files and ensure that they do not contain such comments.
+
+Location: components/acrux/implementation.c:13 following
+Comment: Rework
+The interrupt-related functions rtos_internal_interrupts_disable/enable/wait(void) and the related macros are only available and used on ppce500.
+Therefore, they must not be declared in the platform-agnostic acrux component.
+Please rearrange this code so that generic components do not contain platform-specific code.

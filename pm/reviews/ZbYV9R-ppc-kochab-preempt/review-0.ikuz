@@ -217,16 +217,22 @@ Comment: Discussion
 139                 rtos_internal_yield_syscall(to, return_with_preempt_disabled);
 Why is rtos_internal_yield_syscall called with interrupts disabled and returns with interrupts enabled? It seems it would be cleaner if it returned the same way it was called, and that the function that disabled interrupts reenabled them again.  If there is a good reason, it should be explained clearly somewhere
 
+[robs: It was to make the interrupt disable window as small as possible, but you're right, it is possible to just have it return with interrupts disabled and reenable them here.
+Fixed, to favour clarity.]
+
 Location: components/context-preempt-ppce500/implementation.c: 168
 Comment: Rework
 168 preempt_enable(void)
 It would be nice to have a comment explaining preempt_enable since it's not obvious why it's a yield rather than just setting preempt-disabled to false.
+
+[robs: Done]
 
 Location: components/context-preempt-ppce500/implementation.c: 186
 Comment: Rework
 186         interrupts_enable();
 Is it really horrible to be in a function with pre: int disabled, post: int disabled and in between enable and re-disable interrupts?  At least the description of the function should make it clear that this happens, since just checking the pre and post conditions doesn't trigger any alarms.
 
+[robs: Added a comment to warn about this]
 
 Location: components/context-preempt-ppce500/implementation.c: 230-234
 Comment: Rework
@@ -244,10 +250,14 @@ Comment: Rework
 241 ppce500_context_preempt({{prefix_type}}TaskId to, context_t sp, bool restore_preempt_disabled, bool restore_volatiles)
 There is an assumption here that the context_t is a stack pointer, counter to the comment above (with the function definition of context_init) that it could be all sorts of things.  It would be nice to have an explanation of the arguments and the aim of this function.
 
+[robs: I think I found a nice middle-ground for the level of detail here and in the rest of the blurbs in this file.]
+
 Location: components/context-preempt-ppce500/implementation.c: 246
 Comment: Rework
 246         context_t *from = get_task_context(get_current_task());
 Kind of confusing naming since 'to' is a task id but 'from' is a stack/context
+
+[robs: Fixed]
 
 Location: components/context-preempt-ppce500/implementation.c: 263
 Comment: Rework
@@ -260,6 +270,8 @@ Location: components/context-preempt-ppce500/implementation.c: 267
 Comment: Rework
 267 ppce500_context_preempt_first({{prefix_type}}TaskId to)
 It would be nice to have a comment explaining this.
+
+[robs: Blurb added]
 
 Location: components/context-preempt-ppce500/implementation.c: 284-288
 Comment: Rework

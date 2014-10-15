@@ -658,14 +658,11 @@ syscall_vector: b syscall_vector
 {{/system_call}}
 /* _yield_syscall(TaskId to, bool return_with_preempt_disabled) */
 syscall_vector:
-        /* Note: Interrupts are disabled but we want to leave here with interrupts enabled */
         irq_frame_create
 
         mfsrr0 %r5
         irq_frame_store_srr0 %r5
         mfsrr1 %r5
-        /* We set MSR[EE] bit so the yielding task is restored with interrupts enabled. */
-        ori %r5,%r5,0x8000
         irq_frame_store_srr1 %r5
 
         irq_frame_store_sprs %r5

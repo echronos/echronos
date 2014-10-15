@@ -676,7 +676,7 @@ preempt_irq_common:
         /* r3 should now contain TaskId to */
 
         /* If to == TASK_ID_NONE we restore the interrupted context */
-        cmpi 0,%r3,255 /* FIXME: TASK_ID_NONE depends on taskid_size */
+        cmpi 0,%r3,255 /* Note: TASK_ID_NONE depends on taskid_size */
         bne 2f
 
 1:      /* r3: Task was interrupted, so we want to restore the volatiles */

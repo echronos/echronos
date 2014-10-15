@@ -223,11 +223,15 @@ This file contains instances of the 'inline' keyword which is compiler specific.
 It is RTOS policy to have only standards-compliant C code that is not compiler specific.
 Please remove the inline keyword words and potentially convert the functions to macros as you see fit.
 
+[robs: Fixed]
+
 Location: components/interrupt-event-ppce500/implementation.c:47
 Comment: Rework
 FIXME, TODO, and similar comments are not acceptable in code to be integrated.
 Please address the underlying issue or rephrase the comment if FIXME is not actually appropriate (as is the case in this instance).
 Please go through all files and ensure that they do not contain such comments.
+
+[robs: Fixed]
 
 Location: components/acrux/implementation.c:13 following
 Comment: Rework
@@ -235,12 +239,17 @@ The interrupt-related functions rtos_internal_interrupts_disable/enable/wait(voi
 Therefore, they must not be declared in the platform-agnostic acrux component.
 Please rearrange this code so that generic components do not contain platform-specific code.
 
+[robs: Fixed]
+
 Location: components/context-preempt-ppce500/implementation.c:135
 Comment: Rework
 The variable to is not modified within its scope and should therefore be a constant.
+
+[robs: Done]
 
 Location: components/context-preempt-ppce500/implementation.c:242 and others
 Comment: Rework
 The file contains several lines longer than the conventional maximum line length of 120 characters.
 Please break such long lines as appropriate.
 
+[robs: Fixed]

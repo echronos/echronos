@@ -12,9 +12,6 @@ struct interrupt_event_handler {
 };
 
 /*| extern_definitions |*/
-extern void rtos_internal_interrupts_disable(void);
-extern void rtos_internal_interrupts_enable(void);
-extern void rtos_internal_interrupts_wait(void);
 {{#tasks}}
 extern void {{function}}(void);
 {{/tasks}}
@@ -36,9 +33,6 @@ struct interrupt_event_handler interrupt_events[{{interrupt_events.length}}] = {
 /*| function_like_macros |*/
 #define mutex_block_on(task) _block_on(task)
 #define mutex_unblock(task) _unblock(task)
-#define interrupts_disable() rtos_internal_interrupts_disable()
-#define interrupts_enable() rtos_internal_interrupts_enable()
-#define interrupts_wait() rtos_internal_interrupts_wait()
 
 /*| functions |*/
 {{#tasks}}

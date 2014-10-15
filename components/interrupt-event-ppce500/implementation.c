@@ -11,11 +11,13 @@
 /*| structure_definitions |*/
 
 /*| extern_definitions |*/
+extern void rtos_internal_interrupts_disable(void);
+extern void rtos_internal_interrupts_enable(void);
+extern void rtos_internal_interrupts_wait(void);
 
 /*| function_definitions |*/
 static void interrupt_event_process(void);
-static inline bool interrupt_application_event_check(void);
-static inline void interrupt_event_wait(void);
+static void interrupt_event_wait(void);
 
 /*| state |*/
 {{#interrupt_events.length}}
@@ -23,6 +25,16 @@ static volatile uint32_t interrupt_event;
 {{/interrupt_events.length}}
 
 /*| function_like_macros |*/
+{{#interrupt_events.length}}
+/* Return true if there are any pending interrupts, false otherwise. */
+#define interrupt_application_event_check() (interrupt_event != 0)
+{{/interrupt_events.length}}
+{{^interrupt_events.length}}
+#define interrupt_application_event_check() false
+{{/interrupt_events.length}}
+#define interrupts_disable() rtos_internal_interrupts_disable()
+#define interrupts_enable() rtos_internal_interrupts_enable()
+#define interrupts_wait() rtos_internal_interrupts_wait()
 
 /*| functions |*/
 /* Clear the pending status for any outstanding interrupts and take the RTOS-defined action for each. */
@@ -67,20 +79,8 @@ interrupt_event_process(void)
 {{/interrupt_events.length}}
 }
 
-/* Return true if there are any pending interrupts, false otherwise. */
-static inline bool
-interrupt_application_event_check(void)
-{
-{{#interrupt_events.length}}
-    return interrupt_event != 0;
-{{/interrupt_events.length}}
-{{^interrupt_events.length}}
-    return false;
-{{/interrupt_events.length}}
-}
-
 /* Check if there are any pending interrupt events, and if not, wait until an interrupt event has occurred. */
-static inline void
+static void
 interrupt_event_wait(void)
 {
     interrupts_disable();

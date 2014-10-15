@@ -10,17 +10,11 @@
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-extern void rtos_internal_interrupts_disable(void);
-extern void rtos_internal_interrupts_enable(void);
-extern void rtos_internal_interrupts_wait(void);
 static void handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id);
 
 /*| state |*/
 
 /*| function_like_macros |*/
-#define interrupts_disable() rtos_internal_interrupts_disable()
-#define interrupts_enable() rtos_internal_interrupts_enable()
-#define interrupts_wait() rtos_internal_interrupts_wait()
 #define interrupt_event_id_to_taskid(interrupt_event_id) (({{prefix_type}}TaskId)(interrupt_event_id))
 
 /*| functions |*/

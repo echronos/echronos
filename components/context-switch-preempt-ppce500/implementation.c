@@ -71,7 +71,8 @@ static void preempt_enable(void);
 static {{prefix_type}}TaskId preempt_irq_invoke_scheduler(void);
 
 {{prefix_type}}TaskId rtos_internal_preempt_irq_scheduler_wrapper(void);
-void rtos_internal_context_switch({{prefix_type}}TaskId to, context_t sp, bool restore_preempt_disabled, bool restore_volatiles);
+void rtos_internal_context_switch({{prefix_type}}TaskId to, context_t sp, bool restore_preempt_disabled,
+        bool restore_volatiles);
 
 static void context_switch_first({{prefix_type}}TaskId to);
 
@@ -132,9 +133,8 @@ yield_common(const bool return_with_preempt_disabled)
 
     {
         const {{prefix_type}}TaskId from = get_current_task();
-        {{prefix_type}}TaskId to;
+        const {{prefix_type}}TaskId to = preempt_irq_invoke_scheduler();
 
-        to = preempt_irq_invoke_scheduler();
         if (from != to) {
             /* This enables interrupts */
             rtos_internal_yield_syscall(to, return_with_preempt_disabled);
@@ -203,6 +203,9 @@ preempt_irq_invoke_scheduler(void)
     return next;
 }
 
+#if ({{taskid_size}} != 8)
+#error "Assembly implementation assumes a taskid_size of 8. See vectable.s"
+#endif
 /* This function returns the (context_t *) to switch to, or TASK_ID_NONE if no context switch is required.
  * It is NOT responsible for setting current_task = to!
  * Note also that although we impose a pre and postcondition that interrupts are disabled, the call to
@@ -239,7 +242,8 @@ end:
 }
 
 void
-rtos_internal_context_switch(const {{prefix_type}}TaskId to, const context_t sp, const bool restore_preempt_disabled, const bool restore_volatiles)
+rtos_internal_context_switch(const {{prefix_type}}TaskId to, const context_t sp, const bool restore_preempt_disabled,
+        const bool restore_volatiles)
 {
     precondition_interrupts_disabled();
     precondition_preemption_disabled();

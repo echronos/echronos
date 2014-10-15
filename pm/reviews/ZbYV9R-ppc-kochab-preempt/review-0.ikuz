@@ -173,7 +173,8 @@ Comment: Discussion
 Should all the pre/post condition stuff be in a separate component or module?
 
 [robs: The convention appears to be to define assertions in the component that determines their behaviour.
-In the case of the interrupt ones they would probably make more sense in an interrupt-util component, but since that features asm it can't be a C component, only a package.]
+In the case of the interrupt ones they would probably make more sense in an interrupt-util component, but since that features asm it can't be a C component, only a package.
+I've moved them to the interrupt-event-ppce500 component because it makes somewhat more sense for them to be there.]
 
 Location: components/context-preempt-ppce500/implementation.c: 117
 Comment: Rework

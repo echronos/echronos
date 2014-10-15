@@ -62,7 +62,6 @@ typedef uint32_t* context_t;
 /*| extern_definitions |*/
 extern void rtos_internal_yield_syscall({{prefix_type}}TaskId to, bool return_with_preempt_disabled);
 extern void rtos_internal_restore_preempted_context(bool restore_volatiles, context_t ctxt_to);
-extern bool rtos_internal_check_interrupts_enabled(void);
 
 /*| function_definitions |*/
 /**
@@ -144,11 +143,6 @@ static volatile bool preempt_pending;
 #define preempt_disable() preempt_disabled = true
 #define preempt_pend() preempt_pending = true
 #define preempt_clear() preempt_pending = false
-#define irqs_enabled() rtos_internal_check_interrupts_enabled()
-#define precondition_interrupts_disabled() internal_assert(!irqs_enabled(), ERROR_ID_INTERNAL_PRECONDITION_VIOLATED)
-#define precondition_interrupts_enabled() internal_assert(irqs_enabled(), ERROR_ID_INTERNAL_PRECONDITION_VIOLATED)
-#define postcondition_interrupts_disabled() internal_assert(!irqs_enabled(), ERROR_ID_INTERNAL_POSTCONDITION_VIOLATED)
-#define postcondition_interrupts_enabled() internal_assert(irqs_enabled(), ERROR_ID_INTERNAL_POSTCONDITION_VIOLATED)
 #define precondition_preemption_disabled() internal_assert(preempt_disabled, ERROR_ID_INTERNAL_PRECONDITION_VIOLATED)
 #define postcondition_preemption_disabled() internal_assert(preempt_disabled, ERROR_ID_INTERNAL_POSTCONDITION_VIOLATED)
 #define postcondition_preemption_enabled() internal_assert(!preempt_disabled, ERROR_ID_INTERNAL_POSTCONDITION_VIOLATED)

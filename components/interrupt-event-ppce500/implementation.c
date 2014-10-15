@@ -14,6 +14,7 @@
 extern void rtos_internal_interrupts_disable(void);
 extern void rtos_internal_interrupts_enable(void);
 extern void rtos_internal_interrupts_wait(void);
+extern bool rtos_internal_check_interrupts_enabled(void);
 
 /*| function_definitions |*/
 static void interrupt_event_process(void);
@@ -35,6 +36,11 @@ static volatile uint32_t interrupt_event;
 #define interrupts_disable() rtos_internal_interrupts_disable()
 #define interrupts_enable() rtos_internal_interrupts_enable()
 #define interrupts_wait() rtos_internal_interrupts_wait()
+#define irqs_enabled() rtos_internal_check_interrupts_enabled()
+#define precondition_interrupts_disabled() internal_assert(!irqs_enabled(), ERROR_ID_INTERNAL_PRECONDITION_VIOLATED)
+#define precondition_interrupts_enabled() internal_assert(irqs_enabled(), ERROR_ID_INTERNAL_PRECONDITION_VIOLATED)
+#define postcondition_interrupts_disabled() internal_assert(!irqs_enabled(), ERROR_ID_INTERNAL_POSTCONDITION_VIOLATED)
+#define postcondition_interrupts_enabled() internal_assert(irqs_enabled(), ERROR_ID_INTERNAL_POSTCONDITION_VIOLATED)
 
 /*| functions |*/
 /* Clear the pending status for any outstanding interrupts and take the RTOS-defined action for each. */

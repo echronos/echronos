@@ -29,6 +29,7 @@ Comment: Rework
 
 78: "The RTOS user API MUST NOT provide explicit support for ensuring mutual exclusion between user-supplied interrupt handler code and bounded sections of user code." sounds strange to say MUST NOT here.
 
+[robs: Elaborated on all of the above as requested, and reworded MUST NOT to SHALL NOT where it makes more sense]
 
 Location: components/acrux/implementation.c:21-23
 Comment: Discussion

@@ -153,17 +153,19 @@ undefined:
  *     | Back chain word                                            |
  *   0 +------------------------------------------------------------+ Lowest address
  *
- * The lowest two words (LR save and back chain word) follow the stack frame header convention of the EABI
- * specification (see ppce500-context-switch.c for more detail).
+ * The lowest two words (LR save and back chain word) follow the stack frame header convention of the PowerPC EABI
+ * specification.
  *
  * Only the volatile registers (r3-r12) are preserved, because by the EABI convention, any handler would be
  * responsible for preserving the contents of the nonvolatile registers (r14-r31).
  */
 
+/* Reserve space needed by the context frame on the stack */
 .macro irq_frame_create
         stwu %sp,-76(%sp)
 .endm
 
+/* Used for dismantling the context frame after it has been restored */
 .macro irq_frame_dismantle
         addi %sp,%sp,76
 .endm
@@ -209,33 +211,44 @@ undefined:
  * registers (r14-r31) in case the interrupted context needs to be preempted, as well as a field for
  * implementation-specific preemption status flags.
  *
- * The lowest two words (LR save and back chain word) follow the stack frame header convention of the EABI
- * specification (see ppce500-context-switch.c for more detail).
+ * The lowest two words (LR save and back chain word) follow the stack frame header convention of the PowerPC EABI
+ * specification.
  */
 
+/* Reserves space needed by the context frame on the stack */
 .macro irq_frame_create
         stwu %sp,-152(%sp)
 .endm
 
+/* Used for dismantling the context frame after it has been restored */
 .macro irq_frame_dismantle
         addi %sp,%sp,152
 .endm
 
+/* Stores the contents of all nonvolatile general-purpose registers (GPRs) to the context frame.
+ * Since function calls are required to preserve nonvolatile register contents, we generally don't need to call this
+ * macro until we are certain of a context switch. */
 .macro irq_frame_store_nonvolatile_gprs
         /* r14-r31 */
         stmw %r14,76(%sp)
 .endm
 
+/* Restores all the values of the nonvolatile GPRs from the context frame. */
 .macro irq_frame_restore_nonvolatile_gprs
         /* r14-r31 */
         lmw %r14,76(%sp)
 .endm
 {{/preemption}}
 
+/* Stores the value of the first volatile general-purpose register (GPR) r3 to the context frame.
+ * This is defined separately because r3 is set to a per-vector handler function address at each vector entry point. */
 .macro irq_frame_store_r3
         stw %r3,36(%sp)
 .endm
 
+/* Stores the values of the remaining volatile GPRs (not including r3) to the context frame.
+ * Function calls are not required to preserve volatile register contents, so we must preserve them before doing much
+ * else whenever we handle an interrupt. */
 .macro irq_frame_store_remaining_volatile_gprs
         stw %r0,32(%sp)
         stw %r4,40(%sp)
@@ -249,6 +262,9 @@ undefined:
         stw %r12,72(%sp)
 .endm
 
+/* Restores all of the values of the volatile GPRs from the context frame.
+ * The caller is expected to have previously stored all of the volatile registers to the context frame, using both the
+ * macros 'irq_frame_store_r3' and 'irq_frame_store_remaining_volatile_gprs'. */
 .macro irq_frame_restore_volatile_gprs
         lwz %r0,32(%sp)
         lwz %r3,36(%sp)
@@ -263,6 +279,7 @@ undefined:
         lwz %r12,72(%sp)
 .endm
 
+/* Stores the contents of special-purpose registers (SPRs) to the context frame. */
 .macro irq_frame_store_sprs scratch
         mflr \scratch
         stw \scratch,8(%sp)
@@ -274,6 +291,7 @@ undefined:
         stw \scratch,28(%sp)
 .endm
 
+/* Restores the contents of special-purpose registers (SPRs) from the context frame. */
 .macro irq_frame_restore_sprs scratch
         lwz \scratch,8(%sp)
         mtlr \scratch
@@ -285,8 +303,10 @@ undefined:
         mtcr \scratch
 .endm
 
-/* Unlike the ones above, these macros only store and retrieve the SRR values to/from their slot in the stack frame,
- * and are not responsible for fetching from or loading to the actual SRRs. */
+/* Store (and restore) the values of save/restore registers (SRRs) 0/1 to (and from) their slot in the context frame.
+ * Unlike the macros above, these are not responsible for fetching from or loading to the actual register, since we
+ * use the same SRR slots of the context frame for machine-check (MCSRR) and critical (CSRR) save-restore registers,
+ * and disambiguate between these in per-interrupt-class common code. */
 
 .macro irq_frame_store_srr0 src_gpr
         stw \src_gpr,12(%sp)
@@ -306,24 +326,33 @@ undefined:
 
 /* The macros below this point are more generic helpers and should not feature any irq frame offset constants. */
 
+/* This macro sets the given general-purpose register 'gpr' to the address given in the argument 'handler'. */
 .macro gpr_set_handler gpr handler
         li \gpr,\handler@l
         oris \gpr,\gpr,\handler@h
 .endm
 
+/* This macro stores the value of r3 to the context frame and sets its value to the given handler function address.
+ * It is intended to be called from individual vector entry points before jumping to common code. */
 .macro irq_frame_store_r3_set handler
         irq_frame_store_r3
         gpr_set_handler %r3 \handler
 .endm
 
+/* This macro applies the 32-bit mask given by the immediate values 'upper_mask' (upper 16 bits) and 'lower_mask'
+ * (lower 16 bits) to the value in the GPR given in 'target', corrupting the GPR 'scratch' as a scratch register. */
 .macro apply_32bit_mask target scratch upper_mask lower_mask
         lis \scratch,\upper_mask
         ori \scratch,\scratch,\lower_mask
         and \target,\target,\scratch
 .endm
 
-/* This macro sets to zero the MSR wait-enable (WE) bit of the "target" register, trashing the "scratch" register.
- * It is intended to be used on M/C/SRR1 prior to rf(m/c)i to wake up the interrupted context, if it was sleeping. */
+/* On return from interrupt (rfi, rfci, or rfmci, depending on the interrupt class) the (M/C)SRR1 register is restored
+ * to the machine-state register (MSR), and if the MSR's wait-enable (WE) bit is set, the CPU will go to sleep.
+ * This macro modifies the value of the GPR given in 'target' by setting to zero the MSR wait-enable (WE) bit,
+ * corrupting the GPR 'scratch' as a scratch register.
+ * It is intended to be used on the value restored to M/C/SRR1 prior to rf(m/c)i to wake up the interrupted context,
+ * in case it was sleeping. */
 .macro unset_msr_wait_enable target scratch
         apply_32bit_mask \target \scratch 0xfffb 0xffff /* upper 16 bits exclude 0x4 for MSR[WE] */
 .endm
@@ -654,6 +683,7 @@ syscall_vector:
         b rtos_internal_context_switch
 
 preempt_irq_common:
+        /* r3 was already stored by code at the vector entry point */
         irq_frame_store_remaining_volatile_gprs
         irq_frame_store_sprs %r4
 
@@ -700,6 +730,7 @@ preempt_irq_common:
 {{/preemption}}
 
 machine_check_irq_common:
+        /* r3 was already stored by code at the vector entry point */
         irq_frame_store_remaining_volatile_gprs
         irq_frame_store_sprs %r4
         mtctr %r3
@@ -730,6 +761,7 @@ machine_check_irq_common:
         rfmci
 
 critical_irq_common:
+        /* r3 was already stored by code at the vector entry point */
         irq_frame_store_remaining_volatile_gprs
         irq_frame_store_sprs %r4
         mtctr %r3
@@ -761,6 +793,7 @@ critical_irq_common:
         rfci
 
 noncrit_irq_common:
+        /* r3 was already stored by code at the vector entry point */
         irq_frame_store_remaining_volatile_gprs
         irq_frame_store_sprs %r4
         mtctr %r3
@@ -874,6 +907,10 @@ _entry:
 .size _entry, .-_entry
 
 {{#preemption}}
+/* On systems that support preemption, we implement manual context switch using PowerPC's system call interrupt.
+ * This makes the context storage/restoration process consistent with those of tasks that undergo an involuntary
+ * context switch (i.e. preemption) directly from interrupt context.
+ * Upon executing the 'sc' instruction, the CPU immediately takes a syscall interrupt and jumps to 'syscall_vector'. */
 .global rtos_internal_yield_syscall
 .type rtos_internal_yield_syscall,STT_FUNC
 /* rtos_internal_yield_syscall(TaskId to, bool return_with_preempt_disabled) */
@@ -882,6 +919,10 @@ rtos_internal_yield_syscall:
         blr
 .size rtos_internal_yield_syscall, .-rtos_internal_yield_syscall
 
+/* This function switches to the context stored at the stack frame pointer given in r4 (which holds argument ctxt_to),
+ * and after restoring all of its register state, it returns from interrupt context using the 'rfi' instruction.
+ * The restoration of volatile registers is optional because it is not needed if the task initiated context switch
+ * manually, as opposed to having been preempted due to an interrupt. */
 .global rtos_internal_restore_preempted_context
 .type rtos_internal_restore_preempted_context,STT_FUNC
 /* void rtos_internal_restore_preempted_context(bool restore_volatiles, context_t ctxt_to); */

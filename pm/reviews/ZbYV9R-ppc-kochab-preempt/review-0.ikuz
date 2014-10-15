@@ -44,6 +44,10 @@ In that case could the defines not be part of the interrupt-utils package (like 
 Or would that mean that interrupt-utils would have to be a component rather than a package?
 Could it be turned into a component then? Or is there a reasn it is a package and not a component (what is the guideline for when something is a package and when a compoenent)?
 
+[robs: The defines are needed for the reasons that you guessed, and from a maintenance point of view they would make most sense in an interrupt-utils component.
+However, since they're implemented in asm, interrupt-utils can only be a package, not a C component.
+I've moved them to the ppc specific interrupt-event component, where it makes much more sense for them to be.]
+
 Location: components/acrux/implementation.c:24-26
 Comment: Rework
  24 #define preempt_disable()
@@ -103,15 +107,21 @@ Location: packages/ppce500/vectable-common.h:15,28,42,53,67,71,75,79,85,90,95
 Comment: Rework
 It would be nice to have some short comments explaining what these macros are meant to do (something slightly easier to read than the terse name and/or assembly)
 
+[robs: Descriptions added]
+
 Location: packages/ppce500/vectable-common.h:101-102
 Comment: Rework
 101 /* This macro sets to zero the MSR wait-enable (WE) bit of the "target" register, trashing the "scratch" register.
 102  * It is intended to be used on M/C/SRR1 prior to rf(m/c)i to wake up the interrupted context, if it was sleeping. */
 I find the second line difficult to understand.  Please first explain that on this platform the CPU will go back to sleep after handling an interrupt if this is not done (is that true?).  Then explain how it should be used.
 
+[robs: Done]
+
 Location: packages/ppce500/vectable-common.s: 7, 39, 72, 
 Comment: Rework
 I was confused why r3 wasn't being stored but was being restored.  After some code searching I found the answer.  It might be useful to add a comment here explaining that the caller is expected to store r3 using the appropriate macro before invoking these functions.
+
+[robs: Done]
 
 Location: packages/ppce500/vectable.s: 30, 31 packages/ppce500/vectable-preempt.s: 83, 84
 Comment: Rework
@@ -129,6 +139,8 @@ line 31/84: This is a bit confusing.  Is the last sentence related to the others
 Location: packages/ppce500/vectable.s: 47, 51 
 Comment: Rework 
 Some descriptive comments (e.g. reserve space needed by the context frame on the stack) would be nice here.
+
+[robs: Fixed in the now-recombined macro code]
 
 Location: components/context-preempt-ppce500/implementation.c:
 Comment:
@@ -158,6 +170,9 @@ Comment: Discussion
 112 #define postcondition_preemption_disabled() internal_assert(preempt_disabled, ERROR_ID_INTERNAL_POSTCONDITION_VIOLATED)
 113 #define postcondition_preemption_enabled() internal_assert(!preempt_disabled, ERROR_ID_INTERNAL_POSTCONDITION_VIOLATED)
 Should all the pre/post condition stuff be in a separate component or module?
+
+[robs: The convention appears to be to define assertions in the component that determines their behaviour.
+In the case of the interrupt ones they would probably make more sense in an interrupt-util component, but since that features asm it can't be a C component, only a package.]
 
 Location: components/context-preempt-ppce500/implementation.c: 117
 Comment: Rework
@@ -287,11 +302,17 @@ Location: components/signal/implementation.c: 45-54
 Comment: Discussion
 Why is signal_send_set now a function?
 
+[robs: handle_interrupt_event defined in the kochab component now needs to call it with preemption disabled]
+
 Location: packages/ppce500/vectable-preempt.s: 101, 105, 444, 472, 620, 626
 Comment: Rework 
 Some descriptive comments explaining the macros and functions would be nice here.
+
+[robs: Fixed in the recombined code]
 
 Location: packages/ppce500/vectable-preempt.s: 613
 Comment: Rework 
 613         sc
 This really needs some comment as to what happens here!
+
+[robs: Added]

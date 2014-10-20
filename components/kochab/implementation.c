@@ -26,7 +26,7 @@ static void interrupt_event_handle({{prefix_type}}InterruptEventId interrupt_eve
 /*| state |*/
 struct interrupt_event_handler interrupt_events[{{interrupt_events.length}}] = {
 {{#interrupt_events}}
- { {{prefix_const}}TASK_ID_{{task_name|u}}, {{prefix_const}}SIGNAL_SET_INTERRUPT_{{name|u}} },
+ { {{prefix_const}}TASK_ID_{{task.name|u}}, {{prefix_const}}SIGNAL_SET_{{sig_set|u}} },
 {{/interrupt_events}}
 };
 

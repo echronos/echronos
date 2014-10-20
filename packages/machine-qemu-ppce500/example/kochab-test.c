@@ -36,8 +36,6 @@ void
 fn_a(void)
 {
     uint8_t count;
-    rtos_signal_send_set(RTOS_TASK_ID_A, 0);
-    rtos_signal_send_set(RTOS_TASK_ID_B, 0);
 
     debug_println("task a: taking lock");
     rtos_mutex_lock(RTOS_MUTEX_ID_M0);
@@ -54,16 +52,16 @@ fn_a(void)
         if (count % 5 == 0)
         {
             debug_println("unblocking b");
-            rtos_signal_send_set(RTOS_TASK_ID_B, 1);
+            rtos_signal_send_set(RTOS_TASK_ID_B, RTOS_SIGNAL_SET_TEST);
         }
     }
 
     debug_println("A now waiting for ticks");
     for (;;)
     {
-        (void) rtos_signal_wait_set(1);
+        (void) rtos_signal_wait_set(RTOS_SIGNAL_SET_TIMER);
         debug_println("tick");
-        rtos_signal_send_set(RTOS_TASK_ID_B, 1);
+        rtos_signal_send_set(RTOS_TASK_ID_B, RTOS_SIGNAL_SET_TEST);
     }
 }
 
@@ -75,9 +73,9 @@ fn_b(void)
     debug_println("task b: got lock");
 
     while (1) {
-        if (rtos_signal_poll_set(1)) {
+        if (rtos_signal_poll_set(RTOS_SIGNAL_SET_TEST)) {
             debug_println("task b blocking");
-            (void) rtos_signal_wait_set(1);
+            (void) rtos_signal_wait_set(RTOS_SIGNAL_SET_TEST);
             debug_println("task b unblocked");
         }
     }

@@ -281,3 +281,5 @@ However, the configuration of interrupt events is different in the two variants,
 These differences seem quite arbitrary and somewhat inconsistent.
 Would it be possible to bring these two variants more in line with each other for consistency and ease of use?
 Would it maybe even be possible to share the signal-based interrupt event code and configuration information via a separate component instead of duplicating it?
+
+[robs: Fixed, made them consistent and will bring them together in a future task]

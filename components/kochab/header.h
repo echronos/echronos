@@ -6,9 +6,6 @@
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
-{{#interrupt_events}}
-#define {{prefix_const}}SIGNAL_SET_INTERRUPT_{{name|u}} {{sig_set}}
-{{/interrupt_events}}
 
 /*| public_function_like_macros |*/
 

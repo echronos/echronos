@@ -42,11 +42,23 @@
 
       </tasks>
 
+      <signal_labels>
+
+        <signal_label>
+          <name>timer</name>
+        </signal_label>
+
+        <signal_label>
+          <name>test</name>
+        </signal_label>
+
+      </signal_labels>
+
       <interrupt_events>
         <interrupt_event>
           <name>tick</name>
-          <task_name>a</task_name>
-          <sig_set>1</sig_set>
+          <task>a</task>
+          <sig_set>timer</sig_set>
         </interrupt_event>
       </interrupt_events>
 

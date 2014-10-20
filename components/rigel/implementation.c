@@ -18,7 +18,7 @@ static void _yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT;
 static void _block(void) {{prefix_const}}REENTRANT;
 static void _unblock({{prefix_type}}TaskId task);
 {{#interrupt_events.length}}
-static void handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id);
+static void interrupt_event_handle({{prefix_type}}InterruptEventId interrupt_event_id);
 {{/interrupt_events.length}}
 
 
@@ -75,17 +75,12 @@ _unblock({{prefix_type}}TaskId task)
 
 {{#interrupt_events.length}}
 static void
-handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id)
+interrupt_event_handle(const {{prefix_type}}InterruptEventId interrupt_event_id)
 {
-    {{prefix_type}}TaskId task;
-    {{prefix_type}}SignalSet sig_set;
-
     internal_assert(interrupt_event_id < {{interrupt_events.length}}, ERROR_ID_INTERNAL_INVALID_ID);
 
-    task = interrupt_events[interrupt_event_id].task;
-    sig_set = interrupt_events[interrupt_event_id].sig_set;
-
-    {{prefix_func}}signal_send_set(task, sig_set);
+    {{prefix_func}}signal_send_set(interrupt_events[interrupt_event_id].task,
+            interrupt_events[interrupt_event_id].sig_set);
 }
 {{/interrupt_events.length}}
 

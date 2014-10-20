@@ -259,6 +259,8 @@ Comment 32: Rework
 The function `handle_interrupt_event()` does not follow the conventional naming pattern <noun>_<verb>.
 Please rename this function to, e.g., interrupt_event_handle().
 
+[robs: Fixed, renamed]
+
 Location: components/kochab/implementation.c:91
 Comment 33: Rework
 The argument `interrupt_event_id` of the function `handle_interrupt_event()` and the variables `task` and `sig_set` are not modified within their scope.
@@ -269,6 +271,8 @@ Location: components/kochab/implementation.c:95
 Comment 34: Rework
 The variables `task` and `sig_set` are used only once within their scope, their names do not convey additional information about their purpose, and there appears to be on benefit to their existence.
 Please remove these variables.
+
+[robs: Removed here and in rigel]
 
 Location: components/kochab/schema.xml:9
 Comment 35: Question/Rework

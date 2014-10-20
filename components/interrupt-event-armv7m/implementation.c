@@ -35,7 +35,7 @@ interrupt_event_process(void)
     {
         {{prefix_type}}InterruptEventId i = __builtin_ffs(tmp) - 1;
         interrupt_event_bitband[i] = 0;
-        handle_interrupt_event(i);
+        interrupt_event_handle(i);
         tmp &= ~(1U << i);
     }
 {{/interrupt_events.length}}

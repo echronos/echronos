@@ -20,7 +20,7 @@ extern void {{function}}(void);
 static void _block(void);
 static void _unblock({{prefix_type}}TaskId task);
 {{#interrupt_events.length}}
-static void handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id);
+static void interrupt_event_handle({{prefix_type}}InterruptEventId interrupt_event_id);
 {{/interrupt_events.length}}
 
 /*| state |*/
@@ -88,14 +88,13 @@ _unblock({{prefix_type}}TaskId task)
 
 {{#interrupt_events.length}}
 static void
-handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id)
+interrupt_event_handle(const {{prefix_type}}InterruptEventId interrupt_event_id)
 {
     precondition_preemption_disabled();
 
-    {{prefix_type}}TaskId task = interrupt_events[interrupt_event_id].task;
-    {{prefix_type}}SignalSet sig_set = interrupt_events[interrupt_event_id].sig_set;
+    internal_assert(interrupt_event_id < {{interrupt_events.length}}, ERROR_ID_INTERNAL_INVALID_ID);
 
-    signal_send_set(task, sig_set);
+    signal_send_set(interrupt_events[interrupt_event_id].task, interrupt_events[interrupt_event_id].sig_set);
 
     postcondition_preemption_disabled();
 }

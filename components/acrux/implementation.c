@@ -10,7 +10,7 @@
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static void handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id);
+static void interrupt_event_handle({{prefix_type}}InterruptEventId interrupt_event_id);
 
 /*| state |*/
 
@@ -19,7 +19,7 @@ static void handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_eve
 
 /*| functions |*/
 static void
-handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id)
+interrupt_event_handle(const {{prefix_type}}InterruptEventId interrupt_event_id)
 {
     sched_set_runnable(interrupt_event_id_to_taskid(interrupt_event_id));
 }

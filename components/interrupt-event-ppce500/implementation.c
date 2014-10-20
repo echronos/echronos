@@ -74,7 +74,7 @@ interrupt_event_process(void)
         /* __builtin_ffs(x) returns 1 + the index of the least significant 1-bit in x, or returns zero if x is 0 */
         {{prefix_type}}InterruptEventId i = __builtin_ffs(tmp) - 1;
         interrupt_event &= ~(1U << i);
-        handle_interrupt_event(i);
+        interrupt_event_handle(i);
         tmp &= ~(1U << i);
     }
 {{/interrupt_events.length}}

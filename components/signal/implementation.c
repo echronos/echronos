@@ -16,8 +16,8 @@ struct signal {
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static {{prefix_type}}SignalSet _signal_recv({{prefix_type}}SignalSet *const cur_task_signals, const {{prefix_type}}SignalSet mask);
-static void signal_send_set(const {{prefix_type}}TaskId task_id, const {{prefix_type}}SignalSet signals);
+static {{prefix_type}}SignalSet _signal_recv({{prefix_type}}SignalSet *cur_task_signals, {{prefix_type}}SignalSet mask);
+static void signal_send_set({{prefix_type}}TaskId task_id, {{prefix_type}}SignalSet signals);
 
 /*| state |*/
 static struct signal signal_tasks;

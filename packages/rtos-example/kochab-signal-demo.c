@@ -17,7 +17,7 @@ demo_sig_id[SIGNAL_DEMO_NUM_IDS] = {
 };
 
 void
-fatal(RtosErrorId error_id)
+fatal(const RtosErrorId error_id)
 {
     debug_print("FATAL ERROR: ");
     debug_printhex32(error_id);
@@ -28,7 +28,7 @@ fatal(RtosErrorId error_id)
 }
 
 void
-peek_poll_expect_fail(RtosSignalId id)
+peek_poll_expect_fail(const RtosSignalId id)
 {
     if (rtos_signal_peek(id)) {
         debug_println("a: signal peek unexpectedly succeeded!");

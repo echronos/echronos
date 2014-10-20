@@ -29,7 +29,7 @@ void
 void
 {{prefix_func}}yield(void) {{prefix_const}}REENTRANT
 {
-    {{prefix_type}}TaskId to = sched_get_next();
+    const {{prefix_type}}TaskId to = sched_get_next();
     {{prefix_func}}yield_to(to);
 }
 

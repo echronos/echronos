@@ -59,7 +59,7 @@ _block(void)
 
 {{#mutexes.length}}
 static void
-_block_on({{prefix_type}}TaskId t)
+_block_on(const {{prefix_type}}TaskId t)
 {
     precondition_preemption_disabled();
 
@@ -71,7 +71,7 @@ _block_on({{prefix_type}}TaskId t)
 {{/mutexes.length}}
 
 static void
-_unblock({{prefix_type}}TaskId task)
+_unblock(const {{prefix_type}}TaskId task)
 {
     precondition_preemption_disabled();
 

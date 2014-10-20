@@ -33,7 +33,7 @@ interrupt_event_process(void)
     uint32_t tmp = interrupt_event;
     while (tmp != 0)
     {
-        {{prefix_type}}InterruptEventId i = __builtin_ffs(tmp) - 1;
+        const {{prefix_type}}InterruptEventId i = __builtin_ffs(tmp) - 1;
         interrupt_event_bitband[i] = 0;
         interrupt_event_handle(i);
         tmp &= ~(1U << i);
@@ -67,7 +67,7 @@ interrupt_event_wait(void)
 /*| public_functions |*/
 {{#interrupt_events.length}}
 void
-{{prefix_func}}interrupt_event_raise({{prefix_type}}InterruptEventId interrupt_event_id)
+{{prefix_func}}interrupt_event_raise(const {{prefix_type}}InterruptEventId interrupt_event_id)
 {
     interrupt_event_bitband[interrupt_event_id] = 1;
 }

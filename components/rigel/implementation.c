@@ -49,13 +49,12 @@ struct interrupt_event_handler interrupt_events[{{interrupt_events.length}}] = {
 
 /*| functions |*/
 static void
-_yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT
+_yield_to(const {{prefix_type}}TaskId to) {{prefix_const}}REENTRANT
 {
-    {{prefix_type}}TaskId from;
+    const {{prefix_type}}TaskId from = get_current_task();
 
     internal_assert(to < {{tasks.length}}, ERROR_ID_INTERNAL_INVALID_ID);
 
-    from = get_current_task();
     current_task = to;
     context_switch(get_task_context(from), get_task_context(to));
 }
@@ -68,7 +67,7 @@ _block(void) {{prefix_const}}REENTRANT
 }
 
 static void
-_unblock({{prefix_type}}TaskId task)
+_unblock(const {{prefix_type}}TaskId task)
 {
     sched_set_runnable(task);
 }
@@ -98,7 +97,7 @@ void _task_entry_{{name}}(void)
 
 /*| public_functions |*/
 void
-{{prefix_func}}task_start({{prefix_type}}TaskId task)
+{{prefix_func}}task_start(const {{prefix_type}}TaskId task)
 {
     assert_task_valid(task);
     {{prefix_func}}signal_send(task, {{prefix_const}}SIGNAL_ID__RTOS_UTIL);
@@ -112,7 +111,7 @@ void
 }
 
 void
-{{prefix_func}}sleep({{prefix_type}}TicksRelative ticks) {{prefix_const}}REENTRANT
+{{prefix_func}}sleep(const {{prefix_type}}TicksRelative ticks) {{prefix_const}}REENTRANT
 {
     {{prefix_func}}timer_oneshot(task_timers[get_current_task()], ticks);
     {{prefix_func}}signal_wait({{prefix_const}}SIGNAL_ID__TASK_TIMER);

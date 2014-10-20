@@ -267,6 +267,8 @@ The argument `interrupt_event_id` of the function `handle_interrupt_event()` and
 They should therefore be declared as constant.
 Please also ensure full const correctness of all functions in the rest of this file and all files touched on this branch.
 
+[robs: Done]
+
 Location: components/kochab/implementation.c:95
 Comment 34: Rework
 The variables `task` and `sig_set` are used only once within their scope, their names do not convey additional information about their purpose, and there appears to be on benefit to their existence.

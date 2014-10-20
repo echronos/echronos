@@ -10,9 +10,9 @@
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static void _yield_to(const {{prefix_type}}TaskId to) {{prefix_const}}REENTRANT;
+static void _yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT;
 static void _block(void) {{prefix_const}}REENTRANT;
-static void _unblock(const {{prefix_type}}TaskId task);
+static void _unblock({{prefix_type}}TaskId task);
 
 /*| state |*/
 
@@ -45,7 +45,7 @@ _unblock(const {{prefix_type}}TaskId task)
 void
 {{prefix_func}}yield(void) {{prefix_const}}REENTRANT
 {
-    {{prefix_type}}TaskId to = sched_get_next();
+    const {{prefix_type}}TaskId to = sched_get_next();
     _yield_to(to);
 }
 

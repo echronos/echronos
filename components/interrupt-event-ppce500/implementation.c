@@ -72,7 +72,7 @@ interrupt_event_process(void)
     while (tmp != 0)
     {
         /* __builtin_ffs(x) returns 1 + the index of the least significant 1-bit in x, or returns zero if x is 0 */
-        {{prefix_type}}InterruptEventId i = __builtin_ffs(tmp) - 1;
+        const {{prefix_type}}InterruptEventId i = __builtin_ffs(tmp) - 1;
         interrupt_event &= ~(1U << i);
         interrupt_event_handle(i);
         tmp &= ~(1U << i);
@@ -101,7 +101,7 @@ interrupt_event_wait(void)
 {{#interrupt_events.length}}
 /* Set the pending status for the given interrupt event id. */
 void
-{{prefix_func}}interrupt_event_raise({{prefix_type}}InterruptEventId interrupt_event_id)
+{{prefix_func}}interrupt_event_raise(const {{prefix_type}}InterruptEventId interrupt_event_id)
 {
     interrupt_event |= (1U << interrupt_event_id);
 }

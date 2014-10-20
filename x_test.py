@@ -1,6 +1,6 @@
 from pylib.xunittest import teamcityskip
 from pylib.utils import Git
-from pylib.components import sort_typedefs
+from pylib.components import _sort_typedefs
 from pylib.tasks import _Review
 import itertools
 import os
@@ -37,7 +37,7 @@ def test_sort_typedefs():
                 'typedef bar baz;']
     expected = '\n'.join(typedefs)
     for x in itertools.permutations(typedefs):
-        assert sort_typedefs('\n'.join(x)) == expected
+        assert _sort_typedefs('\n'.join(x)) == expected
 
 
 def test_full_stop_in_reviewer_name():

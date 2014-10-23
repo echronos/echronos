@@ -152,11 +152,24 @@ bool
     return r;
 }
 
-RtosTaskId
-{{prefix_func}}mutex_holder_get(const {{prefix_type}}MutexId m)
+bool
+{{prefix_func}}mutex_holder_get(const {{prefix_type}}MutexId m, {{prefix_type}}TaskId *const holder)
 {
+    bool r = false;
+
     assert_mutex_valid(m);
-    return mutexes[m].holder;
+    api_assert(holder, ERROR_ID_MUTEX_INVALID_POINTER);
+
+    preempt_disable();
+
+    if (mutexes[m].holder != TASK_ID_NONE) {
+        *holder = mutexes[m].holder;
+        r = true;
+    }
+
+    preempt_enable();
+
+    return r;
 }
 
 {{#mutex.stats}}

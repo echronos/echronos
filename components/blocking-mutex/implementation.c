@@ -153,23 +153,10 @@ bool
 }
 
 bool
-{{prefix_func}}mutex_holder_get(const {{prefix_type}}MutexId m, {{prefix_type}}TaskId *const holder)
+{{prefix_func}}mutex_holder_is_current(const {{prefix_type}}MutexId m)
 {
-    bool r = false;
-
     assert_mutex_valid(m);
-    api_assert(holder, ERROR_ID_MUTEX_INVALID_POINTER);
-
-    preempt_disable();
-
-    if (mutexes[m].holder != TASK_ID_NONE) {
-        *holder = mutexes[m].holder;
-        r = true;
-    }
-
-    preempt_enable();
-
-    return r;
+    return mutexes[m].holder == get_current_task();
 }
 
 {{#mutex.stats}}

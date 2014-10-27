@@ -44,3 +44,6 @@ Given that kind of API in another popular RTOS, I think a smaller API such as mu
 I just verified in our usages with customer that the only time we check the holder is to verify that it is held by the current task.
 
 I also check another project I've worked on recently, which used FreeRTOS, and in that case, the only usage was to check the current task did (or did not) hold the mutex.
+
+
+[robs: Yep, looks like the SMACCM usages for this are all specifically to determine whether the holder of the mutex is the current task and to do/assert things based on that, so I will submit a rework that specialises the API accordingly.]

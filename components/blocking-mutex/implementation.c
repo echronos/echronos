@@ -152,6 +152,8 @@ bool
     return r;
 }
 
+/* A macro implementation would be preferable to eliminate function call overhead when compilers don't support implicit
+ * inlining, but at present this would involve exposing too many implementation internals in the public API header. */
 bool
 {{prefix_func}}mutex_holder_is_current(const {{prefix_type}}MutexId m)
 {

@@ -1,6 +1,6 @@
 OUTPUT_FORMAT("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
-ENTRY(_vector_table)
+ENTRY(rtos_internal_vector_table)
 SECTIONS
 {
         . = {{code_addr}};
@@ -52,7 +52,7 @@ SECTIONS
 
         .stack : {
                . = . + {{stack_size}};
-               _stack = .;
+               stack = .;
         }
 
         /* Aliases for all the bitband variables */

@@ -1,6 +1,6 @@
 OUTPUT_FORMAT("elf32-powerpc", "elf32-powerpc", "elf32-powerpcle")
 OUTPUT_ARCH(powerpc)
-ENTRY(_entry)
+ENTRY(rtos_internal_entry)
 SECTIONS
 {
         .ro_start = .;
@@ -30,7 +30,6 @@ SECTIONS
 
         .stack : {
                . = . + {{stack_size}};
-               _stack = .;
         }
 
         /* Debug sections */

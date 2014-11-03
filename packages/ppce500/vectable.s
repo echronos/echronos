@@ -437,13 +437,13 @@ noncrit_irq_common:
         rfi
 
 .section .text
-/* The _entry function initialises the C run-time and then jumps to main (which should never return!)
+/* The rtos_internal_entry function initialises the C run-time and then jumps to main (which should never return!)
  * If there is a Reset_Handler function defined, then this will be invoked.
  * It should never return. */
 .weak Reset_Handler
-.global _entry
-.type _entry,STT_FUNC
-_entry:
+.global rtos_internal_entry
+.type rtos_internal_entry,STT_FUNC
+rtos_internal_entry:
         /* If there is a Reset_Handler call it - it shouldn't return. */
         lis %r3,Reset_Handler@h
         ori %r3,%r3,Reset_Handler@l
@@ -514,4 +514,4 @@ _entry:
         wrteei 1
 
         b main
-.size _entry, .-_entry
+.size rtos_internal_entry, .-rtos_internal_entry

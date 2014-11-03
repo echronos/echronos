@@ -5,10 +5,10 @@
 .set reset_value, 0x05fa0004
 
 .section .vectors, "a"
-.global _vector_table
-_vector_table:
-        .word _stack
-        .word _entry
+.global rtos_internal_vector_table
+rtos_internal_vector_table:
+        .word stack
+        .word entry
         .word {{nmi}}
         .word {{hardfault}}
         .word {{memmanage}}
@@ -39,12 +39,12 @@ reset:
 .size reset, .-reset
 
 /*
-The _entry function initialises the C run-time and then jumps to main. (Which should never return!)
+The entry function initialises the C run-time and then jumps to main. (Which should never return!)
 
 Specifically, this loads the .data section from flash in to SRAM, and then zeros the .bss section.
 */
-.type _entry,#function
-_entry:
+.type entry,#function
+entry:
         /* Load .data section */
         ldr r0, =_data_load_addr
         ldr r1, =_data_virt_addr
@@ -67,4 +67,4 @@ _entry:
 2:
 
         b main
-.size _entry, .-_entry
+.size entry, .-entry

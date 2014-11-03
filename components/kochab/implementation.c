@@ -13,9 +13,9 @@ extern void {{function}}(void);
 {{/tasks}}
 
 /*| function_definitions |*/
-static void _yield(void);
-static void _block(void);
-static void _unblock({{prefix_type}}TaskId task);
+static void yield(void);
+static void block(void);
+static void unblock({{prefix_type}}TaskId task);
 static void preempt_enable(void);
 
 /*| state |*/
@@ -24,8 +24,8 @@ static volatile bool preempt_pending;
 
 /*| function_like_macros |*/
 #define preempt_disable()
-#define mutex_block_on(task) _block_on(task)
-#define mutex_unblock(task) _unblock(task)
+#define mutex_block_on(task) block_on(task)
+#define mutex_unblock(task) unblock(task)
 #define precondition_preemption_disabled()
 #define postcondition_preemption_disabled()
 #define postcondition_preemption_enabled()
@@ -41,7 +41,7 @@ entry_{{name}}(void)
 {{/tasks}}
 
 static void
-_yield(void)
+yield(void)
 {
     precondition_preemption_disabled();
     {
@@ -54,31 +54,31 @@ _yield(void)
 }
 
 static void
-_block(void)
+block(void)
 {
     precondition_preemption_disabled();
 
     sched_set_blocked(get_current_task());
-    _yield();
+    yield();
 
     postcondition_preemption_disabled();
 }
 
 {{#mutexes.length}}
 static void
-_block_on({{prefix_type}}TaskId t)
+block_on({{prefix_type}}TaskId t)
 {
     precondition_preemption_disabled();
 
     sched_set_blocked_on(get_current_task(), t);
-    _yield();
+    yield();
 
     postcondition_preemption_disabled();
 }
 {{/mutexes.length}}
 
 static void
-_unblock({{prefix_type}}TaskId task)
+unblock({{prefix_type}}TaskId task)
 {
     precondition_preemption_disabled();
 
@@ -102,7 +102,7 @@ preempt_enable(void)
     while (preempt_pending)
     {
         preempt_pending = false;
-        _yield();
+        yield();
     }
 
     postcondition_preemption_enabled();

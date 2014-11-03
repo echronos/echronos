@@ -10,14 +10,14 @@
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static void _yield_to(const {{prefix_type}}TaskId to) {{prefix_const}}REENTRANT;
-static void _block(void) {{prefix_const}}REENTRANT;
-static void _unblock(const {{prefix_type}}TaskId task);
+static void yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT;
+static void block(void) {{prefix_const}}REENTRANT;
+static void unblock({{prefix_type}}TaskId task);
 
 /*| state |*/
 
 /*| function_like_macros |*/
-#define _yield() {{prefix_func}}yield()
+#define yield() {{prefix_func}}yield()
 #define preempt_disable()
 #define preempt_enable()
 #define precondition_preemption_disabled()
@@ -25,7 +25,7 @@ static void _unblock(const {{prefix_type}}TaskId task);
 
 /*| functions |*/
 static void
-_yield_to(const {{prefix_type}}TaskId to) {{prefix_const}}REENTRANT
+yield_to(const {{prefix_type}}TaskId to) {{prefix_const}}REENTRANT
 {
     const {{prefix_type}}TaskId from = get_current_task();
     current_task = to;
@@ -33,14 +33,14 @@ _yield_to(const {{prefix_type}}TaskId to) {{prefix_const}}REENTRANT
 }
 
 static void
-_block(void) {{prefix_const}}REENTRANT
+block(void) {{prefix_const}}REENTRANT
 {
     sched_set_blocked(get_current_task());
     {{prefix_func}}yield();
 }
 
 static void
-_unblock(const {{prefix_type}}TaskId task)
+unblock(const {{prefix_type}}TaskId task)
 {
     sched_set_runnable(task);
 }
@@ -50,7 +50,7 @@ void
 {{prefix_func}}yield(void) {{prefix_const}}REENTRANT
 {
     {{prefix_type}}TaskId to = sched_get_next();
-    _yield_to(to);
+    yield_to(to);
 }
 
 void

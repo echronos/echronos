@@ -16,19 +16,19 @@ struct signal {
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static {{prefix_type}}SignalSet _signal_recv({{prefix_type}}SignalSet *const cur_task_signals, const {{prefix_type}}SignalSet mask);
+static {{prefix_type}}SignalSet signal_recv({{prefix_type}}SignalSet *pending_signals, {{prefix_type}}SignalSet requested_signals);
 
 /*| state |*/
 static struct signal signal_tasks;
 
 /*| function_like_macros |*/
-#define _signal_peek(pending_signals, requested_signals) (((pending_signals) & (requested_signals)) != {{prefix_const}}SIGNAL_SET_EMPTY)
-#define _signal_pending(task_id, mask) ((PENDING_SIGNALS(task_id) & mask) == mask)
+#define signal_peek(pending_signals, requested_signals) (((pending_signals) & (requested_signals)) != {{prefix_const}}SIGNAL_SET_EMPTY)
+#define signal_pending(task_id, mask) ((PENDING_SIGNALS(task_id) & mask) == mask)
 #define PENDING_SIGNALS(task_id) signal_tasks.tasks[task_id].signals
 
 /*| functions |*/
 static {{prefix_type}}SignalSet
-_signal_recv({{prefix_type}}SignalSet *const pending_signals, const {{prefix_type}}SignalSet requested_signals)
+signal_recv({{prefix_type}}SignalSet *const pending_signals, const {{prefix_type}}SignalSet requested_signals)
 {
     const {{prefix_type}}SignalSet received_signals = *pending_signals & requested_signals;
 
@@ -50,19 +50,19 @@ _signal_recv({{prefix_type}}SignalSet *const pending_signals, const {{prefix_typ
 
     preempt_disable();
 
-    if (_signal_peek(*pending_signals, requested_signals))
+    if (signal_peek(*pending_signals, requested_signals))
     {
-        _yield();
+        yield();
     }
     else
     {
         do
         {
-            _block();
-        } while (!_signal_peek(*pending_signals, requested_signals));
+            block();
+        } while (!signal_peek(*pending_signals, requested_signals));
     }
 
-    received_signals = _signal_recv(pending_signals, requested_signals);
+    received_signals = signal_recv(pending_signals, requested_signals);
 
     preempt_enable();
 
@@ -77,7 +77,7 @@ _signal_recv({{prefix_type}}SignalSet *const pending_signals, const {{prefix_typ
 
     preempt_disable();
 
-    received_signals = _signal_recv(pending_signals, requested_signals);
+    received_signals = signal_recv(pending_signals, requested_signals);
 
     preempt_enable();
 
@@ -87,7 +87,7 @@ _signal_recv({{prefix_type}}SignalSet *const pending_signals, const {{prefix_typ
 {{prefix_type}}SignalSet
 {{prefix_func}}signal_peek_set(const {{prefix_type}}SignalSet requested_signals)
 {
-    return _signal_peek(PENDING_SIGNALS(get_current_task()), requested_signals);
+    return signal_peek(PENDING_SIGNALS(get_current_task()), requested_signals);
 }
 
 void
@@ -98,7 +98,7 @@ void
     preempt_disable();
 
     PENDING_SIGNALS(task_id) |= signals;
-    _unblock(task_id);
+    unblock(task_id);
 
     preempt_enable();
 }

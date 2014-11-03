@@ -67,7 +67,7 @@ void
     while (!internal_sem_try_wait(s))
     {
         waiters[get_current_task()] = s;
-        _block();
+        block();
     }
 
     preempt_enable();
@@ -89,7 +89,7 @@ void
             if (waiters[t] == s)
             {
                 waiters[t] = SEM_ID_NONE;
-                _unblock(t);
+                unblock(t);
             }
         }
     }

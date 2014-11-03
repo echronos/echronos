@@ -14,9 +14,9 @@ struct interrupt_event_handler {
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static void _yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT;
-static void _block(void) {{prefix_const}}REENTRANT;
-static void _unblock({{prefix_type}}TaskId task);
+static void yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT;
+static void block(void) {{prefix_const}}REENTRANT;
+static void unblock({{prefix_type}}TaskId task);
 {{#interrupt_events.length}}
 static void handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id);
 {{/interrupt_events.length}}
@@ -38,7 +38,7 @@ struct interrupt_event_handler interrupt_events[{{interrupt_events.length}}] = {
 {{/interrupt_events.length}}
 
 /*| function_like_macros |*/
-#define _yield() {{prefix_func}}yield()
+#define yield() {{prefix_func}}yield()
 #define preempt_disable()
 #define preempt_enable()
 #define precondition_preemption_disabled()
@@ -53,7 +53,7 @@ struct interrupt_event_handler interrupt_events[{{interrupt_events.length}}] = {
 
 /*| functions |*/
 static void
-_yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT
+yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT
 {
     {{prefix_type}}TaskId from;
 
@@ -65,14 +65,14 @@ _yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT
 }
 
 static void
-_block(void) {{prefix_const}}REENTRANT
+block(void) {{prefix_const}}REENTRANT
 {
     sched_set_blocked(get_current_task());
     {{prefix_func}}yield();
 }
 
 static void
-_unblock({{prefix_type}}TaskId task)
+unblock({{prefix_type}}TaskId task)
 {
     sched_set_runnable(task);
 }
@@ -117,7 +117,7 @@ void
 {{prefix_func}}yield(void) {{prefix_const}}REENTRANT
 {
     {{prefix_type}}TaskId to = interrupt_event_get_next();
-    _yield_to(to);
+    yield_to(to);
 }
 
 void

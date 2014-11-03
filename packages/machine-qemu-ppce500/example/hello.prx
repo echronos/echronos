@@ -4,10 +4,7 @@
     <module name="ppce500.build" />
     <module name="ppce500.vectable" />
     <module name="ppce500.debug" />
-    <module name="generic.debug">
-      <ll_debug>ppce500_</ll_debug>
-      <prefix></prefix>
-    </module>
+    <module name="generic.debug" />
     <module name="generic.hello">
         <phrase>Hello, PowerPC!</phrase>
     </module>

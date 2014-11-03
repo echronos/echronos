@@ -4,10 +4,7 @@
 
     <module name="posix.build" />
     <module name="posix.debug" />
-    <module name="generic.debug">
-      <ll_debug>posix_</ll_debug>
-      <prefix></prefix>
-    </module>
+    <module name="generic.debug" />
 
     <module name="posix.rtos-acamar">
       <prefix>rtos</prefix>

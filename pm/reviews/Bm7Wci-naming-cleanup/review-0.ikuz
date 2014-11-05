@@ -5,16 +5,19 @@ Task name: Bm7Wci-naming-cleanup
 Version reviewed: 6e2cfe9c8e364bb4414781817cfc65dfa8bc47bf
 Reviewer: ikuz
 Date: 2014-11-03
-Conclusion: Accepted/Rework
-
-Overall comments:
-
+Conclusion: Rework
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: packages/armv7m/vectable.s:10
+Comment: [rework]
+It seems to me that "stack" is a globally visible symbol (default.ld refers to it), so should be renamed appropriately. 
 
-Location: filename:linenum
+Location: packages/armv7m/default.ld:34-36,50-51
 Comment:
+There are still some symbols with "_". why?
+
+Location: packages/armv7m/vectable.s:11
+Comment: [rework]
+The PPC version of "_entry" is "rtos_internal_entry" while the ARM is just "entry".  Why?

@@ -656,7 +656,8 @@ syscall_vector: b syscall_vector
 {{#system_call}}
 .error "The system call vector is not available on preemption-supporting systems"
 {{/system_call}}
-/* _yield_syscall(TaskId to, bool return_with_preempt_disabled) */
+/* On preemption-supporting systems this vector is used to implement the functionality of rtos_internal_yield_syscall,
+ * taking the exact same arguments that were passed to it, unchanged. */
 syscall_vector:
         irq_frame_create
 

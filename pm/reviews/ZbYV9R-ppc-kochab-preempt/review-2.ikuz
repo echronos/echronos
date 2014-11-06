@@ -14,3 +14,4 @@ Location: packages/ppce500/vectable.s:659
 Comment: [rework]
 The comment impleies tha this is the body of _yield_syscall(TaskId to, bool return_with_preempt_disabled), howver the function has been changed to: rtos_internal_yield_syscall(TaskId to, bool return_with_preempt_disabled).  Also the comment on its own is a bit unclear.  Maybe explicitly state that this implements the functionality of rtos    _internal_yield_syscall, or remove the comment altogether.
 
+[robs: Fixed]

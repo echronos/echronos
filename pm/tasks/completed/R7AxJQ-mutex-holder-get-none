@@ -1,0 +1,26 @@
+Task: R7AxJQ-mutex-holder-get-none
+==============================================================================
+
+Motivation
+----------
+
+The mutex_holder_get() API currently returns TASK_ID_NONE if called on a mutex with no holder.
+Since TASK_ID_NONE is an internally defined value, the user cannot currently check for this case.
+
+A trivial way to solve this would be to expose the definition for TASK_ID_NONE, which it would currently return in this case, but this is hazardous because the TaskId width is user-configurable via the prx file.
+It would arguably be better practice not to encode this special value in the return type at all.
+
+Note that currently, the only thing our customers use this API for is to check whether or not the current task is the holder of the mutex, so the API may be specialised to reflect this.
+
+
+Goals
+--------
+
+Rework mutex_holder_get() API so that the caller can identify whether or not they are the current holder of the mutex, if possible without exposing TASK_ID_NONE.
+
+
+Test Plan
+---------
+
+Existing regression tests.
+

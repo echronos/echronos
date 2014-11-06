@@ -152,11 +152,13 @@ bool
     return r;
 }
 
-RtosTaskId
-{{prefix_func}}mutex_holder_get(const {{prefix_type}}MutexId m)
+/* A macro implementation would be preferable to eliminate function call overhead when compilers don't support implicit
+ * inlining, but at present this would involve exposing too many implementation internals in the public API header. */
+bool
+{{prefix_func}}mutex_holder_is_current(const {{prefix_type}}MutexId m)
 {
     assert_mutex_valid(m);
-    return mutexes[m].holder;
+    return mutexes[m].holder == get_current_task();
 }
 
 {{#mutex.stats}}

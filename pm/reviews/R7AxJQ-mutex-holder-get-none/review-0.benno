@@ -1,0 +1,49 @@
+Breakaway Task Review
+=======================
+
+Task name: R7AxJQ-mutex-holder-get-none
+Version reviewed: aba5236002cb06b65e2ec5ba5c3795f0732917d0
+Reviewer: benno
+Date: 2014-10-23
+Conclusion: Rework
+
+Overall comments: (From email correspondence -robs.)
+
+I'm not sure I'm on board with this change for the following reasons:
+
+1) I believe that the formal verification team has trouble with verification of pointers passed to functions like this.
+
+2) Passing function pointers makes for a significantly less efficient calling convention in both space and time.
+
+I think I didn't read an earlier thread carefully enough.
+What is the main motivation for not encoding TASK_ID_NONE?
+
+Also, I think for the primary usage "check if the current thread holds the mutex", the change make it now become multiple checks:
+
+e.g:
+
+TaskId holder;
+bool held = get_mutex_holder(MUTEX_ID, &holder);
+assert(held && holder == get_current_thread());
+
+vs:
+
+assert(get_mutex_holder(MUTEX_ID) == get_current_thread());
+
+Possibly if the only real-world usage of get_mutex_holder() is to check it is held by the current thread, we could specialise the API just for that?
+
+From the FreeRTOS documentation as another reference:
+
+http://www.freertos.org/xSemaphoreGetMutexHolder.html
+
+xSemaphoreGetMutexHolder() can be used reliably to determine if the calling task is the mutex holder, but cannot be used reliably if the mutex is held by any task other than the calling task.
+
+Given that kind of API in another popular RTOS, I think a smaller API such as mutex_is_held() which returns True iff the mutex is held by the current task, would be the better approach.
+(We can bikeshed the name some more potentially).
+
+I just verified in our usages with customer that the only time we check the holder is to verify that it is held by the current task.
+
+I also check another project I've worked on recently, which used FreeRTOS, and in that case, the only usage was to check the current task did (or did not) hold the mutex.
+
+
+[robs: Yep, looks like the SMACCM usages for this are all specifically to determine whether the holder of the mutex is the current task and to do/assert things based on that, so I will submit a rework that specialises the API accordingly.]

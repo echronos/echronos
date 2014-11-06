@@ -1,0 +1,19 @@
+Breakaway Task Review
+=======================
+
+Task name: R7AxJQ-mutex-holder-get-none
+Version reviewed: c0aa11dac6e6f18a374888b7b5aef3ccb18d7b12
+Reviewer: stg
+Date: 2014-10-27
+Conclusion: Rework
+
+Specific comments
+=================
+
+Location: components/blocking-mutex/implementation.c:156
+Comment 1: Rework
+Is there a strong reason to offer this functionality as a function?
+Since this is such a small function, the function call overhead is probably significant compared to the functionality itself.
+Since we need to take compilers into account which cannot implicitly inline functions, I recommend to convert this function to a preprocessor macro.
+
+[robs: As discussed, converting it to a macro means exposing a lot of internals in the public API header (the TaskIdOption typedef, the struct mutex definition, and symbols for current_task and the mutexes[] array), plus we'd lose the internal assertion check version of get_current_task() unless we were willing to expose that in the header too.]

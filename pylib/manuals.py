@@ -3,7 +3,7 @@ import shutil
 import subprocess
 import sys
 
-from .utils import BASE_DIR, get_host_platform_name, get_executable_extension
+from .utils import BASE_DIR, base_path, get_host_platform_name, get_executable_extension
 from .components import build
 
 
@@ -71,10 +71,10 @@ def build_manual(pkg_dir, verbose=False):
     pandoc_cmd = [pandoc_executable,
                   '--write', 'html',
                   '--standalone',
-                  '--template=' + os.path.abspath(os.path.join('docs', 'manual_template',
-                                                               'documentation_template.html')),
-                  '--css=' + os.path.relpath(os.path.join('docs', 'manual_template',
-                                                          'documentation_stylesheet.css'),
+                  '--template=' + os.path.abspath(base_path('docs', 'manual_template',
+                                                            'documentation_template.html')),
+                  '--css=' + os.path.relpath(base_path('docs', 'manual_template',
+                                                       'documentation_stylesheet.css'),
                                              pkg_dir).replace(os.path.sep, '/'),
                   '--toc', '--toc-depth=2'] +\
                  ['-V{}={}'.format(key, value) for key, value in doc_vars.items()] +\
@@ -93,9 +93,9 @@ def build_manual(pkg_dir, verbose=False):
                '--margin-left', '20',
                '--margin-right', '20',
                '--header-spacing', '5',
-               '--header-html', os.path.join('docs', 'manual_template', 'documentation_header.html'),
+               '--header-html', base_path('docs', 'manual_template', 'documentation_header.html'),
                '--footer-spacing', '5',
-               '--footer-html', os.path.join('docs', 'manual_template', 'documentation_footer.html'),
+               '--footer-html', base_path('docs', 'manual_template', 'documentation_footer.html'),
                '--replace', 'docid', 'Document ID: {}'.format(doc_vars['docid']),
                html_file,
                pdf_file]

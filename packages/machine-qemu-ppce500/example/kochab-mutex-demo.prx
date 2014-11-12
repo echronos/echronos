@@ -2,7 +2,6 @@
 <system>
   <modules>
     <module name="ppce500.build" />
-    <module name="ppce500.ctxt-switch" />
     <module name="ppce500.default-linker" />
     <module name="ppce500.interrupts-util" />
     <module name="ppce500.vectable">

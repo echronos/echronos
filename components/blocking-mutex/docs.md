@@ -166,12 +166,11 @@ This API transitions a mutex into the *available* state, unblocks all blocked ta
 On preemptive systems, this API may cause a task switch whereas on non-preemptive systems it does not.
 
 
-### <span class="api">mutex_holder_get</span>
+### <span class="api">mutex_holder_is_current</span>
 
-<div class="codebox">RtosTaskId mutex_holder_get(MutexId mutex);</div>
+<div class="codebox">bool mutex_holder_is_current(MutexId mutex);</div>
 
-This API returns which task is the holder of the specified mutex at the time the API is called.
-If no task holds the mutex, the API returns [TASK_ID_NONE].
+This API returns whether the current task is the holder of the specified mutex at the time the API is called.
 
 
 /*| doc_configuration |*/

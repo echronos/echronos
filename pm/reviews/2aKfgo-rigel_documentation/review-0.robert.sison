@@ -26,6 +26,8 @@ Location: components/signal/docs.md:43
 Comment 3: Rework
 Unaddressed FIXME comment at this location.
 
+[stg: issue had already been addressed but not removed]
+
 Location: pylib/manuals.py:102
 Comment 4: Rework
 -    if verbose:

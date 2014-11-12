@@ -40,8 +40,6 @@ For this purpose, the RTOS defines the constants [`SIGNAL_ID_<label>` and `SIGNA
 They allow to refer to individual signals by name and to construct signal sets from individual signals.
 Although signals and signal sets are internally represented as numbers, applications neither need nor should make assumptions about those numeric values of signals.
 
-<!-- FIXME: document global vs. task signals (Rigel specific) -->
-
 Also see the [Signal Scopes] Section for more information on the set of tasks that signals may be used with.
 
 /*| doc_api |*/

@@ -37,3 +37,5 @@ Comment 4: Rework
 -    if verbose:
 +    if verbose or True:
 Should this be reverted?
+
+[stg: reverted]

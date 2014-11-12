@@ -85,7 +85,8 @@ interrupt_event_handle(const {{prefix_type}}InterruptEventId interrupt_event_id)
 
 /* entry point trampolines */
 {{#tasks}}
-void _task_entry_{{name}}(void)
+static void
+entry_{{name}}(void)
 {
     {{^start}}{{prefix_func}}signal_wait({{prefix_const}}SIGNAL_ID__RTOS_UTIL);{{/start}}
     {{function}}();
@@ -123,7 +124,7 @@ void
     message_queue_init();
 
     {{#tasks}}
-    context_init(get_task_context({{idx}}), _task_entry_{{name}}, stack_{{idx}}, {{stack_size}});
+    context_init(get_task_context({{idx}}), entry_{{name}}, stack_{{idx}}, {{stack_size}});
     sched_set_runnable({{idx}});
     {{/tasks}}
 

@@ -5,16 +5,4 @@ Task name: RdkHUk-interrupt-event-signal
 Version reviewed: c683825f3605006efc488358a613b6154e286d00
 Reviewer: stg
 Date: 2014-11-12
-Conclusion: Accepted/Rework
-
-Overall comments:
-
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Conclusion: Accepted

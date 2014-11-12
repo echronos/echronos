@@ -109,8 +109,6 @@ Across two different RTOS and applications builds, the ID for the same mutex may
 
 ### `MUTEX_ID_ZERO` and `MUTEX_ID_MAX`
 
-<!-- FIMXE: de-duplicate this across components with IDs -->
-
 The IDs of all mutexes are guaranteed to be a contiguous integer range between `MUTEX_ID_ZERO` and `MUTEX_ID_MAX`.
 Applications may iterate over all mutexes via `for (id = MUTEX_ID_ZERO; id <= MUTEX_ID_MAX; id += 1)`.
 Also, they may associate information with mutexes, for example as follows:

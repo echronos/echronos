@@ -18,6 +18,8 @@ Location: components/blocking-mutex/docs.md:112
 Comment 1: Rework
 Unaddressed FIXME ('FIMXE'?) comment at this location.
 
+[stg: removed comment because issue is in backlog]
+
 Location: components/context-switch-non-preemptive/docs.md
 Comment 2: Rework
 Looks like this file's been committed with DOS-style line endings.

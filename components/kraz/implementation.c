@@ -18,10 +18,6 @@ static void unblock({{prefix_type}}TaskId task);
 
 /*| function_like_macros |*/
 #define yield() {{prefix_func}}yield()
-#define preempt_disable()
-#define preempt_enable()
-#define precondition_preemption_disabled()
-#define postcondition_preemption_disabled()
 
 /*| functions |*/
 static void
@@ -49,7 +45,7 @@ unblock(const {{prefix_type}}TaskId task)
 void
 {{prefix_func}}yield(void) {{prefix_const}}REENTRANT
 {
-    {{prefix_type}}TaskId to = sched_get_next();
+    const {{prefix_type}}TaskId to = sched_get_next();
     yield_to(to);
 }
 

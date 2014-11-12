@@ -1,0 +1,25 @@
+Breakaway Task Review
+=======================
+
+Task name: ZbYV9R-ppc-kochab-preempt
+Version reviewed: fc6baf5d81cf28136550d40ceab5ce9271aa6013
+Reviewer: stg
+Date: 2014-10-20
+Conclusion: Rework
+
+Overall comments:
+Be mindful about single-use functions (such as signal_send_set() for rigel).
+On some target platforms, the overhead of a single function call (more in terms of code size than execution time) is relevant.
+Unfortunately, on some of the same target platforms, the compiler and linker do not unroll single-use functions.
+We therefore might need to either convert single-use functions to macros or unroll them manually into the call site for lower overhead.
+I just wanted to make you aware of this consideration, but you do not need to rework anything about that at this point.
+
+
+Specific comments
+=================
+
+Location: components/kochab/implementation.c:29
+Comment 1: Rework
+Line needs to be indented with 4 spaces instead of 1.
+
+[robs: Whoops sorry, fixed]

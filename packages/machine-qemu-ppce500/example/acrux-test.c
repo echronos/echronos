@@ -3,12 +3,19 @@
 #include <stdint.h>
 
 #include "rtos-acrux.h"
-
-extern void debug_println(const char *msg);
+#include "debug.h"
 
 void
 tick_irq(void)
 {
+    asm volatile(
+        /* Write-1-to-clear:
+         *   In TSR (timer status register)
+         *     TSR[FIS] (fixed-interval timer interrupt status) */
+        "lis %%r3,0x400\n"
+        "mttsr %%r3\n"
+        ::: "r3");
+
     rtos_interrupt_event_raise(0);
 }
 

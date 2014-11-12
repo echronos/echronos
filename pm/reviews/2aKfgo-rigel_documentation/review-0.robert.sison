@@ -24,6 +24,8 @@ Location: components/context-switch-non-preemptive/docs.md
 Comment 2: Rework
 Looks like this file's been committed with DOS-style line endings.
 
+[stg: changed line breaks to UNIX style]
+
 Location: components/signal/docs.md:43
 Comment 3: Rework
 Unaddressed FIXME comment at this location.

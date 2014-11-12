@@ -3,7 +3,6 @@ OUTPUT_ARCH(powerpc)
 ENTRY(rtos_internal_entry)
 SECTIONS
 {
-        .ro_start = .;
         .vectors :
         { *(.vectors) }
 
@@ -12,8 +11,6 @@ SECTIONS
 
         .rodata :
         { *(.rodata*) }
-
-        .ro_end = ALIGN(4);
 
         .data :
         {

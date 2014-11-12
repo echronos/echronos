@@ -7,7 +7,7 @@
 .section .vectors, "a"
 .global rtos_internal_vector_table
 rtos_internal_vector_table:
-        .word stack
+        .word rtos_internal_stack
         .word entry
         .word {{nmi}}
         .word {{hardfault}}
@@ -46,9 +46,9 @@ Specifically, this loads the .data section from flash in to SRAM, and then zeros
 .type entry,#function
 entry:
         /* Load .data section */
-        ldr r0, =_data_load_addr
-        ldr r1, =_data_virt_addr
-        ldr r2, =_data_size
+        ldr r0, =rtos_internal_data_load_addr
+        ldr r1, =rtos_internal_data_virt_addr
+        ldr r2, =rtos_internal_data_size
 1:      cbz r2, 2f
         ldm r0!, {r3}
         stm r1!, {r3}
@@ -57,8 +57,8 @@ entry:
 2:
 
         /* Zero .bss section */
-        ldr r1, =_bss_virt_addr
-        ldr r2, =_bss_size
+        ldr r1, =rtos_internal_bss_virt_addr
+        ldr r2, =rtos_internal_bss_size
         mov r3, #0
 1:      cbz r2, 2f
         stm r1!, {r3}

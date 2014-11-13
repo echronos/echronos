@@ -5,16 +5,12 @@ Task name: Bm7Wci-naming-cleanup
 Version reviewed: ba047320e6cd151bae751515ec44d49c72656991
 Reviewer: stg
 Date: 2014-11-12
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
 Overall comments:
 
+- reviewed changes since review-0
 
-Specific comments
-=================
+- checked that no symbols with leading underscores remain
 
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+- checked that no global symbols without an rtos_internal_ prefix remain

@@ -4,11 +4,11 @@
 #define SEM_ID_NONE ((SemIdOption) UINT8_MAX)
 #define SEM_ID_ZERO (({{prefix_type}}SemId) UINT8_C(0))
 #define SEM_ID_MAX (({{prefix_type}}SemId) UINT8_C({{semaphores.length}}))
-#define SEM_VALUE_ZERO ((SemValue) UINT8_C(0))
+#define SEM_VALUE_ZERO ((SemValue) UINT{{semvalue_size}}_C(0))
 
 
 /*| type_definitions |*/
-typedef uint8_t SemValue;
+typedef uint{{semvalue_size}}_t SemValue;
 typedef {{prefix_type}}SemId SemIdOption;
 
 /*| structure_definitions |*/

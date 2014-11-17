@@ -1,0 +1,27 @@
+Task: 9BXmof-sem-max-init
+==============================================================================
+
+Motivation
+----------
+
+On a customer project, semaphore limits are configured and checked against by the user at runtime to help the system designer assert that the maximum isn't exceeded.
+At the time this required hacks to expose semaphore implementation internals.
+
+Instead, we would like to optionally allow the user to initialize the semaphore maximum so that the RTOS can trigger a fatal error if the user ever posts past it.
+This API should be optional in the sense that if it is not required, the associated code should be compiled out and not take up any extra image space.
+
+Incidentally, on that same customer project we need a semaphore width greater than the one currently hardcoded by simple-semaphore, and making this configurable via the XML is rather straightforward and will grant better flexibility.
+
+
+Goals
+--------
+
+Add an optional API that supports runtime configuration of semaphore limits that cause a fatal error if exceeded.
+Also enable the semaphore value width to be configurable via the .prx file.
+
+
+Test Plan
+---------
+
+Enable sem_max_init API for and add a test case to sem-max-demo that triggers a fatal error by posting too much.
+Existing regression tests should ensure I didn't break anything on systems that don't use sem_max_init.

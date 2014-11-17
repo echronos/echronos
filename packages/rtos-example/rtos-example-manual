@@ -196,6 +196,8 @@ This system demonstrates the eChronos/kochab semaphore functionality:
 
   Part 2 shows that if two tasks are both blocked waiting on a semaphore, the higher priority task (A) will be woken in preference to the lower priority task (B) when some other task (Z) posts to the semaphore, regardless of whether task (A) or task (B) attempted to wait on the semaphore first.
 
+  Part 3 demonstrates that if the user posts to the semaphore more times than the runtime-initialized maximum value, the RTOS will trigger a fatal error.
+
 There is no LED activity in this system, only debug prints via GDB.
 The following is the expected output of the semaphore demo, continuing from a breakpoint set at `rtos_start`:
 
@@ -204,6 +206,7 @@ The following is the expected output of the semaphore demo, continuing from a br
 
     Part 0: Solo
 
+    a: initializing maximum
     a: V
     a: P (should succeed)
     a: trying P (should fail)
@@ -275,4 +278,17 @@ The following is the expected output of the semaphore demo, continuing from a br
     z: V
     b: finally awake. sending signal to a
 
-    Done.
+    Part 3: A posts past maximum and triggers fatal error
+
+    a: P
+    a: P
+    a: P
+    a: P
+    a: P
+    a: P
+    a: P
+    a: P
+    a: P
+    a: P
+    a: trying P (should trigger fatal error)
+    FATAL ERROR: <hexadecimal error code for ERROR_ID_SEMAPHORE_MAX_EXCEEDED - see rtos-variant.h>

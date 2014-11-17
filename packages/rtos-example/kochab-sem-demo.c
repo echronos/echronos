@@ -24,6 +24,9 @@ fn_a(void)
     debug_println("Part 0: Solo");
     debug_println("");
 
+    debug_println("a: initializing maximum");
+    rtos_sem_max_init(RTOS_SEM_ID_sem0, DEMO_PRODUCTION_LIMIT);
+
     debug_println("a: V");
     rtos_sem_post(RTOS_SEM_ID_sem0);
 
@@ -91,8 +94,20 @@ fn_a(void)
     debug_println("a: should again wake up before b. waiting on signal");
     rtos_signal_wait_set(RTOS_SIGNAL_ID_DEMO_HELPER);
 
+    /* Part 3: A posts past maximum and triggers fatal error */
     debug_println("");
-    debug_println("Done.");
+    debug_println("Part 3: A posts past maximum and triggers fatal error");
+    debug_println("");
+
+    for (i = 0; i < DEMO_PRODUCTION_LIMIT; i++) {
+        debug_println("a: P");
+        rtos_sem_post(RTOS_SEM_ID_sem0);
+    }
+
+    debug_println("a: trying P (should trigger fatal error)");
+    rtos_sem_post(RTOS_SEM_ID_sem0);
+
+    debug_println("a: shouldn't be here!");
     for (;;)
     {
     }

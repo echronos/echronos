@@ -10,18 +10,14 @@
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static void _yield_to(const {{prefix_type}}TaskId to) {{prefix_const}}REENTRANT;
+static void _yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT;
 static void _block(void) {{prefix_const}}REENTRANT;
-static void _unblock(const {{prefix_type}}TaskId task);
+static void _unblock({{prefix_type}}TaskId task);
 
 /*| state |*/
 
 /*| function_like_macros |*/
 #define _yield() {{prefix_func}}yield()
-#define preempt_disable()
-#define preempt_enable()
-#define precondition_preemption_disabled()
-#define postcondition_preemption_disabled()
 
 /*| functions |*/
 static void
@@ -49,7 +45,7 @@ _unblock(const {{prefix_type}}TaskId task)
 void
 {{prefix_func}}yield(void) {{prefix_const}}REENTRANT
 {
-    {{prefix_type}}TaskId to = sched_get_next();
+    const {{prefix_type}}TaskId to = sched_get_next();
     _yield_to(to);
 }
 

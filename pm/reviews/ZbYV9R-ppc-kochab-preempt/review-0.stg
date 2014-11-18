@@ -1,0 +1,287 @@
+Breakaway Task Review
+=======================
+
+Task name: ZbYV9R-ppc-kochab-preempt
+Version reviewed: 9a7e0e8e79c20a94acedebabc4038a639d25fffd
+Reviewer: stg
+Date: 2014-09-22
+Conclusion: Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: components/context-preempt-ppce500/implementation.c:11-13
+Comment 1: Rework
+These interrupt related functions are included in the RTOS header file since they are declared in the extern_definitions section.
+However, since they are not meant to be used by applications, they should not be visible in the RTOS header file.
+Therefore, they should move into the function_definitions section, so they are declared only internally and not in an application-visible file.
+
+[robs: Fixed]
+
+Location: components/context-preempt-ppce500/implementation.c:11-13
+Comment 2: Rework
+These interrupt related functions have the naming pattern <verb>_<noun>.
+This contradicts the standard RTOS naming pattern <noun>_<verb>.
+Therefore, these functions should be renamed to, e.g., rtos_internal_interrupts_disable()
+
+[robs: Fixed]
+
+Location: components/context-preempt-ppce500/implementation.c:21-23
+Comment 3: Rework
+These interrupt related macros have the naming pattern <verb>_<noun>.
+This contradicts the standard RTOS naming pattern <noun>_<verb>.
+Therefore, these macros should be renamed to, e.g., interrupts_disable()
+
+[robs: Fixed]
+
+Location: components/context-preempt-ppce500/implementation.c:92
+Comment 4: Question/Rework
+The function ppce500_context_preempt_first() is declared and defined as global instead of static.
+However, it is not apparent why it needs to be global.
+To avoid name-space pollution, it would be preferable to make it a static function.
+Please change it to static or document why it cannot be static.
+In the latter case, it should be prefixed with 'rtos_internal_'.
+
+[robs: Thanks for spotting all these.
+This is an artifact from when I was originally had a once-only ``syscall_first'' vector calling it from asm.
+I soon realized it was unnecessary, but forgot to make the function static again.]
+
+Location: components/context-preempt-ppce500/implementation.c:98-99
+Comment 5: Question/Rework
+The variables preempt_disabled and preempt_pending are declared and defined as volatile uint8_t.
+Looking at their use, bool seems a more appropriate type for them.
+Please document why these variables need to have the type uint8_t or change it to bool.
+
+[robs: Sorry, an artifact from when these were being touched from asm and we needed to know the read/store width.
+I'll make them into bools.]
+
+Location: components/context-preempt-ppce500/implementation.c:98-99
+Comment 6: Question/Rework
+The variables preempt_disabled and preempt_pending are declared and defined as volatile uint8_t.
+Looking at their use, it does not seem as if they need to be accessible to applications.
+Please document why these variables need to be public or change them to static variables.
+If they need to remain public, they need to receive the standard RTOS prefix to avoid name-space pollution.
+
+[robs: An artifact of when these were touched from a separate asm file, these can become static now.]
+
+Location: components/context-preempt-ppce500/implementation.c:3
+Comment 7: Question/Rework
+It appears to me that the declarations in the header sections do not require stddef.h to be included.
+Please remove it unless it is required.
+
+[robs: Fixed]
+
+Location: components/context-preempt-ppce500/implementation.c:62-64
+Comment 8: Question/Rework
+These internal functions are declared in the extern_definitions section which makes them publicly visible to applications in the RTOS header file.
+However, since they are internal functions, applications should not use them.
+Therefore, their declarations should not be visible to applications.
+Therefore, they need to be declared in the function_definitions section instead.
+
+[robs: Fixed]
+
+Location: components/context-preempt-ppce500/implementation.c:90
+Comment 9: Rework
+The declaration of the context_init() function marks its function arguments as const.
+However, by convention, const qualifiers for pass-by-value arguments must only be specified in function definitions, not their declarations.
+Therefore, the const qualifiers of the function arguments need to be removed.
+
+[robs: Fixed; and removed from the similar declaration in context-switch-ppce500 too]
+
+Location: components/context-preempt-ppce500/implementation.c:117ff
+Comment 10: Rework
+The function definition of ppce500_yield_common() and following functions does not establish full const correctness for its function arguments.
+As per convention, const qualifiers need to be added for maximum const correctness of function arguments.
+
+[robs: Fixed]
+
+Location: packages/ppce500/vectable.s:2-3
+Comment 11: Rework
+The imported package logging and the variable logger are unused.
+Please remove them.
+
+[robs: Fixed; removed from their new location at default-linker.py:2-3]
+
+Location: packages/ppce500/vectable.s and others
+Comment 12: Rework
+The code duplication between the vector tables with and without preemption support is striking and less than ideal from a maintenance perspective.
+How about making the preemption support a configurable feature that can be controlled via a configuration item?
+
+[robs: I've rolled them back together and made preemption a module-level toggle config, hope the rework is satisfactory]
+
+Location: packages/ppce500/vectable-preempt.s:140 and others
+Comment 13: Rework
+The "should_not_be_here" mechanism to put a run-away ISR into an endless loop is inappropriate in my opinion because it does not lead to a more useful system behavior.
+I recommend to improve this area.
+At the very least, it is unnecessary (I believe) that each vector has its own such loop and they could rather branch to a common label that is shared between all of the vectors.
+Another alternative is to simply remove this code entirely because an ISR in a tight loop is about as easy to debug as a run-away ISR.
+Another alternative is to call the fatal_error() function because its purpose is to cover exactly such cases.
+
+[robs: Fixed; just decided to remove them]
+
+Location: components/context-preempt-ppce500/implementation.c:3
+Comment 14: Rework
+The file does not include header files for all declarations it uses, such as the type bool.
+Please make sure for all files that are part of this branch that all header files are included that contain referenced declarations, such as stdbool.h for bool and stddef.h for size_t.
+
+[robs: Fixed]
+
+Location: components/context-preempt-ppce500/implementation.c:63-65
+Comment 15: Rework
+In an earlier comment I asked for these functions to be moved into the function_definitions section.
+Unfortunately, my interpretation of the extern_definitions section was wrong:
+functions declared therein are not exposed in the header file.
+Therefore, these declarations should be moved back into the extern_definitions section.
+Apologies about that.
+
+[robs: Fixed]
+
+Location: components/context-preempt-ppce500/implementation.c:124
+Comment 16: Rework
+The automatic variable 'to' is declared in a bigger scope than necessary.
+Since it is only used inside the body of the while loop, that is where it needs to be declared.
+It can then also be declared as a constant.
+
+[robs: Fixed]
+
+Location: components/context-preempt-ppce500/implementation.c:188
+Comment 17: Rework
+The function preempt_irq_invoke_scheduler() has only a single call site.
+This produces unnecessary run-time and code-space overhead with compilers that do not support inlining.
+I therefore recommend to remove the function itself and move its functionality to the call site.
+
+[robs: yield_common has been recently restructured for clarity and can now make good use of this helper as was originally intended before it was mangled by my overzealous and premature quest for cycle savings.]
+
+Location: components/context-preempt-ppce500/implementation.c:213
+Comment 18: Rework
+The function preempt_irq_handler_wrapper() takes a function pointer as a function argument.
+However, the use of function pointers is strongly discouraged in the RTOS due to execution and code space overhead and because it makes it more difficult to apply formal methods.
+I therefore recommend to avoid this function pointer in a manner that you see fit.
+I think that one approach could be to simply call the handler function outside of the preempt_irq_handler_wrapper() function and pass in its return value as a function argument into preempt_irq_handler_wrapper().
+
+[robs: Done]
+
+Location: components/context-preempt-ppce500/implementation.c:213
+Comment 19: Rework
+The function preempt_irq_handler_wrapper() is globally visible but has no RTOS specific name prefix which pollutes the global namespace.
+Please add the rtos_internal_ prefix to this function name to avoid the name space pollution and to match similar functions.
+
+[robs: Done]
+
+Location: components/context-preempt-ppce500/implementation.c:213
+Comment 20: Rework
+The variable initial_preempt_disabled is not modified in its scope and should therefore be declared and defined as a constant.
+
+[robs: Done]
+
+Location: components/context-preempt-ppce500/implementation.c:251
+Comment 21: Rework
+The function ppce500_context_preempt() and other functions below are declared as static but defined as global.
+Please make sure that declaration and definition are consistent and correct.
+
+[robs: Fixed]
+
+Location: components/context-preempt-ppce500/implementation.c:256
+Comment 22: Rework
+The data pointed to by the from pointer is not modified in its scope.
+It should therefore be declared as `const context_t *from`.
+
+[robs: Assuming you meant context_t *const from; fixed]
+
+Location: components/context-preempt-ppce500/implementation.c:279
+Comment 23: Rework
+The variable restore_volatiles is defined in an unnecessarily large scope.
+It should be moved into the same scope as the ctxt_to variable.
+
+[robs: Done]
+
+Location: components/context-preempt-ppce500/implementation.c:284
+Comment 24: Rework
+The variable ctxt_to is not modified within the scope it is declared in.
+It should therefore be declared as a constant.
+
+[robs: Done]
+
+Location: components/context-preempt-ppce500/implementation.c:294
+Comment 25: Rework
+This block should be simplified to `restore_volatiles = (ctxt_to[CONTEXT_PREEMPT_RESTORE_STATUS] & PREEMPT_RESTORE_VOLATILES);`
+
+[robs: Done]
+
+Location: components/context-preempt-ppce500/implementation.c:308
+Comment 26: Rework
+The variables init_context and context are not modified in their scope and should thus be declared and defined as constants.
+
+[robs: Fixed here and also in context-switch-ppce500/implementation.c]
+
+Location: components/interrupt-event-ppce500/implementation.c
+Comment 27: Rework
+This file contains instances of the 'inline' keyword which is compiler specific.
+It is RTOS policy to have only standards-compliant C code that is not compiler specific.
+Please remove the inline keyword words and potentially convert the functions to macros as you see fit.
+
+[robs: Fixed]
+
+Location: components/interrupt-event-ppce500/implementation.c:47
+Comment 28: Rework
+FIXME, TODO, and similar comments are not acceptable in code to be integrated.
+Please address the underlying issue or rephrase the comment if FIXME is not actually appropriate (as is the case in this instance).
+Please go through all files and ensure that they do not contain such comments.
+
+[robs: Fixed]
+
+Location: components/acrux/implementation.c:13 following
+Comment 29: Rework
+The interrupt-related functions rtos_internal_interrupts_disable/enable/wait(void) and the related macros are only available and used on ppce500.
+Therefore, they must not be declared in the platform-agnostic acrux component.
+Please rearrange this code so that generic components do not contain platform-specific code.
+
+[robs: Fixed]
+
+Location: components/context-preempt-ppce500/implementation.c:135
+Comment 30: Rework
+The variable to is not modified within its scope and should therefore be a constant.
+
+[robs: Done]
+
+Location: components/context-preempt-ppce500/implementation.c:242 and others
+Comment 31: Rework
+The file contains several lines longer than the conventional maximum line length of 120 characters.
+Please break such long lines as appropriate.
+
+[robs: Fixed]
+
+Location: components/kochab/implementation.c:91
+Comment 32: Rework
+The function `handle_interrupt_event()` does not follow the conventional naming pattern <noun>_<verb>.
+Please rename this function to, e.g., interrupt_event_handle().
+
+[robs: Fixed, renamed]
+
+Location: components/kochab/implementation.c:91
+Comment 33: Rework
+The argument `interrupt_event_id` of the function `handle_interrupt_event()` and the variables `task` and `sig_set` are not modified within their scope.
+They should therefore be declared as constant.
+Please also ensure full const correctness of all functions in the rest of this file and all files touched on this branch.
+
+[robs: Done]
+
+Location: components/kochab/implementation.c:95
+Comment 34: Rework
+The variables `task` and `sig_set` are used only once within their scope, their names do not convey additional information about their purpose, and there appears to be on benefit to their existence.
+Please remove these variables.
+
+[robs: Removed here and in rigel]
+
+Location: components/kochab/schema.xml:9
+Comment 35: Question/Rework
+Rigel and Kochab share the same mechanism of translating interrupt events to signal sets.
+However, the configuration of interrupt events is different in the two variants, in particular in that Kochab does not require task names to be valid task names and that signals are specified as integers, not labels.
+These differences seem quite arbitrary and somewhat inconsistent.
+Would it be possible to bring these two variants more in line with each other for consistency and ease of use?
+Would it maybe even be possible to share the signal-based interrupt event code and configuration information via a separate component instead of duplicating it?
+
+[robs: Fixed, made them consistent and will bring them together in a future task]

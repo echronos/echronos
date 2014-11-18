@@ -120,7 +120,7 @@ extern void ppce500_context_switch_first(context_t *) {{prefix_const}}REENTRANT;
  * @param stack_base Points to the lowest address of the memory area this execution context shall use as a stack.
  * @param stack_size The size in bytes of the stack memory area reserved for this execution context.
  */
-static void context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack_base, const size_t stack_size);
+static void context_init(context_t *ctx, void (*fn)(void), uint32_t *stack_base, size_t stack_size);
 
 /*| state |*/
 
@@ -132,9 +132,9 @@ static void context_init(context_t *const ctx, void (*const fn)(void), uint32_t 
 static void
 context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack_base, const size_t stack_size)
 {
-    uint32_t *context, *init_context;
+    uint32_t *const init_context = stack_base + stack_size - CONTEXT_HEADER_SIZE;
+    uint32_t *const context = init_context - CONTEXT_FRAME_SIZE;
 
-    init_context = stack_base + stack_size - CONTEXT_HEADER_SIZE;
     /**
      * Set up an initial stack frame header containing just the back chain word and the LR save word.
      * The EABI specification requires that the back chain be NULL-terminated.
@@ -149,7 +149,6 @@ context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack
      * The EABI spec requires that the back chain word always points to the previous frame's back chain word field.
      * LR save and back chain words in this frame are ignored by ppce500_context_switch (ctxt-switch.s)
      */
-    context = init_context - CONTEXT_FRAME_SIZE;
     context[CONTEXT_BC_IDX] = (uint32_t) &init_context[CONTEXT_BC_IDX];
     *ctx = context;
 }

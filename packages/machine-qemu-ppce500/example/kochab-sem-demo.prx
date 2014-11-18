@@ -3,7 +3,11 @@
   <modules>
     <module name="ppce500.build" />
     <module name="ppce500.ctxt-switch" />
-    <module name="ppce500.vectable" />
+    <module name="ppce500.default-linker" />
+    <module name="ppce500.interrupts-util" />
+    <module name="ppce500.vectable">
+      <preemption>true</preemption>
+    </module>
     <module name="ppce500.debug" />
     <module name="generic.debug">
       <ll_debug>ppce500_</ll_debug>
@@ -11,6 +15,8 @@
     </module>
 
     <module name="ppce500.rtos-kochab">
+      <internal_asserts>true</internal_asserts>
+      <fatal_error>fatal</fatal_error>
       <prefix>rtos</prefix>
       <taskid_size>8</taskid_size>
       <signalset_size>8</signalset_size>

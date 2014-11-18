@@ -10,27 +10,25 @@
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static void handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id);
+static void interrupt_event_handle({{prefix_type}}InterruptEventId interrupt_event_id);
 
 /*| state |*/
 
 /*| function_like_macros |*/
-#define preempt_disable()
-#define preempt_enable()
 #define interrupt_event_id_to_taskid(interrupt_event_id) (({{prefix_type}}TaskId)(interrupt_event_id))
 
 /*| functions |*/
 static void
-handle_interrupt_event({{prefix_type}}InterruptEventId interrupt_event_id)
+interrupt_event_handle(const {{prefix_type}}InterruptEventId interrupt_event_id)
 {
     sched_set_runnable(interrupt_event_id_to_taskid(interrupt_event_id));
 }
 
 /*| public_functions |*/
 void
-{{prefix_func}}yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT
+{{prefix_func}}yield_to(const {{prefix_type}}TaskId to) {{prefix_const}}REENTRANT
 {
-    {{prefix_type}}TaskId from = get_current_task();
+    const {{prefix_type}}TaskId from = get_current_task();
     current_task = to;
     context_switch(get_task_context(from), get_task_context(to));
 }
@@ -38,7 +36,7 @@ void
 void
 {{prefix_func}}yield(void) {{prefix_const}}REENTRANT
 {
-    {{prefix_type}}TaskId to = interrupt_event_get_next();
+    const {{prefix_type}}TaskId to = interrupt_event_get_next();
     {{prefix_func}}yield_to(to);
 }
 
@@ -50,7 +48,7 @@ void
 }
 
 void
-{{prefix_func}}unblock({{prefix_type}}TaskId task)
+{{prefix_func}}unblock(const {{prefix_type}}TaskId task)
 {
     sched_set_runnable(task);
 }

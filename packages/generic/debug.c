@@ -5,7 +5,7 @@
   </headers>
   <schema>
    <entry name="prefix" type="c_ident" default="" />
-   <entry name="ll_debug" type="c_ident" default="" />
+   <entry name="ll_debug" type="c_ident" default="rtos_internal_" />
   </schema>
 </module>*/
 

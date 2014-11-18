@@ -1,0 +1,23 @@
+Task: Bm7Wci-naming-cleanup
+==============================================================================
+
+Motivation
+----------
+
+The current development head contains many instances of functions and macros named with a single-underscore prefix, which is reserved by the C standard `for use as identifiers with file scope in both the ordinary and tag name spaces`.
+However even if we're allowed to use them, we are not doing this consistently and we might as well get rid of them in the cases where they are not exposed globally.
+
+Furthermore, the name prefixing of internal global functions exposed to/by assembly files is not currently consistent, and they should all be made to follow a common RTOS-specific prefix like `rtos_internal_`.
+Allowing this prefix to be .prx-configurable from a single setting will require a further task that upgrades the prj tool to support exposing a single xml tag to the pystache environment for multiple files.
+
+
+Goals
+--------
+
+Make function naming consistent by getting rid of single-underscore prefixes for function and macro names, and ensuring all global functions are prefixed, at least for the time being, with `rtos_internal_`.
+
+
+Test Plan
+---------
+
+Existing regression tests.

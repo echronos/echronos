@@ -23,13 +23,16 @@
 #define COUNT_DELAY 50000000
 #define SMALL_DELAY 50000
 
+#define exception_preempt_disabled rtos_internal_exception_preempt_disabled
+#define exception_preempt_pending rtos_internal_exception_preempt_pending
+
 extern void debug_println(const char *msg);
 
 static RtosTaskId yield_next;
 static uint8_t ticks;
 
-extern volatile uint8_t exception_preempt_disabled;
-extern volatile uint8_t exception_preempt_pending;
+extern volatile uint8_t rtos_internal_exception_preempt_disabled;
+extern volatile uint8_t rtos_internal_exception_preempt_pending;
 
 void
 special_yield(void)

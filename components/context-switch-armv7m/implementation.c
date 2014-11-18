@@ -21,9 +21,9 @@ typedef uint32_t* context_t;
 /*| structure_definitions |*/
 
 /*| extern_definitions |*/
-extern void armv7m_context_switch(context_t *, context_t *) {{prefix_const}}REENTRANT;
-extern void armv7m_context_switch_first(context_t *) {{prefix_const}}REENTRANT;
-extern void armv7m_trampoline(void);
+extern void rtos_internal_context_switch(context_t *, context_t *) {{prefix_const}}REENTRANT;
+extern void rtos_internal_context_switch_first(context_t *) {{prefix_const}}REENTRANT;
+extern void rtos_internal_trampoline(void);
 
 /*| function_definitions |*/
 /**
@@ -54,8 +54,8 @@ static void context_init(context_t *const ctx, void (*const fn)(void), uint32_t 
 /*| state |*/
 
 /*| function_like_macros |*/
-#define context_switch(from, to) armv7m_context_switch(to, from)
-#define context_switch_first(to) armv7m_context_switch_first(to)
+#define context_switch(from, to) rtos_internal_context_switch(to, from)
+#define context_switch_first(to) rtos_internal_context_switch_first(to)
 
 /*| functions |*/
 static void
@@ -64,7 +64,7 @@ context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack
     uint32_t *context;
     context = stack_base + stack_size - CONTEXT_SIZE;
     context[CONTEXT_V1_IDX] = (uint32_t) fn;
-    context[CONTEXT_PC_IDX] = (uint32_t) armv7m_trampoline;
+    context[CONTEXT_PC_IDX] = (uint32_t) rtos_internal_trampoline;
     *ctx = context;
 }
 

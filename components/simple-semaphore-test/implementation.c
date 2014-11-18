@@ -25,7 +25,7 @@ static {{prefix_type}}TaskId (*get_current_task_ptr)(void);
 
 /*| functions |*/
 static void
-_block(void) {{prefix_const}}REENTRANT
+block(void) {{prefix_const}}REENTRANT
 {
     if (block_ptr != NULL)
     {
@@ -34,7 +34,7 @@ _block(void) {{prefix_const}}REENTRANT
 }
 
 static void
-_unblock({{prefix_type}}TaskId task_id)
+unblock({{prefix_type}}TaskId task_id)
 {
     if (unblock_ptr != NULL)
     {

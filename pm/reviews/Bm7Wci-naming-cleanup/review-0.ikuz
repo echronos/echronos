@@ -1,0 +1,29 @@
+Breakaway Task Review
+=======================
+
+Task name: Bm7Wci-naming-cleanup
+Version reviewed: 6e2cfe9c8e364bb4414781817cfc65dfa8bc47bf
+Reviewer: ikuz
+Date: 2014-11-03
+Conclusion: Rework
+
+Specific comments
+=================
+
+Location: packages/armv7m/vectable.s:10
+Comment: [rework]
+It seems to me that "stack" is a globally visible symbol (default.ld refers to it), so should be renamed appropriately. 
+
+[robs: Fixed]
+
+Location: packages/armv7m/default.ld:34-36,50-51
+Comment:
+There are still some symbols with "_". why?
+
+[robs: Fixed]
+
+Location: packages/armv7m/vectable.s:11
+Comment: [rework]
+The PPC version of "_entry" is "rtos_internal_entry" while the ARM is just "entry".  Why?
+
+[robs: The PPC entry address needs to be global so that we can give it to the linker script, but on ARM we instead give the vector table address to the linker script, which is why we have prefixed vector_table instead of entry with rtos_internal_ in the ARM case.]

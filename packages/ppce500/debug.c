@@ -1,4 +1,4 @@
 void
-ppce500_debug_putc(const char c)
+rtos_internal_debug_putc(const char c)
 {
 }

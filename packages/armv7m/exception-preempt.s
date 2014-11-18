@@ -109,7 +109,7 @@ trampoline_completion:
          * actually occurs.
          */
         mov r1, #1
-        ldr r2, =exception_preempt_pending
+        ldr r2, =rtos_internal_exception_preempt_pending
         strb r1, [r2]
 
         /*
@@ -124,7 +124,7 @@ trampoline_completion:
          * This has to be performed atomically, otherwise a nested exception
          * could incorrectly cause multiple preemptions.
          */
-        ldr r2, =exception_preempt_disabled
+        ldr r2, =rtos_internal_exception_preempt_disabled
         cpsid i
         ldrb r0, [r2]
         strb r1, [r2]
@@ -160,21 +160,21 @@ exception_return:
         bx lr
 
 {{#trampolines}}
-.global exception_preempt_trampoline_{{name}}
-.type exception_preempt_trampoline_{{name}},#function
-exception_preempt_trampoline_{{name}}:
+.global rtos_internal_exception_preempt_trampoline_{{name}}
+.type rtos_internal_exception_preempt_trampoline_{{name}},#function
+rtos_internal_exception_preempt_trampoline_{{name}}:
         /* Note: We don't care about saving the value of r0 (it is scratch), but
            it is important to keep the stack 8-byte aligned, so push it as a dummy */
         push {r0, lr}
         bl {{handler}}
         b trampoline_completion
-.size exception_preempt_trampoline_{{name}}, .-exception_preempt_trampoline_{{name}}
+.size rtos_internal_exception_preempt_trampoline_{{name}}, .-rtos_internal_exception_preempt_trampoline_{{name}}
 {{/trampolines}}
 
 .data
-.global exception_preempt_disabled
-exception_preempt_disabled:
+.global rtos_internal_exception_preempt_disabled
+rtos_internal_exception_preempt_disabled:
 	.byte 0
-.global exception_preempt_pending
-exception_preempt_pending:
+.global rtos_internal_exception_preempt_pending
+rtos_internal_exception_preempt_pending:
 	.byte 0

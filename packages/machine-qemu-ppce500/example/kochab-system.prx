@@ -12,10 +12,7 @@
       </fixed_interval_timer>
     </module>
     <module name="ppce500.debug" />
-    <module name="generic.debug">
-      <ll_debug>ppce500_</ll_debug>
-      <prefix></prefix>
-    </module>
+    <module name="generic.debug" />
 
     <module name="ppce500.rtos-kochab">
       <internal_asserts>true</internal_asserts>

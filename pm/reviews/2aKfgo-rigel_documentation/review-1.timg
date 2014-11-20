@@ -4,17 +4,252 @@ Breakaway Task Review
 Task name: 2aKfgo-rigel_documentation
 Version reviewed: 4aad75af6b6fa5ba0df320d42bd10f72a5f22760
 Reviewer: timg
-Date: 2014-11-18
-Conclusion: Accepted/Rework
+Date: 2014-11-20
+Conclusion: Rework
 
 Overall comments:
-
+The American-English standard should be added to our list of conventions.
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: components/blocking-mutex/docs.md:10
+Comment: A comma should be added after "`input` and `result`".
 
-Location: filename:linenum
-Comment:
+Location: components/blocking-mutex/docs.md:36
+Comment: Consider adding a comma after "In a system with preemption".
+
+Location: components/blocking-mutex/docs.md:43
+Comment: This code sample is indented, whereas the others are not.  Was this relying on Markdown's code formatting before <pre> tags were added?
+
+Location: components/blocking-mutex/docs.md:85
+Comment: Should "CRC" be inside backticks rather than asterisks?
+
+Location: components/blocking-mutex/docs.md:87
+Comment: "numeric value" should be "numeric values".
+
+Location: components/blocking-mutex/docs.md:89
+Comment: "As any other objects" should be "As with any other objects".
+
+Location: components/blocking-mutex/docs.md:112
+Comment: The code example on the following line makes it clear that the range is inclusive, but it might still be a good idea to make it explicit here, e.g. "a contiguous integer range between `MUTEX_ID_ZERO` and `MUTEX_ID_MAX`, inclusive".
+
+Location: components/blocking-mutex/docs.md:138
+Comment: "the calling task successfully" should be changed to "the calling has task successfully".
+
+Location: components/error/docs.md:25
+Comment: "check a wide range (but not all) requirements" should be changed to "check a wide range of (but not all) requirements".
+
+Location: components/error/docs.md:43
+Comment: "function that the application" should be changed to "function which the application".
+Comment: Consider adding a comma after "to the [`fatal_error`] function".
+
+Location: components/error/docs.md:44
+Comment: "RTOS implementation" should be hyphenated.
+
+Location: components/error/docs.md:52, 53, 61, 62
+Comment: "true" and "false" are inside asterisks here, but when used elsewhere in the documentation they are unformatted.  This formatting should be either removed from this file, or propagated to all others, for the sake of consistency.
+
+Location: components/interrupt-event/docs.md:7
+Comment: "transitions into interrupt context" might need an article, e.g. "transitions into the interrupt context".
+
+Location: components/interrupt-event/docst.md:8
+Comment: "ISR" is used here (and in components/rigel/docs.md), while other documentation files use the full "interrupt service routine" phrase.  Whichever version is preferred, usage should be consistent across the documentation.
+
+Location: components/interrupt-event/docs.md:15
+Comment: Consider adding a comma after "invilved in handling interrupts".
+
+Location: components/interrupt-event/docs.md:19
+Comment: A comma should be added after "is not accessible to ISRs".
+
+Location: components/interrupt-event/docs.md:21
+Comment: "bears" is not the correct verb to use here.  Maybe "creates the risk/possibility"?
+
+Location: components/interrupt-event/docs.md:27
+Comment: "minimise" should be Americanized.
+
+Location: components/interrupt-event/docs.md:34
+Comment: "e.g." should be followed by a comma, rather than a colon, for consistency with the other documentation.
+
+Location: components/interrupt-event/docs.md:35
+Comment: Consider adding a comma after "increment value".
+
+Location: components/interrupt-event/docs.md:36
+Comment: "tasks" needs an apostrophe, i.e. "when the task's write instruction"
+
+Location: components/interrupt-event/docs.md:42
+Comment: "e.g." should be followed by a comma, rather than a colon, for consistency with the other documentation.
+Comment: I haven't seen any other instances throughout the documentation of multiple code statements on a single line.  Consider making this a multi-line code block for consistency and clarity.
+Comment: Consider adding a semicolon after the third statement ("interrupt_enable()"), especially if this is broken into multiple lines.
+
+Location: components/interrupt-event/docs.md:43
+Comment: Consider changing "disable interrupts and enable interrupts" to "disable and enable interrupts".
+
+Location: components/interrupt-event/docs.md:45
+Comment: Consider adding a comma after "called with interrupts enabled".
+
+Location: components/interrupt-event/docs.md:49
+Comment: Consider adding a comma after "thus requires particular care".
+
+Location: components/interrupt-event/docs.md:51
+Comment: Consider changing "low latency, so the" to "low latency, and so the" or "low latency, and thus the".
+
+Location: components/interrupt-event/docs.md:54
+Comment: "it would corrupt RTOS state" should be changed to "it would corrupt the RTOS state".
+Comment: "behaviour" should be Americanized.
+
+Location: components/interrupt-event/docs.md:57
+Comment: The "a" article should be removed frmo "a [Interrupt Events]".
+
+Location: components/interrupt-event/docs.md:76
+Comment: "Application" should be plural, i.e., "Applications should treat"
+
+Location: components/interrupt-event/docs.md:82
+Comment: The comma after "configures at run time" should be removed.
+
+Location: components/interrupt-event/docs.md:83
+Comment: Should "application" be capitalized, i.e., "In some Application scenarios"?
+
+Location: components/interrupt-event/docs.md:84
+Comment: "In that case" should be changed to "In those cases" or "In these cases".
+
+Location: components/interrupt-event/docs.md:85
+Comment: "the task to signal an interrupt event to" needs to be rearranged and/or rewritten; it's almost impossible to read.
+
+Location: components/interrupt-event/docs.md:86
+Comment: "In that case" should be changed to "In those cases" or "In these cases".
+
+Location: components/message-queue/docs.md:7
+Comment: "concurrency-safe" doesn't need to be hyphenated.
+
+Location: components/message-queue/docs.md:8
+Comment: Consider adding a comma after "accessing shared data structures".
+
+Location: components/message-queue/docs.md:27
+Comment: "the application retrieved" should be changed to "the application has retrieved" or "the application retrieves".
+
+Location: components/message-queue/docs.md:38
+Comment: Consider changing "for all its slots" to 'for all of its slots".
+
+Location: components/message-queue/docs.md:39
+Comment: "occupies" might be a more accurate word than "consumes".
+
+Location: components/message-queue/docs.md:40
+Comment: "for shorter than longer messages" should be changed to "for shorter than for longer messages" to remove ambiguity.
+
+Location: components/message-queue/docs.md:67
+Comment: This sentence ends in a preposition.  Consider "a message of the size with which the message queue is configured".
+
+Location: components/message-queue/docs.md:79
+Comment: Consider adding a comma after "[`MESSAGE_QUEUE_ID_<name>`] constants".
+
+Location: components/message-queue/docs.md:81
+Comment: This sentence ends in a preposition.  Consider "a message of the size with which the message queue is configured".
+
+Location: components/message-queue/docs.md:113
+Comment: Consider adding a comma after "whether or not a time-out occurred".
+
+Location: components/message-queue/docs.md:120
+Comment: Consider adding a comma after "message queue contains a message".
+
+Location: components/preempt-null/docs.md:6
+Comment: A comma should be added after "control of the CPU".
+
+Location: components/preempt-null/docs.md:20
+Comment: Commas should be added, i.e. "There are cases, however, when" or "However, there are cases when".
+
+Location: components/rigel/docs.md:192
+Comment: Consider changing "implicitly assumes the value false" to "implicitly assumes the value to be false".
+
+Location: components/sched-rr/docs.md:26
+Comment: "behaviour" should be Americanized.
+
+Location: components/sched-rr/docs.md:28
+Comment: "behaviour" should be Americanized.
+
+Location: components/signal/docs.md:6
+Comment: "Signals are a flexible mechanism that helps tasks" is awkward.  "are" suggests plural, which would dictate that "help" is the correct form of the verb.  It would be simpler if the mechanism had a different name, such as "signaling", because "Signals is a mechanism" sounds equally awkward.  As it stands, "are" and "helps" are incompatible while they refer to the same subject.  I don't know what the best solution is, and maybe there isn't one.  My suggestion would be "Signals are a flexible mechanism that help tasks".
+
+Location: components/signal/docs.md:8, 9
+Comment: "data" is used in the signular, i.e. "data is" and "data becomes", and should be plural (I don't know if we care about this; realistically, both forms are acceptable).
+
+Location: components/signal/docs.md:11
+Comment: Consider adding a comma after "while it waits".
+
+Location: components/signal/docs.md:35
+Comment: "entirely free define signals" should be changed to "entirely free to define signals".
+
+Location: components/signal/docs.md:40
+Comment: "They allow to refer" is missing an object.  One should be added (i.e., "They allow X to refer"), or if there is no appropriate word, consider "They allow reference to individual signals".
+
+Location: components/signal/docs.md:43
+Comment: This sentence ends with a preposition, which I won't put up with.  Consider "the set of tasks with which signals may be used."
+
+Location: components/signal/docs.md:55
+Comment: "i.e." is followed by a colon.  Consider using a comma instead, mostly for consistency with the rest of this documentation.
+
+Location: components/signal/docs.md:83
+Comment: "returns all the task's" should be changed to "returns all of the task's".
+
+Location: components/signal/docs.md:142
+Comment: "behaviour" should be Americanized.
+
+Location: components/task/docs.md:14
+Comment: "behaviour" should be Americanized.
+
+Location: components/task/docs.md:124
+Comment: "important aspect for constructing" should be changed to "important aspect of constructing".
+
+Location: components/task/docs.md:131
+Comment: "mechanisms so the task" should be changed to "mechanisms so that the task".
+
+Location: components/task/docs.md:163
+Comment: The colon after "e.g." should be changed to a comma, to be consistent with the rest of the documentation.
+
+Location: components/task/docs.md:202
+Comment: "item with not default" should be changed to "item with no default".
+
+Location: components/task/docs.md:217
+Comment: Consider changing "determines if a task" to "determines whether a task".
+
+Location: components/timer/docs.md:8
+Comment: "timer objects that allows a task" should be "timer objects that allow a task", or perhaps "timer objects that allow tasks".
+
+Location: components/timer/docs.md:12
+Comment: "All the time-based" should be "All of the time-based".
+
+Location: components/timer/docs.md:23
+Comment: A comma should be added after "that the system has been running for".
+
+Location: components/timer/docs.md:27
+Comment: "such a sending a signal" should be "such as sending a signal".
+
+Location: components/timer/docs.md:30
+Comment: "tick value that says how many" should be "tick value, which says how many".
+
+Location: components/timer/docs.md:33
+Comment: "behaviour" should be Americanized.
+
+Location: components/timer/docs.md:35
+Comment: "behaviour" should be Americanized.
+
+Location: components/timer/docs.md:71
+Comment: "10 tick" should be hyphenated, i.e. "A 10-tick one-shot timer".
+
+Location: components/timer/docs.md:96
+Comment: "is used to represents a number" should be "is used to represent a number".
+
+Location: components/timer/docs.md:98
+Comment: "27 minutes" should be possessive, i.e. "27 minutes' worth of ticks".
+
+Location: components/timer/docs.md:130
+Comment: "behaviour" should be Americanized.
+
+Location: components/timer/docs.md:169
+Comment: "initialise" should be Americanized.
+
+Location: components/timer/docs.md:201
+Comment: Consider changing "determines if the timer" to "determines whether the timer".
+
+Location: components/timer/docs.md:209
+Comment: "initialise" should be Americanized.

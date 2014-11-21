@@ -140,6 +140,7 @@ static volatile bool preempt_disabled = true;
 static volatile bool preempt_pending;
 
 /*| function_like_macros |*/
+#define preempt_init()
 #define preempt_disable() preempt_disabled = true
 #define preempt_pend() preempt_pending = true
 #define preempt_clear() preempt_pending = false

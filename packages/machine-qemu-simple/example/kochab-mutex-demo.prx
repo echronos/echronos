@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <modules>
+    <module name="armv7m.build" />
+    <module name="armv7m.ctxt-switch-preempt" />
+    <module name="armv7m.exception-preempt" />
+    <module name="armv7m.vectable">
+      <pendsv>rtos_internal_pendsv_handler</pendsv>
+      <svcall>rtos_internal_svc_handler</svcall>
+    </module>
+    <module name="armv7m.semihost-debug" />
+    <module name="generic.debug" />
+
+    <module name="armv7m.rtos-kochab">
+      <internal_asserts>true</internal_asserts>
+      <fatal_error>fatal</fatal_error>
+      <prefix>rtos</prefix>
+      <taskid_size>8</taskid_size>
+      <signalset_size>8</signalset_size>
+
+      <signal_labels>
+
+        <signal_label>
+          <name>demo_p1</name>
+        </signal_label>
+        <signal_label>
+          <name>demo_p2</name>
+        </signal_label>
+        <signal_label>
+          <name>demo_p3</name>
+        </signal_label>
+        <signal_label>
+          <name>demo_p4</name>
+        </signal_label>
+        <signal_label>
+          <name>demo_p5</name>
+        </signal_label>
+
+      </signal_labels>
+
+      <tasks>
+
+        <task>
+          <name>a</name>
+          <function>fn_a</function>
+          <priority>30</priority>
+          <stack_size>64</stack_size>
+        </task>
+
+        <task>
+          <name>b</name>
+          <function>fn_b</function>
+          <priority>10</priority>
+          <stack_size>64</stack_size>
+        </task>
+
+        <task>
+          <name>y</name>
+          <function>fn_y</function>
+          <priority>7</priority>
+          <stack_size>64</stack_size>
+        </task>
+
+        <task>
+          <name>z</name>
+          <function>fn_z</function>
+          <priority>2</priority>
+          <stack_size>64</stack_size>
+        </task>
+
+      </tasks>
+
+      <mutexes>
+        <mutex>
+          <name>m0</name>
+        </mutex>
+        <mutex>
+          <name>m1</name>
+        </mutex>
+        <mutex>
+          <name>m2</name>
+        </mutex>
+        <mutex>
+          <name>m3_1</name>
+        </mutex>
+        <mutex>
+          <name>m3_2</name>
+        </mutex>
+        <mutex>
+          <name>m4</name>
+        </mutex>
+        <mutex>
+          <name>m5</name>
+        </mutex>
+      </mutexes>
+      <mutex>
+        <stats>false</stats>
+      </mutex>
+
+    </module>
+
+    <!-- main .c file: -->
+    <module name="rtos-example.kochab-mutex-demo" />
+
+  </modules>
+</system>

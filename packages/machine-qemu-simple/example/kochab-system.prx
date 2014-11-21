@@ -1,27 +1,31 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <system>
   <modules>
-    <module name="ppce500.build" />
-    <module name="ppce500.default-linker" />
-    <module name="ppce500.interrupts-util" />
-    <module name="ppce500.vectable">
-      <preemption>true</preemption>
-      <fixed_interval_timer>
-        <handler>tick_irq</handler>
-        <preempting>true</preempting>
-      </fixed_interval_timer>
+    <module name="armv7m.build" />
+    <module name="armv7m.ctxt-switch-preempt" />
+    <module name="armv7m.exception-preempt">
+      <trampolines>
+        <trampoline>
+          <name>systick</name>
+          <handler>tick_irq</handler>
+        </trampoline>
+      </trampolines>
     </module>
-    <module name="ppce500.debug" />
+    <module name="armv7m.vectable">
+      <pendsv>rtos_internal_pendsv_handler</pendsv>
+      <svcall>rtos_internal_svc_handler</svcall>
+      <systick>rtos_internal_exception_preempt_trampoline_systick</systick>
+    </module>
+    <module name="armv7m.semihost-debug" />
     <module name="generic.debug" />
 
-    <module name="ppce500.rtos-kochab">
+    <module name="armv7m.rtos-kochab">
       <internal_asserts>true</internal_asserts>
       <fatal_error>fatal</fatal_error>
       <prefix>rtos</prefix>
       <taskid_size>8</taskid_size>
       <signalset_size>8</signalset_size>
       <tasks>
-
         <task>
           <name>a</name>
           <function>fn_a</function>
@@ -66,10 +70,9 @@
       <mutex>
         <stats>false</stats>
       </mutex>
-
     </module>
 
-    <module name="machine-qemu-ppce500.example.kochab-test" />
+    <module name="machine-qemu-simple.example.kochab-test" />
 
   </modules>
 </system>

@@ -12,6 +12,7 @@
 
     <module name="ppce500.rtos-kochab">
       <internal_asserts>true</internal_asserts>
+      <api_asserts>true</api_asserts>
       <fatal_error>fatal</fatal_error>
       <sem_max_init>true</sem_max_init>
       <prefix>rtos</prefix>

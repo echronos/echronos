@@ -5,6 +5,7 @@
 
 /*| public_type_definitions |*/
 typedef uint8_t {{prefix_type}}SemId;
+typedef uint{{semvalue_size}}_t {{prefix_type}}SemValue;
 
 /*| public_structure_definitions |*/
 
@@ -22,5 +23,5 @@ void {{prefix_func}}sem_post({{prefix_type}}SemId);
 bool {{prefix_func}}sem_try_wait({{prefix_type}}SemId);
 void {{prefix_func}}sem_wait({{prefix_type}}SemId) {{prefix_const}}REENTRANT;
 {{#sem_max_init}}
-void {{prefix_func}}sem_max_init({{prefix_type}}SemId s, int max);
+void {{prefix_func}}sem_max_init({{prefix_type}}SemId s, {{prefix_type}}SemValue max);
 {{/sem_max_init}}

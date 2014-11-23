@@ -4,22 +4,21 @@
 #define SEM_ID_NONE ((SemIdOption) UINT8_MAX)
 #define SEM_ID_ZERO (({{prefix_type}}SemId) UINT8_C(0))
 #define SEM_ID_MAX (({{prefix_type}}SemId) UINT8_C({{semaphores.length}}))
-#define SEM_VALUE_ZERO ((SemValue) UINT{{semvalue_size}}_C(0))
+#define SEM_VALUE_ZERO (({{prefix_type}}SemValue) UINT{{semvalue_size}}_C(0))
 {{#sem_max_init}}
-#define SEM_VALUE_MAX ((SemValue) UINT{{semvalue_size}}_MAX)
+#define SEM_VALUE_MAX (({{prefix_type}}SemValue) UINT{{semvalue_size}}_MAX)
 {{/sem_max_init}}
 
 
 /*| type_definitions |*/
-typedef uint{{semvalue_size}}_t SemValue;
 typedef {{prefix_type}}SemId SemIdOption;
 
 /*| structure_definitions |*/
 
 struct semaphore {
-    SemValue value;
+    {{prefix_type}}SemValue value;
 {{#sem_max_init}}
-    SemValue max;
+    {{prefix_type}}SemValue max;
 {{/sem_max_init}}
 };
 
@@ -127,16 +126,12 @@ bool
 
 {{#sem_max_init}}
 void
-{{prefix_func}}sem_max_init(const {{prefix_type}}SemId s, const int max)
+{{prefix_func}}sem_max_init(const {{prefix_type}}SemId s, const {{prefix_type}}SemValue max)
 {
-    if (semaphores[s].max != SEM_VALUE_ZERO) {
-        {{fatal_error}}(ERROR_ID_SEMAPHORE_MAX_ALREADY_INIT);
-    }
+    assert_sem_valid(s);
 
-    if (max > SEM_VALUE_MAX) {
-        {{fatal_error}}(ERROR_ID_SEMAPHORE_MAX_EXCEEDED);
-    }
+    api_assert(semaphores[s].max == SEM_VALUE_ZERO, ERROR_ID_SEMAPHORE_MAX_ALREADY_INIT);
 
-    semaphores[s].max = (SemValue)max;
+    semaphores[s].max = max;
 }
 {{/sem_max_init}}

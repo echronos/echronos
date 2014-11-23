@@ -20,3 +20,5 @@ Location: components/simple-semaphore/header.h:25
 in 
 void {{prefix_func}}sem_max_init({{prefix_type}}SemId s, int max);
 is 'int' big enough.  Should it be SemValue?
+
+[robs: Fixed]

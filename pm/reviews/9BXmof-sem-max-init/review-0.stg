@@ -15,15 +15,21 @@ Comment 1: Rework
 Like the other semaphore API functions, this function should check whether the parameter `s` is a valid semaphore ID via the `assert_sem_valid()` function.
 This helps users to catch API errors.
 
+[robs: Fixed]
+
 Location: componentssimple-semaphoreimplementation.c:130
 Comment 2: Rework
 What is the advantage of the `max` parameter of the `sem_init_max()` function being an integer (in particular a signed one)?
 `SemValue` is the more appropriate type in my opinion because it eliminates the range check and type casting in `sem_init_max()`.
 
+[robs: Fixed]
+
 Location: componentssimple-semaphoreimplementation.c:133
 Comment 3: Rework
 The `ERROR_ID_SEMAPHORE_MAX_ALREADY_INIT` error is an API usage error.
 It should therefore be raised as an API assertion.
+
+[robs: Fixed]
 
 Location: componentssimple-semaphoreschema.xml:1-2
 Comment 4: Rework

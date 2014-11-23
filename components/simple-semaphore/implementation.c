@@ -4,10 +4,10 @@
 #define SEM_ID_NONE ((SemIdOption) UINT8_MAX)
 #define SEM_ID_ZERO (({{prefix_type}}SemId) UINT8_C(0))
 #define SEM_ID_MAX (({{prefix_type}}SemId) UINT8_C({{semaphores.length}}))
-#define SEM_VALUE_ZERO (({{prefix_type}}SemValue) UINT{{semvalue_size}}_C(0))
-{{#sem_max_init}}
-#define SEM_VALUE_MAX (({{prefix_type}}SemValue) UINT{{semvalue_size}}_MAX)
-{{/sem_max_init}}
+#define SEM_VALUE_ZERO (({{prefix_type}}SemValue) UINT{{semaphore_value_size}}_C(0))
+{{#semaphore_enable_max}}
+#define SEM_VALUE_MAX (({{prefix_type}}SemValue) UINT{{semaphore_value_size}}_MAX)
+{{/semaphore_enable_max}}
 
 
 /*| type_definitions |*/
@@ -17,9 +17,9 @@ typedef {{prefix_type}}SemId SemIdOption;
 
 struct semaphore {
     {{prefix_type}}SemValue value;
-{{#sem_max_init}}
+{{#semaphore_enable_max}}
     {{prefix_type}}SemValue max;
-{{/sem_max_init}}
+{{/semaphore_enable_max}}
 };
 
 /*| extern_definitions |*/
@@ -87,11 +87,11 @@ void
 
     preempt_disable();
 
-{{#sem_max_init}}
+{{#semaphore_enable_max}}
     if (semaphores[s].value >= semaphores[s].max) {
         {{fatal_error}}(ERROR_ID_SEMAPHORE_MAX_EXCEEDED);
     }
-{{/sem_max_init}}
+{{/semaphore_enable_max}}
 
     if (semaphores[s].value == SEM_VALUE_ZERO)
     {
@@ -124,7 +124,7 @@ bool
     return r;
 }
 
-{{#sem_max_init}}
+{{#semaphore_enable_max}}
 void
 {{prefix_func}}sem_max_init(const {{prefix_type}}SemId s, const {{prefix_type}}SemValue max)
 {
@@ -134,4 +134,4 @@ void
 
     semaphores[s].max = max;
 }
-{{/sem_max_init}}
+{{/semaphore_enable_max}}

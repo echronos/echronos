@@ -36,3 +36,11 @@ Comment 4: Rework
 Please make the configuration item `semvalue_size` a sub-item of a `semaphore` configuration item of type `dict` and rename it to `value_size`, similar to the configuration of the mutex and profiling components.
 The item `sem_max_init` should also be moved and renamed to, e.g., `enable_max` for clarity.
 This makes it easier to add and manage further configuration items in the future and makes the naming more consistent and intuitive.
+
+[robs: As we discussed offline, the problem with this method is that the child XML elements of a "dict" element don't automatically get instantiated as dictionary entries.
+This means that all must be declared explicitly in the .prx file regardless of their default values in the schema.
+An example of this is in the blocking-mutex schema, the dict "mutex" with boolean child element "stats", default "true".
+Currently we have to declare <mutex><stats>(false or true)</stats></mutex> in every system .prx file of every RTOS variant that uses blocking mutexes, even if we don't want mutex stats to be enabled.
+This may have passed unnoticed so far since Rigel and Kochab are presently the only such variants, and the Rigel systems all have mutex stats explicitly enabled in their .prx file.
+Fixing this will presumably mean a prj task to instantiate XML child elements as dictionary entries with their default values, when they (or the parent XML dict element) are not explicitly declared in the .prx file.
+For the time being I'll rename these new configuration items to have prefix "semaphore_", so their relationship to each other is much clearer.]

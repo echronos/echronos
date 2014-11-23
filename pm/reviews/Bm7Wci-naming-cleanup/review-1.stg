@@ -1,0 +1,16 @@
+Breakaway Task Review
+=======================
+
+Task name: Bm7Wci-naming-cleanup
+Version reviewed: ba047320e6cd151bae751515ec44d49c72656991
+Reviewer: stg
+Date: 2014-11-12
+Conclusion: Accepted
+
+Overall comments:
+
+- reviewed changes since review-0
+
+- checked that no symbols with leading underscores remain
+
+- checked that no global symbols without an rtos_internal_ prefix remain

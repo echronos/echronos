@@ -65,7 +65,7 @@ extern void rtos_internal_restore_preempted_context(bool restore_volatiles, cont
 
 /*| function_definitions |*/
 /**
- * Common helper for context-switching due to an internal _yield or preempt_enable.
+ * Common helper for context-switching due to an internal yield or preempt_enable.
  *
  * @param return_with_preempt_disabled A bool indicating whether this function should return with preemption disabled.
  */
@@ -75,7 +75,7 @@ static void yield_common(bool return_with_preempt_disabled);
  * Trigger a context-switch to the next task runnable as determined by the scheduler.
  * Intended to be used by the RTOS internally after taking actions that change the set of schedulable tasks.
  */
-static void _yield(void);
+static void yield(void);
 
 /**
  * Enable preemption, and in doing so, cause any pending preemption to happen immediately.
@@ -181,7 +181,7 @@ yield_common(const bool return_with_preempt_disabled)
 }
 
 static void
-_yield(void)
+yield(void)
 {
     precondition_preemption_disabled();
 

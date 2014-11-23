@@ -1,9 +1,8 @@
 OUTPUT_FORMAT("elf32-powerpc", "elf32-powerpc", "elf32-powerpcle")
 OUTPUT_ARCH(powerpc)
-ENTRY(_entry)
+ENTRY(rtos_internal_entry)
 SECTIONS
 {
-        .ro_start = .;
         .vectors :
         { *(.vectors) }
 
@@ -12,8 +11,6 @@ SECTIONS
 
         .rodata :
         { *(.rodata*) }
-
-        .ro_end = ALIGN(4);
 
         .data :
         {
@@ -32,7 +29,6 @@ SECTIONS
 
         .stack : {
                . = . + {{stack_size}};
-               _stack = .;
         }
 
         /* Debug sections */

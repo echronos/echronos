@@ -1,10 +1,10 @@
 OUTPUT_FORMAT("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
-ENTRY(_vector_table)
+ENTRY(rtos_internal_vector_table)
 SECTIONS
 {
         . = {{code_addr}};
-        .ro_start = .;
+        rtos_internal_ro_start = .;
         .vectors : AT ({{flash_load_addr}})
         { *(.vectors) }
 
@@ -14,16 +14,16 @@ SECTIONS
         .rodata : AT (LOADADDR (.text) + SIZEOF(.text))
         { *(.rodata*) }
 
-        .ro_end = ALIGN(4);
+        rtos_internal_ro_end = ALIGN(4);
 
         . = {{data_addr}};
-        .data.bitband : AT ({{flash_load_addr}} + (.ro_end - .ro_start))
+        .data.bitband : AT ({{flash_load_addr}} + (rtos_internal_ro_end - rtos_internal_ro_start))
         {
               *(.data.bitband)
         }
 
         /* Check that bitband variables don't overflow */
-        _ = ASSERT(. <= {{data_addr}} + {{bitband_size}}, "bitband variables too large");
+        rtos_internal_dummy = ASSERT(. <= {{data_addr}} + {{bitband_size}}, "bitband variables too large");
 
         .data : AT (LOADADDR(.data.bitband) + SIZEOF(.data.bitband))
         {
@@ -31,14 +31,14 @@ SECTIONS
               . = ALIGN(4);
         }
 
-        _data_load_addr = LOADADDR(.data.bitband);
-        _data_virt_addr = ADDR(.data.bitband);
-        _data_size = . - ADDR(.data.bitband);
+        rtos_internal_data_load_addr = LOADADDR(.data.bitband);
+        rtos_internal_data_virt_addr = ADDR(.data.bitband);
+        rtos_internal_data_size = . - ADDR(.data.bitband);
 
         /* Check addresses are correct */
-        _ = ASSERT(_data_load_addr % 4 == 0, "_data_load_addr not word aligned");
-        _ = ASSERT(_data_virt_addr % 4 == 0, "_data_virt_addr not word aligned");
-        _ = ASSERT(_data_size % 4 == 0, "_data_size not word aligned");
+        rtos_internal_dummy = ASSERT(rtos_internal_data_load_addr % 4 == 0, "data_load_addr not word aligned");
+        rtos_internal_dummy = ASSERT(rtos_internal_data_virt_addr % 4 == 0, "data_virt_addr not word aligned");
+        rtos_internal_dummy = ASSERT(rtos_internal_data_size % 4 == 0, "data_size not word aligned");
 
         .bss :
         {
@@ -47,12 +47,12 @@ SECTIONS
              . = ALIGN(4);
         }
 
-        _bss_virt_addr = ADDR(.bss);
-        _bss_size = SIZEOF(.bss);
+        rtos_internal_bss_virt_addr = ADDR(.bss);
+        rtos_internal_bss_size = SIZEOF(.bss);
 
         .stack : {
                . = . + {{stack_size}};
-               _stack = .;
+               rtos_internal_stack = .;
         }
 
         /* Aliases for all the bitband variables */

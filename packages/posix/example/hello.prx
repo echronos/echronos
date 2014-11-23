@@ -3,10 +3,7 @@
   <modules>
     <module name="posix.build" />
     <module name="posix.debug" />
-    <module name="generic.debug">
-      <ll_debug>posix_</ll_debug>
-      <prefix></prefix>
-    </module>
+    <module name="generic.debug" />
     <module name="generic.hello">
       <!-- hello, world! in hindi (according to google translate!) -->
       <phrase>नमस्ते, दुनिया!</phrase>

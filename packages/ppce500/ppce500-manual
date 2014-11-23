@@ -49,11 +49,11 @@ The `default-linker` module may be used to provide a functional linker-script.
 ==============
 
 The debug module supports the *low-level debug* interface.
-It provides the `ppce500_debug_putc` function.
+It provides the `rtos_internal_debug_putc` function.
 
-### `ppce500_debug_putc`
+### `rtos_internal_debug_putc`
 
-    void ppce500_debug_putc(char c)
+    void rtos_internal_debug_putc(char c)
 
 This function is not currently implemented, and is only a placeholder stub to assist GDB debugging.
 Alternatively, the generic `debug_println` function may be another convenient location to place a breakpoint.

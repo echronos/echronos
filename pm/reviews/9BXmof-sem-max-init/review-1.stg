@@ -5,16 +5,23 @@ Task name: 9BXmof-sem-max-init
 Version reviewed: 96fb90088ca10368b8856086ba53b10810dbb380
 Reviewer: stg
 Date: 2014-11-24
-Conclusion: Accepted/Rework
-
-Overall comments:
+Conclusion: Rework
 
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: components/simple-semaphore/implementation.c:91
+Comment 1: Rework
+The `.max` field of `struct semaphore` is initialized to 0.
+Therefore, the condition in line 91 is always true for semaphores which have an uninitialized maximum.
+This case needs to be handled either by enforcing the maxima of all semaphores to be initialized or by not causing a fatal error in such a case.
+Please also add a regression test for this case.
 
-Location: filename:linenum
-Comment:
+Location: components/simple-semaphore/implementation.c:133
+Comment 2: Rework
+Is 0 a valid value for the `max` argument of the `sem_max_init()` function?
+Given that value of 0 in the `.max` field of `struct semaphore` indicates that the maximum is not initialized, 0 should probably not be a valid value for the `max` argument of `sem_max_init()`.
+In that case, an appropriate API assertion needs to be added to the `sem_max_init()` function.
+Please also add tvo regression tests:
+one for calling `sem_max_init()` twice and another for calling `sem_max_init()` with a `max` argument of 0.

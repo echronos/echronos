@@ -88,6 +88,8 @@ void
     preempt_disable();
 
 {{#semaphore_enable_max}}
+    api_assert(semaphores[s].max != SEM_VALUE_ZERO, ERROR_ID_SEMAPHORE_MAX_USE_BEFORE_INIT);
+
     if (semaphores[s].value >= semaphores[s].max) {
         {{fatal_error}}(ERROR_ID_SEMAPHORE_MAX_EXCEEDED);
     }
@@ -130,6 +132,7 @@ void
 {
     assert_sem_valid(s);
 
+    api_assert(max != SEM_VALUE_ZERO, ERROR_ID_SEMAPHORE_MAX_INVALID);
     api_assert(semaphores[s].max == SEM_VALUE_ZERO, ERROR_ID_SEMAPHORE_MAX_ALREADY_INIT);
 
     semaphores[s].max = max;

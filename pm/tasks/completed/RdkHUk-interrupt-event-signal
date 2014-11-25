@@ -1,0 +1,19 @@
+Task: RdkHUk-interrupt-event-signal
+==============================================================================
+
+Motivation
+----------
+
+The interrupt event signalling implementation for Kochab and Rigel is identical and should be moved into its own RTOS component to get rid of the duplication.
+
+
+Goals
+--------
+
+Create a new RTOS component for common interrupt event signal implementation used by Kochab and Rigel.
+
+
+Test Plan
+---------
+
+Existing regression tests.

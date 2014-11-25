@@ -83,7 +83,7 @@ timer_process_one(struct timer *const timer)
     }
     else
     {
-        if (_signal_pending(timer->task_id, timer->signal_set))
+        if (signal_pending(timer->task_id, timer->signal_set))
         {
             timer->overflow = true;
         }

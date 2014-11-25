@@ -93,8 +93,8 @@ typedef uint32_t* context_t;
 /*| structure_definitions |*/
 
 /*| extern_definitions |*/
-extern void ppce500_context_switch(context_t *, context_t *) {{prefix_const}}REENTRANT;
-extern void ppce500_context_switch_first(context_t *) {{prefix_const}}REENTRANT;
+extern void rtos_internal_context_switch(context_t *, context_t *) {{prefix_const}}REENTRANT;
+extern void rtos_internal_context_switch_first(context_t *) {{prefix_const}}REENTRANT;
 
 /*| function_definitions |*/
 /**
@@ -125,8 +125,8 @@ static void context_init(context_t *ctx, void (*fn)(void), uint32_t *stack_base,
 /*| state |*/
 
 /*| function_like_macros |*/
-#define context_switch(from, to) ppce500_context_switch(to, from)
-#define context_switch_first(to) ppce500_context_switch_first(to)
+#define context_switch(from, to) rtos_internal_context_switch(to, from)
+#define context_switch_first(to) rtos_internal_context_switch_first(to)
 
 /*| functions |*/
 static void
@@ -147,7 +147,7 @@ context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack
      * Immediately below the dummy stack frame header, create a full-size stack frame containing register values for
      * the initial context.
      * The EABI spec requires that the back chain word always points to the previous frame's back chain word field.
-     * LR save and back chain words in this frame are ignored by ppce500_context_switch (ctxt-switch.s)
+     * LR save and back chain words in this frame are ignored by rtos_internal_context_switch (ctxt-switch.s)
      */
     context[CONTEXT_BC_IDX] = (uint32_t) &init_context[CONTEXT_BC_IDX];
     *ctx = context;

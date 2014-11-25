@@ -4,10 +4,7 @@
     <module name="armv7m.build" />
     <module name="armv7m.vectable" />
     <module name="armv7m.semihost-debug" />
-    <module name="generic.debug">
-      <ll_debug>armv7m_semihost_</ll_debug>
-      <prefix></prefix>
-    </module>
+    <module name="generic.debug" />
     <module name="armv7m.example.bitband" />
   </modules>
 </system>

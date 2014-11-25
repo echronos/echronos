@@ -51,7 +51,7 @@ static struct mutex_stat mutex_stats[{{mutexes.length}}];
 /*| functions |*/
 {{#mutexes.length}}
 static bool
-_mutex_try_lock(const {{prefix_type}}MutexId m)
+mutex_try_lock(const {{prefix_type}}MutexId m)
 {
     const bool r = mutexes[m].holder == TASK_ID_NONE;
 
@@ -83,7 +83,7 @@ void
 
     preempt_disable();
 
-    while (!_mutex_try_lock(m))
+    while (!mutex_try_lock(m))
     {
 {{#mutex.stats}}
         contended = true;
@@ -145,7 +145,7 @@ bool
 
     preempt_disable();
 
-    r = _mutex_try_lock(m);
+    r = mutex_try_lock(m);
 
     preempt_enable();
 

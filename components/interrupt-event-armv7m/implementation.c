@@ -6,6 +6,8 @@
 {{/interrupt_events.length}}
 
 /*| object_like_macros |*/
+#define interrupt_event rtos_internal_interrupt_event
+#define interrupt_event_bitband rtos_internal_interrupt_event_bitband
 
 /*| type_definitions |*/
 
@@ -20,7 +22,7 @@ static inline void interrupt_event_wait(void);
 
 /*| state |*/
 {{#interrupt_events.length}}
-VOLATILE_BITBAND_VAR(uint32_t, interrupt_event);
+VOLATILE_BITBAND_VAR(uint32_t, rtos_internal_interrupt_event);
 {{/interrupt_events.length}}
 
 /*| function_like_macros |*/

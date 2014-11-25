@@ -11,7 +11,7 @@ On the other hand, they interact with each other via the RTOS APIs to form a com
 ### Task and System Structure
 
 In general, a CPU executes a stream of instructions that modify internal state (registers and memory) and control external devices.
-The challenge for an application developer is to work out which instructions should be executed to obtain the desired application behaviour.
+The challenge for an application developer is to work out which instructions should be executed to obtain the desired application behavior.
 
 For systems with simple requirements this can be easily achieved with a single big-loop design.
 However as the inherent complexity of requirements increases, a single big-loop becomes too complicated to effectively develop, reason about, or debug.
@@ -121,14 +121,14 @@ The task's context refers to all the state associated with the task but for whic
 Specifically, the processor only supports a single program counter, stack pointer, and register state.
 During a context switch, the RTOS saves the current task's state on the task's stack and then restores the state for the new current task.
 
-The [Preemption] section provides more details on context switches, what can lead to them, and how to control them, which is an important aspect for constructing correct system behavior.
+The [Preemption] section provides more details on context switches, what can lead to them, and how to control them, which is an important aspect of constructing correct system behavior.
 
 ### Task States
 
 An RTOS task can be in one of three primary states: current, runnable, or blocked.
 Tasks within a system do no usually operate in isolation;
 they interact with other tasks, devices, and the external environment.
-When interacting with another entity, the RTOS provides mechanisms so the task can wait until the other entity is ready, rather than the task needing to constantly poll the other entity.
+When interacting with another entity, the RTOS provides mechanisms so that the task can wait until the other entity is ready, rather than the task needing to constantly poll the other entity.
 When a task is waiting, it moves into the blocked state.
 There are a number of RTOS operations that cause a task to block, such as waiting for a signal, locking a mutex, or sleeping.
 When a task is in the blocked state, it is no longer current, so the RTOS must choose another runnable task to become the current task.
@@ -160,7 +160,7 @@ Arithmetic operations should not be used on a [<span class="api">TaskId</span>].
 The application may assume that a [<span class="api">TaskId</span>] is in the range [<span class="api">TASK_ID_ZERO</span>] through [<span class="api">TASK_ID_MAX</span>].
 For example, if a per-task data structure is required, it is valid to use a fixed size array and index the array by using the [<span class="api">TaskId</span>].
 For iterating over such an array, it is valid use to increment an instance of [<span class="api">TaskId</span>], however care must be taken to ensure the resulting value is in range.
-[<span class="api">TaskId</span>] instances can be tested for equality, however other logical operations (e.g: comparison) should not be used.
+[<span class="api">TaskId</span>] instances can be tested for equality, however other logical operations (e.g., comparison) should not be used.
 For all tasks in the system, the configuration tool creates a constant with the name `TASK_ID_<name>` that should be used in preference to raw values.
 
 [^task_id_type]: This is normally a `uint8_t`.
@@ -199,7 +199,7 @@ The configuration must include at least one task because a system without tasks 
 This configuration item specifies the task's name (also see [Task Names]).
 Each task must have a unique name.
 The name must be of an identifier type.
-This is a mandatory configuration item with not default.
+This is a mandatory configuration item with no default.
 
 ### `tasks/task/function`
 
@@ -214,7 +214,7 @@ It is a mandatory configuration item with no default.
 
 ### `tasks/task/start`
 
-This boolean configuration option determines if a task should automatically start when the RTOS is started.
+This boolean configuration option determines whether a task should automatically start when the RTOS is started.
 If the task is not automatically started, it can be started using the [<span class="api">task_start</span>] API.
 This is an optional configuration item that defaults to false.
 At least one task in the system should be configured with `start` as true, otherwise no task and hence no application functionality can ever start running in the system.

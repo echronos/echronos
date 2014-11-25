@@ -22,7 +22,7 @@ There two kinds of such assertions:
 API assertions and internal assertions.
 Both kinds are optional and can be enabled or disabled in the system configuration (see [Error Handling Configuration]).
 
-API assertions check a wide range (but not all) requirements and preconditions that the RTOS API has regarding application run-time behavior.
+API assertions check a wide range of (but not all) requirements and preconditions that the RTOS API has regarding application run-time behavior.
 For example, the [<span class="api">mutex_lock</span>] API implementation can assert that the mutex ID that the application provides identifies a valid mutex.
 All such assertions cover requirements and preconditions that are clearly documented.
 It is good practice for applications to enable these assertions via the [`api_asserts`] configuration item for debugging and test builds.
@@ -40,8 +40,8 @@ However, they provide no tangible benefit to applications and they do incur code
 ### <span class="api">ErrorId</span>
 
 An instance of this type refers to a specific RTOS error state.
-When the RTOS detects an error state, it passes a value of type [<span class="api">ErrorId</span>] to the [`fatal_error`] function that the application needs to implement.
-The RTOS implementation file defines constants that identify all potential error states and the corresponding [<span class="api">ErrorId</span>] values.
+When the RTOS detects an error state, it passes a value of type [<span class="api">ErrorId</span>] to the [`fatal_error`] function, which the application needs to implement.
+The RTOS implementation defines constants that identify all potential error states and the corresponding [<span class="api">ErrorId</span>] values.
 The names of these constants follow the pattern `ERROR_ID_<error-state>`.
 
 /*| doc_configuration |*/
@@ -49,8 +49,8 @@ The names of these constants follow the pattern `ERROR_ID_<error-state>`.
 
 ### `api_asserts`
 
-This configuration item is a boolean with a default of *false*.
-When *true*, the RTOS checks the arguments passed to API functions at runtime for consistency.
+This configuration item is a boolean with a default of false.
+When true, the RTOS checks the arguments passed to API functions at runtime for consistency.
 For example, it checks whether the value of the [<span class="api">MutexId</span>] argument of the [<span class="api">mutex_lock</span>] API identifies a valid mutex.
 If the check passes, the check has no effect on the behavior of the API.
 If the check fails, the RTOS calls the [`fatal_error`] function.
@@ -58,8 +58,8 @@ If the check fails, the RTOS calls the [`fatal_error`] function.
 
 ### `internal_asserts`
 
-This configuration item is a boolean with a default of *false*.
-When *true*, the RTOS checks internal implementation state for consistency at runtime.
+This configuration item is a boolean with a default of false.
+When true, the RTOS checks internal implementation state for consistency at runtime.
 For example, it checks whether the [<span class="api">TaskId</span>] instance identifying the current task is a valid task ID.
 If the check passes, the check has no effect on the behavior of the RTOS.
 If the check fails, the RTOS calls the [`fatal_error`] function.

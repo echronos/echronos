@@ -4,8 +4,9 @@
 ## Message Queues
 
 Message queues are a mechanism for transferring data between tasks.
-They are concurrency-safe, so they are guaranteed to always be in a consistent state when multiple tasks access them.
-Applications can use them without the regard for synchronization or mutual exclusion that is otherwise necessary when accessing shared data structures because the RTOS implementation provides this synchronization internally.
+They are concurrency safe, so they are guaranteed to always be in a consistent state when multiple tasks access them.
+Applications can use them without the regard for synchronization or mutual exclusion that is otherwise necessary when accessing shared data structures.
+The RTOS implementation of message queues provides this synchronization internally.
 
 Message queues behave like first-in/first-out circular buffers.
 Therefore, applications cannot access arbitrary messages in a queue.
@@ -24,7 +25,7 @@ After putting a message in the queue, it looks as follows:
 
 <img src="docs/post-put.svg"/>
 
-And after the application retrieved a message from the queue, it looks like this:
+And after the application has retrieved a message from the queue, it looks like this:
 
 <img src="docs/post-get.svg"/>
 
@@ -35,9 +36,9 @@ The [Message Queue API] additionally provides non-blocking functions and time-ou
 Every message queue has a fixed number of message slots that all have the same fixed message size.
 The number and size of slots are statically configured properties and cannot be changed at run time.
 
-A message queue allocates the memory for all its slots statically at build time.
-Therefore, regardless of how many messages have been put into a queue at any given time, the queue always consumes the amount of memory necessary to hold its maximum capacity.
-The put and get APIs copy the message contents to and from the slots, so message queues are better suited for shorter than longer messages in terms of performance.
+A message queue allocates the memory for all of its slots statically at build time.
+Therefore, regardless of how many messages have been put into a queue at any given time, the queue always occupies the amount of memory necessary to hold its maximum capacity.
+The put and get APIs copy the message contents to and from the slots, so message queues are better suited for shorter rather than for longer messages in terms of performance.
 
 /*| doc_api |*/
 ## Message Queue API
@@ -64,7 +65,7 @@ This function waits - if necessary - until the given message queue is not full a
 
 - The `message_queue` ID is typically one of the [`MESSAGE_QUEUE_ID_<name>`] constants as it must refer to a valid message queue as defined in the system configuration.
 
-- The `message` pointer must point to a valid memory region large enough to hold a message of the size that the message queue is configured with.
+- The `message` pointer must point to a valid memory region large enough to hold a message of the size with which the message queue is configured.
 
 If the queue is full, the function blocks the calling task until another task removes a message from the queue.
 When the queue is not full, the function copies the message contents pointed to by `message` to the head of the queue, which is the free slot that was least recently used.
@@ -76,9 +77,9 @@ When the queue is not full, the function copies the message contents pointed to 
 
 This function adds a message to a message queue only if it is not full.
 
-- The `message_queue` ID is typically one of the [`MESSAGE_QUEUE_ID_<name>`] constants as it must refer to a valid message queue as defined in the system configuration.
+- The `message_queue` ID is typically one of the [`MESSAGE_QUEUE_ID_<name>`] constants, as it must refer to a valid message queue as defined in the system configuration.
 
-- The `message` pointer must point to a valid memory region large enough to hold a message of the size that the message queue is configured with.
+- The `message` pointer must point to a valid memory region large enough to hold a message of the size with which the message queue is configured.
 
 If the queue is full, the function returns false immediately without blocking the calling task.
 If the queue is not full, the function copies the message contents pointed to by `message` to the head of the queue, which is the free slot that was least recently used.
@@ -110,14 +111,14 @@ However, due to scheduling, the calling task may not become the current task aga
 Instead, other tasks may be scheduled between the time-out occurring and the calling task becoming active.
 Those other tasks may retrieve messages from the same message queue, making message slots available.
 By the time the calling task becomes active, it successfully puts the message into the queue and returns true.
-As a consequence, the return value does not indicate whether or not a time-out occurred but whether or not the message was successfully put into the queue.
+As a consequence, the return value does not indicate whether or not a time-out occurred, but whether or not the message was successfully put into the queue.
 
 
 ### <span class="api">message_queue_get</span>
 
 <div class="codebox">void message_queue_get(MessageQueueId message_queue, void *message);</div>
 
-This function waits - if necessary - until the given message queue contains a message and then retrieves it.
+This function waits - if necessary - until the given message queue contains a message, and then retrieves that message.
 
 - The `message_queue` ID is typically one of the [`MESSAGE_QUEUE_ID_<name>`] constants as it must refer to a valid message queue as defined in the system configuration.
 

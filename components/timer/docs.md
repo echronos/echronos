@@ -5,11 +5,11 @@
 
 It is not surprising that time is an important aspect of most real-time systems.
 The RTOS provides a number of important interfaces for keeping track of time.
-The RTOS tracks overall execution of the system, and additionally provides timer objects that allows a task to schedule a certain action to happen after a specific duration of time.
+The RTOS tracks overall execution of the system, and additionally provides timer objects that allow tasks to schedule certain actions to happen after a specific duration of time.
 
 ### Ticks
 
-All the time-based interfaces in the RTOS are based around a tick concept.
+All of the time-based interfaces in the RTOS are based around a tick concept.
 The RTOS does not keep track of physical or wall-clock time;
 instead it only counts ticks, so time and durations are only expressed in ticks in the RTOS API.
 How much absolute physical time a tick represents is left to the system design.
@@ -20,19 +20,19 @@ The [<span class="api">timer_tick</span>] API is safe to call from an interrupt 
 In a non-preemptive system, a tick is not processed immediately but when the current task yields or blocks.
 
 When a system tick is processed, the [<span class="api">timer_current_ticks</span>] API value is incremented by one.
-This allows tasks to keep track of the amount of time that the system has been running for or shorter durations as they choose.
+This allows tasks to keep track of the amount of time that the system has been running for, or shorter durations as they choose.
 
 ### Timers
 
-Timers trigger certain actions, such a sending a signal, at a configurable time (expressed in ticks).
+Timers trigger certain actions, such as sending a signal, at a configurable time (expressed in ticks).
 The [Timer Configuration] defines which timers exist in a system and what their properties are.
 
-The main property of a timer is its tick value that says how many ticks in the future the timer will expire.
+The main property of a timer is its tick value, which says how many ticks in the future the timer will expire.
 When a system tick is processed, any enabled timer objects are decremented[^timer_decrement] by one.
 When a timer is decremented to zero, the timer is said to expire.
-The exact behaviour that occurs when a timer expires depends on the configuration of the timer object.
+The exact behavior that occurs when a timer expires depends on the configuration of the timer object.
 
-[^timer_decrement]: The actual implementation does not decrement each timer, although it is an accurate description of the logical behaviour.
+[^timer_decrement]: The actual implementation does not decrement each timer, although it is an accurate description of the logical behavior.
 
 - A timer object may be configured as a watchdog.
 When a watchdog timer expires, it causes a fatal error to occur (see [Error Handling]).
@@ -68,7 +68,7 @@ First, assume a periodic timer, which is set up with a period of 10 ticks.
 Using the same 25ms tick period as above, the time between consecutive timer expiries can range between 225ms and 275ms.
 Only over long periods of time, the average time between consecutive expiries approaches the nominal 250ms value.
 A similar level of imprecision is evident in a one-shot timer.
-A 10 tick one-shot timer expires between 225ms and 275ms after it is set.
+A 10-tick one-shot timer expires between 225ms and 275ms after it is set.
 When a timer is required to expire after at least 250ms but not before then, it needs to be set to 11 ticks.
 
 Note that the above latency considerations also apply to the value of the [<span class="api">timer_current_ticks</span>] and [<span class="api">sleep</span>] APIs.
@@ -93,9 +93,9 @@ For a 40Hz (25ms period) tick, this can handle over 1,200 days worth of ticks.
 
 ### <span class="api">TicksRelative</span>
 
-The [<span class="api">TicksRelative</span>] type is used to represents a number of ticks relative to a point in time.
+The [<span class="api">TicksRelative</span>] type is used to represent a number of ticks relative to a point in time.
 It is a 16-bit unsigned integer.
-Assuming a 40Hz tick this provides range for up to 27 minutes worth of ticks.
+Assuming a 40Hz tick this provides range for up to 27 minutes' worth of ticks.
 
 ### `TIMER_ID_<name>`
 
@@ -127,7 +127,7 @@ The registered tick remains pending until the RTOS processes the tick (see [Timi
 
 This API is called to start a timer.
 The timer starts counting down from its configured reload value.
-If the timer's reload value is zero, then the timer expires immediately (and performs its configured expiry behaviour).
+If the timer's reload value is zero, then the timer expires immediately (and performs its configured expiry behavior).
 
 ### <span class="api">timer_disable</span>
 
@@ -166,7 +166,7 @@ This API returns the number of ticks remaining before the specified timer expire
 <div class="codebox">void timer_reload_set(TimerId timer, TicksRelative reload_value);</div>
 
 This API configures a timer's reload value.
-The `reload` value is used to initialise the timer when it is enabled (or when it restarts in the case of a periodic timer).
+The `reload` value is used to initialize the timer when it is enabled (or when it restarts in the case of a periodic timer).
 
 ### <span class="api">timer_signal_set</span>
 
@@ -198,7 +198,7 @@ This is a mandatory configuration item with no default.
 
 ### `timers/timer/enabled`
 
-This boolean configuration item determines if the timer is enabled when the system starts.
+This boolean configuration item determines whether the timer is enabled when the system starts.
 If it is true, the timer commences countdown on the very first tick.
 This is an optional configuration item that defaults to false.
 A timer can be enabled at runtime using the [<span class="api">timer_enable</span>] API.
@@ -206,7 +206,7 @@ A timer can be enabled at runtime using the [<span class="api">timer_enable</spa
 ### `timers/timer/reload`
 
 This configuration item specifies the timer's reload value.
-The reload value is used to initialise the timer each time it is enabled.
+The reload value is used to initialize the timer each time it is enabled.
 The value is specified as a relative number of ticks.
 The value must be presentable as a [<span class="api">TicksRelative</span>] type.
 This is an optional configuration item that defaults to zero.

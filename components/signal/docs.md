@@ -3,12 +3,12 @@
 /*| doc_concepts |*/
 ## Signals
 
-Signals are a flexible mechanism that helps tasks to interact with each other.
-They are typically used for event notifications.
+The signal mechanism is a flexible feature that helps tasks to interact with each other.
+Signals are typically used for event notifications.
 For example, a driver task can use a signal to notify a handler task whenever new data is available for processing.
 Typically, the driver task would send a signal every time new data becomes available while the handler task would repeatedly wait to receive the signal and then process the data.
 
-The signal mechanism typically blocks the handler task while it waits and makes the task runnable again when it receives the exact signal it is waiting for.
+The signal mechanism typically blocks the handler task while it waits, and makes the task runnable again when it receives the exact signal it is waiting for.
 Interrupt service routines can also send signals to a task via the interrupt event mechanism described in the [Interrupt Events] section.
 
 Each task is associated with a set of pending signals.
@@ -32,15 +32,15 @@ The above API functions also exist in versions that send or receive multiple sig
 When a task receives multiple signals, it is its responsibility to process each of those signals according to their semantics.
 
 The RTOS does not predefine which signals exist in a system or what their meanings or semantics are.
-System designers and applications are entirely free define signals and to attach meaning to them.
+System designers and applications are entirely free to define signals and to attach meaning to them.
 They do so via the system configuration (see [Signal Configuration]).
 
 The main property of each signal is its name, a so-called *label*, and applications always refer to signals via their names/labels.
 For this purpose, the RTOS defines the constants [`SIGNAL_ID_<label>` and `SIGNAL_SET_<label>`] for each signal.
-They allow to refer to individual signals by name and to construct signal sets from individual signals.
+They refer to individual signals by their names and they can be used to construct signal sets from individual signals.
 Although signals and signal sets are internally represented as numbers, applications neither need nor should make assumptions about those numeric values of signals.
 
-Also see the [Signal Scopes] Section for more information on the set of tasks that signals may be used with.
+Also see the [Signal Scopes] Section for more information on the set of tasks with which signals may be used.
 
 /*| doc_api |*/
 ## Signal API
@@ -52,7 +52,7 @@ The underlying type is an unsigned integer of the appropriate size.
 
 ### <span class="api">SignalId</span>
 
-A [<span class="api">SignalId</span>] is an alias for the [<span class="api">SignalSet</span>] type, but represents the special case where the set contains exactly one signal (i.e: is a singleton set).
+A [<span class="api">SignalId</span>] is an alias for the [<span class="api">SignalSet</span>] type, but represents the special case where the set contains exactly one signal (i.e., it is a singleton set).
 
 To test whether a signal set contains a signal, use the bitwise *and* operator.
 For example, `SIGNAL_SET_ALL & SIGNAL_ID_<label>` always evaluates to `SIGNAL_ID_<label>` for all signals.
@@ -80,7 +80,7 @@ The `<label>` portion of the name is an upper-case conversion the signal label.
 
 This API makes a task wait for and receive a set of signals.
 If none of the signals in `requested_set` is pending, the calling task blocks until at least one of them is pending.
-When the API returns, it returns all the task's pending signals that are in `requested_set` and atomically removes them from the pending signal set.
+When the API returns, it returns all of the task's pending signals that are in `requested_set` and atomically removes them from the pending signal set.
 The returned signal set is guaranteed to not be empty and to only contain signals in the requested set.
 Immediately after the API returns, it is guaranteed that none of the signals in `requested_set` are pending any more.
 
@@ -139,7 +139,7 @@ This API adds the signal set `send_set` to the pending signal set of the task wi
 After this API returns, it is guaranteed that the destination task can successfully use the peek, poll, or wait APIs to check for and/or receive the signals in `send_set`.
 
 The API does not implicitly call [<span class="api">yield</span>].
-The caller must explicitly yield if that is the intended behaviour.
+The caller must explicitly yield if that is the intended behavior.
 
 ### <span class="api">signal_send</span>
 

@@ -51,7 +51,7 @@ There is no API to shut down or stop the RTOS once it has started.
 
 ## Interrupt Events
 
-Interrupt events provide the bridge between tasks and ISRs.
+Interrupt events provide the bridge between tasks and interrupt service routines.
 The system can be configured with a number of interrupt events.
 Each interrupt event is associated with a [<span class="api">TaskId</span>] and [<span class="api">SignalSet</span>][^signalset].
 The [<span class="api">TaskId</span>] and [<span class="api">SignalSet</span>] association is usually done when the system is configured.
@@ -59,10 +59,10 @@ A task may choose to update this association at run-time using the [<span class=
 
 [^signalset]: See the [Signals] section for more details.
 
-An ISR can call the [<span class="api">interrupt_event_raise</span>] API to raise one of the interrupt events configured in the system.
+An interrupt service routine can call the [<span class="api">interrupt_event_raise</span>] API to raise one of the interrupt events configured in the system.
 The [<span class="api">interrupt_event_raise</span>] API is carefully implemented using an atomic instruction to avoid any possible data races.
 When an interrupt event is raised, it causes the associated signal set to be sent to the task associated with the interrupt event.
-This provides a safe and efficient mechanism for ISRs to interact with tasks.
+This provides a safe and efficient mechanism for interrupt service routines to interact with tasks.
 
 ## Signal Scopes
 
@@ -189,7 +189,7 @@ If false, the [`signal_labels/signal_label/tasks`] configuration item is require
 This optional list configuration item makes a signal a [task signal](#signal-scopes).
 It defaults to the empty list.
 If present, it needs to contain a non-empty set of `signal_labels/signal_label/tasks/task` configuration items that identify the tasks that the given signal is sent to.
-If this list is present, the [`signal_labels/signal_label/global`] configuration item may not be set to true and it implicitly assumes the value false.
+If this list is present, the [`signal_labels/signal_label/global`] configuration item may not be set to true and is implicitly set to false.
 If this configuration item is not present, the [`signal_labels/signal_label/global`] configuration item needs to be left at its default or explicitly set to true.
 
 ### `signal_labels/signal_label/tasks/task`

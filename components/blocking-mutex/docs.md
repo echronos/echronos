@@ -7,7 +7,7 @@ Mutexes provide a mechanism for controlling mutual exclusion among tasks.
 Mutual exclusion can be used, for example, to ensure that only a single task operates on a data structure, device, or some other shared resource at any point in time.
 
 Assume, for example, a system with a hardware block for CRC calculation.
-Such a CRC engine might have two registers, `input` and `result` which are used to sequentially feed data to it and to retrieve the resulting CRC, respectively.
+Such a CRC engine might have two registers, `input`, and `result`, which are used to sequentially feed data to it and to retrieve the resulting CRC, respectively.
 It could be represented by the following type and object for memory-mapped hardware access:
 
 <pre>struct crc_engine {
@@ -33,19 +33,19 @@ In a system without preemption, it is safe for two (or more) tasks to call `crc_
 Since the function does not cause any task switch, it is guaranteed that a task enters and leaves the function without another task being scheduled in between.
 Therefore, the CRC engine is only used by a single task at a time, calculating the result only from the input provided by that task.
 
-In a system with preemption however, a task switch can occur inside the function.
+In a system with preemption, however, a task switch can occur inside the function.
 Therefore, one task might start using the CRC engine while another, interrupted task has not yet completed its own use of it.
 This would lead to an overlap of input values and therefore incorrect CRC results.
 
 The same issue arises in a system without preemption if there is an explicit context switch involved.
 A typical example is a long-running iteration that yields (or causes a context switch through any other means):
 
-<pre>    [...]
-    for (idx = 0; idx != length; idx += 1) {
-        crc.input = src[idx];
-        yield();
-    }
-    [...]</pre>
+<pre>[...]
+for (idx = 0; idx != length; idx += 1) {
+    crc.input = src[idx];
+    yield();
+}
+[...]</pre>
 
 Mutexes can help to prevent such consistency issues.
 Used correctly, a mutex ensures that a only a single task at a time can execute code paths like the above.
@@ -82,11 +82,11 @@ The [<span class="api">mutex_try_lock</span>] API allows a task to avoid being b
 If the mutex is already acquired by another task, the API returns immediately, indicating that the calling task has not acquired the mutex.
 
 The system designer defines at configuration time which mutexes are available in a system.
-The main property of a mutex is its name, such as *CRC* in the example above.
+The main property of a mutex is its name, such as `CRC` in the example above.
 Therefore, the implementation refers to a mutex via its symbolic name [`MUTEX_ID_<name>`] that has the type [<span class="api">MutexId</span>].
-Applications must not make any assumptions about or rely on the numeric value that the configuration tool assigns to such symbolic names.
+Applications must not make any assumptions about or rely on the numeric values that the configuration tool assigns to such symbolic names.
 
-As any other objects that are not interrupt events, mutexes and their related APIs can not be used by interrupt service routines.
+As with any other objects that are not interrupt events, mutexes and their related APIs can not be used by interrupt service routines.
 
 /*| doc_api |*/
 ## Mutex API
@@ -109,7 +109,7 @@ Across two different RTOS and applications builds, the ID for the same mutex may
 
 ### `MUTEX_ID_ZERO` and `MUTEX_ID_MAX`
 
-The IDs of all mutexes are guaranteed to be a contiguous integer range between `MUTEX_ID_ZERO` and `MUTEX_ID_MAX`.
+The IDs of all mutexes are guaranteed to be a contiguous integer range between `MUTEX_ID_ZERO` and `MUTEX_ID_MAX`, inclusive.
 Applications may iterate over all mutexes via `for (id = MUTEX_ID_ZERO; id <= MUTEX_ID_MAX; id += 1)`.
 Also, they may associate information with mutexes, for example as follows:
 
@@ -135,7 +135,7 @@ If the mutex is in the *available* state, it transitions into the *acquired* sta
 If the mutex is in the *acquired* state, the mutex state does not change, but the calling task blocks and a task switch occurs.
 After the task unblocks and becomes the current task again, it attempts to acquire the mutex again in the same fashion until successful.
 
-This API is guaranteed to only return after the calling task successfully transitioned the mutex from the *available* into the *acquired* state.
+This API is guaranteed to only return after the calling task has transitioned successfully the mutex from the *available* into the *acquired* state.
 
 This implies that a task cannot successfully acquire the same mutex twice without releasing it in between.
 Attempting to do so effectively blocks the calling task indefinitely.

@@ -23,9 +23,9 @@ If C now calls the [<span class="api">yield</span>] API, the scheduling algorith
 
 <img src="docs/round_robin_3.png" width="33%" />
 
-As D was runnable before B became runnable, this behaviour is what would be expected in most cases (and is the same as would happen in a FIFO algorithm).
+As D was runnable before B became runnable, this behavior is what would be expected in most cases (and is the same as would happen in a FIFO algorithm).
 
-The exact behaviour of the scheduler becomes slightly more interesting, and possibly somewhat unexpected, if task E should now become runnable while D is executing.
+The exact behavior of the scheduler becomes slightly more interesting, and possibly somewhat unexpected, if task E should now become runnable while D is executing.
 
 If D now calls the [<span class="api">yield</span>] API after E becomes runnable, then the scheduling algorithm picks E as the next current task.
 In this case, E is chosen before the task B is chosen, even though it became runnable after B.

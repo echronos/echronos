@@ -14,3 +14,5 @@ Rationale: simplifies file handling with line-oriented tools, such as diff (same
 
 g0O2QN: RTOS changes visible to application developers, in particular changes to RTOS concepts, APIs, or configuration items, always need to be accompanied by the corresponding updates to their documentation.
 Rationale: helps to keep the documentation up-to-date with the implementation.
+
+eIhEVe: All text in the repository shall use American English spelling and grammar (as opposed to British or Australian spelling or grammar).

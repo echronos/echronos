@@ -49,21 +49,6 @@ A start signal can be sent to a task via the [<span class="api">task_start</span
 There is no API to shut down or stop the RTOS once it has started.
 
 
-## Interrupt Events
-
-Interrupt events provide the bridge between tasks and interrupt service routines.
-The system can be configured with a number of interrupt events.
-Each interrupt event is associated with a [<span class="api">TaskId</span>] and [<span class="api">SignalSet</span>][^signalset].
-The [<span class="api">TaskId</span>] and [<span class="api">SignalSet</span>] association is usually done when the system is configured.
-A task may choose to update this association at run-time using the [<span class="api">interrupt_event_task_set</span>] API.
-
-[^signalset]: See the [Signals] section for more details.
-
-An interrupt service routine can call the [<span class="api">interrupt_event_raise</span>] API to raise one of the interrupt events configured in the system.
-The [<span class="api">interrupt_event_raise</span>] API is carefully implemented using an atomic instruction to avoid any possible data races.
-When an interrupt event is raised, it causes the associated signal set to be sent to the task associated with the interrupt event.
-This provides a safe and efficient mechanism for interrupt service routines to interact with tasks.
-
 ## Signal Scopes
 
 The RTOS represents signals and signal sets as bit masks of the [<span class="api">SignalSet</span>] type.
@@ -157,22 +142,6 @@ The following examples are based on `prefix` having the value `rtos`.
 * types: CamelCase version of `prefix`, so [<span class="api">TaskId</span>] becomes `RtosTaskId`.
 
 * constants: upper-case version of `prefix` plus an underscore, so [<span class="api">TASK_ID_ZERO</span>] becomes `RTOS_TASK_ID_ZERO`.
-
-
-## Variant-Specific Interrupt Event Configuration
-
-### `interrupt_events/interrupt_event/task`
-
-This configuration item specifies the task to which a signal set is sent when the interrupt event is raised.
-This configuration item is optional.
-If no task is set, raising the interrupt event causes a fatal error.
-If the system designer does not set the task in the static configuration, it can be set at runtime using the [<span class="api">interrupt_event_task_set</span>] API.
-
-### `interrupt_events/interrupt_event/sig_set`
-
-This configuration item specifies the signal set that is sent to the interrupt event's associated task.
-A signal set is a list of one or more specified signal labels.
-This configuration item is optional and defaults to the empty set.
 
 
 ## Task Signal Configuration

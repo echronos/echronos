@@ -49,3 +49,14 @@ interrupt_event_handle(const {{prefix_type}}InterruptEventId interrupt_event_id)
 {{/interrupt_events.length}}
 
 /*| public_functions |*/
+[[#task_set]]
+{{#interrupt_events.length}}
+void
+{{prefix_func}}interrupt_event_task_set(const {{prefix_type}}InterruptEventId interrupt_event_id, const {{prefix_type}}TaskId task_id)
+{
+    api_assert(interrupt_event_id < {{interrupt_events.length}}, ERROR_ID_INVALID_ID);
+    api_assert(task_id < {{tasks.length}}, ERROR_ID_INVALID_ID);
+    interrupt_events[interrupt_event_id].task = task_id;
+}
+{{/interrupt_events.length}}
+[[/task_set]]

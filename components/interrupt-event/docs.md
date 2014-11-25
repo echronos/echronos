@@ -80,15 +80,6 @@ These constants of type [<span class="api">InterruptEventId</span>] are automati
 Note that `<name>` is the upper-case conversion of the interrupt event's name configured through [`interrupt_events/interrupt_event/name`].
 Applications should treat the numeric values of these constants as opaque values and use them in preference to raw numeric values to refer to interrupt events.
 
-### <span class="api">interrupt_event_task_set</span>
-
-<div class="codebox">void interrupt_event_task_set(InterruptEventId interrupt_event_id, TaskId task_id);</div>
-
-This function configures at run time which task is signaled when the specified interrupt event is raised.
-In some application scenarios, the static configuration via [`interrupt_events/interrupt_event/task`] is sufficient and does not need to be modified at run time.
-In those cases, this function does not need to be called.
-In other scenarios, it an interrupt event may need to be signaled to a dynamically changing set of tasks.
-In those cases, this function allows the application to update this configuration setting at run time.
 
 /*| doc_configuration |*/
 ## Interrupt Event Configuration
@@ -103,7 +94,5 @@ This configuration item specifies the interrupt event's name.
 Each interrupt event must have a unique name.
 The name must be of an identifier type.
 This is a mandatory configuration item with no default.
-
-Also refer to the [Variant-Specific Interrupt Event Configuration] section.
 
 /*| doc_footer |*/

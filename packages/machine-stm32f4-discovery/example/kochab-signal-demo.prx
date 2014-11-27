@@ -5,6 +5,7 @@
     <module name="armv7m.ctxt-switch-preempt" />
     <module name="armv7m.exception-preempt" />
     <module name="armv7m.vectable">
+      <flash_load_addr>0x8000000</flash_load_addr>
       <pendsv>rtos_internal_pendsv_handler</pendsv>
       <svcall>rtos_internal_svc_handler</svcall>
     </module>
@@ -12,6 +13,7 @@
     <module name="generic.debug" />
 
     <module name="armv7m.rtos-kochab">
+      <api_asserts>true</api_asserts>
       <internal_asserts>true</internal_asserts>
       <fatal_error>fatal</fatal_error>
       <prefix>rtos</prefix>
@@ -21,7 +23,35 @@
       <signal_labels>
 
         <signal_label>
-          <name>demo_helper</name>
+          <name>dummy0</name>
+        </signal_label>
+
+        <signal_label>
+          <name>dummy1</name>
+        </signal_label>
+
+        <signal_label>
+          <name>dummy2</name>
+        </signal_label>
+
+        <signal_label>
+          <name>dummy3</name>
+        </signal_label>
+
+        <signal_label>
+          <name>dummy4</name>
+        </signal_label>
+
+        <signal_label>
+          <name>unblock</name>
+        </signal_label>
+
+        <signal_label>
+          <name>dummy6</name>
+        </signal_label>
+
+        <signal_label>
+          <name>dummy7</name>
         </signal_label>
 
       </signal_labels>
@@ -42,20 +72,7 @@
           <stack_size>8192</stack_size>
         </task>
 
-        <task>
-          <name>z</name>
-          <function>fn_z</function>
-          <priority>5</priority>
-          <stack_size>8192</stack_size>
-        </task>
-
       </tasks>
-
-      <semaphores>
-        <semaphore>
-          <name>sem0</name>
-        </semaphore>
-      </semaphores>
 
       <mutex>
         <stats>false</stats>
@@ -63,7 +80,7 @@
     </module>
 
     <!-- main .c file: -->
-    <module name="rtos-example.kochab-sem-demo" />
+    <module name="rtos-example.kochab-signal-demo" />
 
   </modules>
 </system>

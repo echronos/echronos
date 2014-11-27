@@ -5,6 +5,6 @@
 Introduction
 -------------
 
+This machine package provides support for the STM32F4-Discovery board.
 
-
-
+It includes various example systems.

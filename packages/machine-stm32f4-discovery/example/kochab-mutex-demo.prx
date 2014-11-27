@@ -5,6 +5,7 @@
     <module name="armv7m.ctxt-switch-preempt" />
     <module name="armv7m.exception-preempt" />
     <module name="armv7m.vectable">
+      <flash_load_addr>0x8000000</flash_load_addr>
       <pendsv>rtos_internal_pendsv_handler</pendsv>
       <svcall>rtos_internal_svc_handler</svcall>
     </module>
@@ -12,6 +13,7 @@
     <module name="generic.debug" />
 
     <module name="armv7m.rtos-kochab">
+      <api_asserts>true</api_asserts>
       <internal_asserts>true</internal_asserts>
       <fatal_error>fatal</fatal_error>
       <prefix>rtos</prefix>

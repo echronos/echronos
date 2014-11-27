@@ -14,3 +14,5 @@ Specific comments
 Location: components/simple-semaphore/docs.md:28
 Comment:
 "The [<span class="api">SemId</span>] should be treated an an opaque value." has a typo, it should be "as an"
+
+[robs: Fixed]

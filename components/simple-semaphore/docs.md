@@ -4,28 +4,27 @@
 ## Semaphores
 
 Semaphores provide a signaling mechanism.
-Conceptually a semaphore is an integral value with two operations: post and wait.
-Post is sometimes called V, signal, or up.
-Wait is sometimes called P or down.
+Conceptually, a semaphore is an integral value with two operations: *post* and *wait*.
+Post is sometimes called *V*, *signal*, or *up*.
+Wait is sometimes called *P* or *down*.
 The post operation increments the underlying value, whereas the wait operation decrements the underlying value, if (and only if) the current value of the semaphore is greater than zero.
-The wait operation will block until the semaphore value can be successfully decremented.
+The wait operation blocks the calling task until the semaphore value can be successfully decremented.
 
-Unlike a mutex, a semaphore has no concept of a holder.
+Unlike [Mutexes], a semaphore has no concept of a task that holds the semaphore.
 On RTOS variants using priority-based scheduling with priority inheritance, a consequence of this is that when a task waits on a semaphore, no task will inherit the waiting task's priority.
 Please see [Scheduling Algorithm] for more details on the scheduling algorithm in use by this variant.
 
 The post operation is made available through the [<span class="api">sem_post</span>] API.
 The wait operation is made available through the [<span class="api">sem_wait</span>] API.
-Additionally, a [<span class="api">sem_try_wait</span>] API is made available.
-This allows a task to attempt to decrement a semaphore without blocking.
+Additionally, the [<span class="api">sem_try_wait</span>] API allows a task to attempt to decrement a semaphore without blocking.
 
 /*| doc_api |*/
 ## Semaphores
 
 ### <span class="api">SemId</span>
 
-A <span class="api">SemId</span> refers to a specific semaphore.
-The underlying type is an unsigned integer of a size large enough to represent all semaphores[^SemId_width].
+Instances of this type refer to specific semaphores.
+The type is an unsigned integer of a size large enough to represent all semaphores[^SemId_width].
 The <span class="api">SemId</span> should be treated as an opaque value.
 For all semaphores in the system the configuration tool creates a constant with the name `SEM_ID_<name>` that should be used in preference to raw values.
 
@@ -33,74 +32,88 @@ For all semaphores in the system the configuration tool creates a constant with 
 
 ### <span class="api">SemValue</span>
 
-<span class="api">SemValue</span> is the type that is used to represent a semaphore's value.
-The <span class="api">SemValue</span> type is also used to represent a semaphore's maximum value, if the RTOS is configured to allow maxima to be specified via the [<span class="api">sem_max_init</span>] API.
-The width of <span class="api">SemValue</span> is 8, 16, or 32 (default 8) depending on RTOS configuration.
-The underlying type is an unsigned integer of the appropriate size.
+This type represents a semaphore's current and, optionally, maximum value (see [<span class="api">sem_max_init</span>]).
+The bit width of the <span class="api">SemValue</span> type depends on the configuration item [`semaphore_value_size`].
 
 ### <span class="api">sem_max_init</span>
 
 <div class="codebox">void sem_max_init(SemId sem, SemValue max);</div>
 
-When enabled by the `semaphore_enable_max` configuration, the <span class="api">sem_max_init</span> API initializes the specified semaphore with the given maximum value, which must be non-zero.
-If this API is enabled, the user must only call it once per semaphore, and they must do this prior to the first time the [<span class="api">sem_post</span>] API is called for that semaphore.
-Subsequently, if a [<span class="api">sem_post</span>] causes the semaphore's value to exceed its maximum, the RTOS will raise a fatal error.
+This function is only available if the [`semaphore_enable_max`] configuration item is true.
+It initializes the specified semaphore with the given maximum value, which must be non-zero.
+The application must call it once and only once per semaphore, and must do so before using the [<span class="api">sem_post</span>] API with the semaphore.
+The maximum value of a semaphore influences the behavior of the [<div class="codebox">void sem_post(SemId sem);</div>] API.
 
 ### <span class="api">sem_post</span>
 
 <div class="codebox">void sem_post(SemId sem);</div>
 
-This API unblocks all tasks currently waiting on the semaphore, and increments the semaphore's value by one.
-While this gives all of the newly woken tasks an opportunity to reattempt to decrement the semaphore, ultimately the task that gets to try first will depend on the scheduling algorithm in use by the RTOS variant.
-With priority-based preemptive scheduling, the RTOS may context switch to a newly-woken higher priority task before returning to the calling task.
-With round-robin scheduling, the RTOS will just return to the calling task, leaving it the user's responsibility to initiate context switch.
-Please see [Scheduling Algorithm] for more details on the scheduling algorithm in use by this variant.
+This function increments the semaphore value by one.
+Additionally, it makes all tasks runnable that have called [<span class="api">sem_wait</span>] and are currently blocked on the semaphore.
 
-If the RTOS is configured to allow maxima to be specified via the [<span class="api">sem_max_init</span>] API, the <span class="api">sem_post</span> API must not be called for a semaphore prior to its maximum being initialized.
-Subsequently, if a <span class="api">sem_post</span> causes the semaphore's value to exceed its maximum, the RTOS will raise a fatal error.
+If the configuration item [`semaphore_enable_max`] is true, the following applies:
+
+- Before an application calls <span class="api">sem_post</span> for a semaphore, it must call [<span class="api">sem_max_init</span>] once and only once for that semaphore.
+
+- Calling <span class="api">sem_post</span> when the semaphore value is equal to the semaphore maximum is considered a fatal error.
+  In that case, the RTOS implementation calls the `fatal_error` function (see [Error Handling]).
+
+<span class="api">sem_post</span> does not itself cause a context switch.
+In a system without [Preemption], the calling task remains the current task.
+In a system with [Preemption], one of the tasks made runnable may preempt the calling task, depending on the [Scheduling Algorithm].
+
 
 ### <span class="api">sem_wait</span>
 
 <div class="codebox">void sem_wait(SemId sem);</div>
 
-This API attempts to decrement the value of the specified semaphore.
-If the semaphore value is positive then the value is decremented and <span class="api">sem_wait</span> returns to the caller immediately.
-Otherwise the calling task will block until the semaphore value can be successfully decremented.
-If the task blocks, then this function implies a context switch to another task, otherwise it does not.
+This API waits until the semaphore value of *sem* is greater than zero and then decrements the semaphore value.
+
+If the semaphore value of *sem* is zero, <span class="api">sem_wait</span> blocks the calling task.
+When another task makes it runnable again via the [<span class="api">sem_post</span>] function, <span class="api">sem_wait</span> checks the semaphore value again in the same manner.
+If the semaphore value is greater than zero, <span class="api">sem_wait</span> decrements the semaphore value by one and returns.
+
+Thus, <span class="api">sem_wait</span> returns immediately if the semaphore value is initially greater than zero.
+If the semaphore value is initially 0, however, the calling task may be blocked for an unbounded amount of time.
+The semaphore implementation itself does not guarantee progress if there are multiple tasks waiting on the semaphore.
+Which waiting task gets to decrement the semaphore value and return from <span class="api">sem_wait</span> depends entirely on the [Scheduling Algorithm].
+
 
 ### <span class="api">sem_try_wait</span>
 
 <div class="codebox">bool sem_try_wait(SemId sem);</div>
 
-This API attempts to decrement the value of the specified semaphore.
-If the semaphore value is positive then the value is decremented and <span class="api">sem_try_wait</span> returns true.
-Otherwise the function returns false and the semaphore value is not modified.
-This function does not imply a context switch.
+This function attempts to decrement the semaphore value of the specified semaphore without blocking the calling task.
+
+If the semaphore value is positive, it is decremented and <span class="api">sem_try_wait</span> returns true.
+Otherwise, the function returns false and the semaphore value is not modified.
+This function does not cause a context switch.
 
 /*| doc_configuration |*/
 ## Semaphore Configuration
 
 ### `semaphore_value_size`
 
-This specifies the width of the semaphore value type.
-It should be 8, 16 or 32.
-This is an optional configuration item that defaults to 8.
+This optional integer configuration item specifies the width of the <span class="api">SemValue</span> type in bits.
+Valid values are 8, 16, and 32, with 8 being the default.
 
 ### `semaphore_enable_max`
 
-This boolean value enables mandatory runtime initialization of a maximum value for each semaphore via the [<span class="api">sem_max_init</span>] API.
-If enabled, each semaphore must be initialized once with a non-zero maximum value using the [<span class="api">sem_max_init</span>] API, prior to the first time it is posted to via the [<span class="api">sem_post</span>] API.
-Subsequently, if a [<span class="api">sem_post</span>] causes the semaphore's value to reach its maximum, the RTOS will raise a fatal error.
+This boolean value controls whether semaphores have a maximum value or not.
+When set to true, the [<span class="api">sem_max_init</span>] function is available and the [<span class="api">sem_post</span>] function enforces the maximum value.
 This is an optional configuration item that defaults to false.
 
 ### `semaphores`
 
-The `semaphores` configuration is a list of semaphore configuration objects.
-See the [Semaphore Configuration] section for details on configuring each semaphore.
+This configuration item is a list of [`semaphores/semaphore'] configuration objects.
 
-### `name`
+### `semaphores/semaphore`
 
-This configuration item specifies the semaphore's name.
+This configuration item is a dictionary of values defining the properties of a single semaphore.
+
+### `semaphores/semaphore/name`
+
+This configuration item specifies the name of a semaphore.
 Each semaphore must have a unique name.
 The name must be of an identifier type.
 This is a mandatory configuration item with no default.

@@ -67,7 +67,7 @@ In a system with [Preemption], one of the tasks made runnable may preempt the ca
 
 <div class="codebox">void sem_wait(SemId sem);</div>
 
-This API waits until the semaphore value of *sem* is greater than zero and then decrements the semaphore value.
+This function waits until the semaphore value of *sem* is greater than zero and then decrements the semaphore value.
 
 If the semaphore value of *sem* is zero, <span class="api">sem_wait</span> blocks the calling task.
 When another task makes it runnable again via the [<span class="api">sem_post</span>] function, <span class="api">sem_wait</span> checks the semaphore value again in the same manner.
@@ -94,7 +94,7 @@ This function does not cause a context switch.
 
 ### `semaphore_value_size`
 
-This optional integer configuration item specifies the width of the <span class="api">SemValue</span> type in bits.
+This optional integer configuration item specifies the width of the [<span class="api">SemValue</span>] type in bits.
 Valid values are 8, 16, and 32, with 8 being the default.
 
 ### `semaphore_enable_max`

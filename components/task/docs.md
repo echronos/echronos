@@ -117,7 +117,7 @@ On some target platforms, the RTOS may support available hardware or software me
 
 The task that is actively executing on the CPU is known as the current task (also see the [<span class="api">task_current</span>] API).
 To multiplex multiple tasks on a single CPU, the RTOS implements a context switching mechanism for changing the current task.
-The task's context refers to all the state associated with the task but for which the underlying hardware can only support one copy at a time.
+The task's context refers to all the state associated with the task but for which the underlying hardware can support only one copy at a time.
 Specifically, the processor only supports a single program counter, stack pointer, and register state.
 During a context switch, the RTOS saves the current task's state on the task's stack and then restores the state for the new current task.
 

@@ -90,7 +90,7 @@ In this case, the function returns true.
 
 <div class="codebox">bool message_queue_put_timeout(MessageQueueId message_queue, const void *message, TicksRelative timeout);</div>
 
-This function adds a message to a message queue, but in contrast to [<span class="api">message_queue_try_put</span>], it only waits for a limited amount of time for a message slot to become available if the queue is full.
+This function adds a message to a message queue, but in contrast to [<span class="api">message_queue_try_put</span>], it waits only for a limited amount of time for a message slot to become available if the queue is full.
 
 - The `message_queue` ID is typically one of the [`MESSAGE_QUEUE_ID_<name>`] constants as it must refer to a valid message queue as defined in the system configuration.
 
@@ -149,7 +149,7 @@ In this case, the function returns true.
 
 <div class="codebox">bool message_queue_get_timeout(MessageQueueId message_queue, void *message, TicksRelative timeout);</div>
 
-This function retrieves a message from a message queue, but in contrast to [<span class="api">message_queue_get</span>], it only waits for a limited amount of time for a message to become available if the queue is empty.
+This function retrieves a message from a message queue, but in contrast to [<span class="api">message_queue_get</span>], it waits only for a limited amount of time for a message to become available if the queue is empty.
 
 - The `message_queue` ID is typically one of the [`MESSAGE_QUEUE_ID_<name>`] constants as it must refer to a valid message queue as defined in the system configuration.
 

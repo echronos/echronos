@@ -11,7 +11,7 @@ The RTOS tracks overall execution of the system, and additionally provides timer
 
 All of the time-based interfaces in the RTOS are based around a tick concept.
 The RTOS does not keep track of physical or wall-clock time;
-instead it only counts ticks, so time and durations are only expressed in ticks in the RTOS API.
+instead it counts only ticks, so time and durations are expressed only in ticks in the RTOS API.
 How much absolute physical time a tick represents is left to the system design.
 
 The RTOS depends on the system to generate ticks, provide a suitable system tick driver, and inform the RTOS of each tick.
@@ -50,7 +50,7 @@ Firstly, the best possible timing resolution is limited by the tick period.
 If we assume a 40Hz tick (25ms period), then a desired period of 30ms must either be rounded down to 25ms or up to 50ms.
 
 The second limiting factor comes into play only for non-preemtive systems.
-In that case, ticks are only processed when a task yields or blocks, so there is a delay between the system calling the [<span class="api">timer_tick</span>] API and the RTOS processing the tick, including timer handling.
+In that case, ticks are processed only when a task yields or blocks, so there is a delay between the system calling the [<span class="api">timer_tick</span>] API and the RTOS processing the tick, including timer handling.
 To ensure that this delay is bounded, the RTOS requires tasks to not run for longer than a tick period.
 For long running tasks this means that the task must yield at a higher frequency than the tick.
 With this restriction in place, the delay for processing a tick is at most a tick period.

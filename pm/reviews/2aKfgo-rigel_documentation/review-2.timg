@@ -57,3 +57,5 @@ Comment: "instead it only counts ticks" should be changed to "instead it counts 
 
 Location: components/timer/docs.md:53
 Comment: "ticks are only processed" should be changed to "ticks are processed only"
+
+[stg: addressed all comments as suggested]

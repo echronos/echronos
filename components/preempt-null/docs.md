@@ -3,7 +3,7 @@
 ## Preemption
 
 The RTOS is non-preemptive, which means that any context switch (see [Task Switching]) is actively caused by code that the current task executes.
-In other words, once a task becomes the current task, it is in full control of the CPU, which it can only relinquish by actively causing a task switch.
+In other words, once a task becomes the current task, it is in full control of the CPU, which it can relinquish only by actively causing a task switch.
 While [Interrupt Service Routines] interrupt the current task, they immediately resume the same task and do not lead to task switches.
 
 This also means that the system never performs a context switch asynchronously on its own or without an explicit action from the current task itself.

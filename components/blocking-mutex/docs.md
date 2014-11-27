@@ -48,7 +48,7 @@ for (idx = 0; idx != length; idx += 1) {
 [...]</pre>
 
 Mutexes can help to prevent such consistency issues.
-Used correctly, a mutex ensures that a only a single task at a time can execute code paths like the above.
+Used correctly, a mutex ensures that only a single task at a time can execute code paths like the above.
 
 At any given time, a mutex is in exactly one of two possible states: available or acquired.
 Initially, each mutex is available.
@@ -135,7 +135,7 @@ If the mutex is in the *available* state, it transitions into the *acquired* sta
 If the mutex is in the *acquired* state, the mutex state does not change, but the calling task blocks and a task switch occurs.
 After the task unblocks and becomes the current task again, it attempts to acquire the mutex again in the same fashion until successful.
 
-This API is guaranteed to only return after the calling task has transitioned successfully the mutex from the *available* into the *acquired* state.
+This API is guaranteed to return only after the calling task has transitioned successfully the mutex from the *available* into the *acquired* state.
 
 This implies that a task cannot successfully acquire the same mutex twice without releasing it in between.
 Attempting to do so effectively blocks the calling task indefinitely.

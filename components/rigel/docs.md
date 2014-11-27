@@ -57,7 +57,7 @@ To mitigate this issue, the RTOS distinguishes between *global signals* and *tas
 
 ### Global vs. Task Signals
 
-*Global signals* are signals which are handled in multiple different tasks whereas a *task signal* is only handled by a small fixed set of tasks known at configuration time.
+*Global signals* are signals which are handled in multiple different tasks whereas a *task signal* is handled only by a small fixed set of tasks known at configuration time.
 
 A typical example of a global signal is one that a driver task sends to client tasks to inform them that the driver has new data available for those clients.
 Since those clients can be any number of tasks that are not necessarily known at configuration time, the signal in question is best configured as a global one.
@@ -76,7 +76,7 @@ This may allow the application to configure and use a smaller, more efficient ty
 
 For application correctness, it is crucial that task signals are [configured](#task-signal-configuration) and used correctly.
 The system configuration needs to be correct in the sense that each task signal is configured for the correct set of tasks, i.e., all tasks that receive and handle that signal.
-The application implementation needs to be correct in the sense that each task signal is only sent to and handled in the set of tasks configured in the system configuration.
+The application implementation needs to be correct in the sense that each task signal is sent only to and handled only in the set of tasks configured in the system configuration.
 
 For correctness, it is necessary and sufficient that the implementation does not send a task signal to a task outside the configured task set.
 For efficiency, it is recommended to configure signals as task signals with as small task sets as possible.
@@ -111,7 +111,7 @@ This function does not return.
 <div class="codebox">void task_start(TaskId task);</div>
 
 The [<span class="api">task_start</span>] API starts the specified task.
-This API must only be called once for each task that is not automatically started by the RTOS.
+This API must be called only once for each task that is not automatically started by the RTOS.
 This function is merely a convenience function for sending `SIGNAL_SET_START` to the function.
 
 ### <span class="api">yield</span>

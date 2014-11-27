@@ -17,10 +17,11 @@ This chapter describes the runtime application programming interface (APIs) prov
 ## Incorrect API Usage
 
 The RTOS API design and implementation leave room for the application to use it incorrectly.
-For example, there are generally no safeguards in the RTOS itself against the application supplying invalid task ID values to API functions.
+For example, there are generally no safeguards in the RTOS itself against the application supplying invalid task-ID values to API functions.
 To achieve correct system behavior, it is the application's responsibility to use the RTOS API under the conditions and requirements documented here.
 
-The RTOS configuration allows tho enable detection of incorrect API usage (see [`api_asserts`]).
+The RTOS implementation is able to detect some case of the application using the RTOS API incorrectly.
+This feature needs to be enabled in the system configuration (see [`api_asserts`]).
 When enabled, the RTOS checks some but not all cases of the API being used incorrectly.
 If it detects such a case, it calls the `fatal_error` function.
 
@@ -28,7 +29,7 @@ If it detects such a case, it calls the `fatal_error` function.
 
 The RTOS defines a number of *types* that are used in the API.
 Most types are implemented as unsigned integers (e.g: `uint8_t`).
-Unfortunately, the C language only performs type-checking on the underlying types, ignoring any type definitions (`typedef`s).
+Unfortunately, the C language performs type checking only on the underlying types, but ignores any type definitions (`typedef`s).
 It is recommended that a suitable static analysis or lint tool is used to ensure that application code is using the correct types when calling APIs.
 
 ## Constant Definitions

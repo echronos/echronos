@@ -1,0 +1,22 @@
+Task: 2aKfgo-rigel_documentation
+==============================================================================
+
+Motivation
+----------
+
+The manual for the rigel variant is visually not entirely appealing, lacks graphics files, and is partially inconsistent with the implementation.
+
+
+Goals
+--------
+
+- ensure that all graphics files are included in the generated documentation for the rigel variant
+- ensure the visual quality of the generated documentation is similar to that of the original Pages-based manual
+- ensure that the documentation is accurate, up-to-date, and consistent with the implementation
+
+Test Plan
+---------
+
+# generate rigel manual: x.py build build-manuals
+
+# review generated PDF file, comparing it against original manual and implementation

@@ -1,0 +1,61 @@
+Breakaway Task Review
+=======================
+
+Task name: 2aKfgo-rigel_documentation
+Version reviewed: 62e06f43a9b43da584896c93130f5a7222f7dd2d
+Reviewer: timg
+Date: 2014-11-26
+Conclusion: Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: components/docs.md:20
+Comment: "task ID" should be hyphenated, i.e., "invalid task-ID values".
+
+Location: components/docs.md:23
+Comment: "allows tho enable detection" obviously has some sort of mistake.  I assume it's supposed to be "allows the detection", "enables the detection", or "allows the ? to enable detection".
+
+Location: components/docs.md:31
+Comment: "type-checking" does not need to be hyphenated.
+
+Location: components/blocking-mutex/docs.md:51
+Comment: "ensures that a only a single task" should be changed to "ensures that only a single task"
+
+Location: components/blocking-mutex/docs.md:138
+Comment: "guaranteed to only return" should be changed to "guaranteed to return only".
+
+Location: components/interrupt-event-armv7m/docs.md:11
+Comment: "API must only be called" should be changed to "API must be called only".
+
+Location: components/message-queue/docs.md:93
+Comment: "it only waits for" should be changed to "it waits only for"
+
+Location: components/message-queue/docs.md:152
+Comment: "it only waits for" should be changed to "it waits only for"
+
+Location: components/preempt-null/docs.md:6
+Comment: "which it can only relinquish" should be changed to "which it can relinquish only"
+
+Location: components/rigel/docs.md:60
+Comment: "*task signal* is only handled by" should be changed to "*task signal* is handled only by"
+
+Location: components/rigel/docs.md:79
+Comment: "each task signal is only sent to and handled in the set of tasks" is incorrect.  A correct form would be "each task signal is sent only to and handled only in the set of tasks", but that is a bit verbose.  Perhaps "each task signal is sent to and handled in only the set of tasks"?
+
+Location: components/rigel/docs.md:114
+Comment: "must only be called once" should be changed to "must be called only once"
+
+Location: components/task/docs.md:120
+Comment: "underlying hardware can only support" should be changed to "underlying hardware can support only"
+
+Location: components/timer/docs.md:14
+Comment: "instead it only counts ticks" should be changed to "instead it counts only ticks"
+
+Location: components/timer/docs.md:53
+Comment: "ticks are only processed" should be changed to "ticks are processed only"
+
+[stg: addressed all comments as suggested]

@@ -11,3 +11,8 @@ A reduction by 2 to 118 characters allows to manage indented source code (e.g., 
 
 tGT1n0: In docstrings and comments of project Python files, each sentence shall start on a new line.
 Rationale: simplifies file handling with line-oriented tools, such as diff (same rationale as for plain text files).
+
+g0O2QN: RTOS changes visible to application developers, in particular changes to RTOS concepts, APIs, or configuration items, always need to be accompanied by the corresponding updates to their documentation.
+Rationale: helps to keep the documentation up-to-date with the implementation.
+
+eIhEVe: All text in the repository shall use American English spelling and grammar (as opposed to British or Australian spelling or grammar).

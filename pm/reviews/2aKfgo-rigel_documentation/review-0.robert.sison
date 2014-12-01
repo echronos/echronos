@@ -1,0 +1,41 @@
+Breakaway Task Review
+=======================
+
+Task name: 2aKfgo-rigel_documentation
+Version reviewed: f4d55f7d465d752c09d044301a7d305e0702654a
+Reviewer: robert.sison
+Date: 2014-11-10
+Conclusion: Rework
+
+Overall comments:
+Looks fine apart from specific comments below.
+
+
+Specific comments
+=================
+
+Location: components/blocking-mutex/docs.md:112
+Comment 1: Rework
+Unaddressed FIXME ('FIMXE'?) comment at this location.
+
+[stg: removed comment because issue is in backlog]
+
+Location: components/context-switch-non-preemptive/docs.md
+Comment 2: Rework
+Looks like this file's been committed with DOS-style line endings.
+
+[stg: changed line breaks to UNIX style]
+
+Location: components/signal/docs.md:43
+Comment 3: Rework
+Unaddressed FIXME comment at this location.
+
+[stg: issue had already been addressed but not removed]
+
+Location: pylib/manuals.py:102
+Comment 4: Rework
+-    if verbose:
++    if verbose or True:
+Should this be reverted?
+
+[stg: reverted]

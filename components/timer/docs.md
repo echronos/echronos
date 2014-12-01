@@ -1,28 +1,9 @@
 /*| doc_header |*/
 
 /*| doc_concepts |*/
-## Time and Timers
+## Timers
 
-It is not surprising that time is an important aspect of most real-time systems.
-The RTOS provides a number of important interfaces for keeping track of time.
-The RTOS tracks overall execution of the system, and additionally provides timer objects that allow tasks to schedule certain actions to happen after a specific duration of time.
-
-### Ticks
-
-All of the time-based interfaces in the RTOS are based around a tick concept.
-The RTOS does not keep track of physical or wall-clock time;
-instead it counts only ticks, so time and durations are expressed only in ticks in the RTOS API.
-How much absolute physical time a tick represents is left to the system design.
-
-The RTOS depends on the system to generate ticks, provide a suitable system tick driver, and inform the RTOS of each tick.
-The system designer should ensure that the RTOS [<span class="api">timer_tick</span>] API is called for each tick.
-The [<span class="api">timer_tick</span>] API is safe to call from an interrupt service routine.
-In a non-preemptive system, a tick is not processed immediately but when the current task yields or blocks.
-
-When a system tick is processed, the [<span class="api">timer_current_ticks</span>] API value is incremented by one.
-This allows tasks to keep track of the amount of time that the system has been running for, or shorter durations as they choose.
-
-### Timers
+The RTOS provides timer objects that allow tasks to schedule certain actions to happen after a specific duration of time.
 
 Timers trigger certain actions, such as sending a signal, at a configurable time (expressed in ticks).
 The [Timer Configuration] defines which timers exist in a system and what their properties are.
@@ -42,36 +23,15 @@ If the timer is periodic, it automatically starts counting down again.
 
 - Alternatively, a timer may be a one-shot timer, in which case it is disabled upon expiring, so it does not start counting down again.
 
-### Timing Considerations
+### Timing Considerations for Timers
 
-As timers are based on ticks, it is important to understand some of the limitations that this imposes.
-
-Firstly, the best possible timing resolution is limited by the tick period.
-If we assume a 40Hz tick (25ms period), then a desired period of 30ms must either be rounded down to 25ms or up to 50ms.
-
-The second limiting factor comes into play only for non-preemtive systems.
-In that case, ticks are processed only when a task yields or blocks, so there is a delay between the system calling the [<span class="api">timer_tick</span>] API and the RTOS processing the tick, including timer handling.
-To ensure that this delay is bounded, the RTOS requires tasks to not run for longer than a tick period.
-For long running tasks this means that the task must yield at a higher frequency than the tick.
-With this restriction in place, the delay for processing a tick is at most a tick period.
-
-From a practical point of view this means that if the [<span class="api">timer_current_ticks</span>] variable reads as 10, the actual elapsed time could be anywhere between 250ms and 300ms (more generally elapsed time is in the range `timer_current_ticks * tick_period` to `(timer_current_ticks + 2) * tick_period`).
-To see how this can happen, consider the case where [<span class="api">timer_current_ticks</span>] is 10.
-If a task is scheduled and then the next tick occurs (which indicates 275ms of real-time has elapsed), the tick is not processed until the newly scheduled task yields (or blocks).
-Since the task can execute for up to 25ms, it is possible for the elapsed time to reach (just under) 300ms, with the [<span class="api">timer_current_ticks</span>] still reading as 10 (250ms).
-Another consequence of this is that actual length of the time between two ticks being processed can be anywhere from zero to 2 times the tick period (e.g.: 0ms to 50ms in the current example).
-If we continue the previous example and the task blocks at after executing for about 25ms, then the pending tick (which is now just under 25ms overdue) is processed.
-Immediately after the pending tick is processed, the new tick happens, and may be processed immediately (if, for example, the RTOS is idle).
-
-It is useful to consider the impact on actual timer objects.
+It is useful to consider the impact of [Timing Considerations] on actual timer objects.
 First, assume a periodic timer, which is set up with a period of 10 ticks.
 Using the same 25ms tick period as above, the time between consecutive timer expiries can range between 225ms and 275ms.
 Only over long periods of time, the average time between consecutive expiries approaches the nominal 250ms value.
 A similar level of imprecision is evident in a one-shot timer.
 A 10-tick one-shot timer expires between 225ms and 275ms after it is set.
 When a timer is required to expire after at least 250ms but not before then, it needs to be set to 11 ticks.
-
-Note that the above latency considerations also apply to the value of the [<span class="api">timer_current_ticks</span>] and [<span class="api">sleep</span>] APIs.
 
 /*| doc_api |*/
 ## Timer API
@@ -85,41 +45,11 @@ For all timers in the system, the configuration tool creates a constant with the
 
 [^TimerId_width]: This is normally a `uint8_t`.
 
-### <span class="api">TicksAbsolute</span>
-
-The [<span class="api">TicksAbsolute</span>] type is used to represent an absolute number of ticks.
-It is a 32-bit unsigned integer that has a large enough range to represent the total number of ticks since system boot.
-For a 40Hz (25ms period) tick, this can handle over 1,200 days worth of ticks.
-
-### <span class="api">TicksRelative</span>
-
-The [<span class="api">TicksRelative</span>] type is used to represent a number of ticks relative to a point in time.
-It is a 16-bit unsigned integer.
-Assuming a 40Hz tick this provides range for up to 27 minutes' worth of ticks.
-
 ### `TIMER_ID_<name>`
 
 `TIMER_ID_<name>` has the type [<span class="api">TimerId</span>].
 A constant is created for each timer in the system.
 Note that *name* is the upper-case conversion of the timer's name.
-
-### <span class="api">timer_current_ticks</span>
-
-<div class="codebox">TicksAbsolute timer_current_ticks;</div>
-
-The value of this variable is the current global tick count in the system.
-It directly reflects how many times the <span class="api">timer_tick</span> API has been called since the system startup.
-
-### <span class="api">timer_tick</span>
-
-<div class="codebox">void timer_tick(void);</div>
-
-This API is to be called to register a system tick with the RTOS.
-It is usually triggered by a periodic, external event, such as an interrupt generated by a hardware timer.
-It is safe to call this API directly from an interrupt service routine.
-
-Note that the RTOS timer functionality directly depends on this API being called regularly.
-The registered tick remains pending until the RTOS processes the tick (see [Timing Considerations]).
 
 ### <span class="api">timer_enable</span>
 

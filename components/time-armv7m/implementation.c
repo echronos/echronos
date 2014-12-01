@@ -11,32 +11,32 @@
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static uint8_t timer_pending_ticks_get_and_clear_atomically(void);
+static uint8_t time_pending_ticks_get_and_clear_atomically(void);
 
 /*| state |*/
-static volatile uint8_t timer_pending_ticks;
+static volatile uint8_t time_pending_ticks;
 
 /*| function_like_macros |*/
-#define timer_pending_ticks_check() ((bool)timer_pending_ticks)
+#define time_pending_ticks_check() ((bool)time_pending_ticks)
 
 /*| functions |*/
 static uint8_t
-timer_pending_ticks_get_and_clear_atomically(void)
+time_pending_ticks_get_and_clear_atomically(void)
 {
     uint8_t pending_ticks;
     asm volatile("cpsid i");
-    pending_ticks = timer_pending_ticks;
-    timer_pending_ticks = 0;
+    pending_ticks = time_pending_ticks;
+    time_pending_ticks = 0;
     asm volatile("cpsie i");
     return pending_ticks;
 }
 
 /*| public_functions |*/
 void
-{{prefix_func}}timer_tick(void)
+{{prefix_func}}time_tick(void)
 {
-    if (timer_pending_ticks < 2)
+    if (time_pending_ticks < 2)
     {
-        timer_pending_ticks += 1;
+        time_pending_ticks += 1;
     }
 }

@@ -1,0 +1,29 @@
+Task: 8EeCln-separate-timer-api
+==============================================================================
+
+Motivation
+----------
+
+Currently the `timer` component contains both the underlying RTOS timekeeping mechanisms, as well as the timer API.
+However, we will soon be introducing features (mutex/sem timeouts) that will be dependent on the RTOS' internal timekeeping, to RTOS variants (in this case Kochab) that do not need to expose the timer API.
+This motivates our separating the timer API from the underlying timekeeping mechanisms, into two separate components.
+
+
+Goals
+--------
+
+Split the existing timer component into a `time` and a `timer` component, and rework the documentation appropriately.
+
+The scope of the `time` component will anticipate what will minimally be needed in order to implement (1) sleep, and (2) mutex/semaphore timeouts, independently of the timer API.
+Note that this means internal RTOS support for per-task, oneshot timers, which is dependent on the existing .prx schema for timer elements being moved to the `time` component.
+Since this is unavoidable, we simply choose not to document the timer configuration schema unless the timer API is to be exposed, i.e. the `timer` component is present.
+
+Future work may further separate the internal timer support out from `time` into a `timer-base` component, but for now we will stick to what is strictly necessary to exclude the timer APIs from RTOS variants that don't expose them.
+
+
+Test Plan
+---------
+
+Build and run the existing rigel-system on machine-qemu-simple.
+
+Manually also ensure a mutex/semaphore timeouts prototype (see: robs/lock-wait-timeouts) works on top of these changes.

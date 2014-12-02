@@ -17,7 +17,6 @@ class EntryModule(Module):
     <entry name="bitband_size" type="int" default="0x100000" />
     <entry name="bitband_alias" type="int" default="0x22000000" />
 
-    <entry name="exception_reset" type="c_ident" default="reset" />
     <entry name="nmi" type="c_ident" default="reset" />
     <entry name="hardfault" type="c_ident" default="reset" />
     <entry name="memmanage" type="c_ident" default="reset" />

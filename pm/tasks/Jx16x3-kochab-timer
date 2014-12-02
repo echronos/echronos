@@ -1,0 +1,23 @@
+Task: Jx16x3-kochab-timer
+==============================================================================
+
+Motivation
+----------
+
+Kochab will need to have timer support in order to implement timeouts for mutex_lock and sem_wait.
+We don't mind expanding Kochab's functionality to offer a timer API, so this just means adding the timer component for all platforms that support Kochab.
+
+Particularly, implementing a sleep() API for Kochab will set up the internal task timer support that will be necessary for the mutex/semaphore timeout support.
+Currently, 'sleep' is a RTOS variant-specific API only offered by Rigel.
+
+
+Goals
+--------
+
+Add timer APIs to Kochab on all platforms, including internal task timer support exercised by a sleep API.
+
+
+Test Plan
+---------
+
+Add a test system for Kochab that exercises, at the very least, the new sleep API.

@@ -27,6 +27,12 @@ class EntryModule(Module):
     <entry name="debug_monitor" type="c_ident" default="reset" />
     <entry name="pendsv" type="c_ident" default="reset" />
     <entry name="systick" type="c_ident" default="reset" />
+    <entry name="external_irqs" type="list" default="[]">
+        <entry name="external_irq" type="dict">
+          <entry name="number" type="int"/>
+          <entry name="handler" type="c_ident" default="reset" />
+        </entry>
+    </entry>
 
 </schema>"""
 
@@ -42,6 +48,11 @@ class EntryModule(Module):
         config['bit_aliases'] = []  # A list of variables that should have bitband aliases created.
 
         config.update(super().configure(xml_config))
+        # Fill in external IRQ vector list
+        xirqs = [{'handler':'reset'}] * 240
+        for xirq in config['external_irqs']:
+            xirqs[xirq['number']] = xirq
+        config['external_irqs'] = xirqs
 
         return config
 

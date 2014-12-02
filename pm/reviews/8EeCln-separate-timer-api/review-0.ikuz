@@ -18,18 +18,29 @@ Comment:
 #define interrupt_system_event_check() [[#timer_process]]time_pending_ticks_check()[[/timer_process]][[^timer_process]]false[[/timer_process]]
 Why is it "[#timer_process]" when it's about the "time_*" API?
 
+[robs: Ah, I missed this one - fixed.]
+
 Location: components/time-armv7m/header.h: 
 Comment:
 Why is the "timer_tick" interface platform specific? If there's a good reason, maybe explain it in comments.
+
+[robs: According to Stefan, there are apparently other platforms whose optimizations would be mangled by trying to abstract what we currently see in time-armv7m to find a smaller platform-specific portion of time_tick.
+As we discussed offline inline comments shouldn't refer to the RTOS component structure, which won't be visible to the users of releases.]
 
 Location: components/time-armv7m/implementation.c: 35-42
 Comment:
 What does this code mean?  in particular why the "<2"?  Add some explanatory comments.
 Also, why is this implementation paltform specific?
 
+[robs: Added inline comment.]
+
 Location: components/time/header.h:5-7
 Comment:
 Why are these public?
+
+[robs: The tick ones are really part of the time API - TicksAbsolute is needed for time_current_ticks.
+TicksRelative I realize isn't used here but will be needed for time-dependent APIs like sleep, mutex/sem timeouts etc.
+The only odd one out is TimerId, and this is public here because timer stuff is internal when we don't include 'timer' component but needs to be public when we do include 'timer', so attempting to hide it will cause an even bigger mess.]
 
 Location: 
 components/time/schema.xml
@@ -38,9 +49,15 @@ Comment:
 Why is this part of the public API in the "time" module called "timer_*" instead of "time_*"?  
 Also, it would be good to have some explanation and motivation for how the modules for time and timer are split.
 
+[robs: Any timer elements of the 'time' component are for internal timer-dependent APIs like sleep, but they're still named 'timer' because they happen to be the same as the underlying mechanism for the timer API.
+Unfortunately the schema must be present in order for the variant.py script to generate the internal timers for pystache, even if we don't advertise the API.
+The workaround is simply not to document the configuration API unless the timer API is present.]
+
 Location: x.py:181-182
 Comment:
 Why is component time include twice?
+
+[robs: The one with pkg_component=True is the platform-specific one, which must be included separately from the generic one - the 'interrupt-event' components are another example of this.]
 
 Location: components/time/docs.md:6
 Comment:

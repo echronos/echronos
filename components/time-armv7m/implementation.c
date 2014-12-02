@@ -35,6 +35,8 @@ time_pending_ticks_get_and_clear_atomically(void)
 void
 {{prefix_func}}time_tick(void)
 {
+    /* If time_pending_ticks > 1, a timer overflow has occurred, which is considered fatal.
+     * We discard any ticks after that to prevent the the variable from wrapping back to zero. */
     if (time_pending_ticks < 2)
     {
         time_pending_ticks += 1;

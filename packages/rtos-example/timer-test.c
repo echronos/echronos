@@ -1,6 +1,7 @@
 #include <stdbool.h>
 
-#include "rtos-kochab.h"
+#include "rtos-{{variant}}.h"
+#include "machine-timer.h"
 #include "debug.h"
 
 #define DEMO_ERROR_ID_WATCHDOG_A 0xfa
@@ -27,13 +28,7 @@ tick_irq(void)
 {
     static uint8_t count;
 
-    asm volatile(
-        /* Write-1-to-clear:
-         *   In TSR (timer status register)
-         *     TSR[FIS] (fixed-interval timer interrupt status) */
-        "lis %%r3,0x400\n"
-        "mttsr %%r3\n"
-        ::: "r3");
+    machine_timer_clear();
 
     debug_print("tick_irq: ");
     debug_printhex32(count);
@@ -124,21 +119,7 @@ fn_b(void)
 int
 main(void)
 {
-    /*
-     * Configure a fixed interval timer
-     * Enable:
-     *  In TCR (timer control register)
-     *    TCR[FIE] (fixed-interval interrupt enable)
-     *  In MSR (machine state register)
-     *    MSR[EE] (external enable) -> Note: this also enables other async interrupts
-     *
-     * Set period: TCR[FPEXT] || TCR[FP]
-     */
-    asm volatile(
-        "mftcr %%r3\n"
-        "oris %%r3,%%r3,0x380\n" /* 0x300 = TCR[FP], 0x80 = TCR[FIE] */
-        "mttcr %%r3"
-        ::: "r3");
+    machine_timer_init();
 
     debug_println("Starting RTOS");
     rtos_start();

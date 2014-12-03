@@ -1,37 +1,32 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <system>
   <modules>
-    <module name="ppce500.build" />
-    <module name="ppce500.default-linker" />
-    <module name="ppce500.interrupts-util" />
-    <module name="ppce500.vectable">
-      <preemption>true</preemption>
-      <fixed_interval_timer>
-        <handler>tick_irq</handler>
-        <preempting>true</preempting>
-      </fixed_interval_timer>
+    <module name="armv7m.build" />
+    <module name="armv7m.ctxt-switch" />
+    <module name="armv7m.vectable">
+      <systick>tick_irq</systick>
     </module>
-    <module name="ppce500.debug" />
+    <module name="armv7m.semihost-debug" />
     <module name="generic.debug" />
 
-    <module name="ppce500.rtos-kochab">
-      <internal_asserts>true</internal_asserts>
-      <fatal_error>fatal</fatal_error>
+    <module name="armv7m.rtos-rigel">
       <prefix>rtos</prefix>
+      <fatal_error>fatal</fatal_error>
+
       <tasks>
 
         <task>
           <name>a</name>
           <function>fn_a</function>
-          <priority>30</priority>
           <stack_size>8192</stack_size>
+          <start>true</start>
         </task>
 
         <task>
           <name>b</name>
           <function>fn_b</function>
-          <priority>10</priority>
           <stack_size>8192</stack_size>
+          <start>true</start>
         </task>
 
       </tasks>
@@ -49,12 +44,16 @@
         <timer>
           <name>watchdog_b</name>
         </timer>
+
       </timers>
 
       <signal_labels>
 
         <signal_label>
           <name>wake</name>
+          <tasks>
+            <task>a</task>
+          </tasks>
         </signal_label>
 
       </signal_labels>
@@ -65,9 +64,9 @@
 
     </module>
 
-    <module name="machine-qemu-ppce500.example.machine-timer" />
+    <module name="machine-qemu-simple.example.machine-timer" />
     <module name="rtos-example.timer-test">
-      <variant>kochab</variant>
+      <variant>rigel</variant>
     </module>
 
   </modules>

@@ -28,7 +28,9 @@ Add test systems for machine-qemu-simple that run the existing Kochab mutex, sig
 
 Also add a new test program and system for the task preemption functionality to run on machine-qemu-simple, matching the behaviour of the existing 'kochab-system' for machine-qemu-ppce500.
 
-A current and significant limitation to testing this feature is that the BASEPRI mechanism on machine-qemu-simple does not appear to work correctly.
+A current limitation to testing Kochab after the introduction of this feature is that the BASEPRI mechanism on machine-qemu-simple does not appear to work correctly.
 Therefore, running any of the above test programs on machine-qemu-simple will likely result in fatal errors during runtime due to violated internal post/preconditions.
-The actual test regime is to run these programs on the ARMV7-M hardware used by the SMACCM project, with the build options and system configurations tweaked locally to accommodate this.
-Fixing machine-qemu-simple or adding support for new hardware is not within the scope of this feature, but one or the other of these will be necessary future work in order for us to do any regression-testing of the runtime behaviour of ARMv7-M Kochab systems.
+
+Instead, all Kochab programs will now be built for and tested on machine-stm32f4-discovery.
+Incidentally, the Kochab demo images built for machine-stm32f4-discovery will also run without modification on the ARMV7-M hardware used by the SMACCM project.
+Fixing machine-qemu-simple or adding support for new hardware is not within the scope of this feature.

@@ -27,6 +27,8 @@ Comment 3: Rework
 Is there a particular reason why this file is called *machine*-timer.c?
 If not, I'd prefer hardware-timer.c instead because *machine* is very unspecific.
 
+[robs: As discussed offline, I named the hardware timer files "machine-timer" because they're expected to be defined as a subpackage of the machine-* package]
+
 Location: components/timer/docs.md:190
 Comment 4: Rework
 The sentence "See the [Timer Configuration] section for details on configuring each task." is out of place.

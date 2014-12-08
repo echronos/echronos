@@ -13,6 +13,9 @@ class KochabModule(Module):
     def configure(self, xml_config):
         config = super().configure(xml_config)
 
+        # Create builtin signals
+        config['signal_labels'].append({'name': '_task_timer', 'idx': len(config['signal_labels'])})
+
         # Create signal_set definitions from signal definitions:
         config['signal_sets'] = [{'name': sig['name'], 'value': 1 << sig['idx'], 'singleton': True}
                                  for sig in config['signal_labels']]
@@ -25,6 +28,16 @@ class KochabModule(Module):
         tasks.sort(key=itemgetter('priority'), reverse=True)
         for idx, t in enumerate(tasks):
             t['idx'] = idx
+            # Create a timer for each task
+            timer = {'name': '_task_' + t['name'],
+                     'error': 0,
+                     'reload': 0,
+                     'task': t,
+                     'idx': len(config['timers']),
+                     'enabled': False,
+                     'sig_set': '_task_timer'}
+            t['timer'] = timer
+            config['timers'].append(timer)
         return config
 
 module = KochabModule()

@@ -34,6 +34,12 @@ struct timer
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
+{{#timers.length}}
+static void timer_process_one(struct timer *timer);
+static void timer_enable({{prefix_type}}TimerId timer_id);
+static void timer_oneshot({{prefix_type}}TimerId timer_id, {{prefix_type}}TicksRelative timeout);
+{{/timers.length}}
+static void timer_tick_process(void);
 
 /*| state |*/
 {{prefix_type}}TicksAbsolute {{prefix_func}}timer_current_ticks;
@@ -57,6 +63,7 @@ static struct timer timers[{{timers.length}}] = {
 {{#timers.length}}
 #define timer_expired(timer, timeout) ((timer)->enabled && (timer)->expiry == timeout)
 #define timer_is_periodic(timer) ((timer)->reload > 0)
+#define timer_reload_set(timer_id, ticks) timers[timer_id].reload = ticks
 #define current_timeout() ((TicksTimeout) {{prefix_func}}timer_current_ticks)
 #define TIMER_PTR(timer_id) (&timers[timer_id])
 {{/timers.length}}
@@ -68,6 +75,8 @@ static struct timer timers[{{timers.length}}] = {
 static void
 timer_process_one(struct timer *const timer)
 {
+    precondition_preemption_disabled();
+
     if (timer_is_periodic(timer))
     {
         timer->expiry += timer->reload;
@@ -87,52 +96,16 @@ timer_process_one(struct timer *const timer)
         {
             timer->overflow = true;
         }
-        {{prefix_func}}signal_send_set(timer->task_id, timer->signal_set);
+        signal_send_set(timer->task_id, timer->signal_set);
     }
+
+    postcondition_preemption_disabled();
 }
-{{/timers.length}}
 
 static void
-timer_tick_process(void)
+timer_enable(const {{prefix_type}}TimerId timer_id)
 {
-    const uint8_t pending_ticks = timer_pending_ticks_get_and_clear_atomically();
-
-    if (pending_ticks > 1)
-    {
-        {{fatal_error}}(ERROR_ID_TICK_OVERFLOW);
-    }
-
-    if (pending_ticks)
-    {
-{{#timers.length}}
-        {{prefix_type}}TimerId timer_id;
-        struct timer *timer;
-        TicksTimeout timeout;
-{{/timers.length}}
-
-        {{prefix_func}}timer_current_ticks++;
-
-{{#timers.length}}
-        timeout = current_timeout();
-
-        for (timer_id = TIMER_ID_ZERO; timer_id <= TIMER_ID_MAX; timer_id++)
-        {
-            timer = TIMER_PTR(timer_id);
-            if (timer_expired(timer, timeout))
-            {
-                timer_process_one(timer);
-           }
-       }
-{{/timers.length}}
-    }
-}
-
-/*| public_functions |*/
-{{#timers.length}}
-void
-{{prefix_func}}timer_enable(const {{prefix_type}}TimerId timer_id)
-{
-    assert_timer_valid(timer_id);
+    precondition_preemption_disabled();
 
     if (timers[timer_id].reload == 0)
     {
@@ -143,6 +116,85 @@ void
         timers[timer_id].expiry = current_timeout() + timers[timer_id].reload;
         timers[timer_id].enabled = true;
     }
+
+    postcondition_preemption_disabled();
+}
+
+static void
+timer_oneshot(const {{prefix_type}}TimerId timer_id, const {{prefix_type}}TicksRelative timeout)
+{
+    precondition_preemption_disabled();
+
+    timer_reload_set(timer_id, timeout);
+    timer_enable(timer_id);
+    timer_reload_set(timer_id, 0);
+
+    postcondition_preemption_disabled();
+}
+{{/timers.length}}
+
+static void
+timer_tick_process(void)
+{
+    precondition_preemption_disabled();
+    {
+        const uint8_t pending_ticks = timer_pending_ticks_get_and_clear_atomically();
+
+        if (pending_ticks > 1)
+        {
+            {{fatal_error}}(ERROR_ID_TICK_OVERFLOW);
+        }
+
+        if (pending_ticks)
+        {
+            {{#timers.length}}
+            {{prefix_type}}TimerId timer_id;
+            struct timer *timer;
+            TicksTimeout timeout;
+            {{/timers.length}}
+
+            {{prefix_func}}timer_current_ticks++;
+
+            {{#timers.length}}
+            timeout = current_timeout();
+
+            for (timer_id = TIMER_ID_ZERO; timer_id <= TIMER_ID_MAX; timer_id++)
+            {
+                timer = TIMER_PTR(timer_id);
+                if (timer_expired(timer, timeout))
+                {
+                    timer_process_one(timer);
+                }
+            }
+            {{/timers.length}}
+        }
+    }
+    postcondition_preemption_disabled();
+}
+
+/*| public_functions |*/
+void
+{{prefix_func}}sleep(const {{prefix_type}}TicksRelative ticks) {{prefix_const}}REENTRANT
+{
+    preempt_disable();
+
+    timer_oneshot(task_timers[get_current_task()], ticks);
+    signal_wait({{prefix_const}}SIGNAL_ID__TASK_TIMER);
+
+    preempt_enable();
+}
+
+{{#timers.length}}
+void
+{{prefix_func}}timer_enable(const {{prefix_type}}TimerId timer_id)
+{
+    assert_timer_valid(timer_id);
+
+    preempt_disable();
+
+    timer_enable(timer_id);
+
+    preempt_enable();
 }
 
 void
@@ -158,9 +210,11 @@ void
 {
     assert_timer_valid(timer_id);
 
-    {{prefix_func}}timer_reload_set(timer_id, timeout);
-    {{prefix_func}}timer_enable(timer_id);
-    {{prefix_func}}timer_reload_set(timer_id, 0);
+    preempt_disable();
+
+    timer_oneshot(timer_id, timeout);
+
+    preempt_enable();
 }
 
 bool
@@ -170,17 +224,30 @@ bool
 
     assert_timer_valid(timer_id);
 
+    preempt_disable();
+
     r = timers[timer_id].overflow;
     timers[timer_id].overflow = false;
+
+    preempt_enable();
+
     return r;
 }
 
 {{prefix_type}}TicksRelative
 {{prefix_func}}timer_remaining(const {{prefix_type}}TimerId timer_id)
 {
+    {{prefix_type}}TicksRelative remaining;
+
     assert_timer_valid(timer_id);
 
-    return timers[timer_id].enabled ? timers[timer_id].expiry - current_timeout() : 0;
+    preempt_disable();
+
+    remaining = timers[timer_id].enabled ? timers[timer_id].expiry - current_timeout() : 0;
+
+    preempt_enable();
+
+    return remaining;
 }
 
 /* Configuration functions */
@@ -189,7 +256,7 @@ void
 {
     assert_timer_valid(timer_id);
 
-    timers[timer_id].reload = reload;
+    timer_reload_set(timer_id, reload);
 }
 
 void
@@ -197,9 +264,13 @@ void
 {
     assert_timer_valid(timer_id);
 
+    preempt_disable();
+
     timers[timer_id].error_id = ERROR_ID_NONE;
     timers[timer_id].task_id = task_id;
     timers[timer_id].signal_set = signal_set;
+
+    preempt_enable();
 }
 
 void

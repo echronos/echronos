@@ -17,6 +17,13 @@ static void block(void);
 static void unblock({{prefix_type}}TaskId task);
 
 /*| state |*/
+{{#timers.length}}
+static {{prefix_type}}TimerId task_timers[{{tasks.length}}] = {
+{{#tasks}}
+    {{prefix_const}}TIMER_ID_{{timer.name|u}},
+{{/tasks}}
+};
+{{/timers.length}}
 
 /*| function_like_macros |*/
 #define mutex_block_on(task) block_on(task)
@@ -75,7 +82,6 @@ unblock(const {{prefix_type}}TaskId task)
 }
 
 /*| public_functions |*/
-
 void
 {{prefix_func}}start(void)
 {

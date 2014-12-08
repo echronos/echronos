@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <modules>
+    <module name="armv7m.build" />
+    <module name="armv7m.ctxt-switch" />
+    <module name="armv7m.vectable">
+      <systick>tick_irq</systick>
+    </module>
+    <module name="armv7m.semihost-debug" />
+    <module name="generic.debug" />
+
+    <module name="armv7m.rtos-rigel">
+      <prefix>rtos</prefix>
+      <fatal_error>fatal</fatal_error>
+
+      <tasks>
+
+        <task>
+          <name>a</name>
+          <function>fn_a</function>
+          <stack_size>8192</stack_size>
+          <start>true</start>
+        </task>
+
+        <task>
+          <name>b</name>
+          <function>fn_b</function>
+          <stack_size>8192</stack_size>
+          <start>true</start>
+        </task>
+
+      </tasks>
+
+      <timers>
+
+        <timer>
+          <name>watchdog_a</name>
+        </timer>
+
+        <timer>
+          <name>wake_a</name>
+        </timer>
+
+        <timer>
+          <name>watchdog_b</name>
+        </timer>
+
+      </timers>
+
+      <signal_labels>
+
+        <signal_label>
+          <name>wake</name>
+          <tasks>
+            <task>a</task>
+          </tasks>
+        </signal_label>
+
+      </signal_labels>
+
+      <mutex>
+        <stats>false</stats>
+      </mutex>
+
+    </module>
+
+    <module name="machine-qemu-simple.example.machine-timer" />
+    <module name="rtos-example.timer-test">
+      <variant>rigel</variant>
+    </module>
+
+  </modules>
+</system>

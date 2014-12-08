@@ -85,16 +85,11 @@ void
 }
 
 void
-{{prefix_func}}sleep(const {{prefix_type}}TicksRelative ticks) {{prefix_const}}REENTRANT
-{
-    {{prefix_func}}timer_oneshot(task_timers[get_current_task()], ticks);
-    {{prefix_func}}signal_wait({{prefix_const}}SIGNAL_ID__TASK_TIMER);
-}
-
-void
 {{prefix_func}}start(void)
 {
+    {{#message_queues.length}}
     message_queue_init();
+    {{/message_queues.length}}
 
     {{#tasks}}
     context_init(get_task_context({{idx}}), entry_{{name}}, stack_{{idx}}, {{stack_size}});

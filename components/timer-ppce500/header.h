@@ -11,6 +11,4 @@
 /*| public_extern_definitions |*/
 
 /*| public_function_definitions |*/
-void {{prefix_func}}start(void);
-void {{prefix_func}}yield(void) {{prefix_const}}REENTRANT;
-void {{prefix_func}}task_start({{prefix_type}}TaskId task);
+void {{prefix_func}}timer_tick(void);

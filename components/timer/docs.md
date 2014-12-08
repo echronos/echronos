@@ -74,6 +74,17 @@ When a timer is required to expire after at least 250ms but not before then, it 
 Note that the above latency considerations also apply to the value of the [<span class="api">timer_current_ticks</span>] and [<span class="api">sleep</span>] APIs.
 
 /*| doc_api |*/
+## Sleep API
+
+### <span class="api">sleep</span>
+
+<div class="codebox">void sleep(TicksRelative ticks);</div>
+
+The [<span class="api">sleep</span>] API blocks the current task for the specified number of timer ticks.
+After `ticks` timer ticks, the task becomes runnable again.
+Note that that does not immediately make it the current task again.
+See the [Time and Timers] section for further information on timing and scheduling considerations.
+
 ## Timer API
 
 ### <span class="api">TimerId</span>
@@ -155,11 +166,15 @@ A timer overflows if the signal it sends on expiry would be lost.
 For example, if a task is expecting to receive signals from a periodic timer and does not receive them quickly enough, the timer is marked as having overflowed.
 Calling the [<span class="api">timer_check_overflow</span>] API clears the overflow mark if set.
 
+Note that on systems that support task preemption, the calling task may be subject to an unpredictable amount of delay between calling this function and evaluating its return value, in the case that the task is preempted.
+
 ### <span class="api">timer_remaining</span>
 
 <div class="codebox">TicksRelative timer_remaining(TimerId timer);</div>
 
 This API returns the number of ticks remaining before the specified timer expires.
+
+Note that on systems that support task preemption, the calling task may be subject to an unpredictable amount of delay between calling this function and evaluating its return value, in the case that the task is preempted.
 
 ### <span class="api">timer_reload_set</span>
 
@@ -187,7 +202,6 @@ The specified `error` code is passed to the configured [`fatal_error`] function.
 ### `timers`
 
 The `timers` configuration is a list of `timer` configuration objects.
-See the [Timer Configuration] section for details on configuring each task.
 
 ### `timers/timer/name`
 

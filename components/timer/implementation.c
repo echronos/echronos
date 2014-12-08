@@ -136,36 +136,40 @@ timer_oneshot(const {{prefix_type}}TimerId timer_id, const {{prefix_type}}TicksR
 static void
 timer_tick_process(void)
 {
-    const uint8_t pending_ticks = timer_pending_ticks_get_and_clear_atomically();
-
-    if (pending_ticks > 1)
+    precondition_preemption_disabled();
     {
-        {{fatal_error}}(ERROR_ID_TICK_OVERFLOW);
-    }
+        const uint8_t pending_ticks = timer_pending_ticks_get_and_clear_atomically();
 
-    if (pending_ticks)
-    {
-{{#timers.length}}
-        {{prefix_type}}TimerId timer_id;
-        struct timer *timer;
-        TicksTimeout timeout;
-{{/timers.length}}
-
-        {{prefix_func}}timer_current_ticks++;
-
-{{#timers.length}}
-        timeout = current_timeout();
-
-        for (timer_id = TIMER_ID_ZERO; timer_id <= TIMER_ID_MAX; timer_id++)
+        if (pending_ticks > 1)
         {
-            timer = TIMER_PTR(timer_id);
-            if (timer_expired(timer, timeout))
+            {{fatal_error}}(ERROR_ID_TICK_OVERFLOW);
+        }
+
+        if (pending_ticks)
+        {
+            {{#timers.length}}
+            {{prefix_type}}TimerId timer_id;
+            struct timer *timer;
+            TicksTimeout timeout;
+            {{/timers.length}}
+
+            {{prefix_func}}timer_current_ticks++;
+
+            {{#timers.length}}
+            timeout = current_timeout();
+
+            for (timer_id = TIMER_ID_ZERO; timer_id <= TIMER_ID_MAX; timer_id++)
             {
-                timer_process_one(timer);
+                timer = TIMER_PTR(timer_id);
+                if (timer_expired(timer, timeout))
+                {
+                    timer_process_one(timer);
+                }
             }
-       }
-{{/timers.length}}
+            {{/timers.length}}
+        }
     }
+    postcondition_preemption_disabled();
 }
 
 /*| public_functions |*/

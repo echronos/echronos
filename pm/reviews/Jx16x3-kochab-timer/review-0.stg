@@ -20,6 +20,8 @@ Location: components/timer/implementation.c:137
 Comment 2: Rework
 The function timer_tick_process() should assert that preemptions are disabled because that is a fundamental assumption made in this function.
 
+[robs: Added]
+
 Location: packages/machine-qemu-ppce500/example/machine-timer.c
 Comment 3: Rework
 Is there a particular reason why this file is called *machine*-timer.c?

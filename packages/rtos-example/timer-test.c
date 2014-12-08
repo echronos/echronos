@@ -12,6 +12,7 @@
 #define DEMO_A_SLEEP_TICKS (2 * DEMO_A_WAKE_PERIOD)
 #define DEMO_A_WAIT_COUNT 10
 #define DEMO_A_EXPECTED_TICKS ((DEMO_A_WAIT_COUNT / 2) * (DEMO_A_WAKE_PERIOD + DEMO_A_SLEEP_TICKS))
+#define DEMO_A_WATCHDOG_TICKS (DEMO_A_EXPECTED_TICKS + 1)
 
 #define DEMO_B_SLEEP_TICKS 2
 #define DEMO_B_WATCHDOG_TICKS (DEMO_B_SLEEP_TICKS + 1)
@@ -21,7 +22,7 @@
         debug_println(fail_str); \
         fatal(DEMO_ERROR_ID_TEST_FAIL); \
     }
-#define DEMO_FAIL_UNLESS(cond, fail_str) DEMO_FAIL_IF(!cond, fail_str)
+#define DEMO_FAIL_UNLESS(cond, fail_str) DEMO_FAIL_IF(!(cond), fail_str)
 
 bool
 tick_irq(void)
@@ -60,7 +61,7 @@ fn_a(void)
     debug_println("a: enabling watchdog timer");
     rtos_timer_error_set(RTOS_TIMER_ID_WATCHDOG_A, DEMO_ERROR_ID_WATCHDOG_A);
     demo_start = rtos_timer_current_ticks;
-    rtos_timer_oneshot(RTOS_TIMER_ID_WATCHDOG_A, DEMO_A_EXPECTED_TICKS + 1);
+    rtos_timer_oneshot(RTOS_TIMER_ID_WATCHDOG_A, DEMO_A_WATCHDOG_TICKS);
 
     debug_println("a: enabling periodic wake timer");
     rtos_timer_signal_set(RTOS_TIMER_ID_WAKE_A, RTOS_TASK_ID_A, RTOS_SIGNAL_ID_WAKE);
@@ -68,6 +69,11 @@ fn_a(void)
     rtos_timer_enable(RTOS_TIMER_ID_WAKE_A);
 
     for (count = 0; count < DEMO_A_WAIT_COUNT; count++) {
+        /* Although timer_remaining and timer_check_overflow are subject to unpredictable delays on RTOS variants that
+         * support preemption, this is not a problem on the highest priority Task A, which cannot be preempted. */
+        DEMO_FAIL_UNLESS(DEMO_A_WATCHDOG_TICKS - (rtos_timer_current_ticks - demo_start) ==
+                rtos_timer_remaining(RTOS_TIMER_ID_WATCHDOG_A), "a: unexpected time remaining!");
+
         if (count % 2) {
             /* No time elapses */
             DEMO_FAIL_UNLESS(rtos_signal_poll(RTOS_SIGNAL_ID_WAKE), "a: signal poll unexpectedly failed!");
@@ -92,6 +98,7 @@ fn_a(void)
     rtos_timer_disable(RTOS_TIMER_ID_WAKE_A);
 
     DEMO_FAIL_UNLESS(rtos_timer_current_ticks == demo_start + DEMO_A_EXPECTED_TICKS, "a: unexpected elapsed time!");
+    DEMO_FAIL_UNLESS(rtos_timer_remaining(RTOS_TIMER_ID_WATCHDOG_A) == 1, "a: unexpected time remaining!");
 
     debug_println("a: the watchdog should fatal error before this sleep completes");
     rtos_sleep(1);

@@ -89,15 +89,6 @@ Some compilers do not support function inlining.
 For performance or code space considerations, some APIs described in this chapter are implemented as function-like macros.
 This is an implementation detail and the use of all APIs must conform to the formal function definitions provided in this chapter.
 
-### <span class="api">sleep</span>
-
-<div class="codebox">void sleep(TicksRelative ticks);</div>
-
-The [<span class="api">sleep</span>] API blocks the current task for the specified number of timer ticks.
-After `ticks` timer ticks, the task becomes runnable again.
-Note that that does not immediately make it the current task again.
-See the [Time and Timers] section for further information on timing and scheduling considerations.
-
 ### <span class="api">start</span>
 
 <div class="codebox">void start(void);</div>

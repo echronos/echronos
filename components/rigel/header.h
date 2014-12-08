@@ -13,5 +13,4 @@
 /*| public_function_definitions |*/
 void {{prefix_func}}start(void);
 void {{prefix_func}}yield(void) {{prefix_const}}REENTRANT;
-void {{prefix_func}}sleep({{prefix_type}}TicksRelative ticks) {{prefix_const}}REENTRANT;
 void {{prefix_func}}task_start({{prefix_type}}TaskId task);

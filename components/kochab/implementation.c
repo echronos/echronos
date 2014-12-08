@@ -83,17 +83,6 @@ unblock(const {{prefix_type}}TaskId task)
 
 /*| public_functions |*/
 void
-{{prefix_func}}sleep(const {{prefix_type}}TicksRelative ticks) {{prefix_const}}REENTRANT
-{
-    preempt_disable();
-
-    timer_oneshot(task_timers[get_current_task()], ticks);
-    signal_wait({{prefix_const}}SIGNAL_ID__TASK_TIMER);
-
-    preempt_enable();
-}
-
-void
 {{prefix_func}}start(void)
 {
     sem_init();

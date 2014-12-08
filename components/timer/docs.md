@@ -74,6 +74,17 @@ When a timer is required to expire after at least 250ms but not before then, it 
 Note that the above latency considerations also apply to the value of the [<span class="api">timer_current_ticks</span>] and [<span class="api">sleep</span>] APIs.
 
 /*| doc_api |*/
+## Sleep API
+
+### <span class="api">sleep</span>
+
+<div class="codebox">void sleep(TicksRelative ticks);</div>
+
+The [<span class="api">sleep</span>] API blocks the current task for the specified number of timer ticks.
+After `ticks` timer ticks, the task becomes runnable again.
+Note that that does not immediately make it the current task again.
+See the [Time and Timers] section for further information on timing and scheduling considerations.
+
 ## Timer API
 
 ### <span class="api">TimerId</span>

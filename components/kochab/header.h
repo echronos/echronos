@@ -13,4 +13,3 @@
 
 /*| public_function_definitions |*/
 void {{prefix_func}}start(void);
-void {{prefix_func}}sleep({{prefix_type}}TicksRelative ticks) {{prefix_const}}REENTRANT;

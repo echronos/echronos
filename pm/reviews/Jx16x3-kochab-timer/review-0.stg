@@ -14,6 +14,8 @@ Location: components/kochab/header.h:16
 Comment 1: Rework
 Please move the implementation of the sleep() API function into the timer component to reduce code duplication between rigel and kochab.
 
+[robs: Done]
+
 Location: components/timer/implementation.c:137
 Comment 2: Rework
 The function timer_tick_process() should assert that preemptions are disabled because that is a fundamental assumption made in this function.

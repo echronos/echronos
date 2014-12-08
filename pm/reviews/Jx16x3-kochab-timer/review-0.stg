@@ -30,9 +30,13 @@ Comment 4: Rework
 The sentence "See the [Timer Configuration] section for details on configuring each task." is out of place.
 It can simply be removed.
 
+[robs: Done]
+
 Location: components/timer/docs.md:76ff
 Comment 5: Rework
 The documentation does not explain the behavior of the RTOS timer API in a preemptive system.
 By the time the application uses the information provided by several API functions, such as timer_remaining() and timer_check_overflow(), that information can be outdated.
 Application designers must be aware of this in order to create functionally correct applications.
 The documentation should be reworked to be as useful and informative as possible for application designers and developers who use preemptive RTOS variants.
+
+[robs: Added note warning of unpredictable amount of delay in the case the calling task is preempted]

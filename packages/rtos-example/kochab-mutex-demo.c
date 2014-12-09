@@ -1,5 +1,19 @@
 #include "rtos-kochab.h"
+#include "machine-timer.h"
 #include "debug.h"
+
+#define PART_6_SLEEP 3
+#define PART_7_SLEEP 3
+
+bool
+tick_irq(void)
+{
+    machine_timer_clear();
+
+    rtos_timer_tick();
+
+    return true;
+}
 
 void
 fatal(const RtosErrorId error_id)
@@ -108,6 +122,38 @@ fn_a(void)
     debug_println("a: waiting on signal to let new lock holder run");
     rtos_signal_wait_set(RTOS_SIGNAL_SET_DEMO_P5);
 
+    /* Part 6: B's lock attempt times out */
+    debug_println("");
+    debug_println("Part 6: B's lock attempt times out");
+    debug_println("");
+
+    debug_println("a: taking the lock");
+    rtos_mutex_lock(RTOS_MUTEX_ID_M6);
+    debug_println("a: sleeping");
+    rtos_sleep(PART_6_SLEEP);
+    debug_println("a: releasing the lock");
+    rtos_mutex_unlock(RTOS_MUTEX_ID_M6);
+    debug_println("a: signalling b");
+    rtos_signal_send_set(RTOS_TASK_ID_B, RTOS_SIGNAL_SET_DEMO_P6);
+    debug_println("a: waiting until b has the lock");
+    rtos_signal_wait_set(RTOS_SIGNAL_SET_DEMO_P6);
+
+    /* Part 7: B gets lock before timeout */
+    debug_println("");
+    debug_println("Part 7: B gets lock before timeout");
+    debug_println("");
+
+    debug_println("a: taking the lock");
+    rtos_mutex_lock(RTOS_MUTEX_ID_M7);
+    debug_println("a: sleeping");
+    rtos_sleep(PART_7_SLEEP);
+    debug_println("a: releasing the lock");
+    rtos_mutex_unlock(RTOS_MUTEX_ID_M7);
+    debug_println("a: waiting until b has the lock");
+    rtos_signal_wait_set(RTOS_SIGNAL_SET_DEMO_P7);
+    debug_println("a: blocking on the lock");
+    rtos_mutex_lock(RTOS_MUTEX_ID_M7);
+
     debug_println("");
     debug_println("Done.");
     for (;;)
@@ -166,6 +212,28 @@ fn_b(void)
     debug_println("b: sending signal to a");
     rtos_signal_send_set(RTOS_TASK_ID_A, RTOS_SIGNAL_SET_DEMO_P5);
 
+    /* Part 6: B's lock attempt times out */
+    debug_println("b: blocking on the lock, should time out");
+    if (rtos_mutex_lock_timeout(RTOS_MUTEX_ID_M6, PART_6_SLEEP - 1)) {
+        debug_println("b: lock unexpectedly succeeded before timeout!");
+    }
+    debug_println("b: waiting for a to signal the lock's free");
+    rtos_signal_wait_set(RTOS_SIGNAL_SET_DEMO_P6);
+    debug_println("b: taking the lock");
+    rtos_mutex_lock(RTOS_MUTEX_ID_M6);
+    debug_println("b: waking up a");
+    rtos_signal_send_set(RTOS_TASK_ID_A, RTOS_SIGNAL_SET_DEMO_P6);
+
+    /* Part 7: B gets lock before timeout */
+    debug_println("b: blocking on the lock, should succeed");
+    if (!rtos_mutex_lock_timeout(RTOS_MUTEX_ID_M7, PART_7_SLEEP + 1)) {
+        debug_println("b: lock unexpectedly timed out!");
+    }
+    debug_println("b: waking up a");
+    rtos_signal_send_set(RTOS_TASK_ID_A, RTOS_SIGNAL_SET_DEMO_P7);
+    debug_println("b: releasing the lock");
+    rtos_mutex_unlock(RTOS_MUTEX_ID_M7);
+
     debug_println("b: shouldn't be here!");
     for (;;)
     {
@@ -213,6 +281,14 @@ fn_y(void)
     debug_println("y: sending signal to b");
     rtos_signal_send_set(RTOS_TASK_ID_B, RTOS_SIGNAL_SET_DEMO_P5);
 
+    /* Part 6: B's lock attempt times out */
+    debug_println("y: sleeping");
+    rtos_sleep(PART_6_SLEEP);
+
+    /* Part 7: B gets lock before timeout */
+    debug_println("y: sleeping");
+    rtos_sleep(PART_7_SLEEP);
+
     debug_println("y: shouldn't be here!");
     for (;;)
     {
@@ -250,6 +326,14 @@ fn_z(void)
     debug_println("z: sending signal to a");
     rtos_signal_send_set(RTOS_TASK_ID_A, RTOS_SIGNAL_SET_DEMO_P5);
 
+    /* Part 6: B's lock attempt times out */
+    debug_println("z: sleeping");
+    rtos_sleep(PART_6_SLEEP);
+
+    /* Part 7: B gets lock before timeout */
+    debug_println("z: sleeping");
+    rtos_sleep(PART_7_SLEEP);
+
     debug_println("z: shouldn't be here!");
     for (;;)
     {
@@ -259,6 +343,8 @@ fn_z(void)
 int
 main(void)
 {
+    machine_timer_init();
+
     rtos_start();
     /* Should never reach here, but if we do, an infinite loop is
        easier to debug than returning somewhere random. */

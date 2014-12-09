@@ -66,6 +66,26 @@ mutex_try_lock(const {{prefix_type}}MutexId m)
 
     return r;
 }
+{{#mutex.stats}}
+
+static void
+mutex_stats_update(const {{prefix_type}}MutexId m, const bool contended, const {{prefix_type}}TicksAbsolute
+        wait_start_ticks)
+{
+    if ({{prefix_func}}mutex_stats_enabled) {
+        mutex_stats[m].mutex_lock_counter += 1;
+        if (contended) {
+            {{prefix_type}}TicksRelative wait_time = {{prefix_func}}timer_current_ticks - wait_start_ticks;
+
+            mutex_stats[m].mutex_lock_contended_counter += 1;
+            if (wait_time > mutex_stats[m].mutex_lock_max_wait_time)
+            {
+                mutex_stats[m].mutex_lock_max_wait_time = wait_time;
+            }
+        }
+    }
+}
+{{/mutex.stats}}
 {{/mutexes.length}}
 
 /*| public_functions |*/
@@ -93,24 +113,49 @@ void
     }
 
     preempt_enable();
+
 {{#mutex.stats}}
-
-    if ({{prefix_func}}mutex_stats_enabled)
-    {
-        mutex_stats[m].mutex_lock_counter += 1;
-        if (contended)
-        {
-            {{prefix_type}}TicksRelative wait_time = {{prefix_func}}timer_current_ticks - wait_start_ticks;
-
-            mutex_stats[m].mutex_lock_contended_counter += 1;
-            if (wait_time > mutex_stats[m].mutex_lock_max_wait_time)
-            {
-                mutex_stats[m].mutex_lock_max_wait_time = wait_time;
-            }
-        }
-    }
+    mutex_stats_update(m, contended, wait_start_ticks);
 {{/mutex.stats}}
 }
+
+[[#timeouts]]
+bool
+{{prefix_func}}mutex_lock_timeout(const {{prefix_type}}MutexId m, const {{prefix_type}}TicksRelative timeout)
+        {{prefix_const}}REENTRANT
+{
+    bool ret;
+    const {{prefix_type}}TicksAbsolute absolute_timeout = {{prefix_func}}timer_current_ticks + timeout;
+{{#mutex.stats}}
+    bool contended = false;
+
+{{/mutex.stats}}
+    assert_mutex_valid(m);
+    api_assert(mutexes[m].holder != get_current_task(), ERROR_ID_DEADLOCK);
+
+    preempt_disable();
+
+    ret = mutex_try_lock(m);
+{{#mutex.stats}}
+    if (!ret) {
+        contended = true;
+    }
+{{/mutex.stats}}
+    while (!ret && absolute_timeout > {{prefix_func}}timer_current_ticks) {
+        waiters[get_current_task()] = m;
+        mutex_block_on_timeout(mutexes[m].holder, absolute_timeout - {{prefix_func}}timer_current_ticks);
+        ret = mutex_try_lock(m);
+    }
+
+    preempt_enable();
+
+{{#mutex.stats}}
+    mutex_stats_update(m, contended, absolute_timeout - timeout);
+{{/mutex.stats}}
+
+    return ret;
+}
+[[/timeouts]]
 
 void
 {{prefix_func}}mutex_unlock(const {{prefix_type}}MutexId m)

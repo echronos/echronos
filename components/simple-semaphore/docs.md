@@ -78,6 +78,21 @@ If the semaphore value is initially 0, however, the calling task may be blocked 
 The semaphore implementation itself does not guarantee progress if there are multiple tasks waiting on the semaphore.
 Which waiting task gets to decrement the semaphore value and return from <span class="api">sem_wait</span> depends entirely on the [Scheduling Algorithm].
 
+[[#timeouts]]
+
+### <span class="api">sem_wait_timeout</span>
+
+<div class="codebox">bool sem_wait_timeout(SemId sem, TicksRelative timeout);</div>
+
+This function waits a maximum *timeout* number of ticks until the semaphore value of *sem* is greater than zero, in which case it will decrement the semaphore value and return true.
+
+If the *timeout* number of ticks elapses before the semaphore value can be decremented, then <span class="api">sem_wait_timeout</span> will return false.
+The system designer should ensure that the RTOS [<span class="api">timer_tick</span>] API is called for each tick.
+For more information, see [Time and Timers].
+
+The behavior of <span class="api">sem_wait_timeout</span> matches that of [<span class="api">sem_wait</span>], except that the maximum amount of time that the calling task can be blocked is bounded by the *timeout* number of ticks given.
+
+[[/timeouts]]
 
 ### <span class="api">sem_try_wait</span>
 

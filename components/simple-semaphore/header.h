@@ -10,6 +10,8 @@ typedef uint{{semaphore_value_size}}_t {{prefix_type}}SemValue;
 /*| public_structure_definitions |*/
 
 /*| public_object_like_macros |*/
+#define {{prefix_const}}SEM_ID_ZERO (({{prefix_type}}SemId) UINT8_C(0))
+#define {{prefix_const}}SEM_ID_MAX (({{prefix_type}}SemId) UINT8_C({{semaphores.length}} - 1))
 {{#semaphores}}
 #define {{prefix_const}}SEM_ID_{{name|u}} (({{prefix_type}}SemId) UINT8_C({{idx}}))
 {{/semaphores}}

@@ -2,8 +2,6 @@
 
 /*| object_like_macros |*/
 #define SEM_ID_NONE ((SemIdOption) UINT8_MAX)
-#define SEM_ID_ZERO (({{prefix_type}}SemId) UINT8_C(0))
-#define SEM_ID_MAX (({{prefix_type}}SemId) UINT8_C({{semaphores.length}}))
 #define SEM_VALUE_ZERO (({{prefix_type}}SemValue) UINT{{semaphore_value_size}}_C(0))
 {{#semaphore_enable_max}}
 #define SEM_VALUE_MAX (({{prefix_type}}SemValue) UINT{{semaphore_value_size}}_MAX)

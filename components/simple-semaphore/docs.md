@@ -25,10 +25,22 @@ Additionally, the [<span class="api">sem_try_wait</span>] API allows a task to a
 
 Instances of this type refer to specific semaphores.
 The type is an unsigned integer of a size large enough to represent all semaphores[^SemId_width].
-The <span class="api">SemId</span> should be treated as an opaque value.
-For all semaphores in the system the configuration tool creates a constant with the name `SEM_ID_<name>` that should be used in preference to raw values.
 
 [^SemId_width]: This is normally a `uint8_t`.
+
+### `SEM_ID_<name>`
+
+These constants of type [<span class="api">SemId</span>] exist for all semaphores defined in the system configuration.
+`<name>` is the upper-case conversion of the semaphore's name.
+
+Applications shall use the symbolic names [`SEM_ID_<name>`] to refer to semaphores wherever possible.
+Applications shall not rely on the numeric value of a semaphore ID.
+Across two different RTOS and applications builds, the ID for the same semaphore may have different numeric values.
+
+### `SEM_ID_ZERO` and `SEM_ID_MAX`
+
+The IDs of all semaphores are guaranteed to be a contiguous integer range between `SEM_ID_ZERO` and `SEM_ID_MAX`, inclusive.
+Applications may iterate over all semaphores via `for (id = SEM_ID_ZERO; id <= SEM_ID_MAX; id += 1)`.
 
 ### <span class="api">SemValue</span>
 

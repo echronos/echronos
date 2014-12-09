@@ -11,7 +11,7 @@ typedef uint{{semaphore_value_size}}_t {{prefix_type}}SemValue;
 
 /*| public_object_like_macros |*/
 {{#semaphores}}
-#define {{prefix_const}}SEM_ID_{{name}} (({{prefix_type}}SemId) UINT8_C({{idx}}))
+#define {{prefix_const}}SEM_ID_{{name|u}} (({{prefix_type}}SemId) UINT8_C({{idx}}))
 {{/semaphores}}
 
 /*| public_function_like_macros |*/
@@ -22,6 +22,10 @@ typedef uint{{semaphore_value_size}}_t {{prefix_type}}SemValue;
 void {{prefix_func}}sem_post({{prefix_type}}SemId);
 bool {{prefix_func}}sem_try_wait({{prefix_type}}SemId);
 void {{prefix_func}}sem_wait({{prefix_type}}SemId) {{prefix_const}}REENTRANT;
+[[#timeouts]]
+bool {{prefix_func}}sem_wait_timeout({{prefix_type}}SemId, {{prefix_type}}TicksRelative timeout)
+        {{prefix_const}}REENTRANT;
+[[/timeouts]]
 {{#semaphore_enable_max}}
 void {{prefix_func}}sem_max_init({{prefix_type}}SemId s, {{prefix_type}}SemValue max);
 {{/semaphore_enable_max}}

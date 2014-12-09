@@ -140,6 +140,22 @@ This API is guaranteed to return only after the calling task has transitioned su
 This implies that a task cannot successfully acquire the same mutex twice without releasing it in between.
 Attempting to do so effectively blocks the calling task indefinitely.
 
+[[#timeouts]]
+
+### <span class="api">mutex_lock_timeout</span>
+
+<div class="codebox">bool mutex_lock_timeout(MutexId mutex, TicksRelative timeout);</div>
+
+This function waits a maximum *timeout* number of ticks to acquire the specified mutex.
+
+Its behaviour matches that of [<span class="api">mutex_lock</span>], except that the maximum amount of time that the calling task can be blocked is bounded by the *timeout* number of ticks given.
+The system designer should ensure that the RTOS [<span class="api">timer_tick</span>] API is called for each tick.
+For more information, see [Time and Timers].
+
+If <span class="api">mutex_lock_timeout</span> successfully acquired the mutex, it will return true.
+Otherwise, it will return false.
+
+[[/timeouts]]
 
 ### <span class="api">mutex_try_lock</span>
 

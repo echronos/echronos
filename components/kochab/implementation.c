@@ -76,6 +76,7 @@ sem_block_timeout(const {{prefix_type}}TicksRelative ticks)
     sched_set_blocked(get_current_task());
     timer_oneshot(task_timers[get_current_task()], ticks);
     sem_block();
+    timer_disable(task_timers[get_current_task()]);
 
     postcondition_preemption_disabled();
 }

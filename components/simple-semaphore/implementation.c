@@ -73,7 +73,7 @@ void
     while (!internal_sem_try_wait(s))
     {
         waiters[get_current_task()] = s;
-        sem_block();
+        sem_core_block();
     }
 
     preempt_enable();
@@ -94,7 +94,7 @@ bool
     ret = internal_sem_try_wait(s);
     while (!ret && absolute_timeout > {{prefix_func}}timer_current_ticks) {
         waiters[get_current_task()] = s;
-        sem_block_timeout(absolute_timeout - {{prefix_func}}timer_current_ticks);
+        sem_core_block_timeout(absolute_timeout - {{prefix_func}}timer_current_ticks);
         ret = internal_sem_try_wait(s);
     }
 

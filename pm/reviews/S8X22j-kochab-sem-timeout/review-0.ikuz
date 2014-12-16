@@ -4,5 +4,15 @@ Breakaway Task Review
 Task name: S8X22j-kochab-sem-timeout
 Version reviewed: 66c3b4f54c282a640782320ae4adf4769a395009
 Reviewer: ikuz
-Date: 2014-12-11
-Conclusion: Accepted
+Date: 2014-12-16
+Conclusion: Rework
+
+Overall comments:
+ 
+ 
+Specific comments
+=================
+
+components/simple-semaphore/implementation.c:106
+sem_post doesn't unset the timer, so could result in a spurious timeout message possibly resulting in a spurious future unblock.
+

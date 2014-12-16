@@ -366,7 +366,7 @@ def _sort_by_dependencies(nodes, ignore_cyclic_dependencies=False):
                     msg = 'The nodes {} have the unresolvable dependencies {}.'.format(todo,
                                                                                        todo_required - all_provided)
             else:
-                msg = 'There dependencies of the nodes {} cannot be resolved.'.format(todo)
+                msg = 'The dependencies of the nodes {} cannot be resolved.'.format(todo)
             raise _UnresolvableDependencyError(msg)
 
 

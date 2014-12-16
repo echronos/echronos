@@ -18,6 +18,8 @@ Location: pylib/components.py:369
 Comment 1: Rework
 Should this read 'The dependencies' rather than 'There dependencies'?
 
+[stg: resolved as suggested]
+
 Location: components/signal-task/*
 Comment 2: Rework
 This might be a nitpick, but should the component perhaps be named 'signal-scope' or 'signal-scopes', since the role of the component is to allow configuration of the scope of the signals?

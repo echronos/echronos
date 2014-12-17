@@ -5,16 +5,47 @@ Task name: g256JD-kochab-mutex-timeout
 Version reviewed: 084b923279f8396b68eead331c2caa96f9314fe0
 Reviewer: stg
 Date: 2014-12-17
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
+
+Comment 1: Recommend to rework
+This task branch combines several related, but ultimately orthogonal changes.
+I strongly recommend to split it up.
 
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: components/blocking-mutex-test/implementation.c:16
+Comment 2: Rework
+The declaration and definition of a function must be consistent wrt the use of the REENTRANT tag.
+Either both need to have the tag or neither.
+Please ensure this for all functions modified in this branch.
 
-Location: filename:linenum
-Comment:
+Location: components/blocking-mutex/docs.md:141
+Comment 3: Rework
+Specific API assertions are not considered RTOS behavior guaranteed at the API level.
+Instead, all API assertions are implementation details.
+We therefore do not document them.
+Please remove this change.
+Please also update the documentation of mutex_lock_timeout() accordingly.
+(Added convention 2g8PAE)
+
+Location: components/blocking-mutex/docs.md:152
+Comment 4: Rework
+"The system designer should ensure[...]" was probably copied from somewhere else, but that is really an implementation detail of the timer component.
+It should not be documented here.
+Please remove this line.
+
+Location: components/rigel/implementation.c:28
+Comment 5: Rework
+The rigel variant uses the signal `_rtos_util`, not the timer signal, to implement blocking and unblocking for mutexes.
+Therefore, when calling mutex_lock_timeout() results in a timeout, the timer sends the timer signal and does not make the blocked task runnable again.
+The rigel variant therefore needs to be changed to use the timer signal for mutexes instead.
+It might make sense to review the use of the `_rtos_util` signal in general to see if it can be retired.
+
+Location: components/signal/implementation.c:21
+Comment 6: Rework
+The additional function argument `blocker` is very undesirable on systems without priority inheritance because it unnecessarily increases code size.
+We need to discuss alternatives.

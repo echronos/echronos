@@ -128,7 +128,7 @@ void
             if (waiters[t] == s)
             {
                 waiters[t] = SEM_ID_NONE;
-                sem_unblock(t);
+                sem_core_unblock(t);
             }
         }
     }

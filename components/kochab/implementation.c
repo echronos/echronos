@@ -30,7 +30,7 @@ static {{prefix_type}}TimerId task_timers[{{tasks.length}}] = {
 #define mutex_block_on(task) block_on(task)
 #define mutex_unblock(task) unblock(task)
 #define sem_core_block() signal_wait({{prefix_const}}SIGNAL_ID__TASK_TIMER)
-#define sem_unblock(task) signal_send_set(task, {{prefix_const}}SIGNAL_ID__TASK_TIMER)
+#define sem_core_unblock(task) signal_send_set(task, {{prefix_const}}SIGNAL_ID__TASK_TIMER)
 
 /*| functions |*/
 {{#tasks}}

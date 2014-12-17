@@ -17,6 +17,8 @@ Location: components/kochab/implementation.c:33
 Comment 1: Rework
 To meet convention 29g3DU, `sem_unblock` needs to be renamed to `sem_core_unblock`.
 
+[robs: Fixed]
+
 Location: components/kochab/implementation.c:76
 Comment 2: Rework
 Is the statement `sched_set_blocked(get_current_task());` necessary given that the task later calls `sem_core_block()` / `signal_wait()`?

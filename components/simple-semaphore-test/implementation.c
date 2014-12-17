@@ -19,8 +19,8 @@ static void (*unblock_ptr)({{prefix_type}}TaskId);
 static {{prefix_type}}TaskId (*get_current_task_ptr)(void);
 
 /*| function_like_macros |*/
-#define sem_block() block()
-#define sem_unblock(task_id) unblock(task_id)
+#define sem_core_block() block()
+#define sem_core_unblock(task_id) unblock(task_id)
 #define api_assert(expression, error_id) do { } while(0)
 
 /*| functions |*/

@@ -138,7 +138,7 @@ After the task unblocks and becomes the current task again, it attempts to acqui
 This API is guaranteed to return only after the calling task has transitioned successfully the mutex from the *available* into the *acquired* state.
 
 This implies that a task cannot successfully acquire the same mutex twice without releasing it in between.
-Attempting to do so effectively blocks the calling task indefinitely.
+Attempting to do so effectively blocks the calling task indefinitely, and will trigger an API assertion error if the [`api_asserts`] configuration item is enabled.
 
 [[#timeouts]]
 
@@ -154,6 +154,9 @@ For more information, see [Time and Timers].
 
 If <span class="api">mutex_lock_timeout</span> successfully acquires the mutex, it returns true.
 Otherwise, it returns false.
+
+The system designer should not use this function to attempt to acquire a mutex previously acquired by the same task without releasing it in between.
+Attempting to do so will trigger an API assertion error if the [`api_asserts`] configuration item is enabled.
 
 [[/timeouts]]
 

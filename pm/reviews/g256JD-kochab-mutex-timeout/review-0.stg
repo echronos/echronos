@@ -40,13 +40,19 @@ waiters[get_current_task()] = m;
 mutex_block_on_timeout(mutexes[m].holder, absolute_timeout - {{prefix_func}}timer_current_ticks);
 }
 
+[robs: As discussed offline, leaving as-is to maintain the mutex stats behavior without having to move the `contended = true;` assignment into the loop.]
+
 Location: components/kochab/implementation.c:18
 Comment 4: Rework
 By convention, `mutex_block_on()` should be called `mutex_core_block_on()` and `mutex_block_on_timeout()` should be called `mutex_core_block_on_timeout()`.
 Similar for `mutex_block()` and `mutex_unblock()`.
+
+[robs: Fixed]
 
 Location: components/kochab/implementation.c:61
 Comment 5: Accepted
 Since `mutex_block_on()` is only called once, it could be a macro instead to improve code size.
 However, since code size is not a concern with the kochab variant, there is no need to rework this.
 Same applies to `mutex_block_on_timeout()`.
+
+[robs: Leaving as-is to favor the clarity of the existing code over code size, as noted.]

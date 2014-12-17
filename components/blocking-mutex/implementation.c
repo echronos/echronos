@@ -109,7 +109,7 @@ void
         contended = true;
 {{/mutex.stats}}
         waiters[get_current_task()] = m;
-        mutex_block_on(mutexes[m].holder);
+        mutex_core_block_on(mutexes[m].holder);
     }
 
     preempt_enable();
@@ -143,7 +143,7 @@ bool
 {{/mutex.stats}}
     while (!ret && absolute_timeout > {{prefix_func}}timer_current_ticks) {
         waiters[get_current_task()] = m;
-        mutex_block_on_timeout(mutexes[m].holder, absolute_timeout - {{prefix_func}}timer_current_ticks);
+        mutex_core_block_on_timeout(mutexes[m].holder, absolute_timeout - {{prefix_func}}timer_current_ticks);
         ret = mutex_try_lock(m);
     }
 
@@ -172,7 +172,7 @@ void
         if (waiters[t] == m)
         {
             waiters[t] = MUTEX_ID_NONE;
-            mutex_unblock(t);
+            mutex_core_unblock(t);
         }
     }
 

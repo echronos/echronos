@@ -32,6 +32,9 @@ docs.md files are currently not processed by pystache.
 Therefore, pystache tags are not removed and appear in the PDF output.
 Please remove pystache tags from .md files.
 
+[robs: The component-wide, double-square-bracket pystache tags appear to work correctly for the docs.md files.
+I tested this by adding simple-semaphore to rigel in x.py, toggling 'timeouts' : True/False and comparing the PDFs.]
+
 Location: components/simple-semaphore/implementation.c:94
 Comment 4: Rework
 The function `sem_wait_timeout()` calls the function `internal_sem_try_wait()` twice:

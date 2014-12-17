@@ -64,6 +64,7 @@ static struct timer timers[{{timers.length}}] = {
 #define timer_expired(timer, timeout) ((timer)->enabled && (timer)->expiry == timeout)
 #define timer_is_periodic(timer) ((timer)->reload > 0)
 #define timer_reload_set(timer_id, ticks) timers[timer_id].reload = ticks
+#define timer_disable(timer_id) timers[timer_id].enabled = false
 #define current_timeout() ((TicksTimeout) {{prefix_func}}timer_current_ticks)
 #define TIMER_PTR(timer_id) (&timers[timer_id])
 {{/timers.length}}
@@ -202,7 +203,7 @@ void
 {
     assert_timer_valid(timer_id);
 
-    timers[timer_id].enabled = false;
+    timer_disable(timer_id);
 }
 
 void

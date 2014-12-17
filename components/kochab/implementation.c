@@ -76,6 +76,7 @@ mutex_block_on_timeout(const {{prefix_type}}TaskId t, const {{prefix_type}}Ticks
     sched_set_blocked_on(get_current_task(), t);
     timer_oneshot(task_timers[get_current_task()], ticks);
     mutex_block();
+    timer_disable(task_timers[get_current_task()]);
 
     postcondition_preemption_disabled();
 }

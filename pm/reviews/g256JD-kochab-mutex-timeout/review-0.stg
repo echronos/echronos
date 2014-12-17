@@ -18,10 +18,15 @@ Comment 1: Rework
 Since .md files are not processed by pystache, pystache tags appear in the PDF output.
 Please remove the pystache tags from .md files.
 
+[robs: The component-wide, double-square-bracket pystache tags appear to work correctly for the docs.md files.
+I tested this by toggling blocking-mutex 'timeouts' : True/False for rigel in x.py and comparing the PDFs.]
+
 Location: components/blocking-mutex/docs.md:155
 Comment 2: Rework
 It is an undocumented convention that the documentation uses the present tense.
 Please rephrase the added documentation accordingly.
+
+[robs: Fixed]
 
 Location: components/blocking-mutex/implementation.c:138
 Comment 3: Rework

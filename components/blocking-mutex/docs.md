@@ -152,8 +152,8 @@ Its behaviour matches that of [<span class="api">mutex_lock</span>], except that
 The system designer should ensure that the RTOS [<span class="api">timer_tick</span>] API is called for each tick.
 For more information, see [Time and Timers].
 
-If <span class="api">mutex_lock_timeout</span> successfully acquired the mutex, it will return true.
-Otherwise, it will return false.
+If <span class="api">mutex_lock_timeout</span> successfully acquires the mutex, it returns true.
+Otherwise, it returns false.
 
 [[/timeouts]]
 

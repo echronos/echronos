@@ -24,6 +24,8 @@ Comment 2: Rework
 Is the statement `sched_set_blocked(get_current_task());` necessary given that the task later calls `sem_core_block()` / `signal_wait()`?
 If not, please remove this statement.
 
+[robs: Fixed]
+
 Location: components/simple-semaphore/docs.md:93
 Comment 3: Rework
 docs.md files are currently not processed by pystache.

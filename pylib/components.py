@@ -253,7 +253,11 @@ def _generate(rtos_name, components, pkg_name, search_paths):
         f.write("#ifndef {}_H\n".format(mod_name))
         f.write("#define {}_H\n".format(mod_name))
         for ss in _REQUIRED_H_SECTIONS:
+            if ss == 'public_function_definitions':
+                f.write("#ifdef __cplusplus\nextern \"C\" {\n#endif\n")
             f.write("\n".join(h_sections[ss] for h_sections in all_h_sections) + "\n")
+            if ss == 'public_function_definitions':
+                f.write("#ifdef __cplusplus\n}\n#endif\n")
         f.write("\n#endif /* {}_H */".format(mod_name))
 
     # Generate docs

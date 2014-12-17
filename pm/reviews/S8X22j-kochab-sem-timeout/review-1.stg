@@ -39,3 +39,5 @@ once before the while loop and once inside the while loop.
 It seems as if a single call inside the while conditional would suffice:
 `while (!internal_sem_try_wait(s) && absolute_timeout > {{prefix_func}}timer_current_ticks) {`
 If this is sufficient, please remove the other calls.
+
+[robs: Fixed]

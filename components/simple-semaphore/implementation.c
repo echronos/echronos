@@ -91,11 +91,9 @@ bool
 
     preempt_disable();
 
-    ret = internal_sem_try_wait(s);
-    while (!ret && absolute_timeout > {{prefix_func}}timer_current_ticks) {
+    while (!(ret = internal_sem_try_wait(s)) && absolute_timeout > {{prefix_func}}timer_current_ticks) {
         waiters[get_current_task()] = s;
         sem_core_block_timeout(absolute_timeout - {{prefix_func}}timer_current_ticks);
-        ret = internal_sem_try_wait(s);
     }
 
     preempt_enable();

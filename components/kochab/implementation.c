@@ -13,9 +13,8 @@ extern void {{function}}(void);
 {{/tasks}}
 
 /*| function_definitions |*/
-static void block(void);
+static void block_on({{prefix_type}}TaskId blocker);
 {{#mutexes.length}}
-static void mutex_core_block_on({{prefix_type}}TaskId t);
 static void mutex_core_block_on_timeout({{prefix_type}}TaskId t, {{prefix_type}}TicksRelative ticks);
 {{/mutexes.length}}
 static void unblock({{prefix_type}}TaskId task);
@@ -30,7 +29,8 @@ static {{prefix_type}}TimerId task_timers[{{tasks.length}}] = {
 {{/timers.length}}
 
 /*| function_like_macros |*/
-#define mutex_core_block() signal_wait({{prefix_const}}SIGNAL_ID__TASK_TIMER)
+#define block() block_on(TASK_ID_NONE)
+#define mutex_core_block_on(blocker) signal_wait_blocked_on({{prefix_const}}SIGNAL_ID__TASK_TIMER, blocker)
 #define mutex_core_unblock(task) signal_send_set(task, {{prefix_const}}SIGNAL_ID__TASK_TIMER)
 
 /*| functions |*/
@@ -46,36 +46,25 @@ entry_{{name}}(void)
 {{/tasks}}
 
 static void
-block(void)
+block_on(const {{prefix_type}}TaskId blocker)
 {
     precondition_preemption_disabled();
 
-    sched_set_blocked(get_current_task());
+    sched_set_blocked_on(get_current_task(), blocker);
     yield();
 
     postcondition_preemption_disabled();
 }
 
 {{#mutexes.length}}
-static void
-mutex_core_block_on(const {{prefix_type}}TaskId t)
-{
-    precondition_preemption_disabled();
-
-    sched_set_blocked_on(get_current_task(), t);
-    mutex_core_block();
-
-    postcondition_preemption_disabled();
-}
 
 static void
 mutex_core_block_on_timeout(const {{prefix_type}}TaskId t, const {{prefix_type}}TicksRelative ticks)
 {
     precondition_preemption_disabled();
 
-    sched_set_blocked_on(get_current_task(), t);
     timer_oneshot(task_timers[get_current_task()], ticks);
-    mutex_core_block();
+    mutex_core_block_on(t);
     timer_disable(task_timers[get_current_task()]);
 
     postcondition_preemption_disabled();

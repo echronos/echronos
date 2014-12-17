@@ -18,6 +18,7 @@ static void unblock({{prefix_type}}TaskId task);
 
 /*| function_like_macros |*/
 #define yield() {{prefix_func}}yield()
+#define block_on(unused_task) block()
 
 /*| functions |*/
 static void

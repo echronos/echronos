@@ -1,0 +1,31 @@
+Task: SV6Lc3-release_pdf_manual
+==============================================================================
+
+Motivation
+----------
+
+When building a release, the generated release archive currently does not necessarily include the PDF manual of the released RTOS variants.
+However, it does contain the image and markdown files that are compiled into the PDF manual.
+Also, the name of the PDF manual is 'docs.pdf' is not very descriptive and it can be difficult for users to find the manual in the release archive.
+
+
+Goals
+--------
+
+- ensure that release archives contain no other documentation files than PDF manuals
+- include the PDF manuals in the release archives under names that reflect the release information
+
+
+Test Plan
+---------
+
+- code review
+- review of task goals:
+    #> xvfb-run -a -s "-screen 0 640x480x16" ./x.py build docs
+    #> ./x.py build prj-build
+    #> ./x.py build build-partials
+    #> ./x.py build build-release
+    #> for F in release/*.tar.gz; do tar taf $F; done | grep -e '/docs'
+       shall terminate with the exit code 1 and produce no output
+    #> for F in release/*.tar.gz; do tar taf $F; done | grep '.pdf'
+       shall terminate with the exit code 0 and produce one or more lines of the pattern <produc_name>-<release_name>/<product_name>-<release_name>-<variant>-<version>.pdf on stdout

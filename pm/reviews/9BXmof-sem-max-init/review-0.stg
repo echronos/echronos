@@ -1,0 +1,46 @@
+Breakaway Task Review
+=======================
+
+Task name: 9BXmof-sem-max-init
+Version reviewed: 37fe5c3bb3942e8c3f964ab3adb15dd6513b5953
+Reviewer: stg
+Date: 2014-11-17
+Conclusion: Rework
+
+Specific comments
+=================
+
+Location: componentssimple-semaphoreimplementation.c:130
+Comment 1: Rework
+Like the other semaphore API functions, this function should check whether the parameter `s` is a valid semaphore ID via the `assert_sem_valid()` function.
+This helps users to catch API errors.
+
+[robs: Fixed]
+
+Location: componentssimple-semaphoreimplementation.c:130
+Comment 2: Rework
+What is the advantage of the `max` parameter of the `sem_init_max()` function being an integer (in particular a signed one)?
+`SemValue` is the more appropriate type in my opinion because it eliminates the range check and type casting in `sem_init_max()`.
+
+[robs: Fixed]
+
+Location: componentssimple-semaphoreimplementation.c:133
+Comment 3: Rework
+The `ERROR_ID_SEMAPHORE_MAX_ALREADY_INIT` error is an API usage error.
+It should therefore be raised as an API assertion.
+
+[robs: Fixed]
+
+Location: componentssimple-semaphoreschema.xml:1-2
+Comment 4: Rework
+Please make the configuration item `semvalue_size` a sub-item of a `semaphore` configuration item of type `dict` and rename it to `value_size`, similar to the configuration of the mutex and profiling components.
+The item `sem_max_init` should also be moved and renamed to, e.g., `enable_max` for clarity.
+This makes it easier to add and manage further configuration items in the future and makes the naming more consistent and intuitive.
+
+[robs: As we discussed offline, the problem with this method is that the child XML elements of a "dict" element don't automatically get instantiated as dictionary entries.
+This means that all must be declared explicitly in the .prx file regardless of their default values in the schema.
+An example of this is in the blocking-mutex schema, the dict "mutex" with boolean child element "stats", default "true".
+Currently we have to declare <mutex><stats>(false or true)</stats></mutex> in every system .prx file of every RTOS variant that uses blocking mutexes, even if we don't want mutex stats to be enabled.
+This may have passed unnoticed so far since Rigel and Kochab are presently the only such variants, and the Rigel systems all have mutex stats explicitly enabled in their .prx file.
+Fixing this will presumably mean a prj task to instantiate XML child elements as dictionary entries with their default values, when they (or the parent XML dict element) are not explicitly declared in the .prx file.
+For the time being I'll rename these new configuration items to have prefix "semaphore_", so their relationship to each other is much clearer.]

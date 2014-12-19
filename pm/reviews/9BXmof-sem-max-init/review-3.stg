@@ -1,0 +1,15 @@
+Breakaway Task Review
+=======================
+
+Task name: 9BXmof-sem-max-init
+Version reviewed: 000a27ffb9f6e53f13881b119f4f2e88c2f10f88
+Reviewer: stg
+Date: 2014-11-27
+Conclusion: Rework
+
+Overall comments:
+
+Directly changed the documentation where I felt it was necessary or useful.
+Please review and modify it as you see fit.
+
+[robs: Thanks. I think this is much clearer]

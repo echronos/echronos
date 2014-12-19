@@ -21,7 +21,6 @@ class EntryModule(Module):
 
     <entry name="preemption" type="bool" optional="true" default="false" />
 
-    <entry name="exception_reset" type="c_ident" default="reset" />
     <entry name="nmi" type="c_ident" default="reset" />
     <entry name="hardfault" type="c_ident" default="reset" />
     <entry name="memmanage" type="c_ident" default="reset" />
@@ -31,6 +30,12 @@ class EntryModule(Module):
     <entry name="debug_monitor" type="c_ident" default="reset" />
     <entry name="pendsv" type="c_ident" optional="true" />
     <entry name="systick" type="c_ident" default="reset" />
+    <entry name="external_irqs" type="list" default="[]">
+        <entry name="external_irq" type="dict">
+          <entry name="number" type="int"/>
+          <entry name="handler" type="c_ident" default="reset" />
+        </entry>
+    </entry>
 </schema>"""
 
     files = [
@@ -45,6 +50,11 @@ class EntryModule(Module):
         config['bit_aliases'] = []  # A list of variables that should have bitband aliases created.
 
         config.update(super().configure(xml_config))
+        # Fill in external IRQ vector list
+        xirqs = [{'handler':'reset'}] * 240
+        for xirq in config['external_irqs']:
+            xirqs[xirq['number']] = xirq
+        config['external_irqs'] = xirqs
 
         return config
 

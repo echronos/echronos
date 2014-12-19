@@ -1,0 +1,27 @@
+Breakaway Task Review
+=======================
+
+Task name: 9BXmof-sem-max-init
+Version reviewed: 37fe5c3bb3942e8c3f964ab3adb15dd6513b5953
+Reviewer: ikuz
+Date: 2014-11-17
+Conclusion: Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: components/simple-semaphore/implementation.c:1
+The value valid values of semaphore size should be restricted to fixed sizese.g.: 8, 16, 32, 64. 
+
+[robs: Practically, these will already be restricted by the compiler not recognising resulting references to uint42_t and other such arbitrary values that aren't those particular powers of 2.
+Consistency-wise, this follows a convention already established by taskid_size, signalset_size, and interrupteventid_size, none of which explicitly check these values.]
+
+Location: components/simple-semaphore/header.h:25
+in 
+void {{prefix_func}}sem_max_init({{prefix_type}}SemId s, int max);
+is 'int' big enough.  Should it be SemValue?
+
+[robs: Fixed]

@@ -1,0 +1,36 @@
+Breakaway Task Review
+=======================
+
+Task name: 9BXmof-sem-max-init
+Version reviewed: 96fb90088ca10368b8856086ba53b10810dbb380
+Reviewer: stg
+Date: 2014-11-24
+Conclusion: Rework
+
+
+Specific comments
+=================
+
+Location: components/simple-semaphore/implementation.c:91
+Comment 1: Rework
+The `.max` field of `struct semaphore` is initialized to 0.
+Therefore, the condition in line 91 is always true for semaphores which have an uninitialized maximum.
+This case needs to be handled either by enforcing the maxima of all semaphores to be initialized or by not causing a fatal error in such a case.
+Please also add a regression test for this case.
+
+[robs: This check was indeed intended to implicitly enforce that semaphores are initialized before being used.
+I'll make it explicit by adding a new api_assert and error code to distinguish it from the max exceeded case, and by stating in the API documentation that use-before-init is not allowed.
+I noticed simple-semaphore does not have a docs.md, so I will now import the documentation from the uncommitted Kochab manual and incorporate it into this task.
+Regarding a regression test for this, since it's an api_assert it would end up in {{fatal}}, and so it'd need a whole new test system, which as we discussed is bit more maintenance than we want.]
+
+Location: components/simple-semaphore/implementation.c:133
+Comment 2: Rework
+Is 0 a valid value for the `max` argument of the `sem_max_init()` function?
+Given that value of 0 in the `.max` field of `struct semaphore` indicates that the maximum is not initialized, 0 should probably not be a valid value for the `max` argument of `sem_max_init()`.
+In that case, an appropriate API assertion needs to be added to the `sem_max_init()` function.
+Please also add tvo regression tests:
+one for calling `sem_max_init()` twice and another for calling `sem_max_init()` with a `max` argument of 0.
+
+[robs: 0 is not a valid value for max, and I'll add an api_assert and error code to cover that.
+This will then make it impossible to call sem_max_init twice without triggering an api_assert.
+Again, as discussed I'll hold off on adding new regression tests just to exercise each of the two api_assert cases you mentioned, because we'd need a new test system for each since they end up in {{fatal}}.]

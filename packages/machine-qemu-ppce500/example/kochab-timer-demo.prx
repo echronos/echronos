@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <modules>
+    <module name="ppce500.build" />
+    <module name="ppce500.default-linker" />
+    <module name="ppce500.interrupts-util" />
+    <module name="ppce500.vectable">
+      <preemption>true</preemption>
+      <fixed_interval_timer>
+        <handler>tick_irq</handler>
+        <preempting>true</preempting>
+      </fixed_interval_timer>
+    </module>
+    <module name="ppce500.debug" />
+    <module name="generic.debug" />
+
+    <module name="ppce500.rtos-kochab">
+      <internal_asserts>true</internal_asserts>
+      <fatal_error>fatal</fatal_error>
+      <prefix>rtos</prefix>
+      <tasks>
+
+        <task>
+          <name>a</name>
+          <function>fn_a</function>
+          <priority>30</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>b</name>
+          <function>fn_b</function>
+          <priority>10</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+      </tasks>
+
+      <timers>
+
+        <timer>
+          <name>watchdog_a</name>
+        </timer>
+
+        <timer>
+          <name>wake_a</name>
+        </timer>
+
+        <timer>
+          <name>watchdog_b</name>
+        </timer>
+      </timers>
+
+      <signal_labels>
+
+        <signal_label>
+          <name>wake</name>
+        </signal_label>
+
+      </signal_labels>
+
+      <mutex>
+        <stats>false</stats>
+      </mutex>
+
+    </module>
+
+    <module name="machine-qemu-ppce500.example.machine-timer" />
+    <module name="rtos-example.timer-test">
+      <variant>kochab</variant>
+    </module>
+
+  </modules>
+</system>

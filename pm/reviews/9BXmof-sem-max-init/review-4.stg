@@ -1,0 +1,15 @@
+Breakaway Task Review
+=======================
+
+Task name: 9BXmof-sem-max-init
+Version reviewed: b1950be67a048cc8414296bd406efa90731c0db2
+Reviewer: stg
+Date: 2014-11-28
+Conclusion: Rework
+
+Overall comments:
+
+Comment 1: Rework
+Please review the documentation changes I made directly in components/simple-semaphore/docs.md
+
+[robs: Looks good, thanks]

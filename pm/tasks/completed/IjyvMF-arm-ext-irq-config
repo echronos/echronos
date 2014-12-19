@@ -1,0 +1,24 @@
+Task: IjyvMF-arm-ext-irq-config
+==============================================================================
+
+Motivation
+----------
+
+There currently exists a pystache stub in the armv7m vectable.s that would populate the vector table with handler addresses for exception numbers 16..255, which is the region for external IRQs.
+However, there's currently no XML schema nor scripting to actually allow them to be supplied via the .prx file.
+
+We have an implementation for this on the SMACCM development head ready to be backported, along with some more up-to-date user documentation for the armv7m.vectable module.
+
+
+Goals
+--------
+
+Enable .prx configuration of vector table entries for external IRQs on armv7m systems.
+
+Bring the armv7m.vectable module documentation up to date, as it is currently missing a lot of detail.
+
+
+Test Plan
+---------
+
+Add a test system whose .prx file exercises the new configuration interface.

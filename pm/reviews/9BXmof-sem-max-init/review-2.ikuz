@@ -1,0 +1,18 @@
+Breakaway Task Review
+=======================
+
+Task name: 9BXmof-sem-max-init
+Version reviewed: 6ace0522410a9697438261549a56c8f8458dc12b
+Reviewer: ikuz
+Date: 2014-11-24
+Conclusion: Rework
+
+
+Specific comments
+=================
+
+Location: components/simple-semaphore/docs.md:28
+Comment:
+"The [<span class="api">SemId</span>] should be treated an an opaque value." has a typo, it should be "as an"
+
+[robs: Fixed]

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <modules>
+    <module name="armv7m.build" />
+    <module name="armv7m.vectable">
+      <external_irqs>
+        <external_irq>
+          <number>0</number>
+          <handler>handler0</handler>
+        </external_irq>
+        <external_irq>
+          <number>1</number>
+          <handler>handler1</handler>
+        </external_irq>
+        <external_irq>
+          <number>2</number>
+          <handler>handler2</handler>
+        </external_irq>
+        <external_irq>
+          <number>237</number>
+          <handler>handler237</handler>
+        </external_irq>
+        <external_irq>
+          <number>238</number>
+          <handler>handler238</handler>
+        </external_irq>
+        <external_irq>
+          <number>239</number>
+          <handler>handler239</handler>
+        </external_irq>
+      </external_irqs>
+    </module>
+    <module name="armv7m.semihost-debug" />
+    <module name="generic.debug" />
+    <module name="generic.hello" />
+
+    <module name="machine-qemu-simple.example.ext-irq-handler" />
+  </modules>
+</system>

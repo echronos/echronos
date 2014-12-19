@@ -1,0 +1,18 @@
+Breakaway Task Review
+=======================
+
+Task name: IjyvMF-arm-ext-irq-config
+Version reviewed: 33104b29b0da1de587d7564d7b47b3c3c21b3123
+Reviewer: stg
+Date: 2014-12-02
+Conclusion: Rework
+
+
+Specific comments
+=================
+
+Location: packages/armv7m/armv7m-manual
+Comment 1: Rework
+Please review the changes I made to this file.
+
+[robs: They look good, thanks for these]

@@ -55,7 +55,8 @@ The rigel variant therefore needs to be changed to use the timer signal for mute
 It might make sense to review the use of the `_rtos_util` signal in general to see if it can be retired.
 
 [robs: The only use for it apart from unblocking for mutexes appears to be the starting of the tasks.
-The comment in rigel.py is not even accurate any more, since _rtos_util is no longer used for message queues.]
+The comment in rigel.py is not even accurate any more, since _rtos_util is no longer used for message queues.
+Fixed the rigel mutex_core macros to properly use the task timer, and the comments in rigel.py to reflect reality.]
 
 Location: components/signal/implementation.c:21
 Comment 6: Rework

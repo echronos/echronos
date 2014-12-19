@@ -7,6 +7,8 @@ logger = logging.getLogger()
 
 
 class EntryModule(Module):
+    # SVCall and PendSV are specified as optional in the schema, but are implemented in the asm to default to 'reset'.
+    # They are not available for config (attempts will raise an assembler error) if preemption support is enabled.
     xml_schema = """
 <schema>
     <entry name="flash_load_addr" type="int" default="0" />
@@ -17,17 +19,18 @@ class EntryModule(Module):
     <entry name="bitband_size" type="int" default="0x100000" />
     <entry name="bitband_alias" type="int" default="0x22000000" />
 
+    <entry name="preemption" type="bool" optional="true" default="false" />
+
     <entry name="exception_reset" type="c_ident" default="reset" />
     <entry name="nmi" type="c_ident" default="reset" />
     <entry name="hardfault" type="c_ident" default="reset" />
     <entry name="memmanage" type="c_ident" default="reset" />
     <entry name="busfault" type="c_ident" default="reset" />
     <entry name="usagefault" type="c_ident" default="reset" />
-    <entry name="svcall" type="c_ident" default="reset" />
+    <entry name="svcall" type="c_ident" optional="true" />
     <entry name="debug_monitor" type="c_ident" default="reset" />
-    <entry name="pendsv" type="c_ident" default="reset" />
+    <entry name="pendsv" type="c_ident" optional="true" />
     <entry name="systick" type="c_ident" default="reset" />
-
 </schema>"""
 
     files = [

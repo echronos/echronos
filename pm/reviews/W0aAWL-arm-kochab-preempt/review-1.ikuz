@@ -59,3 +59,5 @@ Comment:
        <pendsv>rtos_internal_pendsv_handler</pendsv>
        <svcall>rtos_internal_svc_handler</svcall>
 It would be nice if these were default values when preemption is enabled.
+
+[robs: I decided to go a bit further and mandate that these handlers cannot be configured if preemption is enabled.]

@@ -18,10 +18,38 @@ rtos_internal_vector_table:
         .word reset
         .word reset
         .word reset
+{{#preemption}}{{#svcall}}.error "The SVCall vector is not available on preemption-supporting systems"{{/svcall}}
+        /* On preemption-supporting systems, we use the SVCall vector to implement a manual context switch triggered
+         * from inside the RTOS. */
+        .word rtos_internal_svc_handler
+{{/preemption}}{{^preemption}}
+        /* On non-preemption-supporting systems, the SVCall vector defaults to 'reset' if not specified by the system
+         * configuration. */
+{{#svcall}}
         .word {{svcall}}
+{{/svcall}}
+{{^svcall}}
+        .word reset
+{{/svcall}}
+{{/preemption}}
+
         .word {{debug_monitor}}
         .word reset
+{{#preemption}}{{#pendsv}}.error "The PendSV vector is not available on preemption-supporting systems"{{/pendsv}}
+        /* On preemption-supporting systems, we use the PendSV vector to implement task preemption triggered by an
+         * exception handler. */
+        .word rtos_internal_pendsv_handler
+{{/preemption}}{{^preemption}}
+        /* On non-preemption-supporting systems, the PendSV vector defaults to 'reset' if not specified by the system
+         * configuration. */
+{{#pendsv}}
         .word {{pendsv}}
+{{/pendsv}}
+{{^pendsv}}
+        .word reset
+{{/pendsv}}
+{{/preemption}}
+
         .word {{systick}}
 {{#external_irqs}}
         .word {{handler}}

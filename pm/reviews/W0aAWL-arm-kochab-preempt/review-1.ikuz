@@ -31,14 +31,16 @@ Comment:
  * non-floating-point state from MSP and execution uses MSP after return" according to the Cortex-M4 manual. */
 Maybe include a reference to this manual?
 
-Location: components/context-switch-preempt-armv7m/implementation.c:29-49
+Location: packages/armv7m/ctxt-switch-preempt.s:29-49
 Comment:
 /* This macro invokes the scheduler in order to determine the TaskId of the next task to be switched to.
  * If that task is the same task as the current one, the macro will jump to the 'return_label' location.
  * The TaskId of the task to be switched to ends up in r0.
 This return behaviour is a bit weird. While adding code, it would probably be more readable if it returned a result, and then separately jump based on the result.
 
-Location: components/context-switch-preempt-armv7m/implementation.c:124-125, 149-150
+[robs: Fixed, split into two macros and took out the jump part to make what's going on more explicit.]
+
+Location: packages/armv7m/ctxt-switch-preempt.s:124-125, 149-150
 Comment:
 /* Implements the functionality of rtos_internal_yield. */
 rtos_internal_svc_handler:

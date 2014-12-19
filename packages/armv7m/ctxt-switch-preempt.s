@@ -27,25 +27,21 @@
 .endm
 
 /* This macro invokes the scheduler in order to determine the TaskId of the next task to be switched to.
- * If that task is the same task as the current one, the macro will jump to the 'return_label' location.
- * The TaskId of the task to be switched to ends up in r0.
- *
- * Side-effects of this macro include that the pointer to the 'rtos_internal_current_task' variable is placed into the
- * 'current_task_p' register, and its value is placed into the 'old_task' register.
- * This may be helpful in order to avoid having to reload those values later. */
-.macro asm_invoke_scheduler current_task_p old_task return_label
+ * The TaskId of the task to be switched to ends up in r0. */
+.macro asm_invoke_scheduler
         /* new_task<r0> = interrupt_event_get_next() */
         push {ip, lr}
         bl rtos_internal_interrupt_event_get_next
         pop {ip, lr}
+.endm
 
+/* This macro retrieves the address and current value of the 'rtos_internal_current_task' variable.
+ * The pointer to the 'rtos_internal_current_task' variable is placed into the 'current_task_p' register, and the
+ * current value of the variable itself is placed into the 'old_task' register. */
+.macro asm_current_task_get current_task_p old_task
         /* old_task = rtos_internal_current_task */
         ldr \current_task_p, =rtos_internal_current_task
         ldrb \old_task, [\current_task_p]
-
-        /* if (old_task == new_task<r0>) return */
-        cmp \old_task, r0
-        beq \return_label
 .endm
 
 /* This macro switches context from the TaskId given in register 'old_task_idx' to the one given in 'new_task_idx'.
@@ -123,13 +119,17 @@ rtos_internal_yield:
 .type rtos_internal_svc_handler,#function
 /* Implements the functionality of rtos_internal_yield. */
 rtos_internal_svc_handler:
-        /* This will jump to the end if no context switch is necessary, else put the new task id in r0 */
-        asm_invoke_scheduler r12 r1 1f
+        /* Jump to the end if no context switch is necessary, else put the new task id in r0 */
+        asm_invoke_scheduler
+        asm_current_task_get r12 r1
+        /* if (old_task<r1> == new_task<r0>) return */
+        cmp r1, r0
+        beq 1f
 
         /* Perform the context switch */
         ldr r3, =1 /* Assuming SVC is only ever called with preemption disabled, set CONTEXT_PREEMPT_DISABLED = 1 */
         push {r3, r4-r11, lr}
-        /* The values in r12, r1 and r0 are retained from asm_invoke_scheduler */
+        /* The values in r12, r1 and r0 are retained from asm_invoke_scheduler and asm_current_task_get */
         asm_context_switch r12 r2 r1 r0
 
         /* Pop CONTEXT_PREEMPT_DISABLED alone. */
@@ -150,13 +150,17 @@ rtos_internal_svc_handler:
 rtos_internal_pendsv_handler:
         asm_preempt_clear r0 r1
 
-        /* This will jump to the end if no context switch is necessary, else put the new task id in r0 */
-        asm_invoke_scheduler r12 r1 1f
+        /* Jump to the end if no context switch is necessary, else put the new task id in r0 */
+        asm_invoke_scheduler
+        asm_current_task_get r12 r1
+        /* if (old_task<r1> == new_task<r0>) return */
+        cmp r1, r0
+        beq 1f
 
         /* Perform the context switch */
         ldr r3, =0 /* We only got here because preemption was enabled, so set CONTEXT_PREEMPT_DISABLED = 0 */
         push {r3, r4-r11, lr}
-        /* The values in r12, r1 and r0 are retained from asm_invoke_scheduler */
+        /* The values in r12, r1 and r0 are retained from asm_invoke_scheduler and asm_current_task_get */
         asm_context_switch r12 r2 r1 r0
 
         /* Pop CONTEXT_PREEMPT_DISABLED alone. */

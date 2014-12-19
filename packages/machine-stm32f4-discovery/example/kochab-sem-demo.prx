@@ -3,10 +3,18 @@
   <modules>
     <module name="armv7m.build" />
     <module name="armv7m.ctxt-switch-preempt" />
-    <module name="armv7m.exception-preempt" />
+    <module name="armv7m.exception-preempt">
+      <trampolines>
+        <trampoline>
+          <name>systick</name>
+          <handler>tick_irq</handler>
+        </trampoline>
+      </trampolines>
+    </module>
     <module name="armv7m.vectable">
       <flash_load_addr>0x8000000</flash_load_addr>
       <preemption>true</preemption>
+      <systick>rtos_internal_exception_preempt_trampoline_systick</systick>
     </module>
     <module name="armv7m.semihost-debug" />
     <module name="generic.debug" />
@@ -56,13 +64,31 @@
         <semaphore>
           <name>sem0</name>
         </semaphore>
+        <semaphore>
+          <name>sem1</name>
+        </semaphore>
+        <semaphore>
+          <name>sem2</name>
+        </semaphore>
+        <semaphore>
+          <name>sem3</name>
+        </semaphore>
+        <semaphore>
+          <name>sem4</name>
+        </semaphore>
+        <semaphore>
+          <name>sem5</name>
+        </semaphore>
       </semaphores>
+
+      <semaphore_enable_max>true</semaphore_enable_max>
 
       <mutex>
         <stats>false</stats>
       </mutex>
     </module>
 
+    <module name="machine-stm32f4-discovery.example.machine-timer" />
     <!-- main .c file: -->
     <module name="rtos-example.kochab-sem-demo" />
 

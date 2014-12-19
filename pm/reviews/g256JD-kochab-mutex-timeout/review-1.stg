@@ -13,6 +13,9 @@ Comment 1: Recommend to rework
 This task branch combines several related, but ultimately orthogonal changes.
 I strongly recommend to split it up.
 
+[robs: I don't quite agree that the changes are orthogonal.
+It's not possible to merge the mutex changes without reworking the signal internals, and the signal internal changes don't make any sense without the context of the mutex changes.
+It sounds like we need to discuss this offline.]
 
 Specific comments
 =================
@@ -23,6 +26,8 @@ The declaration and definition of a function must be consistent wrt the use of t
 Either both need to have the tag or neither.
 Please ensure this for all functions modified in this branch.
 
+[robs: Fixed]
+
 Location: components/blocking-mutex/docs.md:141
 Comment 3: Rework
 Specific API assertions are not considered RTOS behavior guaranteed at the API level.
@@ -32,11 +37,15 @@ Please remove this change.
 Please also update the documentation of mutex_lock_timeout() accordingly.
 (Added convention 2g8PAE)
 
+[robs: Fixed]
+
 Location: components/blocking-mutex/docs.md:152
 Comment 4: Rework
 "The system designer should ensure[...]" was probably copied from somewhere else, but that is really an implementation detail of the timer component.
 It should not be documented here.
 Please remove this line.
+
+[robs: Fixed]
 
 Location: components/rigel/implementation.c:28
 Comment 5: Rework
@@ -45,7 +54,13 @@ Therefore, when calling mutex_lock_timeout() results in a timeout, the timer sen
 The rigel variant therefore needs to be changed to use the timer signal for mutexes instead.
 It might make sense to review the use of the `_rtos_util` signal in general to see if it can be retired.
 
+[robs: The only use for it apart from unblocking for mutexes appears to be the starting of the tasks.
+The comment in rigel.py is not even accurate any more, since _rtos_util is no longer used for message queues.]
+
 Location: components/signal/implementation.c:21
 Comment 6: Rework
 The additional function argument `blocker` is very undesirable on systems without priority inheritance because it unnecessarily increases code size.
 We need to discuss alternatives.
+
+[robs: I don't see any alternatives that aren't actually worse than this in terms of clarity and code size.
+Let's discuss this.]

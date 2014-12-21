@@ -21,15 +21,21 @@ Location: components/context-switch-preempt-armv7m/implementation.c:13
 * Note that the ARM ABI's Procedure Call Standard says that at a public interface, the stack must be double-word
 Maybe include a reference to this Standard?
 
+[robs: Added]
+
 Location: components/context-switch-preempt-armv7m/implementation.c:16-39
 Comment:
 The comment says the stack grows downward, then the defines are presented in the opposite order (starting with low addresses - the bottom of the stack - to high addresses - the top of the stack.  This can be a bit confusing.  Maybe useful to point this out if you don't want to change the order of the defines.
+
+[robs: Added]
 
 Location: components/context-switch-preempt-armv7m/implementation.c:69-70
 Comment:
 /* For EXC_RETURN of the first task, we choose this value, which means "Return to Thread mode, exception return uses
  * non-floating-point state from MSP and execution uses MSP after return" according to the Cortex-M4 manual. */
 Maybe include a reference to this manual?
+
+[robs: Added]
 
 Location: packages/armv7m/ctxt-switch-preempt.s:29-49
 Comment:

@@ -10,8 +10,10 @@
  * frame automatically stored onto the stack by the CPU when it takes an exception.
  *
  * The ARM stack grows downwards, from high to low addresses.
- * Note that the ARM ABI's Procedure Call Standard says that at a public interface, the stack must be double-word
- * (8-byte) aligned.
+ * Therefore, the context stack frame entries with the lowest index numbers are the last to be pushed to the stack.
+ * Note that the Procedure Call Standard for the ARM Architecture (ARM IHI 0042E, ABI release 2.09) says that at a
+ * public interface, the stack must be double-word (8-byte) aligned.
+ * Please see http://infocenter.arm.com/help/topic/com.arm.doc.ihi0042e/index.html for more details.
  *
  * The lower-address half of the context stack frame is for register values and task state that the RTOS must manually
  * push onto the stack before it switches context. */
@@ -67,7 +69,9 @@
 #define EPSR_THUMB_BIT_OFFSET 24
 
 /* For EXC_RETURN of the first task, we choose this value, which means "Return to Thread mode, exception return uses
- * non-floating-point state from MSP and execution uses MSP after return" according to the Cortex-M4 manual. */
+ * non-floating-point state from MSP and execution uses MSP after return" according to the Cortex-M4 Devices Generic
+ * User Guide (ARM DUI 0553A).
+ * Please see http://infocenter.arm.com/help/topic/com.arm.doc.dui0553a/index.html for more details. */
 #define EXC_RETURN_INITIAL_TASK 0xfffffff9
 
 /*| type_definitions |*/

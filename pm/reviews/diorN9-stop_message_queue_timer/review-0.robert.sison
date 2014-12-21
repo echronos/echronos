@@ -20,3 +20,5 @@ However since the rigel-test program does not appear to exercise any of the mess
 To be fair, regression test coverage for message queues wasn't originally part of the scope of this task, and turning on the assertions is an improvement on the existing coverage.
 Though, I'm inclined to think that it wouldn't be too difficult to at least add a few invocations of some message queue APIs (if not complete coverage at this time) to get a lot more coverage than we have now in the Rigel test.
 If we're not going to deal with this now, could you please add something to the task backlog for improving the test coverage for message queues?
+
+[stg: added entry to backlog]

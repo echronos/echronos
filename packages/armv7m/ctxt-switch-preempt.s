@@ -1,3 +1,34 @@
+/*
+ * This module implements context switch on ARMv7-M for RTOS variants that support task preemption by exceptions.
+ *
+ * RTOS variants with preemption support need, in addition to the ability to trigger context switch internally from
+ * within the RTOS, also a mechanism for allowing user-defined exception handlers to trigger a context switch.
+ * To implement context switch for preemption-supporting variants on ARMv7-M, we use the PendSV and SVCall exceptions.
+ *
+ * Invoking the 'svc' instruction immediately causes the SVCall exception to occur, which makes it ideal for use in
+ * implementing voluntary context switch (or 'yield') requested internally by the RTOS.
+ * This is most typically used just after the RTOS has changed the set of schedulable tasks, for example by blocking
+ * the current task, or by unblocking other tasks of potentially higher priority.
+ *
+ * We use the PendSV exception to implement an involuntary context switch (or 'preemption') as follows.
+ * When a user-defined exception handler returns true, indicating that a preemption should occur, we write to the
+ * 'PendSV set-pending bit' in the Interrupt Control and State Register (ICSR), which will cause a PendSV exception to
+ * occur at the first opportunity that it is enabled (which may be immediately, or as soon as it is re-enabled).
+ * The advantage of using PendSV in this manner is that by raising the value of the Base Priority Mask Register
+ * (BASEPRI) to the priority of the PendSV exception, the RTOS can temporarily disable it (and thus, preemption)
+ * internally in order to ensure correct behavior, without having to disable interrupts globally.
+ *
+ * The handlers we define for PendSV and SVCall are very similar, in that they both invoke the scheduler to discover
+ * the next task to be scheduled, then carry out a context switch to that task if it is different to the current one.
+ * Where they differ is in their handling of the preemption-enabled/disabled status of the task.
+ * To ensure correct behavior, we must store this status in the context stack frame of a task when context switching
+ * away from it, and then accurately restore it upon context switching back to the task.
+ * Because the PendSV exception occurs as a result of the preemption-pending status being set simultaneously with
+ * preemption being enabled, we expect preemption to be enabled when entering the PendSV handler.
+ * In contrast, SVCall occurs voluntarily from within the RTOS, and we require and expect the RTOS to ensure
+ * preemption is disabled when invoking the 'svc' instruction and entering the SVCall handler.
+ */
+
 .syntax unified
 .section .text
 

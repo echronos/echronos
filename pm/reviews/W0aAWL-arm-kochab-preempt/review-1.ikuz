@@ -17,6 +17,8 @@ Location: components/context-switch-preempt-armv7m/implementation.c
 Comment:
 It would be nice to have a description of the model for ARM preemption somewhere.  Not sure if this file is the place, or if it's already described somewhere.  Reading through the files I feel like I get lost in the (well commented) details.
 
+[robs: Added to the top of packages/armv7m/ctxt-switch-preempt.s]
+
 Location: components/context-switch-preempt-armv7m/implementation.c:13 
 * Note that the ARM ABI's Procedure Call Standard says that at a public interface, the stack must be double-word
 Maybe include a reference to this Standard?
@@ -54,6 +56,8 @@ rtos_internal_svc_handler:
 rtos_internal_pendsv_handler:
 
 It would be good to have a high level description about why both SV and PendSV are used, and why they have similar but slightly different handlers.
+
+[robs: Added to the top of this file]
 
 Location: packages/armv7m/exception-preempt.s:24-45
 Comment:

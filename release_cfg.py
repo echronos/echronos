@@ -2,7 +2,8 @@ from pylib.release import Release
 
 
 class Standard(Release):
-    packages = ['armv7m', 'generic', 'rtos-example', 'machine-qemu-simple', 'machine-stm32f4-discovery']
+    packages = ['armv7m', 'generic', 'rtos-example', 'machine-qemu-simple', 'machine-stm32f4-discovery',
+                'machine-armv7m-common']
     platforms = ['x86_64-apple-darwin', 'x86_64-unknown-linux-gnu']
     version = '0.0.2'
     product_name = 'eChronos'

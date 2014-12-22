@@ -60,6 +60,8 @@ Comment:
 The instruction and exception primer are not really needed here anymore, since we don't do any tricky manipulation of the exception stack, nor do we use particularly tricky instructions (unlike the previous solutuion).
 Also I think this comment breaks the style recommendations.
 
+[robs: Fixed]
+
 Location: packages/machine-stm32f4-discovery/example/kochab-mutex-demo.prx:9-10
 Comment:
        <pendsv>rtos_internal_pendsv_handler</pendsv>

@@ -10,40 +10,14 @@
   </schema>
 </module>*/
 
-/*
- Notes for readers:
-
-  This module generates a series of 'trampolines' that can be installed
-  as exception vectors (using the armv7m.vectable module.)
-
-  A trampoline calls an underlying handler function, and if the handler returns
-  true it will preempt the existing task by raising the 'PendSV' exception.
-
-  Pre-emption can be enabled/disabled by raising the setting the base priority (msr baseprio).
-
- Instruction primer:
-
-   For those unfamiliar with ARM assembly:
-
-     cbz: Compare and branch if zero.
-     cbnz: Compare and branch if not-zero.
-     bl: Branch and link (set the link-register. Used for calling functions.)
-     bx: Branch and exchange - used for exception return.
-
- Exception handling primer:
-
-   The ARMv7M architecture automatically pushes some register to the current
-   stack during an exception before jumping to the exception vector.
-   This means an exception handler has free register to work with immediately.
-
-   On an exception the LR is set to contain a special exception return value.
-   To return from an exception setting the PC to the special value stored in
-   LR (e.g.: with bx lr), will cause the core to perform the special exception
-   return routine.
-
-   During exception return the previously stacked values are popped in to registers
-   as appropriate.
-*/
+/* This module generates a series of 'trampolines' that can be installed as exception vectors (using the
+ * armv7m.vectable module).
+ *
+ * A trampoline calls an underlying handler function, and if the handler returns true it will preempt the existing
+ * task by raising the 'PendSV' exception.
+ *
+ * Preemption can be disabled by raising the base priority (msr basepri) to that of the PendSV exception.
+ * See ctxt-switch-preempt.s for more details. */
 
 .syntax unified
 .section .text

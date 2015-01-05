@@ -1,0 +1,27 @@
+Task: WdJu8n-rtos-config-global
+==============================================================================
+
+Motivation
+----------
+
+The PRJ tool currently does not allow other modules to access the Pystache config environment of the RTOS module.
+This would be useful for a couple of reasons.
+
+Firstly, it would allow us to eliminate the hardcoding of the "rtos_" part of the "rtos_internal_" prefix, for global functions and structures referenced in other packages such as platform-specific assembly code.
+
+Secondly, it more generally allows users to write external packages that can instantiate structures based on the RTOS config, for example where it needs to initialize data based on the number of tasks.
+There is currently a use case in the SMACCM project that requires this, which makes much more sense than pushing the change upstream within the RTOS .c code itself.
+
+
+Goals
+--------
+
+Have PRJ allow the RTOS module's pystache config environment to be global accessible by all other modules in the system.
+
+This will allow us to eliminate the "rtos_" hardcoding, but since that touches a fair number of files, that refactor should be done in a separate, subsequent task.
+
+
+Test Plan
+---------
+
+Write a sample external package that instantiates some structures based on some part of the RTOS config, and modify at least one of the test/demo systems to include this package, just so regression testing can catch any breakages of this mechanism.

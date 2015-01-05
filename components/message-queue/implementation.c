@@ -73,6 +73,9 @@ static MessageQueueIdOption message_queue_waiters[] =
 {{/internal_asserts}}
 
 {{/message_queues.length}}
+{{^message_queues.length}}
+#define message_queue_init() do {} while(0)
+{{/message_queues.length}}
 
 /*| functions |*/
 {{#message_queues.length}}

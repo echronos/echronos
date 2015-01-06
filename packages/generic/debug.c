@@ -4,7 +4,7 @@
       <header path="debug.h" code_gen="template" />
   </headers>
   <schema>
-   <entry name="prefix" type="c_ident" default="" />
+   <entry name="dbg_prefix" type="c_ident" default="" />
    <entry name="ll_debug" type="c_ident" default="rtos_internal_" />
   </schema>
 </module>*/
@@ -15,7 +15,7 @@
 extern void {{ll_debug}}debug_putc(char);
 
 void
-{{prefix}}debug_print(const char *msg)
+{{dbg_prefix}}debug_print(const char *msg)
 {
     while (*msg != 0)
     {
@@ -26,9 +26,9 @@ void
 
 
 void
-{{prefix}}debug_println(const char *const msg)
+{{dbg_prefix}}debug_println(const char *const msg)
 {
-    {{prefix}}debug_print(msg);
+    {{dbg_prefix}}debug_print(msg);
     {{ll_debug}}debug_putc('\n');
 }
 
@@ -48,7 +48,7 @@ put_hexdigit(const uint8_t val)
 }
 
 void
-{{prefix}}debug_printhex32(const uint32_t val)
+{{dbg_prefix}}debug_printhex32(const uint32_t val)
 {
     {{ll_debug}}debug_putc('0');
     {{ll_debug}}debug_putc('x');

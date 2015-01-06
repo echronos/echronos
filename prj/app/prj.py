@@ -48,6 +48,7 @@ import signal
 import subprocess
 import sys
 import traceback
+import re
 from util.xml import UserError, NOTHING, xml_parse_file, single_text_child, maybe_single_named_child,\
     xml_parse_file_with_includes, xml_parse_string, get_attribute, single_named_child, xml2schema,\
     xml2dict, SystemParseError, xml_error_str, maybe_get_element_list, check_schema_is_valid, SchemaInvalidError
@@ -666,7 +667,7 @@ class System:
         module_el = single_named_child(self.dom, 'modules')
         module_els = [e for e in module_el.childNodes if e.nodeType == e.ELEMENT_NODE and e.tagName == 'module']
 
-        instances = []
+        gathered_modules = []
         for m_el in module_els:
             # First find the module
             name = get_attribute(m_el, 'name')
@@ -688,11 +689,41 @@ class System:
                     msg = "Error running module '{}' configure method.".format(name)
                     detail = "Traceback:\n{}".format(tb_str)
                     raise EntityLoadError(msg, detail)
-                instance = ModuleInstance(module, self, config_data)
-                instances.append(instance)
+                gathered_modules.append((name, module, config_data, m_el))
             else:
                 raise EntityLoadError(xml_error_str(m_el, 'Entity {} has unexpected type {} and cannot be \
                 instantiated'.format(name, type(module))))
+
+        # Find the config data of the RTOS module, identified by the reserved substring '.rtos-'
+        rtos_module_re = r".*\.rtos-.*"
+        rtos_config_data = {}
+        rtos_module_name = None
+        for (name, module, config_data, m_el) in gathered_modules:
+            if re.match(rtos_module_re, name):
+                if rtos_module_name is not None:
+                    raise EntityLoadError(xml_error_str(m_el, "Multiple RTOS modules found, '{}' and '{}'".format(
+                        rtos_module_name, name)))
+                if not config_data:
+                    raise EntityLoadError(xml_error_str(m_el, "RTOS module '{}' has no config data".format(name)))
+                rtos_config_data = config_data
+                rtos_module_name = name
+
+        # Make a second pass to commit each module's environment, merged with that of the RTOS module
+        instances = []
+        for (name, module, config_data, m_el) in gathered_modules:
+            if not config_data:
+                config_data = rtos_config_data
+            elif not re.match(rtos_module_re, name):
+                # If there are any keys in common, error
+                for (key, val) in config_data.items():
+                    if key in rtos_config_data.keys():
+                        raise EntityLoadError(xml_error_str(m_el, "Name clash for key '{}': RTOS module '{}' has '{}'"
+                                                                  ", module '{}' has '{}'".
+                                                                  format(key, rtos_module_name, rtos_config_data[key],
+                                                                         name, val)))
+                config_data = dict(list(config_data.items()) + list(rtos_config_data.items()))
+            instance = ModuleInstance(module, self, config_data)
+            instances.append(instance)
 
         os.makedirs(self.output, exist_ok=True)
 

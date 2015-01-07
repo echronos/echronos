@@ -1,0 +1,46 @@
+Breakaway Task Review
+=======================
+
+Task name: S8X22j-kochab-sem-timeout
+Version reviewed: 4f203e131b1d19c0afa0e28860658145d92af13d
+Reviewer: stg
+Date: 2014-12-16
+Conclusion: Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: components/kochab/implementation.c:33
+Comment 1: Rework
+To meet convention 29g3DU, `sem_unblock` needs to be renamed to `sem_core_unblock`.
+
+[robs: Fixed]
+
+Location: components/kochab/implementation.c:76
+Comment 2: Rework
+Is the statement `sched_set_blocked(get_current_task());` necessary given that the task later calls `sem_core_block()` / `signal_wait()`?
+If not, please remove this statement.
+
+[robs: Fixed]
+
+Location: components/simple-semaphore/docs.md:93
+Comment 3: Rework
+docs.md files are currently not processed by pystache.
+Therefore, pystache tags are not removed and appear in the PDF output.
+Please remove pystache tags from .md files.
+
+[robs: The component-wide, double-square-bracket pystache tags appear to work correctly for the docs.md files.
+I tested this by adding simple-semaphore to rigel in x.py, toggling 'timeouts' : True/False and comparing the PDFs.]
+
+Location: components/simple-semaphore/implementation.c:94
+Comment 4: Rework
+The function `sem_wait_timeout()` calls the function `internal_sem_try_wait()` twice:
+once before the while loop and once inside the while loop.
+It seems as if a single call inside the while conditional would suffice:
+`while (!internal_sem_try_wait(s) && absolute_timeout > {{prefix_func}}timer_current_ticks) {`
+If this is sufficient, please remove the other calls.
+
+[robs: Fixed]

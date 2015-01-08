@@ -40,8 +40,6 @@ For this purpose, the RTOS defines the constants [`SIGNAL_ID_<label>` and `SIGNA
 They refer to individual signals by their names and they can be used to construct signal sets from individual signals.
 Although signals and signal sets are internally represented as numbers, applications neither need nor should make assumptions about those numeric values of signals.
 
-Also see the [Signal Scopes] Section for more information on the set of tasks with which signals may be used.
-
 /*| doc_api |*/
 ## Signal API
 
@@ -84,7 +82,9 @@ When the API returns, it returns all of the task's pending signals that are in `
 The returned signal set is guaranteed to not be empty and to only contain signals in the requested set.
 Immediately after the API returns, it is guaranteed that none of the signals in `requested_set` are pending any more.
 
+[[#yield_api]]
 If a signal is available immediately (without needing to block), this API implicitly calls [<span class="api">yield</span>] before returning to the user.
+[[/yield_api]]
 
 ### <span class="api">signal_wait</span>
 
@@ -103,7 +103,9 @@ The returned signal set is guaranteed to only contain signals in the requested s
 Immediately after the API returns, it is guaranteed that none of the signals in `requested_set` are pending any more.
 If none of the requested signals are pending, the API returns [<span class="api">SIGNAL_SET_EMPTY</span>].
 
+[[#yield_api]]
 This API does not implicitly call [<span class="api">yield</span>].
+[[/yield_api]]
 
 ### <span class="api">signal_poll</span>
 
@@ -122,7 +124,9 @@ The returned signal set is guaranteed to only contain signals in the requested s
 When the API returns, it is guaranteed that all of the signals in the returned signal set are pending.
 If none of the requested signals are pending, the API returns [<span class="api">SIGNAL_SET_EMPTY</span>].
 
+[[#yield_api]]
 This API does not implicitly call [<span class="api">yield</span>].
+[[/yield_api]]
 
 ### <span class="api">signal_peek</span>
 
@@ -138,8 +142,10 @@ It returns true if the requested signal is pending and false otherwise.
 This API adds the signal set `send_set` to the pending signal set of the task with the ID `destination`.
 After this API returns, it is guaranteed that the destination task can successfully use the peek, poll, or wait APIs to check for and/or receive the signals in `send_set`.
 
+[[#yield_api]]
 The API does not implicitly call [<span class="api">yield</span>].
 The caller must explicitly yield if that is the intended behavior.
+[[/yield_api]]
 
 ### <span class="api">signal_send</span>
 

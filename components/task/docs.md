@@ -212,11 +212,13 @@ This is a mandatory configuration item with no default.
 This configuration item specifies the task's stack size in bytes (also see [Task Stacks]).
 It is a mandatory configuration item with no default.
 
+[[#task_start_api]]
 ### `tasks/task/start`
 
 This boolean configuration option determines whether a task should automatically start when the RTOS is started.
 If the task is not automatically started, it can be started using the [<span class="api">task_start</span>] API.
 This is an optional configuration item that defaults to false.
 At least one task in the system should be configured with `start` as true, otherwise no task and hence no application functionality can ever start running in the system.
+[[/task_start_api]]
 
 /*| doc_footer |*/

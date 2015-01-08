@@ -54,7 +54,7 @@ The bit width of the <span class="api">SemValue</span> type depends on the confi
 This function is only available if the [`semaphore_enable_max`] configuration item is true.
 It initializes the specified semaphore with the given maximum value, which must be non-zero.
 The application must call it once and only once per semaphore, and must do so before using the [<span class="api">sem_post</span>] API with the semaphore.
-The maximum value of a semaphore influences the behavior of the [<div class="codebox">void sem_post(SemId sem);</div>] API.
+The maximum value of a semaphore influences the behavior of the [<span class="api">sem_post</span>] API.
 
 ### <span class="api">sem_post</span>
 
@@ -132,7 +132,7 @@ This is an optional configuration item that defaults to false.
 
 ### `semaphores`
 
-This configuration item is a list of [`semaphores/semaphore'] configuration objects.
+This configuration item is a list of [`semaphores/semaphore`] configuration objects.
 
 ### `semaphores/semaphore`
 

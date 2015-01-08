@@ -14,6 +14,8 @@ The [API Reference] chapter documents the details of the run-time programming in
 
 The [Configuration Reference] chapter details the interface to the build-time configuration of the RTOS that system designers use to tailor the RTOS to their applications.
 
+Throughout this document, *eChronos RTOS* or *the RTOS* will refer specifically to the *Rigel* variant of eChronos.
+
 /*| doc_concepts |*/
 ## Overview
 
@@ -22,7 +24,7 @@ It allows developers to focus on the application logic by wrapping the complexit
 Since each application configures the RTOS to its specific requirements, this document refers to the combination of RTOS and application code simply as the *system*.
 
 In terms of its functionality, the RTOS is a task-based operating system that multiplexes the available CPU time between tasks.
-Since it is non-preemptive, tasks exeute on the CPU until they voluntarily relinquish the CPU by calling an appropriate RTOS API function.
+Since it is non-preemptive, tasks execute on the CPU until they voluntarily relinquish the CPU by calling an appropriate RTOS API function.
 The RTOS API (see [API Reference]) gives tasks access to the objects that the RTOS provides.
 They include [Interrupt Service Routines], [Signals], [Time and Timers], [Mutexes], and [Message Queues].
 

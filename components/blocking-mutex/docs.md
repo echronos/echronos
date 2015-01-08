@@ -154,7 +154,7 @@ For more information, see [Time and Timers].
 If <span class="api">mutex_lock_timeout</span> successfully acquires the mutex, it returns true.
 Otherwise, it returns false.
 
-The system designer should not use this function to attempt to acquire a mutex previously acquired by the same task without releasing it in between.
+The system designer must not use this function to attempt to acquire a mutex previously acquired by the same task without releasing it in between.
 
 [[/timeouts]]
 

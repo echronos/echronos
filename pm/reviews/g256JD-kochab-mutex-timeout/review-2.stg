@@ -23,3 +23,5 @@ Location: components/blocking-mutex/docs.md:157
 Comment 2: Rework
 Rephrase 'should' to 'must'.
 This is an API error and is even checked for.
+
+[robs: Fixed]

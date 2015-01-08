@@ -19,6 +19,8 @@ We have considered introducing a different time-out mechanism that does not limi
 Therefore, the name of the configuration item 'timeouts' is a bit too generic to be able to clearly make that distinction in the future.
 Please rename the configuration item 'timeouts' to 'lock_timeout'.
 
+[robs: Fixed]
+
 Location: components/blocking-mutex/docs.md:157
 Comment 2: Rework
 Rephrase 'should' to 'must'.

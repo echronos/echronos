@@ -140,7 +140,7 @@ This API is guaranteed to return only after the calling task has transitioned su
 This implies that a task cannot successfully acquire the same mutex twice without releasing it in between.
 Attempting to do so effectively blocks the calling task indefinitely.
 
-[[#timeouts]]
+[[#lock_timeout]]
 
 ### <span class="api">mutex_lock_timeout</span>
 
@@ -156,7 +156,7 @@ Otherwise, it returns false.
 
 The system designer must not use this function to attempt to acquire a mutex previously acquired by the same task without releasing it in between.
 
-[[/timeouts]]
+[[/lock_timeout]]
 
 ### <span class="api">mutex_try_lock</span>
 

@@ -119,7 +119,7 @@ void
 {{/mutex.stats}}
 }
 
-[[#timeouts]]
+[[#lock_timeout]]
 bool
 {{prefix_func}}mutex_lock_timeout(const {{prefix_type}}MutexId m, const {{prefix_type}}TicksRelative timeout)
         {{prefix_const}}REENTRANT
@@ -155,7 +155,7 @@ bool
 
     return ret;
 }
-[[/timeouts]]
+[[/lock_timeout]]
 
 void
 {{prefix_func}}mutex_unlock(const {{prefix_type}}MutexId m)

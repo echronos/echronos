@@ -28,3 +28,5 @@ Also seeing as the name of the doc chapter being introduced by the component is 
 Location: components/signal-task/docs.md:3
 Comment 3: Rework
 Perhaps related to the above comment, it is not clear where or how this 'signal-scope' dependency tag is to be used.
+
+[stg: resolved both comments by removing the signal-task component and replacing with generating this documentation only if the `task_signals` configuration item of the signals component is set to true]

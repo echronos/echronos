@@ -694,12 +694,12 @@ class System:
                 raise EntityLoadError(xml_error_str(m_el, 'Entity {} has unexpected type {} and cannot be \
                 instantiated'.format(name, type(module))))
 
-        # Find the config data of the RTOS module, identified by the reserved substring '.rtos-'
-        rtos_module_re = r".*\.rtos-.*"
+        # Find the config data of the RTOS module, identified by a reserved substring
+        rtos_module_substr = ".rtos-"
         rtos_config_data = {}
         rtos_module_name = None
         for (name, module, config_data, m_el) in gathered_modules:
-            if re.match(rtos_module_re, name):
+            if rtos_module_substr in name:
                 if rtos_module_name is not None:
                     raise EntityLoadError(xml_error_str(m_el, "Multiple RTOS modules found, '{}' and '{}'".format(
                         rtos_module_name, name)))
@@ -713,7 +713,7 @@ class System:
         for (name, module, config_data, m_el) in gathered_modules:
             if not config_data:
                 config_data = rtos_config_data
-            elif not re.match(rtos_module_re, name):
+            elif rtos_module_substr not in name:
                 # If there are any keys in common, error
                 for (key, val) in config_data.items():
                     if key in rtos_config_data.keys():

@@ -19,6 +19,8 @@ Comment 1: Rework?
 Could the regular expressions be replaced by code along the lines of "'.rtos-' in string"?
 If yes, that approach seems more lightweight and easier to read and maintain.
 
+[robs: Fixed]
+
 Location: prj/app/prj.py:697
 Comment 2: Rework?
 Is it necessary to iterate over gathered_modules?

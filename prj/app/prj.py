@@ -717,10 +717,11 @@ class System:
                 # If there are any keys in common, error
                 for (key, val) in config_data.items():
                     if key in rtos_config_data.keys():
-                        raise EntityLoadError(xml_error_str(m_el, "Name clash for key '{}': RTOS module '{}' has '{}'"
-                                                                  ", module '{}' has '{}'".
-                                                                  format(key, rtos_module_name, rtos_config_data[key],
-                                                                         name, val)))
+                        raise EntityLoadError(xml_error_str(m_el, "RTOS module '{}' and non-RTOS module '{}' both "
+                                                                  "have a configuration item with the name '{}'. "
+                                                                  "The configuration namespace of a non-RTOS module "
+                                                                  "must not overlap with that of the RTOS module.".
+                                                                  format(rtos_module_name, name, key)))
                 config_data = dict(list(config_data.items()) + list(rtos_config_data.items()))
             instance = ModuleInstance(module, self, config_data)
             instances.append(instance)

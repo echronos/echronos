@@ -32,3 +32,5 @@ Comment 3: Rework?
 In my personal opinion, the information about the values of the configuration items in the error message is misleading.
 It seems to suggest that the error is that the values are different or the same, not so much that a non-RTOS module must not contain a configuration item with the same name as one from an RTOS module.
 I would suggest to drop the information about the values and explicitly say that RTOS and non-RTOS modules must not have configuration items with the same names.
+
+[robs: Fixed]

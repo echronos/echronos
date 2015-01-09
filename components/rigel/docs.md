@@ -39,10 +39,10 @@ Hence, the [Configuration Reference] chapter describes the available configurati
 
 The RTOS does not start automatically when a system boots.
 Instead, the system is expected to start normally, as per the platform's conventions and C runtime environment.
-This typically means that at some point, C runtime environment invokes the canonical `main` function without any involvement of the RTOS.
-This enables the system to perform an initial startup that may be required before starting the RTOS.
+The C runtime environment invokes the canonical `main` function without any involvement of the RTOS.
+This allows to customize how the system is initialized before starting the RTOS.
 
-The RTOS provides a [<span class="api">start</span>] API that needs to be called to initialise the RTOS and begin its execution.
+The RTOS provides a [<span class="api">start</span>] API that needs to be called to initialize the RTOS and begin its execution.
 The [<span class="api">start</span>] API never returns.
 Any tasks that are marked as auto-start are automatically started by the RTOS.
 All other tasks are initially in the blocked state, waiting to receive a start signal.
@@ -95,7 +95,7 @@ This is an implementation detail and the use of all APIs must conform to the for
 
 <div class="codebox">void start(void);</div>
 
-The [<span class="api">start</span>] API initialises the RTOS, makes all tasks configured as auto-start runnable and then, based on the scheduling algorithm, chooses and starts executing the current task.
+The [<span class="api">start</span>] API initializes the RTOS, makes all tasks configured as auto-start runnable and then, based on the scheduling algorithm, chooses and starts executing the current task.
 This function must be called from the system's main function.
 This function does not return.
 

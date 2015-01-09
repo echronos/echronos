@@ -667,7 +667,11 @@ class System:
         module_el = single_named_child(self.dom, 'modules')
         module_els = [e for e in module_el.childNodes if e.nodeType == e.ELEMENT_NODE and e.tagName == 'module']
 
-        gathered_modules = []
+        instances = []
+        rtos_config_data = {}
+        rtos_module_name = None
+        non_rtos_modules = []
+
         for m_el in module_els:
             # First find the module
             name = get_attribute(m_el, 'name')
@@ -689,31 +693,32 @@ class System:
                     msg = "Error running module '{}' configure method.".format(name)
                     detail = "Traceback:\n{}".format(tb_str)
                     raise EntityLoadError(msg, detail)
-                gathered_modules.append((name, module, config_data, m_el))
+
+                # Find the config data of the RTOS module, identified by a reserved substring
+                if ".rtos-" in name:
+                    if rtos_module_name is not None:
+                        raise EntityLoadError(xml_error_str(m_el, "Multiple RTOS modules found, '{}' and '{}'".format(
+                            rtos_module_name, name)))
+                    if not config_data:
+                        raise EntityLoadError(xml_error_str(m_el, "RTOS module '{}' has no config data".format(name)))
+
+                    # Commit the RTOS module alone
+                    instance = ModuleInstance(module, self, config_data)
+                    instances.append(instance)
+
+                    rtos_config_data = config_data
+                    rtos_module_name = name
+                else:
+                    non_rtos_modules.append((name, module, config_data, m_el))
             else:
                 raise EntityLoadError(xml_error_str(m_el, 'Entity {} has unexpected type {} and cannot be \
                 instantiated'.format(name, type(module))))
 
-        # Find the config data of the RTOS module, identified by a reserved substring
-        rtos_module_substr = ".rtos-"
-        rtos_config_data = {}
-        rtos_module_name = None
-        for (name, module, config_data, m_el) in gathered_modules:
-            if rtos_module_substr in name:
-                if rtos_module_name is not None:
-                    raise EntityLoadError(xml_error_str(m_el, "Multiple RTOS modules found, '{}' and '{}'".format(
-                        rtos_module_name, name)))
-                if not config_data:
-                    raise EntityLoadError(xml_error_str(m_el, "RTOS module '{}' has no config data".format(name)))
-                rtos_config_data = config_data
-                rtos_module_name = name
-
-        # Make a second pass to commit each module's environment, merged with that of the RTOS module
-        instances = []
-        for (name, module, config_data, m_el) in gathered_modules:
+        # Commit each non-RTOS module's environment, merged with that of the RTOS module
+        for (name, module, config_data, m_el) in non_rtos_modules:
             if not config_data:
                 config_data = rtos_config_data
-            elif rtos_module_substr not in name:
+            else:
                 # If there are any keys in common, error
                 for (key, val) in config_data.items():
                     if key in rtos_config_data.keys():

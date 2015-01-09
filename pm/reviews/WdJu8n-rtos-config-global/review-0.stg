@@ -27,6 +27,8 @@ Is it necessary to iterate over gathered_modules?
 Would it be possible to implement the core functionality of this loop inside the first loop at line 671?
 Note this is less about performance and more about readability.
 
+[robs: Fixed]
+
 Location: prj/app/prj.py:720
 Comment 3: Rework?
 In my personal opinion, the information about the values of the configuration items in the error message is misleading.

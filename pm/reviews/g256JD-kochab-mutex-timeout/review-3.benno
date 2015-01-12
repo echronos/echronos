@@ -5,16 +5,14 @@ Task name: g256JD-kochab-mutex-timeout
 Version reviewed: a4e9a2bb78b558d450037e4a689d2da77887061b
 Reviewer: benno
 Date: 2015-01-09
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
+My main comment is on the design.
+It is probably the case that we just need to capture the design rationale rather than change the actual code.
 
-Specific comments
-=================
+Is it possible to perform the timer_onshot just once at the start of the function, and only cancel it once as well?
+This seems to be more efficient than setting/resetting the timer multiple times.
+This would also result in less code, improving the code footprint.
 
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:

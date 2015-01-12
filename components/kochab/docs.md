@@ -40,7 +40,7 @@ The [Configuration Reference] chapter describes the available configuration opti
 The RTOS does not start automatically when a system boots.
 Instead, the system is expected to start normally, as per the platform's conventions and C runtime environment.
 The C runtime environment invokes the canonical `main` function without any involvement of the RTOS.
-This allows to customize how the system is initialized before starting the RTOS.
+This allows the user to customize how the system is initialized before starting the RTOS.
 
 The RTOS provides a [<span class="api">start</span>] API that needs to be called to initialize the RTOS and begin its execution.
 The [<span class="api">start</span>] API never returns.

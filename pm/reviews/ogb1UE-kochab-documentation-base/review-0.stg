@@ -12,6 +12,8 @@ Overall comments:
 Comment 1: Accepted
 Please review the changes I made directly to the documents.
 
+[robs: I tweaked a sentence you added but otherwise looks fine, please review in the next round to be posted shortly.]
+
 Specific comments
 =================
 
@@ -22,3 +24,5 @@ You may want to consider to generate this section, which is specific to preempti
 Location: components/blocking-mutex/docs.md:multiple
 Comment 3: Accepted
 As above, you may want to consider generating only conditionally the sections that are specific to preemption-free systems.
+
+[robs: Comments 2, 3 - I'll deal with this in the upcoming branch that considers the scheduler/preemption-related content of the Kochab manual.]

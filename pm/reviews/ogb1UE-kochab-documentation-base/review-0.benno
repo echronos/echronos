@@ -5,16 +5,16 @@ Task name: ogb1UE-kochab-documentation-base
 Version reviewed: 79e851de07ce1da57691138761eb2907c1a76e8d
 Reviewer: benno
 Date: 2015-01-08
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
+
+One thing that confused me when reviewing the diff was the fact that the task_start_api Component option only applies to the docs and the implementation is in the rigel component.
+I'm not sure if there is a better way of factoring this, or if we can put a comment somewhere to make it clear what is going on.
 
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Location: components/kochab/docs.md:35
+Comment: I think the 'hence' is unnecessary.

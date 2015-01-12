@@ -32,7 +32,7 @@ A distinctive feature of the RTOS is that these objects, including tasks, are de
 This configuration defines, for example, the tasks and mutexes that exist in a system at compile and run time.
 Static system configuration like this is typical for small embedded systems.
 It avoids the need for dynamic memory allocation and permits a much higher degree of code optimization.
-Hence, the [Configuration Reference] chapter describes the available configuration options for each type of object in the RTOS.
+The [Configuration Reference] chapter describes the available configuration options for each type of object in the RTOS.
 
 
 ## Startup

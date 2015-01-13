@@ -714,20 +714,14 @@ class System:
                 raise EntityLoadError(xml_error_str(m_el, 'Entity {} has unexpected type {} and cannot be \
                 instantiated'.format(name, type(module))))
 
-        # Commit each non-RTOS module's environment, merged with that of the RTOS module
+        # Commit each non-RTOS module's config, with that of the RTOS module present as a dict under the key 'rtos'
         for (name, module, config_data, m_el) in non_rtos_modules:
             if not config_data:
-                config_data = rtos_config_data
-            else:
-                # If there are any keys in common, error
-                for (key, val) in config_data.items():
-                    if key in rtos_config_data.keys():
-                        raise EntityLoadError(xml_error_str(m_el, "RTOS module '{}' and non-RTOS module '{}' both "
-                                                                  "have a configuration item with the name '{}'. "
-                                                                  "The configuration namespace of a non-RTOS module "
-                                                                  "must not overlap with that of the RTOS module.".
-                                                                  format(rtos_module_name, name, key)))
-                config_data = dict(list(config_data.items()) + list(rtos_config_data.items()))
+                config_data = {}
+            elif 'rtos' in config_data.keys():
+                raise EntityLoadError(xml_error_str(m_el, "Module '{}' cannot have a configuration item with the "
+                                                          "reserved name 'rtos'.").format(name))
+            config_data['rtos'] = rtos_config_data
             instance = ModuleInstance(module, self, config_data)
             instances.append(instance)
 

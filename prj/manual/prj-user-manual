@@ -121,8 +121,8 @@ Templating enables code generation which reduces boilerplate code.
 FIXME: Exact details of templating is currently undefined.
 
 When naming modules, the '.rtos-' substring is reserved for the RTOS module of a system.
-A system may only have at most one RTOS module, and the **prj** tool makes the values of all of the configuration parameters of the RTOS module accessible to all other modules in the system.
-When defining configuration parameters for modules, care must be taken not to have names that clash with any of those of the RTOS module(s) with which they will be used.
+A system may only have at most one RTOS module, and the **prj** tool makes the values of all of the configuration parameters of the RTOS module accessible to all other modules in the system, under a top-level dict entry named 'rtos'.
+Consequently when naming top-level configuration parameters for modules, the name 'rtos' is reserved for this purpose.
 
 
 **Future:** Modules that support multiple inclusion in a system vs. single inclusion in a system.

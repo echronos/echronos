@@ -34,3 +34,7 @@ There are, I guess, technical/design reasons why the above is not possible, howe
 
 I think the above approach would enable the potential for other cross-package configuration in the future, which may be interesting.
 
+[robs: I had trouble with this when prototyping but I've now realized that this is actually quite easy.
+Back then I was trying avoid name clashes in the merged dictionaries by prepending a string to the name of every key from the external module, but couldn't use the pystache-reserved '.' to delimit the prefix.
+But adding the entire RTOS module's config dict to the top-level dict under the key 'rtos' seems to get what we want.
+I've implemented it this way now, updated the acamar-config-demo and reverted the renames I did due to clashing.]

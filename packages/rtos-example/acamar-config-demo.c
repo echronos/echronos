@@ -3,17 +3,17 @@
 
 #include "rtos-acamar.h"
 
-{{#tasks}}
+{{#rtos.tasks}}
 void
 {{function}}(void)
 {
     for (;;)
     {
-        rtos_yield_to(({{prefix_const}}TASK_ID_{{name|u}} + 1) % {{tasks.length}});
+        rtos_yield_to(({{rtos.prefix_const}}TASK_ID_{{name|u}} + 1) % {{rtos.tasks.length}});
         debug_println("task {{name}}");
     }
 }
-{{/tasks}}
+{{/rtos.tasks}}
 
 int
 main(void)

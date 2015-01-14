@@ -1,0 +1,25 @@
+Task: LT8GHw-kochab-documentation-scheduler
+==============================================================================
+
+Motivation
+----------
+
+No chapter exists in the Kochab user manual for Preemption and the Scheduling Algorithm (sched-prio-inherit).
+
+There is also content in the Kochab manual that refers to non-preemptive systems, but Kochab is preemptive.
+
+
+Goals
+--------
+
+Add missing user documentation for Preemption and the Scheduling Algorithm to the manual of the Kochab variant.
+
+Strip or block out information regarding non-preemptive systems from preemptive variants, and vice versa.
+
+
+Test Plan
+---------
+
+./x.py build build-manuals
+
+Inspect the manual... manually.

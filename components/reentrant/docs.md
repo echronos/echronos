@@ -9,7 +9,10 @@ task
 ## Reentrancy
 
 Some but not all RTOS APIs are *reentrant*.
-A reentrant API is one that may (but does not necessarily) switch to another task before returning to the caller, such as [<span class="api">signal_wait</span>].
+
+RTOS APIs that are reentrant are ones that may (but do not necessarily) switch to another task before returning to the caller, such as [<span class="api">signal_wait</span>].
+
+If a function is reentrant, it means that there may exist execution paths that enter the function, and then, before leaving the function, enter the same function again, whether in the same or different tasks.
 
 [[#preempt_null]]
 Since the RTOS is non-preemptive, this implies the following:

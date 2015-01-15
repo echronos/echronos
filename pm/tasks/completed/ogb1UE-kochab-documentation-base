@@ -1,0 +1,25 @@
+Task: ogb1UE-kochab-documentation-base
+==============================================================================
+
+Motivation
+----------
+
+No user manual is currently generated for Kochab because the base kochab/docs.md doesn't exist.
+
+
+Goals
+--------
+
+Add a kochab docs.md so a manual is generated for Kochab.
+
+Also clean up content that refers to Rigel-specific functionality so it doesn't show up in the Kochab manual.
+
+This should yield a Kochab manual that is not quite complete, but at least is accurate where chapters do exist.
+
+Adding missing chapters (apart from the Kochab manual intro, etc) is NOT part of the scope of this task branch.
+
+
+Test Plan
+---------
+
+Use `x.py build build-manuals` to build the Kochab manual and inspect it.

@@ -49,7 +49,7 @@ As timers are based on ticks, it is important to understand some of the limitati
 Firstly, the best possible timing resolution is limited by the tick period.
 If we assume a 40Hz tick (25ms period), then a desired period of 30ms must either be rounded down to 25ms or up to 50ms.
 
-The second limiting factor comes into play only for non-preemtive systems.
+The second limiting factor comes into play only for non-preemptive systems.
 In that case, ticks are processed only when a task yields or blocks, so there is a delay between the system calling the [<span class="api">timer_tick</span>] API and the RTOS processing the tick, including timer handling.
 To ensure that this delay is bounded, the RTOS requires tasks to not run for longer than a tick period.
 For long running tasks this means that the task must yield at a higher frequency than the tick.

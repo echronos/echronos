@@ -1,7 +1,7 @@
 /*| doc_header |*/
 /*| doc_concepts |*/
 /*| doc_api |*/
-## Platform Interrupt Events API
+## Platform Interrupt Event API
 
 ### <span class="api">interrupt_event_raise</span>
 

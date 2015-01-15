@@ -14,6 +14,8 @@ The [API Reference] chapter documents the details of the run-time programming in
 
 The [Configuration Reference] chapter details the interface to the build-time configuration of the RTOS that system designers use to tailor the RTOS to their applications.
 
+Throughout this document, *eChronos RTOS* or *the RTOS* will refer specifically to the *Rigel* variant of eChronos.
+
 /*| doc_concepts |*/
 ## Overview
 
@@ -22,7 +24,7 @@ It allows developers to focus on the application logic by wrapping the complexit
 Since each application configures the RTOS to its specific requirements, this document refers to the combination of RTOS and application code simply as the *system*.
 
 In terms of its functionality, the RTOS is a task-based operating system that multiplexes the available CPU time between tasks.
-Since it is non-preemptive, tasks exeute on the CPU until they voluntarily relinquish the CPU by calling an appropriate RTOS API function.
+Since it is non-preemptive, tasks execute on the CPU until they voluntarily relinquish the CPU by calling an appropriate RTOS API function.
 The RTOS API (see [API Reference]) gives tasks access to the objects that the RTOS provides.
 They include [Interrupt Service Routines], [Signals], [Time and Timers], [Mutexes], and [Message Queues].
 
@@ -30,17 +32,17 @@ A distinctive feature of the RTOS is that these objects, including tasks, are de
 This configuration defines, for example, the tasks and mutexes that exist in a system at compile and run time.
 Static system configuration like this is typical for small embedded systems.
 It avoids the need for dynamic memory allocation and permits a much higher degree of code optimization.
-Hence, the [Configuration Reference] chapter describes the available configuration options for each type of object in the RTOS.
+The [Configuration Reference] chapter describes the available configuration options for each type of object in the RTOS.
 
 
 ## Startup
 
 The RTOS does not start automatically when a system boots.
 Instead, the system is expected to start normally, as per the platform's conventions and C runtime environment.
-This typically means that at some point, C runtime environment invokes the canonical `main` function without any involvement of the RTOS.
-This enables the system to perform an initial startup that may be required before starting the RTOS.
+The C runtime environment invokes the canonical `main` function without any involvement of the RTOS.
+This allows the user to customize how the system is initialized before starting the RTOS.
 
-The RTOS provides a [<span class="api">start</span>] API that needs to be called to initialise the RTOS and begin its execution.
+The RTOS provides a [<span class="api">start</span>] API that needs to be called to initialize the RTOS and begin its execution.
 The [<span class="api">start</span>] API never returns.
 Any tasks that are marked as auto-start are automatically started by the RTOS.
 All other tasks are initially in the blocked state, waiting to receive a start signal.
@@ -93,7 +95,7 @@ This is an implementation detail and the use of all APIs must conform to the for
 
 <div class="codebox">void start(void);</div>
 
-The [<span class="api">start</span>] API initialises the RTOS, makes all tasks configured as auto-start runnable and then, based on the scheduling algorithm, chooses and starts executing the current task.
+The [<span class="api">start</span>] API initializes the RTOS, makes all tasks configured as auto-start runnable and then, based on the scheduling algorithm, chooses and starts executing the current task.
 This function must be called from the system's main function.
 This function does not return.
 

@@ -23,16 +23,14 @@ struct sched {
 
 /*| function_definitions |*/
 static void sched_set_runnable(const {{prefix_type}}TaskId task_id);
-static void sched_set_blocked(const {{prefix_type}}TaskId task_id);
-{{#mutexes.length}}
 static void sched_set_blocked_on(const {{prefix_type}}TaskId task_id, const {{prefix_type}}TaskId blocker);
-{{/mutexes.length}}
 static [[#assume_runnable]]{{prefix_type}}TaskId[[/assume_runnable]][[^assume_runnable]]TaskIdOption[[/assume_runnable]] sched_get_next(void);
 
 /*| state |*/
 static struct sched sched_tasks;
 
 /*| function_like_macros |*/
+#define sched_set_blocked(task_id) sched_set_blocked_on(task_id, TASK_ID_NONE)
 #define sched_runnable(task_id) (SCHED_OBJ(task_id).runnable)
 #define sched_max_index() (SchedIndex)({{tasks.length}} - 1U)
 #define sched_index_to_taskid(sched_index) ({{prefix_type}}TaskId)(sched_index)
@@ -47,18 +45,10 @@ sched_set_runnable(const {{prefix_type}}TaskId task_id)
 }
 
 static void
-sched_set_blocked(const {{prefix_type}}TaskId task_id)
-{
-    SCHED_OBJ(task_id).blocked_on = TASK_ID_NONE;
-}
-
-{{#mutexes.length}}
-static void
 sched_set_blocked_on(const {{prefix_type}}TaskId task_id, const {{prefix_type}}TaskId blocker)
 {
     SCHED_OBJ(task_id).blocked_on = blocker;
 }
-{{/mutexes.length}}
 
 static [[#assume_runnable]]{{prefix_type}}TaskId[[/assume_runnable]][[^assume_runnable]]TaskIdOption[[/assume_runnable]]
 sched_get_next(void)

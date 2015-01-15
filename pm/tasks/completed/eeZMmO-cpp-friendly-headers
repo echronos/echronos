@@ -1,0 +1,21 @@
+Task: eeZMmO-cpp-friendly-headers
+==============================================================================
+
+Motivation
+----------
+
+For users calling into the RTOS from C++, function declarations in the user API header need to be surrounded by an 'extern "C" { }' block dependent on #ifdef __cplusplus.
+
+We can do this easily by adding a couple of lines of script to pylib/components.py that write the block opener and closer when it generates the 'public_function_definitions' section of the header.
+
+
+Goals
+--------
+
+Have x.py put the public RTOS header's function declarations into a 'extern "C" { }' block when #ifdef __cplusplus.
+
+
+Test Plan
+---------
+
+Existing regression tests, and inspect output header contents manually.

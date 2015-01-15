@@ -24,8 +24,8 @@ static {{prefix_type}}TimerId task_timers[{{tasks.length}}] = {
 /*| function_like_macros |*/
 #define yield() {{prefix_func}}yield()
 #define interrupt_event_id_to_taskid(interrupt_event_id) (({{prefix_type}}TaskId)(interrupt_event_id))
-#define mutex_block_on(unused_task) {{prefix_func}}signal_wait({{prefix_const}}SIGNAL_ID__RTOS_UTIL)
-#define mutex_unblock(task) {{prefix_func}}signal_send(task, {{prefix_const}}SIGNAL_ID__RTOS_UTIL)
+#define mutex_core_block_on(unused_task) {{prefix_func}}signal_wait({{prefix_const}}SIGNAL_ID__TASK_TIMER)
+#define mutex_core_unblock(task) {{prefix_func}}signal_send(task, {{prefix_const}}SIGNAL_ID__TASK_TIMER)
 #define message_queue_core_block() {{prefix_func}}signal_wait({{prefix_const}}SIGNAL_ID__TASK_TIMER)
 #define message_queue_core_block_timeout(timeout) {{prefix_func}}sleep((timeout))
 #define message_queue_core_unblock(task) {{prefix_func}}signal_send((task), {{prefix_const}}SIGNAL_ID__TASK_TIMER)
@@ -85,16 +85,11 @@ void
 }
 
 void
-{{prefix_func}}sleep(const {{prefix_type}}TicksRelative ticks) {{prefix_const}}REENTRANT
-{
-    {{prefix_func}}timer_oneshot(task_timers[get_current_task()], ticks);
-    {{prefix_func}}signal_wait({{prefix_const}}SIGNAL_ID__TASK_TIMER);
-}
-
-void
 {{prefix_func}}start(void)
 {
+    {{#message_queues.length}}
     message_queue_init();
+    {{/message_queues.length}}
 
     {{#tasks}}
     context_init(get_task_context({{idx}}), entry_{{name}}, stack_{{idx}}, {{stack_size}});

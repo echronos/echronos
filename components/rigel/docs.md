@@ -21,6 +21,8 @@ The [API Reference] chapter documents the details of the run-time programming in
 
 The [Configuration Reference] chapter details the interface to the build-time configuration of the RTOS that system designers use to tailor the RTOS to their applications.
 
+Throughout this document, *eChronos RTOS* or *the RTOS* will refer specifically to the *Rigel* variant of eChronos.
+
 /*| doc_concepts |*/
 ## Overview
 
@@ -37,15 +39,15 @@ A distinctive feature of the RTOS is that these objects, including tasks, are de
 This configuration defines, for example, the tasks and mutexes that exist in a system at compile and run time.
 Static system configuration like this is typical for small embedded systems.
 It avoids the need for dynamic memory allocation and permits a much higher degree of code optimization.
-Hence, the [Configuration Reference] chapter describes the available configuration options for each type of object in the RTOS.
+The [Configuration Reference] chapter describes the available configuration options for each type of object in the RTOS.
 
 
 ## Startup
 
 The RTOS does not start automatically when a system boots.
 Instead, the system is expected to start normally, as per the platform's conventions and C runtime environment.
-This typically means that at some point, C runtime environment invokes the canonical `main` function without any involvement of the RTOS.
-This enables the system to perform an initial startup that may be required before starting the RTOS.
+The C runtime environment invokes the canonical `main` function without any involvement of the RTOS.
+This allows the user to customize how the system is initialized before starting the RTOS.
 
 The RTOS provides a [<span class="api">start</span>] API that needs to be called to initialize the RTOS and begin its execution.
 The [<span class="api">start</span>] API never returns.

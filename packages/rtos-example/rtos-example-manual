@@ -13,6 +13,8 @@ kochab-mutex-demo
   ~ An example C program demonstrating mutex functionality on the kochab variant.
 kochab-sem-demo
   ~ An example C program demonstrating semaphore functionality on the kochab variant.
+timer-test
+  ~ An example C program that tests runtime timer APIs on variants that support it.
 
 
 `kochab-signal-demo`
@@ -292,3 +294,130 @@ The following is the expected output of the semaphore demo, continuing from a br
     a: P
     a: trying P (should trigger fatal error)
     FATAL ERROR: <hexadecimal error code for ERROR_ID_SEMAPHORE_MAX_EXCEEDED - see rtos-variant.h>
+
+
+`timer-test`
+============
+
+This system features two tasks concurrently exercising the RTOS' runtime timer APIs to configure and make use of timers.
+
+Task A uses two timers: The first, WATCHDOG_A, is configured to cause a fatal error exactly one tick after the expected duration of the main body of the test.
+The second timer, WAKE_A, is configured to reload itself periodically on expiry, and on each expiry to send task A the WAKE signal.
+
+For a fixed number of iterations, task A alternates between waiting for the WAKE signal to arrive, and sleeping for longer than the WAKE_A timer period so that an overflow occurs.
+On each "sleeping" iteration, task A calls the `timer_check_overflow` API on the WAKE_A timer to ensure that an overflow indeed occurred, and to clear the overflow state of the timer.
+
+Finally, task A will issue a 1 second sleep, but before the sleep ever completes, the WATCHDOG_A timer should expire and cause a fatal error.
+
+Task B uses one timer, WATCHDOG_B, which is configured to cause a fatal error if it ever expires.
+However, task B just sits in a while-forever loop periodically sleeping for a time period just one second short of the expiry, and on each iteration resetting its watchdog, so that it never expires.
+
+The test ends successfully once the fatal error at the end of task A's main body occurs, as long as this happens before the call to `sleep` returns at the end of task A.
+After this point the test is over, although the tick_irq will continue to come in once every tick period.
+
+The following is the expected output of the timer test, continuing from a breakpoint set at `rtos_start`:
+
+    (gdb) c
+    Continuing.
+    a: enabling watchdog timer
+    a: enabling periodic wake timer
+    a: waiting for wake signal
+    b: starting secondary watchdog
+    tick_irq: 0x00000000
+    tick_irq: 0x00000001
+    b: restarting secondary watchdog
+    tick_irq: 0x00000002
+    a: sleeping to overflow wake timer
+    tick_irq: 0x00000003
+    b: restarting secondary watchdog
+    tick_irq: 0x00000004
+    tick_irq: 0x00000005
+    b: restarting secondary watchdog
+    tick_irq: 0x00000006
+    tick_irq: 0x00000007
+    b: restarting secondary watchdog
+    tick_irq: 0x00000008
+    a: polled pending wake signal
+    a: waiting for wake signal
+    tick_irq: 0x00000009
+    b: restarting secondary watchdog
+    tick_irq: 0x0000000a
+    tick_irq: 0x0000000b
+    a: sleeping to overflow wake timer
+    b: restarting secondary watchdog
+    tick_irq: 0x0000000c
+    tick_irq: 0x0000000d
+    b: restarting secondary watchdog
+    tick_irq: 0x0000000e
+    tick_irq: 0x0000000f
+    b: restarting secondary watchdog
+    tick_irq: 0x00000010
+    tick_irq: 0x00000011
+    a: polled pending wake signal
+    a: waiting for wake signal
+    b: restarting secondary watchdog
+    tick_irq: 0x00000012
+    tick_irq: 0x00000013
+    b: restarting secondary watchdog
+    tick_irq: 0x00000014
+    a: sleeping to overflow wake timer
+    tick_irq: 0x00000015
+    b: restarting secondary watchdog
+    tick_irq: 0x00000016
+    tick_irq: 0x00000017
+    b: restarting secondary watchdog
+    tick_irq: 0x00000018
+    tick_irq: 0x00000019
+    b: restarting secondary watchdog
+    tick_irq: 0x0000001a
+    a: polled pending wake signal
+    a: waiting for wake signal
+    tick_irq: 0x0000001b
+    b: restarting secondary watchdog
+    tick_irq: 0x0000001c
+    tick_irq: 0x0000001d
+    a: sleeping to overflow wake timer
+    b: restarting secondary watchdog
+    tick_irq: 0x0000001e
+    tick_irq: 0x0000001f
+    b: restarting secondary watchdog
+    tick_irq: 0x00000020
+    tick_irq: 0x00000021
+    b: restarting secondary watchdog
+    tick_irq: 0x00000022
+    tick_irq: 0x00000023
+    a: polled pending wake signal
+    a: waiting for wake signal
+    b: restarting secondary watchdog
+    tick_irq: 0x00000024
+    tick_irq: 0x00000025
+    b: restarting secondary watchdog
+    tick_irq: 0x00000026
+    a: sleeping to overflow wake timer
+    tick_irq: 0x00000027
+    b: restarting secondary watchdog
+    tick_irq: 0x00000028
+    tick_irq: 0x00000029
+    b: restarting secondary watchdog
+    tick_irq: 0x0000002a
+    tick_irq: 0x0000002b
+    b: restarting secondary watchdog
+    tick_irq: 0x0000002c
+    a: polled pending wake signal
+    a: disabling periodic wake timer
+    a: the watchdog should fatal error before this sleep completes
+    tick_irq: 0x0000002d
+    FATAL ERROR: <hexadecimal error code for DEMO_ERROR_ID_WATCHDOG_A - see timer-test.c>
+    tick_irq: 0x0000002e
+    tick_irq: 0x0000002f
+    tick_irq: 0x00000030
+    < and so on ... >
+
+The rtos-example.timer-test module takes a non-optional `variant` configuration element that must be supplied to it by the system .prx file, so that it can include the correct RTOS variant header.
+
+For example, when building timer-test for the kochab variant:
+    <module name="rtos-example.timer-test">
+      <variant>kochab</variant>
+    </module>
+
+Furthermore, it depends on an external code module to implement machine_timer_init() and machine_timer_clear() for the platform the test system is to be run on.

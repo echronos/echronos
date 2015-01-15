@@ -1,0 +1,28 @@
+Breakaway Task Review
+=======================
+
+Task name: g256JD-kochab-mutex-timeout
+Version reviewed: d1cf35cc7115c8c7024f5a22fb20c4f222ed9600
+Reviewer: ihor.kuz
+Date: 2014-12-09
+Conclusion: Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: components/kochab/implementation.c:134 
+Comment:
+api_assert(mutexes[m].holder != get_current_task(), ERROR_ID_DEADLOCK);
+in the lock_timeout case this isn't actually a deadlock.  It's still not a good thing to do, but technically not a deadlock.
+
+[robs: Having discussed offline, I've documented that this is disallowed behaviour and left the API assert in.]
+
+Location: components/kochab/implementation.c:161
+Comment:
+mutex_unlock doesn't unset a possible timer, so could result in a spurious timeout message possibly resulting in a spurious future unlock.
+
+[robs: Fixed by having mutex_block_on_timeout disable the timer, so it's disabled exactly when it needs to be.
+Note that a spurious wakeup is possible but cannot result in a spurious unlock (or early timeout), because mutex_lock(_timeout) rechecks conditions for unlock (and timeout) on each wakeup and simply blocks again if they aren't met.]

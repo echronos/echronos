@@ -1,0 +1,25 @@
+Task: S8X22j-kochab-sem-timeout
+==============================================================================
+
+Motivation
+----------
+
+The SMACCM use case for the Kochab variant requires a timeout version of semaphore_wait.
+Newly added timer support for Kochab makes it possible to implement this using a oneshot internal task timer, in the same way that the timeout versions of message queue APIs are implemented on Rigel.
+
+While we're making changes here, the SMACCM use case also needed to expose SEM_ID_ZERO and SEM_ID_MAX.
+This is just a trivial fix to the simple-semaphore header that would make us consistent with already exposing MUTEX_ID_ZERO and MUTEX_ID_MAX in the RTOS user API.
+
+
+Goals
+--------
+
+Implement a timeout version of sem_wait available on Kochab using the existing timer framework.
+
+Trivially fix the semaphore API to be consistent with the mutex API by defining SEM_ID_ZERO and SEM_ID_MAX publicly.
+
+
+Test Plan
+---------
+
+Add a test case to kochab-sem-demo that exercises the new sem_wait_timeout API.

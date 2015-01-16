@@ -24,3 +24,6 @@ eIhEVe: All text in the repository shall use American English spelling and gramm
 2g8PAE: Specific API and internal assertions are not considered API features.
 Instead, they are considered implementation details that may change any time.
 Specific API assertions and internal assertions are therefore not to be documented in the RTOS manual.
+
+SKcASp: All documentation uses present tense.
+Other tenses are only acceptable where they are necessary grammatically for clarity.

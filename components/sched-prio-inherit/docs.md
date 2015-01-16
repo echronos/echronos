@@ -45,7 +45,7 @@ States]), or
 
 The second case is known as *task preemption*, or just *preemption*.
 
-When an interrupt occurs, first the ISR run.
+When an interrupt occurs, first the ISR runs.
 Then, depending on the platform and RTOS variant, the RTOS may either:
 
 1. resume the currently executing task, provided the ISR could not have possibly changed the set of runnable tasks, or

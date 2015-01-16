@@ -20,6 +20,9 @@ What is the motivation to use the inverse logic in the tag name *preempt_null*?
 To me, names such as *preempt*, *preemption*, or *preemptive* would be lots more intuitive.
 Would it be worth changing this?
 
+[robs: it was only to match the module named "preempt-null", but it's not really a good reason.
+Refactoring it now to "preemptive".]
+
 Location: components/sched-prio-inherit/docs.md
 Comment 2: Rework/Review
 I've made some changes inline;

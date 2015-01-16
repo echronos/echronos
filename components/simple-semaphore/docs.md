@@ -80,13 +80,13 @@ If the configuration item [`semaphore_enable_max`] is true, the following applie
 - Calling <span class="api">sem_post</span> when the semaphore value is equal to the semaphore maximum is considered a fatal error.
   In that case, the RTOS implementation calls the `fatal_error` function (see [Error Handling]).
 
-[[#preempt_null]]
+[[^preemptive]]
 <span class="api">sem_post</span> does not itself cause a context switch.
 The calling task remains the current task.
-[[/preempt_null]]
-[[^preempt_null]]
+[[/preemptive]]
+[[#preemptive]]
 Since the RTOS is preemptive, one of the tasks made runnable may preempt the calling task, depending on the [Scheduling Algorithm].
-[[/preempt_null]]
+[[/preemptive]]
 
 
 ### <span class="api">sem_wait</span>

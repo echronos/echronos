@@ -38,7 +38,7 @@ crc_calculate(const unsigned char *const src,
     return crc.result;
 }</pre>
 
-[[#preempt_null]]
+[[^preemptive]]
 Since the RTOS is non-preemptive, it is safe for two (or more) tasks to call `crc_calculate()`.
 The function does not cause any task switch, so it is guaranteed that a task enters and leaves the function without another task being scheduled in between.
 Therefore, the CRC engine is only used by a single task at a time, calculating the result only from the input provided by that task.
@@ -54,13 +54,13 @@ for (idx = 0; idx != length; idx += 1) {
     yield();
 }
 [...]</pre>
-[[/preempt_null]]
+[[/preemptive]]
 
-[[^preempt_null]]
+[[#preemptive]]
 However, since the RTOS is preemptive, a task switch can occur at any time inside the function.
 Therefore, one task might start using the CRC engine while another, interrupted task has not yet completed its own use of it.
 This would lead to an overlap of input values and therefore incorrect CRC results.
-[[/preempt_null]]
+[[/preemptive]]
 
 Mutexes can help to prevent such consistency issues.
 Used correctly, a mutex ensures that only a single task at a time can execute code paths like the above.
@@ -78,9 +78,9 @@ crc_calculate(const unsigned char *const src,
     mutex_lock(RTOS_MUTEX_ID_CRC);
     for (idx = 0; idx != length; idx += 1) {
         crc.input = src[idx];
-[[#preempt_null]]
+[[^preemptive]]
         yield();
-[[/preempt_null]]
+[[/preemptive]]
     }
     result = crc.result;
     mutex_unlock(RTOS_MUTEX_ID_CRC);
@@ -198,12 +198,12 @@ A task should not release a mutex that it has not previously acquired.
 
 This API transitions a mutex into the *available* state, unblocks all blocked tasks that have called [<span class="api">mutex_lock</span>] while it was in the *acquired* state, and returns.
 
-[[#preempt_null]]
+[[^preemptive]]
 This API does not cause a task switch.
-[[/preempt_null]]
-[[^preempt_null]]
+[[/preemptive]]
+[[#preemptive]]
 This API may cause a task switch.
-[[/preempt_null]]
+[[/preemptive]]
 
 
 ### <span class="api">mutex_holder_is_current</span>

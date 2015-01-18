@@ -1,3 +1,11 @@
+/*| provides |*/
+preempt-null
+preempt
+
+/*| requires |*/
+reentrant
+task
+
 /*| doc_header |*/
 /*| doc_concepts |*/
 ## Preemption

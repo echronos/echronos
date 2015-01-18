@@ -1,0 +1,58 @@
+Breakaway Task Review
+=======================
+
+Task name: g256JD-kochab-mutex-timeout
+Version reviewed: d1cf35cc7115c8c7024f5a22fb20c4f222ed9600
+Reviewer: stg
+Date: 2014-12-09
+Conclusion: Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: components/blocking-mutex/docs.md:143
+Comment 1: Rework
+Since .md files are not processed by pystache, pystache tags appear in the PDF output.
+Please remove the pystache tags from .md files.
+
+[robs: The component-wide, double-square-bracket pystache tags appear to work correctly for the docs.md files.
+I tested this by toggling blocking-mutex 'timeouts' : True/False for rigel in x.py and comparing the PDFs.]
+
+Location: components/blocking-mutex/docs.md:155
+Comment 2: Rework
+It is an undocumented convention that the documentation uses the present tense.
+Please rephrase the added documentation accordingly.
+
+[robs: Fixed]
+
+Location: components/blocking-mutex/implementation.c:138
+Comment 3: Rework
+`mutex_try_lock()` only needs to be called once:
+
+while (!(ret = mutex_try_lock(m)) && absolute_timeout > {{prefix_func}}timer_current_ticks) {
+{{#mutex.stats}}
+contended = true;
+{{/mutex.stats}}
+waiters[get_current_task()] = m;
+mutex_block_on_timeout(mutexes[m].holder, absolute_timeout - {{prefix_func}}timer_current_ticks);
+}
+
+[robs: As discussed offline, leaving as-is to maintain the mutex stats behavior without having to move the `contended = true;` assignment into the loop.]
+
+Location: components/kochab/implementation.c:18
+Comment 4: Rework
+By convention, `mutex_block_on()` should be called `mutex_core_block_on()` and `mutex_block_on_timeout()` should be called `mutex_core_block_on_timeout()`.
+Similar for `mutex_block()` and `mutex_unblock()`.
+
+[robs: Fixed]
+
+Location: components/kochab/implementation.c:61
+Comment 5: Accepted
+Since `mutex_block_on()` is only called once, it could be a macro instead to improve code size.
+However, since code size is not a concern with the kochab variant, there is no need to rework this.
+Same applies to `mutex_block_on_timeout()`.
+
+[robs: Leaving as-is to favor the clarity of the existing code over code size, as noted.]

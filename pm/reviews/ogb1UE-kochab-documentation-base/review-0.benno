@@ -1,0 +1,26 @@
+Breakaway Task Review
+=======================
+
+Task name: ogb1UE-kochab-documentation-base
+Version reviewed: 79e851de07ce1da57691138761eb2907c1a76e8d
+Reviewer: benno
+Date: 2015-01-08
+Conclusion: Rework
+
+Overall comments:
+
+One thing that confused me when reviewing the diff was the fact that the task_start_api Component option only applies to the docs and the implementation is in the rigel component.
+I'm not sure if there is a better way of factoring this, or if we can put a comment somewhere to make it clear what is going on.
+
+[robs: This is a kind of ugly but necessary workaround, the problem is that there is currently no way to put content in the variant-specific docs.md that belongs to a subheading of a chapter of a different component.
+There's a brief description for this problem (labeled 'variant-specific-doc-content') written up in pm/tasks/backlog of the 'backlog' branch, which is where stg and I have started listing the backlog of potential work, lately.
+I've added a comment to x.py that hopefully helps things.]
+
+
+Specific comments
+=================
+
+Location: components/kochab/docs.md:35
+Comment: I think the 'hence' is unnecessary.
+
+[robs: Fixed]

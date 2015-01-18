@@ -1,0 +1,17 @@
+Task: 9b9gyE-sort-manual-chapters
+==============================================================================
+
+Motivation
+----------
+In order to generate the documentation in the correct order it is necessary to sort its chapters based on dependencies.
+
+Goals
+--------
+Implement a mechanism for specifying dependencies between docs.md files.
+Specify dependencies for all docs.md files.
+Generate documentation according to the specified dependencies.
+
+
+Test Plan
+---------
+The generated documentation will be inspected to make sure it conforms to the specified dependencies and that it is internally consistent and logical.

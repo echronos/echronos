@@ -27,6 +27,8 @@ _REQUIRED_C_SECTIONS = ['headers',
                         'functions',
                         'public_functions']
 
+_REQUIRED_DEP_SECTIONS = ['provides', 'requires']
+
 _REQUIRED_DOC_SECTIONS = ['doc_header', 'doc_concepts', 'doc_api',
                           'doc_configuration', 'doc_footer']
 
@@ -261,38 +263,44 @@ def _generate(rtos_name, components, pkg_name, search_paths):
         f.write("\n#endif /* {}_H */".format(mod_name))
 
     # Generate docs
-    for search_path in search_paths:
-        if os.path.exists(os.path.join(search_path, "docs.md")):
-            bc = _BoundComponent(search_path, {})
-            break
-    else:
-        raise Exception("Docs file not found")
-    all_doc_sections = _get_sections([bc] + bound_components, "docs.md", _REQUIRED_DOC_SECTIONS)
-    doc_output = os.path.join(module_dir, 'documentation.markdown')
-    with open(doc_output, 'w') as f:
-        for ss in _REQUIRED_DOC_SECTIONS:
-            data = "\n\n".join(doc_sections[ss] for doc_sections in all_doc_sections if doc_sections is not None)
-            f.write('\n')
-            f.write(data)
-            f.write('\n')
+    if os.path.exists(os.path.join(BASE_DIR, 'components', rtos_name, 'docs.md')):
+        for search_path in search_paths:
+            if os.path.exists(os.path.join(search_path, "docs.md")):
+                bc = _BoundComponent(search_path, {})
+                break
+        else:
+            raise Exception("Docs file not found")
 
-    output_dir = os.path.join(module_dir, 'docs')
-    if os.path.exists(output_dir):
-        shutil.rmtree(output_dir, ignore_errors=True)
-    for bc in bound_components:
-        input_dir = os.path.join(bc.path, 'docs')
-        if os.path.isdir(input_dir):
-            # recursively copy contents of input_dir into output_dir
-            # shutil.copytree() cannot be used because it requires the destination to not yet exist
-            for parent, dirs, files in os.walk(input_dir):
-                for file in files:
-                    src = os.path.join(parent, file)
-                    dst = os.path.join(output_dir, os.path.relpath(src, input_dir))
-                    if os.path.exists(dst):
-                        print('Warning: the file {} overwrites the file {} which originates from a different \
+        extended_bound_components = [bc] + bound_components
+        all_doc_sections = _get_sections(extended_bound_components, "docs.md",
+                                         _REQUIRED_DOC_SECTIONS + _REQUIRED_DEP_SECTIONS)
+        all_doc_sections = _sort_sections_by_dependencies(extended_bound_components, all_doc_sections)
+
+        doc_output = os.path.join(module_dir, 'documentation.markdown')
+        with open(doc_output, 'w') as f:
+            for ss in _REQUIRED_DOC_SECTIONS:
+                data = "\n\n".join(doc_sections[ss] for doc_sections in all_doc_sections if doc_sections is not None)
+                f.write('\n')
+                f.write(data)
+                f.write('\n')
+
+        output_dir = os.path.join(module_dir, 'docs')
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir, ignore_errors=True)
+        for bc in bound_components:
+            input_dir = os.path.join(bc.path, 'docs')
+            if os.path.isdir(input_dir):
+                # recursively copy contents of input_dir into output_dir
+                # shutil.copytree() cannot be used because it requires the destination to not yet exist
+                for parent, dirs, files in os.walk(input_dir):
+                    for file in files:
+                        src = os.path.join(parent, file)
+                        dst = os.path.join(output_dir, os.path.relpath(src, input_dir))
+                        if os.path.exists(dst):
+                            print('Warning: the file {} overwrites the file {} which originates from a different \
 component'.format(src, dst))
-                    os.makedirs(os.path.dirname(dst), exist_ok=True)
-                    shutil.copy(src, dst)
+                        os.makedirs(os.path.dirname(dst), exist_ok=True)
+                        shutil.copy(src, dst)
 
     # Generate .xml file
     config_output = os.path.join(module_dir, 'schema.xml')
@@ -327,3 +335,56 @@ def build(args):
     for pkg_name, rtos_names in args.configurations.items():
         for rtos_name in rtos_names:
             _generate(rtos_name, args.skeletons[rtos_name], pkg_name, search_paths)
+
+
+_DependencyNode = namedtuple("_DependencyNode", ('provides', 'requires'))
+
+
+class _UnresolvableDependencyError(Exception):
+    pass
+
+
+def _sort_by_dependencies(nodes, ignore_cyclic_dependencies=False):
+    todo = list(nodes)
+    provided = set()
+
+    while todo:
+        for idx, node in enumerate(todo):
+            if set(node.requires).issubset(provided):
+                del todo[idx]
+                for p in node.provides:
+                    provided.add(p)
+                yield node
+                break
+        else:
+            if ignore_cyclic_dependencies:
+                all_provided = set(provided)
+                todo_required = set()
+                for node in todo:
+                    all_provided.update(set(node.provides))
+                    todo_required.update(set(node.requires))
+                if todo_required.issubset(all_provided):
+                    yield from todo
+                    return
+                else:
+                    msg = 'The nodes {} have the unresolvable dependencies {}.'.format(todo,
+                                                                                       todo_required - all_provided)
+            else:
+                msg = 'The dependencies of the nodes {} cannot be resolved.'.format(todo)
+            raise _UnresolvableDependencyError(msg)
+
+
+def _sort_sections_by_dependencies(components, sections):
+    class _Node:
+        def __init__(self, path, section):
+            self.path = path
+            self.section = section
+            self.provides = section['provides'].split()
+            self.requires = section['requires'].split()
+
+        def __repr__(self):
+            return '{}, provides: {}, requires: {}'.format(self.path, self.provides, self.requires)
+
+    nodes = [_Node(os.path.basename(component.path), section) for component, section in
+             zip(components, sections) if section]
+    return [node.section for node in _sort_by_dependencies(nodes, ignore_cyclic_dependencies=True)]

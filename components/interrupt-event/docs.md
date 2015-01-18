@@ -1,3 +1,10 @@
+/*| provides |*/
+interrupt-event
+
+/*| requires |*/
+task
+preempt
+
 /*| doc_header |*/
 
 /*| doc_concepts |*/
@@ -72,7 +79,7 @@ The underlying type is an unsigned integer of a size large enough to represent a
 
 [^InterruptEventId_width]: This is normally a `uint8_t`.
 
-Also refer to the [Platform Interrupt Events API] section.
+Also refer to the [Platform Interrupt Event API] section.
 
 ### `INTERRUPT_EVENT_ID_<name>`
 

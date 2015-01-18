@@ -1,3 +1,10 @@
+/*| provides |*/
+interrupt-event-armv7m
+interrupt-event-arch
+
+/*| requires |*/
+interrupt-event
+
 /*| doc_header |*/
 /*| doc_concepts |*/
 /*| doc_api |*/

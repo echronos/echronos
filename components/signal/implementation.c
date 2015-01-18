@@ -18,12 +18,23 @@ struct signal {
 /*| function_definitions |*/
 static {{prefix_type}}SignalSet signal_recv({{prefix_type}}SignalSet *pending_signals, {{prefix_type}}SignalSet requested_signals);
 static void signal_send_set({{prefix_type}}TaskId task_id, {{prefix_type}}SignalSet signals);
+[[^prio_inherit]]
 static {{prefix_type}}SignalSet signal_wait_set({{prefix_type}}SignalSet requested_signals) {{prefix_const}}REENTRANT;
+[[/prio_inherit]]
+[[#prio_inherit]]
+static {{prefix_type}}SignalSet signal_wait_set_blocked_on({{prefix_type}}SignalSet requested_signals,
+        {{prefix_type}}TaskId blocker) {{prefix_const}}REENTRANT;
+[[/prio_inherit]]
 
 /*| state |*/
 static struct signal signal_tasks;
 
 /*| function_like_macros |*/
+
+[[#prio_inherit]]
+#define signal_wait_blocked_on(requested_signals, blocker) signal_wait_set_blocked_on(requested_signals, blocker)
+#define signal_wait_set(requested_signals) signal_wait_set_blocked_on(requested_signals, TASK_ID_NONE)
+[[/prio_inherit]]
 #define signal_wait(requested_signals) signal_wait_set(requested_signals)
 #define signal_peek(pending_signals, requested_signals) (((pending_signals) & (requested_signals)) != {{prefix_const}}SIGNAL_SET_EMPTY)
 #define signal_pending(task_id, mask) ((PENDING_SIGNALS(task_id) & mask) == mask)
@@ -56,7 +67,13 @@ signal_send_set(const {{prefix_type}}TaskId task_id, const {{prefix_type}}Signal
 }
 
 static {{prefix_type}}SignalSet
+[[^prio_inherit]]
 signal_wait_set(const {{prefix_type}}SignalSet requested_signals) {{prefix_const}}REENTRANT
+[[/prio_inherit]]
+[[#prio_inherit]]
+signal_wait_set_blocked_on(const {{prefix_type}}SignalSet requested_signals, const {{prefix_type}}TaskId blocker)
+        {{prefix_const}}REENTRANT
+[[/prio_inherit]]
 {
     {{prefix_type}}SignalSet received_signals;
 
@@ -72,7 +89,12 @@ signal_wait_set(const {{prefix_type}}SignalSet requested_signals) {{prefix_const
         {
             do
             {
+[[^prio_inherit]]
                 block();
+[[/prio_inherit]]
+[[#prio_inherit]]
+                block_on(blocker);
+[[/prio_inherit]]
             } while (!signal_peek(*pending_signals, requested_signals));
         }
 

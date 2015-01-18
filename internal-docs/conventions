@@ -20,3 +20,7 @@ eIhEVe: All text in the repository shall use American English spelling and gramm
 29g3DU: The following convention should be used for the naming of symbols in component-specific RTOS code:
 1. Symbols in component-specific code implemented in the component itself: <component-name>_<functionality>.
 2. Symbols in component-specific code required by the component and implemented in the variant: <component-name>_core_<functionality>.
+
+2g8PAE: Specific API and internal assertions are not considered API features.
+Instead, they are considered implementation details that may change any time.
+Specific API assertions and internal assertions are therefore not to be documented in the RTOS manual.

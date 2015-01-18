@@ -13,8 +13,8 @@ typedef {{prefix_type}}TaskId TaskIdOption;
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static void mutex_block_on({{prefix_type}}TaskId task);
-static void mutex_unblock({{prefix_type}}TaskId task);
+static void mutex_core_block_on({{prefix_type}}TaskId task) {{prefix_const}}REENTRANT;
+static void mutex_core_unblock({{prefix_type}}TaskId task);
 static {{prefix_type}}TaskId get_current_task(void);
 
 /*| state |*/
@@ -31,7 +31,7 @@ void (*unblock_ptr)({{prefix_type}}TaskId);
 
 /*| functions |*/
 static void
-mutex_block_on({{prefix_type}}TaskId task) {{prefix_const}}REENTRANT
+mutex_core_block_on({{prefix_type}}TaskId task) {{prefix_const}}REENTRANT
 {
     if (block_on_ptr != NULL)
     {
@@ -40,7 +40,7 @@ mutex_block_on({{prefix_type}}TaskId task) {{prefix_const}}REENTRANT
 }
 
 static void
-mutex_unblock({{prefix_type}}TaskId task)
+mutex_core_unblock({{prefix_type}}TaskId task)
 {
     if (unblock_ptr != NULL)
     {

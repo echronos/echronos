@@ -1,6 +1,6 @@
 from pylib.xunittest import teamcityskip
 from pylib.utils import Git
-from pylib.components import _sort_typedefs
+from pylib.components import _sort_typedefs, _sort_by_dependencies, _DependencyNode, _UnresolvableDependencyError
 from pylib.tasks import _Review
 import itertools
 import os
@@ -49,3 +49,41 @@ def test_full_stop_in_reviewer_name():
         review = _Review(review_file_path)
         assert review.author == author
         assert review.round == round
+
+
+def test_resolve_dependencies():
+    N = _DependencyNode
+    a = N(('a',), ('b', 'c'))
+    b = N(('b',), ('c',))
+    c = N(('c',), ())
+    nodes = (a, b, c)
+    output = list(_sort_by_dependencies(nodes))
+    assert output == [c, b, a]
+
+
+def test_resolve_unresolvable_dependencies():
+    N = _DependencyNode
+    a = N(('a',), ('b',))
+    b = N(('b',), ('c',))
+    nodes = (a, b)
+    try:
+        output = list(_sort_by_dependencies(nodes))
+        assert False
+    except _UnresolvableDependencyError:
+        pass
+
+
+def test_resolve_cyclic_dependencies():
+    N = _DependencyNode
+    a = N(('a',), ())
+    b = N(('b',), ('a',))
+    c = N(('c',), ('b', 'd'))
+    d = N(('d',), ('c',))
+    nodes = (a, b, c, d)
+    try:
+        output = list(_sort_by_dependencies(nodes))
+        assert False
+    except _UnresolvableDependencyError:
+        pass
+    output = list(_sort_by_dependencies(nodes, ignore_cyclic_dependencies=True))
+    assert sorted(output) == sorted(nodes)

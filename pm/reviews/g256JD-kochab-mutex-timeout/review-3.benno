@@ -1,0 +1,27 @@
+Breakaway Task Review
+=======================
+
+Task name: g256JD-kochab-mutex-timeout
+Version reviewed: a4e9a2bb78b558d450037e4a689d2da77887061b
+Reviewer: benno
+Date: 2015-01-09
+Conclusion: Rework
+
+Overall comments:
+
+My main comment is on the design.
+It is probably the case that we just need to capture the design rationale rather than change the actual code.
+
+Is it possible to perform the timer_onshot just once at the start of the function, and only cancel it once as well?
+This seems to be more efficient than setting/resetting the timer multiple times.
+This would also result in less code, improving the code footprint.
+
+[robs: Noting that this exact issue also affects message-queues and simple-semaphore as well...
+Having looked at it again, I think that it should be possible to optimize in this way, but it involves reconsidering the boundary between the blocking-mutex and the variant-specific components.
+
+If I understand correctly, the separation of core_block_(on_)timeout from the API function calling it (which I based on the message_queue_wait_timeout) is to ensure that the variant-specific implementation of the timeout is self-contained.
+But pulling the init/teardown of the oneshot timer out into the blocking-mutex component will commit us to that particular variant-specific implementation there.
+On the other hand, avoiding this means pushing the entire loop into the rtos-variant component.
+
+All this isn't necessarily a good excuse not to do it, but it probably warrants its own branch seeing as it does away with the convention we've set up regarding component-specific core code, it's an optimization rather than a functional fix, and the same problem affects several components.
+Furthermore there's no worsening of the code footprint by this branch for Rigel because mutex-timeout is only enabled for Kochab, for whose users the code footprint requirement is not quite as critical.]

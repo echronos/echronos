@@ -1,0 +1,28 @@
+Breakaway Task Review
+=======================
+
+Task name: ogb1UE-kochab-documentation-base
+Version reviewed: 79e851de07ce1da57691138761eb2907c1a76e8d
+Reviewer: stg
+Date: 2015-01-08
+Conclusion: Accepted
+
+Overall comments:
+
+Comment 1: Accepted
+Please review the changes I made directly to the documents.
+
+[robs: I tweaked a sentence you added but otherwise looks fine, please review in the next round to be posted shortly.]
+
+Specific comments
+=================
+
+Location: components/timer/docs.md:52
+Comment 2: Accepted
+You may want to consider to generate this section, which is specific to preemption-free systems, only conditionally.
+
+Location: components/blocking-mutex/docs.md:multiple
+Comment 3: Accepted
+As above, you may want to consider generating only conditionally the sections that are specific to preemption-free systems.
+
+[robs: Comments 2, 3 - I'll deal with this in the upcoming branch that considers the scheduler/preemption-related content of the Kochab manual.]

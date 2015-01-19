@@ -15,3 +15,5 @@ Location: x_test.py:100
 Comment 1: Rework
 These tests can be expressed more concisely and explicitly via the assert_raises() function in nose.
 Would it make sense to import and use it instead of task_check_is_accepted()?
+
+[robs: Ah, that's handy - done.]

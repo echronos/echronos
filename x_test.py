@@ -2,6 +2,7 @@ from pylib.xunittest import teamcityskip
 from pylib.utils import Git
 from pylib.components import _sort_typedefs, _sort_by_dependencies, _DependencyNode, _UnresolvableDependencyError
 from pylib.tasks import _Review, _Task, _InvalidTaskStateError
+from nose.tools import assert_raises
 import itertools
 import os
 import tempfile
@@ -96,33 +97,26 @@ class DummyGit:
         self.origin_branches = ["archive/%s" % task_name]
 
 
-# Return a boolean indicating whether the x.py pre-integration check would consider the task "accepted" by its reviews
-def task_check_is_accepted(task_name):
-    task = _Task(task_name, os.getcwd(), DummyGit(task_name))
-    accepted = False
-    try:
-        task._check_is_accepted()
-        accepted = True
-    except _InvalidTaskStateError as e:
-        pass
-    return accepted
+# Helper for the pre-integration check tests
+def task_dummy_create(task_name):
+    return _Task(task_name, os.getcwd(), DummyGit(task_name))
 
 
 def test_task_accepted():
     # This task was accepted without any rework reviews
-    assert task_check_is_accepted("eeZMmO-cpp-friendly-headers")
+    task_dummy_create("eeZMmO-cpp-friendly-headers")._check_is_accepted()
 
 
 def test_rework_is_accepted():
     # This task had a rework review that was later accepted by its review author
-    assert task_check_is_accepted("ogb1UE-kochab-documentation-base")
+    task_dummy_create("ogb1UE-kochab-documentation-base")._check_is_accepted()
 
 
 def test_rework_not_accepted():
     # This task was erroneously integrated with a rework review not later accepted by its review author
-    assert not task_check_is_accepted("g256JD-kochab-mutex-timeout")
+    assert_raises(_InvalidTaskStateError, task_dummy_create("g256JD-kochab-mutex-timeout")._check_is_accepted)
 
 
 def test_not_enough_accepted():
     # This task was integrated after being accepted by only one reviewer, before we placed a hard minimum in the check
-    assert not task_check_is_accepted("65N0RS-fix-x-test-regression")
+    assert_raises(_InvalidTaskStateError, task_dummy_create("65N0RS-fix-x-test-regression")._check_is_accepted)

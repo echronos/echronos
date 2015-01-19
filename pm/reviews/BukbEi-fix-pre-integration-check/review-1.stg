@@ -5,7 +5,7 @@ Task name: BukbEi-fix-pre-integration-check
 Version reviewed: 2592f21aa678cdf4a1d4cabf45872d7fe0e90aa2
 Reviewer: stg
 Date: 2015-01-19
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
@@ -13,8 +13,8 @@ Overall comments:
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Location: pylib/tasks.py:289
+Comment 1: Rework
+In the function _check_is_accepted(), the check 'if r.is_done()' is no longer necessary.
+Please remove it and adapt the overall logic in this function accordingly.
+Feel free to add a check for at least two accepted reviews.

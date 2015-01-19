@@ -1,7 +1,7 @@
 from pylib.xunittest import teamcityskip
 from pylib.utils import Git
 from pylib.components import _sort_typedefs, _sort_by_dependencies, _DependencyNode, _UnresolvableDependencyError
-from pylib.tasks import _Review
+from pylib.tasks import _Review, _Task, _InvalidTaskStateError
 import itertools
 import os
 import tempfile
@@ -87,3 +87,37 @@ def test_resolve_cyclic_dependencies():
         pass
     output = list(_sort_by_dependencies(nodes, ignore_cyclic_dependencies=True))
     assert sorted(output) == sorted(nodes)
+
+
+# Workaround for the following tests for the pre-integration check that don't use the Git module
+class DummyGit:
+    def __init__(self, task_name):
+        self.branches = []
+        self.origin_branches = ["archive/%s" % task_name]
+
+
+# Return a boolean indicating whether the x.py pre-integration check would consider the task "accepted" by its reviews
+def task_check_is_accepted(task_name):
+    task = _Task(task_name, os.getcwd(), DummyGit(task_name))
+    accepted = False
+    try:
+        task._check_is_accepted()
+        accepted = True
+    except _InvalidTaskStateError as e:
+        pass
+    return accepted
+
+
+def test_task_accepted():
+    # This task was accepted without any rework reviews
+    assert task_check_is_accepted("eeZMmO-cpp-friendly-headers")
+
+
+def test_rework_is_accepted():
+    # This task had a rework review that was later accepted by its review author
+    assert task_check_is_accepted("ogb1UE-kochab-documentation-base")
+
+
+def test_rework_not_accepted():
+    # This task was erroneously integrated with a rework review not later accepted by its review author
+    assert not task_check_is_accepted("g256JD-kochab-mutex-timeout")

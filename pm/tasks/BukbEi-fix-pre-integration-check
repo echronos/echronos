@@ -20,3 +20,5 @@ Test Plan
 ---------
 
 Test manually by clagging out the relevant code and running it on some sample crafted review directories.
+
+Add test cases to x-test to ensure the check catches the problematic case and passes one that's fine, by having it check the review directories of already-integrated task branches known to exhibit each property.

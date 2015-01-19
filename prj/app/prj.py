@@ -667,6 +667,10 @@ class System:
         module_els = [e for e in module_el.childNodes if e.nodeType == e.ELEMENT_NODE and e.tagName == 'module']
 
         instances = []
+        rtos_config_data = {}
+        rtos_module_name = None
+        non_rtos_modules = []
+
         for m_el in module_els:
             # First find the module
             name = get_attribute(m_el, 'name')
@@ -688,11 +692,37 @@ class System:
                     msg = "Error running module '{}' configure method.".format(name)
                     detail = "Traceback:\n{}".format(tb_str)
                     raise EntityLoadError(msg, detail)
-                instance = ModuleInstance(module, self, config_data)
-                instances.append(instance)
+
+                # Find the config data of the RTOS module, identified by a reserved substring
+                if ".rtos-" in name:
+                    if rtos_module_name is not None:
+                        raise EntityLoadError(xml_error_str(m_el, "Multiple RTOS modules found, '{}' and '{}'".format(
+                            rtos_module_name, name)))
+                    if not config_data:
+                        raise EntityLoadError(xml_error_str(m_el, "RTOS module '{}' has no config data".format(name)))
+
+                    # Commit the RTOS module alone
+                    instance = ModuleInstance(module, self, config_data)
+                    instances.append(instance)
+
+                    rtos_config_data = config_data
+                    rtos_module_name = name
+                else:
+                    non_rtos_modules.append((name, module, config_data, m_el))
             else:
                 raise EntityLoadError(xml_error_str(m_el, 'Entity {} has unexpected type {} and cannot be \
                 instantiated'.format(name, type(module))))
+
+        # Commit each non-RTOS module's config, with that of the RTOS module present as a dict under the key 'rtos'
+        for (name, module, config_data, m_el) in non_rtos_modules:
+            if not config_data:
+                config_data = {}
+            elif 'rtos' in config_data.keys():
+                raise EntityLoadError(xml_error_str(m_el, "Module '{}' cannot have a configuration item with the "
+                                                          "reserved name 'rtos'.").format(name))
+            config_data['rtos'] = rtos_config_data
+            instance = ModuleInstance(module, self, config_data)
+            instances.append(instance)
 
         os.makedirs(self.output, exist_ok=True)
 

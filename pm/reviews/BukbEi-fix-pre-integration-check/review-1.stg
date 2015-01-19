@@ -13,8 +13,14 @@ Overall comments:
 Specific comments
 =================
 
-Location: pylib/tasks.py:289
+Location: pylib/tasks.py:304
 Comment 1: Rework
-In the function _check_is_accepted(), the check 'if r.is_done()' is no longer necessary.
+The return value of _get_most_recent_reviews_from_all_authors() is unnecessarily generic.
+I'd recommend to change it to _get_concluded_reviews() and return the latest review from any author who has done a review.
+That requires a change to the iteration that ensures that reviews that were not done are never added to the list of returned reviews.
+
+Location: pylib/tasks.py:289
+Comment 2: Rework
+In the function _check_is_accepted(), the check 'if r.is_done()' is then no longer necessary.
 Please remove it and adapt the overall logic in this function accordingly.
 Feel free to add a check for at least two accepted reviews.

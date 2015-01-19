@@ -302,7 +302,7 @@ class _Task:
         reviews_by_author = {}
         for review in self._get_reviews():
             if review.author in reviews_by_author:
-                if reviews_by_author[review.author].round < review.round:
+                if reviews_by_author[review.author].round < review.round and review.is_done():
                     reviews_by_author[review.author] = review
             else:
                 reviews_by_author[review.author] = review

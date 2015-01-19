@@ -286,7 +286,7 @@ class _Task:
         """
         Check whether all authors of completed reviews arrive at the 'accepted' conclusion in their final reviews.
         """
-        done_reviews = [r for r in self._get_most_recent_reviews_from_all_authors() if r.is_done()]
+        done_reviews = self._get_concluded_reviews()
         if done_reviews == []:
             raise _InvalidTaskStateError('Task {} has not been reviewed'.format(self.name))
         for review in done_reviews:
@@ -294,15 +294,15 @@ class _Task:
                 raise _InvalidTaskStateError('The conclusion of review {} for task {} is not "accepted"'.
                                              format(review.file_path, self.name))
 
-    def _get_most_recent_reviews_from_all_authors(self):
+    def _get_concluded_reviews(self):
         """
         For any reviewer having reviewed this task, determine the most recent review and return all of them as a list
         of _Review instances.
         """
         reviews_by_author = {}
-        for review in self._get_reviews():
+        for review in [r for r in self._get_reviews() if r.is_done()]:
             if review.author in reviews_by_author:
-                if reviews_by_author[review.author].round < review.round and review.is_done():
+                if reviews_by_author[review.author].round < review.round:
                     reviews_by_author[review.author] = review
             else:
                 reviews_by_author[review.author] = review

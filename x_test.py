@@ -121,3 +121,8 @@ def test_rework_is_accepted():
 def test_rework_not_accepted():
     # This task was erroneously integrated with a rework review not later accepted by its review author
     assert not task_check_is_accepted("g256JD-kochab-mutex-timeout")
+
+
+def test_not_enough_accepted():
+    # This task was integrated after being accepted by only one reviewer, before we placed a hard minimum in the check
+    assert not task_check_is_accepted("65N0RS-fix-x-test-regression")

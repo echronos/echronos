@@ -284,7 +284,8 @@ class _Task:
 
     def _check_is_accepted(self):
         """
-        Check whether all authors of completed reviews arrive at the 'accepted' conclusion in their final reviews.
+        Check whether all authors of completed reviews arrive at the 'accepted' conclusion in their final reviews, and
+        that at least two review authors have done so.
         """
         done_reviews = self._get_concluded_reviews()
         if done_reviews == []:
@@ -293,6 +294,8 @@ class _Task:
             if not review.is_accepted():
                 raise _InvalidTaskStateError('The conclusion of review {} for task {} is not "accepted"'.
                                              format(review.file_path, self.name))
+        if len(done_reviews) < 2:
+            raise _InvalidTaskStateError('Task {} does not have enough reviews (minimum: 2)'.format(self.name))
 
     def _get_concluded_reviews(self):
         """

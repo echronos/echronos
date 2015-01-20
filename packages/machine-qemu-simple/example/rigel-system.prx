@@ -12,6 +12,8 @@
     <module name="armv7m.rtos-rigel">
       <prefix>rtos</prefix>
       <signalset_size>8</signalset_size>
+      <api_asserts>true</api_asserts>
+      <internal_asserts>true</internal_asserts>
       <fatal_error>fatal</fatal_error>
 
 

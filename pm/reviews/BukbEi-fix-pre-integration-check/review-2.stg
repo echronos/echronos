@@ -1,0 +1,19 @@
+Breakaway Task Review
+=======================
+
+Task name: BukbEi-fix-pre-integration-check
+Version reviewed: 2c7473ef3e78b2b5c73446ae188eecc0e0cd5a90
+Reviewer: stg
+Date: 2015-01-19
+Conclusion: Rework
+
+
+Specific comments
+=================
+
+Location: x_test.py:100
+Comment 1: Rework
+These tests can be expressed more concisely and explicitly via the assert_raises() function in nose.
+Would it make sense to import and use it instead of task_check_is_accepted()?
+
+[robs: Ah, that's handy - done.]

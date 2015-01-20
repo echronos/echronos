@@ -1,0 +1,38 @@
+Breakaway Task Review
+=======================
+
+Task name: WdJu8n-rtos-config-global
+Version reviewed: 00c85427253f0ceb17ed41bac89897157079e490
+Reviewer: stg
+Date: 2015-01-06
+Conclusion: Rework
+
+Overall comments:
+Nice feature;
+I like the error checking!
+
+Specific comments
+=================
+
+Location: prj/app/prj.py:698
+Comment 1: Rework?
+Could the regular expressions be replaced by code along the lines of "'.rtos-' in string"?
+If yes, that approach seems more lightweight and easier to read and maintain.
+
+[robs: Fixed]
+
+Location: prj/app/prj.py:697
+Comment 2: Rework?
+Is it necessary to iterate over gathered_modules?
+Would it be possible to implement the core functionality of this loop inside the first loop at line 671?
+Note this is less about performance and more about readability.
+
+[robs: Fixed]
+
+Location: prj/app/prj.py:720
+Comment 3: Rework?
+In my personal opinion, the information about the values of the configuration items in the error message is misleading.
+It seems to suggest that the error is that the values are different or the same, not so much that a non-RTOS module must not contain a configuration item with the same name as one from an RTOS module.
+I would suggest to drop the information about the values and explicitly say that RTOS and non-RTOS modules must not have configuration items with the same names.
+
+[robs: Fixed]

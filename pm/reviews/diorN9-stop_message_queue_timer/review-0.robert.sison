@@ -1,0 +1,24 @@
+Breakaway Task Review
+=======================
+
+Task name: diorN9-stop_message_queue_timer
+Version reviewed: a9a241547f42ce043438f4c42e9740bc18dc5b86
+Reviewer: robert.sison
+Date: 2014-12-19
+Conclusion: Accepted
+
+Overall comments:
+Looks good, please backlog the test coverage issue if we're not going to deal with it now (see below).
+
+Specific comments
+=================
+
+Location: packages/machine-qemu-simple/example/rigel-system.prx:15-16
+Comment:
+I notice you turned on the assertions in the Rigel test system.
+However since the rigel-test program does not appear to exercise any of the message queue API, there is nothing in that system currently to exercise the new invariant that you added (nor any of the existing invariants).
+To be fair, regression test coverage for message queues wasn't originally part of the scope of this task, and turning on the assertions is an improvement on the existing coverage.
+Though, I'm inclined to think that it wouldn't be too difficult to at least add a few invocations of some message queue APIs (if not complete coverage at this time) to get a lot more coverage than we have now in the Rigel test.
+If we're not going to deal with this now, could you please add something to the task backlog for improving the test coverage for message queues?
+
+[stg: added entry to backlog]

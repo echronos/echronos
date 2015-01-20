@@ -1,0 +1,24 @@
+Task: BukbEi-fix-pre-integration-check
+==============================================================================
+
+Motivation
+----------
+
+The x.py task pre-integration check sometimes fails to detect when a review author's latest review round for a branch is not "accept".
+
+It appears that a more recent round not yet reviewed by an author can cause an earlier "rework" review by that author to be forgotten, because _get_most_recent_reviews_from_all_authors() doesn't check is_done() for each round, meaning it returns the most recent round even if the author hasn't reviewed that round.
+This causes the calling code to erroneously discard that author, taking it to mean (presumably) that the author has never reviewed any of the rounds.
+
+
+Goals
+--------
+
+Fix the pre-integration check for x.py task integrate so it doesn't allow a task to integrate when an author asks for a "rework" in a previous round and hasn't pushed an "accepted" review since then.
+
+
+Test Plan
+---------
+
+Test manually by clagging out the relevant code and running it on some sample crafted review directories.
+
+Add test cases to x-test to ensure the check catches the problematic case and passes one that's fine, by having it check the review directories of already-integrated task branches known to exhibit each property.

@@ -1,0 +1,24 @@
+Task: diorN9-stop_message_queue_timer
+==============================================================================
+
+Motivation
+----------
+
+There is a timeout-related performance issue in the current implementation of the message queue component.
+This issue can occur when an application uses the message_queue_put_timeout() or message_queue_get_timeout() API functions.
+These functions start a timer but may return before the timer expires.
+If the application later uses the message_queue_put() or message_queue_get() API functions, if they block the calling task, the still active timer may fire and activate the blocked task unnecessarily.
+Since the unblocked task checks the message-queue state again and blocks again if necessary, this is a minor performance issue, but not a correctness issue.
+To avoid confusion and to value apparent correctness over optimizations, the implementation shall be changed so that this performance issue does not occur.
+
+Goals
+--------
+
+Tasks using the message-queue API shall not have unnecessarily active timers and unnecessarily receive timer signals.
+When tasks waiting on a message queue are unblocked, their potentially active timeout timers shall be stopped immediately.
+
+Test Plan
+---------
+
+The timer state shall be added to the checked invariants of the message-queue implementation.
+Since there are no existing tests for the message-queue component and creating such tests is out of the scope of this task, code review shall suffice to double-check the correctness of the changes in this task.

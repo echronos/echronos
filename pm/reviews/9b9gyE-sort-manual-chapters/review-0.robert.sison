@@ -1,0 +1,32 @@
+Breakaway Task Review
+=======================
+
+Task name: 9b9gyE-sort-manual-chapters
+Version reviewed: 83dca3c9be4177d4d498aa19dae9aa09a4fe2f71
+Reviewer: robert.sison
+Date: 2014-12-08
+Conclusion: Rework
+
+Overall comments:
+Looks good apart from specific comments below.
+
+
+Specific comments
+=================
+
+Location: pylib/components.py:369
+Comment 1: Rework
+Should this read 'The dependencies' rather than 'There dependencies'?
+
+[stg: resolved as suggested]
+
+Location: components/signal-task/*
+Comment 2: Rework
+This might be a nitpick, but should the component perhaps be named 'signal-scope' or 'signal-scopes', since the role of the component is to allow configuration of the scope of the signals?
+Also seeing as the name of the doc chapter being introduced by the component is 'Signal Scopes'.
+
+Location: components/signal-task/docs.md:3
+Comment 3: Rework
+Perhaps related to the above comment, it is not clear where or how this 'signal-scope' dependency tag is to be used.
+
+[stg: resolved both comments by removing the signal-task component and replacing with generating this documentation only if the `task_signals` configuration item of the signals component is set to true]

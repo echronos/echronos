@@ -1,0 +1,29 @@
+Breakaway Task Review
+=======================
+
+Task name: g256JD-kochab-mutex-timeout
+Version reviewed: cf54e6a44c5f3c229c31b1f7f3049ac4a2ca0256
+Reviewer: stg
+Date: 2015-01-07
+Conclusion: Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: components/blocking-mutex/docs.md:143 and others
+Comment 1: Rework
+We have considered introducing a different time-out mechanism that does not limit the amount of time a task blocks on a mutex but the amount of time a task holds a mutex.
+Therefore, the name of the configuration item 'timeouts' is a bit too generic to be able to clearly make that distinction in the future.
+Please rename the configuration item 'timeouts' to 'lock_timeout'.
+
+[robs: Fixed]
+
+Location: components/blocking-mutex/docs.md:157
+Comment 2: Rework
+Rephrase 'should' to 'must'.
+This is an API error and is even checked for.
+
+[robs: Fixed]

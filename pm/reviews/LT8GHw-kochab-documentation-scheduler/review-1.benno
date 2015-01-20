@@ -19,14 +19,8 @@ In general, I think some of the first phrases in a number of sentences can be re
 
 should just be removed, and start the sentence with the phrase after the first comma.
 
-The other sentence that currently lacks clarity (and is I think factually incorrect) is:
+The other sentence that currently lacks clarity is:
 
     A task's effective priority is the maximum from the set of the task's assigned priority and the effective priority of any tasks that are blocked on the task
 
-I think that this should be:
-
-    A task's effective priority is the maximum from the set of the task's assigned priority and the effective priority of any tasks on which it is blocked.
-
-I'm still not happy with that sentence construction, but I think this is more correct.
-I'd be more than happy to see some other possible ways of expressing this than my suggested sentence.
-
+I'm not sure of a better way of expressing this, however it seems somewhat complex and I feel it could be simplified.

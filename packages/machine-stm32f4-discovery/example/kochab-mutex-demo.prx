@@ -3,10 +3,18 @@
   <modules>
     <module name="armv7m.build" />
     <module name="armv7m.ctxt-switch-preempt" />
-    <module name="armv7m.exception-preempt" />
+    <module name="armv7m.exception-preempt">
+      <trampolines>
+        <trampoline>
+          <name>systick</name>
+          <handler>tick_irq</handler>
+        </trampoline>
+      </trampolines>
+    </module>
     <module name="armv7m.vectable">
       <flash_load_addr>0x8000000</flash_load_addr>
       <preemption>true</preemption>
+      <systick>rtos_internal_exception_preempt_trampoline_systick</systick>
     </module>
     <module name="armv7m.semihost-debug" />
     <module name="generic.debug" />
@@ -35,6 +43,12 @@
         </signal_label>
         <signal_label>
           <name>demo_p5</name>
+        </signal_label>
+        <signal_label>
+          <name>demo_p6</name>
+        </signal_label>
+        <signal_label>
+          <name>demo_p7</name>
         </signal_label>
 
       </signal_labels>
@@ -93,6 +107,12 @@
         <mutex>
           <name>m5</name>
         </mutex>
+        <mutex>
+          <name>m6</name>
+        </mutex>
+        <mutex>
+          <name>m7</name>
+        </mutex>
       </mutexes>
       <mutex>
         <stats>false</stats>
@@ -100,6 +120,7 @@
 
     </module>
 
+    <module name="machine-armv7m-common.example.machine-timer" />
     <!-- main .c file: -->
     <module name="rtos-example.kochab-mutex-demo" />
 

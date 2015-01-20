@@ -1,0 +1,20 @@
+Task: g256JD-kochab-mutex-timeout
+==============================================================================
+
+Motivation
+----------
+
+The SMACCM use case for the Kochab variant requires a timeout version of mutex_lock.
+Newly added timer support for Kochab makes it possible to implement this using a oneshot internal task timer, in the same way that the timeout versions of message queue APIs are implemented on Rigel.
+
+
+Goals
+--------
+
+Implement a timeout version of mutex_lock available on Kochab using the existing timer framework.
+
+
+Test Plan
+---------
+
+Add a test case to kochab-mutex-demo that exercises the new mutex_lock_timeout API.

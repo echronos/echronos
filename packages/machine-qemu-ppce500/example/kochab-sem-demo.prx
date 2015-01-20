@@ -6,6 +6,10 @@
     <module name="ppce500.interrupts-util" />
     <module name="ppce500.vectable">
       <preemption>true</preemption>
+      <fixed_interval_timer>
+        <handler>tick_irq</handler>
+        <preempting>true</preempting>
+      </fixed_interval_timer>
     </module>
     <module name="ppce500.debug" />
     <module name="generic.debug" />
@@ -55,6 +59,21 @@
         <semaphore>
           <name>sem0</name>
         </semaphore>
+        <semaphore>
+          <name>sem1</name>
+        </semaphore>
+        <semaphore>
+          <name>sem2</name>
+        </semaphore>
+        <semaphore>
+          <name>sem3</name>
+        </semaphore>
+        <semaphore>
+          <name>sem4</name>
+        </semaphore>
+        <semaphore>
+          <name>sem5</name>
+        </semaphore>
       </semaphores>
 
       <semaphore_enable_max>true</semaphore_enable_max>
@@ -64,6 +83,7 @@
       </mutex>
     </module>
 
+    <module name="machine-qemu-ppce500.example.machine-timer" />
     <!-- main .c file: -->
     <module name="rtos-example.kochab-sem-demo" />
 

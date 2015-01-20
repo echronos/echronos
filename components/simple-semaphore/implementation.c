@@ -2,8 +2,6 @@
 
 /*| object_like_macros |*/
 #define SEM_ID_NONE ((SemIdOption) UINT8_MAX)
-#define SEM_ID_ZERO (({{prefix_type}}SemId) UINT8_C(0))
-#define SEM_ID_MAX (({{prefix_type}}SemId) UINT8_C({{semaphores.length}}))
 #define SEM_VALUE_ZERO (({{prefix_type}}SemValue) UINT{{semaphore_value_size}}_C(0))
 {{#semaphore_enable_max}}
 #define SEM_VALUE_MAX (({{prefix_type}}SemValue) UINT{{semaphore_value_size}}_MAX)
@@ -49,7 +47,8 @@ sem_init(void)
 static bool
 internal_sem_try_wait(const {{prefix_type}}SemId s)
 {
-    /* Must be called with pre-emption disabled */
+    precondition_preemption_disabled();
+
     if (semaphores[s].value == SEM_VALUE_ZERO)
     {
         return false;
@@ -59,6 +58,8 @@ internal_sem_try_wait(const {{prefix_type}}SemId s)
         semaphores[s].value--;
         return true;
     }
+
+    postcondition_preemption_disabled();
 }
 
 /*| public_functions |*/
@@ -72,11 +73,34 @@ void
     while (!internal_sem_try_wait(s))
     {
         waiters[get_current_task()] = s;
-        block();
+        sem_core_block();
     }
 
     preempt_enable();
 }
+
+[[#timeouts]]
+bool
+{{prefix_func}}sem_wait_timeout(const {{prefix_type}}SemId s, const {{prefix_type}}TicksRelative timeout)
+        {{prefix_const}}REENTRANT
+{
+    bool ret;
+    const {{prefix_type}}TicksAbsolute absolute_timeout = {{prefix_func}}timer_current_ticks + timeout;
+
+    assert_sem_valid(s);
+
+    preempt_disable();
+
+    while (!(ret = internal_sem_try_wait(s)) && absolute_timeout > {{prefix_func}}timer_current_ticks) {
+        waiters[get_current_task()] = s;
+        sem_core_block_timeout(absolute_timeout - {{prefix_func}}timer_current_ticks);
+    }
+
+    preempt_enable();
+
+    return ret;
+}
+[[/timeouts]]
 
 void
 {{prefix_func}}sem_post(const {{prefix_type}}SemId s)
@@ -102,7 +126,7 @@ void
             if (waiters[t] == s)
             {
                 waiters[t] = SEM_ID_NONE;
-                unblock(t);
+                sem_core_unblock(t);
             }
         }
     }

@@ -27,16 +27,14 @@ class RigelModule(Module):
         config['taskid_size'] = 8
 
         # Create builtin signals
+        # The RTOS task timer signal is used in the following conditions:
+        #   1. To notify the task when a mutex is unlocked.
+        #   2. To notify the task when a message queue has available messages / space
+        # The same signal is re-used to avoid excessive allocation of signals.
+        # This is safe as a task can not be simultaneously waiting for a mutex, and waiting on a message queue.
         config['signal_labels'].append({'name': '_task_timer', 'global': True})
 
-        # The RTOS utility signal is used in the following conditions:
-        #   1. To start the task.
-        #   2. To notify the task when a mutex is unlocked.
-        #   3. To notify the task when a message queue has available messages / space
-        #
-        # The same signal is re-used to avoid excessive allocation of signals.
-        # This is safe as a task can not be simultanesouly waiting to start,
-        # waiting for a mutex, and waiting on a message queue.
+        # The RTOS utility signal is used to start the task.
         config['signal_labels'].append({'name': '_rtos_util', 'global': True})
 
         # Assign signal ids

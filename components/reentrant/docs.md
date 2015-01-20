@@ -1,3 +1,9 @@
+/*| provides |*/
+reentrant
+
+/*| requires |*/
+task
+
 /*| doc_header |*/
 /*| doc_concepts |*/
 ## Reentrancy

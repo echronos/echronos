@@ -1,0 +1,22 @@
+Breakaway Task Review
+=======================
+
+Task name: S8X22j-kochab-sem-timeout
+Version reviewed: 66c3b4f54c282a640782320ae4adf4769a395009
+Reviewer: ikuz
+Date: 2014-12-16
+Conclusion: Rework
+
+Overall comments:
+ 
+ 
+Specific comments
+=================
+
+components/simple-semaphore/implementation.c:106
+sem_post doesn't unset the timer, so could result in a spurious timeout message possibly resulting in a spurious future unblock.
+
+[robs: Fixed by having sem_block_timeout disable the timer, so it's only disabled when it needs to be.
+Note that I tried adding a regression test to catch the spurious wakeup, but was frustrated when I realized that the semaphore behaviour will actually be correct even if the spurious wakeup occurs.
+This is because when the wakeup happens, the semaphore value is 0, so the sem_wait just goes to sleep again.
+Thus, no new regression test case for sem-demo will catch the problem.]

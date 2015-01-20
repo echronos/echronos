@@ -284,23 +284,26 @@ class _Task:
 
     def _check_is_accepted(self):
         """
-        Check whether all authors of completed reviews arrive at the 'accepted' conclusion in their final reviews.
+        Check whether all authors of completed reviews arrive at the 'accepted' conclusion in their final reviews, and
+        that at least two review authors have done so.
         """
-        done_reviews = [r for r in self._get_most_recent_reviews_from_all_authors() if r.is_done()]
+        done_reviews = self._get_concluded_reviews()
         if done_reviews == []:
             raise _InvalidTaskStateError('Task {} has not been reviewed'.format(self.name))
         for review in done_reviews:
             if not review.is_accepted():
                 raise _InvalidTaskStateError('The conclusion of review {} for task {} is not "accepted"'.
                                              format(review.file_path, self.name))
+        if len(done_reviews) < 2:
+            raise _InvalidTaskStateError('Task {} does not have enough reviews (minimum: 2)'.format(self.name))
 
-    def _get_most_recent_reviews_from_all_authors(self):
+    def _get_concluded_reviews(self):
         """
         For any reviewer having reviewed this task, determine the most recent review and return all of them as a list
         of _Review instances.
         """
         reviews_by_author = {}
-        for review in self._get_reviews():
+        for review in [r for r in self._get_reviews() if r.is_done()]:
             if review.author in reviews_by_author:
                 if reviews_by_author[review.author].round < review.round:
                     reviews_by_author[review.author] = review

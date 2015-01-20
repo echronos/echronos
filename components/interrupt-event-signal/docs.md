@@ -1,3 +1,12 @@
+/*| provides |*/
+interrupt-event-signal
+
+/*| requires |*/
+task
+signal
+preempt
+interrupt-event
+
 /*| doc_header |*/
 
 /*| doc_concepts |*/

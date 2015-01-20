@@ -5,16 +5,28 @@ Task name: LT8GHw-kochab-documentation-scheduler
 Version reviewed: 5d1d6dd5efc78c5d3da53cae5e3a5271c42f1e59
 Reviewer: benno
 Date: 2015-01-19
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
+This is good work, however I have some small suggested improvements.
 
-Specific comments
-=================
+In general, I think some of the first phrases in a number of sentences can be removed for clarity. E.g:
 
-Location: filename:linenum
-Comment:
+  - Since the RTOS is preemptive,
+  - Consequently,
+  - Note that since the RTOS is preemptive,
 
-Location: filename:linenum
-Comment:
+should just be removed, and start the sentence with the phrase after the first comma.
+
+The other sentence that currently lacks clarity (and is I think factually incorrect) is:
+
+    A task's effective priority is the maximum from the set of the task's assigned priority and the effective priority of any tasks that are blocked on the task
+
+I think that this should be:
+
+    A task's effective priority is the maximum from the set of the task's assigned priority and the effective priority of any tasks on which it is blocked.
+
+I'm still not happy with that sentence construction, but I think this is more correct.
+I'd be more than happy to see some other possible ways of expressing this than my suggested sentence.
+

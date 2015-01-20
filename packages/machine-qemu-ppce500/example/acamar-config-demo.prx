@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <modules>
+    <module name="ppce500.build" />
+    <module name="ppce500.ctxt-switch" />
+    <module name="ppce500.default-linker" />
+    <module name="ppce500.vectable" />
+    <module name="ppce500.debug" />
+    <module name="generic.debug" />
+
+    <module name="ppce500.rtos-acamar">
+      <prefix>rtos</prefix>
+      <taskid_size>8</taskid_size>
+      <tasks>
+
+        <task>
+          <name>a</name>
+          <function>fn_a</function>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>b</name>
+          <function>fn_b</function>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>c</name>
+          <function>fn_c</function>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>d</name>
+          <function>fn_d</function>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>e</name>
+          <function>fn_e</function>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>f</name>
+          <function>fn_f</function>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>x</name>
+          <function>fn_x</function>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>y</name>
+          <function>fn_y</function>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>z</name>
+          <function>fn_z</function>
+          <stack_size>8192</stack_size>
+        </task>
+
+      </tasks>
+    </module>
+
+    <module name="rtos-example.acamar-config-demo" />
+
+  </modules>
+</system>

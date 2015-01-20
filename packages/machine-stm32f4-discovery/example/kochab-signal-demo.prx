@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <modules>
+    <module name="armv7m.build" />
+    <module name="armv7m.ctxt-switch-preempt" />
+    <module name="armv7m.exception-preempt" />
+    <module name="armv7m.vectable">
+      <flash_load_addr>0x8000000</flash_load_addr>
+      <preemption>true</preemption>
+    </module>
+    <module name="armv7m.semihost-debug" />
+    <module name="generic.debug" />
+
+    <module name="armv7m.rtos-kochab">
+      <api_asserts>true</api_asserts>
+      <internal_asserts>true</internal_asserts>
+      <fatal_error>fatal</fatal_error>
+      <prefix>rtos</prefix>
+      <taskid_size>8</taskid_size>
+      <signalset_size>8</signalset_size>
+
+      <signal_labels>
+
+        <signal_label>
+          <name>dummy0</name>
+        </signal_label>
+
+        <signal_label>
+          <name>dummy1</name>
+        </signal_label>
+
+        <signal_label>
+          <name>dummy2</name>
+        </signal_label>
+
+        <signal_label>
+          <name>dummy3</name>
+        </signal_label>
+
+        <signal_label>
+          <name>dummy4</name>
+        </signal_label>
+
+        <signal_label>
+          <name>unblock</name>
+        </signal_label>
+
+        <signal_label>
+          <name>dummy6</name>
+        </signal_label>
+
+        <signal_label>
+          <name>dummy7</name>
+        </signal_label>
+
+      </signal_labels>
+
+      <tasks>
+
+        <task>
+          <name>a</name>
+          <function>fn_a</function>
+          <priority>30</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>b</name>
+          <function>fn_b</function>
+          <priority>10</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+      </tasks>
+
+      <mutex>
+        <stats>false</stats>
+      </mutex>
+    </module>
+
+    <!-- main .c file: -->
+    <module name="rtos-example.kochab-signal-demo" />
+
+  </modules>
+</system>

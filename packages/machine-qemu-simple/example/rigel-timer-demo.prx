@@ -64,7 +64,7 @@
 
     </module>
 
-    <module name="machine-qemu-simple.example.machine-timer" />
+    <module name="machine-armv7m-common.example.machine-timer" />
     <module name="rtos-example.timer-test">
       <variant>rigel</variant>
     </module>

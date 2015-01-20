@@ -104,7 +104,7 @@ topdir = os.path.normpath(os.path.dirname(__file__))
 CORE_CONFIGURATIONS = {"posix": ["sched-rr-test", "sched-prio-inherit-test", "simple-mutex-test",
                                  "blocking-mutex-test", "simple-semaphore-test", "sched-prio-test",
                                  "acamar", "gatria", "kraz"],
-                       "armv7m": ["acamar", "gatria", "kraz", "acrux", "rigel"],
+                       "armv7m": ["acamar", "gatria", "kraz", "acrux", "rigel", "kochab"],
                        "ppce500": ["acamar", "gatria", "kraz", "acrux", "kochab"]}
 
 CORE_SKELETONS = {

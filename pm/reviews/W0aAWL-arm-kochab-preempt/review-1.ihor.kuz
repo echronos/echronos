@@ -1,0 +1,75 @@
+Breakaway Task Review
+=======================
+
+Task name: W0aAWL-arm-kochab-preempt
+Version reviewed: 3b83e0a6ff9af7c46b86b09625c96a46758fb45a
+Reviewer: ihor.kuz
+Date: 2014-12-16
+Conclusion: Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: components/context-switch-preempt-armv7m/implementation.c
+Comment:
+It would be nice to have a description of the model for ARM preemption somewhere.  Not sure if this file is the place, or if it's already described somewhere.  Reading through the files I feel like I get lost in the (well commented) details.
+
+[robs: Added to the top of packages/armv7m/ctxt-switch-preempt.s]
+
+Location: components/context-switch-preempt-armv7m/implementation.c:13 
+* Note that the ARM ABI's Procedure Call Standard says that at a public interface, the stack must be double-word
+Maybe include a reference to this Standard?
+
+[robs: Added]
+
+Location: components/context-switch-preempt-armv7m/implementation.c:16-39
+Comment:
+The comment says the stack grows downward, then the defines are presented in the opposite order (starting with low addresses - the bottom of the stack - to high addresses - the top of the stack.  This can be a bit confusing.  Maybe useful to point this out if you don't want to change the order of the defines.
+
+[robs: Added]
+
+Location: components/context-switch-preempt-armv7m/implementation.c:69-70
+Comment:
+/* For EXC_RETURN of the first task, we choose this value, which means "Return to Thread mode, exception return uses
+ * non-floating-point state from MSP and execution uses MSP after return" according to the Cortex-M4 manual. */
+Maybe include a reference to this manual?
+
+[robs: Added]
+
+Location: packages/armv7m/ctxt-switch-preempt.s:29-49
+Comment:
+/* This macro invokes the scheduler in order to determine the TaskId of the next task to be switched to.
+ * If that task is the same task as the current one, the macro will jump to the 'return_label' location.
+ * The TaskId of the task to be switched to ends up in r0.
+This return behaviour is a bit weird. While adding code, it would probably be more readable if it returned a result, and then separately jump based on the result.
+
+[robs: Fixed, split into two macros and took out the jump part to make what's going on more explicit.]
+
+Location: packages/armv7m/ctxt-switch-preempt.s:124-125, 149-150
+Comment:
+/* Implements the functionality of rtos_internal_yield. */
+rtos_internal_svc_handler:
+/* The PendSV exception implements preemption and is triggered when preemption is both enabled and pending. */
+rtos_internal_pendsv_handler:
+
+It would be good to have a high level description about why both SV and PendSV are used, and why they have similar but slightly different handlers.
+
+[robs: Added to the top of this file]
+
+Location: packages/armv7m/exception-preempt.s:24-45
+Comment:
+The instruction and exception primer are not really needed here anymore, since we don't do any tricky manipulation of the exception stack, nor do we use particularly tricky instructions (unlike the previous solutuion).
+Also I think this comment breaks the style recommendations.
+
+[robs: Fixed]
+
+Location: packages/machine-stm32f4-discovery/example/kochab-mutex-demo.prx:9-10
+Comment:
+       <pendsv>rtos_internal_pendsv_handler</pendsv>
+       <svcall>rtos_internal_svc_handler</svcall>
+It would be nice if these were default values when preemption is enabled.
+
+[robs: I decided to go a bit further and mandate that these handlers cannot be configured if preemption is enabled.]

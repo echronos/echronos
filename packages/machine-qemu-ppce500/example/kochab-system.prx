@@ -20,7 +20,6 @@
       <prefix>rtos</prefix>
       <taskid_size>8</taskid_size>
       <signalset_size>8</signalset_size>
-      <interrupteventid_size>8</interrupteventid_size>
       <tasks>
 
         <task>

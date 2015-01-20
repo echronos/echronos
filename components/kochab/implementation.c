@@ -93,10 +93,7 @@ unblock(const {{prefix_type}}TaskId task)
 
     sched_set_runnable(task);
 
-    /*
-     * Note: When preemption is enabled a yield should be forced
-     * as a higher priority task may have been scheduled.
-     */
+    /* Note: When preemption is enabled a yield should be forced as a higher priority task may have been scheduled. */
     preempt_pend();
 
     postcondition_preemption_disabled();
@@ -107,6 +104,7 @@ void
 {{prefix_func}}start(void)
 {
     sem_init();
+    preempt_init();
 
     {{#tasks}}
     context_init(get_task_context({{idx}}), entry_{{name}}, stack_{{idx}}, {{stack_size}});

@@ -74,6 +74,10 @@ Such functions must have the signature `void f(void)`.
 No checks are performed during configuration to ensure the specified exception handler function is available.
 Subsequent linker errors will occur if the exception handler is incorrectly specified.
 
+The boolean option `preemption` must be set to `true` for systems on RTOS variants with preemption support.
+The option defaults to `false` if not specified.
+If preemption support is enabled, the `pendsv` and `svcall` vectors are not available for configuration.
+
 The other options available for the `armv7m.vectable` module control the memory layout.
 The correct values for these items generally require consultation with the chip reference manual.
 The following values are configurable (defaults appear in parentheses):

@@ -1,0 +1,18 @@
+Breakaway Task Review
+=======================
+
+Task name: WdJu8n-rtos-config-global
+Version reviewed: 24e3fdb103d8be4ab646fefc378dd5380e112e1d
+Reviewer: stg
+Date: 2015-01-13
+Conclusion: Rework
+
+Specific comments
+=================
+
+Location: prj/app/prj.py:51
+Comment 1: Rework
+The re module appears to be unused.
+Can it be removed?
+
+[robs: Ah sorry, completely forgot - fixed]

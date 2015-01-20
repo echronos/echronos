@@ -1,0 +1,26 @@
+Breakaway Task Review
+=======================
+
+Task name: W0aAWL-arm-kochab-preempt
+Version reviewed: 4519502acf663708fcf616e5954ec4882aa9c61f
+Reviewer: corey.lewis
+Date: 2015-01-20
+Conclusion: Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: packages/armv7m/ctxt-switch-preempt.s:4
+Comment:
+It should be "trigger a context switch".
+
+[robs: Fixed]
+
+Location: packages/armv7m/ctxt-switch-preempt.s:11
+Comment:
+Unblocking tasks causes a PendSV exception, not an SVCall.
+
+[robs: Fixed - my bad!]

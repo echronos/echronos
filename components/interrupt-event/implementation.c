@@ -10,7 +10,7 @@
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static {{prefix_type}}TaskId interrupt_event_get_next(void);
+{{prefix_type}}TaskId rtos_internal_interrupt_event_get_next(void);
 
 /*| state |*/
 static bool system_is_idle;
@@ -18,10 +18,11 @@ static bool system_is_idle;
 /*| function_like_macros |*/
 #define interrupt_event_check() (interrupt_application_event_check() || interrupt_system_event_check())
 #define interrupt_system_event_check() [[#timer_process]]timer_pending_ticks_check()[[/timer_process]][[^timer_process]]false[[/timer_process]]
+#define interrupt_event_get_next() rtos_internal_interrupt_event_get_next()
 
 /*| functions |*/
-static {{prefix_type}}TaskId
-interrupt_event_get_next(void)
+{{prefix_type}}TaskId
+rtos_internal_interrupt_event_get_next(void)
 {
     TaskIdOption next;
 

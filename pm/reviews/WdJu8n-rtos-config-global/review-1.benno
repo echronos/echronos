@@ -1,0 +1,40 @@
+Breakaway Task Review
+=======================
+
+Task name: WdJu8n-rtos-config-global
+Version reviewed: 5d79f6237fc28a03a9c79ee0b8dc73e4a2922b6f
+Reviewer: benno
+Date: 2015-01-09
+Conclusion: Rework
+
+Overall comments:
+
+I understand and concur with the motivation, however I'm not sure I am happy with the current API that is exposed to the user.
+
+Rather than merging all the top-level parts of the config, and then having name conflicts.
+Could the acamar-config-demo.c instead be written as:
+
+{{#rtos.tasks}}
+void
+{{function}}(void)
+{
+    for (;;)
+    {
+        rtos_yield_to(({{rtos.prefix}}TASK_ID_{{name|u}} + 1) % {{rtos.tasks.length}});
+        debug_println("task {{name}}");
+    }
+}
+{{/rtos.tasks}}
+
+I think that would be a preferable approach to merging the config together.
+
+With the current approach if we add a new RTOS config key in the future (which we should be able to do) then it can cause issues for any existing code.
+
+There are, I guess, technical/design reasons why the above is not possible, however let's explore them.
+
+I think the above approach would enable the potential for other cross-package configuration in the future, which may be interesting.
+
+[robs: I had trouble with this when prototyping but I've now realized that this is actually quite easy.
+Back then I was trying avoid name clashes in the merged dictionaries by prepending a string to the name of every key from the external module, but couldn't use the pystache-reserved '.' to delimit the prefix.
+But adding the entire RTOS module's config dict to the top-level dict under the key 'rtos' seems to get what we want.
+I've implemented it this way now, updated the acamar-config-demo and reverted the renames I did due to clashing.]

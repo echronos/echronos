@@ -151,6 +151,15 @@ message_queue_invariants_check(void)
                             ERROR_ID_MESSAGE_QUEUE_INTERNAL_VIOLATED_INVARIANT_WAITING_TASK_IS_NOT_BLOCKED);
         }
     }
+
+    /* The timer of the current task is expected to be disabled.
+     * It is expected to be only enabled while the current task is blocked in message_queue_wait_timeout().
+     * Unfortunately, we cannot make any assumptions about the relationship between the states of message queues and
+     * other timers.
+     * The timers of tasks depends not only on the message queue implementation but also on how other components use
+     * those task timers. */
+    internal_assert(!timers[task_timers[get_current_task()]].enabled,\
+                    ERROR_ID_MESSAGE_QUEUE_INTERNAL_VIOLATED_INVARIANT_TIMER_IS_ENABLED);
 }
 
 {{/internal_asserts}}

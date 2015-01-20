@@ -1,0 +1,36 @@
+Task: W0aAWL-arm-kochab-preempt
+==============================================================================
+
+Motivation
+----------
+
+A preemption mechanism for ARMv7-M was initially introduced to the core development head by gSSH9b-core-arm-preemption.
+
+Building on the original preemption mechanism, the Kochab RTOS variant was prototyped on branch lLGoAN-kochab-rtos-variant and distributed to NICTA for use by the SMACCM project.
+
+Later, Benno reimplemented the ARMv7-M preemption mechanism to use the PendSV exception, which resolved some issues encountered during SMACCM development.
+
+Merging this preemption mechanism back into echronos-core will allow the Kochab variant to be built for ARMv7-M, and a big step closer to eliminating the divergence between echronos-core and the SMACCM eChronos development head.
+
+
+Goals
+--------
+
+Merge back the redesigned PendSV-based ARMv7-M preemption mechanism for Kochab from the SMACCM development head, allowing the Kochab variant to be built for ARMv7-M.
+
+See `pm/tasks/completed/ZbYV9R-ppc-kochab-preempt` for the requirements for Kochab's task preemption behaviour.
+
+
+Test Plan
+---------
+
+Add test systems for machine-qemu-simple that run the existing Kochab mutex, signal, and semaphore demo programs.
+
+Also add a new test program and system for the task preemption functionality to run on machine-qemu-simple, matching the behaviour of the existing 'kochab-system' for machine-qemu-ppce500.
+
+A current limitation to testing Kochab after the introduction of this feature is that the BASEPRI mechanism on machine-qemu-simple does not appear to work correctly.
+Therefore, running any of the above test programs on machine-qemu-simple will likely result in fatal errors during runtime due to violated internal post/preconditions.
+
+Instead, all Kochab programs will now be built for and tested on machine-stm32f4-discovery.
+Incidentally, the Kochab demo images built for machine-stm32f4-discovery will also run without modification on the ARMV7-M hardware used by the SMACCM project.
+Fixing machine-qemu-simple or adding support for new hardware is not within the scope of this feature.

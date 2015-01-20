@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <modules>
+    <module name="armv7m.build" />
+    <module name="armv7m.ctxt-switch-preempt" />
+    <module name="armv7m.exception-preempt">
+      <trampolines>
+        <trampoline>
+          <name>systick</name>
+          <handler>tick_irq</handler>
+        </trampoline>
+      </trampolines>
+    </module>
+    <module name="armv7m.vectable">
+      <flash_load_addr>0x8000000</flash_load_addr>
+      <preemption>true</preemption>
+      <systick>rtos_internal_exception_preempt_trampoline_systick</systick>
+    </module>
+    <module name="armv7m.semihost-debug" />
+    <module name="generic.debug" />
+
+    <module name="armv7m.rtos-kochab">
+      <api_asserts>true</api_asserts>
+      <internal_asserts>true</internal_asserts>
+      <fatal_error>fatal</fatal_error>
+      <prefix>rtos</prefix>
+      <tasks>
+
+        <task>
+          <name>a</name>
+          <function>fn_a</function>
+          <priority>30</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>b</name>
+          <function>fn_b</function>
+          <priority>10</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+      </tasks>
+
+      <timers>
+
+        <timer>
+          <name>watchdog_a</name>
+        </timer>
+
+        <timer>
+          <name>wake_a</name>
+        </timer>
+
+        <timer>
+          <name>watchdog_b</name>
+        </timer>
+      </timers>
+
+      <signal_labels>
+
+        <signal_label>
+          <name>wake</name>
+        </signal_label>
+
+      </signal_labels>
+
+      <mutex>
+        <stats>false</stats>
+      </mutex>
+
+    </module>
+
+    <module name="machine-armv7m-common.example.machine-timer" />
+    <module name="rtos-example.timer-test">
+      <variant>kochab</variant>
+    </module>
+
+  </modules>
+</system>

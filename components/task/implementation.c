@@ -3,6 +3,8 @@
 
 /*| object_like_macros |*/
 #define TASK_ID_NONE ((TaskIdOption) UINT{{taskid_size}}_MAX)
+#define current_task rtos_internal_current_task
+#define tasks rtos_internal_tasks
 
 /*| type_definitions |*/
 typedef {{prefix_type}}TaskId TaskIdOption;
@@ -24,8 +26,8 @@ static {{prefix_type}}TaskId get_current_task_check(void);
 {{/internal_asserts}}
 
 /*| state |*/
-static {{prefix_type}}TaskId current_task;
-static struct task tasks[{{tasks.length}}];
+{{prefix_type}}TaskId rtos_internal_current_task;
+struct task rtos_internal_tasks[{{tasks.length}}];
 
 /*| function_like_macros |*/
 {{#internal_asserts}}

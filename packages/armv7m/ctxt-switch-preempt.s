@@ -1,14 +1,14 @@
 /*
  * This module implements context switch on ARMv7-M for RTOS variants that support task preemption by exceptions.
  *
- * RTOS variants with preemption support need, in addition to the ability to trigger context switch internally from
+ * RTOS variants with preemption support need, in addition to the ability to trigger a context switch internally from
  * within the RTOS, also a mechanism for allowing user-defined exception handlers to trigger a context switch.
  * To implement context switch for preemption-supporting variants on ARMv7-M, we use the PendSV and SVCall exceptions.
  *
  * Invoking the 'svc' instruction immediately causes the SVCall exception to occur, which makes it ideal for use in
  * implementing voluntary context switch (or 'yield') requested internally by the RTOS.
  * This is most typically used just after the RTOS has changed the set of schedulable tasks, for example by blocking
- * the current task, or by unblocking other tasks of potentially higher priority.
+ * the current task.
  *
  * We use the PendSV exception to implement an involuntary context switch (or 'preemption') as follows.
  * When a user-defined exception handler returns true, indicating that a preemption should occur, we write to the

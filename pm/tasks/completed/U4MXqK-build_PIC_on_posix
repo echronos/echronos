@@ -1,0 +1,36 @@
+Task: U4MXqK-build_PIC_on_posix
+==============================================================================
+
+Motivation
+----------
+
+Building the RTOS systems on Linux for the POSIX platform with gcc 4.8 currently fails:
+
+    #> ./prj/app/prj.py build posix.unittest.sched-prio
+    INFO:prj:Loading system: posix.unittest.sched-prio
+    INFO:prj:Invoking 'build' on system 'posix.unittest.sched-prio'
+    INFO:prj:Preparing: template packages/posix/rtos-sched-prio-test/rtos-sched-prio-test.h -> out/posix/unittest/sched-prio/rtos-sched-prio-test.h
+    INFO:prj:Preparing: template packages/posix/rtos-sched-prio-test/rtos-sched-prio-test.c -> out/posix/unittest/sched-prio/rtos-sched-prio-test.c
+    INFO:prj:Executing: gcc -o out/posix/unittest/sched-prio/system -Wall -Werror -shared -Iout/posix/unittest/sched-prio out/posix/unittest/sched-prio/rtos-sched-prio-test.c
+    /usr/bin/ld: /tmp/cc52SJn8.o: relocation R_X86_64_32S against `.bss' can not be used when making a shared object; recompile with -fPIC
+    /tmp/cc52SJn8.o: error adding symbols: Bad value
+    collect2: error: ld returned 1 exit status
+    ERROR:prj:Command gcc -o out/posix/unittest/sched-prio/system -Wall -Werror -shared -Iout/posix/unittest/sched-prio out/posix/unittest/sched-prio/rtos-sched-prio-test.c returned non-zero error code: 1
+
+
+Goals
+--------
+
+- ensure that the above error does not occur
+- when building shared objects for POSIX, compile the corresponding C files with the -fPIC option
+
+
+Test Plan
+---------
+
+build all POSIX systems:
+
+#> . ./setenv
+#> find packages/posix/ -name *.prx | sed -r 's/packages\///; s/.prx//; s/\//./g' | xargs -n 1 -i bash -c './prj/app/prj.py build {} || exit 255'
+
+and ensure that the build process does not fail with the error above

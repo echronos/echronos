@@ -85,7 +85,7 @@ If the configuration item [`semaphore_enable_max`] is true, the following applie
 The calling task remains the current task.
 [[/preemptive]]
 [[#preemptive]]
-Since the RTOS is preemptive, one of the tasks made runnable may preempt the calling task, depending on the [Scheduling Algorithm].
+One of the tasks made runnable may preempt the calling task, depending on the [Scheduling Algorithm].
 [[/preemptive]]
 
 

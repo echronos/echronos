@@ -39,7 +39,7 @@ crc_calculate(const unsigned char *const src,
 }</pre>
 
 [[^preemptive]]
-Since the RTOS is non-preemptive, it is safe for two (or more) tasks to call `crc_calculate()`.
+It is safe for two (or more) tasks to call `crc_calculate()`.
 The function does not cause any task switch, so it is guaranteed that a task enters and leaves the function without another task being scheduled in between.
 Therefore, the CRC engine is only used by a single task at a time, calculating the result only from the input provided by that task.
 

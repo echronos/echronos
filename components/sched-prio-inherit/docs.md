@@ -28,7 +28,10 @@ Normally, a task's effective priority is the priority it has been explicitly ass
 
 When a task in the system is not runnable (i.e.: it is blocked), it may be blocked waiting for a specific task, or alternatively, it may be blocked waiting on an external event or no specific task.
 To reduce the occurrence of priority inversion, the scheduler implements priority inheritance for the case where a task is blocked on another specific task.
-A task's effective priority is the maximum from the set of the task's assigned priority and the effective priority of any tasks that are blocked on the task.
+A task's effective priority is the higher one of:
+
+1. the task's own explicitly assigned priority, or
+2. the highest of the effective priorities of all tasks that are blocked on the task.
 
 Consider three tasks, A, B and C with priorities 20, 10, and 5.
 If task A is blocked on task C, then C's effective priority is 20, rather than 5.

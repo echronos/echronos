@@ -5,16 +5,8 @@ Task name: mNEnaL-arm-kochab-fp-ctxt-switch
 Version reviewed: c60806088970971fad75fe3563eb87caf9caf3ca
 Reviewer: ihor.kuz
 Date: 2015-01-21
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
 Overall comments:
+Looks OK to me.
 
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:

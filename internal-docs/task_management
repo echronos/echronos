@@ -31,7 +31,7 @@ Development
 The command
 
     #> x.py task new SUMMARY
-    
+
 creates a new task.
 The `SUMMARY` may not contain spaces.
 `x` prints instructions about what further actions are necessary to fully create the task.
@@ -69,7 +69,7 @@ The developer needs to manually notify reviewers of the new reviews, e.g., by e-
 
 4) When a reviewer asks a task to be reworked, the developer needs to resolve all concerns raised in the review and initiate another review round (i.e., go to 1.) until that same reviewer accepts the task branch.
 A developer is free to immediately address review feedback and start another round of reviews or to wait for more reviews to come in and address them collectively.
- 
+
 The above review process continues until:
 1. every reviewer who had arrived at the conclusion *Rework* later accepted the task AND
 2. at least two reviewers accept the task.

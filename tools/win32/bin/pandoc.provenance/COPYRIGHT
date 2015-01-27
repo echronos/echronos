@@ -1,0 +1,84 @@
+Pandoc
+Copyright (C) 2006-2014 John MacFarlane <jgm at berkeley dot edu>
+
+This code is released under the [GPL], version 2 or later:
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+The GNU General Public License is available in the file COPYING in
+the source distribution.  On Debian systems, the complete text of the
+GPL can be found in `/usr/share/common-licenses/GPL`.
+
+[GPL]: http://www.gnu.org/copyleft/gpl.html
+
+Pandoc's complete source code is available from the [Pandoc home page].
+
+[Pandoc home page]: http://johnmacfarlane.net/pandoc/
+
+Pandoc includes some code from other authors.  The copyright and license
+statements for these sources are included below.  All are GPL-compatible
+licenses.
+
+----------------------------------------------------------------------
+src/Text/Pandoc/Writers/Texinfo.hs
+Copyright (C) 2008-2014 John MacFarlane and Peter Wang
+
+Released under the GNU General Public License version 2 or later.
+
+----------------------------------------------------------------------
+src/Text/Pandoc/Writers/OpenDocument.hs
+Copyright (C) 2008-2014 Andrea Rossato and John MacFarlane
+
+Released under the GNU General Public License version 2 or later.
+
+----------------------------------------------------------------------
+src/Text/Pandoc/Writers/Org.hs
+Copyright (C) 2010-2014 Puneeth Chaganti and JohnMacFarlane
+
+Released under the GNU General Public License version 2 or later.
+
+----------------------------------------------------------------------
+src/Text/Pandoc/Readers/Textile.hs
+Copyright (C) 2010-2014 Paul Rivier and John MacFarlane
+
+Released under the GNU General Public License version 2 or later.
+
+----------------------------------------------------------------------
+src/Text/Pandoc/Readers/Org.hs
+tests/Tests/Readers/Org.hs
+Copyright (C) 2014 Albert Krewinkel
+
+Released under the GNU General Public License version 2 or later.
+
+----------------------------------------------------------------------
+data/LaTeXMathML.js
+Adapted by Jeff Knisely and Douglas Woodall from
+ASCIIMathML.js v. 1.4.7
+Copyright (C) 2005 Peter Jipsen
+
+Released under the GNU General Public License version 2 or later.
+
+----------------------------------------------------------------------
+data/MathMLinHTML.js
+Copyright (C) 2004 Peter Jipsen http://www.chapman.edu/~jipsen
+
+Released under the GNU General Public License version 2 or later.
+
+------------------------------------------------------------------------
+The dzslides template contains javascript and CSS from Paul Rouget's
+dzslides template.
+http://github.com/apulrouget/dzslides
+
+Released under the Do What the Fuck You Want To Public License.

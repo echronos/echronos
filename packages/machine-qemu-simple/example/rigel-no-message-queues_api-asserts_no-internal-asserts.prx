@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+  <modules>
+    <module name="armv7m.build" />
+    <module name="armv7m.ctxt-switch" />
+    <module name="armv7m.vectable">
+      <systick>tick_irq</systick>
+    </module>
+    <module name="armv7m.semihost-debug" />
+    <module name="generic.debug" />
+
+    <module name="armv7m.rtos-rigel">
+      <prefix>rtos</prefix>
+      <signalset_size>8</signalset_size>
+      <api_asserts>true</api_asserts>
+      <internal_asserts>false</internal_asserts>
+      <fatal_error>fatal</fatal_error>
+
+
+      <tasks>
+
+        <task>
+          <name>a</name>
+          <function>fn_a</function>
+          <stack_size>64</stack_size>
+          <start>true</start>
+        </task>
+
+        <task>
+          <name>b</name>
+          <function>fn_b</function>
+          <stack_size>64</stack_size>
+        </task>
+
+      </tasks>
+
+
+      <signal_labels>
+
+        <signal_label>
+          <name>test</name>
+          <global>true</global>
+        </signal_label>
+
+        <signal_label>
+          <name>timer</name>
+          <tasks>
+            <task>a</task>
+            <task>b</task>
+          </tasks>
+        </signal_label>
+
+      </signal_labels>
+
+      <timers>
+
+        <timer>
+          <name>test</name>
+          <enabled>true</enabled>
+          <reload>10</reload>
+          <task>a</task>
+          <sig_set>timer</sig_set>
+        </timer>
+
+        <timer>
+          <name>supervisor</name>
+          <enabled>false</enabled>
+          <reload>10</reload>
+          <error>2</error>
+        </timer>
+
+      </timers>
+
+      <interrupt_events>
+        <interrupt_event>
+          <name>tick</name>
+          <task>a</task>
+          <sig_set>test</sig_set>
+        </interrupt_event>
+      </interrupt_events>
+
+      <mutexes>
+        <mutex>
+          <name>test</name>
+        </mutex>
+      </mutexes>
+      <mutex>
+        <stats>true</stats>
+      </mutex>
+
+      <profiling>
+        <task_uptime>true</task_uptime>
+      </profiling>
+    </module>
+
+    <module name="rtos-example.rigel-test" />
+
+  </modules>
+</system>

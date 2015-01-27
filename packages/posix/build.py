@@ -18,6 +18,6 @@ def system_build(system, configuration):
     if len(system.c_files) == 0:
         raise SystemBuildError("Zero C files in system definition")
 
-    shared_args = ['-shared'] if configuration['output_type'] == 'shared-library' else []
+    shared_args = ['-shared', '-fPIC'] if configuration['output_type'] == 'shared-library' else []
 
     execute(['gcc', '-o', system.output_file, '-Wall', '-Werror'] + shared_args + inc_path_args + system.c_files)

@@ -20,6 +20,8 @@ Needs spaces between the lines for 1), 2) and 3) just so a Markdown displayer do
 Alternatively, using 1. 2. or 3. for proper Markdown number list items will fix it.
 Though, I'm not saying we necessarily care so much about "proper Markdown" here.
 
+[stg: resolved as suggested]
+
 Location: internal-docs/task_management:127
 Comment:
 Sentence contains a grammatical error due to the stray "it" in "to its name it with a command".
@@ -28,3 +30,5 @@ Proposed rewording:
 """
 To abandon a task, manually add the prefix `abandoned/` to its name and delete the original branch with a command similar to `git push origin TASKNAME:abandoned/TASKNAME :TASKNAME`
 """
+
+[stg: resolved almost as suggested]

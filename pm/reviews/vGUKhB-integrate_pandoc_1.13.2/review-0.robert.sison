@@ -17,3 +17,5 @@ Specific comments
 Location: tools/win32/bin/pandoc.provenance/COPYING:6
 Comment:
 Assuming we're allowed to clean up whitespace in the GNU GPL, there's some trailing whitespace here.
+
+[stg: resolved as suggested]

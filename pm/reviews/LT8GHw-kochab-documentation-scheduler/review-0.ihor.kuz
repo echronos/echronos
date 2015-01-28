@@ -1,0 +1,23 @@
+Breakaway Task Review
+=======================
+
+Task name: LT8GHw-kochab-documentation-scheduler
+Version reviewed: 2c7a7f8f87c44fbc4d311419451b917bd059c17c
+Reviewer: ihor.kuz
+Date: 2015-01-15
+Conclusion: Rework
+
+Specific comments
+=================
+
+Location: components/reentrant/docs.md:13
+Comment: Rework
+This is a weird definition of reentrant.
+
+Location: components/reentrant/docs.md:15
+Comment: Rework
+This second definition of reentrant seems tacked on for no good reason.
+
+[robs: Regarding both comments - having discussed offline, Benno and Stefan reckon to remove this chapter entirely.
+Its purpose (of talking about which functions cause task switches under what circumstances) doesn't really match up with being informative about what reentrancy is, and which functions are reentrant (which is probably unnecessary).
+The right approach will be to reexamine how we're documenting which APIs may cause task switches, and make it consistent across all of the API documentation - I've added this to the task backlog as requested by Stefan.]

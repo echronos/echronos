@@ -1,0 +1,30 @@
+Breakaway Task Review
+=======================
+
+Task name: LT8GHw-kochab-documentation-scheduler
+Version reviewed: 5d1d6dd5efc78c5d3da53cae5e3a5271c42f1e59
+Reviewer: benno
+Date: 2015-01-19
+Conclusion: Rework
+
+Overall comments:
+
+This is good work, however I have some small suggested improvements.
+
+In general, I think some of the first phrases in a number of sentences can be removed for clarity. E.g:
+
+  - Since the RTOS is preemptive,
+  - Consequently,
+  - Note that since the RTOS is preemptive,
+
+should just be removed, and start the sentence with the phrase after the first comma.
+
+[robs: Fixed]
+
+The other sentence that currently lacks clarity is:
+
+    A task's effective priority is the maximum from the set of the task's assigned priority and the effective priority of any tasks that are blocked on the task
+
+I'm not sure of a better way of expressing this, however it seems somewhat complex and I feel it could be simplified.
+
+[robs: I reworded it by splitting it up a bit, should hopefully be clearer]

@@ -99,9 +99,7 @@ void
 void
 {{prefix_func}}start(void)
 {
-    {{#message_queues.length}}
     message_queue_init();
-    {{/message_queues.length}}
 
     {{#tasks}}
     context_init(get_task_context({{idx}}), entry_{{name}}, stack_{{idx}}, {{stack_size}});

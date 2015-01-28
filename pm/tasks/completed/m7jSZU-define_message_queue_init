@@ -1,0 +1,27 @@
+Task: m7jSZU-define_message_queue_init
+==============================================================================
+
+Motivation
+----------
+
+When building the RTOS without any message queue objects, the function message_queue_init() is undefined.
+
+
+Goals
+--------
+
+- ensure that the function message_queue_init() is always defined when required
+- create regression tests that cover this goal
+
+
+Test Plan
+---------
+
+- verify that there are no errors when building the following systems on Linux (build them locally or check the regression test server):
+-- machine-qemu-simple.example.rigel_no-message-queues_api-asserts_internal-asserts
+-- machine-qemu-simple.example.rigel-no-message-queues_api-asserts_no-internal-asserts
+-- machine-qemu-simple.example.rigel-no-message-queues_no-api-asserts_internal-asserts
+-- machine-qemu-simple.example.rigel-no-message-queues_no-api-asserts_no-internal-asserts
+-- machine-qemu-simple.example.rigel-message-queues_api-asserts_no-internal-asserts
+-- machine-qemu-simple.example.rigel-message-queues_no-api-asserts_internal-asserts
+-- machine-qemu-simple.example.rigel-message-queues_no-api-asserts_no-internal-asserts

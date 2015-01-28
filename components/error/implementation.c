@@ -38,12 +38,7 @@
 /*| structure_definitions |*/
 
 /*| extern_definitions |*/
-{{#api_asserts}}
 extern void {{fatal_error}}({{prefix_type}}ErrorId error_id);
-{{/api_asserts}}
-{{#internal_asserts}}
-extern void {{fatal_error}}({{prefix_type}}ErrorId error_id);
-{{/internal_asserts}}
 
 /*| function_definitions |*/
 

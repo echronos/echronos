@@ -1,5 +1,5 @@
-SMACCM RTOS Release v0.0.1
-==========================
+eChronos README
+===============
 
 Release overview
 -----------------
@@ -56,10 +56,6 @@ Future versions of the `prj` tools will take advantage of the full
 system mode to provide full system optimisations and checks, such as
 automatically sizing stacks. Ideally projects that just target the
 RTOS will use the full system mode of `prj`.
-
-However, as the current SMACCM project is being designed such that it
-can be built against multiple RTOSes using the `prj` in configuration
-mode is likely to be the best approach at this stage of the project.
 
 The rest of this document assumes that `prj` will be used in
 configuration mode.
@@ -280,8 +276,8 @@ actually started. The default stack size is 4KiB (0x1000).
 ----------------------
 
 The RTOS comes in a number of different *flavors*, each of varying complexity,
-code size and feature set. It is anticipated that the SMACCM project will use
-the *rigel* RTOS flavor.
+code size and feature set.
+This section documents the *rigel* RTOS flavor.
 
 This RTOS supports tasks, round-robin scheduling, signals and interrupt
 events which can trigger the sending of signals.

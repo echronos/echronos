@@ -38,7 +38,7 @@ This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
 the Free Software Foundation, version 3, provided that no right, title
 or interest in or to any trade mark, service mark, logo or trade name
-of NICTA or its licensors is granted.  
+of NICTA or its licensors is granted.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -53,7 +53,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     top_level_license = """
 Files described as being under the "Affero GNU General Public License version 3"
 or simply the "AGPLv3" fall under the following license.
- 
+
 -----------------------------------------------------------------------
 
                     GNU AFFERO GENERAL PUBLIC LICENSE

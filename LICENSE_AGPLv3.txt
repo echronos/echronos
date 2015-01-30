@@ -1,6 +1,5 @@
-Files described as being under the "Affero GNU General Public License version 3"
-or simply the "AGPLv3" fall under the following license.
- 
+Files described as being under the "Affero GNU General Public License version 3" or simply the "AGPLv3" fall under the following license.
+
 -----------------------------------------------------------------------
 
                     GNU AFFERO GENERAL PUBLIC LICENSE

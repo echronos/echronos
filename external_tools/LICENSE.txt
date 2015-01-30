@@ -1,5 +1,5 @@
-The files in this directory originate from various external projects.  They 
-are distributed under several licenses as follows:
+The files in this directory originate from various external projects.
+They are distributed under several licenses as follows:
 
 	+ ice:  MIT
 		https://github.com/BreakawayConsulting/ice

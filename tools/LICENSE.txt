@@ -1,5 +1,5 @@
-The files in this directory originate from various external projects.  They 
-are distributed under several licenses as follows:
+The files in this directory originate from various external projects.
+They are distributed under several licenses as follows:
 
 	+ Python 3.3: PFSLv3 and others, see https://www.python.org/download/releases/3.3.0/license/
 		https://www.python.org/download/releases/3.3.0/

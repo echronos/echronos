@@ -1,3 +1,5 @@
+/* @LICENSE(NICTA) */
+
 .syntax unified
 
 /* See ARMv7M Architecture Reference Manual */

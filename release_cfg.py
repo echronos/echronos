@@ -1,3 +1,5 @@
+# @LICENSE(NICTA)
+
 from pylib.release import Release
 
 

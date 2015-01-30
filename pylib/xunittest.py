@@ -1,3 +1,5 @@
+# @LICENSE(NICTA)
+
 # This reuses the bulk of the built-in unittest module, but adds some
 # useful additional function inspired by the 'nose' testing framework.
 #

@@ -1,3 +1,5 @@
+/* @LICENSE(NICTA) */
+
 void
 machine_timer_clear(void) {
     asm volatile(

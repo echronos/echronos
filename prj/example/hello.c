@@ -1,3 +1,5 @@
+/* @LICENSE(NICTA) */
+
 /*<module>
   <code_gen>cpp</code_gen>
 </module>*/

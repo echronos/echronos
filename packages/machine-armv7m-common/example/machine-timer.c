@@ -1,3 +1,5 @@
+/* @LICENSE(NICTA) */
+
 #include <stdint.h>
 
 #define SYST_CSR_REG 0xE000E010

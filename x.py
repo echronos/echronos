@@ -1,4 +1,6 @@
 #!/usr/bin/env python3.3
+# @LICENSE(NICTA)
+
 """
 Overview
 ---------

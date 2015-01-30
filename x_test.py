@@ -1,3 +1,5 @@
+# @LICENSE(NICTA)
+
 from pylib.xunittest import teamcityskip
 from pylib.utils import Git
 from pylib.components import _sort_typedefs, _sort_by_dependencies, _DependencyNode, _UnresolvableDependencyError

@@ -1,3 +1,5 @@
+/* @LICENSE(NICTA) */
+
 #ifndef BITBAND_H
 #define BITBAND_H
 

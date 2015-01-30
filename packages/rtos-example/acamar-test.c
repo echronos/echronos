@@ -1,3 +1,5 @@
+/* @LICENSE(NICTA) */
+
 #include <stddef.h>
 #include <stdint.h>
 

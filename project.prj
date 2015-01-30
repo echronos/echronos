@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!-- @LICENSE(NICTA) -->
+
 <project>
   <startup-script>./x.py build build-partials</startup-script>
   <search-path>packages</search-path>

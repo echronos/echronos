@@ -1,3 +1,5 @@
+/* @LICENSE(NICTA) */
+
 #define HANDLER(num) \
 void handler##num(void) { \
     while (1); \

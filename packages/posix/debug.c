@@ -1,3 +1,4 @@
+/* @LICENSE(NICTA) */
 
 #if __MINGW32__ == 1
 /* MinGW GCC does not place STDOUT_FILENO or _exit in the header file

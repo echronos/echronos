@@ -1,3 +1,5 @@
+# @LICENSE(NICTA)
+
 from prj import Module
 
 

@@ -1,3 +1,5 @@
+/* @LICENSE(NICTA) */
+
 .section .text
 .global rtos_internal_interrupts_wait
 .type rtos_internal_interrupts_wait,STT_FUNC

@@ -1,3 +1,5 @@
+/* @LICENSE(NICTA) */
+
 .section .text
 
 /*

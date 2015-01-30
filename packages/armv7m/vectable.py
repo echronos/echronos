@@ -1,3 +1,5 @@
+# @LICENSE(NICTA)
+
 from prj import SystemBuildError, Module, ModuleInstance, pystache_render, xml2dict, xml2schema, xml_parse_string
 import logging
 import os

@@ -1,3 +1,5 @@
+# @LICENSE(NICTA)
+
 import io
 import os
 import shutil

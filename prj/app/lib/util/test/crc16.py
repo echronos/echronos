@@ -1,3 +1,5 @@
+# @LICENSE(NICTA)
+
 from util.crc16 import Crc16Ccitt, crc16ccitt
 
 

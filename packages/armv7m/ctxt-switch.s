@@ -1,3 +1,5 @@
+/* @LICENSE(NICTA) */
+
 .syntax unified
 .section .text
 

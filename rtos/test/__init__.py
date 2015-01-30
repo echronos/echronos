@@ -1,3 +1,5 @@
+# @LICENSE(NICTA)
+
 __all__ = ['sched', 'simple_mutex', 'blocking_mutex', 'simple_semaphore']
 
 import ctypes

@@ -1,3 +1,5 @@
+# @LICENSE(NICTA)
+
 import ctypes
 import os
 import sys

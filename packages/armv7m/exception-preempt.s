@@ -1,3 +1,5 @@
+/* @LICENSE(NICTA) */
+
 /*<module>
   <code_gen>template</code_gen>
   <schema>

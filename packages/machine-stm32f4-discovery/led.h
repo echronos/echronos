@@ -1,3 +1,5 @@
+/* @LICENSE(NICTA) */
+
 #ifndef LED_H
 #define LED_H
 

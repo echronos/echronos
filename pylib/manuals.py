@@ -1,3 +1,5 @@
+# @LICENSE(NICTA)
+
 import os
 import shutil
 import subprocess

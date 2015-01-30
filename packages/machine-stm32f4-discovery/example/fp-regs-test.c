@@ -1,3 +1,5 @@
+/* @LICENSE(NICTA) */
+
 #include "rtos-kochab.h"
 #include "machine-timer.h"
 #include "debug.h"

@@ -1,3 +1,5 @@
+# @LICENSE(NICTA)
+
 """
 A model of the RTOS schedulers in Python.
 

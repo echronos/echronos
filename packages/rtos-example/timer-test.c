@@ -1,3 +1,5 @@
+/* @LICENSE(NICTA) */
+
 #include <stdbool.h>
 
 #include "rtos-{{variant}}.h"

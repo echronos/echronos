@@ -1,4 +1,7 @@
-<!--- @LICENSE(NICTA_DOC) -->
+<!---
+     Copyright (c) 2015 National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+     All rights reserved.
+  -->
 
 %title Machine STM32F4-Discovery package: user manual
 %version 1-draft

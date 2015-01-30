@@ -1,4 +1,7 @@
-# @LICENSE(NICTA_DOC)
+#
+# Copyright (c) 2015 National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+# All rights reserved.
+#
 
 The RTOS change management is described in the Breakaway Consulting Pty. Ltd. Quality Manual.
 Although that manual describes the quality control for the Breakaway Quality Management System, the same process applies to the RTOS.

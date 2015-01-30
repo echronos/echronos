@@ -1,4 +1,3 @@
-/* Copyright 2012 Breakaway Consulting Pty. Ltd. */
 /*<module>
   <code_gen>template</code_gen>
   <schema>

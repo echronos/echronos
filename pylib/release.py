@@ -176,11 +176,12 @@ class _LicenseOpener:
     The 'license' is passed to the object during construction.
 
     """
-    def __init__(self, license):
+    def __init__(self, license, top_dir):
         self.license = license
+        self.top_dir = top_dir
 
     def _get_lic(self, filename):
-        lic = ''
+        lic = None
         ext = os.path.splitext(filename)[1]
         is_xml = False
 
@@ -194,6 +195,15 @@ class _LicenseOpener:
         elif ext in ['.asm']:
             lic = "\n".join(['; ' + line for line in self.license.rsplit("\n")]) + "\n"
 
+        # If the file already has the AGPL license header, we don't want to add another one
+        if lic is not None:
+            f = open(filename, 'rb')
+            if '@TAG(NICTA_AGPL)' in f.peek().decode('utf8'):
+                lic = ''
+            f.close()
+        else:
+            lic = ''
+
         lic = lic.encode('utf8')
 
         return lic, is_xml
@@ -206,8 +216,10 @@ class _LicenseOpener:
         return _FileWithLicense(f, lic, is_xml)
 
     def tar_info_filter(self, tarinfo):
+        assert(tarinfo.name.startswith('share/packages'))
         if tarinfo.isreg():
-            lic, _ = self._get_lic(tarinfo.name)
+            filename = self.top_dir + tarinfo.name.replace('share/packages', '/packages', 1)
+            lic, _ = self._get_lic(filename)
             tarinfo.size += len(lic)
         return _tar_info_filter(tarinfo)
 
@@ -246,7 +258,7 @@ def _tar_gz_with_license(output, tree, prefix, license):
     When creating the tar.gz a standard set of meta-data will be used to help ensure things are consistent.
 
     """
-    lo = _LicenseOpener(license)
+    lo = _LicenseOpener(license, os.getcwd())
     try:
         with tarfile.open(output, 'w:gz', format=tarfile.GNU_FORMAT) as tf:
             tarfile.bltn_open = lo.open

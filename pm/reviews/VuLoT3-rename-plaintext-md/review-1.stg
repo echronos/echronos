@@ -5,16 +5,11 @@ Task name: VuLoT3-rename-plaintext-md
 Version reviewed: 4b7ab540903ced4bae7c5449f5828fc483f0523b
 Reviewer: stg
 Date: 2015-02-04
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Comment 1: Rework
+The file prj/VERSION.md is not meant to be formatted as markdown text.
+However, this file is not used at all anywhere.
+Please delete it.

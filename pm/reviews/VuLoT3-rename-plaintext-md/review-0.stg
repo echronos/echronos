@@ -18,3 +18,5 @@ internal-docs/design
 internal-docs/review_how-to
 prj/reqs
 prj/VERSION
+components/sample/sample-design.txt
+components/sample/sample-req.txt

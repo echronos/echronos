@@ -30,8 +30,7 @@ class Standard(Release):
     product_name = 'eChronos'
     release_name = 'std'
     enabled = True
-    license = """
-eChronos Real-Time Operating System
+    license = """eChronos Real-Time Operating System
 Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
 
 This program is free software: you can redistribute it and/or modify
@@ -48,8 +47,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-@TAG(NICTA_AGPL)
-"""
+@TAG(NICTA_AGPL)"""
     top_level_license = """
 Files described as being under the "Affero GNU General Public License version 3"
 or simply the "AGPLv3" fall under the following license.

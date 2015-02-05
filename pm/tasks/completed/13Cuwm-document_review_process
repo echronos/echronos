@@ -1,0 +1,20 @@
+Task: 13Cuwm-document_review_process
+==============================================================================
+
+Motivation
+----------
+
+The process for creating, reviewing, integrating, or abandoning task branches is not documented.
+This makes it unnecessarily difficult for developers to learn about and adhere to this process.
+
+Goals
+--------
+
+- document the process for reviewing and integrating task branches
+- add the documentation to a file under internal-docs/.
+- keep this document self contained but refer to the *Breakaway Consulting Pty. Ltd. Quality Manual* where possible so as not to unnecessarily duplicate it
+
+Test Plan
+---------
+
+manual review

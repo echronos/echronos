@@ -12,20 +12,25 @@ Introduction
 
 The RTOS Example package contains the code for a number of RTOS example programs:
 
-kochab-signal-demo
-  ~ An example C program demonstrating signal functionality on the kochab variant.
-kochab-mutex-demo
-  ~ An example C program demonstrating mutex functionality on the kochab variant.
-kochab-sem-demo
-  ~ An example C program demonstrating semaphore functionality on the kochab variant.
-timer-test
-  ~ An example C program that tests runtime timer APIs on variants that support it.
+<dl>
+  <dt>`kochab-signal-demo`</dt>
+  <dd>An example C program demonstrating signal functionality on the Kochab variant.</dd>
+
+  <dt>`kochab-mutex-demo`</dt>
+  <dd>An example C program demonstrating mutex functionality on the Kochab variant.</dd>
+
+  <dt>`kochab-sem-demo`</dt>
+  <dd>An example C program demonstrating semaphore functionality on the Kochab variant.</dd>
+
+  <dt>`timer-test`</dt>
+  <dd>An example C program that tests runtime timer APIs on variants that support it.</dd>
+</dl>
 
 
 `kochab-signal-demo`
 ====================
 
-This system demonstrates the eChronos/kochab signal functionality:
+This system demonstrates the eChronos Kochab variant's signal functionality:
 
   Part 0 has one task (A) demonstrate peeking and polling of signals, as well as waits returning immediately if a signal in the set is already available.
 
@@ -82,7 +87,7 @@ The following is the expected output of the signal demo, continuing from a break
 `kochab-mutex-demo`
 ===================
 
-This system demonstrates the eChronos/kochab mutex functionality:
+This system demonstrates the eChronos Kochab variant's mutex functionality:
 
   Part 0 has one task (A) demonstrate trying and releasing of a mutex, as well as taking of a mutex when the mutex is available.
 
@@ -194,7 +199,7 @@ The following is the expected output of the mutex demo, continuing from a breakp
 `kochab-sem-demo`
 =================
 
-This system demonstrates the eChronos/kochab semaphore functionality:
+This system demonstrates the eChronos Kochab variant's semaphore functionality:
 
   Part 0 has one task (A) demonstrate posting (denoted `V`) and trying to wait (denoted `P`) on a semaphore, as well as returning immediately from waiting on a semaphore that has already been posted.
 
@@ -318,7 +323,7 @@ Task B uses one timer, WATCHDOG_B, which is configured to cause a fatal error if
 However, task B just sits in a while-forever loop periodically sleeping for a time period just one second short of the expiry, and on each iteration resetting its watchdog, so that it never expires.
 
 The test ends successfully once the fatal error at the end of task A's main body occurs, as long as this happens before the call to `sleep` returns at the end of task A.
-After this point the test is over, although the tick_irq will continue to come in once every tick period.
+After this point the test is over, although the `tick_irq` will continue to come in once every tick period.
 
 The following is the expected output of the timer test, continuing from a breakpoint set at `rtos_start`:
 
@@ -418,11 +423,12 @@ The following is the expected output of the timer test, continuing from a breakp
     tick_irq: 0x00000030
     < and so on ... >
 
-The rtos-example.timer-test module takes a non-optional `variant` configuration element that must be supplied to it by the system .prx file, so that it can include the correct RTOS variant header.
+The `rtos-example.timer-test` module takes a non-optional `variant` configuration element that must be supplied to it by the system `.prx` file, so that it can include the correct RTOS variant header.
 
-For example, when building timer-test for the kochab variant:
+For example, when building `timer-test` for the Kochab variant:
+
     <module name="rtos-example.timer-test">
       <variant>kochab</variant>
     </module>
 
-Furthermore, it depends on an external code module to implement machine_timer_init() and machine_timer_clear() for the platform the test system is to be run on.
+Furthermore, it depends on an external code module to implement `machine_timer_init()` and `machine_timer_clear()` for the platform the test system is to be run on.

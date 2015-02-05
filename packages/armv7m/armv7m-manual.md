@@ -12,10 +12,13 @@ Introduction
 
 The ARMv7M package provides the following modules:
 
-build
-  ~ A build module.
-vectable
-  ~ A module that generates an appropriate vector table, default linker script, and bitband.h header.
+<dl>
+  <dt>`build`</dt>
+  <dd>A build module.</dd>
+
+  <dt>`vectable`</dt>
+  <dd>A module that generates an appropriate vector table, default linker script, and bitband.h header.</dd>
+</dl>
 
 
 `armv7m/build`
@@ -53,15 +56,15 @@ The `armv7m.vectable` module supports a number of (optional) configuration optio
 
 A subset of the individual exceptions (whose handlers occupy the entries 0..15 of the vector table) may be configured through the following configuration options:
 
-* nmi
-* hardfault
-* memmanage
-* busfault
-* usagefault
-* svcall
-* debug_monitor
-* pendsv
-* systick
+* `nmi`
+* `hardfault`
+* `memmanage`
+* `busfault`
+* `usagefault`
+* `svcall`
+* `debug_monitor`
+* `pendsv`
+* `systick`
 
 Each of these configurations has the type *C identifier*, and defaults to `reset`.
 

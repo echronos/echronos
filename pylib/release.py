@@ -28,7 +28,7 @@ import tarfile
 import subprocess
 from glob import glob
 from contextlib import contextmanager
-from .utils import chdir, tempdir, get_host_platform_name, BASE_TIME, top_path, base_to_top_paths, Git
+from .utils import chdir, tempdir, get_host_platform_name, BASE_TIME, top_path, base_to_top_paths, find_path, Git
 from .components import build
 
 
@@ -218,7 +218,7 @@ class _LicenseOpener:
     def tar_info_filter(self, tarinfo):
         assert(tarinfo.name.startswith('share/packages'))
         if tarinfo.isreg():
-            filename = self.top_dir + tarinfo.name.replace('share/packages', '/packages', 1)
+            filename = find_path(tarinfo.name.replace('share/packages', 'packages', 1), self.top_dir)
             lic, _ = self._get_lic(filename)
             tarinfo.size += len(lic)
         return _tar_info_filter(tarinfo)

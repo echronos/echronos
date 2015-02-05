@@ -211,14 +211,12 @@ Finally, there is an option (`stack_size`) for specifying the initial stack size
 This stack is used by `main` up until the RTOS is actually started.
 The default stack size is 4KiB (0x1000).
 
-`ppce500.rtos-kochab` (PRELIMINARY)
------------------------------------
+`ppce500.rtos-kochab`
+----------------------
 
 eChronos comes in a number of different *flavors*, each of varying complexity, code size and feature set.
 
 The RTOS flavor *kochab* supports tasks, priority scheduling, mutexes with priority inheritance, semaphores, signals, and interrupt events which can cause task preemption and trigger the sending of signals.
-
-(NOTE: Featured in this release is a preliminary version of kochab for PowerPC e500 that does not yet include support for interrupt events and task preemption.)
 
 There are a number of configuration options that should be set:
 

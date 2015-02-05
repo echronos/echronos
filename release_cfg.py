@@ -84,10 +84,6 @@ DFARS 227.7202-3).  The terms and conditions of this License shall pertain
 to the Licensee's use and disclosure of the software, and shall supersede
 any conflicting contractual terms or conditions.
 """
-    extra_files = [
-        ('README.md', 'docs/smaccm_readme'),
-        ('rigel-manual.pdf', 'docs/rigel-manual.pdf')
-    ]
 
 
 class SmaccmLinux(SmaccmBase):
@@ -108,9 +104,6 @@ class SmaccmPowerPCe500(SmaccmBase):
     version = 'Aug2014'
     release_name = 'smaccm-ppce500'
     enabled = True
-    extra_files = [
-        ('README.md', 'docs/smaccm_ppc_readme'),
-    ]
     license = """
 Unpublished copyright (c) 2014 National ICT Australia (NICTA),
 ABN 62 102 206 173.  All rights reserved.

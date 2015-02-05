@@ -1,0 +1,20 @@
+Task: VuLoT3-rename-plaintext-md
+==============================================================================
+
+Motivation
+----------
+
+All plain-text documentation files in the repo should be Markdown for consistency.
+Some of them have no file extension.
+
+
+Goals
+--------
+
+Add '.md' file extension to all plain-text documentation files in the repo and ensure they have correct Markdown syntax.
+
+
+Test Plan
+---------
+
+Existing regression tests, and review manually with a text editor that has a Markdown previewer.

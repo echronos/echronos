@@ -25,6 +25,7 @@ import ice
 import signal
 import zipfile
 from .utils import get_host_platform_name, top_path, chdir, base_path
+from .release import _LicenseOpener
 
 
 def prj_build(args):
@@ -98,17 +99,44 @@ def _prj_build_win32(output_dir):
 
     """
     with zipfile.ZipFile(os.path.join(output_dir, 'prj'), mode='w') as zip_file:
+        staging_dir = os.path.join(output_dir, 'staging')
+        if not os.path.isdir(staging_dir):
+            os.mkdir(staging_dir)
         top = os.path.abspath(base_path('prj', 'app'))
         for dir_path, _, file_names in os.walk(top):
             archive_dir_path = os.path.relpath(dir_path, top)
             for file_name in file_names:
                 file_path = os.path.join(dir_path, file_name)
+                tmp_file_path = os.path.join(staging_dir, 'tmp')
+
+                f = open(file_path, 'rb')
+                g = open(tmp_file_path, 'wb')
+
+                ext = os.path.splitext(file_path)[1]
+                try:
+                    agpl_sentinel = _LicenseOpener._agpl_sentinel(ext)
+                except _LicenseOpener.NoAGPLSentinelException:
+                    agpl_sentinel = None
+
+                if agpl_sentinel is not None:
+                    old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
+                    if sentinel_found:
+                        old_license_len = len(old_lic_str + sentinel_found)
+                        f.read(old_license_len)
+
+                g.write(f.read())
+                f.close()
+                g.close()
+
                 if dir_path == top and file_name == 'prj.py':
                     # The python interpreter expects to be informed about the main file in the zip file by naming it
                     # __main__.py
                     archive_file_path = os.path.join(archive_dir_path, '__main__.py')
                 else:
                     archive_file_path = os.path.join(archive_dir_path, file_name)
-                zip_file.write(file_path, archive_file_path)
+                zip_file.write(tmp_file_path, archive_file_path)
+
+                os.remove(tmp_file_path)
+        os.rmdir(staging_dir)
     with open(os.path.join(output_dir, 'prj.bat'), 'w') as f:
         f.write('@ECHO OFF\npython %~dp0\\prj')

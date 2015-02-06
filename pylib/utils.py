@@ -131,7 +131,7 @@ def find_path(path, topdir):
     find_path('bar/baz', '/foo') -> '/foo/bar/baz'
 
     """
-    top_to_base_paths = base_to_top_paths(topdir, path)
+    top_to_base_paths = reversed(base_to_top_paths(topdir, path))
     for p in top_to_base_paths:
         if os.path.exists(p):
             return p

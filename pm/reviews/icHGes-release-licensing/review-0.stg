@@ -14,11 +14,14 @@ When creating a release, the prj-related Python files contain AGPL license heade
 This prevents making releases under different licenses.
 Please update x.py to either strip the AGPL license headers from the prj-related Python files or to replace them with the license configured in release_cfg.py.
 
+[robs: Updated to strip AGPL header, but not yet to replace with the release_cfg license]
+
 Comment 2: Rework
 Would it be possible to create a regression test so that new files must also have the appropriate license header?
 Is there a general rule for which files must have the license header?
 (E.g., all text files not in components, tools, or external_tools?)
 
+[robs: This and all below comments have been carried over and addressed in review-1.stg]
 
 Specific comments
 =================

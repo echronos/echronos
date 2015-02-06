@@ -254,7 +254,7 @@ def main():
         'x-test': x_test,
         'rtos-test': rtos_test,
         'test-release': release_test,
-        'check-licenses': check_licenses,
+        'licenses': check_licenses,
 
         # Tasks management
         'review': new_review,
@@ -296,8 +296,7 @@ def main():
     test_subparsers.add_parser('pystache-test', help='Test pystache')
     test_subparsers.add_parser('test-release', help='Test final release')
 
-    _parser = test_subparsers.add_parser('check-licenses',
-                                         help='Check that all files have the appropriate license header')
+    _parser = test_subparsers.add_parser('licenses', help='Check that all files have the appropriate license header')
     _parser.add_argument('--excludes', nargs='*',
                          help="Exclude directories from license header checks",
                          default=[])

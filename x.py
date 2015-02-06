@@ -102,7 +102,7 @@ import argparse
 import logging
 
 from pylib.tasks import new_review, new_task, tasks, integrate, _gen_tag
-from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8
+from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8, check_licenses
 from pylib.components import Component, build
 from pylib.release import release_test, build_release, build_partials
 from pylib.prj import prj_build
@@ -254,6 +254,7 @@ def main():
         'x-test': x_test,
         'rtos-test': rtos_test,
         'test-release': release_test,
+        'check-licenses': check_licenses,
 
         # Tasks management
         'review': new_review,
@@ -294,6 +295,12 @@ def main():
                              default=False)
     test_subparsers.add_parser('pystache-test', help='Test pystache')
     test_subparsers.add_parser('test-release', help='Test final release')
+
+    _parser = test_subparsers.add_parser('check-licenses',
+                                         help='Check that all files have the appropriate license header')
+    _parser.add_argument('--excludes', nargs='*',
+                         help="Exclude directories from license header checks",
+                         default=[])
 
     build_parser = subparsers.add_parser("build", help="Build release stuff...")
     build_subparsers = build_parser.add_subparsers(title="Build options", dest="build_command")

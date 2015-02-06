@@ -16,6 +16,8 @@ Would it be possible to create a regression test so that new files must also hav
 Is there a general rule for which files must have the license header?
 (E.g., all text files not in components, tools, or external_tools?)
 
+[robs: Added x.py test check-licenses]
+
 
 Specific comments
 =================

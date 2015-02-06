@@ -33,9 +33,13 @@ eChronos does not provide system calls in the usual meaning of the word.
 However, the documentation consistently refers to the C interface of eChronos as its *API*.
 How about using the same nomenclature here?
 
+[robs: Reworded 'system calls' to 'API calls']
+
 Location: FAQ.txt:8
 Comment 4: Rework
 To avoid confusion between GPL and AGPL, would it make sense to replace LICENSE_AGPLv3.txt with *license*?
+
+[robs: Reworded 'GPL' to 'license']
 
 Location: LICENSE.txt
 Comment 5: Rework

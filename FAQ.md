@@ -1,4 +1,4 @@
-Does the AGPL license also apply to programs that use the eChronos kernel?
+*Does the AGPL license also apply to programs that use the eChronos kernel?*
 
 Yes.
 The license also covers user programs that use eChronos services through API calls.

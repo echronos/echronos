@@ -9,5 +9,4 @@ This subdirectory contains code copyright by Chris Jerdonek and Chris Wanstrath 
 - files in the prj/ply subdirectory.
 This subdirectory contains code copyright by David M. Beazley (Dabeaz LLC) and released under a BSD license as documented in prj/ply/README.txt.
 
-- versions of the file: docs/manual_template/documentation_logo.svg containing the logo of Breakaway Consulting Pty. Ltd.
-This logo is Copyright Breakaway Consulting and may not be used without further permission.
+- Any instances of the Breakaway Consulting Pty. Ltd. logo are copyright Breakaway Consulting Pty. Ltd. and may not be used without further permission.

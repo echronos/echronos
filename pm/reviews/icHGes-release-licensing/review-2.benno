@@ -16,6 +16,8 @@ The wording could be something like:
 
     Any instances of the Breakaway Consulting Pty. Ltd. logo are copyright Breakaway Consulting Pty. Ltd. and may not be used without further permission.
 
+[robs: Reworded terms for Breakaway logo in LICENSE.md accordingly]
+
 The creation of temporary files should be avoided as a pattern.
 Instead simply write to a memory buffer, and then use the zip file `writestr` method instead of `write`.
 

@@ -11,6 +11,9 @@ Overall comments:
 
 An appropriate license should be determined for the documentation rather than AGPL.
 
+[ikuz: We have decided to use AGPL for documentation as well. 
+I've added this to documentation files, and include a NICTA_DOC_AGPL tag so that they can be identified as documentation headers.]
+
 The licensing terms for the Breakaway Logo should be reworded to avoid referring to a specific file.
 The wording could be something like:
 

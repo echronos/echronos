@@ -3,7 +3,7 @@ import shutil
 import subprocess
 import sys
 
-from .utils import BASE_DIR, base_path, get_host_platform_name, get_executable_extension
+from .utils import BASE_DIR, base_path, get_host_platform_name, get_executable_extension, find_path
 from .components import build
 
 
@@ -57,7 +57,7 @@ def get_doc_vars(markdown_file):
     return doc_vars
 
 
-def build_manual(pkg_dir, verbose=False):
+def build_manual(pkg_dir, top_dir, verbose=False):
     markdown_file = os.path.join(pkg_dir, 'documentation.markdown')
     pdf_file = os.path.join(pkg_dir, 'documentation.pdf')
     html_file = os.path.join(pkg_dir, 'documentation.html')
@@ -67,15 +67,16 @@ def build_manual(pkg_dir, verbose=False):
         print('Not generating manual for {} because documentation is incomplete'.format(pkg_dir))
         return
 
+    css_abs_path = find_path(os.path.join('docs', 'manual_template', 'documentation_stylesheet.css'), top_dir)
+    css_url = os.path.relpath(css_abs_path, pkg_dir).replace(os.path.sep, '/')
+
     pandoc_executable = get_executable_from_repo_or_system('pandoc')
     pandoc_cmd = [pandoc_executable,
                   '--write', 'html',
                   '--standalone',
                   '--template=' + os.path.abspath(base_path('docs', 'manual_template',
                                                             'documentation_template.html')),
-                  '--css=' + os.path.relpath(base_path('docs', 'manual_template',
-                                                       'documentation_stylesheet.css'),
-                                             pkg_dir).replace(os.path.sep, '/'),
+                  '--css=' + css_url,
                   '--toc', '--toc-depth=2'] +\
                  ['-V{}={}'.format(key, value) for key, value in doc_vars.items()] +\
                  ['--output=' + html_file,
@@ -93,9 +94,11 @@ def build_manual(pkg_dir, verbose=False):
                '--margin-left', '20',
                '--margin-right', '20',
                '--header-spacing', '5',
-               '--header-html', base_path('docs', 'manual_template', 'documentation_header.html'),
+               '--header-html', find_path(os.path.join('docs', 'manual_template', 'documentation_header.html'),
+                                          top_dir),
                '--footer-spacing', '5',
-               '--footer-html', base_path('docs', 'manual_template', 'documentation_footer.html'),
+               '--footer-html', find_path(os.path.join('docs', 'manual_template', 'documentation_footer.html'),
+                                          top_dir),
                '--replace', 'docid', 'Document ID: {}'.format(doc_vars['docid']),
                html_file,
                pdf_file]
@@ -113,4 +116,4 @@ your command as xvfb-run -a -s "-screen 0 640x480x16" ./x.py [...]')
 def build_manuals(args):
     build(args)
     for pkg_dir in get_package_dirs(set(('documentation.markdown',))):
-        build_manual(pkg_dir, args.verbose)
+        build_manual(pkg_dir, args.topdir, args.verbose)

@@ -84,6 +84,39 @@ def base_to_top_paths(topdir, *path):
     return result
 
 
+def find_path(path, topdir):
+    """Find a file in a top to bottom search through the repository hierarchy.
+
+    For all repositories/directories from `topdir` down to the core repository in BASE_DIR, check whether the relative
+    `path` exists and, if yes, return its absolute path.
+    `path` can be any file system object, including links and directories.
+    If `path` exists in multiple repositories in the repository hierarchy, the top-most one is returned.
+    If `path` does not exist anywhere in the repository hierarchy, this function raises an IOError exception.
+
+    Assume the following directory layout:
+    /foo/
+    /foo/x
+    /foo/core/
+    /foo/core/x
+    /foo/core/y
+    /foo/bar/baz
+
+    BASE_DIR is /foo/core
+
+    find_path('x', '/foo') -> '/foo/x'
+    find_path('y', '/foo') -> '/foo/core/y'
+    find_path('z', '/foo') -> IOError
+    find_path('baz', '/foo') -> IOError
+    find_path('bar/baz', '/foo') -> '/foo/bar/baz'
+
+    """
+    top_to_base_paths = reversed(base_to_top_paths(topdir, path))
+    for p in top_to_base_paths:
+        if os.path.exists(p):
+            return p
+    raise IOError("Unable to find the relative path '{}' in the repository hierarchy".format(path))
+
+
 def un_base_path(path):
     """Reverse the operation performed by `base_path`.
 

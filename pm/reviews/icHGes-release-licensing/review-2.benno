@@ -5,16 +5,16 @@ Task name: icHGes-release-licensing
 Version reviewed: 7acda01f7b0f0c067e1475fbac9489185be7ed32
 Reviewer: benno
 Date: 2015-02-06
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
+An appropriate license should be determined for the documentation rather than AGPL.
 
-Specific comments
-=================
+The licensing terms for the Breakaway Logo should be reworded to avoid referring to a specific file.
+The wording could be something like:
 
-Location: filename:linenum
-Comment:
+    Any instances of the Breakaway Consulting Pty. Ltd. logo are copyright Breakaway Consulting Pty. Ltd. and may not be used without further permission.
 
-Location: filename:linenum
-Comment:
+The creation of temporary files should be avoided as a pattern.
+Instead simply write to a memory buffer, and then use the zip file `writestr` method instead of `write`.

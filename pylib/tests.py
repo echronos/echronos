@@ -204,7 +204,7 @@ def check_pep8(args):
 
 
 def check_licenses(args):
-    excludes = ['.git', 'components', 'external_tools', 'tools'] + args.excludes
+    excludes = ['.git', 'components', 'external_tools', 'tools', 'out'] + args.excludes
     files_without_license = []
 
     for top_subdir in [f for f in os.listdir() if os.path.isdir(f) and f not in excludes]:

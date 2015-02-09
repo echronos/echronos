@@ -18,3 +18,5 @@ The wording could be something like:
 
 The creation of temporary files should be avoided as a pattern.
 Instead simply write to a memory buffer, and then use the zip file `writestr` method instead of `write`.
+
+[robs: Fixed prj-build as suggested]

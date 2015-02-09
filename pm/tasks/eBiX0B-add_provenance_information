@@ -1,0 +1,21 @@
+Task: eBiX0B-add_provenance_information
+==============================================================================
+
+Motivation
+----------
+
+The eChronos repository contains a number of external, third-party files.
+The origin, copyright, and licensing is currently not consistently documented.
+However, this information may be necessary to satisfy legal and compliance requirements, in particular when releasing and distributing eChronos.
+
+Goals
+--------
+
+- document the origin, copyright, and license of all third-party code and tools in the eChronos repository
+- use an approach that is reasonably easy to maintain and test for regressions
+
+Test Plan
+---------
+
+- manual review of added provenance information
+- run regression tests and check that they succeed

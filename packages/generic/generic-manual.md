@@ -7,10 +7,13 @@ Introduction
 
 The generic package provides the following modules:
 
-debug
-  ~ A module providing basic debug functionality.
-hello
-  ~ A module that does the standard *Hello, world*.
+<dl>
+  <dt>`debug`</dt>
+  <dd>A module providing basic debug functionality.</dd>
+
+  <dt>`hello`</dt>
+  <dd>A module that does the standard *Hello, world*.</dd>
+</dl>
 
 
 `generic/debug`

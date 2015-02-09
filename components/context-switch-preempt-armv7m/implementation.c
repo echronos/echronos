@@ -28,19 +28,63 @@
 #define CONTEXT_R10_IDX 7
 #define CONTEXT_R11_IDX 8
 #define CONTEXT_EXCEPTION_RETURN_IDX 9
+#define CONTEXT_S16_IDX 10
+#define CONTEXT_S17_IDX 11
+#define CONTEXT_S18_IDX 12
+#define CONTEXT_S19_IDX 13
+#define CONTEXT_S20_IDX 14
+#define CONTEXT_S21_IDX 15
+#define CONTEXT_S22_IDX 16
+#define CONTEXT_S23_IDX 17
+#define CONTEXT_S24_IDX 18
+#define CONTEXT_S25_IDX 19
+#define CONTEXT_S26_IDX 20
+#define CONTEXT_S27_IDX 21
+#define CONTEXT_S28_IDX 22
+#define CONTEXT_S29_IDX 23
+#define CONTEXT_S30_IDX 24
+#define CONTEXT_S31_IDX 25
 
-/* The higher-address half of the context stack frame is the exception frame automatically pushed by the CPU. */
+/* The higher-address half of the context stack frame is the exception frame automatically pushed by the CPU.
+ * We generally assume this is pushed and popped correctly by the CPU on exception entry and return, and only really
+ * manipulate parts of this region for the setting up of initial task states. */
 
-#define CONTEXT_R0_IDX 10
-#define CONTEXT_R1_IDX 11
-#define CONTEXT_R2_IDX 12
-#define CONTEXT_R3_IDX 13
-#define CONTEXT_IP_IDX 14
-#define CONTEXT_LR_IDX 15
-#define CONTEXT_PC_IDX 16
-#define CONTEXT_PSR_IDX 17
+#define CONTEXT_R0_IDX 26
+#define CONTEXT_R1_IDX 27
+#define CONTEXT_R2_IDX 28
+#define CONTEXT_R3_IDX 29
+#define CONTEXT_IP_IDX 30
+#define CONTEXT_LR_IDX 31
+#define CONTEXT_PC_IDX 32
+#define CONTEXT_PSR_IDX 33
 
-#define CONTEXT_SIZE 18
+#define CONTEXT_NONFP_SIZE 34
+
+/* The very highest portion of the exception frame is only pushed/popped by the CPU if floating-point is enabled.
+ * Since we set the initial task state to have floating-point disabled, we exclude these entries when creating the
+ * initial context stack frames for each task, and generally don't interfere with this region subsequently.
+ * All we must do is ensure that the EXC_RETURN is set correctly for the destination task on exception return. */
+
+#define CONTEXT_S0_IDX 34
+#define CONTEXT_S1_IDX 35
+#define CONTEXT_S2_IDX 36
+#define CONTEXT_S3_IDX 37
+#define CONTEXT_S4_IDX 38
+#define CONTEXT_S5_IDX 39
+#define CONTEXT_S6_IDX 40
+#define CONTEXT_S7_IDX 41
+#define CONTEXT_S8_IDX 42
+#define CONTEXT_S9_IDX 43
+#define CONTEXT_S10_IDX 44
+#define CONTEXT_S11_IDX 45
+#define CONTEXT_S12_IDX 46
+#define CONTEXT_S13_IDX 47
+#define CONTEXT_S14_IDX 48
+#define CONTEXT_S15_IDX 49
+#define CONTEXT_FPSCR_IDX 50
+#define CONTEXT_ALIGNER_IDX 51
+
+#define CONTEXT_FP_SIZE 52
 
 /* Definitions for ARM-specific initialization.
  *
@@ -142,7 +186,8 @@ preempt_init(void)
 static void
 context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack_base, const size_t stack_size)
 {
-    uint32_t *const context = stack_base + stack_size - CONTEXT_SIZE;
+    /* We use the NONFP size because EXC_RETURN of all tasks is set initially to a non-floating-point state. */
+    uint32_t *const context = stack_base + stack_size - CONTEXT_NONFP_SIZE;
 
     /* Start all tasks with preemption disabled by setting this field to a non-zero value. */
     context[CONTEXT_PREEMPT_DISABLED] = true;

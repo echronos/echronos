@@ -7,10 +7,13 @@ Introduction
 
 The POSIX package provides the following modules:
 
-build
-  ~ A build module.
-debug
-  ~ A module that provides the *low-level debug* interface.
+<dl>
+  <dt>`build`</dt>
+  <dd>A build module.</dd>
+
+  <dt>`debug`</dt>
+  <dd>A module that provides the *low-level debug* interface.</dd>
+</dl>
 
 Additionally an example system `hello` is provided, which is a standard *Hello, world* program.
 

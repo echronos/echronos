@@ -1,0 +1,24 @@
+Breakaway Task Review
+=======================
+
+Task name: VuLoT3-rename-plaintext-md
+Version reviewed: e2fedf50c3a78e614216e4fe7ad382e7011bc083
+Reviewer: stg
+Date: 2015-02-04
+Conclusion: Rework
+
+Overall comments:
+
+Comment 1: Rework
+Do the following files also need to be renamed?
+docs/armv7m_rigel_readme
+docs/ppce500_kochab_readme
+internal-docs/conventions
+internal-docs/design
+internal-docs/review_how-to
+prj/reqs
+prj/VERSION
+components/sample/sample-design.txt
+components/sample/sample-req.txt
+
+[robs: Done]

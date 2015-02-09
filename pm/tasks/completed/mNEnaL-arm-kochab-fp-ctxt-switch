@@ -1,0 +1,19 @@
+Task: mNEnaL-arm-kochab-fp-ctxt-switch
+==============================================================================
+
+Motivation
+----------
+
+Context switch of floating-point registers is not implemented for ARMv7-M, and is needed by users of Kochab on that platform.
+
+
+Goals
+--------
+
+Implement context switch of ARMv7-M floating-point registers on the Kochab variant.
+
+
+Test Plan
+---------
+
+Add a simple test system for machine-stm32f4-discovery that checks that the values of the floating point registers for tasks using the FPU are correctly preserved for those tasks across context switches.

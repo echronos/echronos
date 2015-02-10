@@ -1,0 +1,21 @@
+Task: mPqfai-remove_manual_logo
+==============================================================================
+
+Motivation
+----------
+
+RTOS manuals are generated including the Breakaway Consulting logo.
+The logo is currently in the repository from where it would become part of the open-source release.
+It is currently considered undesirable that manuals generated from the open-source release also include that logo.
+
+Goals
+--------
+
+- remove the logo from the repository
+  (the fact that the logo remains in the repository's history is acceptable)
+
+Test Plan
+---------
+
+- check that the logo file is no longer in the repository
+- check that the manuals can still be generated correctly, but without the logo

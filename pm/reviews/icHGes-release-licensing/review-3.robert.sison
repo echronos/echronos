@@ -4,17 +4,19 @@ Breakaway Task Review
 Task name: icHGes-release-licensing
 Version reviewed: 04c3f49d056ce8209fde0fc24b3682555f818ec3
 Reviewer: robert.sison
-Date: 2015-02-10
-Conclusion: Accepted/Rework
+Date: 2015-02-11
+Conclusion: Rework
 
 Overall comments:
-
+Please in general be careful of trailing whitespace.
 
 Specific comments
 =================
 
-Location: filename:linenum
+Location: external_tools/LICENSE.md:4,7,10
 Comment:
+Please delete the trailing whitespace in these lines.
 
-Location: filename:linenum
+Location: tools/LICENSE.md:4,7,10,13,16,19,22
 Comment:
+Please delete the trailing whitespace.

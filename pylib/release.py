@@ -247,7 +247,7 @@ class _LicenseOpener:
         elif ext in ['.py', '.gdb']:
             lic = self._format_lic(self.license, '#', '# ', '#', '#')
         elif ext in ['.prx', '.xml']:
-            lic = self._format_lic(self.license, '<!--', '     ', '', '  -->')
+            lic = self._format_lic(self.license, '<!--', '', '', '  -->')
             is_xml = True
         elif ext in ['.asm']:
             lic = self._format_lic(self.license, ';', '; ', ';', ';')

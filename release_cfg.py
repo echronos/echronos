@@ -45,9 +45,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-@TAG(NICTA_AGPL)"""
+along with this program.  If not, see <http://www.gnu.org/licenses/>."""
     top_level_license = """
 Files described as being under the "Affero GNU General Public License version 3"
 or simply the "AGPLv3" fall under the following license.

@@ -107,6 +107,12 @@ class _ReleasePackage:
     def get_license(self):
         return self._rls_cfg.license
 
+    def get_doc_license(self):
+        if hasattr(self._rls_cfg, 'doc_license'):
+            return self._rls_cfg.doc_license
+        else:
+            return self._rls_cfg.license
+
 
 @contextmanager
 def _tarfile_open(name, mode, **kwargs):
@@ -175,12 +181,14 @@ class _LicenseOpener:
 
     """
     AGPL_TAG = '@TAG(NICTA_AGPL)'
+    AGPL_DOC_TAG = '@TAG(NICTA_DOC_AGPL)'
 
     class NoAGPLSentinelException(Exception):
         """Raised when there is no AGPL license sentinel defined for the given file type."""
 
-    def __init__(self, license, top_dir):
+    def __init__(self, license, doc_license, top_dir):
         self.license = license
+        self.doc_license = doc_license
         self.top_dir = top_dir
         self.XML_PROLOGUE = '<?xml version="1.0" encoding="UTF-8" ?>'
 
@@ -216,12 +224,15 @@ class _LicenseOpener:
             return _LicenseOpener.AGPL_TAG + '\n  -->\n'
         elif ext in ['.asm']:
             return _LicenseOpener.AGPL_TAG + '\n;\n'
+        elif ext in ['.md', '.markdown', '.html']:
+            return _LicenseOpener.AGPL_DOC_TAG + '\n  -->\n'
         else:
             raise _LicenseOpener.NoAGPLSentinelException('Unexpected ext: {}'.format(ext))
 
-    def _format_lic(self, lic, start, perline, emptyline, end):
+    @staticmethod
+    def _format_lic(lic, start, perline, emptyline, end):
         return start + os.linesep + \
-            os.linesep.join([perline + line if line else emptyline for line in self.license.splitlines()]) + \
+            os.linesep.join([perline + line if line else emptyline for line in lic.splitlines()]) + \
             os.linesep + end + os.linesep
 
     def _get_lic(self, filename):
@@ -240,7 +251,11 @@ class _LicenseOpener:
             is_xml = True
         elif ext in ['.asm']:
             lic = self._format_lic(self.license, ';', '; ', ';', ';')
-        elif ext not in ['.md', '.pdf', '.html', '.markdown', '.svg', '.png', '.txt']:
+        elif ext in ['.md', '.markdown']:
+            lic = self._format_lic(self.doc_license, '<!---', '', '', '  -->')
+        elif ext in ['.html']:
+            lic = self._format_lic(self.doc_license, '<!--', '', '', '  -->')
+        elif ext not in ['.pdf', '.svg', '.png', '.txt']:
             raise Exception('Unexpected ext: {}, for file {}'.format(ext, filename))
 
         if lic is None:
@@ -313,7 +328,7 @@ def _tar_add_data(tf, arcname, data, ti_filter=None):
     tf.addfile(ti, io.BytesIO(data))
 
 
-def _tar_gz_with_license(output, tree, prefix, license):
+def _tar_gz_with_license(output, tree, prefix, license, doc_license):
 
     """Create a tar.gz file named `output` from a specified directory tree.
 
@@ -322,7 +337,7 @@ def _tar_gz_with_license(output, tree, prefix, license):
     When creating the tar.gz a standard set of meta-data will be used to help ensure things are consistent.
 
     """
-    lo = _LicenseOpener(license, os.getcwd())
+    lo = _LicenseOpener(license, doc_license, os.getcwd())
     try:
         with tarfile.open(output, 'w:gz', format=tarfile.GNU_FORMAT) as tf:
             tarfile.bltn_open = lo.open
@@ -336,7 +351,7 @@ def _tar_gz_with_license(output, tree, prefix, license):
 def _mk_partial(pkg, topdir):
     fn = top_path(topdir, 'release', 'partials', '{}.tar.gz'.format(pkg.get_archive_name()))
     src_prefix = 'share/packages/{}'.format(pkg.get_name())
-    _tar_gz_with_license(fn, pkg.get_path(), src_prefix, pkg.get_license())
+    _tar_gz_with_license(fn, pkg.get_path(), src_prefix, pkg.get_license(), pkg.get_doc_license())
 
 
 def build_partials(args):

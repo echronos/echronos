@@ -217,6 +217,10 @@ def check_licenses(args):
             if os.path.basename(dirpath) == 'prj' and 'app' in subdirs:
                 subdirs.remove('app')
 
+            # Ignore docs/manual_template
+            if os.path.basename(dirpath) == 'docs' and 'manual_template' in subdirs:
+                subdirs.remove('manual_template')
+
             # Ignore packages/*/rtos-*
             if dirpath.startswith('packages') and len(dirpath.split('/')) == 2:
                 for d in [d for d in subdirs if d.startswith('rtos-')]:

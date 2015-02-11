@@ -1,6 +1,6 @@
-Windows:
+Built using xyz.py: https://github.com/BreakawayConsulting/xyz
 
-Mac OS X:
+Running: `./x.py arm-toolchain`
 
-Linux:
-
+Using source from: https://github.com/BreakawayConsulting/gcc
+commit: e983d033ab85c082a88e1964de385caea4ba683d

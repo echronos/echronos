@@ -110,7 +110,7 @@ def _prj_build_win32(output_dir):
                 ext = os.path.splitext(file_path)[1]
                 try:
                     agpl_sentinel = _LicenseOpener._agpl_sentinel(ext)
-                except _LicenseOpener.NoAGPLSentinelException:
+                except _LicenseOpener.UnknownFiletypeException:
                     agpl_sentinel = None
 
                 if agpl_sentinel is not None:

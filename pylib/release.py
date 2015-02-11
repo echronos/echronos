@@ -182,9 +182,11 @@ class _LicenseOpener:
     """
     AGPL_TAG = '@TAG(NICTA_AGPL)'
     AGPL_DOC_TAG = '@TAG(NICTA_DOC_AGPL)'
+    BUILD_ARTIFACT_FILETYPES = ['.pyc']
+    LICENSE_EXEMPTED_FILETYPES = ['.pdf', '.svg', '.png', '.txt']
 
-    class NoAGPLSentinelException(Exception):
-        """Raised when there is no AGPL license sentinel defined for the given file type."""
+    class UnknownFiletypeException(Exception):
+        """Raised when the given file type is unknown."""
 
     def __init__(self, license, doc_license, top_dir):
         self.license = license
@@ -220,14 +222,16 @@ class _LicenseOpener:
             return _LicenseOpener.AGPL_TAG + '\n */\n'
         elif ext in ['.py', '.gdb']:
             return _LicenseOpener.AGPL_TAG + '\n#\n'
-        elif ext in ['.prx', '.xml']:
+        elif ext in ['.prx', '.xml', '.prj']:
             return _LicenseOpener.AGPL_TAG + '\n  -->\n'
         elif ext in ['.asm']:
             return _LicenseOpener.AGPL_TAG + '\n;\n'
         elif ext in ['.md', '.markdown', '.html']:
             return _LicenseOpener.AGPL_DOC_TAG + '\n  -->\n'
+        elif ext in _LicenseOpener.LICENSE_EXEMPTED_FILETYPES or ext in _LicenseOpener.BUILD_ARTIFACT_FILETYPES:
+            return None
         else:
-            raise _LicenseOpener.NoAGPLSentinelException('Unexpected ext: {}'.format(ext))
+            raise _LicenseOpener.UnknownFiletypeException('Unexpected ext: {}'.format(ext))
 
     @staticmethod
     def _format_lic(lic, start, perline, emptyline, end):
@@ -246,7 +250,7 @@ class _LicenseOpener:
             lic = self._format_lic(self.license, '/*', ' * ', ' *', ' */')
         elif ext in ['.py', '.gdb']:
             lic = self._format_lic(self.license, '#', '# ', '#', '#')
-        elif ext in ['.prx', '.xml']:
+        elif ext in ['.prx', '.xml', '.prj']:
             lic = self._format_lic(self.license, '<!--', '', '', '  -->')
             is_xml = True
         elif ext in ['.asm']:
@@ -255,7 +259,7 @@ class _LicenseOpener:
             lic = self._format_lic(self.doc_license, '<!---', '', '', '  -->')
         elif ext in ['.html']:
             lic = self._format_lic(self.doc_license, '<!--', '', '', '  -->')
-        elif ext not in ['.pdf', '.svg', '.png', '.txt']:
+        elif ext not in self.LICENSE_EXEMPTED_FILETYPES:
             raise Exception('Unexpected ext: {}, for file {}'.format(ext, filename))
 
         if lic is None:
@@ -268,9 +272,11 @@ class _LicenseOpener:
                 lic = self.XML_PROLOGUE + os.linesep + lic
 
             # If the AGPL license is present in the original source file, count its length for deletion
-            old_lic_str, agpl_sentinel, _ = f.peek().decode('utf8').partition(self._agpl_sentinel(ext))
-            if agpl_sentinel:
-                old_license_len = len(old_lic_str + agpl_sentinel)
+            agpl_sentinel = self._agpl_sentinel(ext)
+            assert agpl_sentinel is not None
+            old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
+            if sentinel_found:
+                old_license_len = len(old_lic_str + sentinel_found)
             f.close()
 
         lic = lic.encode('utf8')

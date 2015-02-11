@@ -204,8 +204,9 @@ def check_pep8(args):
 
 
 def check_licenses(args):
-    excludes = ['.git', 'components', 'external_tools', 'tools', 'out'] + args.excludes
+    excludes = ['.git', 'components', 'external_tools', 'tools', 'pm', 'out', 'release'] + args.excludes
     files_without_license = []
+    files_unknown_type = []
 
     for top_subdir in [f for f in os.listdir() if os.path.isdir(f) and f not in excludes]:
         # Ignore prj_build*
@@ -227,12 +228,12 @@ def check_licenses(args):
                     subdirs.remove(d)
 
             for file_path in [os.path.join(dirpath, f) for f in files]:
-
                 ext = os.path.splitext(file_path)[1]
                 try:
                     agpl_sentinel = _LicenseOpener._agpl_sentinel(ext)
-                except _LicenseOpener.NoAGPLSentinelException:
-                    agpl_sentinel = None
+                except _LicenseOpener.UnknownFiletypeException:
+                    files_unknown_type.append(file_path)
+                    continue
 
                 if agpl_sentinel is not None:
                     f = open(file_path, 'rb')
@@ -246,4 +247,12 @@ def check_licenses(args):
         logging.error('License check found files without a license header:')
         for file_path in files_without_license:
             logging.error('    {}'.format(file_path))
+
+    if len(files_unknown_type):
+        logging.error('License check found files of unknown type:')
+        for file_path in files_unknown_type:
+            logging.error('    {}'.format(file_path))
+        return 1
+
+    if len(files_without_license):
         return 1

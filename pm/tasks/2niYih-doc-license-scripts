@@ -1,0 +1,30 @@
+Task: 2niYih-doc-license-scripts
+==============================================================================
+
+Motivation
+----------
+
+Documentation files committed to the repository have AGPL license headers tagged 'NICTA_DOC_AGPL'.
+However, the x.py release scripts currently ignore documentation file types.
+At the very least, x.py needs to strip these for customer releases, and preferably we can also replace them with a per-release license header.
+
+Furthermore, './x.py test licenses' needs to check the AGPL header is present in documentation files.
+It should also catch and fail on unknown filetypes, which it isn't currently doing.
+
+
+Goals
+--------
+
+Ensure x.py strips AGPL license headers from documentation when building releases.
+
+Make sure license check (./x.py test licenses) also checks documentation files.
+
+While we're here, we can fix any other minor outstanding issues with the release scripts and the license check.
+
+
+Test Plan
+---------
+
+Run './x.py test licenses' with files modified so the AGPL headers are missing, and make sure they're caught.
+
+Build releases with custom release license strings and manually check that everything has the licenses expected, and that documentation files (.html, .markdown) render correctly with the generated license headers inserted.

@@ -687,7 +687,7 @@ class StandardLinux(Standard):
     release_name = 'std_linux'
     enabled = True
     extra_files = [
-        ('README.md', 'docs/armv7m_rigel_readme'),
+        ('README.md', 'docs/armv7m_rigel_readme.md'),
     ]
 
 
@@ -697,5 +697,5 @@ class PowerPCe500Linux(Standard):
     release_name = 'ppce500_linux'
     enabled = True
     extra_files = [
-        ('README.md', 'docs/ppce500_kochab_readme'),
+        ('README.md', 'docs/ppce500_kochab_readme.md'),
     ]

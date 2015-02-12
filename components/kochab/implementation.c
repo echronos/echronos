@@ -103,6 +103,9 @@ unblock(const {{prefix_type}}TaskId task)
 void
 {{prefix_func}}start(void)
 {
+    /* stack_init() must be called at the top of the start function so that it can declare variables */
+    stack_init();
+
     sem_init();
     preempt_init();
 

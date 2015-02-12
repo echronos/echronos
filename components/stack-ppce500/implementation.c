@@ -21,6 +21,7 @@ static uint32_t stack_{{idx}}[{{stack_size}}] __attribute__((aligned(8)));
 {{/tasks}}
 
 /*| function_like_macros |*/
+#define stack_init()
 
 /*| functions |*/
 

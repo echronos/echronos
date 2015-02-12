@@ -49,6 +49,9 @@ void
 void
 {{prefix_func}}start(void)
 {
+    /* stack_init() must be called at the top of the start function so that it can declare variables */
+    stack_init();
+
     {{#tasks}}
     context_init(get_task_context({{idx}}), {{function}}, stack_{{idx}}, {{stack_size}});
     {{/tasks}}

@@ -127,7 +127,8 @@ CORE_CONFIGURATIONS = {"posix": ["sched-rr-test", "sched-prio-inherit-test", "si
                                  "blocking-mutex-test", "simple-semaphore-test", "sched-prio-test",
                                  "acamar", "gatria", "kraz"],
                        "armv7m": ["acamar", "gatria", "kraz", "acrux", "rigel", "kochab"],
-                       "ppce500": ["acamar", "gatria", "kraz", "acrux", "kochab"]}
+                       "ppce500": ["acamar", "gatria", "kraz", "acrux", "kochab"],
+                       "x86": ["acamar", "gatria", "kraz"]}
 
 CORE_SKELETONS = {
     'sched-rr-test': [Component('reentrant'),

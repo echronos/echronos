@@ -17,6 +17,7 @@ static uint8_t stack_{{idx}}[{{stack_size}}];
 {{/tasks}}
 
 /*| function_like_macros |*/
+#define stack_init()
 
 /*| functions |*/
 

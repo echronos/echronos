@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+    <modules>
+        <module name="machine-usp-x86.build" />
+        <module name="x86.ctxt-switch"/>
+        <module name="posix.debug"/>
+        <module name="generic.debug" />
+        <module name="x86.rtos-gatria">
+            <prefix>rtos</prefix>
+            <taskid_size>8</taskid_size>
+            <stack_static>false</stack_static>
+            <tasks>
+                <task>
+                    <name>a</name>
+                    <function>fn_a</function>
+                    <stack_size>8192</stack_size>
+                </task>
+                <task>
+                    <name>b</name>
+                    <function>fn_b</function>
+                    <stack_size>8192</stack_size>
+                </task>
+            </tasks>
+            <mutexes>
+                <mutex>
+                    <name>a</name>
+                </mutex>
+            </mutexes>
+        </module>
+        <module name="rtos-example.gatria-test" />
+    </modules>
+</system>

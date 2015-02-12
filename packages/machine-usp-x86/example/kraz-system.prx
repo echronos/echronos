@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<system>
+    <modules>
+        <module name="machine-usp-x86.build" />
+        <module name="x86.ctxt-switch"/>
+        <module name="posix.debug"/>
+        <module name="generic.debug" />
+        <module name="x86.rtos-kraz">
+            <prefix>rtos</prefix>
+            <taskid_size>8</taskid_size>
+            <stack_static>false</stack_static>
+            <signalset_size>8</signalset_size>
+            <signal_labels>
+                <signal_label>
+                    <name>test</name>
+                </signal_label>
+            </signal_labels>
+            <tasks>
+                <task>
+                    <name>a</name>
+                    <function>fn_a</function>
+                    <stack_size>8192</stack_size>
+                </task>
+                <task>
+                    <name>b</name>
+                    <function>fn_b</function>
+                    <stack_size>8192</stack_size>
+                </task>
+            </tasks>
+            <mutexes>
+                <mutex>
+                    <name>test</name>
+                </mutex>
+            </mutexes>
+        </module>
+        <module name="rtos-example.kraz-test" />
+    </modules>
+</system>

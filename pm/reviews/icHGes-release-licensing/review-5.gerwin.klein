@@ -21,3 +21,5 @@ Could the python files in the components directory have license headers?
 If I remember correctly, they are just called during the build, not
 assembled into larger parts. The release script might need to know how
 to strip these headers, though.
+
+[ikuz: done]

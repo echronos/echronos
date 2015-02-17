@@ -1,4 +1,25 @@
 #!/usr/bin/env python3.3
+#
+# eChronos Real-Time Operating System
+# Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3, provided that no right, title
+# or interest in or to any trade mark, service mark, logo or trade name
+# of NICTA or its licensors is granted.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# @TAG(NICTA_AGPL)
+#
+
 """
 Overview
 ---------
@@ -81,7 +102,7 @@ import argparse
 import logging
 
 from pylib.tasks import new_review, new_task, tasks, integrate, _gen_tag
-from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8
+from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8, check_licenses
 from pylib.components import Component, build
 from pylib.release import release_test, build_release, build_partials
 from pylib.prj import prj_build
@@ -233,6 +254,7 @@ def main():
         'x-test': x_test,
         'rtos-test': rtos_test,
         'test-release': release_test,
+        'licenses': check_licenses,
 
         # Tasks management
         'review': new_review,
@@ -273,6 +295,11 @@ def main():
                              default=False)
     test_subparsers.add_parser('pystache-test', help='Test pystache')
     test_subparsers.add_parser('test-release', help='Test final release')
+
+    _parser = test_subparsers.add_parser('licenses', help='Check that all files have the appropriate license header')
+    _parser.add_argument('--excludes', nargs='*',
+                         help="Exclude directories from license header checks",
+                         default=[])
 
     build_parser = subparsers.add_parser("build", help="Build release stuff...")
     build_subparsers = build_parser.add_subparsers(title="Build options", dest="build_command")

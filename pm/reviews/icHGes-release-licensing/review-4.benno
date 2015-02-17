@@ -1,0 +1,40 @@
+Breakaway Task Review
+=======================
+
+Task name: icHGes-release-licensing
+Version reviewed: af99c93680701bd2ddb4b2c126f34d77c3b268fd
+Reviewer: benno
+Date: 2015-02-11
+Conclusion: Rework
+
+Overall comments: Just minor rework for Python style.
+
+
+Specific comments
+=================
+
+pylib/prj.py:104 Use the 'with' pattern.
+
+    E.g:
+
+    with open(file_path, 'rb') as f:
+           ext = os.path.splitext(file_path)[1]
+           try:
+               agpl_sentinel = _LicenseOpener._agpl_sentinel(ext)
+           except _LicenseOpener.NoAGPLSentinelException:
+               agpl_sentinel = None
+
+           if agpl_sentinel is not None:
+               old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
+               if sentinel_found:
+                   old_license_len = len(old_lic_str + sentinel_found)
+                   f.read(old_license_len)
+
+           file_content = f.read()
+
+[ikuz: done]
+
+
+The same technique should be applied in pylib/release.py
+
+[ikuz: done]

@@ -1,0 +1,27 @@
+Breakaway Task Review
+=======================
+
+Task name: icHGes-release-licensing
+Version reviewed: 7acda01f7b0f0c067e1475fbac9489185be7ed32
+Reviewer: benno
+Date: 2015-02-06
+Conclusion: Rework
+
+Overall comments:
+
+An appropriate license should be determined for the documentation rather than AGPL.
+
+[ikuz: We have decided to use AGPL for documentation as well. 
+I've added this to documentation files, and include a NICTA_DOC_AGPL tag so that they can be identified as documentation headers.]
+
+The licensing terms for the Breakaway Logo should be reworded to avoid referring to a specific file.
+The wording could be something like:
+
+    Any instances of the Breakaway Consulting Pty. Ltd. logo are copyright Breakaway Consulting Pty. Ltd. and may not be used without further permission.
+
+[robs: Reworded terms for Breakaway logo in LICENSE.md accordingly]
+
+The creation of temporary files should be avoided as a pattern.
+Instead simply write to a memory buffer, and then use the zip file `writestr` method instead of `write`.
+
+[robs: Fixed prj-build as suggested]

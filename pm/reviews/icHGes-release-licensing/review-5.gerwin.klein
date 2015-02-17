@@ -8,17 +8,8 @@ Date: 2015-02-17
 Conclusion: Rework
 
 Overall comments:
-To make sure the actual licenses to external tools are available to people,
-we should download these license files and put them in a separate directory.
-Then link to the files in this directory instead of to the web.
-
-I'd propose to put them in /LICENSES/ and merge the tools/LICENSE.md and
-external_tools/LICENSE.md files into one /LICENSES/LICENSES.md file. We could
-also put the additional licenses mentioned in /LICENSE.md in that file as well
-and then refer to that file.
-
-The format for the individual downloaded license files could be 
-toolname-filename(URL)
+[Removed previous comment about downloading license files;
+to be done in a separate task].
 
 
 Specific comments

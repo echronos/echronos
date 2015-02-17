@@ -26,6 +26,18 @@
 #include "rtos-kraz.h"
 
 extern void debug_println(const char *msg);
+extern void debug_printhex32(uint32_t val);
+
+void
+complete(RtosTaskId task)
+{
+    debug_printhex32(task);
+    debug_println(" completed");
+    for (;;)
+    {
+        rtos_yield();
+    }
+}
 
 void
 fn_a(void)
@@ -66,10 +78,7 @@ fn_a(void)
 
     debug_println("task a: completed.");
 
-    for (;;)
-    {
-        rtos_yield();
-    }
+    complete(0);
 }
 
 void
@@ -131,10 +140,7 @@ fn_b(void)
 
     debug_println("task b: completed.");
 
-    for (;;)
-    {
-        rtos_yield();
-    }
+    complete(1);
 }
 
 int

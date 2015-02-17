@@ -32,5 +32,9 @@ pylib/prj.py:104 Use the 'with' pattern.
 
            file_content = f.read()
 
+[ikuz: done]
+
 
 The same technique should be applied in pylib/release.py
+
+[ikuz: done]

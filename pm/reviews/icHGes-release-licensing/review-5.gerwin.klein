@@ -5,16 +5,28 @@ Task name: icHGes-release-licensing
 Version reviewed: 8d17e0fb52fa8a169dd0c01996dbc15b231dcc7b
 Reviewer: gerwin.klein
 Date: 2015-02-17
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
+To make sure the actual licenses to external tools are available to people,
+we should download these license files and put them in a separate directory.
+Then link to the files in this directory instead of to the web.
+
+I'd propose to put them in /LICENSES/ and merge the tools/LICENSE.md and
+external_tools/LICENSE.md files into one /LICENSES/LICENSES.md file. We could
+also put the additional licenses mentioned in /LICENSE.md in that file as well
+and then refer to that file.
+
+The format for the individual downloaded license files could be 
+toolname-filename(URL)
 
 
 Specific comments
 =================
 
-Location: filename:linenum
+Location: components/**.py
 Comment:
-
-Location: filename:linenum
-Comment:
+Could the python files in the components directory have license headers?
+If I remember correctly, they are just called during the build, not
+assembled into larger parts. The release script might need to know how
+to strip these headers, though.

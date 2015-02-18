@@ -1,4 +1,25 @@
 #!/usr/bin/env python3.3
+#
+# eChronos Real-Time Operating System
+# Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3, provided that no right, title
+# or interest in or to any trade mark, service mark, logo or trade name
+# of NICTA or its licensors is granted.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# @TAG(NICTA_AGPL)
+#
+
 """
 Overview
 ---------
@@ -81,7 +102,7 @@ import argparse
 import logging
 
 from pylib.tasks import new_review, new_task, tasks, integrate, _gen_tag
-from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8
+from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8, check_licenses
 from pylib.components import Component, build
 from pylib.release import release_test, build_release, build_partials
 from pylib.prj import prj_build
@@ -138,7 +159,7 @@ CORE_SKELETONS = {
                Component('stack', pkg_component=True),
                Component('context-switch', pkg_component=True),
                Component('error'),
-               Component('task', {'task_start_api': False}),
+               Component('task'),
                ],
     'gatria': [Component('reentrant'),
                Component('stack', pkg_component=True),
@@ -147,7 +168,7 @@ CORE_SKELETONS = {
                Component('sched-rr', {'assume_runnable': True}),
                Component('simple-mutex'),
                Component('error'),
-               Component('task', {'task_start_api': False}),
+               Component('task'),
                Component('gatria'),
                ],
     'kraz': [Component('reentrant'),
@@ -155,10 +176,10 @@ CORE_SKELETONS = {
              Component('context-switch', pkg_component=True),
              Component('preempt-null'),
              Component('sched-rr', {'assume_runnable': True}),
-             Component('signal', {'prio_inherit': False, 'yield_api': False}),
+             Component('signal', {'prio_inherit': False}),
              Component('simple-mutex'),
              Component('error'),
-             Component('task', {'task_start_api': False}),
+             Component('task'),
              Component('kraz'),
              ],
     'acrux': [Component('reentrant'),
@@ -170,7 +191,7 @@ CORE_SKELETONS = {
               Component('interrupt-event', {'timer_process': False}),
               Component('simple-mutex'),
               Component('error'),
-              Component('task', {'task_start_api': False}),
+              Component('task'),
               Component('acrux'),
               ],
     'rigel': [Component('reentrant'),
@@ -180,11 +201,11 @@ CORE_SKELETONS = {
               Component('sched-rr', {'assume_runnable': False}),
               Component('signal', {'prio_inherit': False, 'yield_api': True, 'task_signals': True}),
               Component('timer', pkg_component=True),
-              Component('timer'),
+              Component('timer', {'preemptive': False}),
               Component('interrupt-event', pkg_component=True),
               Component('interrupt-event', {'timer_process': True}),
               Component('interrupt-event-signal', {'task_set': True}),
-              Component('blocking-mutex', {'lock_timeout': False}),
+              Component('blocking-mutex', {'lock_timeout': False, 'preemptive': False}),
               Component('profiling'),
               Component('message-queue'),
               Component('error'),
@@ -199,12 +220,12 @@ CORE_SKELETONS = {
                Component('sched-prio-inherit', {'assume_runnable': False}),
                Component('signal', {'prio_inherit': True, 'yield_api': False, 'task_signals': False}),
                Component('timer', pkg_component=True),
-               Component('timer'),
+               Component('timer', {'preemptive': True}),
                Component('interrupt-event', pkg_component=True),
                Component('interrupt-event', {'timer_process': True}),
                Component('interrupt-event-signal', {'task_set': False}),
-               Component('blocking-mutex', {'lock_timeout': True}),
-               Component('simple-semaphore', {'timeouts': True}),
+               Component('blocking-mutex', {'lock_timeout': True, 'preemptive': True}),
+               Component('simple-semaphore', {'timeouts': True, 'preemptive': True}),
                Component('error'),
                Component('task', {'task_start_api': False}),
                Component('kochab'),
@@ -233,6 +254,7 @@ def main():
         'x-test': x_test,
         'rtos-test': rtos_test,
         'test-release': release_test,
+        'licenses': check_licenses,
 
         # Tasks management
         'review': new_review,
@@ -273,6 +295,11 @@ def main():
                              default=False)
     test_subparsers.add_parser('pystache-test', help='Test pystache')
     test_subparsers.add_parser('test-release', help='Test final release')
+
+    _parser = test_subparsers.add_parser('licenses', help='Check that all files have the appropriate license header')
+    _parser.add_argument('--excludes', nargs='*',
+                         help="Exclude directories from license header checks",
+                         default=[])
 
     build_parser = subparsers.add_parser("build", help="Build release stuff...")
     build_subparsers = build_parser.add_subparsers(title="Build options", dest="build_command")

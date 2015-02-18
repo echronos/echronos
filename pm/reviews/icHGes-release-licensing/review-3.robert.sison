@@ -1,0 +1,38 @@
+Breakaway Task Review
+=======================
+
+Task name: icHGes-release-licensing
+Version reviewed: 04c3f49d056ce8209fde0fc24b3682555f818ec3
+Reviewer: robert.sison
+Date: 2015-02-11
+Conclusion: Rework
+
+Overall comments:
+Please in general be careful of trailing whitespace.
+
+Specific comments
+=================
+
+Location: external_tools/LICENSE.md:4,7,10
+Comment:
+Please delete the trailing whitespace in these lines.
+
+[ikuz: done]
+
+Location: tools/LICENSE.md:4,7,10,13,16,19,22
+Comment:
+Please delete the trailing whitespace.
+
+[ikuz: done]
+
+Location: release_cfg.py:688
+Comment:
+I noticed the std_linux and ppce500_linux releases are failing to build because it can't find their top-level readmes, which recently had the .md extension added.
+Please rename 'docs/armv7m_rigel_readme' to 'docs/armv7m_rigel_readme.md' on this line.
+
+[ikuz: done]
+
+Location: release_cfg.py:698
+Please rename 'docs/ppce500_kochab_readme' to 'docs/ppce500_kochab_readme.md' on this line.
+
+[ikuz: done]

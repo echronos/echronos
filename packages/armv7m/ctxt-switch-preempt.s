@@ -1,4 +1,25 @@
 /*
+ * eChronos Real-Time Operating System
+ * Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, version 3, provided that no right, title
+ * or interest in or to any trade mark, service mark, logo or trade name
+ * of NICTA or its licensors is granted.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @TAG(NICTA_AGPL)
+ */
+
+/*
  * This module implements context switch on ARMv7-M for RTOS variants that support task preemption by exceptions.
  *
  * RTOS variants with preemption support need, in addition to the ability to trigger a context switch internally from
@@ -87,6 +108,30 @@
         strb \new_task_idx, [\current_task_p] /* current_task = new_task_idx */
 .endm
 
+/* If the task is using the FPU context (determined by the EXC_RETURN register), push high vfp registers.
+ * If not, skip the FPU context region of the context stack frame. */
+.macro asm_fp_regs_push exc_return
+        tst \exc_return, #0x10
+        /* If-then-else conditional block for the next two instructions */
+        ite eq
+        /* Store the FPU context */
+        vpusheq {s16-s31}
+        /* Else, skip */
+        subne sp, sp, #(16 * 4)
+.endm
+
+/* If the task is using the FPU context (determined by the EXC_RETURN register), pop high vfp registers.
+ * If not, skip the FPU context region of the context stack frame. */
+.macro asm_fp_regs_pop exc_return
+        tst \exc_return, #0x10
+        /* If-then-else conditional block for the next two instructions */
+        ite eq
+        /* Load the FPU context */
+        vpopeq {s16-s31}
+        /* Else, skip */
+        addne sp, sp, #(16 * 4)
+.endm
+
 /**
  * Enable preemption, and in doing so, cause any pending preemption to happen immediately.
  */
@@ -158,6 +203,7 @@ rtos_internal_svc_handler:
         beq 1f
 
         /* Perform the context switch */
+        asm_fp_regs_push lr
         ldr r3, =1 /* Assuming SVC is only ever called with preemption disabled, set CONTEXT_PREEMPT_DISABLED = 1 */
         push {r3, r4-r11, lr}
         /* The values in r12, r1 and r0 are retained from asm_invoke_scheduler and asm_current_task_get */
@@ -171,6 +217,7 @@ rtos_internal_svc_handler:
         asm_preempt_enable r0
 2:
         pop {r4-r11, lr}
+        asm_fp_regs_pop lr
 1:
         bx lr
 .size rtos_internal_svc_handler, .-rtos_internal_svc_handler
@@ -189,6 +236,7 @@ rtos_internal_pendsv_handler:
         beq 1f
 
         /* Perform the context switch */
+        asm_fp_regs_push lr
         ldr r3, =0 /* We only got here because preemption was enabled, so set CONTEXT_PREEMPT_DISABLED = 0 */
         push {r3, r4-r11, lr}
         /* The values in r12, r1 and r0 are retained from asm_invoke_scheduler and asm_current_task_get */
@@ -202,6 +250,7 @@ rtos_internal_pendsv_handler:
         asm_preempt_disable r0
 2:
         pop {r4-r11, lr}
+        asm_fp_regs_pop lr
 1:
         bx lr
 .size rtos_internal_pendsv_handler, .-rtos_internal_pendsv_handler
@@ -218,13 +267,14 @@ rtos_internal_pendsv_handler:
 rtos_internal_context_switch_first:
         ldr sp, [r0]
         /* Cherrypick just those register contents from the initial stack frame relevant to the task entry trampoline.
-         * These hardcoded context stack frame offsets must match those used by context_init.
-         * We initialized context[CONTEXT_R4_IDX] to hold the task's start function pointer. */
-        ldr r4, [sp, #4]
+         * These hardcoded context stack frame offsets must match those initialized by context_init.
+         * At the time, we initialized context[CONTEXT_R4_IDX] to hold the task's start function pointer. */
+        ldr r4, [sp, #(1 * 4)]
         /* We initialized context[CONTEXT_PC_IDX] to the address of the task entry trampoline function. */
-        ldr r0, [sp, #(16 * 4)]
-        /* Increment the stack pointer by context[CONTEXT_SIZE] to tear down the context stack frame.  */
-        add sp, sp, #(18 * 4)
+        ldr r0, [sp, #(32 * 4)]
+        /* Increment the stack pointer by CONTEXT_NONFP_SIZE words to tear down the initial context stack frame.
+         * We use the NONFP size because we set EXC_RETURN of all tasks initially to a non-floating-point state. */
+        add sp, sp, #(34 * 4)
         /* All instructions on the Cortex-M4 are Thumb, so the LSB of the PC must be 1 when setting it directly. */
         orr r0, r0, #1
         mov pc, r0

@@ -1,0 +1,68 @@
+Breakaway Task Review
+=======================
+
+Task name: icHGes-release-licensing
+Version reviewed: de3282c2cb470345f6b7db4e00456e2f323de802
+Reviewer: stg
+Date: 2015-02-06
+Conclusion: Rework
+
+Overall comments:
+
+Copied comments from review-0.stg
+
+Comment 1: Rework
+Would it be possible to create a regression test so that new files must also have the appropriate license header?
+Is there a general rule for which files must have the license header?
+(E.g., all text files not in components, tools, or external_tools?)
+
+[robs: Added x.py test check-licenses]
+
+
+Specific comments
+=================
+
+Location: FAQ.txt
+Comment 2: Rework
+In general, most text files in the repository are formatted with markdown.
+Would it make sense to make FAQ.txt consistent with that and rename it to FAQ.md?
+
+[robs: Done]
+
+Location: FAQ.txt:4
+Comment 3: Rework
+eChronos does not provide system calls in the usual meaning of the word.
+However, the documentation consistently refers to the C interface of eChronos as its *API*.
+How about using the same nomenclature here?
+
+[robs: Reworded 'system calls' to 'API calls']
+
+Location: FAQ.txt:8
+Comment 4: Rework
+To avoid confusion between GPL and AGPL, would it make sense to replace LICENSE_AGPLv3.txt with *license*?
+
+[robs: Reworded 'GPL' to 'license']
+
+Location: LICENSE.txt
+Comment 5: Rework
+As above, how about making this file a markdown file?
+
+[robs: Done]
+
+Location: external_tools/LICENSE.txt
+Comment 6: Rework
+As above, how about making this file a markdown file?
+
+[robs: Done]
+
+Location: tools/LICENSE.txt
+Comment 7: Rework
+As above, how about making this file a markdown file?
+
+[robs: Done]
+
+Location: pylib/utils.py:134
+Comment 8: Rework
+For `top_to_base_paths` to have the correct contents and the function to correctly implement the path searching logic, this line needs to read `top_to_base_paths = reversed(base_to_top_paths(topdir, path))`.
+
+[robs: Fixed]

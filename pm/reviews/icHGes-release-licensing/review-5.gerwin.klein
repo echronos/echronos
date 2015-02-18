@@ -1,0 +1,25 @@
+Breakaway Task Review
+=======================
+
+Task name: icHGes-release-licensing
+Version reviewed: 8d17e0fb52fa8a169dd0c01996dbc15b231dcc7b
+Reviewer: gerwin.klein
+Date: 2015-02-17
+Conclusion: Rework
+
+Overall comments:
+[Removed previous comment about downloading license files;
+to be done in a separate task].
+
+
+Specific comments
+=================
+
+Location: components/**.py
+Comment:
+Could the python files in the components directory have license headers?
+If I remember correctly, they are just called during the build, not
+assembled into larger parts. The release script might need to know how
+to strip these headers, though.
+
+[ikuz: done]

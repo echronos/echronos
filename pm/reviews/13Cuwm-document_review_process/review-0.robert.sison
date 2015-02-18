@@ -1,0 +1,34 @@
+Breakaway Task Review
+=======================
+
+Task name: 13Cuwm-document_review_process
+Version reviewed: ac0a3626049bbfcac3495db160a46ccbd17411df
+Reviewer: robert.sison
+Date: 2015-01-28
+Conclusion: Rework
+
+Overall comments:
+Looks mostly good, just some nitpicks.
+
+
+Specific comments
+=================
+
+Location: internal-docs/task_management:112
+Comment:
+Needs spaces between the lines for 1), 2) and 3) just so a Markdown displayer doesn't mangle it.
+Alternatively, using 1. 2. or 3. for proper Markdown number list items will fix it.
+Though, I'm not saying we necessarily care so much about "proper Markdown" here.
+
+[stg: resolved as suggested]
+
+Location: internal-docs/task_management:127
+Comment:
+Sentence contains a grammatical error due to the stray "it" in "to its name it with a command".
+Also maybe should mention that the suggested command deletes the original branch?
+Proposed rewording:
+"""
+To abandon a task, manually add the prefix `abandoned/` to its name and delete the original branch with a command similar to `git push origin TASKNAME:abandoned/TASKNAME :TASKNAME`
+"""
+
+[stg: resolved almost as suggested]

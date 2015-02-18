@@ -26,7 +26,9 @@ How much absolute physical time a tick represents is left to the system design.
 The RTOS depends on the system to generate ticks, provide a suitable system tick driver, and inform the RTOS of each tick.
 The system designer should ensure that the RTOS [<span class="api">timer_tick</span>] API is called for each tick.
 The [<span class="api">timer_tick</span>] API is safe to call from an interrupt service routine.
-In a non-preemptive system, a tick is not processed immediately but when the current task yields or blocks.
+[[^preemptive]]
+A tick is not processed immediately but when the current task yields or blocks.
+[[/preemptive]]
 
 When a system tick is processed, the [<span class="api">timer_current_ticks</span>] API value is incremented by one.
 This allows tasks to keep track of the amount of time that the system has been running for, or shorter durations as they choose.
@@ -58,11 +60,13 @@ As timers are based on ticks, it is important to understand some of the limitati
 Firstly, the best possible timing resolution is limited by the tick period.
 If we assume a 40Hz tick (25ms period), then a desired period of 30ms must either be rounded down to 25ms or up to 50ms.
 
-The second limiting factor comes into play only for non-preemptive systems.
-In that case, ticks are processed only when a task yields or blocks, so there is a delay between the system calling the [<span class="api">timer_tick</span>] API and the RTOS processing the tick, including timer handling.
+[[^preemptive]]
+The second limiting factor comes into play because the RTOS is non-preemptive.
+Ticks are processed only when a task yields or blocks, so there is a delay between the system calling the [<span class="api">timer_tick</span>] API and the RTOS processing the tick, including timer handling.
 To ensure that this delay is bounded, the RTOS requires tasks to not run for longer than a tick period.
 For long running tasks this means that the task must yield at a higher frequency than the tick.
 With this restriction in place, the delay for processing a tick is at most a tick period.
+[[/preemptive]]
 
 From a practical point of view this means that if the [<span class="api">timer_current_ticks</span>] variable reads as 10, the actual elapsed time could be anywhere between 250ms and 300ms (more generally elapsed time is in the range `timer_current_ticks * tick_period` to `(timer_current_ticks + 2) * tick_period`).
 To see how this can happen, consider the case where [<span class="api">timer_current_ticks</span>] is 10.
@@ -175,7 +179,9 @@ A timer overflows if the signal it sends on expiry would be lost.
 For example, if a task is expecting to receive signals from a periodic timer and does not receive them quickly enough, the timer is marked as having overflowed.
 Calling the [<span class="api">timer_check_overflow</span>] API clears the overflow mark if set.
 
-Note that on systems that support task preemption, the calling task may be subject to an unpredictable amount of delay between calling this function and evaluating its return value, in the case that the task is preempted.
+[[#preemptive]]
+The calling task may be subject to an unpredictable amount of delay between calling this function and evaluating its return value, in the case that the task is preempted.
+[[/preemptive]]
 
 ### <span class="api">timer_remaining</span>
 
@@ -183,7 +189,9 @@ Note that on systems that support task preemption, the calling task may be subje
 
 This API returns the number of ticks remaining before the specified timer expires.
 
-Note that on systems that support task preemption, the calling task may be subject to an unpredictable amount of delay between calling this function and evaluating its return value, in the case that the task is preempted.
+[[#preemptive]]
+The calling task may be subject to an unpredictable amount of delay between calling this function and evaluating its return value, in the case that the task is preempted.
+[[/preemptive]]
 
 ### <span class="api">timer_reload_set</span>
 

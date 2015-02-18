@@ -1,3 +1,24 @@
+#
+# eChronos Real-Time Operating System
+# Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3, provided that no right, title
+# or interest in or to any trade mark, service mark, logo or trade name
+# of NICTA or its licensors is granted.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# @TAG(NICTA_AGPL)
+#
+
 import os
 import sys
 import shutil
@@ -82,6 +103,39 @@ def base_to_top_paths(topdir, *path):
         cur_dir = os.path.dirname(cur_dir)
 
     return result
+
+
+def find_path(path, topdir):
+    """Find a file in a top to bottom search through the repository hierarchy.
+
+    For all repositories/directories from `topdir` down to the core repository in BASE_DIR, check whether the relative
+    `path` exists and, if yes, return its absolute path.
+    `path` can be any file system object, including links and directories.
+    If `path` exists in multiple repositories in the repository hierarchy, the top-most one is returned.
+    If `path` does not exist anywhere in the repository hierarchy, this function raises an IOError exception.
+
+    Assume the following directory layout:
+    /foo/
+    /foo/x
+    /foo/core/
+    /foo/core/x
+    /foo/core/y
+    /foo/bar/baz
+
+    BASE_DIR is /foo/core
+
+    find_path('x', '/foo') -> '/foo/x'
+    find_path('y', '/foo') -> '/foo/core/y'
+    find_path('z', '/foo') -> IOError
+    find_path('baz', '/foo') -> IOError
+    find_path('bar/baz', '/foo') -> '/foo/bar/baz'
+
+    """
+    top_to_base_paths = reversed(base_to_top_paths(topdir, path))
+    for p in top_to_base_paths:
+        if os.path.exists(p):
+            return p
+    raise IOError("Unable to find the relative path '{}' in the repository hierarchy".format(path))
 
 
 def un_base_path(path):

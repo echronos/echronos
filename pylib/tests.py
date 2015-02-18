@@ -1,3 +1,24 @@
+#
+# eChronos Real-Time Operating System
+# Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3, provided that no right, title
+# or interest in or to any trade mark, service mark, logo or trade name
+# of NICTA or its licensors is granted.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# @TAG(NICTA_AGPL)
+#
+
 import os
 import sys
 import pep8
@@ -7,6 +28,7 @@ import subprocess
 from contextlib import contextmanager
 
 from .xunittest import discover_tests, TestSuite, SimpleTestNameResult, testcase_matches, testsuite_list
+from .release import _LicenseOpener
 
 
 def prj_test(args):
@@ -178,4 +200,46 @@ def check_pep8(args):
     report = pep8style.check_files()
     if report.total_errors:
         logging.error('pep8 check found non-compliant files')  # details on stdout
+        return 1
+
+
+def check_licenses(args):
+    excludes = ['.git', 'components', 'external_tools', 'tools', 'out'] + args.excludes
+    files_without_license = []
+
+    for top_subdir in [f for f in os.listdir() if os.path.isdir(f) and f not in excludes]:
+        # Ignore prj_build*
+        if top_subdir.startswith('prj_build'):
+            continue
+
+        for dirpath, subdirs, files in os.walk(top_subdir):
+            # Ignore prj/app
+            if os.path.basename(dirpath) == 'prj' and 'app' in subdirs:
+                subdirs.remove('app')
+
+            # Ignore packages/*/rtos-*
+            if dirpath.startswith('packages') and len(dirpath.split('/')) == 2:
+                for d in [d for d in subdirs if d.startswith('rtos-')]:
+                    subdirs.remove(d)
+
+            for file_path in [os.path.join(dirpath, f) for f in files]:
+
+                ext = os.path.splitext(file_path)[1]
+                try:
+                    agpl_sentinel = _LicenseOpener._agpl_sentinel(ext)
+                except _LicenseOpener.NoAGPLSentinelException:
+                    agpl_sentinel = None
+
+                if agpl_sentinel is not None:
+                    f = open(file_path, 'rb')
+
+                    old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
+
+                    if not sentinel_found:
+                        files_without_license.append(file_path)
+
+    if len(files_without_license):
+        logging.error('License check found files without a license header:')
+        for file_path in files_without_license:
+            logging.error('    {}'.format(file_path))
         return 1

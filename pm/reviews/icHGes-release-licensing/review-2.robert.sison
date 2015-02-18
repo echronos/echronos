@@ -1,0 +1,12 @@
+Breakaway Task Review
+=======================
+
+Task name: icHGes-release-licensing
+Version reviewed: 7acda01f7b0f0c067e1475fbac9489185be7ed32
+Reviewer: robert.sison
+Date: 2015-02-06
+Conclusion: Accepted
+
+Overall comments:
+Marking this as "Accepted" to indicate that my previous "Rework" review has been satisfied.
+However, since I was the one to do that rework, this branch shouldn't be merged unless a 2nd other reviewer signs off on my changes.

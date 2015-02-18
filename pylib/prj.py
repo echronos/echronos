@@ -1,9 +1,31 @@
+#
+# eChronos Real-Time Operating System
+# Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3, provided that no right, title
+# or interest in or to any trade mark, service mark, logo or trade name
+# of NICTA or its licensors is granted.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# @TAG(NICTA_AGPL)
+#
+
 import os
 import sys
 import ice
 import signal
 import zipfile
 from .utils import get_host_platform_name, top_path, chdir, base_path
+from .release import _LicenseOpener
 
 
 def prj_build(args):
@@ -82,12 +104,28 @@ def _prj_build_win32(output_dir):
             archive_dir_path = os.path.relpath(dir_path, top)
             for file_name in file_names:
                 file_path = os.path.join(dir_path, file_name)
+
+                with open(file_path, 'rb') as f:
+                    ext = os.path.splitext(file_path)[1]
+                    try:
+                        agpl_sentinel = _LicenseOpener._agpl_sentinel(ext)
+                    except _LicenseOpener.NoAGPLSentinelException:
+                        agpl_sentinel = None
+
+                    if agpl_sentinel is not None:
+                        old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
+                        if sentinel_found:
+                            old_license_len = len(old_lic_str + sentinel_found)
+                            f.read(old_license_len)
+
+                    file_content = f.read()
+
                 if dir_path == top and file_name == 'prj.py':
                     # The python interpreter expects to be informed about the main file in the zip file by naming it
                     # __main__.py
                     archive_file_path = os.path.join(archive_dir_path, '__main__.py')
                 else:
                     archive_file_path = os.path.join(archive_dir_path, file_name)
-                zip_file.write(file_path, archive_file_path)
+                zip_file.writestr(archive_file_path, file_content)
     with open(os.path.join(output_dir, 'prj.bat'), 'w') as f:
         f.write('@ECHO OFF\npython %~dp0\\prj')

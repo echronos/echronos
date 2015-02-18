@@ -1,0 +1,34 @@
+Breakaway Task Review
+=======================
+
+Task name: LT8GHw-kochab-documentation-scheduler
+Version reviewed: 2c7a7f8f87c44fbc4d311419451b917bd059c17c
+Reviewer: stg
+Date: 2015-01-15
+Conclusion: Rework
+
+Overall comments:
+Great, thanks for all the additional documentation!
+
+
+Specific comments
+=================
+
+Location: components/blocking-mutex/docs.md:41 and others
+Comment 1: Rework?
+What is the motivation to use the inverse logic in the tag name *preempt_null*?
+To me, names such as *preempt*, *preemption*, or *preemptive* would be lots more intuitive.
+Would it be worth changing this?
+
+[robs: it was only to match the module named "preempt-null", but it's not really a good reason.
+Refactoring it now to "preemptive".]
+
+Location: components/sched-prio-inherit/docs.md
+Comment 2: Rework/Review
+I've made some changes inline;
+please review them.
+Please note that all documentation should be written in the present tense unless absolutely necessary to use a different tense.
+I've added an according convention.
+
+[robs: Thanks for the fixes!
+I made just one small tweak.]

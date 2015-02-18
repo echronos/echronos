@@ -1,0 +1,14 @@
+Breakaway Task Review
+=======================
+
+Task name: icHGes-release-licensing
+Version reviewed: 63d82a07c5695365b6165e55e272ec45705b9c4e
+Reviewer: robert.sison
+Date: 2015-01-30
+Conclusion: Rework
+
+Overall comments:
+When we use x.py to build a release, it automatically places a copy of the license header given in release_cfg.py into all the source files.
+This is causing the license headers to be doubled up in each source file in the release tarball (except RTOS variant code generated from components, where we haven't placed any license headers).
+
+[robs: The x.py release script now strips the AGPL header if present and unconditionally adds the license header configured for that particular release.]

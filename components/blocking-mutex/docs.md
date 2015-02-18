@@ -38,15 +38,14 @@ crc_calculate(const unsigned char *const src,
     return crc.result;
 }</pre>
 
-In a system without preemption, it is safe for two (or more) tasks to call `crc_calculate()`.
-Since the function does not cause any task switch, it is guaranteed that a task enters and leaves the function without another task being scheduled in between.
+[[^preemptive]]
+It is safe for two (or more) tasks to call `crc_calculate()`.
+The function does not cause any task switch, so it is guaranteed that a task enters and leaves the function without another task being scheduled in between.
 Therefore, the CRC engine is only used by a single task at a time, calculating the result only from the input provided by that task.
 
-In a system with preemption, however, a task switch can occur inside the function.
-Therefore, one task might start using the CRC engine while another, interrupted task has not yet completed its own use of it.
+However, if there is an explicit context switch involved, one task might start using the CRC engine while another, interrupted task has not yet completed its own use of it.
 This would lead to an overlap of input values and therefore incorrect CRC results.
 
-The same issue arises in a system without preemption if there is an explicit context switch involved.
 A typical example is a long-running iteration that yields (or causes a context switch through any other means):
 
 <pre>[...]
@@ -55,6 +54,13 @@ for (idx = 0; idx != length; idx += 1) {
     yield();
 }
 [...]</pre>
+[[/preemptive]]
+
+[[#preemptive]]
+However, since the RTOS is preemptive, a task switch can occur at any time inside the function.
+Therefore, one task might start using the CRC engine while another, interrupted task has not yet completed its own use of it.
+This would lead to an overlap of input values and therefore incorrect CRC results.
+[[/preemptive]]
 
 Mutexes can help to prevent such consistency issues.
 Used correctly, a mutex ensures that only a single task at a time can execute code paths like the above.
@@ -72,7 +78,9 @@ crc_calculate(const unsigned char *const src,
     mutex_lock(RTOS_MUTEX_ID_CRC);
     for (idx = 0; idx != length; idx += 1) {
         crc.input = src[idx];
+[[^preemptive]]
         yield();
+[[/preemptive]]
     }
     result = crc.result;
     mutex_unlock(RTOS_MUTEX_ID_CRC);
@@ -189,7 +197,13 @@ This API releases the specified mutex so that other tasks can acquire it.
 A task should not release a mutex that it has not previously acquired.
 
 This API transitions a mutex into the *available* state, unblocks all blocked tasks that have called [<span class="api">mutex_lock</span>] while it was in the *acquired* state, and returns.
-On preemptive systems, this API may cause a task switch whereas on non-preemptive systems it does not.
+
+[[^preemptive]]
+This API does not cause a task switch.
+[[/preemptive]]
+[[#preemptive]]
+This API may cause a task switch.
+[[/preemptive]]
 
 
 ### <span class="api">mutex_holder_is_current</span>

@@ -265,19 +265,18 @@ class _LicenseOpener:
         if lic is None:
             lic = ''
         else:
-            f = open(filename, 'rb')
-            # Count the length of the XML prologue in the input file and standardize its line ending for output
-            if is_xml:
-                old_xml_prologue_len = self._consume_xml_prologue(f)
-                lic = self.XML_PROLOGUE + os.linesep + lic
+            with open(filename, 'rb') as f:
+                # Count the length of the XML prologue in the input file and standardize its line ending for output
+                if is_xml:
+                    old_xml_prologue_len = self._consume_xml_prologue(f)
+                    lic = self.XML_PROLOGUE + os.linesep + lic
 
-            # If the AGPL license is present in the original source file, count its length for deletion
-            agpl_sentinel = self._agpl_sentinel(ext)
-            assert agpl_sentinel is not None
-            old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
-            if sentinel_found:
-                old_license_len = len(old_lic_str + sentinel_found)
-            f.close()
+                # If the AGPL license is present in the original source file, count its length for deletion
+                agpl_sentinel = self._agpl_sentinel(ext)
+                assert agpl_sentinel is not None
+                old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
+                if sentinel_found:
+                    old_license_len = len(old_lic_str + sentinel_found)
 
         lic = lic.encode('utf8')
 

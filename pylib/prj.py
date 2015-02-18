@@ -105,22 +105,20 @@ def _prj_build_win32(output_dir):
             for file_name in file_names:
                 file_path = os.path.join(dir_path, file_name)
 
-                f = open(file_path, 'rb')
+                with open(file_path, 'rb') as f:
+                    ext = os.path.splitext(file_path)[1]
+                    try:
+                        agpl_sentinel = _LicenseOpener._agpl_sentinel(ext)
+                    except _LicenseOpener.UnknownFiletypeException:
+                        agpl_sentinel = None
 
-                ext = os.path.splitext(file_path)[1]
-                try:
-                    agpl_sentinel = _LicenseOpener._agpl_sentinel(ext)
-                except _LicenseOpener.UnknownFiletypeException:
-                    agpl_sentinel = None
+                    if agpl_sentinel is not None:
+                        old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
+                        if sentinel_found:
+                            old_license_len = len(old_lic_str + sentinel_found)
+                            f.read(old_license_len)
 
-                if agpl_sentinel is not None:
-                    old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
-                    if sentinel_found:
-                        old_license_len = len(old_lic_str + sentinel_found)
-                        f.read(old_license_len)
-
-                file_content = f.read()
-                f.close()
+                    file_content = f.read()
 
                 if dir_path == top and file_name == 'prj.py':
                     # The python interpreter expects to be informed about the main file in the zip file by naming it

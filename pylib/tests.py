@@ -204,7 +204,7 @@ def check_pep8(args):
 
 
 def check_licenses(args):
-    excludes = ['.git', 'components', 'external_tools', 'tools', 'pm', 'out', 'release'] + args.excludes
+    excludes = ['.git', 'components', 'external_tools', 'tools', 'pm', 'provenance', 'out', 'release'] + args.excludes
     files_without_license = []
     files_unknown_type = []
 

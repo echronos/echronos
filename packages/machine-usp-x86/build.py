@@ -42,4 +42,5 @@ def system_build(system, configuration):
 
     shared_args = ['-shared', '-fPIC'] if configuration['output_type'] == 'shared-library' else []
 
-    execute(['gcc', '-o', system.output_file, '-Wall', '-Werror', '-Wpedantic', '-Wextra', '-ggdb', '-m32'] + shared_args + inc_path_args + system.asm_files + system.c_files)
+    execute(['gcc', '-o', system.output_file, '-Wall', '-Werror', '-Wpedantic', '-Wextra', '-ggdb', '-m32'] +
+            shared_args + inc_path_args + system.asm_files + system.c_files)

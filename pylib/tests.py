@@ -204,9 +204,38 @@ def check_pep8(args):
 
 
 def check_licenses(args):
-    excludes = ['.git', 'components', 'external_tools', 'tools', 'pm', 'provenance', 'out', 'release'] + args.excludes
+    excludes = args.excludes + [
+        '.git',
+        '.gitignore',
+        'components',
+        'external_tools',
+        'tools',
+        'pm',
+        'provenance',
+        'out',
+        'release',
+    ]
     files_without_license = []
     files_unknown_type = []
+
+    for top_file in [f for f in os.listdir() if os.path.isfile(f) and f not in excludes]:
+        # Check setenv as a shell script and expect shell-style comment format for .pylintrc
+        if top_file == 'setenv' or top_file == '.pylintrc':
+            agpl_sentinel = _LicenseOpener._agpl_sentinel('.sh')
+        else:
+            ext = os.path.splitext(top_file)[1]
+            try:
+                agpl_sentinel = _LicenseOpener._agpl_sentinel(ext)
+            except _LicenseOpener.UnknownFiletypeException:
+                files_unknown_type.append(top_file)
+                continue
+
+        if agpl_sentinel is not None:
+            f = open(top_file, 'rb')
+            old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
+            if not sentinel_found:
+                files_without_license.append(top_file)
+            f.close()
 
     for top_subdir in [f for f in os.listdir() if os.path.isdir(f) and f not in excludes]:
         # Ignore prj_build*
@@ -237,11 +266,10 @@ def check_licenses(args):
 
                 if agpl_sentinel is not None:
                     f = open(file_path, 'rb')
-
                     old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
-
                     if not sentinel_found:
                         files_without_license.append(file_path)
+                    f.close()
 
     if len(files_without_license):
         logging.error('License check found files without a license header:')

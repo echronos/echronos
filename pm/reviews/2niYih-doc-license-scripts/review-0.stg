@@ -11,3 +11,5 @@ Overall comments:
 
 Comment 1: Rework
 x.py test licenses does not pick up files without license headers in the root directory.
+
+[robs: Fixed]

@@ -257,7 +257,7 @@ This finds the appropriate `.prx` file, combines the required modules and genera
 As a convenience `prj` can be configured to automatically regenerate RTOS modules whenever it is run.
 This is done by including the following line in the `project.prj` file:
 
-     <startup-script>./x.py build build-partials</startup-script>
+     <startup-script>./x.py build build-partials --allow-unknown-filetypes</startup-script>
 
 Please see `prj/manuals/prj-user-manual` for more information on the `prj` tool.
 

@@ -188,10 +188,11 @@ class _LicenseOpener:
     class UnknownFiletypeException(Exception):
         """Raised when the given file type is unknown."""
 
-    def __init__(self, license, doc_license, top_dir):
+    def __init__(self, license, doc_license, top_dir, allow_unknown_filetypes):
         self.license = license
         self.doc_license = doc_license
         self.top_dir = top_dir
+        self.allow_unknown_filetypes = allow_unknown_filetypes
         self.XML_PROLOGUE = '<?xml version="1.0" encoding="UTF-8" ?>'
 
     def _consume_xml_prologue(self, f):
@@ -259,7 +260,7 @@ class _LicenseOpener:
             lic = self._format_lic(self.doc_license, '<!---', '', '', '  -->')
         elif ext in ['.html']:
             lic = self._format_lic(self.doc_license, '<!--', '', '', '  -->')
-        elif ext not in self.LICENSE_EXEMPTED_FILETYPES:
+        elif ext not in self.LICENSE_EXEMPTED_FILETYPES and not self.allow_unknown_filetypes:
             raise Exception('Unexpected ext: {}, for file {}'.format(ext, filename))
 
         if lic is None:
@@ -333,7 +334,7 @@ def _tar_add_data(tf, arcname, data, ti_filter=None):
     tf.addfile(ti, io.BytesIO(data))
 
 
-def _tar_gz_with_license(output, tree, prefix, license, doc_license):
+def _tar_gz_with_license(output, tree, prefix, license, doc_license, allow_unknown_filetypes):
 
     """Create a tar.gz file named `output` from a specified directory tree.
 
@@ -342,7 +343,7 @@ def _tar_gz_with_license(output, tree, prefix, license, doc_license):
     When creating the tar.gz a standard set of meta-data will be used to help ensure things are consistent.
 
     """
-    lo = _LicenseOpener(license, doc_license, os.getcwd())
+    lo = _LicenseOpener(license, doc_license, os.getcwd(), allow_unknown_filetypes)
     try:
         with tarfile.open(output, 'w:gz', format=tarfile.GNU_FORMAT) as tf:
             tarfile.bltn_open = lo.open
@@ -353,10 +354,11 @@ def _tar_gz_with_license(output, tree, prefix, license, doc_license):
         tarfile.bltn_open = open
 
 
-def _mk_partial(pkg, topdir):
+def _mk_partial(pkg, topdir, allow_unknown_filetypes):
     fn = top_path(topdir, 'release', 'partials', '{}.tar.gz'.format(pkg.get_archive_name()))
     src_prefix = 'share/packages/{}'.format(pkg.get_name())
-    _tar_gz_with_license(fn, pkg.get_path(), src_prefix, pkg.get_license(), pkg.get_doc_license())
+    _tar_gz_with_license(fn, pkg.get_path(), src_prefix, pkg.get_license(), pkg.get_doc_license(),
+                         allow_unknown_filetypes)
 
 
 def build_partials(args):
@@ -366,7 +368,7 @@ def build_partials(args):
     for pkg in packages:
         for config in get_release_configs():
             release_package = _ReleasePackage(pkg, config)
-            _mk_partial(release_package, args.topdir)
+            _mk_partial(release_package, args.topdir, args.allow_unknown_filetypes)
 
 
 def build_single_release(config, topdir):

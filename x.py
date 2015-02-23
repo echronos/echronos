@@ -306,7 +306,9 @@ def main():
 
     build_subparsers.add_parser('prj-build', help='Build prj')
     build_subparsers.add_parser('build-release', help='Build final release')
-    build_subparsers.add_parser('build-partials', help='Build partial release files')
+    _parser = build_subparsers.add_parser('build-partials', help='Build partial release files')
+    _parser.add_argument('--allow-unknown-filetypes', action='store_true',
+                         help='Allow unknown filetypes in the build')
     _parser = build_subparsers.add_parser('build-manuals', help='Build PDF manuals')
     _parser.add_argument('--verbose', '-v', action='store_true')
     build_subparsers.add_parser('generate', help='Generate packages from components')

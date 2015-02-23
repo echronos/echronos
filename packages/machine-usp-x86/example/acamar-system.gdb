@@ -23,46 +23,8 @@
 # Don't prompt for terminal input
 set height 0
 b debug_println
-b main
-b complete
+display rtos_internal_current_task
 r
-# This is an exact number of steps, after which a continue would loop forever - see kraz-test.c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
-c
 c
 c
 c

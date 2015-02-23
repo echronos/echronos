@@ -1,0 +1,187 @@
+Breakpoint 1 at 0x401603: file out\machine-usp-x86\example\kraz-system\generic.debug.c, line 52.
+Breakpoint 2 at 0x4019cf: file packages\rtos-example\kraz-test.c, line 149.
+Breakpoint 3 at 0x401718: file packages\rtos-example\kraz-test.c, line 34.
+[New Thread 6096.0xd28]
+[New Thread 6096.0x644]
+[New Thread 6096.0x1a20]
+
+Breakpoint 2, main () at packages\rtos-example\kraz-test.c:149
+149	    rtos_start();
+
+Breakpoint 1, debug_println (msg=0x40306b "task a: taking lock") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task a: taking lock
+
+Breakpoint 1, debug_println (msg=0x40307f "task a: got lock") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task a: got lock
+
+Breakpoint 1, debug_println (msg=0x403128 "task b: attempting lock") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b: attempting lock
+
+Breakpoint 1, debug_println (msg=0x403090 "task a: yielded") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task a: yielded
+
+Breakpoint 1, debug_println (msg=0x4030c1 "task a: releasing lock") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task a: releasing lock
+
+Breakpoint 1, debug_println (msg=0x403140 "task b: got lock") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b: got lock
+
+Breakpoint 1, debug_println (msg=0x403151 "task b") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b
+
+Breakpoint 1, debug_println (msg=0x403158 "task b: blocking") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b: blocking
+
+Breakpoint 1, debug_println (msg=0x4030d8 "task a") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task a
+
+Breakpoint 1, debug_println (msg=0x4030df "task a: unblocking b") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task a: unblocking b
+
+Breakpoint 1, debug_println (msg=0x403169 "task b: unblocked") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b: unblocked
+
+Breakpoint 1, debug_println (msg=0x403151 "task b") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b
+
+Breakpoint 1, debug_println (msg=0x4030d8 "task a") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task a
+
+Breakpoint 1, debug_println (msg=0x403151 "task b") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b
+
+Breakpoint 1, debug_println (msg=0x4030d8 "task a") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task a
+
+Breakpoint 1, debug_println (msg=0x403151 "task b") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b
+
+Breakpoint 1, debug_println (msg=0x4030d8 "task a") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task a
+
+Breakpoint 1, debug_println (msg=0x403151 "task b") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b
+
+Breakpoint 1, debug_println (msg=0x403158 "task b: blocking") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b: blocking
+
+Breakpoint 1, debug_println (msg=0x4030d8 "task a") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task a
+
+Breakpoint 1, debug_println (msg=0x4030d8 "task a") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task a
+
+Breakpoint 1, debug_println (msg=0x4030df "task a: unblocking b") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task a: unblocking b
+
+Breakpoint 1, debug_println (msg=0x403169 "task b: unblocked") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b: unblocked
+
+Breakpoint 1, debug_println (msg=0x403151 "task b") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b
+
+Breakpoint 1, debug_println (msg=0x4030d8 "task a") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task a
+
+Breakpoint 1, debug_println (msg=0x403151 "task b") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b
+
+Breakpoint 1, debug_println (msg=0x4030d8 "task a") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task a
+
+Breakpoint 1, debug_println (msg=0x403151 "task b") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b
+
+Breakpoint 1, debug_println (msg=0x4030d8 "task a") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task a
+
+Breakpoint 1, debug_println (msg=0x40317c "task b: finished receiving signals.") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b: finished receiving signals.
+
+Breakpoint 1, debug_println (msg=0x403214 "task b: no signal available on peek") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b: no signal available on peek
+
+Breakpoint 1, debug_println (msg=0x403260 "task b: Success: no signal available to poll after no-peek.") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b: Success: no signal available to poll after no-peek.
+
+Breakpoint 1, debug_println (msg=0x4030d8 "task a") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task a
+
+Breakpoint 1, debug_println (msg=0x403214 "task b: no signal available on peek") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b: no signal available on peek
+
+Breakpoint 1, debug_println (msg=0x403260 "task b: Success: no signal available to poll after no-peek.") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b: Success: no signal available to poll after no-peek.
+
+Breakpoint 1, debug_println (msg=0x4030f4 "task a: finished sending signals") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task a: finished sending signals
+
+Breakpoint 1, debug_println (msg=0x403115 "task a: completed.") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task a: completed.
+
+Breakpoint 3, complete (task=0 '\000') at packages\rtos-example\kraz-test.c:34
+34	    debug_printhex32(task);
+0x00000000
+Breakpoint 1, debug_println (msg=0x403060 " completed") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+ completed
+
+Breakpoint 1, debug_println (msg=0x4031a0 "task b: signal available on peek") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b: signal available on peek
+
+Breakpoint 1, debug_println (msg=0x4031f0 "task b: Successful poll after peek.") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b: Successful poll after peek.
+
+Breakpoint 1, debug_println (msg=0x40329c "task b: completed.") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+task b: completed.
+
+Breakpoint 3, complete (task=1 '\001') at packages\rtos-example\kraz-test.c:34
+34	    debug_printhex32(task);
+0x00000001
+Breakpoint 1, debug_println (msg=0x403060 " completed") at out\machine-usp-x86\example\kraz-system\generic.debug.c:52
+52	    debug_print(msg);
+A debugging session is active.
+
+	Inferior 1 [process 6096] will be killed.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]

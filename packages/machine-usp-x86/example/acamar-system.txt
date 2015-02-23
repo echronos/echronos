@@ -1,0 +1,53 @@
+Breakpoint 1 at 0x40132b: file out\machine-usp-x86\example\acamar-system\generic.debug.c, line 52.
+[New Thread 6436.0x1068]
+[New Thread 6436.0x358]
+[New Thread 6436.0x188c]
+
+Breakpoint 1, debug_println (msg=0x403060 "task a") at out\machine-usp-x86\example\acamar-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 0 '\000'
+task a
+
+Breakpoint 1, debug_println (msg=0x403067 "task b") at out\machine-usp-x86\example\acamar-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 1 '\001'
+task b
+
+Breakpoint 1, debug_println (msg=0x403060 "task a") at out\machine-usp-x86\example\acamar-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 0 '\000'
+task a
+
+Breakpoint 1, debug_println (msg=0x403067 "task b") at out\machine-usp-x86\example\acamar-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 1 '\001'
+task b
+
+Breakpoint 1, debug_println (msg=0x403060 "task a") at out\machine-usp-x86\example\acamar-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 0 '\000'
+task a
+
+Breakpoint 1, debug_println (msg=0x403067 "task b") at out\machine-usp-x86\example\acamar-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 1 '\001'
+task b
+
+Breakpoint 1, debug_println (msg=0x403060 "task a") at out\machine-usp-x86\example\acamar-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 0 '\000'
+task a
+
+Breakpoint 1, debug_println (msg=0x403067 "task b") at out\machine-usp-x86\example\acamar-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 1 '\001'
+task b
+
+Breakpoint 1, debug_println (msg=0x403060 "task a") at out\machine-usp-x86\example\acamar-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 0 '\000'
+A debugging session is active.
+
+	Inferior 1 [process 6436] will be killed.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]

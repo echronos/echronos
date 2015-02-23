@@ -1,0 +1,28 @@
+Task: I1t47E-gdb_tests
+==============================================================================
+
+Motivation
+----------
+
+There is currently no support for system tests in the repository.
+In particular, the repository contains a range of test and example systems that can be built for various target platforms but not executed and tested for regressions via a common test infrastructure.
+
+
+Goals
+--------
+
+- create a test command and infrastructure in the x.py tool that allows to run and test systems
+- for the purpose of this task, 'testing' means that (where supported) systems shall be attached to gdb and executed based on a given gdb command file;
+  the gdb output shall be compared against a pre-recorded output file and the test shall succeed only if the two outputs match;
+  some output filtering will need to be applied
+- the added infrastructure shall not be specific to this test setup;
+  it shall be based on nose and support any Python-based test, such as testing systems live on target platform hardware;
+  it shall eventually be able to integrate the existing but currently defunct unit tests;
+  the introduced directory structure shall be easy to understand and keep files related to a test close to each other instead of spread out across the repository
+
+
+Test Plan
+---------
+
+- code review
+- run `x.py test systems` and verify that it does not indicate any test failures

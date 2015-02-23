@@ -1,0 +1,15 @@
+Breakaway Task Review
+=======================
+
+Task name: 2niYih-doc-license-scripts
+Version reviewed: f8469e519ea0834727e2f6b2766f1a3275289c7e
+Reviewer: stg
+Date: 2015-02-18
+Conclusion: Rework
+
+Overall comments:
+
+Comment 1: Rework
+x.py test licenses does not pick up files without license headers in the root directory.
+
+[robs: Fixed]

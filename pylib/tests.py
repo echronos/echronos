@@ -204,8 +204,38 @@ def check_pep8(args):
 
 
 def check_licenses(args):
-    excludes = ['.git', 'components', 'external_tools', 'tools', 'out'] + args.excludes
+    excludes = args.excludes + [
+        '.git',
+        '.gitignore',
+        'components',
+        'external_tools',
+        'tools',
+        'pm',
+        'provenance',
+        'out',
+        'release',
+    ]
     files_without_license = []
+    files_unknown_type = []
+
+    for top_file in [f for f in os.listdir() if os.path.isfile(f) and f not in excludes]:
+        # Check setenv as a shell script and expect shell-style comment format for .pylintrc
+        if top_file == 'setenv' or top_file == '.pylintrc':
+            agpl_sentinel = _LicenseOpener._agpl_sentinel('.sh')
+        else:
+            ext = os.path.splitext(top_file)[1]
+            try:
+                agpl_sentinel = _LicenseOpener._agpl_sentinel(ext)
+            except _LicenseOpener.UnknownFiletypeException:
+                files_unknown_type.append(top_file)
+                continue
+
+        if agpl_sentinel is not None:
+            f = open(top_file, 'rb')
+            old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
+            if not sentinel_found:
+                files_without_license.append(top_file)
+            f.close()
 
     for top_subdir in [f for f in os.listdir() if os.path.isdir(f) and f not in excludes]:
         # Ignore prj_build*
@@ -217,29 +247,40 @@ def check_licenses(args):
             if os.path.basename(dirpath) == 'prj' and 'app' in subdirs:
                 subdirs.remove('app')
 
+            # Ignore docs/manual_template
+            if os.path.basename(dirpath) == 'docs' and 'manual_template' in subdirs:
+                subdirs.remove('manual_template')
+
             # Ignore packages/*/rtos-*
             if dirpath.startswith('packages') and len(dirpath.split('/')) == 2:
                 for d in [d for d in subdirs if d.startswith('rtos-')]:
                     subdirs.remove(d)
 
             for file_path in [os.path.join(dirpath, f) for f in files]:
-
                 ext = os.path.splitext(file_path)[1]
                 try:
                     agpl_sentinel = _LicenseOpener._agpl_sentinel(ext)
-                except _LicenseOpener.NoAGPLSentinelException:
-                    agpl_sentinel = None
+                except _LicenseOpener.UnknownFiletypeException:
+                    files_unknown_type.append(file_path)
+                    continue
 
                 if agpl_sentinel is not None:
                     f = open(file_path, 'rb')
-
                     old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
-
                     if not sentinel_found:
                         files_without_license.append(file_path)
+                    f.close()
 
     if len(files_without_license):
         logging.error('License check found files without a license header:')
         for file_path in files_without_license:
             logging.error('    {}'.format(file_path))
+
+    if len(files_unknown_type):
+        logging.error('License check found files of unknown type:')
+        for file_path in files_unknown_type:
+            logging.error('    {}'.format(file_path))
+        return 1
+
+    if len(files_without_license):
         return 1

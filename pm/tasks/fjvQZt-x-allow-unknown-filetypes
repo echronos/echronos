@@ -1,0 +1,28 @@
+Task: fjvQZt-x-allow-unknown-filetypes
+==============================================================================
+
+Motivation
+----------
+
+x.py build build-partials currently disallows any files of unknown file extension when building partial release files.
+
+Since build-partials is set as the <startup-script> in the project.prj given with the repo, this is moderately inconvenient when developing code in the packages directory with editors that create .swp and ~ files.
+When you try to build systems using prj tool directly in the repo, it throws an exception complaining about the existence of these files.
+
+However, we would like to keep the restriction in the default case because we don't want any new and weird file types getting into any releases without a well-defined license check.
+
+
+Goals
+--------
+
+Add an optional argument to build-partials that relaxes the filetype restriction, and use it for the <startup-script> invocation of build-partials in project.prj.
+
+
+Test Plan
+---------
+
+Create editor artifacts (or any other files with unknown type) in the packages directory and try to build systems with prj tool directly in the repo - these should work.
+
+Then, with the editor artifacts still present, try to run x.py build build-partials - this should fail as before.
+
+Pass existing regression tests.

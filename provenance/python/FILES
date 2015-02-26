@@ -1688,6 +1688,7 @@ tools/lib/python3.3/plat-linux/DLFCN.py
 tools/lib/python3.3/plat-linux/IN.py
 tools/lib/python3.3/plat-linux/TYPES.py
 tools/lib/python3.3/plat-linux/regen
+tools/x86_64-unknown-linux-gnu/bin/python3
 tools/x86_64-unknown-linux-gnu/bin/python3-config
 tools/x86_64-unknown-linux-gnu/bin/python3.3
 tools/x86_64-unknown-linux-gnu/bin/python3.3-config

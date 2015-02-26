@@ -29,6 +29,7 @@ external_tools/nose/doc/conf.py
 external_tools/nose/doc/contributing.rst
 external_tools/nose/doc/developing.rst
 external_tools/nose/doc/docstring.py
+external_tools/nose/doc/doc_tests
 external_tools/nose/doc/finding_tests.rst
 external_tools/nose/doc/further_reading.rst
 external_tools/nose/doc/index.html

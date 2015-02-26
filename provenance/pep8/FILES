@@ -1,6 +1,5 @@
 external_tools/pep8/.gitignore
 external_tools/pep8/.travis.yml
-external_tools/pep8/__pycache__/pep8.cpython-33.pyc
 external_tools/pep8/CHANGES.txt
 external_tools/pep8/Makefile
 external_tools/pep8/MANIFEST.in

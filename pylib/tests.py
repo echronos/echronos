@@ -288,7 +288,7 @@ def check_licenses(args):
 
 def check_provenance(args):
     target_dirs = ['tools', 'external_tools']
-    exemptions = ['tools/LICENSE.md', 'external_tools/LICENSE.md']
+    exemptions = [['tools', 'LICENSE.md'], ['external_tools', 'LICENSE.md']]
     files_nonexistent = []
     files_not_listed = []
     files_listed = []
@@ -298,7 +298,8 @@ def check_provenance(args):
         for list_path in [os.path.join(dirpath, f) for f in files if f == 'FILES']:
             for file_path in [line.strip() for line in open(list_path)]:
                 if os.path.exists(file_path):
-                    files_listed.append(file_path)
+                    # FILES paths have UNIX '/' separators but we wish to compare in an OS-agnostic manner.
+                    files_listed.append(file_path.split('/'))
                 else:
                     files_nonexistent.append((file_path, list_path))
 
@@ -313,12 +314,12 @@ def check_provenance(args):
             # This directory contains xyz-generated provenance information including file listings with paths relative
             # to the 'tools' directory, sometimes including other files in tools/share/xyz, so we leave them here to
             # preserve their paths and put a note in the relevant ORIGIN files to refer here for more info.
-            if dirpath == 'tools/share' and 'xyz' in subdirs:
+            if dirpath == os.path.join('tools', 'share') and 'xyz' in subdirs:
                 subdirs.remove('xyz')
 
-            for file_path in [os.path.join(dirpath, f) for f in files]:
-                if file_path not in files_listed and file_path not in exemptions:
-                    files_not_listed.append(file_path)
+            for file_path in [dirpath.split(os.sep) + [f] for f in files]:
+                if file_path not in files_listed + exemptions:
+                    files_not_listed.append(os.path.join(*file_path))
 
     # Log all results and return 1 if there were any problematic cases
     if len(files_nonexistent):

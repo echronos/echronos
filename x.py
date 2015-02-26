@@ -102,7 +102,7 @@ import argparse
 import logging
 
 from pylib.tasks import new_review, new_task, tasks, integrate, _gen_tag
-from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8, check_licenses
+from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8, check_licenses, check_provenance
 from pylib.components import Component, build
 from pylib.release import release_test, build_release, build_partials
 from pylib.prj import prj_build
@@ -255,6 +255,7 @@ def main():
         'rtos-test': rtos_test,
         'test-release': release_test,
         'licenses': check_licenses,
+        'provenance': check_provenance,
 
         # Tasks management
         'review': new_review,
@@ -300,6 +301,9 @@ def main():
     _parser.add_argument('--excludes', nargs='*',
                          help="Exclude directories from license header checks",
                          default=[])
+
+    test_subparsers.add_parser('provenance', help='Check that all files belonging to external tools map 1-1 with '
+                                                  'provenance listings')
 
     build_parser = subparsers.add_parser("build", help="Build release stuff...")
     build_subparsers = build_parser.add_subparsers(title="Build options", dest="build_command")

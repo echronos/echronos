@@ -308,6 +308,14 @@ def check_provenance(args):
             # Exempt any __pycache__ dirs from the check
             if '__pycache__' in subdirs:
                 subdirs.remove('__pycache__')
+
+            # Exempt tools/share/xyz from the check.
+            # This directory contains xyz-generated provenance information including file listings with paths relative
+            # to the 'tools' directory, sometimes including other files in tools/share/xyz, so we leave them here to
+            # preserve their paths and put a note in the relevant ORIGIN files to refer here for more info.
+            if dirpath == 'tools/share' and 'xyz' in subdirs:
+                subdirs.remove('xyz')
+
             for file_path in [os.path.join(dirpath, f) for f in files]:
                 if file_path not in files_listed and file_path not in exemptions:
                     files_not_listed.append(file_path)

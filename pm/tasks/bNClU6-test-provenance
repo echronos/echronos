@@ -1,0 +1,29 @@
+Task: bNClU6-test-provenance
+==============================================================================
+
+Motivation
+----------
+
+We've added provenance information but we don't have a regression check to make sure all files under 'tools' and 'external_tools' have their provenance adequately documented.
+
+This can be done simply by checking that all the files listed under FILES files in the 'provenance' dir correspond to real files, and conversely that all files in 'tools' and 'external_tools' are listed in some FILES file.
+
+Furthermore, __pycache__ dirs shouldn't be listed under the provenance listings (and should be exempted from the check) because they're artifacts of tool usage and do not exist in the repo.
+
+
+Goals
+--------
+
+Add a provenance test to x.py that we can use to regression-check that files in 'tools' and 'external_tools' dirs map 1-1 with provenance FILES listings.
+
+Fix up any missing provenance / add and justify any exemptions if necessary.
+
+Remove all __pycache__ dirs from consideration.
+
+
+Test Plan
+---------
+
+Add ./x.py test provenance to the Teamcity regression test suite.
+
+Manually see that it catches when there are unlisted files, or listed files that don't correspond to reality.

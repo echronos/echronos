@@ -1,0 +1,21 @@
+Breakaway Task Review
+=======================
+
+Task name: vGUKhB-integrate_pandoc_1.13.2
+Version reviewed: e3fdbfc49d6139860b0db118b66d2c267baf6a29
+Reviewer: robert.sison
+Date: 2015-01-28
+Conclusion: Rework
+
+Overall comments:
+None.
+
+
+Specific comments
+=================
+
+Location: tools/win32/bin/pandoc.provenance/COPYING:6
+Comment:
+Assuming we're allowed to clean up whitespace in the GNU GPL, there's some trailing whitespace here.
+
+[stg: resolved as suggested]

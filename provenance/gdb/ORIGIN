@@ -1,6 +1,6 @@
 Built using xyz.py: https://github.com/BreakawayConsulting/xyz
 
-By running: `./x.py arm-toolchain`
+By running: `./xyz.py arm-toolchain`
 
 Using source from: https://github.com/BreakawayConsulting/gdb
 
@@ -9,3 +9,5 @@ commit: 35458831d329ac0d8cb9f2abf602e6f6d2a3e55c
 
 For Mac OS X:
 commit: 5b3096da6b37d6d1869091f9239019a6bfe26b17
+
+For more detailed information, please see tools/share/xyz/arm-toolchain-*.

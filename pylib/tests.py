@@ -284,3 +284,54 @@ def check_licenses(args):
 
     if len(files_without_license):
         return 1
+
+
+def check_provenance(args):
+    target_dirs = ['tools', 'external_tools']
+    exemptions = [['tools', 'LICENSE.md'], ['external_tools', 'LICENSE.md']]
+    files_nonexistent = []
+    files_not_listed = []
+    files_listed = []
+
+    # Check that all files in provenance FILES listings exist.
+    for dirpath, subdirs, files in os.walk('provenance'):
+        for list_path in [os.path.join(dirpath, f) for f in files if f == 'FILES']:
+            for file_path in [line.strip() for line in open(list_path)]:
+                if os.path.exists(file_path):
+                    # FILES paths have UNIX '/' separators but we wish to compare in an OS-agnostic manner.
+                    files_listed.append(file_path.split('/'))
+                else:
+                    files_nonexistent.append((file_path, list_path))
+
+    # Check that all files in 'external_tools' and 'tools' are listed in a provenance FILES listing.
+    for target_dir in target_dirs:
+        for dirpath, subdirs, files in os.walk(target_dir):
+            # Exempt any __pycache__ dirs from the check
+            if '__pycache__' in subdirs:
+                subdirs.remove('__pycache__')
+
+            # Exempt tools/share/xyz from the check.
+            # This directory contains xyz-generated provenance information including file listings with paths relative
+            # to the 'tools' directory, sometimes including other files in tools/share/xyz, so we leave them here to
+            # preserve their paths and put a note in the relevant ORIGIN files to refer here for more info.
+            if dirpath == os.path.join('tools', 'share') and 'xyz' in subdirs:
+                subdirs.remove('xyz')
+
+            for file_path in [dirpath.split(os.sep) + [f] for f in files]:
+                if file_path not in files_listed + exemptions:
+                    files_not_listed.append(os.path.join(*file_path))
+
+    # Log all results and return 1 if there were any problematic cases
+    if len(files_nonexistent):
+        logging.error('Provenance check found files listed that don\'t exist:')
+        for file_path, list_path in files_nonexistent:
+            logging.error('    {} (listed in {})'.format(file_path, list_path))
+
+    if len(files_not_listed):
+        logging.error('Provenance check found files without provenance information:')
+        for file_path in files_not_listed:
+            logging.error('    {}'.format(file_path))
+        return 1
+
+    if len(files_nonexistent):
+        return 1

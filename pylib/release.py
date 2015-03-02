@@ -188,11 +188,12 @@ class _LicenseOpener:
     class UnknownFiletypeException(Exception):
         """Raised when the given file type is unknown."""
 
-    def __init__(self, license, doc_license, top_dir, allow_unknown_filetypes):
+    def __init__(self, license, doc_license, top_dir, allow_unknown_filetypes=False, filename=None):
         self.license = license
         self.doc_license = doc_license
         self.top_dir = top_dir
         self.allow_unknown_filetypes = allow_unknown_filetypes
+        self.filename = filename
         self.XML_PROLOGUE = '<?xml version="1.0" encoding="UTF-8" ?>'
 
     def _consume_xml_prologue(self, f):
@@ -291,10 +292,17 @@ class _LicenseOpener:
         return _FileWithLicense(f, lic, old_xml_prologue_len, old_license_len)
 
     def tar_info_filter(self, tarinfo):
-        assert(tarinfo.name.startswith('share/packages'))
-
         if tarinfo.isreg():
-            filename = find_path(tarinfo.name.replace('share/packages', 'packages', 1), self.top_dir)
+            if self.filename is not None:
+                # This is used for releasing extra files potentially from outside the 'packages' dir of the repo.
+                # A LicenseOpener object must be instantiated per-file to specify the filename in this manner.
+                filename = self.filename
+            else:
+                # Infer the location of the original file in the 'packages' directory, from its destination path under
+                # 'share/packages' in the release archive.
+                assert(tarinfo.name.startswith('share/packages'))
+                filename = find_path(tarinfo.name.replace('share/packages', 'packages', 1), self.top_dir)
+
             lic, old_xml_prologue_len, old_license_len = self._get_lic(filename)
 
             # lic includes the XML prologue string, if there is one.
@@ -392,8 +400,13 @@ def build_single_release(config, topdir):
                           config.top_level_license.encode('utf8'),
                           _tar_info_filter)
 
+        # Run license replacer on all extra files released
+        dummy_pkg = _ReleasePackage(None, config)
         for arcname, filename in config.extra_files:
-            tf.add(filename, arcname='{}/{}'.format(basename, arcname), filter=_tar_info_filter)
+            lo = _LicenseOpener(dummy_pkg.get_license(), dummy_pkg.get_doc_license(), os.getcwd(), filename=filename)
+            tarfile.bltn_open = lo.open
+            tf.add(filename, arcname='{}/{}'.format(basename, arcname), filter=lo.tar_info_filter)
+            tarfile.bltn_open = open
 
         if 'TEAMCITY_VERSION' in os.environ:
             build_info = os.environ['BUILD_VCS_NUMBER']

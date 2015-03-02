@@ -1,0 +1,28 @@
+Task: vawii2-x-improve-license-coverage
+==============================================================================
+
+Motivation
+----------
+
+A couple of license release/test coverage issues for the x.py tool:
+
+x.py does not check and replace license headers for files specified via the 'extra_files' variable of a release configuration, which may be coming from outside of the 'packages' directory structure.
+
+Furthermore, the x.py license test exempts the whole of the 'components' directory.
+We should only be exempting those files (.c, .h, .xml, .md) that are code/header/schema/docs fragments intended for composition by x.py into RTOS modules/manuals.
+
+
+Goals
+--------
+
+Make 'x.py build build-release' correctly handle license headers in 'extra_files' when inserting them into a release.
+
+Make 'x.py test licenses' exempt only 'component fragment' file types in the 'components' directory.
+
+
+Test Plan
+---------
+
+Manually change the license string for a release and ensure 'extra_files' like the top-level release README.md have their license header replaced with the release one.
+
+Should pass 'x.py test licenses' as part of the existing regression suite.

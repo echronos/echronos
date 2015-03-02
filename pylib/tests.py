@@ -207,7 +207,6 @@ def check_licenses(args):
     excludes = args.excludes + [
         '.git',
         '.gitignore',
-        'components',
         'external_tools',
         'tools',
         'pm',
@@ -258,6 +257,11 @@ def check_licenses(args):
 
             for file_path in [os.path.join(dirpath, f) for f in files]:
                 ext = os.path.splitext(file_path)[1]
+
+                # Ignore component C, header, XML, and Markdown files that will be composed by x.py into RTOS packages
+                if top_subdir == "components" and ext in ['.c', '.h', '.xml', '.md']:
+                    continue
+
                 try:
                     agpl_sentinel = _LicenseOpener._agpl_sentinel(ext)
                 except _LicenseOpener.UnknownFiletypeException:

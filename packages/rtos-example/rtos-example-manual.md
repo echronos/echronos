@@ -134,6 +134,10 @@ This system demonstrates the eChronos Kochab variant's mutex functionality, whos
 
   Part 5 demonstrates that the higher-priority task (B) will be given preference over the lower priority task (Y) regardless of which of the two tasks attempted to acquire the mutex first.
 
+  Part 6 demonstrates a lock attempt on a mutex by task (B) timing out due to task (A) not unlocking the mutex until after the requested timeout has expired.
+
+  Part 7 demonstrates a lock attempt on a mutex by task (B) succeeding before its timeout due to task (A) unlocking the mutex within the requested time.
+
 There is no LED activity in this system, only debug prints via GDB.
 The following is the expected output of the mutex demo, continuing from a breakpoint set at `rtos_start`:
 
@@ -222,6 +226,33 @@ The following is the expected output of the mutex demo, continuing from a breakp
     y: should be the last task to get the lock. releasing it
     y: sending signal to b
     b: sending signal to a
+
+    Part 6: B's lock attempt times out
+
+    a: taking the lock
+    a: sleeping
+    b: blocking on the lock, should time out
+    y: sleeping
+    z: sleeping
+    b: waiting for a to signal the lock's free
+    a: releasing the lock
+    a: signalling b
+    a: waiting until b has the lock
+    b: taking the lock
+    b: waking up a
+
+    Part 7: B gets lock before timeout
+
+    a: taking the lock
+    a: sleeping
+    b: blocking on the lock, should succeed
+    y: sleeping
+    z: sleeping
+    a: releasing the lock
+    a: waiting until b has the lock
+    b: waking up a
+    a: blocking on the lock
+    b: releasing the lock
 
     Done.
 

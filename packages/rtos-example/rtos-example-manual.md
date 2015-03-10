@@ -598,6 +598,9 @@ The following is the expected output of the scheduler demo, running on the Phact
     fn_b done
     fn_c done
 
+When run on the Kochab variant, the `deadlock` section of the test is expected to deadlock.
+It can be disabled by setting the optional `deadlock_test` option to `false` when configuring this module in the system `.prx` file.
+
 
 `timer-test`
 ============

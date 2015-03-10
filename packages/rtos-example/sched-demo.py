@@ -26,6 +26,7 @@ class SchedTestModule(Module):
     xml_schema = """
 <schema>
     <entry name="variant" type="c_ident" />
+    <entry name="deadlock_test" type="bool" default="true" />
 </schema>"""
 
     files = [

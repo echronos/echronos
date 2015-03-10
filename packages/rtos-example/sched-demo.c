@@ -26,7 +26,9 @@
  * Priority inheritance will deadlock if the deadlock test is turned on.
  * Turn this off if you want this test program to complete when using priority inheritance.
  */
+{{#deadlock_test}}
 #define DEADLOCK
+{{/deadlock_test}}
 
 void
 block(void)
@@ -80,6 +82,7 @@ fn_c_barrier(void)
     rtos_signal_wait_set(RTOS_SIGNAL_SET_SIG_B_C);
 }
 
+#ifdef DEADLOCK
 /*
  * Deadlock:
  *
@@ -95,7 +98,7 @@ void
 fn_a_deadlock(void)
 {
     debug_println("fn_a test: deadlock");
-#ifdef DEADLOCK
+
     rtos_signal_wait_set(RTOS_SIGNAL_SET_SIG_A);
     debug_println("fn_a: go");
     debug_println("fn_a: locking M1");
@@ -108,16 +111,14 @@ fn_a_deadlock(void)
     rtos_mutex_unlock(RTOS_MUTEX_ID_M0);
     debug_println("fn_a: releasing M1");
     rtos_mutex_unlock(RTOS_MUTEX_ID_M1);
-#endif
-    debug_println("fn_a test: deadlock: completed");
 
+    debug_println("fn_a test: deadlock: completed");
 }
 
 void
 fn_b_deadlock(void)
 {
     debug_println("fn_b test: deadlock");
-#ifdef DEADLOCK
 
     debug_println("fn_b: locking M0");
     rtos_mutex_lock(RTOS_MUTEX_ID_M0);
@@ -131,7 +132,7 @@ fn_b_deadlock(void)
     rtos_mutex_unlock(RTOS_MUTEX_ID_M1);
     debug_println("fn_b: releasing M0");
     rtos_mutex_unlock(RTOS_MUTEX_ID_M0);
-#endif
+
     debug_println("fn_b test: deadlock: completed");
 }
 
@@ -139,10 +140,10 @@ void
 fn_c_deadlock(void)
 {
     debug_println("fn_c test: deadlock");
-#ifdef DEADLOCK
-#endif
+
     debug_println("fn_c test: deadlock: completed");
 }
+#endif /* DEADLOCK */
 
 /*
  * Priority Inversion
@@ -301,9 +302,11 @@ fn_a(void)
 
     fn_a_barrier();
 
+#ifdef DEADLOCK
     fn_a_deadlock();
 
     fn_a_barrier();
+#endif
 
     debug_println("fn_a done");
 
@@ -323,9 +326,11 @@ fn_b(void)
 
     fn_b_barrier();
 
+#ifdef DEADLOCK
     fn_b_deadlock();
 
     fn_b_barrier();
+#endif
 
     debug_println("fn_b done");
 
@@ -345,9 +350,11 @@ fn_c(void)
 
     fn_c_barrier();
 
+#ifdef DEADLOCK
     fn_c_deadlock();
 
     fn_c_barrier();
+#endif
 
     debug_println("fn_c done");
 

@@ -38,9 +38,20 @@ The RTOS Example package contains the code for a number of RTOS example programs
   <dt>`kochab-sem-demo`</dt>
   <dd>An example C program demonstrating semaphore functionality on the Kochab variant.</dd>
 
+  <dt>`sched-demo`</dt>
+  <dd>An example C program demonstrates scheduler behavior on variants that support priority scheduling.</dd>
+
   <dt>`timer-test`</dt>
   <dd>An example C program that tests runtime timer APIs on variants that support it.</dd>
 </dl>
+
+RTOS variant-agnostic program modules in this package take a non-optional `variant` configuration element that must be supplied to them by the system `.prx` file, so that they can include the correct RTOS variant header.
+
+For example, when building `rtos-example.timer-test` for the Kochab variant:
+
+    <module name="rtos-example.timer-test">
+      <variant>kochab</variant>
+    </module>
 
 
 `kochab-signal-demo`
@@ -322,6 +333,102 @@ The following is the expected output of the semaphore demo, continuing from a br
     FATAL ERROR: <hexadecimal error code for ERROR_ID_SEMAPHORE_MAX_EXCEEDED - see rtos-variant.h>
 
 
+`sched-demo`
+============
+
+This program demonstrates scheduler behavior on variants that support strict priority scheduling.
+For more information on this program's test cases, please see `sched-demo.c`.
+
+The following is the expected output of the scheduler demo, running on the Phact variant:
+
+    fn_a starting
+    fn_a test: priority inversion
+    fn_b starting
+    fn_b test: priority inversion
+    fn_c starting
+    fn_c test: priority inversion
+    fn_c: got m0
+    fn_c: sending sig A
+    fn_c: releasing m0
+    fn_a: go
+    fn_a: sending sig B
+    fn_a: locking M0
+    fn_a: got M0
+    fn_a: releasing m0
+    fn_a test: priority inversion: completed
+    fn_b: go
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b test: priority inversion: completed
+    fn_c test: priority inversion: completed
+    fn_a test: chain blocking
+    fn_b test: chain blocking
+    fn_c test: chain blocking
+    fn_c: locking M2
+    fn_c: got m2
+    fn_c: sending sig B
+    fn_c: releasing m2
+    fn_b: go
+    fn_b: locking M1
+    fn_b: got m1
+    fn_b: sending sig A
+    fn_b: locking M2
+    fn_b: got m2
+    fn_b: releasing m2
+    fn_b: releasing m1
+    fn_a: go
+    fn_a: locking M0
+    fn_a: got m0
+    fn_a: locking M1
+    fn_a: got m1
+    fn_a: releasing m1
+    fn_a: releasing m0
+    fn_a test: chain blocking: completed
+    fn_b test: chain blocking: completed
+    fn_c test: chain blocking: completed
+    fn_a test: deadlock
+    fn_b test: deadlock
+    fn_b: locking M0
+    fn_b: got M0
+    fn_b: sending sig A
+    fn_b: locking M1
+    fn_b: got M1
+    fn_b: releasing M1
+    fn_b: releasing M0
+    fn_a: go
+    fn_a: locking M1
+    fn_a: got M1
+    fn_a: locking M0
+    fn_a: got M0
+    fn_a: releasing M0
+    fn_a: releasing M1
+    fn_a test: deadlock: completed
+    fn_b test: deadlock: completed
+    fn_c test: deadlock
+    fn_c test: deadlock: completed
+    fn_a done
+    fn_b done
+    fn_c done
+
+
 `timer-test`
 ============
 
@@ -439,12 +546,4 @@ The following is the expected output of the timer test, continuing from a breakp
     tick_irq: 0x00000030
     < and so on ... >
 
-The `rtos-example.timer-test` module takes a non-optional `variant` configuration element that must be supplied to it by the system `.prx` file, so that it can include the correct RTOS variant header.
-
-For example, when building `timer-test` for the Kochab variant:
-
-    <module name="rtos-example.timer-test">
-      <variant>kochab</variant>
-    </module>
-
-Furthermore, it depends on an external code module to implement `machine_timer_init()` and `machine_timer_clear()` for the platform the test system is to be run on.
+This module depends on an external code module to implement `machine_timer_init()` and `machine_timer_clear()` for the platform the test system is to be run on.

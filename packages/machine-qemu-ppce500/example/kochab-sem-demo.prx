@@ -106,7 +106,9 @@
 
     <module name="machine-qemu-ppce500.example.machine-timer" />
     <!-- main .c file: -->
-    <module name="rtos-example.kochab-sem-demo" />
+    <module name="rtos-example.sem-demo">
+      <variant>kochab</variant>
+    </module>
 
   </modules>
 </system>

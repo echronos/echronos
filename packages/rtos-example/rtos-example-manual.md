@@ -35,11 +35,11 @@ The RTOS Example package contains the code for a number of RTOS example programs
   <dt>`kochab-mutex-demo`</dt>
   <dd>An example C program demonstrating mutex functionality on the Kochab variant.</dd>
 
-  <dt>`kochab-sem-demo`</dt>
-  <dd>An example C program demonstrating semaphore functionality on the Kochab variant.</dd>
-
   <dt>`phact-mutex-demo`</dt>
   <dd>An example C program demonstrating mutex functionality on the Phact variant.</dd>
+
+  <dt>`sem-demo`</dt>
+  <dd>An example C program demonstrating semaphore functionality on variants that support it.</dd>
 
   <dt>`sched-demo`</dt>
   <dd>An example C program demonstrates scheduler behavior on variants that support priority scheduling.</dd>
@@ -226,116 +226,6 @@ The following is the expected output of the mutex demo, continuing from a breakp
     Done.
 
 
-`kochab-sem-demo`
-=================
-
-This system demonstrates the eChronos Kochab variant's semaphore functionality:
-
-  Part 0 has one task (A) demonstrate posting (denoted `V`) and trying to wait (denoted `P`) on a semaphore, as well as returning immediately from waiting on a semaphore that has already been posted.
-
-  Part 1 has a lower-priority task (B) unblock a higher-priority task (A) by posting to a semaphore that task (A) is blocked waiting on.
-  It also shows the basic property of semaphores that (A) can only wait the same number of times (B) has posted to the semaphore, before a wait attempt would block (A).
-
-  Part 2 shows that if two tasks are both blocked waiting on a semaphore, the higher priority task (A) will be woken in preference to the lower priority task (B) when some other task (Z) posts to the semaphore, regardless of whether task (A) or task (B) attempted to wait on the semaphore first.
-
-  Part 3 demonstrates that if the user posts to the semaphore more times than the runtime-initialized maximum value, the RTOS will trigger a fatal error.
-
-There is no LED activity in this system, only debug prints via GDB.
-The following is the expected output of the semaphore demo, continuing from a breakpoint set at `rtos_start`:
-
-    (gdb) c
-    Continuing.
-
-    Part 0: Solo
-
-    a: initializing maximum
-    a: V
-    a: P (should succeed)
-    a: trying P (should fail)
-    a: V
-    a: trying P (should succeed)
-
-    Part 1: B unblocks A
-
-    a: P (should block)
-    b: V (should unblock a)
-    a: now runnable
-    a: consuming...
-    a: P
-    b: producing while a consumes...
-    b: V
-    a: P
-    b: V
-    a: P
-    b: V
-    a: P
-    b: V
-    a: P
-    b: V
-    a: P
-    b: V
-    a: P
-    b: V
-    a: P
-    b: V
-    a: P
-    b: V
-    a: P
-    b: V
-    a: trying P (should fail)
-    a: waiting on signal
-    b: producing while a is blocked...
-    b: V
-    b: V
-    b: V
-    b: V
-    b: V
-    b: V
-    b: V
-    b: V
-    b: V
-    b: V
-    b: sending signal to a
-    a: consuming...
-    a: P
-    a: P
-    a: P
-    a: P
-    a: P
-    a: P
-    a: P
-    a: P
-    a: P
-    a: P
-    a: trying P (should fail)
-
-    Part 2: A and B compete
-
-    a: P (should block)
-    b: P (should block)
-    z: V
-    a: should wake up before b. P (should block)
-    z: V
-    a: should again wake up before b. waiting on signal
-    z: V
-    b: finally awake. sending signal to a
-
-    Part 3: A posts past maximum and triggers fatal error
-
-    a: P
-    a: P
-    a: P
-    a: P
-    a: P
-    a: P
-    a: P
-    a: P
-    a: P
-    a: P
-    a: trying P (should trigger fatal error)
-    FATAL ERROR: <hexadecimal error code for ERROR_ID_SEMAPHORE_MAX_EXCEEDED - see rtos-variant.h>
-
-
 `phact-mutex-demo`
 ===================
 
@@ -442,6 +332,144 @@ The following is the expected output of the Phact mutex demo:
 
     a: taking lock (should trigger fatal error)
     FATAL ERROR: <hexadecimal error code for ERROR_ID_SCHED_PRIO_PCP_TASK_LOCKING_LOWER_PRIORITY_MUTEX - see rtos-variant.h>
+
+
+`sem-demo`
+=================
+
+This system demonstrates eChronos semaphore functionality on variants that support priority scheduling:
+
+  Part 0 has one task (A) demonstrate posting (denoted `V`) and trying to wait (denoted `P`) on a semaphore, as well as returning immediately from waiting on a semaphore that has already been posted.
+
+  Part 1 has a lower-priority task (B) unblock a higher-priority task (A) by posting to a semaphore that task (A) is blocked waiting on.
+  It also shows the basic property of semaphores that (A) can only wait the same number of times (B) has posted to the semaphore, before a wait attempt would block (A).
+
+  Part 2 shows that if two tasks are both blocked waiting on a semaphore, the higher priority task (A) will be woken in preference to the lower priority task (B) when some other task (Z) posts to the semaphore, regardless of whether task (A) or task (B) attempted to wait on the semaphore first.
+
+  Part 3 demonstrates a wait attempt on a semaphore by task (A) timing out due to task (B) not posting to the semaphore until after the requested timeout has expired.
+
+  Part 4 demonstrates a wait attempt on a semaphore by task (A) succeeding before its timeout due to task (B) posting to the semaphore within the requested time.
+
+  Part 5 demonstrates that if the user posts to the semaphore more times than the runtime-initialized maximum value, the RTOS will trigger a fatal error.
+
+For RTOS variants that do not support semaphore timeouts, parts 3 and 4 can be disabled by setting the optional `timeout_tests` option to `false` when configuring this module in the system `.prx` file.
+
+There is no LED activity in this system, only debug prints via GDB.
+The following is the expected output of the semaphore demo, continuing from a breakpoint set at `rtos_start`:
+
+    (gdb) c
+    Continuing.
+
+    Part 0: Solo
+
+    a: initializing maximum
+    a: V
+    a: P (should succeed)
+    a: trying P (should fail)
+    a: V
+    a: trying P (should succeed)
+
+    Part 1: B unblocks A
+
+    a: initializing maximum
+    a: P (should block)
+    b: V (should unblock a)
+    a: now runnable
+    a: consuming...
+    a: P
+    b: producing while a consumes...
+    b: V
+    a: P
+    b: V
+    a: P
+    b: V
+    a: P
+    b: V
+    a: P
+    b: V
+    a: P
+    b: V
+    a: P
+    b: V
+    a: P
+    b: V
+    a: P
+    b: V
+    a: P
+    b: V
+    a: trying P (should fail)
+    a: waiting on signal
+    b: producing while a is blocked...
+    b: V
+    b: V
+    b: V
+    b: V
+    b: V
+    b: V
+    b: V
+    b: V
+    b: V
+    b: V
+    b: sending signal to a
+    a: consuming...
+    a: P
+    a: P
+    a: P
+    a: P
+    a: P
+    a: P
+    a: P
+    a: P
+    a: P
+    a: P
+    a: trying P (should fail)
+
+    Part 2: A and B compete
+
+    a: initializing maximum
+    a: P (should block)
+    b: P (should block)
+    z: V
+    a: should wake up before b. P (should block)
+    z: V
+    a: should again wake up before b. waiting on signal
+    z: V
+    b: finally awake. sending signal to a
+
+    Part 3: A's wait attempt times out
+
+    a: initializing maximum
+    a: P (should time out)
+    b: sleeping
+    z: sleeping
+    a: waiting on signal
+    b: V (should not unblock a)
+    b: sending signal to a
+    a: trying P (should succeed)
+
+    Part 4: A's wait returns before timeout
+
+    a: initializing maximum
+    a: P (should succeed before timeout)
+    b: sleeping
+    z: sleeping
+    b: V (should unblock a)
+
+    Part 5: A posts past maximum and triggers fatal error
+
+    a: initializing maximum
+    a: P
+    a: P
+    a: P
+    a: P
+    a: P
+    a: P
+    a: P
+    a: P
+    a: P
+    a: P
+    a: trying P (should trigger fatal error)
+    FATAL ERROR: <hexadecimal error code for ERROR_ID_SEMAPHORE_MAX_EXCEEDED - see rtos-variant.h>
 
 
 `sched-demo`

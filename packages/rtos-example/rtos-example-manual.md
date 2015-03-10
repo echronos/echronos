@@ -38,6 +38,9 @@ The RTOS Example package contains the code for a number of RTOS example programs
   <dt>`kochab-sem-demo`</dt>
   <dd>An example C program demonstrating semaphore functionality on the Kochab variant.</dd>
 
+  <dt>`phact-mutex-demo`</dt>
+  <dd>An example C program demonstrating mutex functionality on the Phact variant.</dd>
+
   <dt>`sched-demo`</dt>
   <dd>An example C program demonstrates scheduler behavior on variants that support priority scheduling.</dd>
 
@@ -114,7 +117,7 @@ The following is the expected output of the signal demo, continuing from a break
 `kochab-mutex-demo`
 ===================
 
-This system demonstrates the eChronos Kochab variant's mutex functionality:
+This system demonstrates the eChronos Kochab variant's mutex functionality, whose behavior is subject to priority scheduling with priority inheritance:
 
   Part 0 has one task (A) demonstrate trying and releasing of a mutex, as well as taking of a mutex when the mutex is available.
 
@@ -331,6 +334,114 @@ The following is the expected output of the semaphore demo, continuing from a br
     a: P
     a: trying P (should trigger fatal error)
     FATAL ERROR: <hexadecimal error code for ERROR_ID_SEMAPHORE_MAX_EXCEEDED - see rtos-variant.h>
+
+
+`phact-mutex-demo`
+===================
+
+This system demonstrates the eChronos Phact variant's mutex functionality, whose behavior is subject to priority ceiling protocol scheduling:
+
+  Part 0 has one task (A) demonstrate trying and releasing of a mutex, as well as taking of a mutex when the mutex is available.
+
+  Part 1 has four tasks (A, B, Y, and Z) taking turns to lock a mutex whose priority ceiling is higher than all of their task priorities.
+  It also shows that upon releasing such a mutex, a task will immediately revert to its original priority, implicitly yielding to the highest-priority runnable task if necessary.
+
+  Part 2 has three tasks (B, Y, and Z) taking turns to lock a mutex whose priority ceiling is higher than all of theirs, but lower than that of the highest-priority task (A).
+
+  Part 3 has two tasks (B, Y) competing on a mutex whose priority ceiling is higher than both of theirs, in the midst of which a third task (Z) interacts with a mutex whose priority ceiling lies between the task priorities of (B) and (Y).
+  Both mutexes' priority ceilings are lower than that of the highest-priority task (A).
+  All three tasks (B, Y, Z) intermittently wake the highest-priority task (A) to show that it is prioritized above all others regardless of other tasks' acquisition of either of the two mutexes.
+
+  Part 4 has one task (A) lock a mutex whose priority ceiling is lower than its task priority, which is illegal.
+  This triggers a fatal error.
+
+The following is the expected output of the Phact mutex demo:
+
+    Part 0: Solo
+
+    a: taking lock
+    a: trying held lock
+    a: releasing lock
+    a: trying unheld lock
+    a: releasing lock
+
+    Part 1: Mutex with ceiling higher than all tasks
+
+    a: waiting on signal
+    b: waiting on signal
+    y: waiting on signal
+    z: taking lock
+    z: sending signal to y
+    z: sending signal to b
+    z: sending signal to a
+    z: still running at greater priority than a, b and y. releasing lock
+    a: should get signal 1st, waiting again
+    b: should get signal 2nd, waiting again
+    y: should get signal last, taking lock
+    y: sending signal to b
+    y: sending signal to a
+    y: still running at greater priority than a and b. releasing lock
+    a: should get signal first, waiting again
+    b: should get signal last, taking lock
+    b: sending signal to a
+    b: still running at greater priority than a. releasing lock
+    a: got signal, taking lock
+    a: releasing lock
+
+    Part 2: Mutex with ceiling lower than A's
+
+    a: waiting on signal
+    b: waiting on signal
+    y: waiting on signal
+    z: taking lock
+    z: sending signal to y
+    z: sending signal to b
+    z: sending signal to a
+    a: got signal, waiting again
+    z: still running at greater priority than b and y. releasing lock
+    b: got signal, waiting again
+    y: should get signal last, taking lock
+    y: sending signal to b
+    y: sending signal to a
+    a: got signal, waiting again
+    y: still running at greater priority than b. releasing lock
+    b: got signal, taking lock
+    b: sending signal to a
+    a: got signal, waiting again
+    b: releasing lock
+    b: sending signal to a
+    a: got signal, done
+
+    Part 3: Two mutexes with differing ceilings
+
+    a: waiting on signal
+    b: waiting on signal
+    y: taking lock H (> b)
+    y: sending signal to b
+    y: should still run (> b), sending signal to a
+    a: got signal, waiting again
+    y: waiting on signal
+    b: got signal, waiting on lock H
+    z: taking lock L (> y)
+    z: sending signal to y
+    y: got signal, releasing lock H
+    b: got lock H, sending signal to a
+    a: got signal, waiting again
+    b: releasing lock H
+    b: waiting on signal
+    z: should run (> y), sending signal to a
+    a: got signal, waiting again
+    z: sending signal to b
+    b: got signal, waiting again
+    z: releasing lock L
+    y: sending signal to b
+    b: sending signal to a
+    a: got signal, done
+
+    Part 4: Task takes mutex with lower priority ceiling
+
+    a: taking lock (should trigger fatal error)
+    FATAL ERROR: <hexadecimal error code for ERROR_ID_SCHED_PRIO_PCP_TASK_LOCKING_LOWER_PRIORITY_MUTEX - see rtos-variant.h>
 
 
 `sched-demo`

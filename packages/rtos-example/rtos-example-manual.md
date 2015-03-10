@@ -29,8 +29,8 @@ Introduction
 The RTOS Example package contains the code for a number of RTOS example programs:
 
 <dl>
-  <dt>`kochab-signal-demo`</dt>
-  <dd>An example C program demonstrating signal functionality on the Kochab variant.</dd>
+  <dt>`signal-demo`</dt>
+  <dd>An example C program demonstrating signal functionality on variants that support it.</dd>
 
   <dt>`kochab-mutex-demo`</dt>
   <dd>An example C program demonstrating mutex functionality on the Kochab variant.</dd>
@@ -57,10 +57,10 @@ For example, when building `rtos-example.timer-test` for the Kochab variant:
     </module>
 
 
-`kochab-signal-demo`
+`signal-demo`
 ====================
 
-This system demonstrates the eChronos Kochab variant's signal functionality:
+This system demonstrates eChronos signal functionality on variants that support priority scheduling:
 
   Part 0 has one task (A) demonstrate peeking and polling of signals, as well as waits returning immediately if a signal in the set is already available.
 

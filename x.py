@@ -125,7 +125,7 @@ topdir = os.path.normpath(os.path.dirname(__file__))
 CORE_CONFIGURATIONS = {"posix": ["sched-rr-test", "sched-prio-inherit-test", "simple-mutex-test",
                                  "blocking-mutex-test", "simple-semaphore-test", "sched-prio-test",
                                  "acamar", "gatria", "kraz"],
-                       "armv7m": ["acamar", "gatria", "kraz", "acrux", "rigel", "kochab"],
+                       "armv7m": ["acamar", "gatria", "kraz", "acrux", "rigel", "kochab", "phact"],
                        "ppce500": ["acamar", "gatria", "kraz", "acrux", "kochab"]}
 
 CORE_SKELETONS = {
@@ -146,7 +146,7 @@ CORE_SKELETONS = {
                           Component('simple-mutex-test'),
                           ],
     'blocking-mutex-test': [Component('reentrant'),
-                            Component('blocking-mutex', {'lock_timeout': False}),
+                            Component('blocking-mutex', {'lock_timeout': False, 'prio_pcp': False}),
                             Component('blocking-mutex-test'),
                             ],
     'simple-semaphore-test': [Component('reentrant'),
@@ -205,7 +205,7 @@ CORE_SKELETONS = {
               Component('interrupt-event', pkg_component=True),
               Component('interrupt-event', {'timer_process': True}),
               Component('interrupt-event-signal', {'task_set': True}),
-              Component('blocking-mutex', {'lock_timeout': False, 'preemptive': False}),
+              Component('blocking-mutex', {'lock_timeout': False, 'preemptive': False, 'prio_pcp': False}),
               Component('profiling'),
               Component('message-queue'),
               Component('error'),
@@ -224,12 +224,26 @@ CORE_SKELETONS = {
                Component('interrupt-event', pkg_component=True),
                Component('interrupt-event', {'timer_process': True}),
                Component('interrupt-event-signal', {'task_set': False}),
-               Component('blocking-mutex', {'lock_timeout': True, 'preemptive': True}),
+               Component('blocking-mutex', {'lock_timeout': True, 'preemptive': True, 'prio_pcp': False}),
                Component('simple-semaphore', {'timeouts': True, 'preemptive': True}),
                Component('error'),
                Component('task', {'task_start_api': False}),
                Component('kochab'),
-               ]
+               ],
+    'phact': [Component('reentrant'),
+              Component('stack', pkg_component=True),
+              Component('context-switch-preempt', pkg_component=True),
+              Component('sched-prio-pcp', {'assume_runnable': False}),
+              Component('signal', {'prio_inherit': False, 'yield_api': False, 'task_signals': False}),
+              Component('interrupt-event', pkg_component=True),
+              Component('interrupt-event', {'timer_process': False}),
+              Component('interrupt-event-signal', {'task_set': False}),
+              Component('blocking-mutex', {'lock_timeout': False, 'preemptive': True, 'prio_pcp': True}),
+              Component('simple-semaphore', {'timeouts': False, 'preemptive': True}),
+              Component('error'),
+              Component('task', {'task_start_api': False}),
+              Component('phact'),
+              ],
 }
 
 # client repositories may extend or override the following variables to control which configurations are available

@@ -60,6 +60,9 @@ mutex_try_lock(const {{prefix_type}}MutexId m)
     if (r)
     {
         mutexes[m].holder = get_current_task();
+[[#prio_pcp]]
+        mutex_core_locked_by(m, get_current_task());
+[[/prio_pcp]]
     }
 
     postcondition_preemption_disabled();
@@ -166,6 +169,10 @@ void
     api_assert(mutexes[m].holder == get_current_task(), ERROR_ID_NOT_HOLDING_MUTEX);
 
     preempt_disable();
+
+[[#prio_pcp]]
+    mutex_core_unlocked(m);
+[[/prio_pcp]]
 
     for (t = {{prefix_const}}TASK_ID_ZERO; t <= {{prefix_const}}TASK_ID_MAX; t++)
     {

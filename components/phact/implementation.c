@@ -21,6 +21,13 @@ static void mutex_core_unlocked({{prefix_type}}MutexId mutex);
 {{/mutexes.length}}
 
 /*| state |*/
+{{#timers.length}}
+static {{prefix_type}}TimerId task_timers[{{tasks.length}}] = {
+{{#tasks}}
+    {{prefix_const}}TIMER_ID_{{timer.name|u}},
+{{/tasks}}
+};
+{{/timers.length}}
 
 /*| function_like_macros |*/
 #define mutex_core_block_on(blocker) block()

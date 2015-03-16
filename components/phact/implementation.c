@@ -32,8 +32,8 @@ static {{prefix_type}}TimerId task_timers[{{tasks.length}}] = {
 /*| function_like_macros |*/
 #define mutex_core_block_on(blocker) signal_wait({{prefix_const}}SIGNAL_ID__TASK_TIMER)
 #define mutex_core_unblock(task) signal_send_set(task, {{prefix_const}}SIGNAL_ID__TASK_TIMER)
-#define sem_core_block() block()
-#define sem_core_unblock(task) unblock(task)
+#define sem_core_block() signal_wait({{prefix_const}}SIGNAL_ID__TASK_TIMER)
+#define sem_core_unblock(task) signal_send_set(task, {{prefix_const}}SIGNAL_ID__TASK_TIMER)
 
 /*| functions |*/
 {{#tasks}}
@@ -71,6 +71,18 @@ mutex_core_block_on_timeout(const {{prefix_type}}TaskId t, const {{prefix_type}}
     postcondition_preemption_disabled();
 }
 {{/mutexes.length}}
+
+static void
+sem_core_block_timeout(const {{prefix_type}}TicksRelative ticks)
+{
+    precondition_preemption_disabled();
+
+    timer_oneshot(task_timers[get_current_task()], ticks);
+    sem_core_block();
+    timer_disable(task_timers[get_current_task()]);
+
+    postcondition_preemption_disabled();
+}
 
 static void
 unblock(const {{prefix_type}}TaskId task)

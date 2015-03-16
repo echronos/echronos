@@ -241,7 +241,7 @@ CORE_SKELETONS = {
               Component('interrupt-event', pkg_component=True),
               Component('interrupt-event', {'timer_process': True}),
               Component('interrupt-event-signal', {'task_set': False}),
-              Component('blocking-mutex', {'lock_timeout': False, 'preemptive': True, 'prio_ceiling': True}),
+              Component('blocking-mutex', {'lock_timeout': True, 'preemptive': True, 'prio_ceiling': True}),
               Component('simple-semaphore', {'timeouts': False, 'preemptive': True}),
               Component('error'),
               Component('task', {'task_start_api': False}),

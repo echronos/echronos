@@ -273,7 +273,11 @@ This system demonstrates the eChronos Phact variant's mutex functionality, whose
   Both mutexes' priority ceilings are lower than that of the highest-priority task (A).
   All three tasks (B, Y, Z) intermittently wake the highest-priority task (A) to show that it is prioritized above all others regardless of other tasks' acquisition of either of the two mutexes.
 
-  Part 4 has one task (A) lock a mutex whose priority ceiling is lower than its task priority, which is illegal.
+  Part 4 demonstrates a lock attempt on a mutex by task (B) timing out due to task (A) not unlocking the mutex until after the requested timeout has expired.
+
+  Part 5 demonstrates a lock attempt on a mutex by task (B) succeeding before its timeout due to task (A) unlocking the mutex within the requested time.
+
+  Part 6 has one task (A) lock a mutex whose priority ceiling is lower than its task priority, which is illegal.
   This triggers a fatal error.
 
 The following is the expected output of the Phact mutex demo:
@@ -359,7 +363,34 @@ The following is the expected output of the Phact mutex demo:
     b: sending signal to a
     a: got signal, done
 
-    Part 4: Task takes mutex with lower priority ceiling
+    Part 4: B's lock attempt times out
+
+    a: taking the lock
+    a: sleeping
+    b: blocking on the lock, should time out
+    y: sleeping
+    z: sleeping
+    b: waiting for a to signal the lock's free
+    a: releasing the lock
+    a: signalling b
+    a: waiting until b has the lock
+    b: taking the lock
+    b: waking up a
+    b: releasing the lock
+
+    Part 5: B gets lock before timeout
+
+    a: taking the lock
+    a: sleeping
+    b: blocking on the lock, should succeed
+    y: sleeping
+    z: sleeping
+    a: releasing the lock
+    a: waiting until b has the lock
+    b: waking up a
+    b: releasing the lock
+
+    Part 6: Task takes mutex with lower priority ceiling
 
     a: taking lock (should trigger fatal error)
     FATAL ERROR: <hexadecimal error code for ERROR_ID_SCHED_PRIO_PCP_TASK_LOCKING_LOWER_PRIORITY_MUTEX - see rtos-variant.h>

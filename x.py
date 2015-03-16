@@ -102,7 +102,8 @@ import argparse
 import logging
 
 from pylib.tasks import new_review, new_task, tasks, integrate, _gen_tag
-from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8, check_licenses, check_provenance
+from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8, check_licenses, check_provenance,\
+    test_systems
 from pylib.components import Component, build
 from pylib.release import release_test, build_release, build_partials
 from pylib.prj import prj_build
@@ -256,13 +257,15 @@ def main():
         'test-release': release_test,
         'licenses': check_licenses,
         'provenance': check_provenance,
+        'systems': test_systems,
 
         # Tasks management
         'review': new_review,
         'new': new_task,
         'list': tasks,
         'integrate': integrate,
-        # Tempalte management
+
+        # Template management
         'gen-tag': _gen_tag,
     }
 
@@ -296,11 +299,11 @@ def main():
                              default=False)
     test_subparsers.add_parser('pystache-test', help='Test pystache')
     test_subparsers.add_parser('test-release', help='Test final release')
-
     _parser = test_subparsers.add_parser('licenses', help='Check that all files have the appropriate license header')
     _parser.add_argument('--excludes', nargs='*',
                          help="Exclude directories from license header checks",
                          default=[])
+    test_subparsers.add_parser('systems')
 
     test_subparsers.add_parser('provenance', help='Check that all files belonging to external tools map 1-1 with '
                                                   'provenance listings')

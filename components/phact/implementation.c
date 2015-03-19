@@ -58,7 +58,7 @@ unblock(const {{prefix_type}}TaskId task)
 
     sched_set_runnable(task);
 
-    /* Note: When preemption is enabled a yield should be forced as a higher priority task may have been scheduled. */
+    /* Yield when we later re-enable preemption, because we may have set a higher priority task runnable. */
     preempt_pend();
 
     postcondition_preemption_disabled();
@@ -82,7 +82,8 @@ mutex_core_unlocked({{prefix_type}}MutexId mutex)
 
     sched_set_mutex_unlocked(mutex);
 
-    /* Note: When preemption is enabled a yield should be forced as this task's priority may have been lowered. */
+    /* Yield when we later re-enable preemption, because this task will have reverted from the mutex's priority
+     * ceiling back to its original (and necessarily lower) explicitly assigned priority. */
     preempt_pend();
 
     postcondition_preemption_disabled();

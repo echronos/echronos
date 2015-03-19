@@ -20,7 +20,7 @@ struct sched_entry {
 };
 
 /*
- * NOTE: An RTOS variant using the priority-ceiling protocol scheduler must ensure that the 'sched_queue' array (whose
+ * A RTOS variant using the priority-ceiling protocol scheduler must ensure that the 'sched_queue' array (whose
  * entries represent mutexes and tasks) is sorted by descending priority.
  */
 struct sched {
@@ -110,7 +110,7 @@ static [[#assume_runnable]]{{prefix_type}}TaskId[[/assume_runnable]][[^assume_ru
 sched_get_next(void)
 {
     /*
-     * NOTE: In the case where assume_runnable is true and no runnable tasks are found, then an undefined task will be
+     * In the case where assume_runnable is true and no runnable tasks are found, then an undefined task will be
      * returned from this function.
      */
     SchedIndexOption sched_idx, next_idx;

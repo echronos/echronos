@@ -60,9 +60,9 @@ mutex_try_lock(const {{prefix_type}}MutexId m)
     if (r)
     {
         mutexes[m].holder = get_current_task();
-[[#prio_pcp]]
+[[#prio_ceiling]]
         mutex_core_locked_by(m, get_current_task());
-[[/prio_pcp]]
+[[/prio_ceiling]]
     }
 
     postcondition_preemption_disabled();
@@ -170,9 +170,9 @@ void
 
     preempt_disable();
 
-[[#prio_pcp]]
+[[#prio_ceiling]]
     mutex_core_unlocked(m);
-[[/prio_pcp]]
+[[/prio_ceiling]]
 
     for (t = {{prefix_const}}TASK_ID_ZERO; t <= {{prefix_const}}TASK_ID_MAX; t++)
     {

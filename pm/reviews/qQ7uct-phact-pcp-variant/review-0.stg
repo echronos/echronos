@@ -21,6 +21,8 @@ Comment 2: Accepted
 The name prio_pcp is redundant and not overly clear.
 How about prio_ceiling?
 
+[robs: Renamed both the component and the pystache tag to "prio(-|_)ceiling" rather than "prio(-|_)pcp".]
+
 Location: components/phact/header.h:2
 Comment 3: Rework
 It seems that the code in this header file does not use any declarations made in stdint.h.

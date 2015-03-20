@@ -26,6 +26,8 @@ Comment 3: Rework
 It seems that the code in this header file does not use any declarations made in stdint.h.
 Can the #include statement be removed?
 
+[robs: Removed]
+
 Location: components/phact/implementation.c:61
 Comment 4: Rework
 "Note:" is superfluous as a comment is obviously meant to be noted by the reader.
@@ -55,10 +57,14 @@ Location: components/sched-prio-pcp/implementation.c:33 and others
 Comment 7: Rework
 Function declarations are not mark pass-by-value arguments with the "const" keyword because its effect is irrelevant to the caller.
 
+[robs: Fixed]
+
 Location: components/sched-prio-pcp/implementation.c:94
 Comment 8: Rework
 When internal assertions are disabled in the system configuration, the internal_assert() macro is defined as an empty macro.
 Therefore, it does not need to be enclosed in {{#internal_asserts}} tags.
+
+[robs: Fixed]
 
 Location: components/sched-prio-pcp/implementation.c:113
 Comment 9: Rework
@@ -71,8 +77,12 @@ Comment 10: Rework
 `goto` statements are so 2014.
 `break` statements are the new hotness.
 
+[robs: Fixed]
+
 Location: components/sched-prio-pcp/implementation.c:136
 Comment 11: Rework
 The `sched_index_to_taskid()` macro always evaluates to a value of type `TaskId`.
 Therefore, the conditional cast to type `TaskId` is not necessary.
 However, the inverse cast to type `TaskIdOption` is necessary when `assume_runnable` is false.
+
+[robs: Fixed]

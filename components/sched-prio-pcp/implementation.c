@@ -30,11 +30,11 @@ struct sched {
 /*| extern_definitions |*/
 
 /*| function_definitions |*/
-static void sched_set_runnable(const {{prefix_type}}TaskId task_id);
-static void sched_set_blocked(const {{prefix_type}}TaskId task_id);
+static void sched_set_runnable({{prefix_type}}TaskId task_id);
+static void sched_set_blocked({{prefix_type}}TaskId task_id);
 {{#mutexes.length}}
-static void sched_set_mutex_locked_by(const {{prefix_type}}MutexId mutex_id, const {{prefix_type}}TaskId task_id);
-static void sched_set_mutex_unlocked(const {{prefix_type}}MutexId mutex_id);
+static void sched_set_mutex_locked_by({{prefix_type}}MutexId mutex_id, {{prefix_type}}TaskId task_id);
+static void sched_set_mutex_unlocked({{prefix_type}}MutexId mutex_id);
 {{/mutexes.length}}
 static [[#assume_runnable]]{{prefix_type}}TaskId[[/assume_runnable]][[^assume_runnable]]TaskIdOption[[/assume_runnable]] sched_get_next(void);
 
@@ -91,11 +91,9 @@ sched_set_blocked(const {{prefix_type}}TaskId task_id)
 static void
 sched_set_mutex_locked_by(const {{prefix_type}}MutexId mutex_id, const {{prefix_type}}TaskId task_id)
 {
-{{#internal_asserts}}
     /* Lower array indices correspond to higher priorities */
     internal_assert(sched_mutexid_to_index(mutex_id) < sched_taskid_to_index(task_id),
             ERROR_ID_SCHED_PRIO_PCP_TASK_LOCKING_LOWER_PRIORITY_MUTEX);
-{{/internal_asserts}}
     SCHED_OBJ_MUTEX(mutex_id).locked_by = sched_taskid_to_index(task_id);
 }
 
@@ -125,15 +123,15 @@ sched_get_next(void)
             continue;
         } else if (next_idx == sched_idx) {
             /* A runnable task */
-            goto found;
+            break;
         } else if (SCHED_OBJ(next_idx).locked_by == next_idx) {
             /* A mutex locked by a runnable task */
             sched_idx = next_idx;
-            goto found;
+            break;
         }
     }
-found:
-    return [[#assume_runnable]]({{prefix_type}}TaskId)[[/assume_runnable]] sched_index_to_taskid(sched_idx);
+
+    return [[^assume_runnable]](TaskIdOption)[[/assume_runnable]] sched_index_to_taskid(sched_idx);
 }
 
 /*| public_functions |*/

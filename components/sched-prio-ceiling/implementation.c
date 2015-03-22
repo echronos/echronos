@@ -1,4 +1,5 @@
 /*| headers |*/
+#include <stdint.h>
 
 /*| object_like_macros |*/
 #define SCHED_INDEX_ZERO ((SchedIndex) UINT{{schedindex_size}}_C(0))

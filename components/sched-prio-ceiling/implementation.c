@@ -43,20 +43,20 @@ static [[#assume_runnable]]{{prefix_type}}TaskId[[/assume_runnable]][[^assume_ru
 static struct sched sched_queue;
 
 {{#mutexes.length}}
-static SchedIndex mutex_to_index[{{mutexes.length}}] = {
+static const SchedIndex mutex_to_index[{{mutexes.length}}] = {
 {{#mutexes}}
     {{sched_idx}},
 {{/mutexes}}
 };
 {{/mutexes.length}}
 
-static SchedIndex task_to_index[{{tasks.length}}] = {
+static const SchedIndex task_to_index[{{tasks.length}}] = {
 {{#tasks}}
     {{sched_idx}},
 {{/tasks}}
 };
 
-static SchedIndex index_to_mutex_task[{{mutex_tasks_length}}] = {
+static const SchedIndex index_to_mutex_task[{{mutex_tasks_length}}] = {
 {{#mutex_tasks}}
     {{idx}},
 {{/mutex_tasks}}

@@ -66,7 +66,7 @@ unblock(const {{prefix_type}}TaskId task)
 
 {{#mutexes.length}}
 static void
-mutex_core_locked_by({{prefix_type}}MutexId mutex, {{prefix_type}}TaskId task)
+mutex_core_locked_by(const {{prefix_type}}MutexId mutex, const {{prefix_type}}TaskId task)
 {
     precondition_preemption_disabled();
 
@@ -76,7 +76,7 @@ mutex_core_locked_by({{prefix_type}}MutexId mutex, {{prefix_type}}TaskId task)
 }
 
 static void
-mutex_core_unlocked({{prefix_type}}MutexId mutex)
+mutex_core_unlocked(const {{prefix_type}}MutexId mutex)
 {
     precondition_preemption_disabled();
 

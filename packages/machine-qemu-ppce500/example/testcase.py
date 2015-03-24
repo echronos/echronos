@@ -19,11 +19,15 @@
 # @TAG(NICTA_AGPL)
 #
 
+import os
 import subprocess
+import unittest
 from pylib import tests
 
 
 class TestCase(tests.GdbTestCase):
+    @unittest.skipIf(os.name == 'nt', "not supported on this operating system because cross-platform toolchain is not\
+ available")
     def setUp(self):
         super(TestCase, self).setUp()
         self.qemu = subprocess.Popen(('qemu-system-ppc', '-S', '-nographic', '-gdb', 'tcp::18181', '-M', 'ppce500',

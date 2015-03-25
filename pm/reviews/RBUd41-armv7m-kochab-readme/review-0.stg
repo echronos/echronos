@@ -15,3 +15,5 @@ Comment 1: Rework
 This section duplicates a lot of configuration items that are already documented in the RTOS manual.
 In my opinion, it is preferable to refer to the manual and avoid duplication where possible.
 The same goes of course for the other readme files.
+
+[robs: Done]

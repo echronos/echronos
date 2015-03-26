@@ -415,7 +415,9 @@ class GdbTestCase(unittest.TestCase):
     def _get_test_output(self):
         test_command = self._get_test_command()
         gdb_output = subprocess.check_output(test_command)
-        return self._filter_gdb_output(gdb_output.decode())
+        # for an unknown reason, decode() handles Windows line breaks incorrectly so convert them to UNIX linebreaks
+        output_str = gdb_output.replace(b'\r\n', b'\n').decode()
+        return self._filter_gdb_output(output_str)
 
     def _get_test_command(self):
         return ('gdb', '--batch', self.executable_path, '-x', self.gdb_commands_path)
@@ -429,6 +431,7 @@ class GdbTestCase(unittest.TestCase):
         delete_patterns = (re.compile('^(\[New Thread .+)$'),)
         replace_patterns = (re.compile('Breakpoint [0-9]+ at (0x[0-9a-f]+): file (.+), line ([0-9]+)'),
                             re.compile('^Breakpoint .* at (.+)$'),
+                            re.compile('( <__register_frame_info\+[0-9a-f]+>)'),
                             re.compile('=(0x[0-9a-f]+)'),
                             re.compile('Inferior( [0-9]+ )\[process( [0-9]+\]) will be killed'))
         filtered_result = io.StringIO()

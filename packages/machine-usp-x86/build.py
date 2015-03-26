@@ -19,7 +19,10 @@
 # @TAG(NICTA_AGPL)
 #
 
+from collections import namedtuple
 import os.path
+import re
+import subprocess
 from prj import execute, SystemBuildError
 
 
@@ -42,5 +45,21 @@ def system_build(system, configuration):
 
     shared_args = ['-shared', '-fPIC'] if configuration['output_type'] == 'shared-library' else []
 
-    execute(['gcc', '-o', system.output_file, '-Wall', '-Werror', '-Wpedantic', '-Wextra', '-ggdb', '-m32'] +
-            shared_args + inc_path_args + system.asm_files + system.c_files)
+    execute(['gcc', '-o', system.output_file, '-Wall', '-Werror', '-Wextra', '-ggdb', '-m32'] +
+            _get_gcc_options() + shared_args + inc_path_args + system.asm_files + system.c_files)
+
+
+def _get_gcc_options():
+    options = []
+    version = _get_gcc_version()
+    if version.major > 4 or (version.major == 4 and version.minor > 7):
+        options.append('-Wpedantic')
+    return options
+
+
+def _get_gcc_version():
+    gcc_output = subprocess.check_output(['gcc', '--version']).decode()
+    first_line = gcc_output.splitlines()[0]
+    version_str = re.search(' ([0-9]+\.[0-9])+\.[0-9]+$', first_line).group(1)
+    version_tuple = map(int, version_str.split('.'))
+    return namedtuple('Version', 'major minor')(*version_tuple)

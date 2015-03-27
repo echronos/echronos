@@ -303,8 +303,8 @@ def main():
     _parser.add_argument('--excludes', nargs='*',
                          help="Exclude directories from license header checks",
                          default=[])
-    _parser = test_subparsers.add_parser('systems', help='Run system tests, i.e., tests that check the behavior of \
-full RTOS systems. This command supports the same options as the Python nose test framework.')
+    test_subparsers.add_parser('systems', help='Run system tests, i.e., tests that check the behavior of full \
+RTOS systems. This command supports the same options as the Python nose test framework.')
 
     test_subparsers.add_parser('provenance', help='Check that all files belonging to external tools map 1-1 with '
                                                   'provenance listings')

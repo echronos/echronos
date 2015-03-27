@@ -18,6 +18,8 @@ Location: packages/machine-qemu-ppce500/example/testcase.py:33
 Comment 1: Rework
 Windows-style line ending.
 
+[stg: converted to unix style]
+
 Location: pylib/tests.py:37
 Comment 2: Rework
 The 'top_path' function imported here from .utils does not appear to be used.

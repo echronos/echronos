@@ -348,20 +348,18 @@ def check_provenance(args):
 
 
 def test_systems(args):
-    modules = ['systems']
-    directories = ['.']
-    args.tests = ()
-    args.verbose = False
-    args.quiet = False
-    args.list = False
-
     def find_gdb_test_py_files(path):
         for parent, dirs, files in os.walk(path):
             for file in files:
                 if file.endswith('.py') and os.path.splitext(file)[0] + '.gdb' in files:
                     yield os.path.join(parent, file)
 
-    nose.core.run(argv=[''] + list(find_gdb_test_py_files('packages')))
+    if args.unknown_args and isinstance(args.unknown_args[-1], str) and args.unknown_args[-1].endswith('.py'):
+        tests = []
+    else:
+        tests = list(find_gdb_test_py_files('packages'))
+
+    nose.core.run(argv=[''] + args.unknown_args + tests)
 
 
 class GdbTestCase(unittest.TestCase):

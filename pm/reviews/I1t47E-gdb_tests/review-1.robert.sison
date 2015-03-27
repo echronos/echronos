@@ -30,6 +30,8 @@ Location: pylib/tests.py:351-356
 Comment 3: Rework
 The variables and fields initialized here do not appear to be used.
 
+[stg: removed unused code, but extended command line argument handling such that all options are passed on to the nose test framework]
+
 Location: packages/machine-qemu-ppce500/example/__init__.py:20
 Comment 4: Rework
 Now that we have license headers, I think we need a "intentionally left blank" notice here, as we've done elsewhere (e.g. rtos/__init__.py, prj/app/lib/util/__init__.py).

@@ -34,7 +34,7 @@ import inspect
 
 from .xunittest import discover_tests, TestSuite, SimpleTestNameResult, testcase_matches, testsuite_list
 from .release import _LicenseOpener
-from .utils import get_executable_extension, top_path
+from .utils import get_executable_extension
 
 
 def prj_test(args):

@@ -24,6 +24,8 @@ Location: pylib/tests.py:37
 Comment 2: Rework
 The 'top_path' function imported here from .utils does not appear to be used.
 
+[stg: removed unused import]
+
 Location: pylib/tests.py:351-356
 Comment 3: Rework
 The variables and fields initialized here do not appear to be used.

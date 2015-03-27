@@ -36,3 +36,5 @@ Location: packages/machine-qemu-ppce500/example/__init__.py:20
 Comment 4: Rework
 Now that we have license headers, I think we need a "intentionally left blank" notice here, as we've done elsewhere (e.g. rtos/__init__.py, prj/app/lib/util/__init__.py).
 Should this be added to our internal conventions?
+
+[stg: I don't see the problem that the comment "intentionally left blank" solves, so I remove those comments where they were present]

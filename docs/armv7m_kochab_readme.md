@@ -128,12 +128,12 @@ When no `project` is specified the `project_output_dir` will be `$pwd/out` (wher
 --------------------------
 
 The `gen` sub-command takes a single mandatory parameter, which is the name of the system to build.
-The system be either be a fully-qualified module name, or the direct path to a system description file (`.prx` file).
+The system can be either be a fully-qualified module name, or the direct path to a system description file (`.prx` file).
 
 When using the tool in configuration mode the path to a system description file is generally used.
 
-The system description file specifies the system in a declaration manner.
-In configuration mode, the description file is only describing the configuration of the RTOS (and associated modules), rather than the full-system.
+The system description file specifies the system in a declarative manner.
+In configuration mode, the description file only describes the configuration of the RTOS (and associated modules), rather than the full-system.
 
 The format of the system description file is described in following sections.
 
@@ -168,7 +168,7 @@ Custom modules may be created, however this is generally only needed when using 
 
 Modules may be of varying complexity.
 At the simplest a module is simply a `.c` (or `.s`) file.
-At the most complex the module can be a set of multiple implementation files with a customised, scripted-based generation strategy.
+At the most complex the module can be a set of multiple implementation files with a customised, script-based generation strategy.
 
 When using the RTOS in a configuration only mode there are four modules that will be needed: `armv7m.ctxt-switch-preempt`, `armv7m.exception-preempt`, `armv7m.vectable`, and `armv7m.rtos-kochab`.
 

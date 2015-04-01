@@ -5,16 +5,18 @@ Task name: I1t47E-gdb_tests
 Version reviewed: 92ade92af1c3a33fd178cdbbfdf507dc645b7270
 Reviewer: ihor.kuz
 Date: 2015-03-27
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
+The 'intentionally left blank' comments were added when we were automatically adding license tags.  
+It gave the script doing it an idea of what the header format should be.  
+Now that that's been done, it's fine to remove that comment.
 
 
 Specific comments
 =================
 
-Location: filename:linenum
+Location: *.txt
 Comment:
-
-Location: filename:linenum
-Comment:
+I don't think that .txt is a good suffix for the test output files.  
+Normally it implies a readable document, this is not the case here.

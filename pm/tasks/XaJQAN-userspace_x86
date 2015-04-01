@@ -1,0 +1,28 @@
+Task: XaJQAN-userspace_x86
+==============================================================================
+
+Motivation
+----------
+
+There is currently no support for developing, testing, and debugging systems as user-space applications on host operating systems.
+Being able to do so, in particular on the x86 platform, allows developers to leverage all the standard debugging and analysis tools available on their host operating system.
+The 'posix' support does not adequately address this need because it is too OS specific.
+
+
+Goals
+--------
+
+- implement a stack and context-switch component for x86 and user-space processes
+- create test systems that demonstrate the variants that do not depend on interrupt and timer support to work on Linux and Windows
+- create system tests that serve as regression tests for the new test systems
+
+
+Test Plan
+---------
+
+run
+
+    #> . setenv
+    #> ./x.py test systems
+
+and verify that the x86 systems are run successfully.

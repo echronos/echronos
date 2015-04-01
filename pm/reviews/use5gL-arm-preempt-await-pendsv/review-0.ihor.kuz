@@ -5,16 +5,11 @@ Task name: use5gL-arm-preempt-await-pendsv
 Version reviewed: c1674f27cf0cc4410cf8b27145b1a6a948393093
 Reviewer: ihor.kuz
 Date: 2015-03-13
-Conclusion: Accepted/Rework
-
-Overall comments:
-
+Conclusion: Rework
 
 Specific comments
 =================
 
-Location: filename:linenum
+Location: pm/task/use5gL-arm-preempt-await-pendsv
 Comment:
-
-Location: filename:linenum
-Comment:
+The description of this work talks about 'user' when it should be referring to 'task'.

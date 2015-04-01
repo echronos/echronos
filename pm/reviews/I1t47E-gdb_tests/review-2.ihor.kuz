@@ -8,8 +8,8 @@ Date: 2015-03-27
 Conclusion: Rework
 
 Overall comments:
-The 'intentionally left blank' comments were added when we were automatically adding license tags.  
-It gave the script doing it an idea of what the header format should be.  
+The 'intentionally left blank' comments were added when we were automatically adding license tags.
+It gave the script doing it an idea of what the header format should be.
 Now that that's been done, it's fine to remove that comment.
 
 
@@ -18,5 +18,7 @@ Specific comments
 
 Location: *.txt
 Comment:
-I don't think that .txt is a good suffix for the test output files.  
+I don't think that .txt is a good suffix for the test output files.
 Normally it implies a readable document, this is not the case here.
+
+[stg: changed the extensions of those file names to gdbout]

@@ -372,7 +372,7 @@ class GdbTestCase(unittest.TestCase):
     To use this class for new tests, import this class in a Python file under the packages/ directory.
     That Python file needs to have the same file name as the .prx file containing the system configuration of the
     system to build and test, the .gdb file containing the GDB commands to execute against the system executable, and
-    the .txt file containing the expected GDB output.
+    the .gdbout file containing the expected GDB output.
     The default implementation of this class then picks up these files and runs the test.
 
     If building or running or testing a system requires additional logic beyond this default implementation, create a
@@ -421,7 +421,7 @@ class GdbTestCase(unittest.TestCase):
         return ('gdb', '--batch', self.executable_path, '-x', self.gdb_commands_path)
 
     def _get_reference_output(self):
-        reference_path = os.path.splitext(self.prx_path)[0] + '.txt'
+        reference_path = os.path.splitext(self.prx_path)[0] + '.gdbout'
         return self._filter_gdb_output(open(reference_path).read())
 
     @staticmethod

@@ -18,5 +18,3 @@
 #
 # @TAG(NICTA_AGPL)
 #
-
-# This file intentionally left blank

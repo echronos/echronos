@@ -1,0 +1,138 @@
+rtos_internal_entry () at out/machine-qemu-ppce500/example/gatria-system/ppce500.vectable.s:485
+485	        lis %r3,Reset_Handler@h
+Breakpoint 1 at 0xb6c: file out/machine-qemu-ppce500/example/gatria-system/generic.debug.c, line 52.
+Breakpoint 2 at 0xec8: file packages/rtos-example/gatria-test.c, line 90.
+
+Breakpoint 2, main () at packages/rtos-example/gatria-test.c:90
+90	    rtos_start();
+
+Breakpoint 1, debug_println (msg=0xed0 "task a -- lock") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf2c "task b -- try lock") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf00 "task a -- unlock") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf40 "task b -- got lock") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf54 "task b") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf5c "b blocking") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf14 "task a") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf1c "unblocking b") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf54 "task b") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf14 "task a") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf54 "task b") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf14 "task a") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf54 "task b") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf14 "task a") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf54 "task b") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf5c "b blocking") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf14 "task a") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf14 "task a") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf1c "unblocking b") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf54 "task b") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf14 "task a") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf54 "task b") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf14 "task a") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf54 "task b") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf14 "task a") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf54 "task b") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf5c "b blocking") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf14 "task a") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf14 "task a") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf1c "unblocking b") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf54 "task b") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf14 "task a") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf54 "task b") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf14 "task a") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf54 "task b") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf14 "task a") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf54 "task b") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf5c "b blocking") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf14 "task a") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf14 "task a") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf1c "unblocking b") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xf54 "task b") at out/machine-qemu-ppce500/example/gatria-system/generic.debug.c:52
+52	    debug_print(msg);
+A debugging session is active.
+
+	Inferior 1 [Remote target] will be killed.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]

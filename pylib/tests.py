@@ -26,9 +26,15 @@ import logging
 import unittest
 import subprocess
 from contextlib import contextmanager
+import difflib
+import io
+import re
+import nose
+import inspect
 
 from .xunittest import discover_tests, TestSuite, SimpleTestNameResult, testcase_matches, testsuite_list
 from .release import _LicenseOpener
+from .utils import get_executable_extension
 
 
 def prj_test(args):
@@ -339,3 +345,108 @@ def check_provenance(args):
 
     if len(files_nonexistent):
         return 1
+
+
+def test_systems(args):
+    def find_gdb_test_py_files(path):
+        for parent, dirs, files in os.walk(path):
+            for file in files:
+                if file.endswith('.py') and os.path.splitext(file)[0] + '.gdb' in files:
+                    yield os.path.join(parent, file)
+
+    if args.unknown_args and isinstance(args.unknown_args[-1], str) and args.unknown_args[-1].endswith('.py'):
+        tests = []
+    else:
+        tests = list(find_gdb_test_py_files('packages'))
+
+    nose.core.run(argv=[''] + args.unknown_args + tests)
+
+
+class GdbTestCase(unittest.TestCase):
+    """A Pythonic interface to running an RTOS system executable against a GDB command file and checking whether the
+    output produced matches a given reference output.
+
+    The external interface of this class is that of unittest.TestCase to be accessed by the unittest or nose
+    frameworks.
+
+    To use this class for new tests, import this class in a Python file under the packages/ directory.
+    That Python file needs to have the same file name as the .prx file containing the system configuration of the
+    system to build and test, the .gdb file containing the GDB commands to execute against the system executable, and
+    the .gdbout file containing the expected GDB output.
+    The default implementation of this class then picks up these files and runs the test.
+
+    If building or running or testing a system requires additional logic beyond this default implementation, create a
+    subclass of this class and extend it accordingly.
+
+    """
+    system_name = None
+    search_path = 'packages'
+
+    def setUp(self):
+        topdir = os.path.abspath('.')
+        if self.system_name is None:
+            py_path = inspect.getfile(self.__class__)
+            self.prx_path = os.path.splitext(py_path)[0] + '.prx'
+            rel_py_path = os.path.relpath(py_path, os.path.abspath(self.search_path))
+            self.system_name = os.path.splitext(rel_py_path)[0].replace(os.sep, '.')
+        else:
+            rel_prx_path = os.path.join(self.search_path, self.system_name.replace('.', os.sep)) + '.prx'
+            self.prx_path = os.path.abspath(rel_prx_path)
+        self.executable_path = os.path.abspath(os.path.join('out', self.system_name.replace('.', os.sep),
+                                                            'system' + get_executable_extension()))
+        self.gdb_commands_path = os.path.splitext(self.prx_path)[0] + '.gdb'
+        self._build()
+
+    def test(self):
+        assert os.path.exists(self.executable_path)
+        assert os.path.exists(self.gdb_commands_path)
+        test_output = self._get_test_output()
+        reference_output = self._get_reference_output()
+        if test_output != reference_output:
+            for line in difflib.unified_diff(reference_output.splitlines(), test_output.splitlines(),
+                                             'reference', 'test'):
+                sys.stdout.write(line + '\n')
+        assert test_output == reference_output
+
+    def _build(self):
+        subprocess.check_call((sys.executable, os.path.join('prj', 'app', 'prj.py'), '--search-path',
+                              self.search_path, 'build', self.system_name))
+
+    def _get_test_output(self):
+        test_command = self._get_test_command()
+        gdb_output = subprocess.check_output(test_command)
+        return self._filter_gdb_output(gdb_output.decode())
+
+    def _get_test_command(self):
+        return ('gdb', '--batch', self.executable_path, '-x', self.gdb_commands_path)
+
+    def _get_reference_output(self):
+        reference_path = os.path.splitext(self.prx_path)[0] + '.gdbout'
+        return self._filter_gdb_output(open(reference_path).read())
+
+    @staticmethod
+    def _filter_gdb_output(gdb_output):
+        delete_patterns = (re.compile('^(\[New Thread .+)$'),)
+        replace_patterns = (re.compile('Breakpoint [0-9]+ at (0x[0-9a-f]+): file (.+), line ([0-9]+)'),
+                            re.compile('^Breakpoint .* at (.+)$'),
+                            re.compile('=(0x[0-9a-f]+)'),
+                            re.compile('Inferior( [0-9]+ )\[process( [0-9]+\]) will be killed'))
+        filtered_result = io.StringIO()
+        for line in gdb_output.splitlines(True):
+            match = None
+            for pattern in delete_patterns:
+                match = pattern.search(line)
+                if match:
+                    break
+            if match:
+                continue
+            for pattern in replace_patterns:
+                while True:
+                    match = pattern.search(line)
+                    if match:
+                        for group in match.groups():
+                            line = line.replace(group, '')
+                    else:
+                        break
+            filtered_result.write(line)
+        return filtered_result.getvalue()

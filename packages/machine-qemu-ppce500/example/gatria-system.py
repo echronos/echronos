@@ -18,3 +18,5 @@
 #
 # @TAG(NICTA_AGPL)
 #
+
+from .testcase import TestCase

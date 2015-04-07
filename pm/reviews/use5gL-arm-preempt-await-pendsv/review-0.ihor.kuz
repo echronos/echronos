@@ -13,3 +13,5 @@ Specific comments
 Location: pm/task/use5gL-arm-preempt-await-pendsv
 Comment:
 The description of this work talks about 'user' when it should be referring to 'task'.
+
+[robs: Reworded for posterity]

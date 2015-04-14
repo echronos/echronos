@@ -260,7 +260,7 @@ def main():
         'generate': build,
         'build-release': build_release,
         'build-partials': build_partials,
-        'build-manuals': build_docs,
+        'docs': build_docs,
 
         # Testing
         'check-pep8': check_pep8,
@@ -331,7 +331,8 @@ RTOS systems. This command supports the same options as the Python nose test fra
     _parser = build_subparsers.add_parser('build-partials', help='Build partial release files')
     _parser.add_argument('--allow-unknown-filetypes', action='store_true',
                          help='Allow unknown filetypes in the build')
-    _parser = build_subparsers.add_parser('build-manuals', help='Build PDF manuals')
+    _parser = build_subparsers.add_parser('docs', help='Build documentation for all variants that support it. The \
+generated documentation files are called "docs.pdf" and can be found in each variant\'s package directory.')
     _parser.add_argument('--verbose', '-v', action='store_true')
     build_subparsers.add_parser('generate', help='Generate packages from components')
 

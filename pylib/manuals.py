@@ -79,9 +79,9 @@ def get_doc_vars(markdown_file):
 
 
 def build_manual(pkg_dir, top_dir, verbose=False):
-    markdown_file = os.path.join(pkg_dir, 'documentation.markdown')
-    pdf_file = os.path.join(pkg_dir, 'documentation.pdf')
-    html_file = os.path.join(pkg_dir, 'documentation.html')
+    markdown_file = os.path.join(pkg_dir, 'docs.md')
+    pdf_file = os.path.join(pkg_dir, 'docs.pdf')
+    html_file = os.path.join(pkg_dir, 'docs.html')
 
     doc_vars = get_doc_vars(markdown_file)
     if not doc_vars:
@@ -136,5 +136,5 @@ your command as xvfb-run -a -s "-screen 0 640x480x16" ./x.py [...]')
 
 def build_manuals(args):
     build(args)
-    for pkg_dir in get_package_dirs(set(('documentation.markdown',))):
+    for pkg_dir in get_package_dirs(set(('docs.md',))):
         build_manual(pkg_dir, args.topdir, args.verbose)

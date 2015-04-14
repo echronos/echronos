@@ -28,7 +28,7 @@ from .utils import BASE_DIR, base_path, get_host_platform_name, get_executable_e
 from .components import build
 
 
-def get_platform_tools_dir():
+def _get_platform_tools_dir():
     return os.path.join(BASE_DIR, 'tools', get_host_platform_name())
 
 
@@ -36,7 +36,7 @@ class ExecutableNotAvailable(Exception):
     pass
 
 
-def get_executable_from_repo_or_system(name):
+def _get_executable_from_repo_or_system(name):
     """Get the path of an executable, searching first in the repository's tool directory, then on the system.
 
     `name` is the base name of the executable without path components and without extensions.
@@ -45,12 +45,12 @@ def get_executable_from_repo_or_system(name):
 
     Example:
     - On Windows:
-      get_executable_from_repo_or_system('pandoc') => '.\\tools\\win32\\bin\\pandoc.exe'
+      _get_executable_from_repo_or_system('pandoc') => '.\\tools\\win32\\bin\\pandoc.exe'
     - On Linux with pandoc installed in the system:
-      get_executable_from_repo_or_system('pandoc') => '/usr/bin/pandoc'
+      _get_executable_from_repo_or_system('pandoc') => '/usr/bin/pandoc'
 
     """
-    path = os.path.join(get_platform_tools_dir(), 'bin', name + get_executable_extension())
+    path = os.path.join(_get_platform_tools_dir(), 'bin', name + get_executable_extension())
     if not os.path.exists(path):
         path = shutil.which(name)
         if not path:
@@ -60,7 +60,7 @@ support your host platform.'.format(name))
     return path
 
 
-def get_package_dirs(required_files=None):
+def _get_package_dirs(required_files=None):
     if required_files is None:
         required_files = set()
 
@@ -69,7 +69,7 @@ def get_package_dirs(required_files=None):
             yield root
 
 
-def get_doc_vars(markdown_file):
+def _get_doc_vars(markdown_file):
     doc_vars = {}
     for line in open(markdown_file).readlines():
         if line.startswith('<!-- %'):
@@ -78,20 +78,20 @@ def get_doc_vars(markdown_file):
     return doc_vars
 
 
-def build_manual(pkg_dir, top_dir, verbose=False):
+def _build_doc(pkg_dir, top_dir, verbose=False):
     markdown_file = os.path.join(pkg_dir, 'docs.md')
     pdf_file = os.path.join(pkg_dir, 'docs.pdf')
     html_file = os.path.join(pkg_dir, 'docs.html')
 
-    doc_vars = get_doc_vars(markdown_file)
+    doc_vars = _get_doc_vars(markdown_file)
     if not doc_vars:
-        print('Not generating manual for {} because documentation is incomplete'.format(pkg_dir))
+        print('Not generating documentation for {} because it is incomplete'.format(pkg_dir))
         return
 
     css_abs_path = find_path(os.path.join('docs', 'manual_template', 'documentation_stylesheet.css'), top_dir)
     css_url = os.path.relpath(css_abs_path, pkg_dir).replace(os.path.sep, '/')
 
-    pandoc_executable = get_executable_from_repo_or_system('pandoc')
+    pandoc_executable = _get_executable_from_repo_or_system('pandoc')
     pandoc_cmd = [pandoc_executable,
                   '--write', 'html',
                   '--standalone',
@@ -106,7 +106,7 @@ def build_manual(pkg_dir, top_dir, verbose=False):
         print(pandoc_cmd)
     subprocess.check_call(pandoc_cmd)
 
-    wkh_executable = get_executable_from_repo_or_system('wkhtmltopdf')
+    wkh_executable = _get_executable_from_repo_or_system('wkhtmltopdf')
     wkh_cmd = [wkh_executable,
                '--outline-depth', '2',
                '--page-size', 'A4',
@@ -134,7 +134,7 @@ your command as xvfb-run -a -s "-screen 0 640x480x16" ./x.py [...]')
         raise
 
 
-def build_manuals(args):
+def build_docs(args):
     build(args)
-    for pkg_dir in get_package_dirs(set(('docs.md',))):
-        build_manual(pkg_dir, args.topdir, args.verbose)
+    for pkg_dir in _get_package_dirs(set(('docs.md',))):
+        _build_doc(pkg_dir, args.topdir, args.verbose)

@@ -11,6 +11,8 @@ Overall comments:
 There are some documentation changes I made directly in the relevant files in this commit. 
 Please see those and accept if you agree.
 
+[robs: Looked good apart from some further tweaks, please see changes at locations mentioned below.]
+
 
 Specific comments
 =================
@@ -20,12 +22,20 @@ Comment:
 "The rest of this document assumes that `prj` will be used in configuration mode"
 A lot of the following content (general config options etc.) doesn't assume this.
 
+[robs: Deleted]
+
 Location: docs/armv7m_kochab_readme.md:130
 Comment:
 "The `gen` sub-command takes a single mandatory parameter, which is the name of the system to build."
 gen doesn't build a system.
 
+[robs: Fixed this by rewording just to say it takes the system description file path.
+This is also more accurate because the `gen` subcommand does NOT take the argument in module-name form like it previously said, it only supports the path form.]
+
 Location: docs/armv7m_kochab_readme.md: 149
 Comment:
 "The system description file (or simply PRX file) is used to specify the syst    em or in the case of the configuration only mode configure the RTOS related     modules of the system."
 This is an awkward sentence (talking about using it in conf mode or not). what's the difference (is it not so that in both cases it specifies a system, and in both cases it is used to configure modules)?
+
+[robs: In configuration-only mode (i.e. `gen` subcommand), only the RTOS-related modules are relevant, because all we're doing is generating the RTOS module code.
+I've split it into two sentences to make it clearer, please review.]

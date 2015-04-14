@@ -92,8 +92,6 @@ For example, to build the kochab mutex demo system for QEMU PowerPC e500, run:
 Global Options
 ---------------
 
-The rest of this document assumes that `prj` will be used in configuration mode.
-
 There are a number of global command line options available.
 These options should be passed on the command line before the sub-command name.
 E.g:
@@ -127,13 +125,10 @@ When no `project` is specified the `project_output_dir` will be `$pwd/out` (wher
 `gen` sub-command options
 --------------------------
 
-The `gen` sub-command takes a single mandatory parameter, which is the name of the system to build.
-The system be either be a fully-qualified module name, or the direct path to a system description file (`.prx` file).
+The `gen` sub-command takes as a single mandatory parameter the direct path to a system description file (PRX file).
 
-When using the tool in configuration mode the path to a system description file is generally used.
-
-The system description file specifies the system in a declaration manner.
-In configuration mode, the description file is only describing the configuration of the RTOS (and associated modules), rather than the full-system.
+The system description file specifies the system in a declarative manner.
+In configuration mode, the description file only describes the configuration of the RTOS (and associated modules), rather than the full-system.
 
 The format of the system description file is described in following sections.
 
@@ -146,7 +141,8 @@ This command will configure the RTOS based on the `rtos.prx` system description 
 System Description File
 ------------------------
 
-The system description file (or simply PRX file) is used to specify the system or in the case of the configuration only mode configure the RTOS related modules of the system.
+The system description file (or simply PRX file) is used to specify the modules of the system.
+Note that when `prj` is used in configuration-only mode, this file specifies only RTOS-related modules.
 
 Currently the system description is specified in XML, however additional formats are being considered and feedback is welcomed.
 

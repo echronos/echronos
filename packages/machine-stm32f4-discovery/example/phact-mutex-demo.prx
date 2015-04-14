@@ -89,7 +89,7 @@
       <mutexes>
         <mutex>
           <name>m0</name>
-          <priority>40</priority>
+          <priority>42</priority>
         </mutex>
         <mutex>
           <name>m1</name>
@@ -101,7 +101,7 @@
         </mutex>
         <mutex>
           <name>m3_h</name>
-          <priority>20</priority>
+          <priority>18</priority>
         </mutex>
         <mutex>
           <name>m3_l</name>

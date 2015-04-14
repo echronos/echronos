@@ -48,3 +48,10 @@ Specific API assertions and internal assertions are therefore not to be document
 
 SKcASp: All documentation uses present tense.
 Other tenses are only acceptable where they are necessary grammatically for clarity.
+
+BXCwte: All C code must observe const correctness.
+Const correctness is described in more detail online in Wikipedia and in the C++ FQA lite.
+In the RTOS C code, all function arguments not modified in the scope of the function must be marked with the const keyword in the function definition.
+Function arguments that are modified within the scope of the function must not be marked as const.
+By-value arguments must not be marked as const in the function declaration.
+For example for the function definition `int foo(const int *const bar) { return *bar; }`, the declaration `int foo(const int *const bar);` is invalid whereas `int foo(const int *bar);` is the correct declaration.

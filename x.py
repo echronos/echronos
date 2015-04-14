@@ -107,7 +107,7 @@ from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8, 
 from pylib.components import Component, build
 from pylib.release import release_test, build_release, build_partials
 from pylib.prj import prj_build
-from pylib.manuals import build_docs
+from pylib.docs import build_docs
 
 # Set up a specific logger with our desired output level
 logger = logging.getLogger()

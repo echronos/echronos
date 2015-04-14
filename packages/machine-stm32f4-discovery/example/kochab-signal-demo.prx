@@ -100,7 +100,9 @@
     </module>
 
     <!-- main .c file: -->
-    <module name="rtos-example.kochab-signal-demo" />
+    <module name="rtos-example.signal-demo">
+      <variant>kochab</variant>
+    </module>
 
   </modules>
 </system>

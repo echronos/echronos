@@ -1,0 +1,28 @@
+Breakaway Task Review
+=======================
+
+Task name: qQ7uct-phact-pcp-variant
+Version reviewed: 34490b18fe0b3de34f96faa41ac521c8bdb1fa08
+Reviewer: corey.lewis
+Date: 2015-04-13
+Conclusion: Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: components/error/implementation.c:34
+Comment:
+I think that ERROR_ID_SCHED_PRIO_PCP_TASK_LOCKING_LOWER_PRIORITY_MUTEX should say higher priority.
+
+[robs: As clarified offline, by "lower" here we mean "lower priority" rather than "lower priority (index) value" which in any case is implementation specific.
+Hence the current naming is correct.]
+
+
+Location: packages/machine-stm32f4-discovery/example/phact-mutex-demo.prx:92-104
+Comment:
+Mutex priorites specified are not unique.
+
+[robs: Thanks for catching that, fixed.]

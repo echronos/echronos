@@ -1,0 +1,28 @@
+Task: qQ7uct-phact-pcp-variant
+==============================================================================
+
+Motivation
+----------
+
+The Kochab variant of eChronos uses a strict priority scheduling algorithm with priority inheritance.
+Sometime last year, Gernot pointed out that this algorithm is susceptible to deadlock under certain circumstances, avoidable by instead scheduling tasks according to the priority ceiling protocol (PCP).
+
+This motivates the development of a PCP scheduler component, and the addition of a new RTOS variant with the same features as Kochab only using the PCP scheduler instead of the priority inheritance one.
+
+An implementation and a set of tests were prototyped with the RTOS variant name 'Phact' late last year by Ihor and just need some catching up to development head.
+
+
+Goals
+--------
+
+Implement PCP scheduler component, and add new RTOS variant that uses it.
+
+The new RTOS variant should eventually gain all the features of Kochab (apart from the scheduler), but some work may be deferred to later tasks (e.g. addition of mutex and semaphore timeout functionality).
+
+
+Test Plan
+---------
+
+Add a test system that demonstrates any situations in which the priority inheritance scheduler will deadlock, but in which the PCP scheduler will not.
+
+Add test systems exercising mutex, semaphore, and signal functionality on the new RTOS variant.

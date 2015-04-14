@@ -19,11 +19,14 @@
  * @TAG(NICTA_AGPL)
  */
 
-#include "rtos-kochab.h"
+#include "rtos-{{variant}}.h"
+{{#timeout_tests}}
 #include "machine-timer.h"
+{{/timeout_tests}}
 #include "debug.h"
 
 #define DEMO_PRODUCTION_LIMIT 10
+{{#timeout_tests}}
 #define PART_3_SLEEP 3
 #define PART_4_SLEEP 3
 
@@ -36,6 +39,7 @@ tick_irq(void)
 
     return true;
 }
+{{/timeout_tests}}
 
 void
 fatal(const RtosErrorId error_id)
@@ -134,6 +138,7 @@ fn_a(void)
     debug_println("a: should again wake up before b. waiting on signal");
     rtos_signal_wait_set(RTOS_SIGNAL_ID_DEMO_HELPER);
 
+{{#timeout_tests}}
     /* Part 3: A's wait attempt times out */
     debug_println("");
     debug_println("Part 3: A's wait attempt times out");
@@ -166,6 +171,7 @@ fn_a(void)
     if (!rtos_sem_wait_timeout(RTOS_SEM_ID_SEM4, PART_4_SLEEP + 1)) {
         debug_println("a: P unexpectedly timed out!");
     }
+{{/timeout_tests}}
 
     /* Part 5: A posts past maximum and triggers fatal error */
     debug_println("");
@@ -220,6 +226,7 @@ fn_b(void)
     debug_println("b: finally awake. sending signal to a");
     rtos_signal_send_set(RTOS_TASK_ID_A, RTOS_SIGNAL_ID_DEMO_HELPER);
 
+{{#timeout_tests}}
     /* Part 3: A's wait attempt times out */
     debug_println("b: sleeping");
     rtos_sleep(PART_3_SLEEP);
@@ -233,6 +240,7 @@ fn_b(void)
     rtos_sleep(PART_4_SLEEP);
     debug_println("b: V (should unblock a)");
     rtos_sem_post(RTOS_SEM_ID_SEM4);
+{{/timeout_tests}}
 
     debug_println("b: shouldn't be here!");
     for (;;)
@@ -251,6 +259,7 @@ fn_z(void)
     debug_println("z: V");
     rtos_sem_post(RTOS_SEM_ID_SEM2);
 
+{{#timeout_tests}}
     /* Part 3: A's wait attempt times out */
     debug_println("z: sleeping");
     rtos_sleep(PART_3_SLEEP);
@@ -258,6 +267,7 @@ fn_z(void)
     /* Part 4: A's wait returns before timeout */
     debug_println("z: sleeping");
     rtos_sleep(PART_4_SLEEP);
+{{/timeout_tests}}
 
     debug_println("z: shouldn't be here!");
     for (;;)
@@ -268,7 +278,9 @@ fn_z(void)
 int
 main(void)
 {
+{{#timeout_tests}}
     machine_timer_init();
+{{/timeout_tests}}
 
     rtos_start();
     /* Should never reach here, but if we do, an infinite loop is

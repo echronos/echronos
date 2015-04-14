@@ -24,23 +24,15 @@
   <modules>
     <module name="machine-stm32f4-discovery.build" />
     <module name="armv7m.ctxt-switch-preempt" />
-    <module name="armv7m.exception-preempt">
-      <trampolines>
-        <trampoline>
-          <name>systick</name>
-          <handler>tick_irq</handler>
-        </trampoline>
-      </trampolines>
-    </module>
+    <module name="armv7m.exception-preempt" />
     <module name="armv7m.vectable">
       <flash_load_addr>0x8000000</flash_load_addr>
       <preemption>true</preemption>
-      <systick>rtos_internal_exception_preempt_trampoline_systick</systick>
     </module>
     <module name="armv7m.semihost-debug" />
     <module name="generic.debug" />
 
-    <module name="armv7m.rtos-kochab">
+    <module name="armv7m.rtos-phact">
       <api_asserts>true</api_asserts>
       <internal_asserts>true</internal_asserts>
       <fatal_error>fatal</fatal_error>
@@ -51,7 +43,24 @@
       <signal_labels>
 
         <signal_label>
-          <name>demo_helper</name>
+          <name>sig_a</name>
+        </signal_label>
+        <signal_label>
+          <name>sig_b</name>
+        </signal_label>
+
+        <signal_label>
+          <name>sig_b_a</name>
+        </signal_label>
+        <signal_label>
+          <name>sig_b_b</name>
+        </signal_label>
+        <signal_label>
+          <name>sig_b_c</name>
+        </signal_label>
+
+        <signal_label>
+          <name>sig_block</name>
         </signal_label>
 
       </signal_labels>
@@ -59,60 +68,58 @@
       <tasks>
 
         <task>
+          <name>barrier</name>
+          <function>fn_barrier</function>
+          <priority>200</priority>
+          <stack_size>4096</stack_size>
+        </task>
+
+        <task>
           <name>a</name>
           <function>fn_a</function>
           <priority>30</priority>
-          <stack_size>8192</stack_size>
+          <stack_size>4096</stack_size>
         </task>
 
         <task>
           <name>b</name>
           <function>fn_b</function>
-          <priority>10</priority>
-          <stack_size>8192</stack_size>
+          <priority>20</priority>
+          <stack_size>4096</stack_size>
         </task>
 
         <task>
-          <name>z</name>
-          <function>fn_z</function>
-          <priority>5</priority>
-          <stack_size>8192</stack_size>
+          <name>c</name>
+          <function>fn_c</function>
+          <priority>10</priority>
+          <stack_size>4096</stack_size>
         </task>
 
       </tasks>
 
-      <semaphores>
-        <semaphore>
-          <name>sem0</name>
-        </semaphore>
-        <semaphore>
-          <name>sem1</name>
-        </semaphore>
-        <semaphore>
-          <name>sem2</name>
-        </semaphore>
-        <semaphore>
-          <name>sem3</name>
-        </semaphore>
-        <semaphore>
-          <name>sem4</name>
-        </semaphore>
-        <semaphore>
-          <name>sem5</name>
-        </semaphore>
-      </semaphores>
-
-      <semaphore_enable_max>true</semaphore_enable_max>
-
+      <mutexes>
+        <mutex>
+          <name>m0</name>
+          <priority>35</priority>
+        </mutex>
+        <mutex>
+          <name>m1</name>
+          <priority>34</priority>
+        </mutex>
+        <mutex>
+          <name>m2</name>
+          <priority>25</priority>
+        </mutex>
+      </mutexes>
       <mutex>
         <stats>false</stats>
       </mutex>
+
     </module>
 
-    <module name="machine-armv7m-common.example.machine-timer" />
     <!-- main .c file: -->
-    <module name="rtos-example.sem-demo">
-      <variant>kochab</variant>
+    <module name="rtos-example.sched-demo">
+      <variant>phact</variant>
     </module>
 
   </modules>

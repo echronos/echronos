@@ -1,0 +1,40 @@
+Breakaway Task Review
+=======================
+
+Task name: I1t47E-gdb_tests
+Version reviewed: f580cb8bdc92cc214a101d197310a5e91c34d8ea
+Reviewer: robert.sison
+Date: 2015-03-27
+Conclusion: Rework
+
+Overall comments:
+Nice - looks like a good start, definitely enough to start bringing up other tests on.
+
+
+Specific comments
+=================
+
+Location: packages/machine-qemu-ppce500/example/testcase.py:33
+Comment 1: Rework
+Windows-style line ending.
+
+[stg: converted to unix style]
+
+Location: pylib/tests.py:37
+Comment 2: Rework
+The 'top_path' function imported here from .utils does not appear to be used.
+
+[stg: removed unused import]
+
+Location: pylib/tests.py:351-356
+Comment 3: Rework
+The variables and fields initialized here do not appear to be used.
+
+[stg: removed unused code, but extended command line argument handling such that all options are passed on to the nose test framework]
+
+Location: packages/machine-qemu-ppce500/example/__init__.py:20
+Comment 4: Rework
+Now that we have license headers, I think we need a "intentionally left blank" notice here, as we've done elsewhere (e.g. rtos/__init__.py, prj/app/lib/util/__init__.py).
+Should this be added to our internal conventions?
+
+[stg: I don't see the problem that the comment "intentionally left blank" solves, so I remove those comments where they were present]

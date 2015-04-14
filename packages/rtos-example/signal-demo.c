@@ -19,7 +19,7 @@
  * @TAG(NICTA_AGPL)
  */
 
-#include "rtos-kochab.h"
+#include "rtos-{{variant}}.h"
 #include "debug.h"
 
 #define SIGNAL_DEMO_NUM_IDS 8

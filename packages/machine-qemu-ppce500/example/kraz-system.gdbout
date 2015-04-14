@@ -1,0 +1,132 @@
+rtos_internal_entry () at out/machine-qemu-ppce500/example/kraz-system/ppce500.vectable.s:485
+485	        lis %r3,Reset_Handler@h
+Breakpoint 1 at 0xec0: file out/machine-qemu-ppce500/example/kraz-system/generic.debug.c, line 52.
+Breakpoint 2 at 0x1340: file packages/rtos-example/kraz-test.c, line 143.
+
+Breakpoint 2, main () at packages/rtos-example/kraz-test.c:143
+143	    rtos_start();
+
+Breakpoint 1, debug_println (msg=0x1348 "task a: taking lock") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x135c "task a: got lock") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1414 "task b: attempting lock") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1370 "task a: yielded") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x13a4 "task a: releasing lock") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x142c "task b: got lock") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1440 "task b") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1448 "task b: blocking") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x13bc "task a") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x13c4 "task a: unblocking b") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x145c "task b: unblocked") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1440 "task b") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x13bc "task a") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1440 "task b") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x13bc "task a") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1440 "task b") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x13bc "task a") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1440 "task b") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1448 "task b: blocking") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x13bc "task a") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x13bc "task a") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x13c4 "task a: unblocking b") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x145c "task b: unblocked") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1440 "task b") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x13bc "task a") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1440 "task b") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x13bc "task a") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1440 "task b") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x13bc "task a") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1470 "task b: finished receiving signals.") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1508 "task b: no signal available on peek") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1554 "task b: Success: no signal available to poll after no-peek.") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x13bc "task a") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1508 "task b: no signal available on peek") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1554 "task b: Success: no signal available to poll after no-peek.") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x13dc "task a: finished sending signals") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1400 "task a: completed.") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1494 "task b: signal available on peek") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x14e4 "task b: Successful poll after peek.") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0x1590 "task b: completed.") at out/machine-qemu-ppce500/example/kraz-system/generic.debug.c:52
+52	    debug_print(msg);
+A debugging session is active.
+
+	Inferior 1 [Remote target] will be killed.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]

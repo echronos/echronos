@@ -1,0 +1,15 @@
+rtos_internal_entry () at out/machine-qemu-ppce500/example/hello/ppce500.vectable.s:485
+485	        lis %r3,Reset_Handler@h
+Breakpoint 1 at 0x620: file out/machine-qemu-ppce500/example/hello/generic.debug.c, line 52.
+Breakpoint 2 at 0x7e0: file out/machine-qemu-ppce500/example/hello/generic.hello.c, line 35.
+
+Breakpoint 2, main () at out/machine-qemu-ppce500/example/hello/generic.hello.c:35
+35	    debug_println("Hello, PowerPC!");
+
+Breakpoint 1, debug_println (msg=0x7f0 "Hello, PowerPC!") at out/machine-qemu-ppce500/example/hello/generic.debug.c:52
+52	    debug_print(msg);
+A debugging session is active.
+
+	Inferior 1 [Remote target] will be killed.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]

@@ -133,13 +133,24 @@
 .endm
 
 /**
- * Enable preemption, and in doing so, cause any pending preemption to happen immediately.
+ * Enable preemption, and in doing so, allow any pending preemptions to occur.
+ *
+ * Since the activation of pending PendSV interrupts (after enabling by resetting BASEPRI) is subject to a delay whose
+ * length does not appear to be specified by any documentation, we explicitly await that any pending preemption has
+ * been handled (by checking that the PendSV pending bit has been cleared by our PendSV handler) before returning.
  */
 .global rtos_internal_preempt_enable
 .type rtos_internal_preempt_enable,#function
 /* void rtos_internal_preempt_enable(void); */
 rtos_internal_preempt_enable:
         asm_preempt_enable r0
+
+1:      /* Ensure PendSV bit in the ICSR (Interrupt Control & State Register) has been cleared before proceeding. */
+        ldr r0, =0xE000ED04
+        ldr r1, [r0]
+        tst r1, #0x10000000
+        bne 1b
+
         bx lr
 .size rtos_internal_preempt_enable, .-rtos_internal_preempt_enable
 

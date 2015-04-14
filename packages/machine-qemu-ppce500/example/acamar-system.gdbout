@@ -1,0 +1,36 @@
+rtos_internal_entry () at out/machine-qemu-ppce500/example/acamar-system/ppce500.vectable.s:485
+485	        lis %r3,Reset_Handler@h
+Breakpoint 1 at 0x800: file out/machine-qemu-ppce500/example/acamar-system/generic.debug.c, line 52.
+Breakpoint 2 at 0xa18: file packages/rtos-example/acamar-test.c, line 52.
+
+Breakpoint 2, main () at packages/rtos-example/acamar-test.c:52
+52	    rtos_start();
+
+Breakpoint 1, debug_println (msg=0xa20 "task a") at out/machine-qemu-ppce500/example/acamar-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xa28 "task b") at out/machine-qemu-ppce500/example/acamar-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xa20 "task a") at out/machine-qemu-ppce500/example/acamar-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xa28 "task b") at out/machine-qemu-ppce500/example/acamar-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xa20 "task a") at out/machine-qemu-ppce500/example/acamar-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xa28 "task b") at out/machine-qemu-ppce500/example/acamar-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xa20 "task a") at out/machine-qemu-ppce500/example/acamar-system/generic.debug.c:52
+52	    debug_print(msg);
+
+Breakpoint 1, debug_println (msg=0xa28 "task b") at out/machine-qemu-ppce500/example/acamar-system/generic.debug.c:52
+52	    debug_print(msg);
+A debugging session is active.
+
+	Inferior 1 [Remote target] will be killed.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]

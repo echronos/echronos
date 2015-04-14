@@ -183,7 +183,7 @@ class _LicenseOpener:
     AGPL_TAG = '@TAG(NICTA_AGPL)'
     AGPL_DOC_TAG = '@TAG(NICTA_DOC_AGPL)'
     BUILD_ARTIFACT_FILETYPES = ['.pyc']
-    LICENSE_EXEMPTED_FILETYPES = ['.pdf', '.svg', '.png', '.txt']
+    LICENSE_EXEMPTED_FILETYPES = ['.pdf', '.svg', '.png', '.txt', '.gdbout']
 
     class UnknownFiletypeException(Exception):
         """Raised when the given file type is unknown."""

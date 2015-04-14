@@ -102,7 +102,8 @@ import argparse
 import logging
 
 from pylib.tasks import new_review, new_task, tasks, integrate, _gen_tag
-from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8, check_licenses, check_provenance
+from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8, check_licenses, check_provenance,\
+    test_systems
 from pylib.components import Component, build
 from pylib.release import release_test, build_release, build_partials
 from pylib.prj import prj_build
@@ -125,7 +126,7 @@ topdir = os.path.normpath(os.path.dirname(__file__))
 CORE_CONFIGURATIONS = {"posix": ["sched-rr-test", "sched-prio-inherit-test", "simple-mutex-test",
                                  "blocking-mutex-test", "simple-semaphore-test", "sched-prio-test",
                                  "acamar", "gatria", "kraz"],
-                       "armv7m": ["acamar", "gatria", "kraz", "acrux", "rigel", "kochab"],
+                       "armv7m": ["acamar", "gatria", "kraz", "acrux", "rigel", "kochab", "phact"],
                        "ppce500": ["acamar", "gatria", "kraz", "acrux", "kochab"]}
 
 CORE_SKELETONS = {
@@ -146,7 +147,7 @@ CORE_SKELETONS = {
                           Component('simple-mutex-test'),
                           ],
     'blocking-mutex-test': [Component('reentrant'),
-                            Component('blocking-mutex', {'lock_timeout': False}),
+                            Component('blocking-mutex', {'lock_timeout': False, 'prio_ceiling': False}),
                             Component('blocking-mutex-test'),
                             ],
     'simple-semaphore-test': [Component('reentrant'),
@@ -205,7 +206,7 @@ CORE_SKELETONS = {
               Component('interrupt-event', pkg_component=True),
               Component('interrupt-event', {'timer_process': True}),
               Component('interrupt-event-signal', {'task_set': True}),
-              Component('blocking-mutex', {'lock_timeout': False, 'preemptive': False}),
+              Component('blocking-mutex', {'lock_timeout': False, 'preemptive': False, 'prio_ceiling': False}),
               Component('profiling'),
               Component('message-queue'),
               Component('error'),
@@ -224,12 +225,26 @@ CORE_SKELETONS = {
                Component('interrupt-event', pkg_component=True),
                Component('interrupt-event', {'timer_process': True}),
                Component('interrupt-event-signal', {'task_set': False}),
-               Component('blocking-mutex', {'lock_timeout': True, 'preemptive': True}),
+               Component('blocking-mutex', {'lock_timeout': True, 'preemptive': True, 'prio_ceiling': False}),
                Component('simple-semaphore', {'timeouts': True, 'preemptive': True}),
                Component('error'),
                Component('task', {'task_start_api': False}),
                Component('kochab'),
-               ]
+               ],
+    'phact': [Component('reentrant'),
+              Component('stack', pkg_component=True),
+              Component('context-switch-preempt', pkg_component=True),
+              Component('sched-prio-ceiling', {'assume_runnable': False}),
+              Component('signal', {'prio_inherit': False, 'yield_api': False, 'task_signals': False}),
+              Component('interrupt-event', pkg_component=True),
+              Component('interrupt-event', {'timer_process': False}),
+              Component('interrupt-event-signal', {'task_set': False}),
+              Component('blocking-mutex', {'lock_timeout': False, 'preemptive': True, 'prio_ceiling': True}),
+              Component('simple-semaphore', {'timeouts': False, 'preemptive': True}),
+              Component('error'),
+              Component('task', {'task_start_api': False}),
+              Component('phact'),
+              ],
 }
 
 # client repositories may extend or override the following variables to control which configurations are available
@@ -256,13 +271,15 @@ def main():
         'test-release': release_test,
         'licenses': check_licenses,
         'provenance': check_provenance,
+        'systems': test_systems,
 
         # Tasks management
         'review': new_review,
         'new': new_task,
         'list': tasks,
         'integrate': integrate,
-        # Tempalte management
+
+        # Template management
         'gen-tag': _gen_tag,
     }
 
@@ -296,11 +313,12 @@ def main():
                              default=False)
     test_subparsers.add_parser('pystache-test', help='Test pystache')
     test_subparsers.add_parser('test-release', help='Test final release')
-
     _parser = test_subparsers.add_parser('licenses', help='Check that all files have the appropriate license header')
     _parser.add_argument('--excludes', nargs='*',
                          help="Exclude directories from license header checks",
                          default=[])
+    test_subparsers.add_parser('systems', help='Run system tests, i.e., tests that check the behavior of full \
+RTOS systems. This command supports the same options as the Python nose test framework.')
 
     test_subparsers.add_parser('provenance', help='Check that all files belonging to external tools map 1-1 with '
                                                   'provenance listings')
@@ -340,7 +358,11 @@ Defaults to "archive".', default='archive')
 
     subparsers.add_parser('gen-tag', help='Generate a random 6-char alphanumeric string')
 
-    args = parser.parse_args()
+    if 'test' in sys.argv and 'systems' in sys.argv:
+        args, unknown_args = parser.parse_known_args()
+        args.unknown_args = unknown_args
+    else:
+        args = parser.parse_args()
 
     if args.command is None:
         parser.print_help()

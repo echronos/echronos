@@ -1,0 +1,13 @@
+Breakaway Task Review
+=======================
+
+Task name: I1t47E-gdb_tests
+Version reviewed: 371d1809a3c3727ff3a5cdb24ee8742aa19aee9f
+Reviewer: robert.sison
+Date: 2015-03-30
+Conclusion: Accepted
+
+Overall comments:
+Thanks for those fixes.
+Regarding the 'intentionally left blank' comments, I'm okay with removing them if we're of the consensus that there is no problem having license headers on a blank file (i.e. nobody else flags it for reversion).
+I see your point that readers who don't understand the purpose of __init__.py files will be confused regardless of whether such a comment is present.

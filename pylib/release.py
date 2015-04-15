@@ -220,7 +220,7 @@ class _LicenseOpener:
 
     @staticmethod
     def _agpl_sentinel(ext):
-        if ext in ['.c', '.h', '.ld', '.s', '.css']:
+        if ext in ['.c', '.h', '.ld', '.s']:
             return _LicenseOpener.AGPL_TAG + '\n */\n'
         elif ext in ['.py', '.gdb', '.sh']:
             return _LicenseOpener.AGPL_TAG + '\n#\n'
@@ -230,6 +230,8 @@ class _LicenseOpener:
             return _LicenseOpener.AGPL_TAG + '\n;\n'
         elif ext in ['.md', '.markdown', '.html']:
             return _LicenseOpener.AGPL_DOC_TAG + '\n  -->\n'
+        elif ext in ['.css']:
+            return _LicenseOpener.AGPL_DOC_TAG + '\n */\n'
         elif ext in _LicenseOpener.LICENSE_EXEMPTED_FILETYPES or ext in _LicenseOpener.BUILD_ARTIFACT_FILETYPES:
             return None
         else:

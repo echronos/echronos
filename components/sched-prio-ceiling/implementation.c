@@ -43,9 +43,7 @@ static [[#assume_runnable]]{{prefix_type}}TaskId[[/assume_runnable]][[^assume_ru
 static struct sched sched_queue = {
     {
 {{#mutex_tasks}}
-        {
-            .locked_by = SCHED_INDEX_NONE
-        },
+        {SCHED_INDEX_NONE},
 {{/mutex_tasks}}
     }
 };

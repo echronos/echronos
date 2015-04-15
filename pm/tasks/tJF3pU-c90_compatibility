@@ -1,0 +1,25 @@
+Task: tJF3pU-c90_compatibility
+==============================================================================
+
+Motivation
+----------
+
+The code base of the core components currently implicitly adheres to the ISO9899:1990 / C90 / ANSI C standard.
+However, this convention is neither documented nor tested.
+
+
+Goals
+--------
+
+- document that and why the architecture independent components need to remain compatible with the ISO9899:1990 / C90 / ANSI C standard
+- create a stub target architecture that allows to build all RTOS variants without any platform-dependent code
+- set up the build module of the stub target architecture such that it enforces the use of the ANSI C standard;
+  building RTOS variants for the stub architecture shall fail if any of the components contain code that does not adhere to the ANSI C standard.
+- make sure that the regression test system successfully builds all RTOS variants for the stub architecture
+
+Test Plan
+---------
+
+- must pass all existing and all new regression tests
+- code review to check that all architecture-independent components are covered by at least one of the RTOS variants and test systems created for the stub target architecture
+- code review to check that the build module for the stub architecture correctly enforces ANSI C standards compliance

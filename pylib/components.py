@@ -210,7 +210,8 @@ def _parse_sectioned_file(fn, config, required_sections):
 
 
 def _get_sections(bound_components, filename, sections):
-    return [_parse_sectioned_file(os.path.join(bc.path, filename), bc.config, sections) for bc in bound_components if os.path.exists(os.path.join(bc.path, filename))]
+    return [_parse_sectioned_file(os.path.join(bc.path, filename), bc.config, sections) for bc in bound_components
+            if os.path.exists(os.path.join(bc.path, filename))]
 
 
 _BoundComponent = namedtuple("_BoundComponent", ['path', 'config'])

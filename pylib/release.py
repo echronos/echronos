@@ -220,7 +220,7 @@ class _LicenseOpener:
 
     @staticmethod
     def _agpl_sentinel(ext):
-        if ext in ['.c', '.h', '.ld', '.s']:
+        if ext in ['.c', '.h', '.ld', '.s', '.css']:
             return _LicenseOpener.AGPL_TAG + '\n */\n'
         elif ext in ['.py', '.gdb', '.sh']:
             return _LicenseOpener.AGPL_TAG + '\n#\n'
@@ -248,7 +248,7 @@ class _LicenseOpener:
         ext = os.path.splitext(filename)[1]
         is_xml = False
 
-        if ext in ['.c', '.h', '.ld', '.s']:
+        if ext in ['.c', '.h', '.ld', '.s', '.css']:
             lic = self._format_lic(self.license, '/*', ' * ', ' *', ' */')
         elif ext in ['.py', '.gdb']:
             lic = self._format_lic(self.license, '#', '# ', '#', '#')

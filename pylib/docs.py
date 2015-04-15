@@ -88,15 +88,13 @@ def _build_doc(pkg_dir, top_dir, verbose=False):
         print('Not generating documentation for {} because it is incomplete'.format(pkg_dir))
         return
 
-    css_abs_path = find_path(os.path.join('docs', 'manual_template', 'documentation_stylesheet.css'), top_dir)
-    css_url = os.path.relpath(css_abs_path, pkg_dir).replace(os.path.sep, '/')
+    css_url = 'docs/stylesheet.css'
 
     pandoc_executable = _get_executable_from_repo_or_system('pandoc')
     pandoc_cmd = [pandoc_executable,
                   '--write', 'html',
                   '--standalone',
-                  '--template=' + os.path.abspath(base_path('docs', 'manual_template',
-                                                            'documentation_template.html')),
+                  '--template=' + os.path.abspath(os.path.join(pkg_dir, 'docs', 'template.html')),
                   '--css=' + css_url,
                   '--toc', '--toc-depth=2'] +\
                  ['-V{}={}'.format(key, value) for key, value in doc_vars.items()] +\
@@ -115,11 +113,9 @@ def _build_doc(pkg_dir, top_dir, verbose=False):
                '--margin-left', '20',
                '--margin-right', '20',
                '--header-spacing', '5',
-               '--header-html', find_path(os.path.join('docs', 'manual_template', 'documentation_header.html'),
-                                          top_dir),
+               '--header-html', os.path.abspath(os.path.join(pkg_dir, 'docs', 'header.html')),
                '--footer-spacing', '5',
-               '--footer-html', find_path(os.path.join('docs', 'manual_template', 'documentation_footer.html'),
-                                          top_dir),
+               '--footer-html', os.path.abspath(os.path.join(pkg_dir, 'docs', 'footer.html')),
                '--replace', 'docid', 'Document ID: {}'.format(doc_vars['docid']),
                html_file,
                pdf_file]

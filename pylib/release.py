@@ -295,6 +295,10 @@ class _LicenseOpener:
         return _FileWithLicense(f, lic, old_xml_prologue_len, old_license_len)
 
     def tar_info_filter(self, tarinfo):
+        # exclude all documentation files except the final PDF
+        if 'docs' in tarinfo.name and 'docs.pdf' not in tarinfo.name:
+            return None
+
         if tarinfo.isreg():
             if self.filename is not None:
                 # This is used for releasing extra files potentially from outside the 'packages' dir of the repo.

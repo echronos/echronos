@@ -400,6 +400,8 @@ def build_single_release(config, topdir):
                 for m in in_f.getmembers():
                     m_f = in_f.extractfile(m)
                     m.name = basename + '/' + m.name
+                    if m.name.endswith('docs.pdf'):
+                        m.name = '{}/{}-{}-{}-{}.pdf'.format(basename, config.product_name, config.release_name, os.path.basename(os.path.dirname(m.name)).replace('rtos-', ''), config.version)
                     tf.addfile(m, m_f)
         for plat in config.platforms:
             arcname = '{}/{}/bin/prj'.format(basename, plat)

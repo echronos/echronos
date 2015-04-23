@@ -31,6 +31,7 @@ from contextlib import contextmanager
 from .utils import chdir, tempdir, get_host_platform_name, BASE_TIME, top_path, base_to_top_paths, find_path, Git
 from .components import build
 from .cmdline import subcmd, Arg
+from .docs import is_release_doc_file, is_nonrelease_doc_file
 
 
 class _ReleaseMeta(type):
@@ -296,7 +297,7 @@ class _LicenseOpener:
 
     def tar_info_filter(self, tarinfo):
         # exclude all documentation files except the final PDF
-        if 'docs' in tarinfo.name and 'docs.pdf' not in tarinfo.name:
+        if is_nonrelease_doc_file(tarinfo.name):
             return None
 
         if tarinfo.isreg():
@@ -400,7 +401,7 @@ def build_single_release(config, topdir):
                 for m in in_f.getmembers():
                     m_f = in_f.extractfile(m)
                     m.name = basename + '/' + m.name
-                    if m.name.endswith('docs.pdf'):
+                    if is_release_doc_file(m.name):
                         m.name = '{}/{}-{}-{}-{}.pdf'.format(basename, config.product_name, config.release_name, os.path.basename(os.path.dirname(m.name)).replace('rtos-', ''), config.version)
                     tf.addfile(m, m_f)
         for plat in config.platforms:

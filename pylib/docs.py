@@ -143,5 +143,6 @@ def build(args):
 def is_release_doc_file(filename):
     return 'docs.pdf' in filename
 
+
 def is_nonrelease_doc_file(filename):
     return 'docs' in filename and 'docs.pdf' not in filename

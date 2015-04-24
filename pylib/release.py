@@ -402,7 +402,9 @@ def build_single_release(config, topdir):
                     m_f = in_f.extractfile(m)
                     m.name = basename + '/' + m.name
                     if is_release_doc_file(m.name):
-                        m.name = '{}/{}-{}-{}-{}.pdf'.format(basename, config.product_name, config.release_name, os.path.basename(os.path.dirname(m.name)).replace('rtos-', ''), config.version)
+                        variant = os.path.basename(os.path.dirname(m.name)).replace('rtos-', '')
+                        m.name = '{}/{}-{}-{}-{}.pdf'.format(basename, config.product_name, config.release_name,
+                                                             variant, config.version)
                     tf.addfile(m, m_f)
         for plat in config.platforms:
             arcname = '{}/{}/bin/prj'.format(basename, plat)

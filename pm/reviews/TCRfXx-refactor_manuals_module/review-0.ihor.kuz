@@ -5,16 +5,12 @@ Task name: TCRfXx-refactor_manuals_module
 Version reviewed: fe77b0480595fccfb3d87513653422bc4394cd8b
 Reviewer: ihor.kuz
 Date: 2015-04-15
-Conclusion: Accepted/Rework
-
-Overall comments:
-
+Conclusion: Accepted
 
 Specific comments
 =================
 
-Location: filename:linenum
+Location: x.py:260
 Comment:
+I noticed there are other build targets with the word 'build' in them, e.g., 'build-partials'.  Should these also be renamed (in a separate task)?
 
-Location: filename:linenum
-Comment:

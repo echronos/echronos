@@ -21,15 +21,18 @@
 
 /* Implementation of the function void rtos_internal_context_switch_x86(context_t *from, context_t to);
  *
- * from: points to the where the RTOS implementation stores the task state/context of the active, calling task.
- *  This function must store all active state of the active task at `from`.
- *  This allows the RTOS to resume this task at a later point in time.
- * to: the task context to resume and switch to.
- *  This function must restore all state of the `to` context and then resume it, i.e., return to it.
+ * from: points to where the RTOS core will store the execution context of the active task.
+ *  This context switch implementation stores the execution context of the active task on its stack and returns only
+ *  the stack pointer to the RTOS core.
+ *  That makes `from` a pointer pointer and this function must store the stack pointer of the active task at `from`.
+ * to: the task context to resume and switch to, i.e., the stack pointer to restore.
+ *  This function must set the CPU's stack pointer to `to` and restore all execution state it previously stored on
+ *  that stack.
  *
- * In this current implementation, the only task state/context of a task is its stack pointer.
- * Therefore, the type "context_t" means "stack pointer".
- * This function effectively implements the following pseudo code:
+ * In its current implementation, this function does not store any particular task execution state on the stack.
+ * The only data a call to this function pushes onto or removes from the stack is the return address and frame pointer
+ * as per the x86 calling convention.
+ * Therefore, this function effectively implements the following pseudo code:
  *      *from = stack_pointer;
  *      stack_pointer = to;
  *
@@ -50,16 +53,16 @@ rtos_internal_context_switch_x86:
      *      0x8(%esp): first function argument `context_t *from`
      *      eax: used in next instruction */
     movl 0x8(%esp), %eax
-    /*  Move current stack pointer into memory address in eax
-     *      esp: current stack pointer (i.e., the context of the active task)
+    /*  Move CPU's stack pointer to memory address in eax, i.e., `*from`.
+     *      esp: CPU's stack pointer
      *      eax: address value of the `from` pointer */
     movl %esp, (%eax)
 
     /* Pseudo code: stack_pointer = to;
-     *  Set active stack pointer to `to`
-     *      0xc(%esp): second function argument `context_t to'
-     *      esp: current stack pointer
-     * This switches the active stack pointer to the one in the `to` argument.
+     *  Set CPU's stack pointer to `to`
+     *      0xc(%esp): second function argument `context_t to`
+     *      esp: CPU's stack pointer
+     * This switches the CPU's stack pointer to the one in the `to` argument.
      * In the current implementation, this is all that is necessary to restore the task state in `to`. */
     movl 0xc(%esp), %esp
 

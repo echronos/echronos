@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/*| public_type_definitions |*/
+/*| public_types |*/
 typedef uint8_t {{prefix_type}}MutexId;
 
 /*| public_structure_definitions |*/

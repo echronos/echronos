@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/*| public_type_definitions |*/
+/*| public_types |*/
 {{#mutexes.length}}
 typedef uint8_t {{prefix_type}}MutexId;
 {{/mutexes.length}}

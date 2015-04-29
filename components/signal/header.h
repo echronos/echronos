@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/*| public_type_definitions |*/
+/*| public_types |*/
 typedef uint{{signalset_size}}_t {{prefix_type}}SignalSet;
 typedef {{prefix_type}}SignalSet {{prefix_type}}SignalId;
 

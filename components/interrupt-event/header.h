@@ -3,7 +3,7 @@
 #include <stdint.h>
 {{/interrupt_events.length}}
 
-/*| public_type_definitions |*/
+/*| public_types |*/
 {{#interrupt_events.length}}
 typedef uint{{interrupteventid_size}}_t {{prefix_type}}InterruptEventId;
 {{/interrupt_events.length}}

@@ -1,7 +1,7 @@
 /*| public_headers |*/
 #include <stdint.h>
 
-/*| public_type_definitions |*/
+/*| public_types |*/
 typedef uint8_t {{prefix_type}}TimerId;
 typedef uint32_t {{prefix_type}}TicksAbsolute;
 typedef uint16_t {{prefix_type}}TicksRelative;

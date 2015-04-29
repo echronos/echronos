@@ -1,7 +1,7 @@
 /*| public_headers |*/
 #include <stdint.h>
 
-/*| public_type_definitions |*/
+/*| public_types |*/
 
 /*| public_structure_definitions |*/
 

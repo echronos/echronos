@@ -29,7 +29,7 @@ from .utils import BASE_DIR, base_path, base_to_top_paths
 
 # FIXME: Use correct declaration vs definition.
 _REQUIRED_H_SECTIONS = ['public_headers',
-                        'public_type_definitions',
+                        'public_types',
                         'public_structure_definitions',
                         'public_object_like_macros',
                         'public_function_like_macros',

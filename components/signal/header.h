@@ -31,7 +31,7 @@ typedef {{prefix_type}}SignalSet {{prefix_type}}SignalId;
 
 /*| public_state |*/
 
-/*| public_function_definitions |*/
+/*| public_function_declarations |*/
 {{prefix_type}}SignalSet {{prefix_func}}signal_wait_set({{prefix_type}}SignalSet requested_signals) {{prefix_const}}REENTRANT;
 {{prefix_type}}SignalSet {{prefix_func}}signal_poll_set({{prefix_type}}SignalSet requested_signals);
 {{prefix_type}}SignalSet {{prefix_func}}signal_peek_set({{prefix_type}}SignalSet requested_signals);

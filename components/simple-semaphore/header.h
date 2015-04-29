@@ -20,7 +20,7 @@ typedef uint{{semaphore_value_size}}_t {{prefix_type}}SemValue;
 
 /*| public_state |*/
 
-/*| public_function_definitions |*/
+/*| public_function_declarations |*/
 void {{prefix_func}}sem_post({{prefix_type}}SemId);
 bool {{prefix_func}}sem_try_wait({{prefix_type}}SemId);
 void {{prefix_func}}sem_wait({{prefix_type}}SemId) {{prefix_const}}REENTRANT;

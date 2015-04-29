@@ -10,7 +10,7 @@
 
 /*| public_state |*/
 
-/*| public_function_definitions |*/
+/*| public_function_declarations |*/
 void {{prefix_func}}yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT;
 void {{prefix_func}}yield(void) {{prefix_const}}REENTRANT;
 void {{prefix_func}}block(void) {{prefix_const}}REENTRANT;

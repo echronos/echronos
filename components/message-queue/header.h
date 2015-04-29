@@ -16,7 +16,7 @@ typedef uint8_t {{prefix_type}}MessageQueueId;
 
 /*| public_state |*/
 
-/*| public_function_definitions |*/
+/*| public_function_declarations |*/
 {{#message_queues.length}}
 void {{prefix_func}}message_queue_put({{prefix_type}}MessageQueueId message_queue, const void *message)
         {{prefix_const}}REENTRANT;

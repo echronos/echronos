@@ -10,7 +10,7 @@
 
 /*| public_state |*/
 
-/*| public_function_definitions |*/
+/*| public_function_declarations |*/
 {{#profiling}}
 
 void {{prefix_func}}profiling_record_sample(void);

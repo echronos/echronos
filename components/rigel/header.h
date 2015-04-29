@@ -10,7 +10,7 @@
 
 /*| public_state |*/
 
-/*| public_function_definitions |*/
+/*| public_function_declarations |*/
 void {{prefix_func}}start(void);
 void {{prefix_func}}yield(void) {{prefix_const}}REENTRANT;
 void {{prefix_func}}task_start({{prefix_type}}TaskId task);

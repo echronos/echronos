@@ -34,7 +34,7 @@ _REQUIRED_H_SECTIONS = ['public_headers',
                         'public_object_like_macros',
                         'public_function_like_macros',
                         'public_state',
-                        'public_function_definitions',
+                        'public_function_declarations',
                         ]
 
 _REQUIRED_C_SECTIONS = ['headers',
@@ -276,10 +276,10 @@ def _generate(rtos_name, components, pkg_name, search_paths):
         f.write("#ifndef {}_H\n".format(mod_name))
         f.write("#define {}_H\n".format(mod_name))
         for ss in _REQUIRED_H_SECTIONS:
-            if ss == 'public_function_definitions':
+            if ss == 'public_function_declarations':
                 f.write("#ifdef __cplusplus\nextern \"C\" {\n#endif\n")
             f.write("\n".join(h_sections[ss] for h_sections in all_h_sections) + "\n")
-            if ss == 'public_function_definitions':
+            if ss == 'public_function_declarations':
                 f.write("#ifdef __cplusplus\n}\n#endif\n")
         f.write("\n#endif /* {}_H */".format(mod_name))
 

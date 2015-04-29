@@ -23,7 +23,7 @@ typedef uint8_t {{prefix_type}}MutexId;
 extern bool {{prefix_func}}mutex_stats_enabled;
 {{/mutex.stats}}
 
-/*| public_function_definitions |*/
+/*| public_function_declarations |*/
 {{#mutexes.length}}
 void {{prefix_func}}mutex_lock({{prefix_type}}MutexId) {{prefix_const}}REENTRANT;
 [[#lock_timeout]]

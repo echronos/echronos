@@ -19,7 +19,7 @@ typedef uint8_t {{prefix_type}}MutexId;
 
 /*| public_state |*/
 
-/*| public_function_definitions |*/
+/*| public_function_declarations |*/
 {{#mutexes.length}}
 void {{prefix_func}}mutex_lock({{prefix_type}}MutexId) {{prefix_const}}REENTRANT;
 bool {{prefix_func}}mutex_try_lock({{prefix_type}}MutexId);

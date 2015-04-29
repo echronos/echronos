@@ -18,7 +18,7 @@ typedef uint16_t {{prefix_type}}TicksRelative;
 /*| public_state |*/
 extern {{prefix_type}}TicksAbsolute {{prefix_func}}timer_current_ticks;
 
-/*| public_function_definitions |*/
+/*| public_function_declarations |*/
 void {{prefix_func}}sleep({{prefix_type}}TicksRelative ticks) {{prefix_const}}REENTRANT;
 {{#timers.length}}
 void {{prefix_func}}timer_enable({{prefix_type}}TimerId timer_id);

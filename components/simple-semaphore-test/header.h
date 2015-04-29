@@ -13,4 +13,4 @@ typedef uint8_t {{prefix_type}}TaskId;
 
 /*| public_state |*/
 
-/*| public_function_definitions |*/
+/*| public_function_declarations |*/

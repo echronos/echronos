@@ -29,7 +29,7 @@ typedef {{prefix_type}}SignalSet {{prefix_type}}SignalId;
 #define {{prefix_func}}signal_send(task_id, signal) \
     {{prefix_func}}signal_send_set(task_id, signal)
 
-/*| public_extern_definitions |*/
+/*| public_state |*/
 
 /*| public_function_definitions |*/
 {{prefix_type}}SignalSet {{prefix_func}}signal_wait_set({{prefix_type}}SignalSet requested_signals) {{prefix_const}}REENTRANT;

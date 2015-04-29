@@ -15,7 +15,7 @@ typedef uint16_t {{prefix_type}}TicksRelative;
 
 /*| public_function_like_macros |*/
 
-/*| public_extern_definitions |*/
+/*| public_state |*/
 extern {{prefix_type}}TicksAbsolute {{prefix_func}}timer_current_ticks;
 
 /*| public_function_definitions |*/

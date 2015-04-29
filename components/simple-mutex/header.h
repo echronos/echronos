@@ -17,7 +17,7 @@ typedef uint8_t {{prefix_type}}MutexId;
 
 /*| public_function_like_macros |*/
 
-/*| public_extern_definitions |*/
+/*| public_state |*/
 
 /*| public_function_definitions |*/
 {{#mutexes.length}}

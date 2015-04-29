@@ -15,7 +15,7 @@ typedef uint{{taskid_size}}_t {{prefix_type}}TaskId;
 
 /*| public_function_like_macros |*/
 
-/*| public_extern_definitions |*/
+/*| public_state |*/
 
 /*| public_function_definitions |*/
 {{prefix_type}}TaskId {{prefix_func}}task_current(void);

@@ -8,7 +8,7 @@
 #define TIMER_ID_MAX (({{prefix_type}}TimerId) UINT8_C({{timers.length}} - 1U))
 {{/timers.length}}
 
-/*| type_definitions |*/
+/*| types |*/
 typedef uint16_t TicksTimeout;
 
 /*| structure_definitions |*/

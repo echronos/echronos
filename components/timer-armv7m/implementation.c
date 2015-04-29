@@ -4,7 +4,7 @@
 
 /*| object_like_macros |*/
 
-/*| type_definitions |*/
+/*| types |*/
 
 /*| structure_definitions |*/
 

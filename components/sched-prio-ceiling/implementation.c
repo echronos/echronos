@@ -5,7 +5,7 @@
 #define SCHED_INDEX_ZERO ((SchedIndex) UINT{{schedindex_size}}_C(0))
 #define SCHED_INDEX_NONE ((SchedIndexOption) UINT{{schedindex_size}}_MAX)
 
-/*| type_definitions |*/
+/*| types |*/
 typedef uint{{schedindex_size}}_t SchedIndex;
 typedef SchedIndex SchedIndexOption;
 

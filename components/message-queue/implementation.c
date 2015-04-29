@@ -3,7 +3,7 @@
 /*| object_like_macros |*/
 #define MESSAGE_QUEUE_ID_NONE ((MessageQueueIdOption)UINT8_C(255))
 
-/*| type_definitions |*/
+/*| types |*/
 typedef uint8_t MessageQueueIdOption;
 
 /*| structure_definitions |*/

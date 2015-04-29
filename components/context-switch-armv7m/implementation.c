@@ -15,7 +15,7 @@
 #define CONTEXT_IP_IDX 8
 #define CONTEXT_PC_IDX 9
 
-/*| type_definitions |*/
+/*| types |*/
 typedef uint32_t* context_t;
 
 /*| structure_definitions |*/

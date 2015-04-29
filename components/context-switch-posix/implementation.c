@@ -5,7 +5,7 @@
 
 /*| object_like_macros |*/
 
-/*| type_definitions |*/
+/*| types |*/
 typedef ucontext_t context_t;
 
 /*| structure_definitions |*/

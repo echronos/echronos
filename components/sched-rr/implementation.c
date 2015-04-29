@@ -3,7 +3,7 @@
 
 /*| object_like_macros |*/
 
-/*| type_definitions |*/
+/*| types |*/
 typedef {{prefix_type}}TaskId SchedIndex;
 
 /*| structure_definitions |*/

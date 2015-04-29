@@ -2,7 +2,7 @@
 
 /*| object_like_macros |*/
 
-/*| type_definitions |*/
+/*| types |*/
 
 /*| structure_definitions |*/
 struct interrupt_event_handler {

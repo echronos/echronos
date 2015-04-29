@@ -54,7 +54,7 @@
 #define CONTEXT_PREEMPT_RESTORE_STATUS 37
 #define CONTEXT_FRAME_SIZE (CONTEXT_PREEMPT_RESTORE_STATUS + 1)
 
-/*| type_definitions |*/
+/*| types |*/
 typedef uint32_t* context_t;
 
 /*| structure_definitions |*/

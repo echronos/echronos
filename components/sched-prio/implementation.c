@@ -4,7 +4,7 @@
 /*| object_like_macros |*/
 #define SCHED_INDEX_ZERO ((SchedIndex) {{prefix_const}}TASK_ID_ZERO)
 
-/*| type_definitions |*/
+/*| types |*/
 typedef {{prefix_type}}TaskId SchedIndex;
 
 /*| structure_definitions |*/

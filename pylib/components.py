@@ -39,7 +39,7 @@ _REQUIRED_H_SECTIONS = ['public_headers',
 
 _REQUIRED_C_SECTIONS = ['headers',
                         'object_like_macros',
-                        'type_definitions',
+                        'types',
                         'structure_definitions',
                         'extern_definitions',
                         'function_definitions',
@@ -263,7 +263,7 @@ def _generate(rtos_name, components, pkg_name, search_paths):
     with open(source_output, 'w') as f:
         for ss in _REQUIRED_C_SECTIONS:
             data = "\n".join(c_sections[ss] for c_sections in all_c_sections)
-            if ss == 'type_definitions':
+            if ss == 'types':
                 data = _sort_typedefs(data)
             f.write(data)
             f.write('\n')

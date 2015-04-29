@@ -4,7 +4,7 @@
 /*| object_like_macros |*/
 #define TASK_ID_NONE ((TaskIdOption) UINT8_MAX)
 
-/*| type_definitions |*/
+/*| types |*/
 typedef uint8_t {{prefix_type}}TaskId;
 typedef TaskId TaskIdOption;
 

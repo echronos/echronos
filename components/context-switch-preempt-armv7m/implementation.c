@@ -118,7 +118,7 @@
  * Please see http://infocenter.arm.com/help/topic/com.arm.doc.dui0553a/index.html for more details. */
 #define EXC_RETURN_INITIAL_TASK 0xfffffff9
 
-/*| type_definitions |*/
+/*| types |*/
 typedef uint32_t* context_t;
 
 /*| structure_definitions |*/

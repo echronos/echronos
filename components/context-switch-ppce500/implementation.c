@@ -87,7 +87,7 @@
 #define CONTEXT_GPR31_IDX 19
 #define CONTEXT_FRAME_SIZE (CONTEXT_GPR31_IDX + 1)
 
-/*| type_definitions |*/
+/*| types |*/
 typedef uint32_t* context_t;
 
 /*| structure_definitions |*/

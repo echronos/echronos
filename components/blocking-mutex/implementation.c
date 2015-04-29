@@ -5,7 +5,7 @@
 #define MUTEX_ID_NONE ((MutexIdOption) UINT8_MAX)
 {{/mutexes.length}}
 
-/*| type_definitions |*/
+/*| types |*/
 typedef {{prefix_type}}MutexId MutexIdOption;
 
 /*| structure_definitions |*/

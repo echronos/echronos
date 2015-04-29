@@ -8,7 +8,7 @@
 {{/semaphore_enable_max}}
 
 
-/*| type_definitions |*/
+/*| types |*/
 typedef {{prefix_type}}SemId SemIdOption;
 
 /*| structure_definitions |*/

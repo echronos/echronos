@@ -9,7 +9,7 @@
 #define interrupt_event rtos_internal_interrupt_event
 #define interrupt_event_bitband rtos_internal_interrupt_event_bitband
 
-/*| type_definitions |*/
+/*| types |*/
 
 /*| structure_definitions |*/
 

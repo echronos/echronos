@@ -6,7 +6,7 @@
 #define current_task rtos_internal_current_task
 #define tasks rtos_internal_tasks
 
-/*| type_definitions |*/
+/*| types |*/
 typedef {{prefix_type}}TaskId TaskIdOption;
 
 /*| structure_definitions |*/

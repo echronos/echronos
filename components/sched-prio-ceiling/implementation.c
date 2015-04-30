@@ -40,7 +40,13 @@ static void sched_set_mutex_unlocked({{prefix_type}}MutexId mutex_id);
 static [[#assume_runnable]]{{prefix_type}}TaskId[[/assume_runnable]][[^assume_runnable]]TaskIdOption[[/assume_runnable]] sched_get_next(void);
 
 /*| state |*/
-static struct sched sched_queue;
+static struct sched sched_queue = {
+    {
+{{#mutex_tasks}}
+        {SCHED_INDEX_NONE},
+{{/mutex_tasks}}
+    }
+};
 
 {{#mutexes.length}}
 static const SchedIndex mutex_to_index[{{mutexes.length}}] = {
@@ -92,9 +98,11 @@ sched_set_blocked(const {{prefix_type}}TaskId task_id)
 static void
 sched_set_mutex_locked_by(const {{prefix_type}}MutexId mutex_id, const {{prefix_type}}TaskId task_id)
 {
+    internal_assert(SCHED_OBJ_MUTEX(mutex_id).locked_by == SCHED_INDEX_NONE,
+            ERROR_ID_SCHED_PRIO_CEILING_MUTEX_ALREADY_LOCKED);
     /* Lower array indices correspond to higher priorities */
     internal_assert(sched_mutexid_to_index(mutex_id) < sched_taskid_to_index(task_id),
-            ERROR_ID_SCHED_PRIO_PCP_TASK_LOCKING_LOWER_PRIORITY_MUTEX);
+            ERROR_ID_SCHED_PRIO_CEILING_TASK_LOCKING_LOWER_PRIORITY_MUTEX);
     SCHED_OBJ_MUTEX(mutex_id).locked_by = sched_taskid_to_index(task_id);
 }
 

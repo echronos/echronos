@@ -45,17 +45,6 @@
       <internal_asserts>true</internal_asserts>
       <fatal_error>fatal</fatal_error>
       <prefix>rtos</prefix>
-      <taskid_size>8</taskid_size>
-      <signalset_size>8</signalset_size>
-
-      <signal_labels>
-
-        <signal_label>
-          <name>demo_helper</name>
-        </signal_label>
-
-      </signal_labels>
-
       <tasks>
 
         <task>
@@ -72,46 +61,39 @@
           <stack_size>8192</stack_size>
         </task>
 
-        <task>
-          <name>z</name>
-          <function>fn_z</function>
-          <priority>5</priority>
-          <stack_size>8192</stack_size>
-        </task>
-
       </tasks>
 
-      <semaphores>
-        <semaphore>
-          <name>sem0</name>
-        </semaphore>
-        <semaphore>
-          <name>sem1</name>
-        </semaphore>
-        <semaphore>
-          <name>sem2</name>
-        </semaphore>
-        <semaphore>
-          <name>sem3</name>
-        </semaphore>
-        <semaphore>
-          <name>sem4</name>
-        </semaphore>
-        <semaphore>
-          <name>sem5</name>
-        </semaphore>
-      </semaphores>
+      <timers>
 
-      <semaphore_enable_max>true</semaphore_enable_max>
+        <timer>
+          <name>watchdog_a</name>
+        </timer>
+
+        <timer>
+          <name>wake_a</name>
+        </timer>
+
+        <timer>
+          <name>watchdog_b</name>
+        </timer>
+      </timers>
+
+      <signal_labels>
+
+        <signal_label>
+          <name>wake</name>
+        </signal_label>
+
+      </signal_labels>
 
       <mutex>
         <stats>false</stats>
       </mutex>
+
     </module>
 
     <module name="machine-armv7m-common.example.machine-timer" />
-    <!-- main .c file: -->
-    <module name="rtos-example.sem-demo">
+    <module name="rtos-example.timer-test">
       <variant>phact</variant>
     </module>
 

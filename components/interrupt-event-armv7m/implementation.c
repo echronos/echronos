@@ -15,7 +15,7 @@
 
 /*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 static void interrupt_event_process(void);
 static inline bool interrupt_application_event_check(void);
 static inline void interrupt_event_wait(void);

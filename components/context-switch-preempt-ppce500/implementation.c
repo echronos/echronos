@@ -63,7 +63,7 @@ typedef uint32_t* context_t;
 extern void rtos_internal_yield_syscall({{prefix_type}}TaskId to, bool return_with_preempt_disabled);
 extern void rtos_internal_restore_preempted_context(bool restore_volatiles, context_t ctxt_to);
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 /**
  * Common helper for context-switching due to an internal yield or preempt_enable.
  *

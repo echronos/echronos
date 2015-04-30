@@ -42,7 +42,7 @@
 /*| extern_declarations |*/
 extern void {{fatal_error}}({{prefix_type}}ErrorId error_id);
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 
 /*| state |*/
 

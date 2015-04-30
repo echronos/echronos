@@ -9,7 +9,7 @@
 
 /*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 
 /*| state |*/
 {{#profiling}}

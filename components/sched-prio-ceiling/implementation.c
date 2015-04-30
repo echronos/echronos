@@ -30,7 +30,7 @@ struct sched {
 
 /*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 static void sched_set_runnable({{prefix_type}}TaskId task_id);
 static void sched_set_blocked({{prefix_type}}TaskId task_id);
 {{#mutexes.length}}

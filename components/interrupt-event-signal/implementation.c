@@ -12,7 +12,7 @@ struct interrupt_event_handler {
 
 /*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 {{#interrupt_events.length}}
 static void interrupt_event_handle({{prefix_type}}InterruptEventId interrupt_event_id);
 {{/interrupt_events.length}}

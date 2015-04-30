@@ -33,7 +33,7 @@ struct timer
 
 /*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 {{#timers.length}}
 static void timer_process_one(struct timer *timer);
 static void timer_enable({{prefix_type}}TimerId timer_id);

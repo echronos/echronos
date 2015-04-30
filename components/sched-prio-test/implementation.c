@@ -13,7 +13,7 @@ typedef {{prefix_type}}TaskId TaskIdOption;
 
 /*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 
 /*| state |*/
 

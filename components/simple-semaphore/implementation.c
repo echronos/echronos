@@ -21,7 +21,7 @@ struct semaphore {
 
 /*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 static bool internal_sem_try_wait(const {{prefix_type}}SemId s);
 
 /*| state |*/

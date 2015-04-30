@@ -16,7 +16,7 @@ extern void rtos_internal_interrupts_enable(void);
 extern void rtos_internal_interrupts_wait(void);
 extern bool rtos_internal_check_interrupts_enabled(void);
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 static void interrupt_event_process(void);
 static void interrupt_event_wait(void);
 

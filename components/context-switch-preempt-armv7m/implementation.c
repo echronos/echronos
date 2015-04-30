@@ -132,7 +132,7 @@ extern void rtos_internal_preempt_enable(void);
 extern void rtos_internal_preempt_disable(void);
 extern void rtos_internal_preempt_pend(void);
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 /**
  * Platform-specific initialization for the preemption implementation called once at RTOS start time.
  */

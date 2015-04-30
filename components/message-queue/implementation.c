@@ -28,7 +28,7 @@ struct message_queue
 
 /*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 
 /*| state |*/
 {{#message_queues.length}}

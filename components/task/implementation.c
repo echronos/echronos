@@ -20,7 +20,7 @@ struct task
 extern void {{function}}(void);
 {{/tasks}}
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 {{#internal_asserts}}
 static {{prefix_type}}TaskId get_current_task_check(void);
 {{/internal_asserts}}

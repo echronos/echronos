@@ -21,7 +21,7 @@ struct sched {
 
 /*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 static void sched_set_runnable(const {{prefix_type}}TaskId task_id);
 static void sched_set_blocked_on(const {{prefix_type}}TaskId task_id, const {{prefix_type}}TaskId blocker);
 static [[#assume_runnable]]{{prefix_type}}TaskId[[/assume_runnable]][[^assume_runnable]]TaskIdOption[[/assume_runnable]] sched_get_next(void);

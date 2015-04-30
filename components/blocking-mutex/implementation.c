@@ -23,7 +23,7 @@ struct mutex_stat {
 
 /*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 
 /*| state |*/
 {{#mutexes.length}}

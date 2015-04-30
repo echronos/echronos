@@ -12,7 +12,7 @@
 extern void {{function}}(void);
 {{/tasks}}
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 static void block_on({{prefix_type}}TaskId blocker);
 {{#mutexes.length}}
 static void mutex_core_block_on_timeout({{prefix_type}}TaskId t, {{prefix_type}}TicksRelative ticks);

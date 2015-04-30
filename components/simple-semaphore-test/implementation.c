@@ -11,7 +11,7 @@
 
 /*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 
 /*| state |*/
 static void (*block_ptr)(void);

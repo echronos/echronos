@@ -9,7 +9,7 @@
 
 /*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 static void yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT;
 static void block(void) {{prefix_const}}REENTRANT;
 static void unblock({{prefix_type}}TaskId task);

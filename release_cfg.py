@@ -685,7 +685,7 @@ class StandardLinux(Standard):
     release_name = 'std_linux'
     enabled = True
     extra_files = [
-        ('README.md', 'docs/armv7m_rigel_readme.md'),
+        ('README.md', 'docs/armv7m_kochab_readme.md'),
     ]
 
 

@@ -1,0 +1,33 @@
+Breakaway Task Review
+=======================
+
+Task name: qQ7uct-phact-pcp-variant
+Version reviewed: ddd8778d3cde74963b417d2679ddae66a8f04d4b
+Reviewer: stg
+Date: 2015-03-20
+Conclusion: Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: components/phact/implementation.c:69 and others
+Comment 1: Rework
+As per convention BXCwte, please ensure that all C code observes const correctness.
+
+[robs: Fixed]
+
+Location: components/sched-prio-ceiling/implementation.c:2
+Comment 2: Review
+Added inclusion of stdint.h because the C file references declarations from that header file.
+
+[robs: Looks good, thanks]
+
+Location: components/sched-prio-ceiling/implementation.c:46, 53, 59
+Comment 3: Review
+The arrays mutex_to_index, task_to_index, and index_to_mutex_task appear to contain constant data.
+Would it be possible to mark these arrays as constant?
+
+[robs: Fixed]

@@ -1,0 +1,27 @@
+Task: RBUd41-armv7m-kochab-readme
+==============================================================================
+
+Motivation
+----------
+
+While preparing a project partner release, I wrote a new top-level release README.md for Kochab on ARMv7-M, based on the existing Rigel one.
+
+This might be somewhat useful to keep because I fixed up some stale/confusing content, and furthermore added sections describing the 'armv7m.ctxt-switch-preempt' and 'armv7m.exception-preempt' modules, which were otherwise undocumented.
+
+Those descriptions might also be better off migrated to the (somewhat bare) armv7m-manual.md package documentation file.
+
+Finally, we should probably switch over to using this Kochab-oriented release README for the default ARM release, to be consistent with the default PowerPC release which emphasizes Kochab.
+
+
+Goals
+--------
+
+Commit new ARMv7-M Kochab release README, migrate content from it to armv7m package documentation if it makes sense.
+
+Switch the default ARM release over to using the Kochab-oriented release README rather than the Rigel one.
+
+
+Test Plan
+---------
+
+Existing regression tests.

@@ -1,0 +1,19 @@
+Breakaway Task Review
+=======================
+
+Task name: RBUd41-armv7m-kochab-readme
+Version reviewed: 00c9abeb5a56866388219ffa7425b79250f88261
+Reviewer: stg
+Date: 2015-03-13
+Conclusion: Rework
+
+Specific comments
+=================
+
+Location: docs/armv7m_kochab_readme.md:179
+Comment 1: Rework
+This section duplicates a lot of configuration items that are already documented in the RTOS manual.
+In my opinion, it is preferable to refer to the manual and avoid duplication where possible.
+The same goes of course for the other readme files.
+
+[robs: Done]

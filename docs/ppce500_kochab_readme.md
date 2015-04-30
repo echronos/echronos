@@ -92,8 +92,6 @@ For example, to build the kochab mutex demo system for QEMU PowerPC e500, run:
 Global Options
 ---------------
 
-The rest of this document assumes that `prj` will be used in configuration mode.
-
 There are a number of global command line options available.
 These options should be passed on the command line before the sub-command name.
 E.g:
@@ -127,13 +125,10 @@ When no `project` is specified the `project_output_dir` will be `$pwd/out` (wher
 `gen` sub-command options
 --------------------------
 
-The `gen` sub-command takes a single mandatory parameter, which is the name of the system to build.
-The system be either be a fully-qualified module name, or the direct path to a system description file (`.prx` file).
+The `gen` sub-command takes as a single mandatory parameter the direct path to a system description file (PRX file).
 
-When using the tool in configuration mode the path to a system description file is generally used.
-
-The system description file specifies the system in a declaration manner.
-In configuration mode, the description file is only describing the configuration of the RTOS (and associated modules), rather than the full-system.
+The system description file specifies the system in a declarative manner.
+In configuration mode, the description file only describes the configuration of the RTOS (and associated modules), rather than the full-system.
 
 The format of the system description file is described in following sections.
 
@@ -146,7 +141,8 @@ This command will configure the RTOS based on the `rtos.prx` system description 
 System Description File
 ------------------------
 
-The system description file (or simply PRX file) is used to specify the system or in the case of the configuration only mode configure the RTOS related modules of the system.
+The system description file (or simply PRX file) is used to specify the modules of the system.
+Note that when `prj` is used in configuration-only mode, this file specifies only RTOS-related modules.
 
 Currently the system description is specified in XML, however additional formats are being considered and feedback is welcomed.
 
@@ -239,73 +235,4 @@ eChronos comes in a number of different *flavors*, each of varying complexity, c
 
 The RTOS flavor *kochab* supports tasks, priority scheduling, mutexes with priority inheritance, semaphores, signals, and interrupt events which can cause task preemption and trigger the sending of signals.
 
-There are a number of configuration options that should be set:
-
-### `prefix`
-
-The RTOS has an API that exports a number of functions (such as `signal_send_set`).
-These APIs can be prefixed to provide a name-spacing.
-The suggested prefix is `rtos_`, however anything can be chosen, which can help avoid namespace classes.
-
-### `taskid_size`
-
-The RTOS supports variables sized task identifiers.
-This option sets the size of the identifier (in number of bits).
-Only values of 8, 16 and 32 are supported.
-Generally 8-bits (supporting up to 255 tasks) is sufficient, however there may be cases where using a larger size maps better with existing code or provides some performance benefits.
-
-### `signalset_size`
-
-The RTOS supports signal sets of varying sizes.
-Possible values are 8, 16 and 32.
-The signal set size places a limit on the number of individual signals that are available.
-
-### `tasks`
-
-The configuration should also include a `tasks` element, with a number of `task` child elements.
-The `task` elements define each of the tasks in the system.
-Each task has the following configuration elements:
-
-#### `name`
-
-The name of the task.
-This should be a valid C identifier.
-Task names must be unique within the system.
-
-#### `function`
-
-The entry point for the task.
-The entry point should be a C function that takes zero arguments and never returns.
-
-#### `priority`
-
-The priority for the task.
-A higher number denotes a higher priority.
-
-#### `stack_size`
-
-Size of the stack allocated to this task.
-
-### `mutexes`
-
-The `mutexes` element should contain `mutex` child elements, which define each of the mutexes in the system.
-
-#### `name`
-
-Each `mutex` element contains just a single child element, `name`, which should be a valid C identifier specifying the name of the mutex.
-
-### `semaphores`
-
-The `semaphores` element should contain `semaphore` child elements, which define each of the semaphores in the system.
-
-#### `name`
-
-Each `semaphore` element contains just a single child element, `name`, which should be a valid C identifier specifying the name of the semaphore.
-
-### `signal_labels`
-
-The `signal_labels` element should contain `signal_label` child elements, which define each of the signals in the system.
-
-#### `name`
-
-Each `signal` element contains just a single child element, `name`, which should be a valid C identifier specifying the name of the signal.
+For more information including configuration options, please see `share/packages/ppce500/rtos-kochab/documentation.pdf`.

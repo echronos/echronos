@@ -1,0 +1,41 @@
+Task: use5gL-arm-preempt-await-pendsv
+==============================================================================
+
+Motivation
+----------
+
+For the verification of eChronos, we wish to be able to guarantee the property that the RTOS does not allow a task to run if it is a different task that ought to currently be running according to the RTOS' scheduling policy.
+On preemptive eChronos variants, this means the decision of what task to allow to run must always have been subject to all previous events indicating a preemption.
+
+On ARMv7-M, we use the PendSV handler to implement the preemption mechanism.
+During most RTOS calls we disable preemption by setting the BASEPRI such that the PendSV interrupt is disabled.
+Then on reenabling preemption, we reset the BASEPRI with the assumption that if the PendSV interrupt is pending, then it will activate immediately.
+
+However, the ARM documentation provides no guarantees that PendSV will activate immediately in this situation.
+
+Testing on some project-specific ARMv7-M hardware has shown there is a delay that appears to be consistently the length of two NOP instructions, tempting us to kludge by tacking two NOPs immediately after resetting the BASEPRI.
+Unfortunately, it is not clear whether the length of this (ostensibly two-NOP) delay is guaranteed or specified anywhere, or if it may vary between boards.
+
+Therefore, the safest measure in order for us to guarantee the correct behavior is to refuse to return to the task until we know for sure the PendSV pending status has been cleared by our PendSV handler, which we can do by effectively implementing "await(!pending)" after resetting the BASEPRI.
+
+Since it doesn't appear possible to actually get enough time to do anything malicious in "the wrong task" by exploiting such a short delay (see below in Test Plan), this fix is largely "in principle" in order for us to meet the assumptions of our verification efforts, given our inability to rely on any guarantees as to the length of the delay.
+
+
+Goals
+--------
+
+Implement await(!pending) after resetting BASEPRI and before returning to the task, to ensure that we can guarantee we never return to a task before a pending preemption has been handled.
+
+
+Test Plan
+---------
+
+No new tests.
+
+It should be noted that I attempted to write a regression test that would fail if this measure was not in place.
+In this test, a lower-priority task B attempts to do things with a boolean flag right after an RTOS call to send a signal to wake a higher-priority task A.
+(The signal send RTOS call, on unblocking a waiting task, sets preemption pending and assumes that the preemption will occur immediately once preemption is reenabled at the end of the call.)
+In one version, B sets a flag, and the test should fail if the flag is set on arrival to task A, which would indicate that B was allowed to run before the preemption occurred.
+In another version, B checks a flag unset by A, and the test should fail if B was allowed to read the originally positive value of the flag before the preemption by A.
+
+However, it turned out there was never enough time to do anything like set/test a boolean before the preemption occurred, because the two-NOP delay was always too short to allow both the function-return to the task AND the memory access to complete.

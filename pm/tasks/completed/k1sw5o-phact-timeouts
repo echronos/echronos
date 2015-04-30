@@ -1,0 +1,27 @@
+Task: k1sw5o-phact-timeouts
+==============================================================================
+
+Motivation
+----------
+
+The recently merged task qQ7uct-phact-pcp-variant added Phact variant which is a clone of Kochab with the priority inheritance scheduler replaced with a priority ceiling scheduler.
+
+In this initial work, the timer API and mutex/semaphore timeout functionality were disabled.
+
+These need to be enabled to bring Phact's functionality up to speed with that of Kochab.
+
+
+Goals
+--------
+
+Enable timer API and mutex/semaphore timeout functionality on Phact variant.
+
+
+Test Plan
+---------
+
+Add timer demo system (using existing timer-test C program) for Phact.
+
+Enable semaphore timeout API test cases on semaphore demo system for Phact.
+
+Add mutex timeout API test cases to the existing phact-mutex-demo C program and Phact system.

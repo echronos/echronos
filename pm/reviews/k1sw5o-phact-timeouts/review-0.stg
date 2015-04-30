@@ -1,0 +1,20 @@
+Breakaway Task Review
+=======================
+
+Task name: k1sw5o-phact-timeouts
+Version reviewed: 770a8bb724ce8565b98cda3a4e9944598179b199
+Reviewer: stg
+Date: 2015-04-14
+Conclusion: Rework
+
+Specific comments
+=================
+
+Location: components/sched-prio-ceiling/implementation.c:47
+Comment 1: Rework?
+Is a partial struct initializer such as this a compiler-specific extension as opposed to being a C standard feature?
+If yes, it must not be used.
+If it is a C99 or later feature, we need to discuss which C standard we want the code to be compatible with exactly.
+
+[robs: The { .field = VALUE } form of initializer is C99.
+I've converted it here to {VALUE} form.]

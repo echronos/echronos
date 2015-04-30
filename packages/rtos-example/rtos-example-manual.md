@@ -29,24 +29,38 @@ Introduction
 The RTOS Example package contains the code for a number of RTOS example programs:
 
 <dl>
-  <dt>`kochab-signal-demo`</dt>
-  <dd>An example C program demonstrating signal functionality on the Kochab variant.</dd>
+  <dt>`signal-demo`</dt>
+  <dd>An example C program demonstrating signal functionality on variants that support it.</dd>
 
   <dt>`kochab-mutex-demo`</dt>
   <dd>An example C program demonstrating mutex functionality on the Kochab variant.</dd>
 
-  <dt>`kochab-sem-demo`</dt>
-  <dd>An example C program demonstrating semaphore functionality on the Kochab variant.</dd>
+  <dt>`phact-mutex-demo`</dt>
+  <dd>An example C program demonstrating mutex functionality on the Phact variant.</dd>
+
+  <dt>`sem-demo`</dt>
+  <dd>An example C program demonstrating semaphore functionality on variants that support it.</dd>
+
+  <dt>`sched-demo`</dt>
+  <dd>An example C program demonstrates scheduler behavior on variants that support priority scheduling.</dd>
 
   <dt>`timer-test`</dt>
   <dd>An example C program that tests runtime timer APIs on variants that support it.</dd>
 </dl>
 
+RTOS variant-agnostic program modules in this package take a non-optional `variant` configuration element that must be supplied to them by the system `.prx` file, so that they can include the correct RTOS variant header.
 
-`kochab-signal-demo`
+For example, when building `rtos-example.timer-test` for the Kochab variant:
+
+    <module name="rtos-example.timer-test">
+      <variant>kochab</variant>
+    </module>
+
+
+`signal-demo`
 ====================
 
-This system demonstrates the eChronos Kochab variant's signal functionality:
+This system demonstrates eChronos signal functionality on variants that support priority scheduling:
 
   Part 0 has one task (A) demonstrate peeking and polling of signals, as well as waits returning immediately if a signal in the set is already available.
 
@@ -103,7 +117,7 @@ The following is the expected output of the signal demo, continuing from a break
 `kochab-mutex-demo`
 ===================
 
-This system demonstrates the eChronos Kochab variant's mutex functionality:
+This system demonstrates the eChronos Kochab variant's mutex functionality, whose behavior is subject to priority scheduling with priority inheritance:
 
   Part 0 has one task (A) demonstrate trying and releasing of a mutex, as well as taking of a mutex when the mutex is available.
 
@@ -119,6 +133,10 @@ This system demonstrates the eChronos Kochab variant's mutex functionality:
   Part 4 demonstrates that if two tasks (B) and (Y) are both waiting to acquire a mutex, the higher-priority task (B) will be given ownership of the mutex in preference to the lower-priority task (Y).
 
   Part 5 demonstrates that the higher-priority task (B) will be given preference over the lower priority task (Y) regardless of which of the two tasks attempted to acquire the mutex first.
+
+  Part 6 demonstrates a lock attempt on a mutex by task (B) timing out due to task (A) not unlocking the mutex until after the requested timeout has expired.
+
+  Part 7 demonstrates a lock attempt on a mutex by task (B) succeeding before its timeout due to task (A) unlocking the mutex within the requested time.
 
 There is no LED activity in this system, only debug prints via GDB.
 The following is the expected output of the mutex demo, continuing from a breakpoint set at `rtos_start`:
@@ -209,13 +227,179 @@ The following is the expected output of the mutex demo, continuing from a breakp
     y: sending signal to b
     b: sending signal to a
 
+    Part 6: B's lock attempt times out
+
+    a: taking the lock
+    a: sleeping
+    b: blocking on the lock, should time out
+    y: sleeping
+    z: sleeping
+    b: waiting for a to signal the lock's free
+    a: releasing the lock
+    a: signalling b
+    a: waiting until b has the lock
+    b: taking the lock
+    b: waking up a
+
+    Part 7: B gets lock before timeout
+
+    a: taking the lock
+    a: sleeping
+    b: blocking on the lock, should succeed
+    y: sleeping
+    z: sleeping
+    a: releasing the lock
+    a: waiting until b has the lock
+    b: waking up a
+    a: blocking on the lock
+    b: releasing the lock
+
     Done.
 
 
-`kochab-sem-demo`
+`phact-mutex-demo`
+===================
+
+This system demonstrates the eChronos Phact variant's mutex functionality, whose behavior is subject to priority ceiling protocol scheduling:
+
+  Part 0 has one task (A) demonstrate trying and releasing of a mutex, as well as taking of a mutex when the mutex is available.
+
+  Part 1 has four tasks (A, B, Y, and Z) taking turns to lock a mutex whose priority ceiling is higher than all of their task priorities.
+  It also shows that upon releasing such a mutex, a task will immediately revert to its original priority, implicitly yielding to the highest-priority runnable task if necessary.
+
+  Part 2 has three tasks (B, Y, and Z) taking turns to lock a mutex whose priority ceiling is higher than all of theirs, but lower than that of the highest-priority task (A).
+
+  Part 3 has two tasks (B, Y) competing on a mutex whose priority ceiling is higher than both of theirs, in the midst of which a third task (Z) interacts with a mutex whose priority ceiling lies between the task priorities of (B) and (Y).
+  Both mutexes' priority ceilings are lower than that of the highest-priority task (A).
+  All three tasks (B, Y, Z) intermittently wake the highest-priority task (A) to show that it is prioritized above all others regardless of other tasks' acquisition of either of the two mutexes.
+
+  Part 4 demonstrates a lock attempt on a mutex by task (B) timing out due to task (A) not unlocking the mutex until after the requested timeout has expired.
+
+  Part 5 demonstrates a lock attempt on a mutex by task (B) succeeding before its timeout due to task (A) unlocking the mutex within the requested time.
+
+  Part 6 has one task (A) lock a mutex whose priority ceiling is lower than its task priority, which is illegal.
+  This triggers a fatal error.
+
+The following is the expected output of the Phact mutex demo:
+
+    Part 0: Solo
+
+    a: taking lock
+    a: trying held lock
+    a: releasing lock
+    a: trying unheld lock
+    a: releasing lock
+
+    Part 1: Mutex with ceiling higher than all tasks
+
+    a: waiting on signal
+    b: waiting on signal
+    y: waiting on signal
+    z: taking lock
+    z: sending signal to y
+    z: sending signal to b
+    z: sending signal to a
+    z: still running at greater priority than a, b and y. releasing lock
+    a: should get signal 1st, waiting again
+    b: should get signal 2nd, waiting again
+    y: should get signal last, taking lock
+    y: sending signal to b
+    y: sending signal to a
+    y: still running at greater priority than a and b. releasing lock
+    a: should get signal first, waiting again
+    b: should get signal last, taking lock
+    b: sending signal to a
+    b: still running at greater priority than a. releasing lock
+    a: got signal, taking lock
+    a: releasing lock
+
+    Part 2: Mutex with ceiling lower than A's
+
+    a: waiting on signal
+    b: waiting on signal
+    y: waiting on signal
+    z: taking lock
+    z: sending signal to y
+    z: sending signal to b
+    z: sending signal to a
+    a: got signal, waiting again
+    z: still running at greater priority than b and y. releasing lock
+    b: got signal, waiting again
+    y: should get signal last, taking lock
+    y: sending signal to b
+    y: sending signal to a
+    a: got signal, waiting again
+    y: still running at greater priority than b. releasing lock
+    b: got signal, taking lock
+    b: sending signal to a
+    a: got signal, waiting again
+    b: releasing lock
+    b: sending signal to a
+    a: got signal, done
+
+    Part 3: Two mutexes with differing ceilings
+
+    a: waiting on signal
+    b: waiting on signal
+    y: taking lock H (> b)
+    y: sending signal to b
+    y: should still run (> b), sending signal to a
+    a: got signal, waiting again
+    y: waiting on signal
+    b: got signal, waiting on lock H
+    z: taking lock L (> y)
+    z: sending signal to y
+    y: got signal, releasing lock H
+    b: got lock H, sending signal to a
+    a: got signal, waiting again
+    b: releasing lock H
+    b: waiting on signal
+    z: should run (> y), sending signal to a
+    a: got signal, waiting again
+    z: sending signal to b
+    b: got signal, waiting again
+    z: releasing lock L
+    y: sending signal to b
+    b: sending signal to a
+    a: got signal, done
+
+    Part 4: B's lock attempt times out
+
+    a: taking the lock
+    a: sleeping
+    b: blocking on the lock, should time out
+    y: sleeping
+    z: sleeping
+    b: waiting for a to signal the lock's free
+    a: releasing the lock
+    a: signalling b
+    a: waiting until b has the lock
+    b: taking the lock
+    b: waking up a
+    b: releasing the lock
+
+    Part 5: B gets lock before timeout
+
+    a: taking the lock
+    a: sleeping
+    b: blocking on the lock, should succeed
+    y: sleeping
+    z: sleeping
+    a: releasing the lock
+    a: waiting until b has the lock
+    b: waking up a
+    b: releasing the lock
+
+    Part 6: Task takes mutex with lower priority ceiling
+
+    a: taking lock (should trigger fatal error)
+    FATAL ERROR: <hexadecimal error code for ERROR_ID_SCHED_PRIO_PCP_TASK_LOCKING_LOWER_PRIORITY_MUTEX - see rtos-variant.h>
+
+
+`sem-demo`
 =================
 
-This system demonstrates the eChronos Kochab variant's semaphore functionality:
+This system demonstrates eChronos semaphore functionality on variants that support priority scheduling:
 
   Part 0 has one task (A) demonstrate posting (denoted `V`) and trying to wait (denoted `P`) on a semaphore, as well as returning immediately from waiting on a semaphore that has already been posted.
 
@@ -224,7 +408,13 @@ This system demonstrates the eChronos Kochab variant's semaphore functionality:
 
   Part 2 shows that if two tasks are both blocked waiting on a semaphore, the higher priority task (A) will be woken in preference to the lower priority task (B) when some other task (Z) posts to the semaphore, regardless of whether task (A) or task (B) attempted to wait on the semaphore first.
 
-  Part 3 demonstrates that if the user posts to the semaphore more times than the runtime-initialized maximum value, the RTOS will trigger a fatal error.
+  Part 3 demonstrates a wait attempt on a semaphore by task (A) timing out due to task (B) not posting to the semaphore until after the requested timeout has expired.
+
+  Part 4 demonstrates a wait attempt on a semaphore by task (A) succeeding before its timeout due to task (B) posting to the semaphore within the requested time.
+
+  Part 5 demonstrates that if the user posts to the semaphore more times than the runtime-initialized maximum value, the RTOS will trigger a fatal error.
+
+For RTOS variants that do not support semaphore timeouts, parts 3 and 4 can be disabled by setting the optional `timeout_tests` option to `false` when configuring this module in the system `.prx` file.
 
 There is no LED activity in this system, only debug prints via GDB.
 The following is the expected output of the semaphore demo, continuing from a breakpoint set at `rtos_start`:
@@ -243,6 +433,7 @@ The following is the expected output of the semaphore demo, continuing from a br
 
     Part 1: B unblocks A
 
+    a: initializing maximum
     a: P (should block)
     b: V (should unblock a)
     a: now runnable
@@ -297,6 +488,7 @@ The following is the expected output of the semaphore demo, continuing from a br
 
     Part 2: A and B compete
 
+    a: initializing maximum
     a: P (should block)
     b: P (should block)
     z: V
@@ -306,8 +498,28 @@ The following is the expected output of the semaphore demo, continuing from a br
     z: V
     b: finally awake. sending signal to a
 
-    Part 3: A posts past maximum and triggers fatal error
+    Part 3: A's wait attempt times out
 
+    a: initializing maximum
+    a: P (should time out)
+    b: sleeping
+    z: sleeping
+    a: waiting on signal
+    b: V (should not unblock a)
+    b: sending signal to a
+    a: trying P (should succeed)
+
+    Part 4: A's wait returns before timeout
+
+    a: initializing maximum
+    a: P (should succeed before timeout)
+    b: sleeping
+    z: sleeping
+    b: V (should unblock a)
+
+    Part 5: A posts past maximum and triggers fatal error
+
+    a: initializing maximum
     a: P
     a: P
     a: P
@@ -320,6 +532,105 @@ The following is the expected output of the semaphore demo, continuing from a br
     a: P
     a: trying P (should trigger fatal error)
     FATAL ERROR: <hexadecimal error code for ERROR_ID_SEMAPHORE_MAX_EXCEEDED - see rtos-variant.h>
+
+
+`sched-demo`
+============
+
+This program demonstrates scheduler behavior on variants that support strict priority scheduling.
+For more information on this program's test cases, please see `sched-demo.c`.
+
+The following is the expected output of the scheduler demo, running on the Phact variant:
+
+    fn_a starting
+    fn_a test: priority inversion
+    fn_b starting
+    fn_b test: priority inversion
+    fn_c starting
+    fn_c test: priority inversion
+    fn_c: got m0
+    fn_c: sending sig A
+    fn_c: releasing m0
+    fn_a: go
+    fn_a: sending sig B
+    fn_a: locking M0
+    fn_a: got M0
+    fn_a: releasing m0
+    fn_a test: priority inversion: completed
+    fn_b: go
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b: looping
+    fn_b test: priority inversion: completed
+    fn_c test: priority inversion: completed
+    fn_a test: chain blocking
+    fn_b test: chain blocking
+    fn_c test: chain blocking
+    fn_c: locking M2
+    fn_c: got m2
+    fn_c: sending sig B
+    fn_c: releasing m2
+    fn_b: go
+    fn_b: locking M1
+    fn_b: got m1
+    fn_b: sending sig A
+    fn_b: locking M2
+    fn_b: got m2
+    fn_b: releasing m2
+    fn_b: releasing m1
+    fn_a: go
+    fn_a: locking M0
+    fn_a: got m0
+    fn_a: locking M1
+    fn_a: got m1
+    fn_a: releasing m1
+    fn_a: releasing m0
+    fn_a test: chain blocking: completed
+    fn_b test: chain blocking: completed
+    fn_c test: chain blocking: completed
+    fn_a test: deadlock
+    fn_b test: deadlock
+    fn_b: locking M0
+    fn_b: got M0
+    fn_b: sending sig A
+    fn_b: locking M1
+    fn_b: got M1
+    fn_b: releasing M1
+    fn_b: releasing M0
+    fn_a: go
+    fn_a: locking M1
+    fn_a: got M1
+    fn_a: locking M0
+    fn_a: got M0
+    fn_a: releasing M0
+    fn_a: releasing M1
+    fn_a test: deadlock: completed
+    fn_b test: deadlock: completed
+    fn_c test: deadlock
+    fn_c test: deadlock: completed
+    fn_a done
+    fn_b done
+    fn_c done
+
+When run on the Kochab variant, the `deadlock` section of the test is expected to deadlock.
+It can be disabled by setting the optional `deadlock_test` option to `false` when configuring this module in the system `.prx` file.
 
 
 `timer-test`
@@ -439,12 +750,4 @@ The following is the expected output of the timer test, continuing from a breakp
     tick_irq: 0x00000030
     < and so on ... >
 
-The `rtos-example.timer-test` module takes a non-optional `variant` configuration element that must be supplied to it by the system `.prx` file, so that it can include the correct RTOS variant header.
-
-For example, when building `timer-test` for the Kochab variant:
-
-    <module name="rtos-example.timer-test">
-      <variant>kochab</variant>
-    </module>
-
-Furthermore, it depends on an external code module to implement `machine_timer_init()` and `machine_timer_clear()` for the platform the test system is to be run on.
+This module depends on an external code module to implement `machine_timer_init()` and `machine_timer_clear()` for the platform the test system is to be run on.

@@ -11,7 +11,7 @@ typedef {{prefix_type}}TaskId TaskIdOption;
 
 /*| structure_definitions |*/
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
 /*| function_definitions |*/
 

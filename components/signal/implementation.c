@@ -13,7 +13,7 @@ struct signal {
     struct signal_task tasks[{{tasks.length}}];
 };
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
 /*| function_definitions |*/
 static {{prefix_type}}SignalSet signal_recv({{prefix_type}}SignalSet *pending_signals, {{prefix_type}}SignalSet requested_signals);

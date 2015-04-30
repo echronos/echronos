@@ -8,7 +8,7 @@
 
 /*| structure_definitions |*/
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
 /*| function_definitions |*/
 static uint8_t timer_pending_ticks_get_and_clear_atomically(void);

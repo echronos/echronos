@@ -26,7 +26,7 @@ struct message_queue
     uint8_t available;
 };
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
 /*| function_definitions |*/
 

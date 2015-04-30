@@ -7,7 +7,7 @@
 
 /*| structure_definitions |*/
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
 /*| function_definitions |*/
 {{prefix_type}}TaskId rtos_internal_interrupt_event_get_next(void);

@@ -7,7 +7,7 @@
 
 /*| structure_definitions |*/
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
 /*| function_definitions |*/
 static void interrupt_event_handle({{prefix_type}}InterruptEventId interrupt_event_id);

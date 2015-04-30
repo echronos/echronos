@@ -39,7 +39,7 @@
 
 /*| structure_definitions |*/
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 extern void {{fatal_error}}({{prefix_type}}ErrorId error_id);
 
 /*| function_definitions |*/

@@ -16,7 +16,7 @@ struct sched {
     struct sched_task tasks[{{tasks.length}}];
 };
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
 /*| function_definitions |*/
 static void sched_set_runnable(const {{prefix_type}}TaskId task_id);

@@ -28,7 +28,7 @@ struct sched {
     struct sched_entry entries[{{mutex_tasks_length}}];
 };
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
 /*| function_definitions |*/
 static void sched_set_runnable({{prefix_type}}TaskId task_id);

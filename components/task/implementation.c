@@ -15,7 +15,7 @@ struct task
     context_t ctx;
 };
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 {{#tasks}}
 extern void {{function}}(void);
 {{/tasks}}

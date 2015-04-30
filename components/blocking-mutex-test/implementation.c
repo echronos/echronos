@@ -10,7 +10,7 @@ typedef {{prefix_type}}TaskId TaskIdOption;
 
 /*| structure_definitions |*/
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
 /*| function_definitions |*/
 static void mutex_core_block_on({{prefix_type}}TaskId task) {{prefix_const}}REENTRANT;

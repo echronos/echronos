@@ -123,7 +123,7 @@ typedef uint32_t* context_t;
 
 /*| structure_definitions |*/
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 extern void rtos_internal_context_switch_first(context_t *);
 extern void rtos_internal_task_entry_trampoline(void);
 extern bool rtos_internal_check_preempt_disabled(void);

@@ -7,7 +7,7 @@
 
 /*| structure_definitions |*/
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
 /*| function_definitions |*/
 static void yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT;

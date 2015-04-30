@@ -14,7 +14,7 @@ struct mutex {
 };
 {{/mutexes.length}}
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
 /*| function_definitions |*/
 

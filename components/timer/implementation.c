@@ -31,7 +31,7 @@ struct timer
 };
 {{/timers.length}}
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
 /*| function_definitions |*/
 {{#timers.length}}

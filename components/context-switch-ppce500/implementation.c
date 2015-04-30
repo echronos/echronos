@@ -92,7 +92,7 @@ typedef uint32_t* context_t;
 
 /*| structure_definitions |*/
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 extern void rtos_internal_context_switch(context_t *, context_t *) {{prefix_const}}REENTRANT;
 extern void rtos_internal_context_switch_first(context_t *) {{prefix_const}}REENTRANT;
 

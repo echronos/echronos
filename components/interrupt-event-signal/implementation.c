@@ -10,7 +10,7 @@ struct interrupt_event_handler {
     {{prefix_type}}SignalSet sig_set;
 };
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
 /*| function_definitions |*/
 {{#interrupt_events.length}}

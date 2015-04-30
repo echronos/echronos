@@ -10,7 +10,7 @@
 
 /*| structure_definitions |*/
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 extern void rtos_internal_interrupts_disable(void);
 extern void rtos_internal_interrupts_enable(void);
 extern void rtos_internal_interrupts_wait(void);

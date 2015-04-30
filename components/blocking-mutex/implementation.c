@@ -21,7 +21,7 @@ struct mutex_stat {
 };
 {{/mutex.stats}}
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
 /*| function_definitions |*/
 

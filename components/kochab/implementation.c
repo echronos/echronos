@@ -7,7 +7,7 @@
 
 /*| structure_definitions |*/
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 {{#tasks}}
 extern void {{function}}(void);
 {{/tasks}}

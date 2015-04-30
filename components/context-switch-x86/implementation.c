@@ -6,14 +6,6 @@
 #define CONTEXT_SIZE (sizeof(struct context))
 
 /*| type_definitions |*/
-/**
- * The RTOS core uses the type `context_t` for storing the execution context of an inactive task.
- * The x86 context switch implementation stores all task execution context on the task's stack before a context
- * switch.
- * Therefore, the only task execution context the RTOS core needs to handle is a task's stack pointer.
- * `context_t` is therefore a pointer type and struct context describes the data that can be found at such a
- * pointer address.
- */
 typedef struct context* context_t;
 
 /*| structure_definitions |*/
@@ -23,6 +15,13 @@ typedef struct context* context_t;
  * Also note that the RTOS does not store this data structure as the per-task context information.
  * Instead, it just stores a stack pointer for each inactive task.
  * This data structure describes the data that resides at such a stored stack pointer of an inactive task.
+ *
+ * The RTOS core uses the type `context_t` for storing the execution context of an inactive task.
+ * The x86 context switch implementation stores all task execution context on the task's stack before a context
+ * switch.
+ * Therefore, the only task execution context the RTOS core needs to handle is a task's stack pointer.
+ * `context_t` is therefore a pointer type and `struct context` describes the data that can be found at such a
+ * pointer address.
  */
 struct context
 {

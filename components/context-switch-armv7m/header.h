@@ -2,7 +2,7 @@
 
 /*| public_types |*/
 
-/*| public_structure_definitions |*/
+/*| public_structures |*/
 
 /*| public_object_like_macros |*/
 

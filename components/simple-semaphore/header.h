@@ -7,7 +7,7 @@
 typedef uint8_t {{prefix_type}}SemId;
 typedef uint{{semaphore_value_size}}_t {{prefix_type}}SemValue;
 
-/*| public_structure_definitions |*/
+/*| public_structures |*/
 
 /*| public_object_like_macros |*/
 #define {{prefix_const}}SEM_ID_ZERO (({{prefix_type}}SemId) UINT8_C(0))

@@ -6,7 +6,7 @@
 typedef uint{{signalset_size}}_t {{prefix_type}}SignalSet;
 typedef {{prefix_type}}SignalSet {{prefix_type}}SignalId;
 
-/*| public_structure_definitions |*/
+/*| public_structures |*/
 
 /*| public_object_like_macros |*/
 #define {{prefix_const}}SIGNAL_SET_EMPTY (({{prefix_type}}SignalSet) UINT{{signalset_size}}_C(0))

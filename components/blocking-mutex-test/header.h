@@ -4,7 +4,7 @@
 /*| public_types |*/
 typedef uint8_t {{prefix_type}}TaskId;
 
-/*| public_structure_definitions |*/
+/*| public_structures |*/
 
 /*| public_object_like_macros |*/
 #define {{prefix_const}}TASK_ID_ZERO (({{prefix_type}}TaskId) UINT8_C(0))

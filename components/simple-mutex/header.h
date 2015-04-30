@@ -8,7 +8,7 @@
 typedef uint8_t {{prefix_type}}MutexId;
 {{/mutexes.length}}
 
-/*| public_structure_definitions |*/
+/*| public_structures |*/
 
 /*| public_object_like_macros |*/
 {{#mutexes}}

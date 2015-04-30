@@ -6,7 +6,7 @@ typedef uint8_t {{prefix_type}}TimerId;
 typedef uint32_t {{prefix_type}}TicksAbsolute;
 typedef uint16_t {{prefix_type}}TicksRelative;
 
-/*| public_structure_definitions |*/
+/*| public_structures |*/
 
 /*| public_object_like_macros |*/
 {{#timers}}

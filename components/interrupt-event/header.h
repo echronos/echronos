@@ -8,7 +8,7 @@
 typedef uint{{interrupteventid_size}}_t {{prefix_type}}InterruptEventId;
 {{/interrupt_events.length}}
 
-/*| public_structure_definitions |*/
+/*| public_structures |*/
 
 /*| public_object_like_macros |*/
 {{#interrupt_events}}

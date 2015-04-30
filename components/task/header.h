@@ -4,7 +4,7 @@
 /*| public_types |*/
 typedef uint{{taskid_size}}_t {{prefix_type}}TaskId;
 
-/*| public_structure_definitions |*/
+/*| public_structures |*/
 
 /*| public_object_like_macros |*/
 #define {{prefix_const}}TASK_ID_ZERO (({{prefix_type}}TaskId) UINT{{taskid_size}}_C(0))

@@ -11,7 +11,7 @@
 /*| types |*/
 typedef {{prefix_type}}SemId SemIdOption;
 
-/*| structure_definitions |*/
+/*| structures |*/
 struct semaphore {
     {{prefix_type}}SemValue value;
 {{#semaphore_enable_max}}

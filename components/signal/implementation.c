@@ -4,7 +4,7 @@
 
 /*| types |*/
 
-/*| structure_definitions |*/
+/*| structures |*/
 struct signal_task {
     {{prefix_type}}SignalSet signals;
 };

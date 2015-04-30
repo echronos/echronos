@@ -8,7 +8,7 @@
 /*| types |*/
 typedef {{prefix_type}}MutexId MutexIdOption;
 
-/*| structure_definitions |*/
+/*| structures |*/
 
 struct mutex {
     TaskIdOption holder;

@@ -37,7 +37,7 @@
 
 /*| types |*/
 
-/*| structure_definitions |*/
+/*| structures |*/
 
 /*| extern_declarations |*/
 extern void {{fatal_error}}({{prefix_type}}ErrorId error_id);

@@ -8,7 +8,7 @@
 /*| types |*/
 typedef ucontext_t context_t;
 
-/*| structure_definitions |*/
+/*| structures |*/
 
 /*| extern_declarations |*/
 

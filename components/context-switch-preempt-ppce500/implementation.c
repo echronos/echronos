@@ -57,7 +57,7 @@
 /*| types |*/
 typedef uint32_t* context_t;
 
-/*| structure_definitions |*/
+/*| structures |*/
 
 /*| extern_declarations |*/
 extern void rtos_internal_yield_syscall({{prefix_type}}TaskId to, bool return_with_preempt_disabled);

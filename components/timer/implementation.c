@@ -11,7 +11,7 @@
 /*| types |*/
 typedef uint16_t TicksTimeout;
 
-/*| structure_definitions |*/
+/*| structures |*/
 {{#timers.length}}
 struct timer
 {

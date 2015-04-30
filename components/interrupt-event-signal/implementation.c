@@ -4,7 +4,7 @@
 
 /*| types |*/
 
-/*| structure_definitions |*/
+/*| structures |*/
 struct interrupt_event_handler {
     {{prefix_type}}TaskId task;
     {{prefix_type}}SignalSet sig_set;

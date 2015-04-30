@@ -8,7 +8,7 @@
 /*| types |*/
 typedef {{prefix_type}}TaskId TaskIdOption;
 
-/*| structure_definitions |*/
+/*| structures |*/
 
 /*| extern_declarations |*/
 

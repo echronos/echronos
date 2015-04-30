@@ -4,7 +4,7 @@
 
 /*| types |*/
 
-/*| structure_definitions |*/
+/*| structures |*/
 
 /*| extern_declarations |*/
 

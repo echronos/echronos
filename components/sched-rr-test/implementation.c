@@ -8,7 +8,7 @@
 typedef uint8_t {{prefix_type}}TaskId;
 typedef TaskId TaskIdOption;
 
-/*| structure_definitions |*/
+/*| structures |*/
 
 /*| extern_declarations |*/
 

@@ -9,7 +9,7 @@
 typedef uint{{schedindex_size}}_t SchedIndex;
 typedef SchedIndex SchedIndexOption;
 
-/*| structure_definitions |*/
+/*| structures |*/
 /*
  * The 'locked_by' field can take the following values:
  * locked_by == SCHED_INDEX_NONE indicates this entry is either a mutex that is not locked, or a task that is blocked.

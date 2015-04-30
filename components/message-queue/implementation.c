@@ -6,7 +6,7 @@
 /*| types |*/
 typedef uint8_t MessageQueueIdOption;
 
-/*| structure_definitions |*/
+/*| structures |*/
 /* representation of a message queue instance
  * sorted by size of fields */
 struct message_queue

@@ -6,7 +6,7 @@
 /*| types |*/
 typedef {{prefix_type}}TaskId SchedIndex;
 
-/*| structure_definitions |*/
+/*| structures |*/
 struct sched_task {
     TaskIdOption blocked_on;
 };

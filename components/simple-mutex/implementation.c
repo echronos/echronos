@@ -7,7 +7,7 @@
 
 /*| types |*/
 
-/*| structure_definitions |*/
+/*| structures |*/
 {{#mutexes.length}}
 struct mutex {
     bool locked;

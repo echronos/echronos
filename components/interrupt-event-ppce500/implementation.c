@@ -8,7 +8,7 @@
 
 /*| types |*/
 
-/*| structure_definitions |*/
+/*| structures |*/
 
 /*| extern_declarations |*/
 extern void rtos_internal_interrupts_disable(void);

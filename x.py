@@ -258,19 +258,19 @@ def main():
     """Application main entry point. Parse arguments, and call specified sub-command."""
     SUBCOMMAND_TABLE = {
         # Releases
-        'prj-build': prj_build,
-        'generate': build,
-        'build-release': build_release,
-        'build-partials': build_partials,
-        'build-manuals': build_manuals,
+        'prj': prj_build,
+        'packages': build,
+        'release': build_release,
+        'partials': build_partials,
+        'docs': build_manuals,
 
         # Testing
-        'check-pep8': check_pep8,
-        'prj-test': prj_test,
-        'pystache-test': pystache_test,
-        'x-test': x_test,
-        'rtos-test': rtos_test,
-        'test-release': release_test,
+        'style': check_pep8,
+        'prj': prj_test,
+        'pystache': pystache_test,
+        'x': x_test,
+        'units': rtos_test,
+        'release': release_test,
         'licenses': check_licenses,
         'provenance': check_provenance,
         'systems': test_systems,
@@ -290,31 +290,20 @@ def main():
 
     subparsers = parser.add_subparsers(title='subcommands', dest='command')
 
-    test_parser = subparsers.add_parser("test", help="Run tests")
+    test_parser = subparsers.add_parser("test")
     test_subparsers = test_parser.add_subparsers(title="Test suites", dest="test_command")
 
-    _parser = test_subparsers.add_parser('check-pep8', help='Run PEP8 on project Python files')
-    _parser.add_argument('--teamcity', action='store_true',
-                         help="Provide teamcity output for tests",
-                         default=False)
-    _parser.add_argument('--excludes', nargs='*',
-                         help="Exclude directories from pep8 checks",
-                         default=[])
-    for component_name in ['prj', 'x', 'rtos']:
-        _parser = test_subparsers.add_parser(component_name + '-test', help='Run {} unittests'.format(component_name))
-        _parser.add_argument('tests', metavar='TEST', nargs='*',
-                             help="Specific test", default=[])
-        _parser.add_argument('--list', action='store_true',
-                             help="List tests (don't execute)",
-                             default=False)
-        _parser.add_argument('--verbose', action='store_true',
-                             help="Verbose output",
-                             default=False)
-        _parser.add_argument('--quiet', action='store_true',
-                             help="Less output",
-                             default=False)
-    test_subparsers.add_parser('pystache-test', help='Test pystache')
-    test_subparsers.add_parser('test-release', help='Test final release')
+    _parser = test_subparsers.add_parser('style', help='Run PEP8 on project Python files')
+    _parser.add_argument('--teamcity', action='store_true', help="Provide teamcity output for tests", default=False)
+    _parser.add_argument('--excludes', nargs='*', help="Exclude directories from pep8 checks", default=[])
+    for component_name in ['prj', 'x', 'units']:
+        _parser = test_subparsers.add_parser(component_name)
+        _parser.add_argument('tests', metavar='TEST', nargs='*', default=[])
+        _parser.add_argument('--list', action='store_true', help="List tests (don't execute)", default=False)
+        _parser.add_argument('--verbose', action='store_true', default=False)
+        _parser.add_argument('--quiet', action='store_true', default=False)
+    test_subparsers.add_parser('pystache')
+    test_subparsers.add_parser('release')
     _parser = test_subparsers.add_parser('licenses', help='Check that all files have the appropriate license header')
     _parser.add_argument('--excludes', nargs='*',
                          help="Exclude directories from license header checks",
@@ -325,28 +314,26 @@ RTOS systems. This command supports the same options as the Python nose test fra
     test_subparsers.add_parser('provenance', help='Check that all files belonging to external tools map 1-1 with '
                                                   'provenance listings')
 
-    build_parser = subparsers.add_parser("build", help="Build release stuff...")
+    build_parser = subparsers.add_parser("build")
     build_subparsers = build_parser.add_subparsers(title="Build options", dest="build_command")
 
-    build_subparsers.add_parser('prj-build', help='Build prj')
-    build_subparsers.add_parser('build-release', help='Build final release')
-    _parser = build_subparsers.add_parser('build-partials', help='Build partial release files')
-    _parser.add_argument('--allow-unknown-filetypes', action='store_true',
-                         help='Allow unknown filetypes in the build')
-    _parser = build_subparsers.add_parser('build-manuals', help='Build PDF manuals')
+    build_subparsers.add_parser('prj')
+    build_subparsers.add_parser('release')
+    _parser = build_subparsers.add_parser('partials', help='Build partial release files')
+    _parser.add_argument('--allow-unknown-filetypes', action='store_true')
+    _parser = build_subparsers.add_parser('docs')
     _parser.add_argument('--verbose', '-v', action='store_true')
-    build_subparsers.add_parser('generate', help='Generate packages from components')
+    build_subparsers.add_parser('packages', help='Generate packages from components')
 
     task_parser = subparsers.add_parser("task", help="Task management")
     task_subparsers = task_parser.add_subparsers(title="Task management operations", dest="task_command")
 
     task_subparsers.add_parser('list', help="List tasks")
-    _parser = task_subparsers.add_parser('new', help='Create a new task')
-    _parser.add_argument('taskname', metavar='TASKNAME', help='Name of the new task')
-    _parser.add_argument('--no-fetch', dest='fetch', action='store_false', default='true', help='Disable fetchign')
+    _parser = task_subparsers.add_parser('new')
+    _parser.add_argument('taskname', metavar='TASKNAME')
+    _parser.add_argument('--no-fetch', dest='fetch', action='store_false', default='true')
     _parser = task_subparsers.add_parser('review', help='Create a new review')
-    _parser.add_argument('reviewers', metavar='REVIEWER', nargs='+',
-                         help='Username of reviewer')
+    _parser.add_argument('reviewers', metavar='REVIEWER', nargs='+')
     _parser = task_subparsers.add_parser('integrate', help='Integrate a completed development task/branch \
 into the main upstream branch.')
     _parser.add_argument('--repo', help='Path of git repository to operate in. \

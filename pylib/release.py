@@ -493,7 +493,7 @@ def release_test_one(archive):
                             raise e
 
 
-def release_test(args):
+def test(args):
     """Implement the test-release command.
 
     This command is used to perform sanity checks and testing of the full release.
@@ -512,7 +512,7 @@ def get_release_configs():
     return enabled_configs
 
 
-def build_release(args):
+def build(args):
     """Implement the build-release command.
 
     Build release takes the various partial releases, and combines them in to a single tar file.

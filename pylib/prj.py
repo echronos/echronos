@@ -28,7 +28,7 @@ from .utils import get_host_platform_name, top_path, chdir, base_path
 from .release import _LicenseOpener
 
 
-def prj_build(args):
+def build(args):
     """
     Build a standalone version of the 'prj' tool in the directory
     prj_build_<host>. This tool is bundled with the release in the

@@ -37,7 +37,7 @@ def _review_dir(topdir, *args):
     return os.path.join(topdir, 'pm', 'reviews', *args)
 
 
-def _gen_tag(_):
+def tag(_):
     tag_length = 6
     tag_chars = string.ascii_letters + string.digits
     return ''.join(choice(tag_chars) for _ in range(tag_length))
@@ -66,7 +66,7 @@ Comment:
 """
 
 
-def new_review(args):
+def review(args):
     """Create a new review for the current branch."""
     # Check the directory is clean
     status = subprocess.check_output(['git', 'status', '--porcelain'], cwd=args.topdir)
@@ -131,8 +131,7 @@ Test Plan
 """
 
 
-def new_task(args):
-    """Create a new task."""
+def create(args):
     remote = 'origin'
     branch_from = remote + '/development'
 
@@ -146,7 +145,7 @@ def new_task(args):
         # from.
         git.fetch()
 
-    fullname = _gen_tag(None) + '-' + args.taskname
+    fullname = tag(None) + '-' + args.taskname
     git.branch(fullname, branch_from, track=False)
     git.push(fullname, fullname, set_upstream=True)
     git.checkout(fullname)
@@ -439,7 +438,7 @@ class _Task:
             return None
 
 
-def tasks(args):
+def list(args):
     git = Git(local_repository=args.topdir)
     task_dir = _task_dir(args.topdir)
     skipped_branches = ['development', 'master']

@@ -37,7 +37,7 @@ from .release import _LicenseOpener
 from .utils import get_executable_extension
 
 
-def prj_test(args):
+def prj(args):
     """Run tests associated with prj modules."""
     modules = ['prj', 'util']
     directories = [os.path.join('prj', 'app'),
@@ -47,7 +47,7 @@ def prj_test(args):
     return _run_module_tests_with_args(modules, directories, args)
 
 
-def x_test(args):
+def x(args):
     """Run x-related tests."""
     modules = ['x']
     directories = ['.']
@@ -55,12 +55,12 @@ def x_test(args):
     return _run_module_tests_with_args(modules, directories, args)
 
 
-def pystache_test(_):
+def pystache(_):
     """Run tests assocaited with pystache modules."""
     return subprocess.call([sys.executable, os.path.join('prj', 'app', 'pystache', 'test_pystache.py')])
 
 
-def rtos_test(args):
+def units(args):
     """Run rtos unit tests."""
     modules = ['rtos']
     directories = ['.']
@@ -181,7 +181,7 @@ class _TeamcityReport(pep8.StandardReport):
             .replace("]", "|]").replace("\n", "|n").replace("\r", "|r")
 
 
-def check_pep8(args):
+def style(args):
     """Check for PEP8 compliance with the pep8 tool.
 
     This implements conventions lupHw1 and u1wSS9.
@@ -209,7 +209,7 @@ def check_pep8(args):
         return 1
 
 
-def check_licenses(args):
+def licenses(args):
     excludes = args.excludes + [
         '.git',
         '.gitignore',
@@ -296,7 +296,7 @@ def check_licenses(args):
         return 1
 
 
-def check_provenance(args):
+def provenance(args):
     target_dirs = ['tools', 'external_tools']
     exemptions = [['tools', 'LICENSE.md'], ['external_tools', 'LICENSE.md']]
     files_nonexistent = []
@@ -347,7 +347,7 @@ def check_provenance(args):
         return 1
 
 
-def test_systems(args):
+def systems(args):
     def find_gdb_test_py_files(path):
         for parent, dirs, files in os.walk(path):
             for file in files:

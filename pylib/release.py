@@ -30,6 +30,7 @@ from glob import glob
 from contextlib import contextmanager
 from .utils import chdir, tempdir, get_host_platform_name, BASE_TIME, top_path, base_to_top_paths, find_path, Git
 from .components import build
+from .cmdline import subcmd, Arg
 
 
 class _ReleaseMeta(type):
@@ -369,6 +370,8 @@ def _mk_partial(pkg, topdir, allow_unknown_filetypes):
                          allow_unknown_filetypes)
 
 
+@subcmd(name='partials', cmd='build', help='Build partial release files',
+        args=(Arg('--allow-unknown-filetypes', action='store_true'),))
 def build_partials(args):
     build(args)
     os.makedirs(top_path(args.topdir, 'release', 'partials'), exist_ok=True)
@@ -493,6 +496,7 @@ def release_test_one(archive):
                             raise e
 
 
+@subcmd(name='release', cmd='test')
 def test(args):
     """Implement the test-release command.
 
@@ -512,6 +516,7 @@ def get_release_configs():
     return enabled_configs
 
 
+@subcmd(name='release', cmd='build')
 def build(args):
     """Implement the build-release command.
 

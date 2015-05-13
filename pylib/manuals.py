@@ -26,6 +26,7 @@ import sys
 
 from .utils import BASE_DIR, base_path, get_host_platform_name, get_executable_extension, find_path
 from .components import build
+from .cmdline import subcmd, Arg
 
 
 def get_platform_tools_dir():
@@ -134,6 +135,7 @@ your command as xvfb-run -a -s "-screen 0 640x480x16" ./x.py [...]')
         raise
 
 
+@subcmd(name='docs', cmd='build', args=(Arg('--verbose', '-v', action='store_true'),))
 def build_manuals(args):
     build(args)
     for pkg_dir in get_package_dirs(set(('documentation.markdown',))):

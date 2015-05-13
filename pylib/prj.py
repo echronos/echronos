@@ -26,8 +26,10 @@ import signal
 import zipfile
 from .utils import get_host_platform_name, top_path, chdir, base_path
 from .release import _LicenseOpener
+from .cmdline import subcmd
 
 
+@subcmd(name='prj', cmd='build')
 def build(args):
     """
     Build a standalone version of the 'prj' tool in the directory

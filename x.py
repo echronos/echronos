@@ -102,8 +102,8 @@ import argparse
 import logging
 
 from pylib.components import Component
-from pylib import release, components, prj, tests, tasks
-from pylib.manuals import build_manuals
+from pylib import release, components, prj, tests, tasks, cmdline, manuals
+from pylib.cmdline import add_cmds_in_globals_to_parser
 
 # Set up a specific logger with our desired output level
 logger = logging.getLogger()
@@ -252,84 +252,8 @@ configurations = CORE_CONFIGURATIONS.copy()
 
 def main():
     """Application main entry point. Parse arguments, and call specified sub-command."""
-    class SubCmd:
-        def __init__(self, handler, help=None, args=()):
-            self.handler = handler
-            self.help = help
-            self.args = args
-
-    class Arg:
-        def __init__(self, *args, **kwargs):
-            self.args = args
-            self.kwargs = kwargs
-
-    std_test_args = (
-        Arg('tests', metavar='TEST', nargs='*', default=[]),
-        Arg('--list', action='store_true', help="List tests (don't execute)", default=False),
-        Arg('--verbose', action='store_true', default=False),
-        Arg('--quiet', action='store_true', default=False),
-    )
-
-    commands = {
-        'test': {
-            'style': SubCmd(tests.style, 'Run PEP8 on project Python files', args=(
-                Arg('--teamcity', action='store_true', help="Provide teamcity output for tests", default=False),
-                Arg('--excludes', nargs='*', help="Exclude directories from pep8 checks", default=[]),
-            )),
-            'prj': SubCmd(tests.prj, args=std_test_args),
-            'x': SubCmd(tests.x, args=std_test_args),
-            'units': SubCmd(tests.units, args=std_test_args),
-            'pystache': SubCmd(tests.pystache),
-            'release': SubCmd(release.test),
-            'licenses': SubCmd(tests.licenses, 'Check that all files have the appropriate license header', args=(
-                Arg('--excludes', nargs='*', help="Exclude directories from license header checks", default=[]),
-            )),
-            'systems': SubCmd(tests.systems, 'Run system tests, i.e., tests that check the behavior of full \
-RTOS systems. This command supports the same options as the Python nose test framework.'),
-            'provenance': SubCmd(tests.provenance, 'Check that all files belonging to external tools map 1-1 with '
-                                                   'provenance listings'),
-        },
-        'build': {
-            'prj': SubCmd(prj.build),
-            'packages': SubCmd(components.build, 'Generate packages from components'),
-            'release': SubCmd(release.build),
-            'partials': SubCmd(release.build_partials, 'Build partial release files', args=(
-                Arg('--allow-unknown-filetypes', action='store_true'),
-            )),
-            'docs': SubCmd(build_manuals, args=(Arg('--verbose', '-v', action='store_true'),)),
-        },
-        'task': {
-            'list': SubCmd(tasks.list),
-            'create': SubCmd(tasks.create, args=(
-                Arg('taskname', metavar='TASKNAME'),
-                Arg('--no-fetch', dest='fetch', action='store_false', default='true'),
-            )),
-            'review': SubCmd(tasks.review, args=(Arg('reviewers', metavar='REVIEWER', nargs='+'),)),
-            'integrate': SubCmd(tasks.integrate,
-                                'Integrate a completed development task branch into the main upstream branch.',
-                                args=(
-                                    Arg('--repo', help='Path of git repository to operate in. '
-                                        'Defaults to current working directory.'),
-                                    Arg('--name', help='Name of the task branch to integrate. '
-                                        'Defaults to active branch in repository.'),
-                                    Arg('--target', help='Name of branch to integrate task branch into. '
-                                        'Defaults to "development".', default='development'),
-                                    Arg('--archive', help='Prefix to add to task branch name when archiving it. '
-                                        'Defaults to "archive".', default='archive'))),
-            'tag': SubCmd(tasks.tag, 'Generate a random 6-char alphanumeric string'),
-        },
-    }
-
     parser = argparse.ArgumentParser(prog='x.py')
-    command_parsers = parser.add_subparsers(title='subcommands', dest='command')
-    for cmd_name in sorted(commands.keys()):
-        cmd = commands[cmd_name]
-        cmd_parsers = command_parsers.add_parser(cmd_name).add_subparsers(dest="subcommand")
-        for subcmd_name in sorted(commands[cmd_name].keys()):
-            subcmd = commands[cmd_name][subcmd_name]
-            p = cmd_parsers.add_parser(subcmd_name, help=subcmd.help)
-            for arg in subcmd.args:
-                p.add_argument(*arg.args, **arg.kwargs)
+    add_cmds_in_globals_to_parser(globals(), parser)
 
     # parse arbitrary nose options for the 'test systems' command
     # argparse does not seem to provide a better mechanism for this case
@@ -340,7 +264,7 @@ RTOS systems. This command supports the same options as the Python nose test fra
         # enforce stricter parsing for other commands
         args = parser.parse_args()
 
-    if args.command not in commands or args.subcommand not in commands[args.command]:
+    if not args.command or not args.subcommand:
         # argparse does not support required subparsers so it does not itself reject a command line that lacks a
         # command or subcommand
         parser.print_help()
@@ -349,7 +273,7 @@ RTOS systems. This command supports the same options as the Python nose test fra
         args.configurations = configurations
         args.skeletons = skeletons
 
-        return commands[args.command][args.subcommand].handler(args)
+        return args.execute(args)
 
 
 if __name__ == "__main__":

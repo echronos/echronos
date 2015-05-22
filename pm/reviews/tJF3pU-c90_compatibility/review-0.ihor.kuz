@@ -5,7 +5,7 @@ Task name: tJF3pU-c90_compatibility
 Version reviewed: db143540280e03d97aa7db6ce24e0e3a3ac77da8
 Reviewer: ihor.kuz
 Date: 2015-05-20
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
@@ -13,8 +13,12 @@ Overall comments:
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: internal-docs/conventions.md: 59
+Comment: [rework]
+- there is no label for this convention.
+- should this clarify that architecture-specific code doesn't have to be C90 compatible?
 
-Location: filename:linenum
+Location: *-stub/*.[ch]
 Comment:
+- should these files have some comment explaining what they are for? (i.e. to allow compilation without architecture specific files, but they are not expected to result in working systems).
+

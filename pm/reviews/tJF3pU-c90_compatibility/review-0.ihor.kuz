@@ -24,3 +24,4 @@ Location: *-stub/*.[ch]
 Comment:
 - should these files have some comment explaining what they are for? (i.e. to allow compilation without architecture specific files, but they are not expected to result in working systems).
 
+[stg: added README.md files to all stub components explaining their purpose]

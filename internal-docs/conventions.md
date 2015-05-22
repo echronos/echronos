@@ -56,6 +56,6 @@ Function arguments that are modified within the scope of the function must not b
 By-value arguments must not be marked as const in the function declaration.
 For example for the function definition `int foo(const int *const bar) { return *bar; }`, the declaration `int foo(const int *const bar);` is invalid whereas `int foo(const int *bar);` is the correct declaration.
 
-All C code must be compatible with the ISO9899:1990 / C90 / ANSI C standard.
+r62xUL: All C code in architecture-independent components must be compatible with the ISO9899:1990 / C90 / ANSI C standard.
 This is necessary so that the RTOS can be built with C compilers that do not support later C standards.
-Compilers that do support later C standards shall be run in C90 compatibility mode if possible.
+Architecture specific code, such as the interrupt or timer components and modules for specific target platforms, may use features of later C standards and compiler extensions.

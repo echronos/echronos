@@ -18,6 +18,8 @@ Comment: [rework]
 - there is no label for this convention.
 - should this clarify that architecture-specific code doesn't have to be C90 compatible?
 
+[stg: added label and clarified convention as suggested]
+
 Location: *-stub/*.[ch]
 Comment:
 - should these files have some comment explaining what they are for? (i.e. to allow compilation without architecture specific files, but they are not expected to result in working systems).

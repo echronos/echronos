@@ -5,10 +5,10 @@
 #define MUTEX_ID_NONE ((MutexIdOption) UINT8_MAX)
 {{/mutexes.length}}
 
-/*| type_definitions |*/
+/*| types |*/
 typedef {{prefix_type}}MutexId MutexIdOption;
 
-/*| structure_definitions |*/
+/*| structures |*/
 
 struct mutex {
     TaskIdOption holder;
@@ -21,9 +21,9 @@ struct mutex_stat {
 };
 {{/mutex.stats}}
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 
 /*| state |*/
 {{#mutexes.length}}

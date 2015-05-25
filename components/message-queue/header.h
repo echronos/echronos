@@ -2,10 +2,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/*| public_type_definitions |*/
+/*| public_types |*/
 typedef uint8_t {{prefix_type}}MessageQueueId;
 
-/*| public_structure_definitions |*/
+/*| public_structures |*/
 
 /*| public_object_like_macros |*/
 {{#message_queues}}
@@ -14,9 +14,9 @@ typedef uint8_t {{prefix_type}}MessageQueueId;
 
 /*| public_function_like_macros |*/
 
-/*| public_extern_definitions |*/
+/*| public_state |*/
 
-/*| public_function_definitions |*/
+/*| public_function_declarations |*/
 {{#message_queues.length}}
 void {{prefix_func}}message_queue_put({{prefix_type}}MessageQueueId message_queue, const void *message)
         {{prefix_const}}REENTRANT;

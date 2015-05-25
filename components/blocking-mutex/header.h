@@ -2,10 +2,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/*| public_type_definitions |*/
+/*| public_types |*/
 typedef uint8_t {{prefix_type}}MutexId;
 
-/*| public_structure_definitions |*/
+/*| public_structures |*/
 
 /*| public_object_like_macros |*/
 {{#mutexes.length}}
@@ -18,12 +18,12 @@ typedef uint8_t {{prefix_type}}MutexId;
 
 /*| public_function_like_macros |*/
 
-/*| public_extern_definitions |*/
+/*| public_state |*/
 {{#mutex.stats}}
 extern bool {{prefix_func}}mutex_stats_enabled;
 {{/mutex.stats}}
 
-/*| public_function_definitions |*/
+/*| public_function_declarations |*/
 {{#mutexes.length}}
 void {{prefix_func}}mutex_lock({{prefix_type}}MutexId) {{prefix_const}}REENTRANT;
 [[#lock_timeout]]

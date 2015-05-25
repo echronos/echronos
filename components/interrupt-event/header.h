@@ -3,12 +3,12 @@
 #include <stdint.h>
 {{/interrupt_events.length}}
 
-/*| public_type_definitions |*/
+/*| public_types |*/
 {{#interrupt_events.length}}
 typedef uint{{interrupteventid_size}}_t {{prefix_type}}InterruptEventId;
 {{/interrupt_events.length}}
 
-/*| public_structure_definitions |*/
+/*| public_structures |*/
 
 /*| public_object_like_macros |*/
 {{#interrupt_events}}
@@ -17,6 +17,6 @@ typedef uint{{interrupteventid_size}}_t {{prefix_type}}InterruptEventId;
 
 /*| public_function_like_macros |*/
 
-/*| public_extern_definitions |*/
+/*| public_state |*/
 
-/*| public_function_definitions |*/
+/*| public_function_declarations |*/

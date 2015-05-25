@@ -3,13 +3,13 @@
 
 /*| object_like_macros |*/
 
-/*| type_definitions |*/
+/*| types |*/
 
-/*| structure_definitions |*/
+/*| structures |*/
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 static void interrupt_event_handle({{prefix_type}}InterruptEventId interrupt_event_id);
 
 /*| state |*/

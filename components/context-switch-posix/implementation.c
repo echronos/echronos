@@ -5,14 +5,14 @@
 
 /*| object_like_macros |*/
 
-/*| type_definitions |*/
+/*| types |*/
 typedef ucontext_t context_t;
 
-/*| structure_definitions |*/
+/*| structures |*/
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 static void context_init(context_t *const ctx, void (*const fn)(void), uint8_t *const stack_base, const size_t stack_size);
 
 /*| state |*/

@@ -35,14 +35,14 @@
 #define ERROR_ID_SCHED_PRIO_CEILING_TASK_LOCKING_LOWER_PRIORITY_MUTEX (({{prefix_type}}ErrorId) UINT8_C(30))
 #define ERROR_ID_SCHED_PRIO_CEILING_MUTEX_ALREADY_LOCKED (({{prefix_type}}ErrorId) UINT8_C(31))
 
-/*| type_definitions |*/
+/*| types |*/
 
-/*| structure_definitions |*/
+/*| structures |*/
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 extern void {{fatal_error}}({{prefix_type}}ErrorId error_id);
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 
 /*| state |*/
 

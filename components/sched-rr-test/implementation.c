@@ -4,16 +4,15 @@
 /*| object_like_macros |*/
 #define TASK_ID_NONE ((TaskIdOption) UINT8_MAX)
 
-/*| type_definitions |*/
+/*| types |*/
 typedef uint8_t {{prefix_type}}TaskId;
 typedef TaskId TaskIdOption;
 
+/*| structures |*/
 
-/*| structure_definitions |*/
+/*| extern_declarations |*/
 
-/*| extern_definitions |*/
-
-/*| function_definitions |*/
+/*| function_declarations |*/
 
 /*| state |*/
 

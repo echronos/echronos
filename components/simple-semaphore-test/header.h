@@ -1,9 +1,9 @@
 /*| public_headers |*/
 
-/*| public_type_definitions |*/
+/*| public_types |*/
 typedef uint8_t {{prefix_type}}TaskId;
 
-/*| public_structure_definitions |*/
+/*| public_structures |*/
 
 /*| public_object_like_macros |*/
 #define {{prefix_const}}TASK_ID_ZERO (({{prefix_type}}TaskId) UINT8_C(0))
@@ -11,6 +11,6 @@ typedef uint8_t {{prefix_type}}TaskId;
 
 /*| public_function_like_macros |*/
 
-/*| public_extern_definitions |*/
+/*| public_state |*/
 
-/*| public_function_definitions |*/
+/*| public_function_declarations |*/

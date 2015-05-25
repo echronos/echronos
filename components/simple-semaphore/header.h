@@ -3,11 +3,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/*| public_type_definitions |*/
+/*| public_types |*/
 typedef uint8_t {{prefix_type}}SemId;
 typedef uint{{semaphore_value_size}}_t {{prefix_type}}SemValue;
 
-/*| public_structure_definitions |*/
+/*| public_structures |*/
 
 /*| public_object_like_macros |*/
 #define {{prefix_const}}SEM_ID_ZERO (({{prefix_type}}SemId) UINT8_C(0))
@@ -18,9 +18,9 @@ typedef uint{{semaphore_value_size}}_t {{prefix_type}}SemValue;
 
 /*| public_function_like_macros |*/
 
-/*| public_extern_definitions |*/
+/*| public_state |*/
 
-/*| public_function_definitions |*/
+/*| public_function_declarations |*/
 void {{prefix_func}}sem_post({{prefix_type}}SemId);
 bool {{prefix_func}}sem_try_wait({{prefix_type}}SemId);
 void {{prefix_func}}sem_wait({{prefix_type}}SemId) {{prefix_const}}REENTRANT;

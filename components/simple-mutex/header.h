@@ -3,12 +3,12 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/*| public_type_definitions |*/
+/*| public_types |*/
 {{#mutexes.length}}
 typedef uint8_t {{prefix_type}}MutexId;
 {{/mutexes.length}}
 
-/*| public_structure_definitions |*/
+/*| public_structures |*/
 
 /*| public_object_like_macros |*/
 {{#mutexes}}
@@ -17,9 +17,9 @@ typedef uint8_t {{prefix_type}}MutexId;
 
 /*| public_function_like_macros |*/
 
-/*| public_extern_definitions |*/
+/*| public_state |*/
 
-/*| public_function_definitions |*/
+/*| public_function_declarations |*/
 {{#mutexes.length}}
 void {{prefix_func}}mutex_lock({{prefix_type}}MutexId) {{prefix_const}}REENTRANT;
 bool {{prefix_func}}mutex_try_lock({{prefix_type}}MutexId);

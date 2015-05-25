@@ -1,8 +1,8 @@
 /*| public_headers |*/
 
-/*| public_type_definitions |*/
+/*| public_types |*/
 
-/*| public_structure_definitions |*/
+/*| public_structures |*/
 
 /*| public_object_like_macros |*/
 
@@ -11,6 +11,6 @@
 #define {{prefix_func}}interrupt_event_raise(event)
 {{/interrupt_events.length}}
 
-/*| public_extern_definitions |*/
+/*| public_state |*/
 
-/*| public_function_definitions |*/
+/*| public_function_declarations |*/

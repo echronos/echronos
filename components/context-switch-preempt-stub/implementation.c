@@ -6,14 +6,14 @@
 /*| object_like_macros |*/
 #define PREEMPTION_SUPPORT
 
-/*| type_definitions |*/
+/*| types |*/
 typedef int context_t;
 
-/*| structure_definitions |*/
+/*| structures |*/
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 
 /*| state |*/
 void (*entry_point_ptr)(void);

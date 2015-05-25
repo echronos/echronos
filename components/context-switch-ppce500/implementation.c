@@ -87,16 +87,16 @@
 #define CONTEXT_GPR31_IDX 19
 #define CONTEXT_FRAME_SIZE (CONTEXT_GPR31_IDX + 1)
 
-/*| type_definitions |*/
+/*| types |*/
 typedef uint32_t* context_t;
 
-/*| structure_definitions |*/
+/*| structures |*/
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 extern void rtos_internal_context_switch(context_t *, context_t *) {{prefix_const}}REENTRANT;
 extern void rtos_internal_context_switch_first(context_t *) {{prefix_const}}REENTRANT;
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 /**
  * Set up the initial execution context of a task.
  * This function is invoked exactly once for each task in the system.

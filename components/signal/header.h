@@ -2,11 +2,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/*| public_type_definitions |*/
+/*| public_types |*/
 typedef uint{{signalset_size}}_t {{prefix_type}}SignalSet;
 typedef {{prefix_type}}SignalSet {{prefix_type}}SignalId;
 
-/*| public_structure_definitions |*/
+/*| public_structures |*/
 
 /*| public_object_like_macros |*/
 #define {{prefix_const}}SIGNAL_SET_EMPTY (({{prefix_type}}SignalSet) UINT{{signalset_size}}_C(0))
@@ -29,9 +29,9 @@ typedef {{prefix_type}}SignalSet {{prefix_type}}SignalId;
 #define {{prefix_func}}signal_send(task_id, signal) \
     {{prefix_func}}signal_send_set(task_id, signal)
 
-/*| public_extern_definitions |*/
+/*| public_state |*/
 
-/*| public_function_definitions |*/
+/*| public_function_declarations |*/
 {{prefix_type}}SignalSet {{prefix_func}}signal_wait_set({{prefix_type}}SignalSet requested_signals) {{prefix_const}}REENTRANT;
 {{prefix_type}}SignalSet {{prefix_func}}signal_poll_set({{prefix_type}}SignalSet requested_signals);
 {{prefix_type}}SignalSet {{prefix_func}}signal_peek_set({{prefix_type}}SignalSet requested_signals);

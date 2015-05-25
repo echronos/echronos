@@ -9,13 +9,13 @@
 #define interrupt_event rtos_internal_interrupt_event
 #define interrupt_event_bitband rtos_internal_interrupt_event_bitband
 
-/*| type_definitions |*/
+/*| types |*/
 
-/*| structure_definitions |*/
+/*| structures |*/
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 static void interrupt_event_process(void);
 static inline bool interrupt_application_event_check(void);
 static inline void interrupt_event_wait(void);

@@ -3,16 +3,16 @@
 
 /*| object_like_macros |*/
 
-/*| type_definitions |*/
+/*| types |*/
 
-/*| structure_definitions |*/
+/*| structures |*/
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 {{#tasks}}
 extern void {{function}}(void);
 {{/tasks}}
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 static void block();
 static void unblock({{prefix_type}}TaskId task);
 {{#mutexes.length}}

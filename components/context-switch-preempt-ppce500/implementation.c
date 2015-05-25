@@ -54,16 +54,16 @@
 #define CONTEXT_PREEMPT_RESTORE_STATUS 37
 #define CONTEXT_FRAME_SIZE (CONTEXT_PREEMPT_RESTORE_STATUS + 1)
 
-/*| type_definitions |*/
+/*| types |*/
 typedef uint32_t* context_t;
 
-/*| structure_definitions |*/
+/*| structures |*/
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 extern void rtos_internal_yield_syscall({{prefix_type}}TaskId to, bool return_with_preempt_disabled);
 extern void rtos_internal_restore_preempted_context(bool restore_volatiles, context_t ctxt_to);
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 /**
  * Common helper for context-switching due to an internal yield or preempt_enable.
  *

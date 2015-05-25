@@ -8,10 +8,10 @@
 #define TIMER_ID_MAX (({{prefix_type}}TimerId) UINT8_C({{timers.length}} - 1U))
 {{/timers.length}}
 
-/*| type_definitions |*/
+/*| types |*/
 typedef uint16_t TicksTimeout;
 
-/*| structure_definitions |*/
+/*| structures |*/
 {{#timers.length}}
 struct timer
 {
@@ -31,9 +31,9 @@ struct timer
 };
 {{/timers.length}}
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 {{#timers.length}}
 static void timer_process_one(struct timer *timer);
 static void timer_enable({{prefix_type}}TimerId timer_id);

@@ -2,17 +2,17 @@
 
 /*| object_like_macros |*/
 
-/*| type_definitions |*/
+/*| types |*/
 
-/*| structure_definitions |*/
+/*| structures |*/
 struct interrupt_event_handler {
     {{prefix_type}}TaskId task;
     {{prefix_type}}SignalSet sig_set;
 };
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 {{#interrupt_events.length}}
 static void interrupt_event_handle({{prefix_type}}InterruptEventId interrupt_event_id);
 {{/interrupt_events.length}}

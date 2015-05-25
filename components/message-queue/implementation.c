@@ -3,10 +3,10 @@
 /*| object_like_macros |*/
 #define MESSAGE_QUEUE_ID_NONE ((MessageQueueIdOption)UINT8_C(255))
 
-/*| type_definitions |*/
+/*| types |*/
 typedef uint8_t MessageQueueIdOption;
 
-/*| structure_definitions |*/
+/*| structures |*/
 /* representation of a message queue instance
  * sorted by size of fields */
 struct message_queue
@@ -26,9 +26,9 @@ struct message_queue
     uint8_t available;
 };
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 
 /*| state |*/
 {{#message_queues.length}}

@@ -5,11 +5,11 @@
 #define SCHED_INDEX_ZERO ((SchedIndex) UINT{{schedindex_size}}_C(0))
 #define SCHED_INDEX_NONE ((SchedIndexOption) UINT{{schedindex_size}}_MAX)
 
-/*| type_definitions |*/
+/*| types |*/
 typedef uint{{schedindex_size}}_t SchedIndex;
 typedef SchedIndex SchedIndexOption;
 
-/*| structure_definitions |*/
+/*| structures |*/
 /*
  * The 'locked_by' field can take the following values:
  * locked_by == SCHED_INDEX_NONE indicates this entry is either a mutex that is not locked, or a task that is blocked.
@@ -28,9 +28,9 @@ struct sched {
     struct sched_entry entries[{{mutex_tasks_length}}];
 };
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 static void sched_set_runnable({{prefix_type}}TaskId task_id);
 static void sched_set_blocked({{prefix_type}}TaskId task_id);
 {{#mutexes.length}}

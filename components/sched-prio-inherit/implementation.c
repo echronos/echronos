@@ -3,10 +3,10 @@
 /*| object_like_macros |*/
 #define SCHED_INDEX_ZERO ((SchedIndex) {{prefix_const}}TASK_ID_ZERO)
 
-/*| type_definitions |*/
+/*| types |*/
 typedef {{prefix_type}}TaskId SchedIndex;
 
-/*| structure_definitions |*/
+/*| structures |*/
 struct sched_task {
     TaskIdOption blocked_on;
 };
@@ -19,9 +19,9 @@ struct sched {
     struct sched_task tasks[{{tasks.length}}];
 };
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 static void sched_set_runnable(const {{prefix_type}}TaskId task_id);
 static void sched_set_blocked_on(const {{prefix_type}}TaskId task_id, const {{prefix_type}}TaskId blocker);
 static [[#assume_runnable]]{{prefix_type}}TaskId[[/assume_runnable]][[^assume_runnable]]TaskIdOption[[/assume_runnable]] sched_get_next(void);

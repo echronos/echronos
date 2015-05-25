@@ -1,0 +1,22 @@
+Task: 9b5az3-rename_component_sections
+==============================================================================
+
+Motivation
+----------
+
+Component files, such as implementation.c, header.h, or docs.md consist of several section, each section with a specific name identifying the contents of the section.
+These section names are, in part, poorly chosen.
+For example, the name `function_definitions` is incorrect as the intended section contents are not function definitions but function declarations.
+
+
+Goals
+--------
+
+The goal of this task is to rename the sections so that their names are correct, consistent, intuitive.
+
+
+Test Plan
+---------
+
+- code review
+- existing regression tests are sufficient

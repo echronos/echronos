@@ -5,10 +5,10 @@
 /*| object_like_macros |*/
 #define CONTEXT_SIZE (sizeof(struct context))
 
-/*| type_definitions |*/
+/*| types |*/
 typedef struct context* context_t;
 
-/*| structure_definitions |*/
+/*| structures |*/
 /**
  * A C representation of the data stored on the stack by the x86 context-switch implementation.
  * Note that this data structure and the context-switch implementation need to be consistent.
@@ -29,11 +29,11 @@ struct context
     void (*return_address)(void);
 };
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 /** C declaration of the context switch implementation in assembly in packages/x86/ctxt-switch.s */
 extern void rtos_internal_context_switch_x86(context_t *from, context_t to);
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 static void context_init(context_t *ctx, void (*task_function)(void), uint8_t *stack_base, size_t stack_size);
 
 /*| state |*/

@@ -2,9 +2,9 @@
 
 /*| object_like_macros |*/
 
-/*| type_definitions |*/
+/*| types |*/
 
-/*| structure_definitions |*/
+/*| structures |*/
 struct signal_task {
     {{prefix_type}}SignalSet signals;
 };
@@ -13,9 +13,9 @@ struct signal {
     struct signal_task tasks[{{tasks.length}}];
 };
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 static {{prefix_type}}SignalSet signal_recv({{prefix_type}}SignalSet *pending_signals, {{prefix_type}}SignalSet requested_signals);
 static void signal_send_set({{prefix_type}}TaskId task_id, {{prefix_type}}SignalSet signals);
 [[^prio_inherit]]

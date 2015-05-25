@@ -5,14 +5,14 @@
 /*| object_like_macros |*/
 #define TASK_ID_NONE ((TaskIdOption) UINT8_MAX)
 
-/*| type_definitions |*/
+/*| types |*/
 typedef {{prefix_type}}TaskId TaskIdOption;
 
-/*| structure_definitions |*/
+/*| structures |*/
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 static void mutex_core_block_on({{prefix_type}}TaskId task) {{prefix_const}}REENTRANT;
 static void mutex_core_unblock({{prefix_type}}TaskId task);
 static {{prefix_type}}TaskId get_current_task(void);

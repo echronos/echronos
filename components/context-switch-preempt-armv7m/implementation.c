@@ -118,12 +118,12 @@
  * Please see http://infocenter.arm.com/help/topic/com.arm.doc.dui0553a/index.html for more details. */
 #define EXC_RETURN_INITIAL_TASK 0xfffffff9
 
-/*| type_definitions |*/
+/*| types |*/
 typedef uint32_t* context_t;
 
-/*| structure_definitions |*/
+/*| structures |*/
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 extern void rtos_internal_context_switch_first(context_t *);
 extern void rtos_internal_task_entry_trampoline(void);
 extern bool rtos_internal_check_preempt_disabled(void);
@@ -132,7 +132,7 @@ extern void rtos_internal_preempt_enable(void);
 extern void rtos_internal_preempt_disable(void);
 extern void rtos_internal_preempt_pend(void);
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 /**
  * Platform-specific initialization for the preemption implementation called once at RTOS start time.
  */

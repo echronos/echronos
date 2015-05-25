@@ -6,21 +6,21 @@
 #define current_task rtos_internal_current_task
 #define tasks rtos_internal_tasks
 
-/*| type_definitions |*/
+/*| types |*/
 typedef {{prefix_type}}TaskId TaskIdOption;
 
-/*| structure_definitions |*/
+/*| structures |*/
 struct task
 {
     context_t ctx;
 };
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 {{#tasks}}
 extern void {{function}}(void);
 {{/tasks}}
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 {{#internal_asserts}}
 static {{prefix_type}}TaskId get_current_task_check(void);
 {{/internal_asserts}}

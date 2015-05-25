@@ -5,18 +5,18 @@
 
 /*| object_like_macros |*/
 
-/*| type_definitions |*/
+/*| types |*/
 
-/*| structure_definitions |*/
+/*| structures |*/
 {{#mutexes.length}}
 struct mutex {
     bool locked;
 };
 {{/mutexes.length}}
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 
 /*| state |*/
 {{#mutexes.length}}

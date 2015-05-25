@@ -8,11 +8,10 @@
 {{/semaphore_enable_max}}
 
 
-/*| type_definitions |*/
+/*| types |*/
 typedef {{prefix_type}}SemId SemIdOption;
 
-/*| structure_definitions |*/
-
+/*| structures |*/
 struct semaphore {
     {{prefix_type}}SemValue value;
 {{#semaphore_enable_max}}
@@ -20,9 +19,9 @@ struct semaphore {
 {{/semaphore_enable_max}}
 };
 
-/*| extern_definitions |*/
+/*| extern_declarations |*/
 
-/*| function_definitions |*/
+/*| function_declarations |*/
 static bool internal_sem_try_wait(const {{prefix_type}}SemId s);
 
 /*| state |*/

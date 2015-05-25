@@ -1,12 +1,12 @@
 /*| public_headers |*/
 #include <stdint.h>
 
-/*| public_type_definitions |*/
+/*| public_types |*/
 typedef uint8_t {{prefix_type}}TimerId;
 typedef uint32_t {{prefix_type}}TicksAbsolute;
 typedef uint16_t {{prefix_type}}TicksRelative;
 
-/*| public_structure_definitions |*/
+/*| public_structures |*/
 
 /*| public_object_like_macros |*/
 {{#timers}}
@@ -15,10 +15,10 @@ typedef uint16_t {{prefix_type}}TicksRelative;
 
 /*| public_function_like_macros |*/
 
-/*| public_extern_definitions |*/
+/*| public_state |*/
 extern {{prefix_type}}TicksAbsolute {{prefix_func}}timer_current_ticks;
 
-/*| public_function_definitions |*/
+/*| public_function_declarations |*/
 void {{prefix_func}}sleep({{prefix_type}}TicksRelative ticks) {{prefix_const}}REENTRANT;
 {{#timers.length}}
 void {{prefix_func}}timer_enable({{prefix_type}}TimerId timer_id);

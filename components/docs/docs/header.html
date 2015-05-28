@@ -1,0 +1,47 @@
+<!---
+eChronos Real-Time Operating System
+Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, version 3, provided that no right, title
+or interest in or to any trade mark, service mark, logo or trade name
+of NICTA or its licensors is granted.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+@TAG(NICTA_DOC_AGPL)
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link rel="stylesheet" type="text/css" href="stylesheet.css">
+<script>
+  function subst() {
+    var vars={};
+    var x=window.location.search.substring(1).split('&');
+    for (var i in x) {var z=x[i].split('=',2);vars[z[0]] = unescape(z[1]);}
+    var x=['frompage','topage','page','webpage','section','subsection','subsubsection', 'title', 'docid'];
+    for (var i in x) {
+      var y = document.getElementsByClassName(x[i]);
+      for (var j=0; j<y.length; ++j) y[j].textContent = vars[x[i]];
+    }
+  }
+</script>
+</head>
+<body style="border: 0; margin: 0;" onload="subst()">
+<table width="100%" style="border-bottom: 1px solid black;">
+<tr>
+<td class="title" width="50%"></td>
+<td width="50%" align="right">Page <span class="page"></span> of <span class="topage"></span></td>
+</tr>
+</table>
+</body>
+</html>

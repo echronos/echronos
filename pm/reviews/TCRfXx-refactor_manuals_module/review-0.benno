@@ -5,16 +5,6 @@ Task name: TCRfXx-refactor_manuals_module
 Version reviewed: fe77b0480595fccfb3d87513653422bc4394cd8b
 Reviewer: benno
 Date: 2015-04-15
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
-Overall comments:
-
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Overall comments: Looks like a good improvement to me.

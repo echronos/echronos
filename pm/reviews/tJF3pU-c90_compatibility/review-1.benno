@@ -15,3 +15,5 @@ Specific comments
 
 Location: components/context-switch-preempt-stub/implementation.c
 Comment: Has a comment that references "ARM".
+
+[stg: removed comment]

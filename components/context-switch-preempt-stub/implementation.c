@@ -32,6 +32,4 @@ void (*entry_point_ptr)(void);
 
 /*| functions |*/
 
-/* ARM specific initialization */
-
 /*| public_functions |*/

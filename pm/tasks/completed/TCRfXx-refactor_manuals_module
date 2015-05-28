@@ -1,0 +1,23 @@
+Task: TCRfXx-refactor_manuals_module
+==============================================================================
+
+Motivation
+----------
+
+The Python module pylib.manuals currently handles documentation in a relatively inconsistent manner:
+- documentation is referred to as both 'docs' and 'manuals'
+- documentation is built from a number of special-case files that are not part of any standard component
+- the command to build documentation is redundantly called 'build build-manuals'
+
+
+Goals
+--------
+
+The goal of this task is to resolve the inconsistencies listed above.
+
+
+Test Plan
+---------
+
+- task branch must pass all existing regression tests
+- generated documentation must not differ from documentation on 'development' branch

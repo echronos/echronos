@@ -107,7 +107,7 @@ from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8, 
 from pylib.components import Component, build
 from pylib.release import release_test, build_release, build_partials
 from pylib.prj import prj_build
-from pylib.manuals import build_manuals
+from pylib.docs import build_docs
 
 # Set up a specific logger with our desired output level
 logger = logging.getLogger()
@@ -196,7 +196,8 @@ CORE_SKELETONS = {
               Component('task'),
               Component('acrux'),
               ],
-    'rigel': [Component('reentrant'),
+    'rigel': [Component('docs'),
+              Component('reentrant'),
               Component('stack', pkg_component=True),
               Component('context-switch', pkg_component=True),
               Component('preempt-null'),
@@ -216,7 +217,8 @@ CORE_SKELETONS = {
               Component('task', {'task_start_api': True}),
               Component('rigel'),
               ],
-    'kochab': [Component('reentrant'),
+    'kochab': [Component('docs'),
+               Component('reentrant'),
                Component('stack', pkg_component=True),
                Component('context-switch-preempt', pkg_component=True),
                Component('sched-prio-inherit', {'assume_runnable': False}),
@@ -232,7 +234,8 @@ CORE_SKELETONS = {
                Component('task', {'task_start_api': False}),
                Component('kochab'),
                ],
-    'phact': [Component('reentrant'),
+    'phact': [Component('docs'),
+              Component('reentrant'),
               Component('stack', pkg_component=True),
               Component('context-switch-preempt', pkg_component=True),
               Component('sched-prio-ceiling', {'assume_runnable': False}),
@@ -263,7 +266,7 @@ def main():
         'generate': build,
         'build-release': build_release,
         'build-partials': build_partials,
-        'build-manuals': build_manuals,
+        'docs': build_docs,
 
         # Testing
         'check-pep8': check_pep8,
@@ -334,7 +337,8 @@ RTOS systems. This command supports the same options as the Python nose test fra
     _parser = build_subparsers.add_parser('build-partials', help='Build partial release files')
     _parser.add_argument('--allow-unknown-filetypes', action='store_true',
                          help='Allow unknown filetypes in the build')
-    _parser = build_subparsers.add_parser('build-manuals', help='Build PDF manuals')
+    _parser = build_subparsers.add_parser('docs', help='Build documentation for all variants that support it. The \
+generated documentation files are called "docs.pdf" and can be found in each variant\'s package directory.')
     _parser.add_argument('--verbose', '-v', action='store_true')
     build_subparsers.add_parser('generate', help='Generate packages from components')
 

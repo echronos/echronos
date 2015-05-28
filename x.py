@@ -102,7 +102,7 @@ import argparse
 import logging
 
 from pylib.components import Component
-from pylib import release, components, prj, tests, tasks, cmdline, manuals
+from pylib import release, components, prj, tests, tasks, cmdline, docs
 from pylib.cmdline import add_cmds_in_globals_to_parser
 
 # Set up a specific logger with our desired output level
@@ -191,7 +191,8 @@ CORE_SKELETONS = {
               Component('task'),
               Component('acrux'),
               ],
-    'rigel': [Component('reentrant'),
+    'rigel': [Component('docs'),
+              Component('reentrant'),
               Component('stack', pkg_component=True),
               Component('context-switch', pkg_component=True),
               Component('preempt-null'),
@@ -211,7 +212,8 @@ CORE_SKELETONS = {
               Component('task', {'task_start_api': True}),
               Component('rigel'),
               ],
-    'kochab': [Component('reentrant'),
+    'kochab': [Component('docs'),
+               Component('reentrant'),
                Component('stack', pkg_component=True),
                Component('context-switch-preempt', pkg_component=True),
                Component('sched-prio-inherit', {'assume_runnable': False}),
@@ -227,7 +229,8 @@ CORE_SKELETONS = {
                Component('task', {'task_start_api': False}),
                Component('kochab'),
                ],
-    'phact': [Component('reentrant'),
+    'phact': [Component('docs'),
+              Component('reentrant'),
               Component('stack', pkg_component=True),
               Component('context-switch-preempt', pkg_component=True),
               Component('sched-prio-ceiling', {'assume_runnable': False}),
@@ -257,6 +260,7 @@ def main():
 
     # parse arbitrary nose options for the 'test systems' command
     # argparse does not seem to provide a better mechanism for this case
+
     args, unknown_args = parser.parse_known_args()
     if args.command == 'test' and args.subcommand == 'systems':
         args.unknown_args = unknown_args

@@ -211,7 +211,8 @@ def _parse_sectioned_file(fn, config, required_sections):
 
 
 def _get_sections(bound_components, filename, sections):
-    return [_parse_sectioned_file(os.path.join(bc.path, filename), bc.config, sections) for bc in bound_components]
+    return [_parse_sectioned_file(os.path.join(bc.path, filename), bc.config, sections) for bc in bound_components
+            if os.path.exists(os.path.join(bc.path, filename))]
 
 
 _BoundComponent = namedtuple("_BoundComponent", ['path', 'config'])
@@ -286,19 +287,10 @@ def _generate(rtos_name, components, pkg_name, search_paths):
 
     # Generate docs
     if os.path.exists(os.path.join(BASE_DIR, 'components', rtos_name, 'docs.md')):
-        for search_path in search_paths:
-            if os.path.exists(os.path.join(search_path, "docs.md")):
-                bc = _BoundComponent(search_path, {})
-                break
-        else:
-            raise Exception("Docs file not found")
+        all_doc_sections = _get_sections(bound_components, "docs.md", _REQUIRED_DOC_SECTIONS + _REQUIRED_DEP_SECTIONS)
+        all_doc_sections = _sort_sections_by_dependencies(bound_components, all_doc_sections)
 
-        extended_bound_components = [bc] + bound_components
-        all_doc_sections = _get_sections(extended_bound_components, "docs.md",
-                                         _REQUIRED_DOC_SECTIONS + _REQUIRED_DEP_SECTIONS)
-        all_doc_sections = _sort_sections_by_dependencies(extended_bound_components, all_doc_sections)
-
-        doc_output = os.path.join(module_dir, 'documentation.markdown')
+        doc_output = os.path.join(module_dir, 'docs.md')
         with open(doc_output, 'w') as f:
             for ss in _REQUIRED_DOC_SECTIONS:
                 data = "\n\n".join(doc_sections[ss] for doc_sections in all_doc_sections if doc_sections is not None)

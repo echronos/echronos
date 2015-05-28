@@ -231,6 +231,8 @@ class _LicenseOpener:
             return _LicenseOpener.AGPL_TAG + '\n;\n'
         elif ext in ['.md', '.markdown', '.html']:
             return _LicenseOpener.AGPL_DOC_TAG + '\n  -->\n'
+        elif ext in ['.css']:
+            return _LicenseOpener.AGPL_DOC_TAG + '\n */\n'
         elif ext in _LicenseOpener.LICENSE_EXEMPTED_FILETYPES or ext in _LicenseOpener.BUILD_ARTIFACT_FILETYPES:
             return None
         else:
@@ -249,7 +251,7 @@ class _LicenseOpener:
         ext = os.path.splitext(filename)[1]
         is_xml = False
 
-        if ext in ['.c', '.h', '.ld', '.s']:
+        if ext in ['.c', '.h', '.ld', '.s', '.css']:
             lic = self._format_lic(self.license, '/*', ' * ', ' *', ' */')
         elif ext in ['.py', '.gdb']:
             lic = self._format_lic(self.license, '#', '# ', '#', '#')

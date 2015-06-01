@@ -106,6 +106,10 @@
  * Alternatively, setting the handler to "undefined" will generate a handler that first creates a stack frame for the
  * interrupted context and stores its registers there before looping forever at the label "undefined".
  * When an explicit handler is given, it MUST be responsible for clearing the condition that caused its interrupt.
+ *
+ * Note that the RTOS only enables and disables noncritical interrupts.
+ * Projects that define handlers for critical and machine-check interrupts are expected to enable or disable them
+ * appropriately.
  */
 
 {{#preemption}}
@@ -844,9 +848,14 @@ noncrit_irq_common:
         rfi
 
 .section .text
-/* The rtos_internal_entry function initialises the C run-time and then jumps to main (which should never return!)
+/*
+ * The rtos_internal_entry function initialises the C run-time and then jumps to main (which should never return!)
+ * If this is not the first software to run on the board, whatever invokes this (e.g. the bootloader) must first take
+ * the necessary steps to ensure that no interrupts are allowed to happen during the vector table initialization.
+ *
  * If there is a Reset_Handler function defined, then this will be invoked.
- * It should never return. */
+ * It should never return.
+ */
 .weak Reset_Handler
 .global rtos_internal_entry
 .type rtos_internal_entry,STT_FUNC
@@ -923,13 +932,6 @@ rtos_internal_entry:
         isync
         mtspr 1008,%r3
         isync
-
-{{^preemption}}
-        /* The RTOS only enables and disables noncritical interrupts.
-         * Projects that define handlers for critical and machine-check interrupts are expected to enable or disable
-         * them appropriately. */
-        wrteei 1
-{{/preemption}}
 
         b main
 .size rtos_internal_entry, .-rtos_internal_entry

@@ -431,7 +431,7 @@ class GdbTestCase(unittest.TestCase):
                             re.compile('^Breakpoint .* at (.+)$'),
                             re.compile('=(0x[0-9a-f]+)'),
                             re.compile('Inferior( [0-9]+ )\[process( [0-9]+\]) will be killed'),
-                            re.compile('^([0-9]+\t)'),
+                            re.compile('^([0-9]+\t.+)$'),
                             re.compile('^rtos_internal_entry \(\) at (.+)$'))
         filtered_result = io.StringIO()
         for line in gdb_output.splitlines(True):

@@ -94,7 +94,8 @@
       </mutex>
     </module>
 
-    <module name="machine-stm32f4-discovery.example.kochab-test" />
+    <module name="machine-armv7m-common.example.machine-timer" />
+    <module name="rtos-example.kochab-test" />
 
   </modules>
 </system>

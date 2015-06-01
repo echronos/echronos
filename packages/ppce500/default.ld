@@ -48,6 +48,7 @@ SECTIONS
 
         .stack : {
                . = . + {{stack_size}};
+               rtos_internal_stack = .;
         }
 
         /* Debug sections */

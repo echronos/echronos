@@ -863,6 +863,10 @@ rtos_internal_entry:
         li %r13,0
         li %r2,0
 
+        /* Init the stack pointer */
+        lis %sp,rtos_internal_stack@ha
+        ori %sp,%sp,rtos_internal_stack@l
+
         /* IVPR, IVOR contents are indeterminate upon reset and must be initialized by system software.
          * IVPR is the 16 bit address prefix of ALL interrupt vectors */
         li %r3,0

@@ -848,25 +848,12 @@ noncrit_irq_common:
         rfi
 
 .section .text
-/*
- * The rtos_internal_entry function initialises the C run-time and then jumps to main (which should never return!)
+/* The rtos_internal_entry function initialises the C run-time and then jumps to main (which should never return!)
  * If this is not the first software to run on the board, whatever invokes this (e.g. the bootloader) must first take
- * the necessary steps to ensure that no interrupts are allowed to happen during the vector table initialization.
- *
- * If there is a Reset_Handler function defined, then this will be invoked.
- * It should never return.
- */
-.weak Reset_Handler
+ * the necessary steps to ensure that no interrupts are allowed to happen during the vector table initialization. */
 .global rtos_internal_entry
 .type rtos_internal_entry,STT_FUNC
 rtos_internal_entry:
-        /* If there is a Reset_Handler call it - it shouldn't return. */
-        lis %r3,Reset_Handler@h
-        ori %r3,%r3,Reset_Handler@l
-        cmpi 0,%r3,0
-        beq 1f
-        b Reset_Handler
-1:
         /* Compile with -mno-sdata and -G 0 to disable all use of small data areas.
          * Zero the small data anchor registers for more predictable error behavior in case of use. */
         li %r13,0

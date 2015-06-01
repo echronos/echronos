@@ -1,0 +1,35 @@
+Task: A1XBG9-cleanups-for-p2020-bringup
+==============================================================================
+
+Motivation
+----------
+
+Bringup of eChronos on the P2020RDB-PCA has been prototyped, and this presents a large number of changes for review.
+
+This task branch brings together some general cleanup that can be viewed as not relying on the P2020 bringup, but useful to get out of the way before the addition of a machine-p2020rdb-pca package.
+
+
+Goals
+--------
+
+Fixes and cleanups including:
+
+- Make explicit our decision not to use the "small data areas", an optimization feature of EABI.
+
+- Properly initialize the stack pointer at ppce500 entry point.
+
+- Remove the Reset_Handler weak symbol, an artifact from the ARM implementation.
+
+- Refactor out redundant test code by having a common version in rtos-example using a machine-specific timer library.
+
+- To be consistent with ARM, remove the enabling of interrupts from init of non-preemptive ppce500 systems:
+    * on RTOS variants without interrupt event handling, the application is responsible.
+    * on RTOS variants with interrupt event handling, the RTOS will enable them on initial wait for interrupts.
+
+Also includes some fixes to regex strings to make regression testing output matching less sensitive to line numbers and context.
+
+
+Test Plan
+---------
+
+Pass existing regression tests.

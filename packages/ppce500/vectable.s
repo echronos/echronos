@@ -858,6 +858,11 @@ rtos_internal_entry:
         beq 1f
         b Reset_Handler
 1:
+        /* Compile with -mno-sdata and -G 0 to disable all use of small data areas.
+         * Zero the small data anchor registers for more predictable error behavior in case of use. */
+        li %r13,0
+        li %r2,0
+
         /* IVPR, IVOR contents are indeterminate upon reset and must be initialized by system software.
          * IVPR is the 16 bit address prefix of ALL interrupt vectors */
         li %r3,0

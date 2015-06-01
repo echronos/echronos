@@ -36,14 +36,12 @@ SECTIONS
         .data :
         {
               *(.data)
-              *(.sdata)
               . = ALIGN(4);
         }
 
         .bss :
         {
              *(.bss)
-             *(.sbss)
              *(COMMON)
              . = ALIGN(4);
         }

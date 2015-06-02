@@ -756,10 +756,10 @@ The following is the expected output of the timer test, continuing from a breakp
 This module depends on an external code module to implement `machine_timer_init()` and `machine_timer_clear()` for the platform the test system is to be run on.
 
 
-`kochab-system`
+`kochab-test`
 ===============
 
-This system (running the `kochab-test` program) demonstrates the eChronos Kochab variant's task preemption functionality.
+This system demonstrates the eChronos Kochab variant's task preemption functionality.
 It features two tasks, A and B, where task A is assigned a higher priority than task B.
 
 The test program also configures a fixed-interval timer interrupt to occur periodically, and supplies an interrupt handler function, `tick_irq`, that fulfils three responsibilities:

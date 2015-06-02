@@ -2,19 +2,18 @@ Breakaway Task Review
 =======================
 
 Task name: XaJQAN-userspace_x86
-Version reviewed: 245e9f81e614473606a69aeec713c861e8db685d
+Version reviewed: 585395f756cfe34593f80e3b5e619dfe0ddb0d68
 Reviewer: robert.sison
-Date: 2015-05-08
-Conclusion: Accepted/Rework
+Date: 2015-06-02
+Conclusion: Rework
 
 Overall comments:
+Looks good, kraz + acamar systems run fine on my machine.
 
 
 Specific comments
 =================
 
-Location: filename:linenum
+Location: packages/machine-usp-x86/example/gatria-system.prx
 Comment:
-
-Location: filename:linenum
-Comment:
+There's no .gdbout or .py files to go with this new system, so it isn't tested along with the others when running `x.py test systems` manually or in regression.

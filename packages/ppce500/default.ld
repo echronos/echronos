@@ -24,6 +24,9 @@ OUTPUT_ARCH(powerpc)
 ENTRY(rtos_internal_entry)
 SECTIONS
 {
+        .undefined :
+        { *(.undefined) }
+
         .vectors :
         { *(.vectors) }
 

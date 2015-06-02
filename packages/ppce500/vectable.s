@@ -121,7 +121,7 @@
  */
 {{/preemption}}
 
-.section .vectors, "a"
+.section .undefined, "a"
 /* This is here to catch unconfigured interrupts, or any other (deliberate or erroneous) jumps to address NULL. */
 undefined:
         b undefined
@@ -390,6 +390,7 @@ undefined:
         irq_frame_store_r3_set \handler
 .endm
 
+.section .vectors, "a"
 /*
  * The PowerPC interrupt vectors are configured at runtime by setting the IVPR (interrupt vector prefix) and IVOR
  * (interrupt vector offset) registers, which are indeterminate upon reset.

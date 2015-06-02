@@ -35,9 +35,19 @@ import inspect
 from .xunittest import discover_tests, TestSuite, SimpleTestNameResult, testcase_matches, testsuite_list
 from .release import _LicenseOpener
 from .utils import get_executable_extension
+from .cmdline import subcmd, Arg
 
 
-def prj_test(args):
+_std_subcmd_args = (
+    Arg('tests', metavar='TEST', nargs='*', default=[]),
+    Arg('--list', action='store_true', help="List tests (don't execute)", default=False),
+    Arg('--verbose', action='store_true', default=False),
+    Arg('--quiet', action='store_true', default=False),
+)
+
+
+@subcmd(cmd="test", args=_std_subcmd_args)
+def prj(args):
     """Run tests associated with prj modules."""
     modules = ['prj', 'util']
     directories = [os.path.join('prj', 'app'),
@@ -47,7 +57,8 @@ def prj_test(args):
     return _run_module_tests_with_args(modules, directories, args)
 
 
-def x_test(args):
+@subcmd(cmd="test", args=_std_subcmd_args)
+def x(args):
     """Run x-related tests."""
     modules = ['x']
     directories = ['.']
@@ -55,12 +66,14 @@ def x_test(args):
     return _run_module_tests_with_args(modules, directories, args)
 
 
-def pystache_test(_):
+@subcmd(cmd="test")
+def pystache(_):
     """Run tests assocaited with pystache modules."""
     return subprocess.call([sys.executable, os.path.join('prj', 'app', 'pystache', 'test_pystache.py')])
 
 
-def rtos_test(args):
+@subcmd(cmd="test", args=_std_subcmd_args)
+def units(args):
     """Run rtos unit tests."""
     modules = ['rtos']
     directories = ['.']
@@ -181,7 +194,10 @@ class _TeamcityReport(pep8.StandardReport):
             .replace("]", "|]").replace("\n", "|n").replace("\r", "|r")
 
 
-def check_pep8(args):
+@subcmd(cmd="test", help='Run PEP8 on project Python files',
+        args=(Arg('--teamcity', action='store_true', help="Provide teamcity output for tests", default=False),
+              Arg('--excludes', nargs='*', help="Exclude directories from pep8 checks", default=[])))
+def style(args):
     """Check for PEP8 compliance with the pep8 tool.
 
     This implements conventions lupHw1 and u1wSS9.
@@ -209,7 +225,9 @@ def check_pep8(args):
         return 1
 
 
-def check_licenses(args):
+@subcmd(cmd="test", help='Check that all files have the appropriate license header',
+        args=(Arg('--excludes', nargs='*', help="Exclude directories from license header checks", default=[]),))
+def licenses(args):
     excludes = args.excludes + [
         '.git',
         '.gitignore',
@@ -296,7 +314,8 @@ def check_licenses(args):
         return 1
 
 
-def check_provenance(args):
+@subcmd(cmd="test", help='Check that all files belonging to external tools map 1-1 with provenance listings')
+def provenance(args):
     target_dirs = ['tools', 'external_tools']
     exemptions = [['tools', 'LICENSE.md'], ['external_tools', 'LICENSE.md']]
     files_nonexistent = []
@@ -347,7 +366,9 @@ def check_provenance(args):
         return 1
 
 
-def test_systems(args):
+@subcmd(cmd="test", help='Run system tests, i.e., tests that check the behavior of full RTOS systems. \
+This command supports the same options as the Python nose test framework.')
+def systems(args):
     def find_gdb_test_py_files(path):
         for parent, dirs, files in os.walk(path):
             for file in files:

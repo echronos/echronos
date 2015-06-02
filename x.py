@@ -101,13 +101,9 @@ if correct is not None and sys.executable != correct:
 import argparse
 import logging
 
-from pylib.tasks import new_review, new_task, tasks, integrate, _gen_tag
-from pylib.tests import prj_test, x_test, pystache_test, rtos_test, check_pep8, check_licenses, check_provenance,\
-    test_systems
-from pylib.components import Component, build
-from pylib.release import release_test, build_release, build_partials
-from pylib.prj import prj_build
-from pylib.docs import build_docs
+from pylib.components import Component
+from pylib import release, components, prj, tests, tasks, cmdline, docs
+from pylib.cmdline import add_cmds_in_globals_to_parser
 
 # Set up a specific logger with our desired output level
 logger = logging.getLogger()
@@ -260,131 +256,29 @@ configurations = CORE_CONFIGURATIONS.copy()
 
 def main():
     """Application main entry point. Parse arguments, and call specified sub-command."""
-    SUBCOMMAND_TABLE = {
-        # Releases
-        'prj-build': prj_build,
-        'generate': build,
-        'build-release': build_release,
-        'build-partials': build_partials,
-        'docs': build_docs,
-
-        # Testing
-        'check-pep8': check_pep8,
-        'prj-test': prj_test,
-        'pystache-test': pystache_test,
-        'x-test': x_test,
-        'rtos-test': rtos_test,
-        'test-release': release_test,
-        'licenses': check_licenses,
-        'provenance': check_provenance,
-        'systems': test_systems,
-
-        # Tasks management
-        'review': new_review,
-        'new': new_task,
-        'list': tasks,
-        'integrate': integrate,
-
-        # Template management
-        'gen-tag': _gen_tag,
-    }
-
-    # create the top-level parser
     parser = argparse.ArgumentParser(prog='x.py')
+    add_cmds_in_globals_to_parser(globals(), parser)
 
-    subparsers = parser.add_subparsers(title='subcommands', dest='command')
+    # parse arbitrary nose options for the 'test systems' command
+    # argparse does not seem to provide a better mechanism for this case
 
-    test_parser = subparsers.add_parser("test", help="Run tests")
-    test_subparsers = test_parser.add_subparsers(title="Test suites", dest="test_command")
-
-    _parser = test_subparsers.add_parser('check-pep8', help='Run PEP8 on project Python files')
-    _parser.add_argument('--teamcity', action='store_true',
-                         help="Provide teamcity output for tests",
-                         default=False)
-    _parser.add_argument('--excludes', nargs='*',
-                         help="Exclude directories from pep8 checks",
-                         default=[])
-    for component_name in ['prj', 'x', 'rtos']:
-        _parser = test_subparsers.add_parser(component_name + '-test', help='Run {} unittests'.format(component_name))
-        _parser.add_argument('tests', metavar='TEST', nargs='*',
-                             help="Specific test", default=[])
-        _parser.add_argument('--list', action='store_true',
-                             help="List tests (don't execute)",
-                             default=False)
-        _parser.add_argument('--verbose', action='store_true',
-                             help="Verbose output",
-                             default=False)
-        _parser.add_argument('--quiet', action='store_true',
-                             help="Less output",
-                             default=False)
-    test_subparsers.add_parser('pystache-test', help='Test pystache')
-    test_subparsers.add_parser('test-release', help='Test final release')
-    _parser = test_subparsers.add_parser('licenses', help='Check that all files have the appropriate license header')
-    _parser.add_argument('--excludes', nargs='*',
-                         help="Exclude directories from license header checks",
-                         default=[])
-    test_subparsers.add_parser('systems', help='Run system tests, i.e., tests that check the behavior of full \
-RTOS systems. This command supports the same options as the Python nose test framework.')
-
-    test_subparsers.add_parser('provenance', help='Check that all files belonging to external tools map 1-1 with '
-                                                  'provenance listings')
-
-    build_parser = subparsers.add_parser("build", help="Build release stuff...")
-    build_subparsers = build_parser.add_subparsers(title="Build options", dest="build_command")
-
-    build_subparsers.add_parser('prj-build', help='Build prj')
-    build_subparsers.add_parser('build-release', help='Build final release')
-    _parser = build_subparsers.add_parser('build-partials', help='Build partial release files')
-    _parser.add_argument('--allow-unknown-filetypes', action='store_true',
-                         help='Allow unknown filetypes in the build')
-    _parser = build_subparsers.add_parser('docs', help='Build documentation for all variants that support it. The \
-generated documentation files are called "docs.pdf" and can be found in each variant\'s package directory.')
-    _parser.add_argument('--verbose', '-v', action='store_true')
-    build_subparsers.add_parser('generate', help='Generate packages from components')
-
-    task_parser = subparsers.add_parser("task", help="Task management")
-    task_subparsers = task_parser.add_subparsers(title="Task management operations", dest="task_command")
-
-    task_subparsers.add_parser('list', help="List tasks")
-    _parser = task_subparsers.add_parser('new', help='Create a new task')
-    _parser.add_argument('taskname', metavar='TASKNAME', help='Name of the new task')
-    _parser.add_argument('--no-fetch', dest='fetch', action='store_false', default='true', help='Disable fetchign')
-    _parser = task_subparsers.add_parser('review', help='Create a new review')
-    _parser.add_argument('reviewers', metavar='REVIEWER', nargs='+',
-                         help='Username of reviewer')
-    _parser = task_subparsers.add_parser('integrate', help='Integrate a completed development task/branch \
-into the main upstream branch.')
-    _parser.add_argument('--repo', help='Path of git repository to operate in. \
-Defaults to current working directory.')
-    _parser.add_argument('--name', help='Name of the task branch to integrate. \
-Defaults to active branch in repository.')
-    _parser.add_argument('--target', help='Name of branch to integrate task branch into. \
-Defaults to "development".', default='development')
-    _parser.add_argument('--archive', help='Prefix to add to task branch name when archiving it. \
-Defaults to "archive".', default='archive')
-
-    subparsers.add_parser('gen-tag', help='Generate a random 6-char alphanumeric string')
-
-    if 'test' in sys.argv and 'systems' in sys.argv:
-        args, unknown_args = parser.parse_known_args()
+    args, unknown_args = parser.parse_known_args()
+    if args.command == 'test' and args.subcommand == 'systems':
         args.unknown_args = unknown_args
     else:
+        # enforce stricter parsing for other commands
         args = parser.parse_args()
 
-    if args.command is None:
+    if not args.command or not args.subcommand:
+        # argparse does not support required subparsers so it does not itself reject a command line that lacks a
+        # command or subcommand
         parser.print_help()
     else:
-        for cmd, subcommand in ([("test", "test_command"), ("task", "task_command"), ("build", "build_command")]):
-            if args.command == cmd:
-                if vars(args)[subcommand] is None:
-                    args = parser.parse_args([cmd, "-h"])
-                args.command = vars(args)[subcommand]
-
         args.topdir = topdir
         args.configurations = configurations
         args.skeletons = skeletons
 
-        return SUBCOMMAND_TABLE[args.command](args)
+        return args.execute(args)
 
 
 if __name__ == "__main__":

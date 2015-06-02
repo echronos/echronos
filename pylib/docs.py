@@ -25,7 +25,8 @@ import subprocess
 import sys
 
 from .utils import BASE_DIR, base_path, get_host_platform_name, get_executable_extension, find_path
-from .components import build
+from . import components
+from .cmdline import subcmd, Arg
 
 
 def _get_platform_tools_dir():
@@ -130,7 +131,10 @@ your command as xvfb-run -a -s "-screen 0 640x480x16" ./x.py [...]')
         raise
 
 
-def build_docs(args):
-    build(args)
+@subcmd(name='docs', cmd='build', help='Build documentation for all variants that support it. \
+The generated documentation files are called "docs.pdf" and can be found in each variant\'s package directory.',
+        args=(Arg('--verbose', '-v', action='store_true'),))
+def build(args):
+    components.build(args)
     for pkg_dir in _get_package_dirs(set(('docs.md',))):
         _build_doc(pkg_dir, args.topdir, args.verbose)

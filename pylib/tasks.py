@@ -27,6 +27,7 @@ import datetime
 import subprocess
 from random import choice
 from .utils import Git
+from .cmdline import subcmd, Arg
 
 
 def _task_dir(topdir, *args):
@@ -37,7 +38,8 @@ def _review_dir(topdir, *args):
     return os.path.join(topdir, 'pm', 'reviews', *args)
 
 
-def _gen_tag(_):
+@subcmd(cmd="task", help='Generate a random 6-char alphanumeric string')
+def tag(_):
     tag_length = 6
     tag_chars = string.ascii_letters + string.digits
     return ''.join(choice(tag_chars) for _ in range(tag_length))
@@ -66,7 +68,8 @@ Comment:
 """
 
 
-def new_review(args):
+@subcmd(cmd="task", args=(Arg('reviewers', metavar='REVIEWER', nargs='+'),))
+def review(args):
     """Create a new review for the current branch."""
     # Check the directory is clean
     status = subprocess.check_output(['git', 'status', '--porcelain'], cwd=args.topdir)
@@ -131,8 +134,10 @@ Test Plan
 """
 
 
-def new_task(args):
-    """Create a new task."""
+@subcmd(cmd="task",
+        args=(Arg('taskname', metavar='TASKNAME'),
+              Arg('--no-fetch', dest='fetch', action='store_false', default='true')))
+def create(args):
     remote = 'origin'
     branch_from = remote + '/development'
 
@@ -146,7 +151,7 @@ def new_task(args):
         # from.
         git.fetch()
 
-    fullname = _gen_tag(None) + '-' + args.taskname
+    fullname = tag(None) + '-' + args.taskname
     git.branch(fullname, branch_from, track=False)
     git.push(fullname, fullname, set_upstream=True)
     git.checkout(fullname)
@@ -439,7 +444,8 @@ class _Task:
             return None
 
 
-def tasks(args):
+@subcmd(cmd="task")
+def list(args):
     git = Git(local_repository=args.topdir)
     task_dir = _task_dir(args.topdir)
     skipped_branches = ['development', 'master']
@@ -473,6 +479,13 @@ def tasks(args):
     print("D: described in pm/tasks  L: local branch  R: remote branch  A: archived branch")
 
 
+@subcmd(cmd="task", help='Integrate a completed development task branch into the main upstream branch.',
+        args=(Arg('--repo', help='Path of git repository to operate in. Defaults to current working directory.'),
+              Arg('--name', help='Name of the task branch to integrate. Defaults to active branch in repository.'),
+              Arg('--target', help='Name of branch to integrate task branch into. Defaults to "development".',
+                  default='development'),
+              Arg('--archive', help='Prefix to add to task branch name when archiving it. Defaults to "archive".',
+                  default='archive')))
 def integrate(args):
     """
     Integrate a completed development task/branch into the main upstream branch.

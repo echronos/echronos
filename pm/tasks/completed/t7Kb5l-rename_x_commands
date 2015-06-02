@@ -1,0 +1,22 @@
+Task: t7Kb5l-rename_x_commands
+==============================================================================
+
+Motivation
+----------
+
+Many commands of the x.py utility currently have inconsistent or repetitive names, such as "x.py build build-partials" or "x.py test check-pep8".
+This makes the x.py utility unnecessarily confusing and annoying to use.
+
+
+Goals
+--------
+
+The goal of this task is to give all commands consistent and intuitive names.
+As a part of this effort, the code for handling command line parsing may be refactored so that it is easier to maintain.
+
+
+Test Plan
+---------
+
+The existing regression tests need to be updated to match the name changes.
+They are otherwise considered sufficient to show the correctness of the changes.

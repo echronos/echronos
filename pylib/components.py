@@ -25,6 +25,7 @@ from collections import namedtuple
 import pystache
 import xml.etree.ElementTree
 from .utils import BASE_DIR, base_path, base_to_top_paths
+from .cmdline import subcmd
 
 
 # FIXME: Use correct declaration vs definition.
@@ -342,6 +343,9 @@ def _get_search_paths(topdir):
     return paths
 
 
+@subcmd(name='packages',
+        cmd='build',
+        help='Generate packages from components')
 def build(args):
     # Generate RTOSes
     search_paths = _get_search_paths(args.topdir)

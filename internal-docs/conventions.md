@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 lupHw1: All project (i.e., non-third-party) Python files shall be PEP8 compliant.
 Rationale: consistent code style and improved readability.
 
-u1wSS9: The command 'x.py check-pep8' shall check for compliance of all project Python files.
+u1wSS9: The command 'x.py test style' shall check for compliance of all project Python files.
 Rationale: an automated check allows to detect and resolve non-compliance efficiently.
 
 TZb0Uv: The maximum line length in project Python files is 118 characters.

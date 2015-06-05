@@ -4,17 +4,16 @@ Breakaway Task Review
 Task name: SV6Lc3-release_pdf_manual
 Version reviewed: a60699742f8a89c5a21bf171ad1d59ae7376f107
 Reviewer: robert.sison
-Date: 2015-06-03
-Conclusion: Accepted/Rework
+Date: 2015-06-05
+Conclusion: Accepted
 
 Overall comments:
+Looks good.
 
 
 Specific comments
 =================
 
-Location: filename:linenum
+Location: pylib/docs.py:148
 Comment:
-
-Location: filename:linenum
-Comment:
+There was a Windows-style line ending here, but I fixed it in this commit.

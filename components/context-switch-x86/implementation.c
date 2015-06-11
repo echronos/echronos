@@ -25,6 +25,9 @@ typedef struct context* context_t;
  */
 struct context
 {
+    uint32_t ebx;
+    uint32_t esi;
+    uint32_t edi;
     uint32_t ebp_stack_frame;
     void (*return_address)(void);
 };
@@ -84,13 +87,14 @@ context_init(context_t *const ctx, void (*const task_function)(void), uint8_t *c
     *ctx = (context_t)(((stack_top_address - CONTEXT_SIZE) & 0xFFFFFFF0UL) + CONTEXT_SIZE);
     /* When the context-switch implementation switches the first time to a task, it will find the data on the stack
      * that is set up here.
-     * First, it pops context->ebp_stack_frame from the stack into the ebp register.
+     * First, it pops context->ebx,esi,edi, and ebp_stack_frame from the stack into the corresponding registers.
      * Second, it pops context->return_address from the stack into the instruction pointer register, effectively
      * causing a jump.
      * The return address is set up to be the task function of the respective task.
      * As per the x86 calling convention, the first action of that function is to push the value of the ebp register
      * onto the stack and move the stack pointer (from the esp register) into the ebp register.
-     * Therefore, the value of context->ebp_stack_frame is never evaluated and is therefore irrelevant. */
+     * Therefore, the value of context->ebp_stack_frame is never evaluated and is therefore irrelevant.
+     * Also, the values for the ebx, esi, and edi fields in context are irrelevant for the first context switch. */
     (*ctx)->return_address = task_function;
 }
 

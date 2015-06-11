@@ -48,11 +48,16 @@ rtos_internal_context_switch_x86:
     push %ebp
     movl %esp, %ebp
 
+    /* Per the calling convention, the callee is responsible for preserving EDI, ESI, and EBX */
+    push %edi
+    push %esi
+    push %ebx
+
     /* Pseudo code: *from = stack_pointer;
      *  Move `from` pointer value into eax register
-     *      0x8(%esp): first function argument `context_t *from`
+     *      0x14(%esp): first function argument `context_t *from`
      *      eax: used in next instruction */
-    movl 0x8(%esp), %eax
+    movl 0x14(%esp), %eax
     /*  Move CPU's stack pointer to memory address in eax, i.e., `*from`.
      *      esp: CPU's stack pointer
      *      eax: address value of the `from` pointer */
@@ -60,11 +65,16 @@ rtos_internal_context_switch_x86:
 
     /* Pseudo code: stack_pointer = to;
      *  Set CPU's stack pointer to `to`
-     *      0xc(%esp): second function argument `context_t to`
+     *      0x18(%esp): second function argument `context_t to`
      *      esp: CPU's stack pointer
      * This switches the CPU's stack pointer to the one in the `to` argument.
      * In the current implementation, this is all that is necessary to restore the task state in `to`. */
-    movl 0xc(%esp), %esp
+    movl 0x18(%esp), %esp
+
+    /* Restore EID, ESI, EBX that were stored at the beginning of the function */
+    pop %ebx
+    pop %esi
+    pop %edi
 
     /* This is the standard x86 function appendix that tears down the stack frame and returns to the return address on
      * the stack, which would be the code location from where the `to` task called this function. */

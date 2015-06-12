@@ -17,3 +17,5 @@ Specific comments
 Location: packages/machine-usp-x86/example/gatria-system.prx
 Comment:
 There's no .gdbout or .py files to go with this new system, so it isn't tested along with the others when running `x.py test systems` manually or in regression.
+
+[stg: resolved by adding test system as suggested]

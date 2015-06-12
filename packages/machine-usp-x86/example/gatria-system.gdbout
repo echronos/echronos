@@ -1,0 +1,73 @@
+Breakpoint 1 at 0x401497: file out\machine-usp-x86\example\gatria-system\generic.debug.c, line 52.
+[New Thread 6012.0x2f4]
+[New Thread 6012.0x17ac]
+[New Thread 6012.0x6a4]
+
+Breakpoint 1, debug_println (msg=0x403060 "task a -- lock") at out\machine-usp-x86\example\gatria-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 0 '\000'
+task a -- lock
+
+Breakpoint 1, debug_println (msg=0x4030b1 "task b -- try lock") at out\machine-usp-x86\example\gatria-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 1 '\001'
+task b -- try lock
+
+Breakpoint 1, debug_println (msg=0x40308c "task a -- unlock") at out\machine-usp-x86\example\gatria-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 0 '\000'
+task a -- unlock
+
+Breakpoint 1, debug_println (msg=0x4030c4 "task b -- got lock") at out\machine-usp-x86\example\gatria-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 1 '\001'
+task b -- got lock
+
+Breakpoint 1, debug_println (msg=0x4030d7 "task b") at out\machine-usp-x86\example\gatria-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 1 '\001'
+task b
+
+Breakpoint 1, debug_println (msg=0x4030de "b blocking") at out\machine-usp-x86\example\gatria-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 1 '\001'
+b blocking
+
+Breakpoint 1, debug_println (msg=0x40309d "task a") at out\machine-usp-x86\example\gatria-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 0 '\000'
+task a
+
+Breakpoint 1, debug_println (msg=0x4030a4 "unblocking b") at out\machine-usp-x86\example\gatria-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 0 '\000'
+unblocking b
+
+Breakpoint 1, debug_println (msg=0x4030d7 "task b") at out\machine-usp-x86\example\gatria-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 1 '\001'
+task b
+
+Breakpoint 1, debug_println (msg=0x40309d "task a") at out\machine-usp-x86\example\gatria-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 0 '\000'
+task a
+
+Breakpoint 1, debug_println (msg=0x4030d7 "task b") at out\machine-usp-x86\example\gatria-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 1 '\001'
+task b
+
+Breakpoint 1, debug_println (msg=0x40309d "task a") at out\machine-usp-x86\example\gatria-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 0 '\000'
+task a
+
+Breakpoint 1, debug_println (msg=0x4030d7 "task b") at out\machine-usp-x86\example\gatria-system\generic.debug.c:52
+52	    debug_print(msg);
+1: rtos_internal_current_task = 1 '\001'
+A debugging session is active.
+
+	Inferior 1 [process 6012] will be killed.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]

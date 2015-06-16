@@ -341,6 +341,7 @@ context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack
 {
     uint32_t *const init_context = stack_base + stack_size - CONTEXT_HEADER_SIZE;
     uint32_t *const context = init_context - CONTEXT_FRAME_SIZE;
+    uint32_t current_msr;
 
     /**
      * Set up an initial stack frame header containing just the back chain word and the LR save word.
@@ -356,7 +357,8 @@ context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack
     /* Set SRR0 to the task entry point */
     context[CONTEXT_SRR0_IDX] = (uint32_t) fn;
     /* Set MSR[EE] = 1 (interrupts enabled) initially for all tasks */
-    context[CONTEXT_SRR1_IDX] = 0x8000;
+    asm volatile("mfmsr %0":"=r"(current_msr)::);
+    context[CONTEXT_SRR1_IDX] = current_msr | 0x8000;
     context[CONTEXT_PREEMPT_RESTORE_STATUS] = PREEMPT_RESTORE_DISABLED | PREEMPT_RESTORE_VOLATILES;
     context[CONTEXT_BC_IDX] = (uint32_t) &init_context[CONTEXT_BC_IDX];
     *ctx = context;

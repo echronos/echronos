@@ -865,8 +865,8 @@ rtos_internal_entry:
         ori %sp,%sp,rtos_internal_stack@l
 
         /* IVPR, IVOR contents are indeterminate upon reset and must be initialized by system software.
-         * IVPR is the 16 bit address prefix of ALL interrupt vectors */
-        li %r3,0
+         * IVPR[32-47] is the 16 bit address prefix of ALL interrupt vectors */
+        lis %r3,0
         mtivpr %r3
 
         /* IVORs only have the lower 16 bits (excluding bottom 4) of each vector */

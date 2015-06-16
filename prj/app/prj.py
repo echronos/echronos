@@ -134,6 +134,8 @@ def pystache_render(file_in, file_out, config):
     """
     renderer = pystache.renderer.Renderer()
     renderer.register_formatter('u', lambda x: x.upper())
+    # Note: This can only be used on integer values
+    renderer.register_formatter('hex', lambda x: str(hex(int(x))))
 
     with open(file_in, 'r') as inp:
         template_data = inp.read()

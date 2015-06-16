@@ -390,7 +390,6 @@ undefined:
         irq_frame_store_r3_set \handler
 .endm
 
-.section .vectors, "a"
 /*
  * The PowerPC interrupt vectors are configured at runtime by setting the IVPR (interrupt vector prefix) and IVOR
  * (interrupt vector offset) registers, which are indeterminate upon reset.
@@ -400,6 +399,7 @@ undefined:
  * The order of placement of these vectors in this file is arbitrary.
  */
 .align 8
+.section .vectors, "a"
 {{#machine_check}}
 mchk_vector:
         create_irq_frame_set_r3 {{machine_check.handler}}

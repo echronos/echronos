@@ -24,23 +24,37 @@ OUTPUT_ARCH(powerpc)
 ENTRY(rtos_internal_entry)
 SECTIONS
 {
-        .undefined :
+        rtos_internal_ro_start = .;
+
+        .undefined : AT ({{load_addr}})
         { *(.undefined) }
 
-        .vectors :
+        .vectors : AT (LOADADDR(.undefined) + SIZEOF(.undefined))
         { *(.vectors) }
 
-        .text :
+        .text : AT (LOADADDR(.vectors) + SIZEOF(.vectors))
         { *(.text.startup) *(.text) }
 
-        .rodata :
+        .rodata : AT (LOADADDR (.text) + SIZEOF(.text))
         { *(.rodata*) }
 
-        .data :
+        rtos_internal_ro_end = ALIGN(4);
+
+        . = ALIGN(4);
+        .data : AT ({{load_addr}} + (rtos_internal_ro_end - rtos_internal_ro_start))
         {
               *(.data)
               . = ALIGN(4);
         }
+
+        rtos_internal_data_load_addr = LOADADDR(.data);
+        rtos_internal_data_virt_addr = ADDR(.data);
+        rtos_internal_data_size = . - ADDR(.data);
+
+        /* Check addresses are correct */
+        rtos_internal_dummy = ASSERT(rtos_internal_data_load_addr % 4 == 0, "data_load_addr not word aligned");
+        rtos_internal_dummy = ASSERT(rtos_internal_data_virt_addr % 4 == 0, "data_virt_addr not word aligned");
+        rtos_internal_dummy = ASSERT(rtos_internal_data_size % 4 == 0, "data_size not word aligned");
 
         .bss :
         {
@@ -48,6 +62,9 @@ SECTIONS
              *(COMMON)
              . = ALIGN(4);
         }
+
+        rtos_internal_bss_virt_addr = ADDR(.bss);
+        rtos_internal_bss_size = SIZEOF(.bss);
 
         .stack : {
                . = . + {{stack_size}};

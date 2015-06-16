@@ -24,6 +24,7 @@
   <schema>
     <entry name="preemption" type="bool" optional="true" default="false" />
     <entry name="do_bss_init" type="bool" optional="true" default="false" />
+    <entry name="do_pic_init" type="bool" optional="true" default="false" />
     <entry name="machine_check" type="dict" optional="true">
         <entry name="handler" type="c_ident" />
     </entry>
@@ -927,6 +928,12 @@ rtos_internal_entry:
         ori %r4,%r4,rtos_internal_bss_size@l
         bl rtos_internal_bss_init
 {{/do_bss_init}}
+
+        /* In case the system is booted via a method that doesn't init the PIC (Programmable Interrupt Controller),
+         * set "do_pic_init" to "true" in this module's .prx config to enable invocation of machine_pic_init. */
+{{#do_pic_init}}
+        bl machine_pic_init
+{{/do_pic_init}}
 
         /* Set HID0[DOZE] so that setting MSR[WE] in interrupt_event_wait will gate the DOZE output.
          * A context-synchronising instruction is required before and after mtspr HID0 by the e500 Reference Manual. */

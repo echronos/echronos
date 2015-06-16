@@ -19,7 +19,24 @@
  * @TAG(NICTA_AGPL)
  */
 
+#include <stdint.h>
+#include <p2020-util.h>
 #include "p2020-duart.h"
+
+/* PIC registers are 32 bits wide */
+#define PIC_REGISTER_BASE (CCSRBAR + 0x40000)
+#define PIC_GCR (volatile uint32_t *)(PIC_REGISTER_BASE + 0x1020)
+
+/* Switch the PIC (Programmable Interrupt Controller) on the P2020 to "Mixed mode".
+ * By default the PIC is in "Pass-through mode", but that routes the PCI Express 1's IRQA signal directly to the
+ * external interrupt line of CPU0, causing a storm of spurious external input interrupts.
+ * With the PIC switched to "mixed mode", its default mask settings kick in (where everything is masked).
+ * When booting from U-Boot, this is not necessary. */
+void
+machine_pic_init(void)
+{
+    *PIC_GCR = 0x20000000;
+}
 
 /* This is deliberately a busy-waiting use of DUART1 tx so that it doesn't rely on or generate any IRQs */
 void

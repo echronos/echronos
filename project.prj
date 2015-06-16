@@ -21,7 +21,7 @@
   -->
 
 <project>
-  <startup-script>./x.py build partials --allow-unknown-filetypes</startup-script>
+  <startup-script>./x.py build packages</startup-script>
   <search-path>packages</search-path>
   <search-path>example</search-path>
 </project>

@@ -97,6 +97,7 @@
       </mutex>
     </module>
 
+    <module name="machine-qemu-ppce500.example.machine-timer" />
     <!-- main .c file: -->
     <module name="rtos-example.signal-demo">
       <variant>kochab</variant>

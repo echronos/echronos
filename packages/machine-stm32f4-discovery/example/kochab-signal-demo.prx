@@ -99,6 +99,7 @@
       </mutex>
     </module>
 
+    <module name="machine-armv7m-common.example.machine-timer" />
     <!-- main .c file: -->
     <module name="rtos-example.signal-demo">
       <variant>kochab</variant>

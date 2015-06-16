@@ -20,6 +20,7 @@
  */
 
 #include "rtos-{{variant}}.h"
+#include "machine-timer.h"
 #include "debug.h"
 
 #define SIGNAL_DEMO_NUM_IDS 8
@@ -247,6 +248,8 @@ fn_b(void)
 int
 main(void)
 {
+    machine_timer_deinit();
+
     rtos_start();
     /* Should never reach here, but if we do, an infinite loop is
        easier to debug than returning somewhere random. */

@@ -44,7 +44,7 @@ decrementer_clear(void)
 }
 
 /* Useful primarily in case of bootloaders that make use of timer interrupts */
-static void
+void
 machine_timer_deinit(void)
 {
     asm volatile(

@@ -22,17 +22,16 @@
 
 <system>
   <modules>
-    <module name="machine-stm32f4-discovery.build" />
-    <module name="armv7m.ctxt-switch-preempt" />
-    <module name="armv7m.exception-preempt" />
-    <module name="armv7m.vectable">
-      <flash_load_addr>0x8000000</flash_load_addr>
+    <module name="ppce500.build" />
+    <module name="ppce500.default-linker" />
+    <module name="ppce500.interrupts-util" />
+    <module name="ppce500.vectable">
       <preemption>true</preemption>
     </module>
-    <module name="armv7m.semihost-debug" />
+    <module name="ppce500.section-init" />
     <module name="generic.debug" />
 
-    <module name="armv7m.rtos-phact">
+    <module name="ppce500.rtos-kochab">
       <api_asserts>true</api_asserts>
       <internal_asserts>true</internal_asserts>
       <fatal_error>fatal</fatal_error>
@@ -100,15 +99,12 @@
       <mutexes>
         <mutex>
           <name>m0</name>
-          <priority>35</priority>
         </mutex>
         <mutex>
           <name>m1</name>
-          <priority>34</priority>
         </mutex>
         <mutex>
           <name>m2</name>
-          <priority>25</priority>
         </mutex>
       </mutexes>
       <mutex>
@@ -117,10 +113,13 @@
 
     </module>
 
-    <module name="machine-armv7m-common.example.machine-timer" />
+    <module name="machine-p2020rdb-pca.example.machine-timer" />
+    <module name="machine-p2020rdb-pca.example.p2020-util" />
+    <module name="machine-p2020rdb-pca.example.p2020-duart" />
     <!-- main .c file: -->
     <module name="rtos-example.sched-demo">
-      <variant>phact</variant>
+      <variant>kochab</variant>
+      <deadlock_test>false</deadlock_test>
     </module>
 
   </modules>

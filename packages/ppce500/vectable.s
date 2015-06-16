@@ -23,6 +23,7 @@
   <code_gen>template</code_gen>
   <schema>
     <entry name="preemption" type="bool" optional="true" default="false" />
+    <entry name="do_bss_init" type="bool" optional="true" default="false" />
     <entry name="machine_check" type="dict" optional="true">
         <entry name="handler" type="c_ident" />
     </entry>
@@ -912,6 +913,20 @@ rtos_internal_entry:
         mtivor34 %r3
         li %r3,eis_perfmon_vector@l
         mtivor35 %r3
+
+        /* Both QEMU and U-Boot's bootelf take care of zeroing the .bss section and initializing the .data section.
+         * In case the system is booted via a method that doesn't zero the .bss, set "do_bss_init" to "true" in the
+         * .prx config for this module to enable invocation of rtos_internal_bss_init (in section-init.c).
+         * Other methods of booting than those listed above may require the addition of some similar code to
+         * initialize the .data section from its load address. */
+{{#do_bss_init}}
+        /* Zero .bss section */
+        lis %r3,rtos_internal_bss_virt_addr@ha
+        ori %r3,%r3,rtos_internal_bss_virt_addr@l
+        lis %r4,rtos_internal_bss_size@ha
+        ori %r4,%r4,rtos_internal_bss_size@l
+        bl rtos_internal_bss_init
+{{/do_bss_init}}
 
         /* Set HID0[DOZE] so that setting MSR[WE] in interrupt_event_wait will gate the DOZE output.
          * A context-synchronising instruction is required before and after mtspr HID0 by the e500 Reference Manual. */

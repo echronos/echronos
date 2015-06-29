@@ -5,7 +5,7 @@ Task name: zwIbyS-machine-p2020rdb-pca
 Version reviewed: 5accba1355bd7c27f66a3eb7e7a56acfb8d398d6
 Reviewer: ihor.kuz
 Date: 2015-06-16
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
@@ -13,8 +13,45 @@ Overall comments:
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: packages/ppce500/default.ld: 29
+Comment: [rework]
+Document the motivation behind the undefined section at 0.  There's some in the commit message, but I don't see it in the source.
 
-Location: filename:linenum
-Comment:
+Location: packages/machine-p2020rdb-pca/example/p2020-duart.c: 48
+Comment: [rework]
+duart1_tx_put() spins. Do we want this? If so, explicilty explain so (like done elsewhere for spinning code).
+
+Location: packages/machine-p2020rdb-pca/example/p2020-duart.c: various
+Comment: [rework]
+There are various magic numbers used in this file.  In most cases these should be consts (#defines).  e.g. *DUART_ULCR1 |= 0x80; could be *DUART_ULCR1 |= DLAB_SET;
+
+Location: packages/machine-p2020rdb-pca/example/p2020-util.c: 43
+Comment: [rework]
+rtos_internal_debug_putc(const char c) is an awkward recursive function.  It could be more readable as follows:
+	rtos_internal_debug_putc(const char c) {
+		if (c == '\r' || c == '\n') {
+			duart_putc('\n');
+			duart_putc('\r');
+		} else {
+			duart_putc( c);
+		}
+	}
+	duart_putc(const char c) {
+		static int inited = 0;
+		while (!duart1_tx_ready());
+		if (!initted) {
+			duart1_init();
+			initted = 1;
+		}
+		duart1_tx_put(c);
+	}
+
+
+Location: packages/machine-p2020rdb-pca/example/p2020-util.c:
+Comment: [rework]
+there are various magic numbers used.  In most cases these should be consts (#defines). e.g. #define PIC_REGISTER_BASE (CCSRBAR + 0x40000) could be #define PIC_REGISTER_BASE (CCSRBAR + PIC_REGISTER_OFFSET) 
+
+Location: components/context-switch-preempt-ppce500/implementation.c: 361
+Comment: [rework]
+mogic number: context[CONTEXT_SRR1_IDX] = current_msr | 0x8000;
+

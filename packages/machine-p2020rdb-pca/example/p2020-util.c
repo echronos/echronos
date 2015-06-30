@@ -39,11 +39,10 @@ machine_pic_init(void)
 }
 
 /* This is deliberately a busy-waiting use of DUART1 tx so that it doesn't rely on or generate any IRQs */
-void
-rtos_internal_debug_putc(const char c)
+static void
+duart_putc(const char c)
 {
     static int initted = 0;
-    static int recursion = 0;
 
     while (!duart1_tx_ready());
 
@@ -52,19 +51,18 @@ rtos_internal_debug_putc(const char c)
         initted = 1;
     }
 
-    /* Purely to be overly safe about the readability of debugging output, ensure every CR is preceded by a LF */
-    if (!recursion && c == '\r') {
-        recursion = 1;
-        rtos_internal_debug_putc('\n');
-        recursion = 0;
-    }
-
     duart1_tx_put(c);
+}
 
-    /* For similar reasons, ensure every LF is followed by a CR */
-    if (!recursion && c == '\n') {
-        recursion = 1;
-        rtos_internal_debug_putc('\r');
-        recursion = 0;
+void
+rtos_internal_debug_putc(const char c)
+{
+    /* Purely to be overly safe about the readability of debugging output, ensure that every CR is preceded by a LF,
+     * and every LF is followed by a CR. */
+    if (c == '\r' || c == '\n') {
+        duart_putc('\n');
+        duart_putc('\r');
+    } else {
+        duart_putc(c);
     }
 }

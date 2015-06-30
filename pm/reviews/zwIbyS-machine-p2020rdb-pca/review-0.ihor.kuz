@@ -50,6 +50,7 @@ rtos_internal_debug_putc(const char c) is an awkward recursive function.  It cou
 		duart1_tx_put(c);
 	}
 
+[robs: Fixed as suggested.]
 
 Location: packages/machine-p2020rdb-pca/example/p2020-util.c:
 Comment: [rework]

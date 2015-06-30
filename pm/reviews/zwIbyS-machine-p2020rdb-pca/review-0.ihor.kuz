@@ -17,6 +17,8 @@ Location: packages/ppce500/default.ld: 29
 Comment: [rework]
 Document the motivation behind the undefined section at 0.  There's some in the commit message, but I don't see it in the source.
 
+[robs: Done.]
+
 Location: packages/machine-p2020rdb-pca/example/p2020-duart.c: 48
 Comment: [rework]
 duart1_tx_put() spins. Do we want this? If so, explicilty explain so (like done elsewhere for spinning code).

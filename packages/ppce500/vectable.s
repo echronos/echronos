@@ -124,7 +124,9 @@
 {{/preemption}}
 
 .section .undefined, "a"
-/* This is here to catch unconfigured interrupts, or any other (deliberate or erroneous) jumps to address NULL. */
+/* This is here to catch unconfigured interrupts, or any other (deliberate or erroneous) jumps to address NULL.
+ * We put this in its own section because there are versions of U-Boot that throw away any sections they find that
+ * have address 0, in which case we prefer this to be thrown away rather than anything useful. */
 undefined:
         b undefined
 

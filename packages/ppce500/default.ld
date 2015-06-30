@@ -26,6 +26,7 @@ SECTIONS
 {
         rtos_internal_ro_start = .;
 
+        /* Some U-Boot builds discard sections at address 0, so separate this less useful section from .vectors */
         .undefined : AT ({{load_addr}})
         { *(.undefined) }
 

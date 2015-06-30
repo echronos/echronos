@@ -29,6 +29,8 @@ Location: packages/machine-p2020rdb-pca/example/p2020-duart.c: various
 Comment: [rework]
 There are various magic numbers used in this file.  In most cases these should be consts (#defines).  e.g. *DUART_ULCR1 |= 0x80; could be *DUART_ULCR1 |= DLAB_SET;
 
+[robs: Fixed]
+
 Location: packages/machine-p2020rdb-pca/example/p2020-util.c: 43
 Comment: [rework]
 rtos_internal_debug_putc(const char c) is an awkward recursive function.  It could be more readable as follows:
@@ -56,7 +58,10 @@ Location: packages/machine-p2020rdb-pca/example/p2020-util.c:
 Comment: [rework]
 there are various magic numbers used.  In most cases these should be consts (#defines). e.g. #define PIC_REGISTER_BASE (CCSRBAR + 0x40000) could be #define PIC_REGISTER_BASE (CCSRBAR + PIC_REGISTER_OFFSET) 
 
+[robs: Fixed]
+
 Location: components/context-switch-preempt-ppce500/implementation.c: 361
 Comment: [rework]
 mogic number: context[CONTEXT_SRR1_IDX] = current_msr | 0x8000;
 
+[robs: Fixed]

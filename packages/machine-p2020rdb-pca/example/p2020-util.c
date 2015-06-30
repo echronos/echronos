@@ -23,9 +23,13 @@
 #include <p2020-util.h>
 #include "p2020-duart.h"
 
+#define CCSRBAR_PIC_OFFSET 0x40000
+#define PIC_REGISTER_BASE (CCSRBAR + CCSRBAR_PIC_OFFSET)
+#define PIC_REGISTER_GCR_OFFSET 0x1020
+
 /* PIC registers are 32 bits wide */
-#define PIC_REGISTER_BASE (CCSRBAR + 0x40000)
-#define PIC_GCR (volatile uint32_t *)(PIC_REGISTER_BASE + 0x1020)
+#define PIC_GCR (volatile uint32_t *)(PIC_REGISTER_BASE + PIC_REGISTER_GCR_OFFSET)
+#define GCR_MIXED_MODE_SET 0x20000000
 
 /* Switch the PIC (Programmable Interrupt Controller) on the P2020 to "Mixed mode".
  * By default the PIC is in "Pass-through mode", but that routes the PCI Express 1's IRQA signal directly to the
@@ -35,7 +39,7 @@
 void
 machine_pic_init(void)
 {
-    *PIC_GCR = 0x20000000;
+    *PIC_GCR = GCR_MIXED_MODE_SET;
 }
 
 /* This is deliberately a busy-waiting use of DUART1 tx so that it doesn't rely on or generate any IRQs */

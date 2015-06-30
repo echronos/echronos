@@ -8,6 +8,9 @@
 #define PREEMPT_RESTORE_DISABLED 1
 #define PREEMPT_RESTORE_VOLATILES 2
 
+/* The 'external interrupts enable' (EE) bit of the PowerPC e500 machine state register (MSR) */
+#define PPCE500_MSR_EE_SET 0x8000
+
 /*
  * The unified stack frame structure used here both to preserve interrupted contexts and to implement context switch
  * on RTOS variants that support task preemption by interrupts is defined in vectable.s, and all magic numbers used in
@@ -358,7 +361,7 @@ context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack
     context[CONTEXT_SRR0_IDX] = (uint32_t) fn;
     /* Set MSR[EE] = 1 (interrupts enabled) initially for all tasks */
     asm volatile("mfmsr %0":"=r"(current_msr)::);
-    context[CONTEXT_SRR1_IDX] = current_msr | 0x8000;
+    context[CONTEXT_SRR1_IDX] = current_msr | PPCE500_MSR_EE_SET;
     context[CONTEXT_PREEMPT_RESTORE_STATUS] = PREEMPT_RESTORE_DISABLED | PREEMPT_RESTORE_VOLATILES;
     context[CONTEXT_BC_IDX] = (uint32_t) &init_context[CONTEXT_BC_IDX];
     *ctx = context;

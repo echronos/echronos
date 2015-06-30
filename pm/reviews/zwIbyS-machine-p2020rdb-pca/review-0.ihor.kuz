@@ -23,6 +23,8 @@ Location: packages/machine-p2020rdb-pca/example/p2020-duart.c: 48
 Comment: [rework]
 duart1_tx_put() spins. Do we want this? If so, explicilty explain so (like done elsewhere for spinning code).
 
+[robs: I think we don't necessarily not want this - I've documented its behavior in the .h file]
+
 Location: packages/machine-p2020rdb-pca/example/p2020-duart.c: various
 Comment: [rework]
 There are various magic numbers used in this file.  In most cases these should be consts (#defines).  e.g. *DUART_ULCR1 |= 0x80; could be *DUART_ULCR1 |= DLAB_SET;

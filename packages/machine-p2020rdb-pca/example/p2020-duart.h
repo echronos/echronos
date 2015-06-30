@@ -23,4 +23,7 @@
 
 void duart1_init(void);
 bool duart1_tx_ready(void);
+/* The tx_put() function should only be used if tx_ready() returns true.
+ * If ever called when the tx is not ready, tx_put() will spin until the tx becomes ready, then transmit the '@'
+ * character to indicate improper usage. */
 void duart1_tx_put(char c);

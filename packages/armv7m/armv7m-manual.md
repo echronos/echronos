@@ -86,7 +86,7 @@ The `trampolines` element should contain `trampoline` child elements, which defi
 
 Each `trampoline` element must be given a `name` child element.
 This should be a unique, valid C identifier.
-The name of the generated trampoline function will be `rtos_internal_exception_preempt_<name>`.
+The name of the generated trampoline function will be `exception_preempt_<name>`.
 
 #### `handler`
 

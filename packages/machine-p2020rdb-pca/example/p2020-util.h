@@ -21,4 +21,4 @@
 
 #define CCSRBAR {{ccsrbar|hex}}
 
-void rtos_internal_debug_putc(char c);
+void debug_putc(char c);

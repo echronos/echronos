@@ -197,15 +197,15 @@ rtos_internal_check_preempt_disabled:
 rtos_internal_yield:
         /* We implement manual context switch using ARM's SVC (supervisor call) exception.
          * Upon executing the 'svc' instruction, the CPU immediately takes a SVC exception and jumps to
-         * 'rtos_internal_svc_handler'. */
+         * 'svc_handler'. */
         svc #0
         bx lr
 .size rtos_internal_yield, .-rtos_internal_yield
 
-.global rtos_internal_svc_handler
-.type rtos_internal_svc_handler,#function
+.global svc_handler
+.type svc_handler,#function
 /* Implements the functionality of rtos_internal_yield. */
-rtos_internal_svc_handler:
+svc_handler:
         /* Jump to the end if no context switch is necessary, else put the new task id in r0 */
         asm_invoke_scheduler
         asm_current_task_get r12 r1
@@ -231,12 +231,12 @@ rtos_internal_svc_handler:
         asm_fp_regs_pop lr
 1:
         bx lr
-.size rtos_internal_svc_handler, .-rtos_internal_svc_handler
+.size svc_handler, .-svc_handler
 
-.global rtos_internal_pendsv_handler
-.type rtos_internal_pendsv_handler,#function
+.global pendsv_handler
+.type pendsv_handler,#function
 /* The PendSV exception implements preemption and is triggered when preemption is both enabled and pending. */
-rtos_internal_pendsv_handler:
+pendsv_handler:
         asm_preempt_clear r0 r1
 
         /* Jump to the end if no context switch is necessary, else put the new task id in r0 */
@@ -264,7 +264,7 @@ rtos_internal_pendsv_handler:
         asm_fp_regs_pop lr
 1:
         bx lr
-.size rtos_internal_pendsv_handler, .-rtos_internal_pendsv_handler
+.size pendsv_handler, .-pendsv_handler
 
 /**
  * Initial context switch to a task.

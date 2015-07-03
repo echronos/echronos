@@ -26,9 +26,9 @@
 .set reset_value, 0x05fa0004
 
 .section .vectors, "a"
-.global rtos_internal_vector_table
-rtos_internal_vector_table:
-        .word rtos_internal_stack
+.global vector_table
+vector_table:
+        .word stack
         .word entry
         .word {{nmi}}
         .word {{hardfault}}
@@ -42,7 +42,7 @@ rtos_internal_vector_table:
 {{#preemption}}{{#svcall}}.error "The SVCall vector is not available on preemption-supporting systems"{{/svcall}}
         /* On preemption-supporting systems, we use the SVCall vector to implement a manual context switch triggered
          * from inside the RTOS. */
-        .word rtos_internal_svc_handler
+        .word svc_handler
 {{/preemption}}{{^preemption}}
         /* On non-preemption-supporting systems, the SVCall vector defaults to 'reset' if not specified by the system
          * configuration. */
@@ -59,7 +59,7 @@ rtos_internal_vector_table:
 {{#preemption}}{{#pendsv}}.error "The PendSV vector is not available on preemption-supporting systems"{{/pendsv}}
         /* On preemption-supporting systems, we use the PendSV vector to implement task preemption triggered by an
          * exception handler. */
-        .word rtos_internal_pendsv_handler
+        .word pendsv_handler
 {{/preemption}}{{^preemption}}
         /* On non-preemption-supporting systems, the PendSV vector defaults to 'reset' if not specified by the system
          * configuration. */
@@ -95,9 +95,9 @@ Specifically, this loads the .data section from flash in to SRAM, and then zeros
 .type entry,#function
 entry:
         /* Load .data section */
-        ldr r0, =rtos_internal_data_load_addr
-        ldr r1, =rtos_internal_data_virt_addr
-        ldr r2, =rtos_internal_data_size
+        ldr r0, =data_load_addr
+        ldr r1, =data_virt_addr
+        ldr r2, =data_size
 1:      cbz r2, 2f
         ldm r0!, {r3}
         stm r1!, {r3}
@@ -106,8 +106,8 @@ entry:
 2:
 
         /* Zero .bss section */
-        ldr r1, =rtos_internal_bss_virt_addr
-        ldr r2, =rtos_internal_bss_size
+        ldr r1, =bss_virt_addr
+        ldr r2, =bss_size
         mov r3, #0
 1:      cbz r2, 2f
         stm r1!, {r3}

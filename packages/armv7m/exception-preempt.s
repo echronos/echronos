@@ -75,13 +75,13 @@ exception_return:
         bx lr
 
 {{#trampolines}}
-.global rtos_internal_exception_preempt_trampoline_{{name}}
-.type rtos_internal_exception_preempt_trampoline_{{name}},#function
-rtos_internal_exception_preempt_trampoline_{{name}}:
+.global exception_preempt_trampoline_{{name}}
+.type exception_preempt_trampoline_{{name}},#function
+exception_preempt_trampoline_{{name}}:
         /* Note: We don't care about saving the value of ip (it is scratch), but it is important to keep the stack
          * 8-byte aligned, so push it as a dummy */
         push {ip, lr}
         bl {{handler}}
         b trampoline_completion
-.size rtos_internal_exception_preempt_trampoline_{{name}}, .-rtos_internal_exception_preempt_trampoline_{{name}}
+.size exception_preempt_trampoline_{{name}}, .-exception_preempt_trampoline_{{name}}
 {{/trampolines}}

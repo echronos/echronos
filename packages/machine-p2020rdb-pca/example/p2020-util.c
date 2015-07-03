@@ -59,7 +59,7 @@ duart_putc(const char c)
 }
 
 void
-rtos_internal_debug_putc(const char c)
+debug_putc(const char c)
 {
     /* Purely to be overly safe about the readability of debugging output, ensure that every CR is preceded by a LF,
      * and every LF is followed by a CR. */

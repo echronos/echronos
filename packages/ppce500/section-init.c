@@ -22,7 +22,7 @@
 #include <stdint.h>
 
 void
-rtos_internal_bss_init(uint32_t *virt_addr, uint32_t size)
+bss_init(uint32_t *virt_addr, uint32_t size)
 {
     while (size >= 4) {
         *virt_addr = 0;

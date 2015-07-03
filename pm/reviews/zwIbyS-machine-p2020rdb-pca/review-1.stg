@@ -17,3 +17,5 @@ Location: packages/ppce500/section-init.c:26 and packages/ppce500/default.ld
 Comment 1: Rework
 Initializing the BSS segment and all other section-related loading functionality is functionality of a loader that makes the RTOS system image runnable, not functionality that needs to be provided by the RTOS itself.
 Please rename rtos_internal_bss_init() and the variables in the linker script with the same prefix it so that they do not have the rtos_internal_ prefix.
+
+[robs: Fixed by removing this prefix from all the names that don't refer to RTOS internals]

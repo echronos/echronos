@@ -1,4 +1,4 @@
-rtos_internal_entry () at out/machine-qemu-ppce500/example/kraz-system/ppce500.vectable.s:485
+entry () at out/machine-qemu-ppce500/example/kraz-system/ppce500.vectable.s:494
 485	        lis %r3,Reset_Handler@h
 Breakpoint 1 at 0xec0: file out/machine-qemu-ppce500/example/kraz-system/generic.debug.c, line 52.
 Breakpoint 2 at 0x1340: file packages/rtos-example/kraz-test.c, line 143.

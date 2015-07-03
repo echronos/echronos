@@ -853,20 +853,20 @@ noncrit_irq_common:
         rfi
 
 .section .text
-/* The rtos_internal_entry function initialises the C run-time and then jumps to main (which should never return!)
+/* The entry function initialises the C run-time and then jumps to main (which should never return!)
  * If this is not the first software to run on the board, whatever invokes this (e.g. the bootloader) must first take
  * the necessary steps to ensure that no interrupts are allowed to happen during the vector table initialization. */
-.global rtos_internal_entry
-.type rtos_internal_entry,STT_FUNC
-rtos_internal_entry:
+.global entry
+.type entry,STT_FUNC
+entry:
         /* Compile with -mno-sdata and -G 0 to disable all use of small data areas.
          * Zero the small data anchor registers for more predictable error behavior in case of use. */
         li %r13,0
         li %r2,0
 
         /* Init the stack pointer */
-        lis %sp,rtos_internal_stack@ha
-        ori %sp,%sp,rtos_internal_stack@l
+        lis %sp,stack@ha
+        ori %sp,%sp,stack@l
 
         /* IVPR, IVOR contents are indeterminate upon reset and must be initialized by system software.
          * IVPR[32-47] is the 16 bit address prefix of ALL interrupt vectors */
@@ -919,16 +919,16 @@ rtos_internal_entry:
 
         /* Both QEMU and U-Boot's bootelf take care of zeroing the .bss section and initializing the .data section.
          * In case the system is booted via a method that doesn't zero the .bss, set "do_bss_init" to "true" in the
-         * .prx config for this module to enable invocation of rtos_internal_bss_init (in section-init.c).
+         * .prx config for this module to enable invocation of bss_init (in section-init.c).
          * Other methods of booting than those listed above may require the addition of some similar code to
          * initialize the .data section from its load address. */
 {{#do_bss_init}}
         /* Zero .bss section */
-        lis %r3,rtos_internal_bss_virt_addr@ha
-        ori %r3,%r3,rtos_internal_bss_virt_addr@l
-        lis %r4,rtos_internal_bss_size@ha
-        ori %r4,%r4,rtos_internal_bss_size@l
-        bl rtos_internal_bss_init
+        lis %r3,bss_virt_addr@ha
+        ori %r3,%r3,bss_virt_addr@l
+        lis %r4,bss_size@ha
+        ori %r4,%r4,bss_size@l
+        bl bss_init
 {{/do_bss_init}}
 
         /* In case the system is booted via a method that doesn't init the PIC (Programmable Interrupt Controller),
@@ -946,7 +946,7 @@ rtos_internal_entry:
         isync
 
         b main
-.size rtos_internal_entry, .-rtos_internal_entry
+.size entry, .-entry
 
 {{#preemption}}
 /* On systems that support preemption, we implement manual context switch using PowerPC's system call interrupt.

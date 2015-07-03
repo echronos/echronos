@@ -36,20 +36,19 @@ SECTIONS
         .data :
         {
               *(.data)
-              *(.sdata)
               . = ALIGN(4);
         }
 
         .bss :
         {
              *(.bss)
-             *(.sbss)
              *(COMMON)
              . = ALIGN(4);
         }
 
         .stack : {
                . = . + {{stack_size}};
+               rtos_internal_stack = .;
         }
 
         /* Debug sections */

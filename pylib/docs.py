@@ -138,3 +138,11 @@ def build(args):
     components.build(args)
     for pkg_dir in _get_package_dirs(set(('docs.md',))):
         _build_doc(pkg_dir, args.topdir, args.verbose)
+
+
+def is_release_doc_file(filename):
+    return 'docs.pdf' in filename
+
+
+def is_nonrelease_doc_file(filename):
+    return 'docs' in filename and 'docs.pdf' not in filename

@@ -5,16 +5,12 @@ Task name: zwIbyS-machine-p2020rdb-pca
 Version reviewed: e25a4e7701bc2eb1359c449a83d4b2302df56693
 Reviewer: ihor.kuz
 Date: 2015-07-03
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
+For commit: e25a4e7701bc2eb1359c449a83d4b2302df56693
+With regards to the renaming (removing rtos_internal prefix) in some cases it's not clear to me what constitutes a part of the rtos and what is bsp (or user code). 
+In particular with the svc and pendsv handlers, that seems to be a critical part of the rtos, but is treated as bsp because it's an interrupt handler.
+Perhaps it would be good to add some note (in the task file? in the commit?) about the guidelines behind the changes.
 
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:

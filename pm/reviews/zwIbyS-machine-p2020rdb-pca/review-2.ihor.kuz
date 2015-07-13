@@ -14,3 +14,5 @@ With regards to the renaming (removing rtos_internal prefix) in some cases it's 
 In particular with the svc and pendsv handlers, that seems to be a critical part of the rtos, but is treated as bsp because it's an interrupt handler.
 Perhaps it would be good to add some note (in the task file? in the commit?) about the guidelines behind the changes.
 
+[robs: I've put the prefix back into svc_handler and pendsv_handler because I agree in that case.
+I'll talk about the reasoning for this (and use of "rtos_internal_" generally) in the commit message.]

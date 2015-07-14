@@ -59,6 +59,15 @@ The Machine P2020RDB-PCA package provides the following example systems for the 
   <dt>`kochab-sched-demo`</dt>
   <dd>A system demonstrating scheduling behavior on the Kochab variant.</dd>
 
+  <dt>`kochab-irq-demux-example`</dt>
+  <dd>A (Kochab) system demonstrating demultiplexing of external interrupts using the P2020 PIC, and their delivery to particular tasks using eChronos' `interrupt_event_raise()` API.</dd>
+
+  <dt>`kochab-irq-buffering-example`</dt>
+  <dd>A (Kochab) system demonstrating buffering of data between interrupt handler and task, with access to the data synchronized via some platform-specific method, as well as interrupt-driven receipt/transmission of data via the P2020 DUART.</dd>
+
+  <dt>`kochab-task-sync-example`</dt>
+  <dd>A (Kochab) system demonstrating transfer of data between two tasks, with access to the data synchronized using some eChronos API, as well as interrupt-driven receipt/transmission of data via the P2020 DUART.</dd>
+
   <dt>`phact-signal-demo`</dt>
   <dd>A system demonstrating signal functionality on the Phact variant.</dd>
 
@@ -73,6 +82,15 @@ The Machine P2020RDB-PCA package provides the following example systems for the 
 
   <dt>`phact-sched-demo`</dt>
   <dd>A system demonstrating scheduling behavior on the Phact variant.</dd>
+
+  <dt>`phact-irq-demux-example`</dt>
+  <dd>A (Phact) system demonstrating demultiplexing of external interrupts using the P2020 PIC, and their delivery to particular tasks using eChronos' interrupt_event_raise API.</dd>
+
+  <dt>`phact-irq-buffering-example`</dt>
+  <dd>A (Phact) system demonstrating buffering of data between interrupt handler and task, with access to the data synchronized via some platform-specific method, as well as interrupt-driven receipt/transmission of data via the P2020 DUART.</dd>
+
+  <dt>`phact-task-sync-example`</dt>
+  <dd>A (Phact) system demonstrating transfer of data between two tasks, with access to the data synchronized using some eChronos API, as well as interrupt-driven receipt/transmission of data via the P2020 DUART.</dd>
 </dl>
 
 The systems provided in this package build to ELF format, and can be booted on the Freescale P2020RDB-PCA board using its stock U-Boot image's `bootelf` command.
@@ -82,3 +100,78 @@ Note that you must manually disable interrupts in the bootloader before booting 
     => tftpboot
     => interrupts off
     => bootelf
+
+This package also contains the C code for the following P2020-specific example programs:
+
+<dl>
+  <dt>`interrupt-demux-example`</dt>
+  <dd>An example C program demonstrating demultiplexing of external interrupts using the P2020 PIC, and their delivery to particular tasks using eChronos' `interrupt_event_raise()` API.</dd>
+
+  <dt>`interrupt-buffering-example`</dt>
+  <dd>An example C program demonstrating buffering of data from interrupt handler to task, with access to the data synchronized via some platform-specific method, as well as interrupt-driven receipt/transmission of data via the P2020 DUART.</dd>
+
+  <dt>`task-sync-example`</dt>
+  <dd>An example C program demonstrating transfer of data from one task to another, with access to the data synchronized using some eChronos API, as well as interrupt-driven receipt/transmission of data via the P2020 DUART.</dd>
+</dl>
+
+To support code reuse across the above examples, this package also contains some P2020-specific "library" modules:
+
+<dl>
+  <dt>`p2020-util`</dt>
+  <dd>Implements `debug_putc()`, and allows the P2020's Configuration, Control, and Status Registers Base Address Register (CCSRBAR) value, needed to derive the base register addresses for other P2020 devices, to be specified by a single .prx configuration entry.</dd>
+
+  <dt>`p2020-duart`</dt>
+  <dd>Implements a limited driver interface for P2020's Dual Universal Asynchronous Receiver/Transmitters (DUARTs).</dd>
+
+  <dt>`p2020-pic`</dt>
+  <dd>Implements a limited driver interface for P2020's Programmable Interrupt Controller (PIC).</dd>
+</dl>
+
+
+`interrupt-demux-example`
+=========================
+
+This example program serves to demonstrate use of the P2020 PIC, as well as interrupt delivery to distinct tasks using eChronos' `interrupt_event_raise()` API.
+
+The program configures the following external interrupt sources, and handles them with the `exti_irq` function:
+- P2020 DUART1 RX (on the P2020RDB-PCA, this is the RJ45 port labelled "UART0")
+- P2020 DUART2 RX (on the P2020RDB-PCA, this is the RJ45 port labelled "UART1")
+- All 8 of the P2020 PIC' global timers, configured to occur at periods that are multiples of each other
+
+The program also configures the PowerPC e500 CPU's fixed interval timer, and handles it separately with the `tick_irq` function.
+
+Each distinct interrupt source will trigger an interrupt delivery to a distinct task running in the system.
+
+DUART1 TX is used for (busy-waiting) debug prints, and the program relies on these prints for demonstration purposes.
+Each task in the program will print its name whenever it receives a signal as a result of an interrupt event delivery.
+Furthermore, the interrupt handlers also print some information to give clues as to how the demuxing works.
+
+DUART2 TX is not used.
+
+
+`interrupt-buffering-example`
+=============================
+
+This example program functions as an echo server for characters typed into P2020's DUART2 device, and all use of DUART2 is interrupt-driven.
+The interrupt handler first buffers the data from DUART2's RX FIFO to a task, which then transmits the data via DUART2's TX FIFO.
+
+The program serves to demonstrate one possible way to synchronize the buffering of data from interrupt handler to task.
+Generally, this must rely on some platform-specific method, because interrupts are a platform-specific feature.
+In this implementation, we choose to synchronize the interrupt handler and task's concurrent access to the buffer by having the task disable interrupts using the `wrteei` instruction while it accesses the buffer.
+
+DUART1 is used only for (busy-waiting) debug prints for unexpected error cases.
+
+
+`task-sync-example`
+===================
+
+This example program functions as a kind of "reverse-echo" server for characters typed into P2020's DUART2 device.
+It extends the `interrupt-buffering-example` program by having a 1st task (A) wait for a "chunk" of data to arrive from the DUART2's RX FIFO before transferring it to a 2nd task (B), which then transmits the chunk via DUART2's TX FIFO with its characters reversed.
+Each chunk of data is delimited either by a carriage-return character, or by the MSG_SIZE, whichever comes first.
+Messages of zero size (i.e. consecutive carriage-return characters) are ignored.
+
+The program serves to demonstrate one possible way to synchronize the transfer of data between two tasks.
+In eChronos, this is possible using eChronos' synchronization primitives such as signals, mutexes, or semaphores.
+In this implementation, we choose to synchronize the two tasks' concurrent access to the shared data structure by having task A send RTOS_SIGNAL_ID_RX to task B when a chunk of data is ready for transmission, and task B send RTOS_SIGNAL_ID_TX to task A when it is ready to transmit another chunk.
+
+DUART1 is used only for (busy-waiting) debug prints for unexpected error cases.

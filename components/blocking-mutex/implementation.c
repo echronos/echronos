@@ -32,7 +32,7 @@ static struct mutex mutexes[{{mutexes.length}}] = {
     {TASK_ID_NONE},
 {{/mutexes}}
 };
-static MutexIdOption waiters[{{tasks.length}}] = {
+static MutexIdOption mutex_waiters[{{tasks.length}}] = {
 {{#tasks}}
     MUTEX_ID_NONE,
 {{/tasks}}
@@ -111,7 +111,7 @@ void
 {{#mutex.stats}}
         contended = true;
 {{/mutex.stats}}
-        waiters[get_current_task()] = m;
+        mutex_waiters[get_current_task()] = m;
         mutex_core_block_on(mutexes[m].holder);
     }
 
@@ -145,7 +145,7 @@ bool
     }
 {{/mutex.stats}}
     while (!ret && absolute_timeout > {{prefix_func}}timer_current_ticks) {
-        waiters[get_current_task()] = m;
+        mutex_waiters[get_current_task()] = m;
         mutex_core_block_on_timeout(mutexes[m].holder, absolute_timeout - {{prefix_func}}timer_current_ticks);
         ret = mutex_try_lock(m);
     }
@@ -176,9 +176,9 @@ void
 
     for (t = {{prefix_const}}TASK_ID_ZERO; t <= {{prefix_const}}TASK_ID_MAX; t++)
     {
-        if (waiters[t] == m)
+        if (mutex_waiters[t] == m)
         {
-            waiters[t] = MUTEX_ID_NONE;
+            mutex_waiters[t] = MUTEX_ID_NONE;
             mutex_core_unblock(t);
         }
     }

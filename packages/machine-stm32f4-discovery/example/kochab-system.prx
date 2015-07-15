@@ -35,7 +35,7 @@
     <module name="armv7m.vectable">
       <flash_load_addr>0x8000000</flash_load_addr>
       <preemption>true</preemption>
-      <systick>rtos_internal_exception_preempt_trampoline_systick</systick>
+      <systick>exception_preempt_trampoline_systick</systick>
     </module>
     <module name="armv7m.semihost-debug" />
     <module name="generic.debug" />
@@ -94,7 +94,8 @@
       </mutex>
     </module>
 
-    <module name="machine-stm32f4-discovery.example.kochab-test" />
+    <module name="machine-armv7m-common.example.machine-timer" />
+    <module name="rtos-example.kochab-test" />
 
   </modules>
 </system>

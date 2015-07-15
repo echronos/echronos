@@ -19,15 +19,8 @@
  * @TAG(NICTA_AGPL)
  */
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
-#include "rtos-acrux.h"
-#include "debug.h"
-
 void
-tick_irq(void)
+machine_timer_clear(void)
 {
     asm volatile(
         /* Write-1-to-clear:
@@ -36,84 +29,61 @@ tick_irq(void)
         "lis %%r3,0x400\n"
         "mttsr %%r3\n"
         ::: "r3");
+}
 
-    rtos_interrupt_event_raise(0);
+static void
+decrementer_clear(void)
+{
+    asm volatile(
+        /* Write-1-to-clear:
+         *   In TSR (timer status register)
+         *     TSR[DIS] (decrementer interrupt status) */
+        "lis %%r3,0x800\n"
+        "mttsr %%r3\n"
+        ::: "r3");
+}
+
+/* Useful primarily in case of bootloaders that make use of timer interrupts */
+void
+machine_timer_deinit(void)
+{
+    asm volatile(
+        "li %%r3,0\n"
+        "mttcr %%r3"
+        ::: "r3");
+
+    /* In case there are any decrementer interrupts pending, clear them */
+    decrementer_clear();
 }
 
 void
-fn_a(void)
+machine_timer_init(void)
 {
-    uint8_t count;
-    rtos_unblock(0);
-    rtos_unblock(1);
+    /* U-Boot has the decrementer on, so we turn this off here */
+    machine_timer_deinit();
 
-    debug_println("task a: taking lock");
-    rtos_mutex_lock(0);
-    rtos_yield();
-    if (rtos_mutex_try_lock(0))
-    {
-        debug_println("unexpected mutex not locked.");
-    }
-    debug_println("task a: releasing lock");
-    rtos_mutex_unlock(0);
-    rtos_yield();
-
-    for (count = 0; ; count++)
-    {
-        debug_println("task a");
-        if (count % 5 == 0)
-        {
-            debug_println("unblocking b");
-            rtos_unblock(1);
-        }
-        debug_println("task a blocking");
-        rtos_block();
-    }
-}
-
-void
-fn_b(void)
-{
-    uint8_t count;
-
-    debug_println("task b: attempting lock");
-    rtos_mutex_lock(0);
-    debug_println("task b: got lock");
-
-    for (count = 0; ; count++)
-    {
-        debug_println("task b");
-        if (count % 4 == 0)
-        {
-            debug_println("b blocking");
-            rtos_block();
-        }
-        else
-        {
-            rtos_yield();
-        }
-    }
-}
-
-int
-main(void)
-{
     /*
      * Configure a fixed interval timer
+     *
      * Enable:
      *  In TCR (timer control register)
      *    TCR[FIE] (fixed-interval interrupt enable)
-     *  In MSR (machine state register)
-     *    MSR[EE] (external enable) -> Note: this also enables other async interrupts
      *
      * Set period: TCR[FPEXT] || TCR[FP]
      */
     asm volatile(
+        /*
+         * 1 TB (time base) period occurs every 8 CCB periods (by default setting of HID0[SEL_TBCLK]=0).
+         *
+         * On P2020, CCB (Core Complex Bus) clock frequency ranges from 800MHz to 1.3GHz.
+         * 0x2810000 => 1000_10: TBL[33]: 30th bit from lsb: 2^30 = 1,073,741,824 TB periods
+         *      At 800MHz this is ~11s, and at 1.3GHz this is ~7s.
+         * 0x3810000 => 1000_11: TBL[34]: 29th bit from lsb: 2^29 ~ 3-5s
+         * 0x3812000 => 1001_11: TBL[38]: about 1/3 of a second
+         */
         "mftcr %%r3\n"
-        "oris %%r3,%%r3,0x380\n" /* 0x300 = TCR[FP], 0x80 = TCR[FIE] */
+        "oris %%r3,%%r3,0x381\n"
+        "ori %%r3,%%r3,0x2000\n"
         "mttcr %%r3"
         ::: "r3");
-
-    rtos_start();
-    for (;;) ;
 }

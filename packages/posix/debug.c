@@ -30,7 +30,7 @@ for now a work-around is provided. */
 #include <unistd.h>
 
 void
-rtos_internal_debug_putc(const char c)
+debug_putc(const char c)
 {
     ssize_t r;
     r = write(STDOUT_FILENO, &c, sizeof c);

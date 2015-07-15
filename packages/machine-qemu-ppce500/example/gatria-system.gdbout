@@ -1,4 +1,4 @@
-rtos_internal_entry () at out/machine-qemu-ppce500/example/gatria-system/ppce500.vectable.s:485
+entry () at out/machine-qemu-ppce500/example/gatria-system/ppce500.vectable.s:494
 485	        lis %r3,Reset_Handler@h
 Breakpoint 1 at 0xb6c: file out/machine-qemu-ppce500/example/gatria-system/generic.debug.c, line 52.
 Breakpoint 2 at 0xec8: file packages/rtos-example/gatria-test.c, line 90.

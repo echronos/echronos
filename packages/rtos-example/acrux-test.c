@@ -24,25 +24,14 @@
 #include <stdint.h>
 
 #include "rtos-acrux.h"
-
-extern void debug_println(const char *msg);
-
-#define SYST_CSR_REG 0xE000E010
-#define SYST_RVR_REG 0xE000E014
-#define SYST_CVR_REG 0xE000E018
-
-#define SYST_CSR_READ() (*((volatile uint32_t*)SYST_CSR_REG))
-#define SYST_CSR_WRITE(x) (*((volatile uint32_t*)SYST_CSR_REG) = x)
-
-#define SYST_RVR_READ() (*((volatile uint32_t*)SYST_RVR_REG))
-#define SYST_RVR_WRITE(x) (*((volatile uint32_t*)SYST_RVR_REG) = x)
-
-#define SYST_CVR_READ() (*((volatile uint32_t*)SYST_CVR_REG))
-#define SYST_CVR_WRITE(x) (*((volatile uint32_t*)SYST_CVR_REG) = x)
+#include "machine-timer.h"
+#include "debug.h"
 
 void
 tick_irq(void)
 {
+    machine_timer_clear();
+
     rtos_interrupt_event_raise(0);
 }
 
@@ -104,10 +93,7 @@ fn_b(void)
 int
 main(void)
 {
-    /* Set the systick reload value */
-    SYST_RVR_WRITE(0x000fffff);
-    SYST_CVR_WRITE(0);
-    SYST_CSR_WRITE((1 << 1) | 1);
+    machine_timer_init();
 
     rtos_start();
     for (;;) ;

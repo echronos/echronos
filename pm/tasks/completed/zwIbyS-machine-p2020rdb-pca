@@ -1,0 +1,36 @@
+Task: zwIbyS-machine-p2020rdb-pca
+==============================================================================
+
+Motivation
+----------
+
+We previously brought up all existing eChronos variants (minus Rigel and Phact) on the PowerPC e500 as emulated by QEMU.
+
+A customer wants eChronos working on a board based on the P2020 chip, which features dual e500 processor cores.
+eChronos is only required to run on core 0.
+
+In order to support the customer going forward we would like to bring up eChronos on the Freescale P2020RDB-PCA, which is an evaluation board also based on the P2020 chip.
+
+Due to project requirements, we would also like the Phact variant to work on this board.
+
+
+Goals
+--------
+
+Addition of a new package, machine-p2020rdb-pca, for the Freescale P20202RDB-PCA board.
+
+All RTOS variant example systems currently running on machine-qemu-ppce500 ported to machine-p2020rdb-pca and running booted with U-Boot 'bootelf'.
+
+Additionally, all Phact test systems currently running on machine-stm32f4-discovery ported to run on machine-p2020rdb-pca, also booted with U-Boot 'bootelf'.
+
+
+Test Plan
+---------
+
+Build system images in ELF format using prj.py build.
+
+Use the stock U-Boot firmware on the P2020RDB-PCA to load images via 'tftpboot' and run them with 'bootelf':
+
+    tftpboot path/to/img.elf
+    interrupts off
+    bootelf

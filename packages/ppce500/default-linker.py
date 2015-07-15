@@ -26,6 +26,7 @@ class DefaultLinkerModule(Module):
     # Default stack size value is arbitrary.
     xml_schema = """
 <schema>
+    <entry name="load_addr" type="int" default="0" />
     <entry name="stack_size" type="int" default="0x1000" />
 </schema>"""
 

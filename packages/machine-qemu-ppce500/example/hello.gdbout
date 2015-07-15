@@ -1,4 +1,4 @@
-rtos_internal_entry () at out/machine-qemu-ppce500/example/hello/ppce500.vectable.s:485
+entry () at out/machine-qemu-ppce500/example/hello/ppce500.vectable.s:494
 485	        lis %r3,Reset_Handler@h
 Breakpoint 1 at 0x620: file out/machine-qemu-ppce500/example/hello/generic.debug.c, line 52.
 Breakpoint 2 at 0x7e0: file out/machine-qemu-ppce500/example/hello/generic.hello.c, line 35.

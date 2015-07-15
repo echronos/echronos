@@ -1,0 +1,21 @@
+Task: nDyXX1-disambiguate-sem-mutex-waiters
+==============================================================================
+
+Motivation
+----------
+
+The "waiters" array is named "waiters" in both of the simple-semaphore and blocking-mutex components.
+
+Needless to say, this is potentially problematic for RTOS variants that use both components.
+
+
+Goals
+--------
+
+Rename the "waiters" arrays in simple-semaphore and blocking-mutex to disambiguate between the two structures.
+
+
+Test Plan
+---------
+
+Pass existing regression tests.

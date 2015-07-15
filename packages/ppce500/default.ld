@@ -21,35 +21,55 @@
 
 OUTPUT_FORMAT("elf32-powerpc", "elf32-powerpc", "elf32-powerpcle")
 OUTPUT_ARCH(powerpc)
-ENTRY(rtos_internal_entry)
+ENTRY(entry)
 SECTIONS
 {
-        .vectors :
+        ro_start = .;
+
+        /* Some U-Boot builds discard sections at address 0, so separate this less useful section from .vectors */
+        .undefined : AT ({{load_addr}})
+        { *(.undefined) }
+
+        .vectors : AT (LOADADDR(.undefined) + SIZEOF(.undefined))
         { *(.vectors) }
 
-        .text :
+        .text : AT (LOADADDR(.vectors) + SIZEOF(.vectors))
         { *(.text.startup) *(.text) }
 
-        .rodata :
+        .rodata : AT (LOADADDR (.text) + SIZEOF(.text))
         { *(.rodata*) }
 
-        .data :
+        ro_end = ALIGN(4);
+
+        . = ALIGN(4);
+        .data : AT ({{load_addr}} + (ro_end - ro_start))
         {
               *(.data)
-              *(.sdata)
               . = ALIGN(4);
         }
+
+        data_load_addr = LOADADDR(.data);
+        data_virt_addr = ADDR(.data);
+        data_size = . - ADDR(.data);
+
+        /* Check addresses are correct */
+        dummy = ASSERT(data_load_addr % 4 == 0, "data_load_addr not word aligned");
+        dummy = ASSERT(data_virt_addr % 4 == 0, "data_virt_addr not word aligned");
+        dummy = ASSERT(data_size % 4 == 0, "data_size not word aligned");
 
         .bss :
         {
              *(.bss)
-             *(.sbss)
              *(COMMON)
              . = ALIGN(4);
         }
 
+        bss_virt_addr = ADDR(.bss);
+        bss_size = SIZEOF(.bss);
+
         .stack : {
                . = . + {{stack_size}};
+               stack = .;
         }
 
         /* Debug sections */

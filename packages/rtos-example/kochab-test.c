@@ -24,7 +24,18 @@
 #include <stdint.h>
 
 #include "rtos-kochab.h"
+#include "machine-timer.h"
 #include "debug.h"
+
+bool
+tick_irq(void)
+{
+    machine_timer_clear();
+
+    rtos_interrupt_event_raise(RTOS_INTERRUPT_EVENT_ID_TICK);
+
+    return true;
+}
 
 void
 fatal(const RtosErrorId error_id)
@@ -89,6 +100,8 @@ fn_b(void)
 int
 main(void)
 {
+    machine_timer_init();
+
     debug_println("Starting RTOS");
     rtos_start();
     /* Should never reach here, but if we do, an infinite loop is

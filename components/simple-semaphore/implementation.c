@@ -26,7 +26,7 @@ static bool internal_sem_try_wait(const {{prefix_type}}SemId s);
 
 /*| state |*/
 static struct semaphore semaphores[{{semaphores.length}}];
-static SemIdOption waiters[{{tasks.length}}];
+static SemIdOption sem_waiters[{{tasks.length}}];
 
 /*| function_like_macros |*/
 #define assert_sem_valid(sem) api_assert(sem < {{semaphores.length}}, ERROR_ID_INVALID_ID)
@@ -39,7 +39,7 @@ sem_init(void)
 
     for (t = {{prefix_const}}TASK_ID_ZERO; t <= {{prefix_const}}TASK_ID_MAX; t++)
     {
-        waiters[t] = SEM_ID_NONE;
+        sem_waiters[t] = SEM_ID_NONE;
     }
 }
 
@@ -71,7 +71,7 @@ void
 
     while (!internal_sem_try_wait(s))
     {
-        waiters[get_current_task()] = s;
+        sem_waiters[get_current_task()] = s;
         sem_core_block();
     }
 
@@ -91,7 +91,7 @@ bool
     preempt_disable();
 
     while (!(ret = internal_sem_try_wait(s)) && absolute_timeout > {{prefix_func}}timer_current_ticks) {
-        waiters[get_current_task()] = s;
+        sem_waiters[get_current_task()] = s;
         sem_core_block_timeout(absolute_timeout - {{prefix_func}}timer_current_ticks);
     }
 
@@ -122,9 +122,9 @@ void
     {
         for (t = {{prefix_const}}TASK_ID_ZERO; t <= {{prefix_const}}TASK_ID_MAX; t++)
         {
-            if (waiters[t] == s)
+            if (sem_waiters[t] == s)
             {
-                waiters[t] = SEM_ID_NONE;
+                sem_waiters[t] = SEM_ID_NONE;
                 sem_core_unblock(t);
             }
         }

@@ -23,6 +23,8 @@
   <code_gen>template</code_gen>
   <schema>
     <entry name="preemption" type="bool" optional="true" default="false" />
+    <entry name="do_bss_init" type="bool" optional="true" default="false" />
+    <entry name="do_pic_init" type="bool" optional="true" default="false" />
     <entry name="machine_check" type="dict" optional="true">
         <entry name="handler" type="c_ident" />
     </entry>
@@ -106,6 +108,10 @@
  * Alternatively, setting the handler to "undefined" will generate a handler that first creates a stack frame for the
  * interrupted context and stores its registers there before looping forever at the label "undefined".
  * When an explicit handler is given, it MUST be responsible for clearing the condition that caused its interrupt.
+ *
+ * Note that the RTOS only enables and disables noncritical interrupts.
+ * Projects that define handlers for critical and machine-check interrupts are expected to enable or disable them
+ * appropriately.
  */
 
 {{#preemption}}
@@ -117,8 +123,10 @@
  */
 {{/preemption}}
 
-.section .vectors, "a"
-/* This is here to catch unconfigured interrupts, or any other (deliberate or erroneous) jumps to address NULL. */
+.section .undefined, "a"
+/* This is here to catch unconfigured interrupts, or any other (deliberate or erroneous) jumps to address NULL.
+ * We put this in its own section because there are versions of U-Boot that throw away any sections they find that
+ * have address 0, in which case we prefer this to be thrown away rather than anything useful. */
 undefined:
         b undefined
 
@@ -395,6 +403,7 @@ undefined:
  * The order of placement of these vectors in this file is arbitrary.
  */
 .align 8
+.section .vectors, "a"
 {{#machine_check}}
 mchk_vector:
         create_irq_frame_set_r3 {{machine_check.handler}}
@@ -844,23 +853,24 @@ noncrit_irq_common:
         rfi
 
 .section .text
-/* The rtos_internal_entry function initialises the C run-time and then jumps to main (which should never return!)
- * If there is a Reset_Handler function defined, then this will be invoked.
- * It should never return. */
-.weak Reset_Handler
-.global rtos_internal_entry
-.type rtos_internal_entry,STT_FUNC
-rtos_internal_entry:
-        /* If there is a Reset_Handler call it - it shouldn't return. */
-        lis %r3,Reset_Handler@h
-        ori %r3,%r3,Reset_Handler@l
-        cmpi 0,%r3,0
-        beq 1f
-        b Reset_Handler
-1:
+/* The entry function initialises the C run-time and then jumps to main (which should never return!)
+ * If this is not the first software to run on the board, whatever invokes this (e.g. the bootloader) must first take
+ * the necessary steps to ensure that no interrupts are allowed to happen during the vector table initialization. */
+.global entry
+.type entry,STT_FUNC
+entry:
+        /* Compile with -mno-sdata and -G 0 to disable all use of small data areas.
+         * Zero the small data anchor registers for more predictable error behavior in case of use. */
+        li %r13,0
+        li %r2,0
+
+        /* Init the stack pointer */
+        lis %sp,stack@ha
+        ori %sp,%sp,stack@l
+
         /* IVPR, IVOR contents are indeterminate upon reset and must be initialized by system software.
-         * IVPR is the 16 bit address prefix of ALL interrupt vectors */
-        li %r3,0
+         * IVPR[32-47] is the 16 bit address prefix of ALL interrupt vectors */
+        lis %r3,0
         mtivpr %r3
 
         /* IVORs only have the lower 16 bits (excluding bottom 4) of each vector */
@@ -907,6 +917,26 @@ rtos_internal_entry:
         li %r3,eis_perfmon_vector@l
         mtivor35 %r3
 
+        /* Both QEMU and U-Boot's bootelf take care of zeroing the .bss section and initializing the .data section.
+         * In case the system is booted via a method that doesn't zero the .bss, set "do_bss_init" to "true" in the
+         * .prx config for this module to enable invocation of bss_init (in section-init.c).
+         * Other methods of booting than those listed above may require the addition of some similar code to
+         * initialize the .data section from its load address. */
+{{#do_bss_init}}
+        /* Zero .bss section */
+        lis %r3,bss_virt_addr@ha
+        ori %r3,%r3,bss_virt_addr@l
+        lis %r4,bss_size@ha
+        ori %r4,%r4,bss_size@l
+        bl bss_init
+{{/do_bss_init}}
+
+        /* In case the system is booted via a method that doesn't init the PIC (Programmable Interrupt Controller),
+         * set "do_pic_init" to "true" in this module's .prx config to enable invocation of machine_pic_init. */
+{{#do_pic_init}}
+        bl machine_pic_init
+{{/do_pic_init}}
+
         /* Set HID0[DOZE] so that setting MSR[WE] in interrupt_event_wait will gate the DOZE output.
          * A context-synchronising instruction is required before and after mtspr HID0 by the e500 Reference Manual. */
         mfspr %r3,1008
@@ -915,15 +945,8 @@ rtos_internal_entry:
         mtspr 1008,%r3
         isync
 
-{{^preemption}}
-        /* The RTOS only enables and disables noncritical interrupts.
-         * Projects that define handlers for critical and machine-check interrupts are expected to enable or disable
-         * them appropriately. */
-        wrteei 1
-{{/preemption}}
-
         b main
-.size rtos_internal_entry, .-rtos_internal_entry
+.size entry, .-entry
 
 {{#preemption}}
 /* On systems that support preemption, we implement manual context switch using PowerPC's system call interrupt.

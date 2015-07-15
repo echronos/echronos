@@ -90,7 +90,8 @@
 
     </module>
 
-    <module name="machine-qemu-ppce500.example.kochab-test" />
+    <module name="machine-qemu-ppce500.example.machine-timer" />
+    <module name="rtos-example.kochab-test" />
 
   </modules>
 </system>

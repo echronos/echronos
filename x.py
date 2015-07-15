@@ -123,7 +123,7 @@ CORE_CONFIGURATIONS = {"posix": ["sched-rr-test", "sched-prio-inherit-test", "si
                                  "blocking-mutex-test", "simple-semaphore-test", "sched-prio-test",
                                  "acamar", "gatria", "kraz"],
                        "armv7m": ["acamar", "gatria", "kraz", "acrux", "rigel", "kochab", "phact"],
-                       "ppce500": ["acamar", "gatria", "kraz", "acrux", "kochab"],
+                       "ppce500": ["acamar", "gatria", "kraz", "acrux", "kochab", "phact"],
                        "stub": ["acamar", "gatria", "kraz", "acrux", "rigel", "kochab", "phact"]}
 
 CORE_SKELETONS = {

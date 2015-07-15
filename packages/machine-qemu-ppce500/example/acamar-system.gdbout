@@ -1,4 +1,4 @@
-rtos_internal_entry () at out/machine-qemu-ppce500/example/acamar-system/ppce500.vectable.s:485
+entry () at out/machine-qemu-ppce500/example/acamar-system/ppce500.vectable.s:494
 485	        lis %r3,Reset_Handler@h
 Breakpoint 1 at 0x800: file out/machine-qemu-ppce500/example/acamar-system/generic.debug.c, line 52.
 Breakpoint 2 at 0xa18: file packages/rtos-example/acamar-test.c, line 52.

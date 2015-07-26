@@ -20,6 +20,6 @@
  */
 
 void
-rtos_internal_debug_putc(char c)
+debug_putc(char c)
 {
 }

@@ -234,75 +234,34 @@ def style(args):
 @subcmd(cmd="test", help='Check that all files have the appropriate license header',
         args=(Arg('--excludes', nargs='*', help="Exclude directories from license header checks", default=[]),))
 def licenses(args):
-    excludes = args.excludes + [
-        '.git',
-        '.gitignore',
-        'external_tools',
-        'tools',
-        'pm',
-        'provenance',
-        'out',
-        'release',
-    ]
     files_without_license = []
     files_unknown_type = []
 
-    for top_file in [f for f in os.listdir() if os.path.isfile(f) and f not in excludes]:
-        # Check setenv as a shell script and expect shell-style comment format for .pylintrc
-        if top_file == 'setenv' or top_file == '.pylintrc':
-            agpl_sentinel = _LicenseOpener._agpl_sentinel('.sh')
-        else:
-            ext = os.path.splitext(top_file)[1]
-            try:
-                agpl_sentinel = _LicenseOpener._agpl_sentinel(ext)
-            except _LicenseOpener.UnknownFiletypeException:
-                files_unknown_type.append(top_file)
-                continue
-
-        if agpl_sentinel is not None:
-            f = open(top_file, 'rb')
-            old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
-            if not sentinel_found:
-                files_without_license.append(top_file)
-            f.close()
-
-    for top_subdir in [f for f in os.listdir() if os.path.isdir(f) and f not in excludes]:
-        # Ignore prj_build*
-        if top_subdir.startswith('prj_build'):
-            continue
-
-        for dirpath, subdirs, files in os.walk(top_subdir):
-            # Ignore prj/app
-            if os.path.basename(dirpath) == 'prj' and 'app' in subdirs:
-                subdirs.remove('app')
-
-            # Ignore docs/manual_template
-            if os.path.basename(dirpath) == 'docs' and 'manual_template' in subdirs:
-                subdirs.remove('manual_template')
-
-            # Ignore packages/*/rtos-*
-            if dirpath.startswith('packages') and len(dirpath.split('/')) == 2:
-                for d in [d for d in subdirs if d.startswith('rtos-')]:
-                    subdirs.remove(d)
-
-            for file_path in [os.path.join(dirpath, f) for f in files]:
-                ext = os.path.splitext(file_path)[1]
-
-                # Ignore component C, header, XML, and Markdown files that will be composed by x.py into RTOS packages
-                if top_subdir == "components" and ext in ['.c', '.h', '.xml', '.md']:
-                    continue
-
-                try:
-                    agpl_sentinel = _LicenseOpener._agpl_sentinel(ext)
-                except _LicenseOpener.UnknownFiletypeException:
-                    files_unknown_type.append(file_path)
-                    continue
+    sep = os.path.sep
+    if sep == '\\':
+        sep = '\\\\'
+    pattern = re.compile('\.git|components{0}.*\.(c|h|xml|md)$|external_tools{0}|pm{0}|prj{0}app{0}(ply|pystache){0}|provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|packages{0}[^{0}]+{0}rtos-|.*__pycache__'.format(sep))
+    fixme = os.getcwd()
+    for dirpath, subdirs, files in os.walk(fixme):
+        for file_name in files:
+            path = os.path.relpath(os.path.join(dirpath, file_name), fixme)
+            if not pattern.match(path):
+                # Check setenv as a shell script and expect shell-style comment format for .pylintrc
+                if path in ('setenv', '.pylintrc'):
+                    agpl_sentinel = _LicenseOpener._agpl_sentinel('.sh')
+                else:
+                    ext = os.path.splitext(file_name)[1]
+                    try:
+                        agpl_sentinel = _LicenseOpener._agpl_sentinel(ext)
+                    except _LicenseOpener.UnknownFiletypeException:
+                        files_unknown_type.append(path)
+                        continue
 
                 if agpl_sentinel is not None:
-                    f = open(file_path, 'rb')
+                    f = open(path, 'rb')
                     old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
                     if not sentinel_found:
-                        files_without_license.append(file_path)
+                        files_without_license.append(path)
                     f.close()
 
     if len(files_without_license):

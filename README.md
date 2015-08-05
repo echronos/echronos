@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ## Overview
 
-eChronos is a real-time operating system (RTOS) developed by NICTA and Breakaway Consulting.
+eChronos is a real-time operating system (RTOS) developed by NICTA and Breakaway Consulting Pty. Ltd.
 
 It is intended for tightly resource-constrained devices without memory protection.
 To this end, the eChronos code base is designed to be highly modular and configurable on multiple levels, so that only the minimal amount of code necessary is ever compiled into a given system image.

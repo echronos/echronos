@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 @TAG(NICTA_DOC_AGPL)
   -->
 
-%title Breakaway Project Manager
+%title Project Manager
 %docid 5xDTZm
 %version 1-draft1
 
@@ -27,8 +27,8 @@ Introduction
 --------------
 
 Successfully completing a firmware project requires more than just a suitable RTOS kernel.
-Bundled with the Breakaway RTOS kernel is a tool that is recommended for managing projects that incorporate the kernel.
-This document describes how to use the Breakaway Project Manager tool, called **prj**, to help manage your firmware project.
+Bundled with the RTOS kernel is a tool that is recommended for managing projects that incorporate the kernel.
+This document describes how to use the Project Manager tool, called **prj**, to help manage your firmware project.
 
 
 Concepts

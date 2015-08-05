@@ -19,10 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 @TAG(NICTA_DOC_AGPL)
   -->
 
-Contributing to eChronos
-========================
+Contributing to the eChronos RTOS
+=================================
 
-We welcome contributions to eChronos.
+We welcome contributions to the eChronos RTOS.
 However, in order for us to be able to review and integrate your contributions in accordance with our internal processes, we do not accept pull requests on GitHub.
 Please instead follow the process detailed below.
 

@@ -10,7 +10,7 @@ Building on the original preemption mechanism, the Kochab RTOS variant was proto
 
 Later, Benno reimplemented the ARMv7-M preemption mechanism to use the PendSV exception, which resolved some issues encountered during SMACCM development.
 
-Merging this preemption mechanism back into echronos-core will allow the Kochab variant to be built for ARMv7-M, and a big step closer to eliminating the divergence between echronos-core and the SMACCM eChronos development head.
+Merging this preemption mechanism back into the RTOS core repository will allow the Kochab variant to be built for ARMv7-M, and a big step closer to eliminating the divergence between the RTOS core repository and the SMACCM development head.
 
 
 Goals

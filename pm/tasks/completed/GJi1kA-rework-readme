@@ -8,7 +8,7 @@ The top-level README file is out of date and is more targeted towards internal u
 
 We need to rework this so that it targets external parties coming across the code base for the first time via GitHub.
 
-We might also need to add something that describes how external parties can contribute to eChronos.
+We might also need to add something that describes how external parties can contribute to the RTOS.
 
 
 Goals
@@ -16,7 +16,7 @@ Goals
 
 Rework the top-level README so it is adequately informative for external parties accessing the repo via GitHub.
 
-Add a notice explaining the process for external parties to contribute to eChronos.
+Add a notice explaining the process for external parties to contribute to the RTOS.
 
 
 Test Plan

@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 @TAG(NICTA_DOC_AGPL)
   -->
 
-All files in the eChronos distribution (including those not containing an explicit license statement, and including all files in the git history) are released under the AGPLv3 license (see "LICENSE_AGPLv3.txt" for details), with the exception of:
+All files in the RTOS distribution (including those not containing an explicit license statement, and including all files in the git history) are released under the AGPLv3 license (see "LICENSE_AGPLv3.txt" for details), with the exception of:
 
 - files in the tools/ and external_tools/ subdirectories.
 These subdirectories contain precompiled tools that have been released under other licenses, as documented in the provenence/ directory.

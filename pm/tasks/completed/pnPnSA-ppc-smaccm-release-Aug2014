@@ -10,7 +10,7 @@ NICTA has a preliminary release due for a SMACCM partner today, which needs to i
 Goals
 --------
 
-Make cleanups and documentation fixes for release of PowerPC e500 port of eChronos to date.
+Make cleanups and documentation fixes for release of PowerPC e500 port of the RTOS to date.
 This includes moving the ppce500 example systems to their own, machine-qemu-ppce500 package.
 
 

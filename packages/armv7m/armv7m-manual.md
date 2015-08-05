@@ -58,21 +58,21 @@ It is recommended that the vectable module is used to provide a functional linke
 `armv7m.ctxt-switch`
 ====================
 
-The `armv7m.ctxt-switch` module implements the low-level context switching operation for non-preemptive variants of eChronos.
+The `armv7m.ctxt-switch` module implements the low-level context switching operation for non-preemptive RTOS variants.
 
 This module does not have any configuration options, however as the RTOS depends on this module it must always be included in any system description that uses a non-preemptive RTOS variant.
 
 `armv7m.ctxt-switch-preempt`
 ============================
 
-The `armv7m.ctxt-switch-preempt` module implements the low-level context switching operation for preemptive variants of eChronos.
+The `armv7m.ctxt-switch-preempt` module implements the low-level context switching operation for preemptive RTOS variants.
 
 This module does not have any configuration options, however as the RTOS depends on this module it must always be included in any system description that uses a preemptive RTOS variant.
 
 `armv7m.exception-preempt`
 ==========================
 
-The `armv7m.exception-preempt` module implements the low-level preemption mechanism for preemptive variants of eChronos.
+The `armv7m.exception-preempt` module implements the low-level preemption mechanism for preemptive RTOS variants.
 It also provides a means of generating trampoline code for exception handlers that the system designer wishes to be able to cause preemption.
 These can then be installed as an exception vectors (using the `armv7m.vectable` module).
 

@@ -4,9 +4,15 @@ Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
-the Free Software Foundation, version 3, provided that no right, title
-or interest in or to any trade mark, service mark, logo or trade name
-of NICTA or its licensors is granted.
+the Free Software Foundation, version 3, provided that these additional
+terms apply under section 7:
+
+  No right, title or interest in or to any trade mark, service mark, logo
+  or trade name of of National ICT Australia Limited, ABN 62 102 206 173
+  ("NICTA") or its licensors is granted. Modified versions of the Program
+  must be plainly marked as such, and must not be distributed using
+  "eChronos" as a trade mark or product name, or misrepresented as being
+  the original Program.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -28,12 +34,8 @@ Please instead follow the process detailed below.
 
 For filing issues, please visit https://github.com/echronos/echronos/issues.
 
-All contributions will need to be accompanied with a scan of a signed copy of the Contributor License Agreement.
-This agreement certifies:
+For contributing to the eChronos repository, please send your contributions as patches in plain text form with a changelog (use `git format-patch`) to `echronos AT nicta.com.au`.
 
-* That you have rights to give us the contribution, and
-* That you give us the rights to use your contribution
+All contributions to the repository will need to be accompanied by a scan of a signed copy of the [eChronos Contributor Assignment Agreement][1].
 
-For a copy of this agreement, please contact us at `echronos AT nicta.com.au`.
-
-Please send your contributions as patches in plain text form with a changelog (use `git format-patch`) to `echronos AT nicta.com.au`.
+[1]: http://ssrg.nicta.com.au/projects/TS/echronos/CAA.pdf

@@ -1,0 +1,19 @@
+Task: 40PR44-update_support_for_client_repositories
+==============================================================================
+
+Motivation
+----------
+
+With recent changes to x.py, its support for client repositories has fallen behind and some commands no longer work.
+
+
+Goals
+--------
+
+- ensure that all x.py commands work when invoked from a client repository
+
+
+Test Plan
+---------
+
+- regression tests in client repositories

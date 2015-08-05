@@ -35,7 +35,7 @@ def run(system, configuration=None):
 
 
 def system_build(system, configuration):
-    inc_path_args = ['-I%s' % i for i in system.include_paths + [os.path.abspath('packages/stub')]]
+    inc_path_args = ['-I%s' % i for i in system.include_paths + [os.path.abspath(os.path.join('packages', 'stub'))]]
 
     if len(system.c_files) == 0:
         raise SystemBuildError("Zero C files in system definition")

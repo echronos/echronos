@@ -236,3 +236,10 @@ eChronos comes in a number of different *flavors*, each of varying complexity, c
 The RTOS flavor *kochab* supports tasks, priority scheduling, mutexes with priority inheritance, semaphores, signals, and interrupt events which can cause task preemption and trigger the sending of signals.
 
 For more information including configuration options, please see `share/packages/ppce500/rtos-kochab/documentation.pdf`.
+
+Acknowledgements
+----------------
+
+This material is based on research sponsored by the Air Force Research Laboratory and the Defense Advanced Research Projects Agency (DARPA) under agreement number FA8750-12-9-0179. 
+The U.S. Government is authorised to reproduce and distribute reprints for Governmental purposes notwithstanding any copyright notation thereon.
+The views and conclusions contained herein are those of the authors and should not be interpreted as necessarily representing the official policies or endorsements, either express or implied, of Air Force Research Laboratory, the Defense Advanced Research Projects Agency or the U.S. Government.

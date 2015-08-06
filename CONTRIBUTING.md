@@ -34,7 +34,7 @@ Please instead follow the process detailed below.
 
 For filing issues, please visit https://github.com/echronos/echronos/issues.
 
-For contributing to the eChronos repository, please send your contributions as patches in plain text form with a changelog (use `git format-patch`) to `echronos AT nicta.com.au`.
+To contribute to the eChronos repository, please send your contributions as patches in plain text form with a changelog (use `git format-patch`) to `echronos AT nicta.com.au`.
 
 All contributions to the repository will need to be accompanied by a scan of a signed copy of the [eChronos Contributor Assignment Agreement][1].
 

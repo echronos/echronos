@@ -17,5 +17,5 @@ Also develop support for projects to specify their own interrupt handlers via th
 Test Plan
 ---------
 
-Use x.py to build the eChronos-smaccm-ppc release, and use prj to build module ppc.example.acrux-system.
+Use x.py to build the SMACCM PPC release, and use prj to build module ppc.example.acrux-system.
 Run on qemu-ppc with GDB attached, and breakpoints set at debug_println, tick_irq, and interrupt_event_wait.

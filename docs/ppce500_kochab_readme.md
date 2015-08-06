@@ -25,16 +25,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 @TAG(NICTA_DOC_AGPL)
   -->
 
-eChronos README
-===============
+README
+======
 
 Overview
 --------
 
-The eChronos release contains a tool `prj` which is used for configuring the RTOS and (optionally) building systems based on the RTOS.
+The RTOS release contains a tool `prj` which is used for configuring the RTOS and (optionally) building systems based on the RTOS.
 The `prj` tool can be found in the `x86_64-unknown-linux-gnu/bin` directory.
 
-eChronos itself is organised as a series of packages stored in the `share/packages` directory.
+The RTOS itself is organised as a series of packages stored in the `share/packages` directory.
 These are described in the following sections, and in further detail in their respective manual files.
 
 For completeness, `LICENSE` contains the license under which this release is made available and `build_info` contains the specific build information used to uniquely identify the release.
@@ -42,7 +42,7 @@ For completeness, `LICENSE` contains the license under which this release is mad
 Installation
 -------------
 
-To install eChronos simply extract the release archive in to a suitable location.
+To install the RTOS, simply extract the release archive in to a suitable location.
 This can either be within a specific project directory, (e.g: `project/echronos`) or in a more general location (e.g: ~/local/echronos).
 
 The `prj` binary is used to configure the RTOS, so should be installed somewhere such that it is convenient to use.
@@ -237,7 +237,7 @@ The default stack size is 4KiB (0x1000).
 `ppce500.rtos-kochab`
 ----------------------
 
-eChronos comes in a number of different *flavors*, each of varying complexity, code size and feature set.
+The RTOS comes in a number of different *flavors*, each of varying complexity, code size and feature set.
 
 The RTOS flavor *kochab* supports tasks, priority scheduling, mutexes with priority inheritance, semaphores, signals, and interrupt events which can cause task preemption and trigger the sending of signals.
 

@@ -55,19 +55,19 @@ It provides the following modules:
   <dd>A module that provides the *low-level debug* interface.</dd>
 
   <dt>`rtos-acamar`</dt>
-  <dd>A variant of eChronos that supports context switching between tasks via `yield_to()`.</dd>
+  <dd>An RTOS variant that supports context switching between tasks via `yield_to()`.</dd>
 
   <dt>`rtos-gatria`</dt>
-  <dd>A variant of eChronos that supports round-robin scheduling, `yield()`, `block()`, `unblock()`, and mutexes.</dd>
+  <dd>An RTOS variant that supports round-robin scheduling, `yield()`, `block()`, `unblock()`, and mutexes.</dd>
 
   <dt>`rtos-kraz`</dt>
-  <dd>A variant of eChronos that supports round-robin scheduling, `yield()`, mutexes, and signals.</dd>
+  <dd>An RTOS variant that supports round-robin scheduling, `yield()`, mutexes, and signals.</dd>
 
   <dt>`rtos-acrux`</dt>
-  <dd>A variant of eChronos that supports round-robin scheduling, interrupt events, `yield()`, `block()`, `unblock()`, and mutexes.</dd>
+  <dd>An RTOS variant that supports round-robin scheduling, interrupt events, `yield()`, `block()`, `unblock()`, and mutexes.</dd>
 
   <dt>`rtos-kochab`</dt>
-  <dd>A variant of eChronos that supports priority scheduling, mutexes with priority inheritance, semaphores, signals, and interrupts that cause task preemption and trigger the sending of signals.</dd>
+  <dd>An RTOS variant that supports priority scheduling, mutexes with priority inheritance, semaphores, signals, and interrupts that cause task preemption and trigger the sending of signals.</dd>
 </dl>
 
 Please note that RTOS variants that provide interrupt events only support their use by *noncritical external* interrupts on PowerPC, and will not enable or disable any other types of interrupts.

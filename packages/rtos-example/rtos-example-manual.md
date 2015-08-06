@@ -69,7 +69,7 @@ For example, when building `rtos-example.timer-test` for the Kochab variant:
 `signal-demo`
 ====================
 
-This system demonstrates eChronos signal functionality on variants that support priority scheduling:
+This system demonstrates signal functionality on variants that support priority scheduling:
 
   Part 0 has one task (A) demonstrate peeking and polling of signals, as well as waits returning immediately if a signal in the set is already available.
 
@@ -126,7 +126,7 @@ The following is the expected output of the signal demo, continuing from a break
 `kochab-mutex-demo`
 ===================
 
-This system demonstrates the eChronos Kochab variant's mutex functionality, whose behavior is subject to priority scheduling with priority inheritance:
+This system demonstrates the Kochab variant's mutex functionality, whose behavior is subject to priority scheduling with priority inheritance:
 
   Part 0 has one task (A) demonstrate trying and releasing of a mutex, as well as taking of a mutex when the mutex is available.
 
@@ -269,7 +269,7 @@ The following is the expected output of the mutex demo, continuing from a breakp
 `phact-mutex-demo`
 ===================
 
-This system demonstrates the eChronos Phact variant's mutex functionality, whose behavior is subject to priority ceiling protocol scheduling:
+This system demonstrates the Phact variant's mutex functionality, whose behavior is subject to priority ceiling protocol scheduling:
 
   Part 0 has one task (A) demonstrate trying and releasing of a mutex, as well as taking of a mutex when the mutex is available.
 
@@ -408,7 +408,7 @@ The following is the expected output of the Phact mutex demo:
 `sem-demo`
 =================
 
-This system demonstrates eChronos semaphore functionality on variants that support priority scheduling:
+This system demonstrates semaphore functionality on variants that support priority scheduling:
 
   Part 0 has one task (A) demonstrate posting (denoted `V`) and trying to wait (denoted `P`) on a semaphore, as well as returning immediately from waiting on a semaphore that has already been posted.
 
@@ -765,7 +765,7 @@ This module depends on an external code module to implement `machine_timer_init(
 `kochab-test`
 ===============
 
-This system demonstrates the eChronos Kochab variant's task preemption functionality.
+This system demonstrates the Kochab variant's task preemption functionality.
 It features two tasks, A and B, where task A is assigned a higher priority than task B.
 
 The test program also configures a fixed-interval timer interrupt to occur periodically, and supplies an interrupt handler function, `tick_irq`, that fulfils three responsibilities:

@@ -51,7 +51,7 @@ def tag(_):
     return ''.join(choice(tag_chars) for _ in range(tag_length))
 
 
-_review_template = """Breakaway Task Review
+_review_template = """RTOS Task Review
 =======================
 
 Task name: %(branch)s

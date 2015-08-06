@@ -4,7 +4,7 @@ Task: A1XBG9-cleanups-for-p2020-bringup
 Motivation
 ----------
 
-Bringup of eChronos on the P2020RDB-PCA has been prototyped, and this presents a large number of changes for review.
+Bringup of the RTOS on the P2020RDB-PCA has been prototyped, and this presents a large number of changes for review.
 
 This task branch brings together some general cleanup that can be viewed as not relying on the P2020 bringup, but useful to get out of the way before the addition of a machine-p2020rdb-pca package.
 

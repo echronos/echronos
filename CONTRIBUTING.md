@@ -25,10 +25,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 @TAG(NICTA_DOC_AGPL)
   -->
 
-Contributing to eChronos
-========================
+Contributing to the eChronos RTOS
+=================================
 
-We welcome contributions to eChronos.
+We welcome contributions to the eChronos RTOS.
 However, in order for us to be able to review and integrate your contributions in accordance with our internal processes, we do not accept pull requests on GitHub.
 Please instead follow the process detailed below.
 
@@ -36,6 +36,4 @@ For filing issues, please visit https://github.com/echronos/echronos/issues.
 
 To contribute to the eChronos repository, please send your contributions as patches in plain text form with a changelog (use `git format-patch`) to `echronos AT nicta.com.au`.
 
-All contributions to the repository will need to be accompanied by a scan of a signed copy of the [eChronos Contributor Assignment Agreement][1].
-
-[1]: http://ssrg.nicta.com.au/projects/TS/echronos/CAA.pdf
+All contributions to the repository will need to be accompanied by a scan of a signed copy of the [eChronos Contributor Assignment Agreement](http://ssrg.nicta.com.au/projects/TS/echronos/CAA.pdf).

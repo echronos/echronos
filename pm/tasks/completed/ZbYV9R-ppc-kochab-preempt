@@ -58,7 +58,7 @@ yield: in Kochab, an RTOS internal operation in which the scheduler decides whic
 
 preemption: a yield to a higher-priority task forced by the RTOS in response to the occurrence of an event that changes the set of schedulable tasks.
 
-For brevity "RTOS" will be used to refer to the Kochab variant of eChronos.
+For brevity "RTOS" will be used to refer to the Kochab variant.
 
 KOCHAB001
 The RTOS implementation MUST enforce the scheduling invariant at all times outside of API call implementations and interrupt handler context, by triggering task preemption whenever necessary.

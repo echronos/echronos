@@ -6,14 +6,14 @@ rtos
 docs
 
 /*| doc_header |*/
-<!-- %title eChronos Manual: Rigel Variant -->
+<!-- %title eChronos RTOS Manual: Rigel Variant -->
 <!-- %version 0.2 -->
 <!-- %docid Wq8tAN -->
 
 
 # Introduction
 
-This document provides the information that system designers and application developers require to successfully create reliable and efficient embedded applications with eChronos.
+This document provides the information that system designers and application developers require to successfully create reliable and efficient embedded applications with the eChronos real-time operating system.
 
 The [Concepts] chapter presents the fundamental ideas and functionalities realized by the RTOS and how developers can harness them to successfully construct systems.
 
@@ -21,7 +21,7 @@ The [API Reference] chapter documents the details of the run-time programming in
 
 The [Configuration Reference] chapter details the interface to the build-time configuration of the RTOS that system designers use to tailor the RTOS to their applications.
 
-Throughout this document, *eChronos RTOS* or *the RTOS* will refer specifically to the *Rigel* variant of eChronos.
+Throughout this document, *eChronos RTOS* or *the RTOS* will refer specifically to the *Rigel* variant of the eChronos RTOS.
 
 /*| doc_concepts |*/
 ## Overview

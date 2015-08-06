@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 @TAG(NICTA_DOC_AGPL)
   -->
 
-eChronos is an unregistered trademark of National ICT Australia Limited, ABN 62 102 206 173 (“NICTA”) in Australia and/or other countries.
+eChronos is an unregistered trademark of National ICT Australia Limited, ABN 62 102 206 173 ("NICTA") in Australia and/or other countries.
 
 Except for any material protected by a trade mark, and where otherwise noted, all files in the eChronos software distribution (including those not containing an explicit license statement, and including all files in the git history) are released under the AGPLv3 license (see "LICENSE_AGPLv3_with_additional_terms.txt" for details), provided that these additional terms apply under section 7 of the AGPLv3:
 

@@ -1,4 +1,4 @@
-Breakaway Task Review
+RTOS Task Review
 =======================
 
 Task name: icHGes-release-licensing
@@ -33,8 +33,8 @@ Would it make sense to make FAQ.txt consistent with that and rename it to FAQ.md
 
 Location: FAQ.txt:4
 Comment 4: Rework
-eChronos does not provide system calls in the usual meaning of the word.
-However, the documentation consistently refers to the C interface of eChronos as its *API*.
+The RTOS does not provide system calls in the usual meaning of the word.
+However, the documentation consistently refers to the C interface of the RTOS as its *API*.
 How about using the same nomenclature here?
 
 Location: FAQ.txt:8

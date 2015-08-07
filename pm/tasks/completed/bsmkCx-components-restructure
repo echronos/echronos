@@ -33,5 +33,5 @@ The .stache suffix is being added to files to indicate that they must be run thr
 Test Plan
 ---------
 
-All existing tests on TeamCity will pass on both the eChronos and clr-rtos projects.
+All existing tests on TeamCity will pass on both the RTOS core and clr-rtos projects.
 A corresponding task will be created on the clr-rtos project to make the appropriate changes to the clr-specific components.

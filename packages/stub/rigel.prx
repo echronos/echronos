@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+     eChronos Real-Time Operating System
+     Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+
+     This program is free software: you can redistribute it and/or modify
+     it under the terms of the GNU Affero General Public License as published by
+     the Free Software Foundation, version 3, provided that these additional
+     terms apply under section 7:
+
+       No right, title or interest in or to any trade mark, service mark, logo
+       or trade name of of National ICT Australia Limited, ABN 62 102 206 173
+       "NICTA" or its licensors is granted. Modified versions of the Program
+       must be plainly marked as such, and must not be distributed using
+       "eChronos" as a trade mark or product name, or misrepresented as being
+       the original Program.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU Affero General Public License for more details.
+
+     You should have received a copy of the GNU Affero General Public License
+     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+     @TAG(NICTA_AGPL)
+  -->
+
+<system>
+  <modules>
+    <module name="stub.build" />
+    <module name="generic.debug" />
+    <module name="stub.debug" />
+
+    <module name="stub.rtos-rigel">
+      <prefix>rtos</prefix>
+      <signalset_size>8</signalset_size>
+      <api_asserts>true</api_asserts>
+      <internal_asserts>true</internal_asserts>
+      <fatal_error>fatal</fatal_error>
+
+
+      <tasks>
+
+        <task>
+          <name>a</name>
+          <function>fn_a</function>
+          <stack_size>64</stack_size>
+          <start>true</start>
+        </task>
+
+        <task>
+          <name>b</name>
+          <function>fn_b</function>
+          <stack_size>64</stack_size>
+        </task>
+
+      </tasks>
+
+
+      <signal_labels>
+
+        <signal_label>
+          <name>test</name>
+          <global>true</global>
+        </signal_label>
+
+        <signal_label>
+          <name>timer</name>
+          <tasks>
+            <task>a</task>
+            <task>b</task>
+          </tasks>
+        </signal_label>
+
+      </signal_labels>
+
+      <timers>
+
+        <timer>
+          <name>test</name>
+          <enabled>true</enabled>
+          <reload>10</reload>
+          <task>a</task>
+          <sig_set>timer</sig_set>
+        </timer>
+
+        <timer>
+          <name>supervisor</name>
+          <enabled>false</enabled>
+          <reload>10</reload>
+          <error>2</error>
+        </timer>
+
+      </timers>
+
+      <interrupt_events>
+        <interrupt_event>
+          <name>tick</name>
+          <task>a</task>
+          <sig_set>test</sig_set>
+        </interrupt_event>
+      </interrupt_events>
+
+      <mutexes>
+        <mutex>
+          <name>test</name>
+        </mutex>
+      </mutexes>
+      <mutex>
+        <stats>true</stats>
+      </mutex>
+
+      <profiling>
+        <task_uptime>true</task_uptime>
+      </profiling>
+
+      <message_queues>
+        <message_queue>
+          <name>test</name>
+          <message_size>2</message_size>
+          <queue_length>2</queue_length>
+        </message_queue>
+      </message_queues>
+    </module>
+
+    <module name="rtos-example.rigel-test" />
+
+  </modules>
+</system>

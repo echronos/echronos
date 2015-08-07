@@ -1,4 +1,4 @@
-Breakaway Task Review
+RTOS Task Review
 =======================
 
 Task name: Y62tYc-prj-prototype-1
@@ -21,7 +21,7 @@ Specific comments
 
 Location: /README
 Comment 1: Accepted
-This file contains a lot of process and quality management information that is either already present in the Breakaway Quality Manual, or that should be included in the quality manual, or that should be included in an BRTOS-specific quality manual.
+This file contains a lot of process and quality management information that is either already present in the Breakaway Consulting Pty. Ltd. Quality Manual, or that should be included in the quality manual, or that should be included in an BRTOS-specific quality manual.
 
 [[(benno): Agreed. As these are moved in to the QMS proper, these will be removed from the README.]]
 

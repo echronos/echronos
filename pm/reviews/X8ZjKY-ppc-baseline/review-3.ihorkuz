@@ -1,4 +1,4 @@
-Breakaway Task Review
+RTOS Task Review
 =======================
 
 Task name: X8ZjKY-ppc-baseline
@@ -14,14 +14,14 @@ Nitpicks about comments and use of magic numbers.  The review guidelines say tha
 Specific comments
 =================
 
-Location: components/ppc-context-switch/ppc-context-switch.c:20-66 [Rework]	
+Location: components/ppc-context-switch/ppc-context-switch.c:20-66 [Rework]
 Comment:
 Some remarks and suggestions about the large explanatory comment:
 - in "This implementation follows the conventions of the PowerPC EABI specification, obtained from:" the document referred to is not actually a "specification" but a note on how to use the EABI. We should decide on an actual specification to follow and refer to that.
 - do the FPR in the stack layout refer to the F* in the register description, and the GPR to the R* in the register description? This should be made explicit.
 - possibly mention that LR is the link register, used to track function return addresses.
-- in the stack description, what do you mean by "optional, not implemented"? In particular, for function parameters and local variable areas, does it mean that they never get used in the EABI (or in echronos when calling functions)? or does it mean that the context switch code does not store that data on the stack?  I guess the latter, but it's not completely clear. 
-- some extra information about the stack and general EABI would be useful.  
+- in the stack description, what do you mean by "optional, not implemented"? In particular, for function parameters and local variable areas, does it mean that they never get used in the EABI (or in the RTOS when calling functions)? or does it mean that the context switch code does not store that data on the stack?  I guess the latter, but it's not completely clear.
+- some extra information about the stack and general EABI would be useful.
   + Does the stack grow up or down?
   + possibly briefly summarise the calling convention (arguments in registers, spill over to stack, etc.)
 - Note: the EABI states that LR is to be saved in the *caller's* LR save area (page 26, EABI spec). This is a bit counterintuituve, as one would expect it to be saved in the current executing function's LR save area.  So I think it's worth mentioning.

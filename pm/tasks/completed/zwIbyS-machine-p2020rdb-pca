@@ -4,12 +4,12 @@ Task: zwIbyS-machine-p2020rdb-pca
 Motivation
 ----------
 
-We previously brought up all existing eChronos variants (minus Rigel and Phact) on the PowerPC e500 as emulated by QEMU.
+We previously brought up all existing variants (minus Rigel and Phact) on the PowerPC e500 as emulated by QEMU.
 
-A customer wants eChronos working on a board based on the P2020 chip, which features dual e500 processor cores.
-eChronos is only required to run on core 0.
+A customer wants the RTOS working on a board based on the P2020 chip, which features dual e500 processor cores.
+The RTOS is only required to run on core 0.
 
-In order to support the customer going forward we would like to bring up eChronos on the Freescale P2020RDB-PCA, which is an evaluation board also based on the P2020 chip.
+In order to support the customer going forward we would like to bring up the RTOS on the Freescale P2020RDB-PCA, which is an evaluation board also based on the P2020 chip.
 
 Due to project requirements, we would also like the Phact variant to work on this board.
 

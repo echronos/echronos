@@ -1,0 +1,17 @@
+RTOS Task Review
+=======================
+
+Task name: ZTC5ft-new_wording_for_CAA_trademark_terms_for_AGPLv3
+Version reviewed: 904e7fbe0119bf969cf77600141cdf7774a9f395
+Reviewer: timg
+Date: 2015-08-06
+Conclusion: Rework
+
+Specific comments
+=================
+
+Location: CONTRIBUTING.md:37
+Comment: Consider changing "For contributing to ..." to "To contribute to ...".
+
+Location: LICENSE.md:28,32
+Comment: 'NICTA' and 'eChronos' on these lines are flanked by curved quotation marks (“”), whereas every other instance of quotation marks I'm aware of uses the generic typewriter quotation marks (").  The issues here are (1) inconsistency, and (2) characters are being used which may not display properly in all editors.

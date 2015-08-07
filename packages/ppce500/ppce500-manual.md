@@ -4,9 +4,15 @@ Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
-the Free Software Foundation, version 3, provided that no right, title
-or interest in or to any trade mark, service mark, logo or trade name
-of NICTA or its licensors is granted.
+the Free Software Foundation, version 3, provided that these additional
+terms apply under section 7:
+
+  No right, title or interest in or to any trade mark, service mark, logo
+  or trade name of of National ICT Australia Limited, ABN 62 102 206 173
+  ("NICTA") or its licensors is granted. Modified versions of the Program
+  must be plainly marked as such, and must not be distributed using
+  "eChronos" as a trade mark or product name, or misrepresented as being
+  the original Program.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -49,19 +55,19 @@ It provides the following modules:
   <dd>A module that provides the *low-level debug* interface.</dd>
 
   <dt>`rtos-acamar`</dt>
-  <dd>A variant of eChronos that supports context switching between tasks via `yield_to()`.</dd>
+  <dd>An RTOS variant that supports context switching between tasks via `yield_to()`.</dd>
 
   <dt>`rtos-gatria`</dt>
-  <dd>A variant of eChronos that supports round-robin scheduling, `yield()`, `block()`, `unblock()`, and mutexes.</dd>
+  <dd>An RTOS variant that supports round-robin scheduling, `yield()`, `block()`, `unblock()`, and mutexes.</dd>
 
   <dt>`rtos-kraz`</dt>
-  <dd>A variant of eChronos that supports round-robin scheduling, `yield()`, mutexes, and signals.</dd>
+  <dd>An RTOS variant that supports round-robin scheduling, `yield()`, mutexes, and signals.</dd>
 
   <dt>`rtos-acrux`</dt>
-  <dd>A variant of eChronos that supports round-robin scheduling, interrupt events, `yield()`, `block()`, `unblock()`, and mutexes.</dd>
+  <dd>An RTOS variant that supports round-robin scheduling, interrupt events, `yield()`, `block()`, `unblock()`, and mutexes.</dd>
 
   <dt>`rtos-kochab`</dt>
-  <dd>A variant of eChronos that supports priority scheduling, mutexes with priority inheritance, semaphores, signals, and interrupts that cause task preemption and trigger the sending of signals.</dd>
+  <dd>An RTOS variant that supports priority scheduling, mutexes with priority inheritance, semaphores, signals, and interrupts that cause task preemption and trigger the sending of signals.</dd>
 </dl>
 
 Please note that RTOS variants that provide interrupt events only support their use by *noncritical external* interrupts on PowerPC, and will not enable or disable any other types of interrupts.

@@ -327,6 +327,7 @@ bool
         {
             const uint16_t buffer_offset = mq->head * mq->message_size;
             memcopy((uint8_t*)message, &mq->messages[buffer_offset], mq->message_size);
+            mq->head = (mq->head + 1) % mq->queue_length;
             mq->available -= 1;
 
             if (mq->available == ({{message_queues.length}} - 1))

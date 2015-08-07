@@ -3,14 +3,14 @@ Task: icHGes-release-licensing
 
 Motivation
 ----------
-Before releasing eChronos we need to make sure that appropriate license files and headers are in place. 
+Before releasing the RTOS we need to make sure that appropriate license files and headers are in place.
 The code will be licnsed under AGPLv3.
 
 
 Goals
 --------
-Add an overal LICENSE file that clarifies what is licensed under which license.  
-Also add files that code not copyright by us and that is available under a different license.  
+Add an overal LICENSE file that clarifies what is licensed under which license.
+Also add files that code not copyright by us and that is available under a different license.
 Finally add appropriate copyright and license headers to all relevant (source code and documentation) files.
 Note that component files do not get a header as they will be composed together to form other files that will contain appropriate headers.
 

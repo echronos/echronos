@@ -1,4 +1,4 @@
-Breakaway Task Review
+RTOS Task Review
 =======================
 
 Task name: pnPnSA-ppc-smaccm-release-Aug2014
@@ -20,5 +20,5 @@ If you are concerned about readability, I would suggest incorporating the text i
 
 Location: release_cfg.py
 Comment 2: Accepted
-In case you prefer to not include customer details in the eChronos-core repository, there is a mechanism that allows you to conveniently manage such information in an external repository.
+In case you prefer to not include customer details in the RTOS core repository, there is a mechanism that allows you to conveniently manage such information in an external repository.
 Happy to elaborate.

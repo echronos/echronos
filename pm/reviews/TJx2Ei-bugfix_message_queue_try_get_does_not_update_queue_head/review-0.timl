@@ -1,0 +1,20 @@
+RTOS Task Review
+=======================
+
+Task name: TJx2Ei-bugfix_message_queue_try_get_does_not_update_queue_head
+Version reviewed: 8c718b100050b8f15c9b5bb34cc72240131e5d5f
+Reviewer: timl
+Date: 2015-07-26
+Conclusion: Accepted/Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: filename:linenum
+Comment:
+
+Location: filename:linenum
+Comment:

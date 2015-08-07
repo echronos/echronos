@@ -4,9 +4,15 @@ Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
-the Free Software Foundation, version 3, provided that no right, title
-or interest in or to any trade mark, service mark, logo or trade name
-of NICTA or its licensors is granted.
+the Free Software Foundation, version 3, provided that these additional
+terms apply under section 7:
+
+  No right, title or interest in or to any trade mark, service mark, logo
+  or trade name of of National ICT Australia Limited, ABN 62 102 206 173
+  ("NICTA") or its licensors is granted. Modified versions of the Program
+  must be plainly marked as such, and must not be distributed using
+  "eChronos" as a trade mark or product name, or misrepresented as being
+  the original Program.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -63,7 +69,7 @@ For example, when building `rtos-example.timer-test` for the Kochab variant:
 `signal-demo`
 ====================
 
-This system demonstrates eChronos signal functionality on variants that support priority scheduling:
+This system demonstrates signal functionality on variants that support priority scheduling:
 
   Part 0 has one task (A) demonstrate peeking and polling of signals, as well as waits returning immediately if a signal in the set is already available.
 
@@ -120,7 +126,7 @@ The following is the expected output of the signal demo, continuing from a break
 `kochab-mutex-demo`
 ===================
 
-This system demonstrates the eChronos Kochab variant's mutex functionality, whose behavior is subject to priority scheduling with priority inheritance:
+This system demonstrates the Kochab variant's mutex functionality, whose behavior is subject to priority scheduling with priority inheritance:
 
   Part 0 has one task (A) demonstrate trying and releasing of a mutex, as well as taking of a mutex when the mutex is available.
 
@@ -263,7 +269,7 @@ The following is the expected output of the mutex demo, continuing from a breakp
 `phact-mutex-demo`
 ===================
 
-This system demonstrates the eChronos Phact variant's mutex functionality, whose behavior is subject to priority ceiling protocol scheduling:
+This system demonstrates the Phact variant's mutex functionality, whose behavior is subject to priority ceiling protocol scheduling:
 
   Part 0 has one task (A) demonstrate trying and releasing of a mutex, as well as taking of a mutex when the mutex is available.
 
@@ -402,7 +408,7 @@ The following is the expected output of the Phact mutex demo:
 `sem-demo`
 =================
 
-This system demonstrates eChronos semaphore functionality on variants that support priority scheduling:
+This system demonstrates semaphore functionality on variants that support priority scheduling:
 
   Part 0 has one task (A) demonstrate posting (denoted `V`) and trying to wait (denoted `P`) on a semaphore, as well as returning immediately from waiting on a semaphore that has already been posted.
 
@@ -759,7 +765,7 @@ This module depends on an external code module to implement `machine_timer_init(
 `kochab-test`
 ===============
 
-This system demonstrates the eChronos Kochab variant's task preemption functionality.
+This system demonstrates the Kochab variant's task preemption functionality.
 It features two tasks, A and B, where task A is assigned a higher priority than task B.
 
 The test program also configures a fixed-interval timer interrupt to occur periodically, and supplies an interrupt handler function, `tick_irq`, that fulfils three responsibilities:

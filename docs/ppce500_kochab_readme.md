@@ -240,6 +240,6 @@ For more information including configuration options, please see `share/packages
 Acknowledgements
 ----------------
 
-This material is based on research sponsored by the Air Force Research Laboratory and the Defense Advanced Research Projects Agency (DARPA) under agreement number FA8750-12-9-0179. 
+This material is based on research sponsored by the Air Force Research Laboratory and the Defense Advanced Research Projects Agency (DARPA) under agreement number FA8750-12-9-0179.
 The U.S. Government is authorised to reproduce and distribute reprints for Governmental purposes notwithstanding any copyright notation thereon.
 The views and conclusions contained herein are those of the authors and should not be interpreted as necessarily representing the official policies or endorsements, either express or implied, of Air Force Research Laboratory, the Defense Advanced Research Projects Agency or the U.S. Government.

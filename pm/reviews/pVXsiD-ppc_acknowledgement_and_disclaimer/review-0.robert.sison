@@ -5,16 +5,15 @@ Task name: pVXsiD-ppc_acknowledgement_and_disclaimer
 Version reviewed: f9ef20562cfb2634c12952ff326ab0378ba414cc
 Reviewer: robert.sison
 Date: 2015-08-07
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
 Overall comments:
+None
 
 
 Specific comments
 =================
 
-Location: filename:linenum
+Location: docs/ppce500_kochab_readme.md:243
 Comment:
-
-Location: filename:linenum
-Comment:
+I fixed some trailing whitespace here.

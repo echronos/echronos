@@ -5,16 +5,9 @@ Task name: hNicZN-contributor_agreement
 Version reviewed: 93f0445c2197dd060e719a24ee7a17df0b81c683
 Reviewer: stg
 Date: 2015-08-11
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
 Overall comments:
 
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Comment 1: Accepted
+Changed http URLs to encrypted https URLs.

@@ -36,4 +36,5 @@ For filing issues, please visit https://github.com/echronos/echronos/issues.
 
 To contribute to the eChronos repository, please send your contributions as patches in plain text form with a changelog (use `git format-patch`) to `echronos AT nicta.com.au`.
 
-All contributions to the repository will need to be accompanied by a scan of a signed copy of the [eChronos Contributor Assignment Agreement](http://ssrg.nicta.com.au/projects/TS/echronos/CAA.pdf).
+All contributions to the repository will need to be accompanied by a scan of a signed copy of the eChronos Contributor Assignment Agreement.
+There is a version of the agreement for [individuals](http://ssrg.nicta.com.au/projects/TS/echronos/CAA-individual.pdf) and a version for [companies](http://ssrg.nicta.com.au/projects/TS/echronos/CAA-entity.pdf).

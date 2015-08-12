@@ -19,6 +19,8 @@ Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:40
 Comment 1: rework
 Please explain in a comment why this limit is 10 instead of 1, i.e., why the system does not panic on the first spurious interrupt.
 
+[robs: Just made it panic instead.]
+
 Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:44&45
 Comment 2: rework
 The variables `a_buf` and `a_count` (and related local variables) are not very descriptive.
@@ -36,6 +38,8 @@ If no, I would recommend to change it to an unsigned integer.
 Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:53
 Comment 4: rework
 Would it make sense to additionally disable interrupts before going into the endless loop to ensure that there is truly no other activity possible on the system?
+
+[robs: Sounds good to me]
 
 Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:57 and others
 Comment 5: rework
@@ -93,6 +97,8 @@ To reduce code duplication and improve readability, I would recommend to move th
 Location: packages/machine-p2020rdb-pca/example/interrupt-demux-example.c:134
 Comment 13: rework
 Would it make sense to additionally disable interrupts before going into the endless loop to ensure that there is truly no other activity possible on the system?
+
+[robs: Done]
 
 Location: packages/machine-p2020rdb-pca/example/interrupt-demux-example.c:152
 Comment 14: rework

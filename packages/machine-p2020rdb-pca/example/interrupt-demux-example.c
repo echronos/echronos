@@ -131,6 +131,8 @@ fatal(const RtosErrorId error_id)
     debug_print("FATAL ERROR: ");
     debug_printhex32(error_id);
     debug_println("");
+    /* Disable interrupts */
+    asm volatile("wrteei 0");
     for (;;) ;
 }
 

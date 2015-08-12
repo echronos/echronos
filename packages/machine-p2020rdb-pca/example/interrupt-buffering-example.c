@@ -36,8 +36,7 @@
 
 #define RX_BUF_OVERRUN_CHAR '#'
 
-#define SPURIOUS_LIMIT 10
-#define EXAMPLE_ERROR_ID_BUFFER_COUNT_OOB 0xfe
+#define EXAMPLE_ERROR_ID_RX_SPURIOUS_RDA 0xfd
 #define EXAMPLE_ERROR_ID_RX_FIFO_OVERRUN 0xff
 
 extern void fatal(RtosErrorId error_id);
@@ -48,7 +47,6 @@ bool
 exti_duart_interrupt_handle(const uint8_t iid)
 {
     unsigned int original_rx_count;
-    static unsigned int spurious_count;
 
     switch (iid) {
     /* THRE: Transmitter holding register empty */
@@ -89,15 +87,13 @@ exti_duart_interrupt_handle(const uint8_t iid)
         } else if (rx_count == original_rx_count) {
             /* No new bytes were buffered despite receiving the interrupt - this is pretty much unexpected. */
             debug_println("Spurious DUART RDA interrupt?");
-            spurious_count++;
-            if (spurious_count == SPURIOUS_LIMIT) {
-                /* Disable the interrupt. */
-                debug_println("Disabling DUART.");
-                duart2_interrupt_disable();
-            }
-            return false;
+
+            /* Disable the interrupt. */
+            debug_println("Disabling DUART.");
+            duart2_interrupt_disable();
+
+            fatal(EXAMPLE_ERROR_ID_RX_SPURIOUS_RDA);
         }
-        spurious_count = 0;
 
         /* Wake up Task A */
         rtos_interrupt_event_raise(RTOS_INTERRUPT_EVENT_ID_RX);

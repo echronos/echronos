@@ -34,9 +34,7 @@
 #define MSG_SIZE 42
 #define RX_BUF_OVERRUN_CHAR '#'
 
-#define SPURIOUS_LIMIT 10
 #define EXAMPLE_ERROR_ID_BUFFER_COUNT_OOB 0xfe
-#define EXAMPLE_ERROR_ID_RX_FIFO_OVERRUN 0xff
 
 /* 16 bytes is the size of the DUART FIFOs.
  * But we can pick a totally arbitrary size for each of the buffers we use:
@@ -53,6 +51,8 @@ fatal(const RtosErrorId error_id)
     debug_print("FATAL ERROR: ");
     debug_printhex32(error_id);
     debug_println("");
+    /* Disable interrupts */
+    asm volatile("wrteei 0");
     for (;;) ;
 }
 

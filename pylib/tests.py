@@ -40,7 +40,7 @@ import inspect
 
 from .xunittest import discover_tests, TestSuite, SimpleTestNameResult, testcase_matches, testsuite_list
 from .release import _LicenseOpener
-from .utils import get_executable_extension, BASE_DIR
+from .utils import get_executable_extension, BASE_DIR, find_path
 from .cmdline import subcmd, Arg
 
 
@@ -56,9 +56,9 @@ _std_subcmd_args = (
 def prj(args):
     """Run tests associated with prj modules."""
     modules = ['prj', 'util']
-    directories = [os.path.join('prj', 'app'),
-                   os.path.join('prj', 'app', 'pystache'),
-                   os.path.join('prj', 'app', 'lib')]
+    directories = [find_path(os.path.join('prj', 'app'), args.topdir),
+                   find_path(os.path.join('prj', 'app', 'pystache'), args.topdir),
+                   find_path(os.path.join('prj', 'app', 'lib'), args.topdir)]
 
     return _run_module_tests_with_args(modules, directories, args)
 

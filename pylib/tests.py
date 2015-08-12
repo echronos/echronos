@@ -40,7 +40,7 @@ import inspect
 
 from .xunittest import discover_tests, TestSuite, SimpleTestNameResult, testcase_matches, testsuite_list
 from .release import _LicenseOpener
-from .utils import get_executable_extension
+from .utils import get_executable_extension, BASE_DIR
 from .cmdline import subcmd, Arg
 
 
@@ -241,13 +241,13 @@ def licenses(args):
     if sep == '\\':
         sep = '\\\\'
     pattern = re.compile('\.git|components{0}.*\.(c|h|xml|md)$|external_tools{0}|pm{0}|prj{0}app{0}(ply|pystache){0}|provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|packages{0}[^{0}]+{0}rtos-|.*__pycache__'.format(sep))
-    fixme = os.getcwd()
-    for dirpath, subdirs, files in os.walk(fixme):
+    for dirpath, subdirs, files in os.walk(BASE_DIR):
         for file_name in files:
-            path = os.path.relpath(os.path.join(dirpath, file_name), fixme)
-            if not pattern.match(path):
+            path = os.path.join(dirpath, file_name)
+            rel_path = os.path.relpath(path, BASE_DIR)
+            if not pattern.match(rel_path):
                 # Check setenv as a shell script and expect shell-style comment format for .pylintrc
-                if path in ('setenv', '.pylintrc'):
+                if rel_path in ('setenv', '.pylintrc'):
                     agpl_sentinel = _LicenseOpener._agpl_sentinel('.sh')
                 else:
                     ext = os.path.splitext(file_name)[1]

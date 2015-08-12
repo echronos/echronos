@@ -49,13 +49,13 @@ def test_empty():
 
 @teamcityskip
 def test_git_branch_hash():
-    g = Git()
+    g = Git(local_repository=os.path.dirname(os.path.abspath(__file__)))
     assert INITIAL_COMMIT == g.branch_hash(INITIAL_COMMIT)
 
 
 @teamcityskip
 def test_git_branch_date():
-    g = Git()
+    g = Git(local_repository=os.path.dirname(os.path.abspath(__file__)))
     assert INITIAL_TIME == g.branch_date(INITIAL_COMMIT)
 
 
@@ -126,7 +126,7 @@ class DummyGit:
 
 # Helper for the pre-integration check tests
 def task_dummy_create(task_name):
-    return _Task(task_name, os.getcwd(), DummyGit(task_name))
+    return _Task(task_name, os.path.dirname(os.path.abspath(__file__)), DummyGit(task_name))
 
 
 def test_task_accepted():

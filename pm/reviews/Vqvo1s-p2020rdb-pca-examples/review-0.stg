@@ -67,6 +67,8 @@ Indicating a buffer overrun through a special byte at the end of the buffer is i
 How about indicating this circumstance with a dedicated signal?
 Note that the hard-coded '#' in this file seems to be inconsistent with the macro value '@' for `TX_PUT_OVERRUN_CHAR` in `packages/machine-p2020rdb-pca/example/p2020-duart.c`.
 
+[robs: Making it a dedicated signal instead, and having the tasks choose to panic]
+
 Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:137
 Comment 9: rework
 It is unusual to express the relatively simple termination condition for this loop in a separate if/break pair instead of the `while` condition itself.

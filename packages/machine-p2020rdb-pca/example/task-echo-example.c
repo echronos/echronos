@@ -31,8 +31,7 @@
 #include "interrupt-buffering-example.h"
 #include "debug.h"
 
-#define RX_BUF_OVERRUN_CHAR '#'
-
+#define EXAMPLE_ERROR_ID_RX_BUF_OVERRUN 0xfc
 #define EXAMPLE_ERROR_ID_BUFFER_COUNT_OOB 0xfe
 
 /* 16 bytes is the size of the DUART FIFOs.
@@ -102,6 +101,12 @@ fn_a(void)
                 tx_put_when_ready('\n');
             }
             tx_put_when_ready(p_buf[i]);
+        }
+
+        /* We'll choose here to panic in the case of a rx buffer capacity overrun. */
+        if (rtos_signal_poll(RTOS_SIGNAL_ID_RX_OVERRUN) != RTOS_SIGNAL_SET_EMPTY) {
+            debug_println("rx overrun!");
+            fatal(EXAMPLE_ERROR_ID_RX_BUF_OVERRUN);
         }
     }
 }

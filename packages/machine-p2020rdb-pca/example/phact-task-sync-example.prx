@@ -49,6 +49,10 @@
         </signal_label>
 
         <signal_label>
+          <name>rx_overrun</name>
+        </signal_label>
+
+        <signal_label>
           <name>tx</name>
         </signal_label>
 
@@ -59,6 +63,12 @@
           <name>rx</name>
           <task>a</task>
           <sig_set>rx</sig_set>
+        </interrupt_event>
+
+        <interrupt_event>
+          <name>rx_overrun</name>
+          <task>a</task>
+          <sig_set>rx_overrun</sig_set>
         </interrupt_event>
 
         <interrupt_event>

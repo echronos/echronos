@@ -79,8 +79,9 @@ exti_duart_interrupt_handle(const uint8_t iid)
         }
 
         if (rx_count == BUF_CAPACITY) {
-            /* Indicate rx_buf[] rx buffer capacity overrun with a special character. */
-            rx_buf[BUF_CAPACITY - 1] = RX_BUF_OVERRUN_CHAR;
+            /* Indicate rx_buf[] capacity overrun with its own signal and let the task decide what to do with it. */
+            rtos_interrupt_event_raise(RTOS_INTERRUPT_EVENT_ID_RX_OVERRUN);
+
             /* Reset the FIFO and clear the receiver shift register. */
             duart2_rx_fifo_reset();
             duart2_rx_get();

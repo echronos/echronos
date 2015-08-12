@@ -31,7 +31,6 @@
 #include "interrupt-buffering-example.h"
 #include "debug.h"
 
-#define MSG_SIZE 42
 #define RX_BUF_OVERRUN_CHAR '#'
 
 #define SPURIOUS_LIMIT 10
@@ -39,13 +38,9 @@
 #define EXAMPLE_ERROR_ID_RX_FIFO_OVERRUN 0xff
 
 /* 16 bytes is the size of the DUART FIFOs.
- * But we can pick a totally arbitrary size for each of the buffers we use:
- * - to pass bytes from the interrupt handler to Task A. (BUF_CAPACITY)
- * - to pass bytes from Task A to Task B. (MSG_SIZE) */
+ * But we can pick a totally arbitrary size for the buffer we use to pass bytes to Task A. */
 extern uint8_t rx_buf[BUF_CAPACITY];
 extern volatile int rx_count;
-uint8_t msg_buf[MSG_SIZE];
-int m_count;
 
 void
 fatal(const RtosErrorId error_id)
@@ -56,7 +51,7 @@ fatal(const RtosErrorId error_id)
     for (;;) ;
 }
 
-/* This task waits for "message"-sized chunks of bytes, then forward data one chunk at a time to Task B. */
+/* This task simply functions as an echo server. */
 void
 fn_a(void)
 {
@@ -94,49 +89,19 @@ fn_a(void)
         asm volatile("wrteei 1");
 
         for (i = 0; i < p_count; i++) {
-            /* Drop newline characters, expect carriage-returns to delimit non-zero-length messages */
-            if (p_buf[i] != '\n' && p_buf[i] != '\r') {
-                msg_buf[m_count] = p_buf[i];
-                m_count++;
+            /* For demo purposes, manually insert a newline after every carriage return - for readability. */
+            if (p_buf[i] == '\r') {
+                while (!duart2_tx_ready()) {
+                    rtos_signal_wait(RTOS_SIGNAL_ID_TX);
+                }
+                duart2_tx_put('\n');
             }
-            if (m_count == MSG_SIZE || (p_buf[i] == '\r' && m_count != 0)) {
-                rtos_signal_send(RTOS_TASK_ID_B, RTOS_SIGNAL_ID_RX);
-                rtos_signal_wait(RTOS_SIGNAL_ID_TX);
-                m_count = 0;
-            }
-        }
-    }
-}
 
-/* This task takes a message-sized "chunk" of bytes and outputs it in reverse order. */
-void
-fn_b(void)
-{
-    int i;
-
-    debug_println("Task B");
-
-    for (;;) {
-        rtos_signal_wait(RTOS_SIGNAL_ID_RX);
-
-        for (i = m_count - 1; i >= 0; i--) {
             while (!duart2_tx_ready()) {
                 rtos_signal_wait(RTOS_SIGNAL_ID_TX);
             }
-            duart2_tx_put(msg_buf[i]);
+            duart2_tx_put(p_buf[i]);
         }
-
-        rtos_signal_send(RTOS_TASK_ID_A, RTOS_SIGNAL_ID_TX);
-
-        while (!duart2_tx_ready()) {
-            rtos_signal_wait(RTOS_SIGNAL_ID_TX);
-        }
-        duart2_tx_put('\n');
-
-        while (!duart2_tx_ready()) {
-            rtos_signal_wait(RTOS_SIGNAL_ID_TX);
-        }
-        duart2_tx_put('\r');
     }
 }
 
@@ -144,7 +109,7 @@ int
 main(void)
 {
     /* This example system uses DUART2 tx for the actual program output, and debug prints for error cases. */
-    debug_println("Task sync example");
+    debug_println("Interrupt buffering example");
 
     /* We won't be using any CPU-based timer interrupt sources - disable any the bootloader may have set up. */
     machine_timer_deinit();

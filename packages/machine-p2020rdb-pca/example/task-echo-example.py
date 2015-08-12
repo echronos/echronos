@@ -22,15 +22,14 @@
 from prj import Module
 
 
-class InterruptBufferingExampleModule(Module):
+class TaskEchoExampleModule(Module):
     xml_schema = """
 <schema>
     <entry name="variant" type="c_ident" />
 </schema>"""
 
     files = [
-        {'input': 'interrupt-buffering-example.c', 'render': True, 'type': 'c'},
-        {'input': 'interrupt-buffering-example.h', 'render': True},
+        {'input': 'task-echo-example.c', 'render': True, 'type': 'c'},
     ]
 
-module = InterruptBufferingExampleModule()
+module = TaskEchoExampleModule()

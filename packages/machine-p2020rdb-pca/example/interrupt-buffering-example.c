@@ -28,36 +28,26 @@
 #include "machine-timer.h"
 
 #include "rtos-{{variant}}.h"
+#include "interrupt-buffering-example.h"
 #include "debug.h"
 
 #define PIC_IIV_DUART_EXAMPLE_PRIORITY 2
 #define PIC_IIV_DUART_EXAMPLE_VECTOR 0xbeef
 
-/* 16 bytes is the size of the DUART FIFOs.
- * But we can pick a totally arbitrary size for the buffer we use to pass bytes to Task A. */
-#define BUF_CAPACITY 256
 #define RX_BUF_OVERRUN_CHAR '#'
 
 #define SPURIOUS_LIMIT 10
 #define EXAMPLE_ERROR_ID_BUFFER_COUNT_OOB 0xfe
 #define EXAMPLE_ERROR_ID_RX_FIFO_OVERRUN 0xff
 
-uint8_t a_buf[BUF_CAPACITY];
-volatile int a_count;
-
-void
-fatal(const RtosErrorId error_id)
-{
-    debug_print("FATAL ERROR: ");
-    debug_printhex32(error_id);
-    debug_println("");
-    for (;;) ;
-}
+extern void fatal(RtosErrorId error_id);
+uint8_t rx_buf[BUF_CAPACITY];
+volatile int rx_count;
 
 bool
 exti_duart_irq_handle(uint8_t iid)
 {
-    int original_a_count;
+    int original_rx_count;
     static int spurious_count;
 
     switch (iid) {
@@ -70,9 +60,9 @@ exti_duart_irq_handle(uint8_t iid)
      * RDA: Received data available */
     case DUART_IID_CTO:
     case DUART_IID_RDA:
-        original_a_count = a_count;
+        original_rx_count = rx_count;
 
-        while (a_count < BUF_CAPACITY && duart2_rx_ready()) {
+        while (rx_count < BUF_CAPACITY && duart2_rx_ready()) {
             /* Treat DUART rx FIFO (hardware) capacity overrun as a fatal error.
              * It's not necessarily typical to do this in a production system, but if interrupts are arriving much
              * faster than even this interrupt handler can service them, then something is seriously wrong. */
@@ -84,19 +74,19 @@ exti_duart_irq_handle(uint8_t iid)
                 fatal(EXAMPLE_ERROR_ID_RX_FIFO_OVERRUN);
             }
 
-            /* While there are bytes in the DUART rx FIFO, copy them to a_buf[], the rx buffer shared between the
+            /* While there are bytes in the DUART rx FIFO, copy them to rx_buf[], the rx buffer shared between the
              * interrupt handler and Task A. */
-            a_buf[a_count] = duart2_rx_get();
-            a_count++;
+            rx_buf[rx_count] = duart2_rx_get();
+            rx_count++;
         }
 
-        if (a_count == BUF_CAPACITY) {
-            /* Indicate a_buf[] rx buffer capacity overrun with a special character. */
-            a_buf[BUF_CAPACITY - 1] = RX_BUF_OVERRUN_CHAR;
+        if (rx_count == BUF_CAPACITY) {
+            /* Indicate rx_buf[] rx buffer capacity overrun with a special character. */
+            rx_buf[BUF_CAPACITY - 1] = RX_BUF_OVERRUN_CHAR;
             /* Reset the FIFO and clear the receiver shift register. */
             duart2_rx_fifo_reset();
             duart2_rx_get();
-        } else if (a_count == original_a_count) {
+        } else if (rx_count == original_rx_count) {
             /* No new bytes were buffered despite receiving the interrupt - this is pretty much unexpected. */
             debug_println("Spurious DUART RDA interrupt?");
             spurious_count++;
@@ -160,69 +150,10 @@ exti_irq(void)
     return ret;
 }
 
-/* This task simply functions as an echo server. */
+
 void
-fn_a(void)
+interrupt_buffering_example_init(void)
 {
-    int i;
-    uint8_t p_buf[BUF_CAPACITY];
-    int p_count;
-
-    debug_println("Task A");
-
-    duart2_tx_irq_init();
-
-    for (;;) {
-        rtos_signal_wait(RTOS_SIGNAL_ID_RX);
-
-        /* Tasks accessing data concurrently with interrupt handlers are responsible for synchronizing access to those
-         * data structures in a platform-specific way.
-         * In this example system, we choose to synchronize access to a_buf[] by disabling interrupts by unsetting
-         * MSR[EE] with the "wrteei" instruction.
-         * We limit this window to as short a time as possible by using it only to clear a_buf[] by copying its
-         * contents to an intermediate buffer p_buf[]. */
-
-        /* Disable interrupts */
-        asm volatile("wrteei 0");
-
-        if (a_count > BUF_CAPACITY) {
-            fatal(EXAMPLE_ERROR_ID_BUFFER_COUNT_OOB);
-        }
-        for (i = 0; i < a_count; i++) {
-            p_buf[i] = a_buf[i];
-        }
-        p_count = a_count;
-        a_count = 0;
-
-        /* Enable interrupts */
-        asm volatile("wrteei 1");
-
-        for (i = 0; i < p_count; i++) {
-            /* For demo purposes, manually insert a newline after every carriage return - for readability. */
-            if (p_buf[i] == '\r') {
-                while (!duart2_tx_ready()) {
-                    rtos_signal_wait(RTOS_SIGNAL_ID_TX);
-                }
-                duart2_tx_put('\n');
-            }
-
-            while (!duart2_tx_ready()) {
-                rtos_signal_wait(RTOS_SIGNAL_ID_TX);
-            }
-            duart2_tx_put(p_buf[i]);
-        }
-    }
-}
-
-int
-main(void)
-{
-    /* This example system uses DUART2 tx for the actual program output, and debug prints for error cases. */
-    debug_println("Interrupt buffering example");
-
-    /* We won't be using any CPU-based timer interrupt sources - disable any the bootloader may have set up. */
-    machine_timer_deinit();
-
     /* This code assumes the PIC init invocation has already been done by vectable.s, if it was needed.
      * Configure the PIC to deliver the DUART interrupt with the given priority and vector number. */
     pic_iiv_duart_init(PIC_IIV_DUART_EXAMPLE_PRIORITY, PIC_IIV_DUART_EXAMPLE_VECTOR);
@@ -230,8 +161,4 @@ main(void)
     /* Set up DUART2 to be a source of input characters. */
     duart2_init();
     duart2_rx_irq_init();
-
-    rtos_start();
-
-    for (;;) ;
 }

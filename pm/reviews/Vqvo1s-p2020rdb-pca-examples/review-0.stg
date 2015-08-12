@@ -98,3 +98,5 @@ Location: packages/machine-p2020rdb-pca/example/task-sync-example.c
 Comment 18: rework
 Most of the comments for interrupt-buffering-example.c apply also to this file.
 Since these two files share so much code, I would recommend to move the shared code to a common file both systems can use to reduce code duplication and improve maintainability.
+
+[robs: Done]

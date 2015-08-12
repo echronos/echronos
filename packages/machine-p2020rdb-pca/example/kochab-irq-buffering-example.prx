@@ -92,6 +92,9 @@
     <module name="machine-p2020rdb-pca.example.interrupt-buffering-example">
       <variant>kochab</variant>
     </module>
+    <module name="machine-p2020rdb-pca.example.task-echo-example">
+      <variant>kochab</variant>
+    </module>
 
   </modules>
 </system>

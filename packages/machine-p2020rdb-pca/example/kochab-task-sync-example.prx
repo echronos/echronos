@@ -96,6 +96,9 @@
     <module name="machine-p2020rdb-pca.example.p2020-util" />
     <module name="machine-p2020rdb-pca.example.p2020-duart" />
     <!-- main .c file: -->
+    <module name="machine-p2020rdb-pca.example.interrupt-buffering-example">
+      <variant>kochab</variant>
+    </module>
     <module name="machine-p2020rdb-pca.example.task-sync-example">
       <variant>kochab</variant>
     </module>

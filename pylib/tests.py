@@ -40,7 +40,7 @@ import inspect
 
 from .xunittest import discover_tests, TestSuite, SimpleTestNameResult, testcase_matches, testsuite_list
 from .release import _LicenseOpener
-from .utils import get_executable_extension, BASE_DIR, find_path
+from .utils import get_executable_extension, BASE_DIR, find_path, base_to_top_paths
 from .cmdline import subcmd, Arg
 
 
@@ -283,21 +283,23 @@ provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|packag
 
 @subcmd(cmd="test", help='Check that all files belonging to external tools map 1-1 with provenance listings')
 def provenance(args):
-    target_dirs = ['tools', 'external_tools']
-    exemptions = [['tools', 'LICENSE.md'], ['external_tools', 'LICENSE.md']]
+    target_dirs = base_to_top_paths(args.topdir, ('tools', 'external_tools'))
+    exemptions = [os.path.join(BASE_DIR, 'tools', 'LICENSE.md'),
+                  os.path.join(BASE_DIR, 'external_tools', 'LICENSE.md')]
     files_nonexistent = []
     files_not_listed = []
     files_listed = []
 
     # Check that all files in provenance FILES listings exist.
-    for dirpath, subdirs, files in os.walk('provenance'):
-        for list_path in [os.path.join(dirpath, f) for f in files if f == 'FILES']:
-            for file_path in [line.strip() for line in open(list_path)]:
-                if os.path.exists(file_path):
-                    # FILES paths have UNIX '/' separators but we wish to compare in an OS-agnostic manner.
-                    files_listed.append(file_path.split('/'))
-                else:
-                    files_nonexistent.append((file_path, list_path))
+    for provenance_path in base_to_top_paths(args.topdir, 'provenance'):
+        for dirpath, subdirs, files in os.walk(provenance_path):
+            for list_path in [os.path.join(dirpath, f) for f in files if f == 'FILES']:
+                for file_path in [line.strip() for line in open(list_path)]:
+                    file_abs_path = os.path.normpath(os.path.join(os.path.dirname(provenance_path), file_path))
+                    if os.path.exists(file_abs_path):
+                        files_listed.append(file_abs_path)
+                    else:
+                        files_nonexistent.append((file_path, list_path))
 
     # Check that all files in 'external_tools' and 'tools' are listed in a provenance FILES listing.
     for target_dir in target_dirs:
@@ -310,12 +312,12 @@ def provenance(args):
             # This directory contains xyz-generated provenance information including file listings with paths relative
             # to the 'tools' directory, sometimes including other files in tools/share/xyz, so we leave them here to
             # preserve their paths and put a note in the relevant ORIGIN files to refer here for more info.
-            if dirpath == os.path.join('tools', 'share') and 'xyz' in subdirs:
+            if dirpath == os.path.abspath(os.path.join(BASE_DIR, 'tools', 'share')) and 'xyz' in subdirs:
                 subdirs.remove('xyz')
 
-            for file_path in [dirpath.split(os.sep) + [f] for f in files]:
+            for file_path in [os.path.normpath(os.path.join(dirpath, f)) for f in files]:
                 if file_path not in files_listed + exemptions:
-                    files_not_listed.append(os.path.join(*file_path))
+                    files_not_listed.append(file_path)
 
     # Log all results and return 1 if there were any problematic cases
     if len(files_nonexistent):

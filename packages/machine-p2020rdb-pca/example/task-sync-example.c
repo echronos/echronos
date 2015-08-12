@@ -56,6 +56,15 @@ fatal(const RtosErrorId error_id)
     for (;;) ;
 }
 
+static void
+tx_put_when_ready(const char c)
+{
+    while (!duart2_tx_ready()) {
+        rtos_signal_wait(RTOS_SIGNAL_ID_TX);
+    }
+    duart2_tx_put(c);
+}
+
 /* This task waits for "message"-sized chunks of bytes, then forward data one chunk at a time to Task B. */
 void
 fn_a(void)
@@ -119,23 +128,13 @@ fn_b(void)
         rtos_signal_wait(RTOS_SIGNAL_ID_RX);
 
         for (i = 0; i < msg_len; i++) {
-            while (!duart2_tx_ready()) {
-                rtos_signal_wait(RTOS_SIGNAL_ID_TX);
-            }
-            duart2_tx_put(msg_buf[(msg_len - 1) - i]);
+            tx_put_when_ready(msg_buf[(msg_len - 1) - i]);
         }
 
         rtos_signal_send(RTOS_TASK_ID_A, RTOS_SIGNAL_ID_TX);
 
-        while (!duart2_tx_ready()) {
-            rtos_signal_wait(RTOS_SIGNAL_ID_TX);
-        }
-        duart2_tx_put('\n');
-
-        while (!duart2_tx_ready()) {
-            rtos_signal_wait(RTOS_SIGNAL_ID_TX);
-        }
-        duart2_tx_put('\r');
+        tx_put_when_ready('\n');
+        tx_put_when_ready('\r');
     }
 }
 

@@ -125,11 +125,7 @@ exti_interrupt(void)
         switch (inc_vector) {
         case PIC_IIV_DUART_EXAMPLE_VECTOR:
             /* There's no point returning unless all of the DUART interrupts have been cleared anyway */
-            while (true) {
-                iid = duart2_iid_get();
-                if (iid == DUART_IID_NONE) {
-                    break;
-                }
+            while ((iid = duart2_iid_get()) != DUART_IID_NONE) {
                 if (ret) {
                     exti_duart_interrupt_handle(iid);
                 } else {

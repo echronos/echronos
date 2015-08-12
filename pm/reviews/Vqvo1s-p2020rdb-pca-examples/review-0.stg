@@ -68,6 +68,8 @@ Comment 9: rework
 It is unusual to express the relatively simple termination condition for this loop in a separate if/break pair instead of the `while` condition itself.
 I would recommend to move it into there.
 
+[robs: Done]
+
 Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:166&168
 Comment 10: rework
 Do the variables `i` and `p_count` ever need to hold negative numbers?
@@ -85,6 +87,8 @@ For `i`, `p_buf`, and `p_count`, that would be the `for` loop scope starting in 
 Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:202-211
 Comment 12: rework
 To reduce code duplication and improve readability, I would recommend to move these two almost identical code blocks into a function.
+
+[robs: Done]
 
 Location: packages/machine-p2020rdb-pca/example/interrupt-demux-example.c:134
 Comment 13: rework

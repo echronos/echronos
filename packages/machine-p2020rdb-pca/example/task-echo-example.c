@@ -51,6 +51,15 @@ fatal(const RtosErrorId error_id)
     for (;;) ;
 }
 
+static void
+tx_put_when_ready(const char c)
+{
+    while (!duart2_tx_ready()) {
+        rtos_signal_wait(RTOS_SIGNAL_ID_TX);
+    }
+    duart2_tx_put(c);
+}
+
 /* This task simply functions as an echo server. */
 void
 fn_a(void)
@@ -88,18 +97,11 @@ fn_a(void)
         asm volatile("wrteei 1");
 
         for (i = 0; i < p_count; i++) {
-            /* For demo purposes, manually insert a newline after every carriage return - for readability. */
+            /* For demo purposes, manually insert a newline before every carriage return - for readability. */
             if (p_buf[i] == '\r') {
-                while (!duart2_tx_ready()) {
-                    rtos_signal_wait(RTOS_SIGNAL_ID_TX);
-                }
-                duart2_tx_put('\n');
+                tx_put_when_ready('\n');
             }
-
-            while (!duart2_tx_ready()) {
-                rtos_signal_wait(RTOS_SIGNAL_ID_TX);
-            }
-            duart2_tx_put(p_buf[i]);
+            tx_put_when_ready(p_buf[i]);
         }
     }
 }

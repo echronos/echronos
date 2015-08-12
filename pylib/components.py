@@ -344,7 +344,7 @@ def _get_search_paths(topdir):
     directory not containing a 'components' directory.
 
     """
-    paths = base_to_top_paths(topdir, 'components')
+    paths = list(base_to_top_paths(topdir, 'components'))
     paths.reverse()
     return paths
 

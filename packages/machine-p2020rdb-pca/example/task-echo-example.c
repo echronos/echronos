@@ -40,7 +40,7 @@
 /* 16 bytes is the size of the DUART FIFOs.
  * But we can pick a totally arbitrary size for the buffer we use to pass bytes to Task A. */
 extern uint8_t rx_buf[BUF_CAPACITY];
-extern volatile int rx_count;
+extern volatile unsigned int rx_count;
 
 void
 fatal(const RtosErrorId error_id)
@@ -55,15 +55,14 @@ fatal(const RtosErrorId error_id)
 void
 fn_a(void)
 {
-    int i;
-    uint8_t p_buf[BUF_CAPACITY];
-    int p_count;
-
     debug_println("Task A");
 
     duart2_tx_interrupt_init();
 
     for (;;) {
+        unsigned int i, p_count;
+        uint8_t p_buf[BUF_CAPACITY];
+
         rtos_signal_wait(RTOS_SIGNAL_ID_RX);
 
         /* Tasks accessing data concurrently with interrupt handlers are responsible for synchronizing access to those

@@ -24,10 +24,14 @@ Comment 2: rework
 The variables `a_buf` and `a_count` (and related local variables) are not very descriptive.
 How about `duart_rx_buf` and `duart_rx_buf_used` for example?
 
+[robs: Done, named them rx_buf and rx_count because I prefer to avoid the 'duart' prefix that's used by p2020-duart's interface, as well as having names that are prefixes of other names.]
+
 Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:45
 Comment 3: rework
 Does the variable `a_count` ever need to hold a negative value?
 If no, I would recommend to change it to an unsigned integer.
+
+[robs: Fixed]
 
 Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:53
 Comment 4: rework
@@ -44,10 +48,14 @@ Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:57
 Comment 6: rework
 The function argument `iid` should be declared as constant as per convention BXCwte.
 
+[robs: Fixed]
+
 Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:58&59
 Comment 7: rework
 Do the variables `original_a_count` and `spurious_count` ever need to hold negative values?
 If not, I would recommend to give them unsigned types.
+
+[robs: Fixed]
 
 Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:94
 Comment 8: rework
@@ -65,10 +73,14 @@ Comment 10: rework
 Do the variables `i` and `p_count` ever need to hold negative numbers?
 If not, I would recommend to give them an unsigned type.
 
+[robs: Fixed]
+
 Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:166-168
 Comment 11: rework
 In general, it is highly recommended to declare variables in the smallest possible scope.
 For `i`, `p_buf`, and `p_count`, that would be the `for` loop scope starting in line 175.
+
+[robs: Fixed]
 
 Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:202-211
 Comment 12: rework
@@ -83,6 +95,8 @@ Comment 14: rework
 Does the variable `i` ever need to hold a negative value?
 If not, I would recommend to give it an unsigned type.
 
+[robs: Fixed]
+
 Location: packages/machine-p2020rdb-pca/example/acamar-system.prx packages/machine-p2020rdb-pca/example/acrux-system.prx packages/machine-p2020rdb-pca/example/gatria-system.prx packages/machine-p2020rdb-pca/example/kochab-irq-buffering-example.prx packages/machine-p2020rdb-pca/example/kochab-irq-demux-example.prx packages/machine-p2020rdb-pca/example/kochab-mutex-demo.prx packages/machine-p2020rdb-pca/example/kochab-sched-demo.prx packages/machine-p2020rdb-pca/example/kochab-sem-demo.prx packages/machine-p2020rdb-pca/example/kochab-signal-demo.prx packages/machine-p2020rdb-pca/example/kochab-system.prx packages/machine-p2020rdb-pca/example/kochab-task-sync-example.prx packages/machine-p2020rdb-pca/example/kochab-timer-demo.prx packages/machine-p2020rdb-pca/example/kraz-system.prx packages/machine-p2020rdb-pca/example/phact-irq-buffering-example.prx packages/machine-p2020rdb-pca/example/phact-irq-demux-example.prx packages/machine-p2020rdb-pca/example/phact-mutex-demo.prx packages/machine-p2020rdb-pca/example/phact-sched-demo.prx packages/machine-p2020rdb-pca/example/phact-sem-demo.prx packages/machine-p2020rdb-pca/example/phact-signal-demo.prx packages/machine-p2020rdb-pca/example/phact-task-sync-example.prx packages/machine-p2020rdb-pca/example/phact-timer-demo.prx
 Comment 15: rework
 These system configuration files share a massive amount of XML data.
@@ -91,6 +105,8 @@ I would recommend to move the shared parts into separate files and include them 
 Location: packages/machine-p2020rdb-pca/example/p2020-pic.c:50 and others
 Comment 16: rework
 The function arguments of `assert_priority_vector_valid()` and all other functions in this file should be declared as constant as per convention BXCwte.
+
+[robs: Fixed]
 
 Location: packages/machine-p2020rdb-pca/example/p2020-pic.c:104 & 111
 Comment 17: rework

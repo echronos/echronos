@@ -53,7 +53,7 @@
 #define PIC_IIV_DUART 26
 
 static void
-assert_priority_vector_valid(const char *caller, uint32_t priority, uint32_t vector)
+assert_priority_vector_valid(const char *caller, const uint32_t priority, const uint32_t vector)
 {
     if (priority > PIC_INTERRUPT_PRIORITY_MAX) {
         debug_print(caller);
@@ -69,7 +69,7 @@ assert_priority_vector_valid(const char *caller, uint32_t priority, uint32_t vec
 }
 
 void
-pic_iiv_duart_init(uint32_t priority, uint32_t vector)
+pic_iiv_duart_init(const uint32_t priority, const uint32_t vector)
 {
     assert_priority_vector_valid(__func__, priority, vector);
 
@@ -104,7 +104,7 @@ pic_eoi_put(void)
 }
 
 void
-pic_global_timer_init(unsigned int i, uint32_t priority, uint32_t vector, uint32_t base_count)
+pic_global_timer_init(const unsigned int i, const uint32_t priority, const uint32_t vector, const uint32_t base_count)
 {
     if (i >= PIC_NUM_GLOBAL_TIMERS) {
         /* No. Bad! */

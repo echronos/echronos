@@ -42,13 +42,13 @@
 
 extern void fatal(RtosErrorId error_id);
 uint8_t rx_buf[BUF_CAPACITY];
-volatile int rx_count;
+volatile unsigned int rx_count;
 
 bool
-exti_duart_interrupt_handle(uint8_t iid)
+exti_duart_interrupt_handle(const uint8_t iid)
 {
-    int original_rx_count;
-    static int spurious_count;
+    unsigned int original_rx_count;
+    static unsigned int spurious_count;
 
     switch (iid) {
     /* THRE: Transmitter holding register empty */

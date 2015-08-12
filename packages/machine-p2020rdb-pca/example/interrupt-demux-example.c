@@ -149,7 +149,7 @@ void
 int
 main(void)
 {
-    int i;
+    unsigned int i;
 
     /* This example system actively relies on debug prints for demonstration purposes.
      * We're going to assume that the p2020-util library's DUART1 debug print implementation is in use, and that this

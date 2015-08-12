@@ -43,9 +43,9 @@
  * - to pass bytes from the interrupt handler to Task A. (BUF_CAPACITY)
  * - to pass bytes from Task A to Task B. (MSG_SIZE) */
 extern uint8_t rx_buf[BUF_CAPACITY];
-extern volatile int rx_count;
+extern volatile unsigned int rx_count;
 uint8_t msg_buf[MSG_SIZE];
-int m_count;
+unsigned int msg_len;
 
 void
 fatal(const RtosErrorId error_id)
@@ -60,15 +60,14 @@ fatal(const RtosErrorId error_id)
 void
 fn_a(void)
 {
-    int i;
-    uint8_t p_buf[BUF_CAPACITY];
-    int p_count;
-
     debug_println("Task A");
 
     duart2_tx_interrupt_init();
 
     for (;;) {
+        unsigned int i, p_count;
+        uint8_t p_buf[BUF_CAPACITY];
+
         rtos_signal_wait(RTOS_SIGNAL_ID_RX);
 
         /* Tasks accessing data concurrently with interrupt handlers are responsible for synchronizing access to those
@@ -96,13 +95,13 @@ fn_a(void)
         for (i = 0; i < p_count; i++) {
             /* Drop newline characters, expect carriage-returns to delimit non-zero-length messages */
             if (p_buf[i] != '\n' && p_buf[i] != '\r') {
-                msg_buf[m_count] = p_buf[i];
-                m_count++;
+                msg_buf[msg_len] = p_buf[i];
+                msg_len++;
             }
-            if (m_count == MSG_SIZE || (p_buf[i] == '\r' && m_count != 0)) {
+            if (msg_len == MSG_SIZE || (p_buf[i] == '\r' && msg_len != 0)) {
                 rtos_signal_send(RTOS_TASK_ID_B, RTOS_SIGNAL_ID_RX);
                 rtos_signal_wait(RTOS_SIGNAL_ID_TX);
-                m_count = 0;
+                msg_len = 0;
             }
         }
     }
@@ -112,18 +111,18 @@ fn_a(void)
 void
 fn_b(void)
 {
-    int i;
+    unsigned int i;
 
     debug_println("Task B");
 
     for (;;) {
         rtos_signal_wait(RTOS_SIGNAL_ID_RX);
 
-        for (i = m_count - 1; i >= 0; i--) {
+        for (i = 0; i < msg_len; i++) {
             while (!duart2_tx_ready()) {
                 rtos_signal_wait(RTOS_SIGNAL_ID_TX);
             }
-            duart2_tx_put(msg_buf[i]);
+            duart2_tx_put(msg_buf[(msg_len - 1) - i]);
         }
 
         rtos_signal_send(RTOS_TASK_ID_A, RTOS_SIGNAL_ID_TX);

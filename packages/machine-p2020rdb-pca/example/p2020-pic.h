@@ -22,6 +22,7 @@
 #include <stdint.h>
 
 #define PIC_SPURIOUS_VECTOR_CODE 0xffff
+#define PIC_NUM_GLOBAL_TIMERS 8
 
 /* Selected interfaces for config and operation of the P2020 PIC (Programmable Interrupt Controller).
  * Please see the "P2020 QorIQ Integrated Processor Reference Manual" (P2020RM) for more information on configurable
@@ -30,4 +31,4 @@
 void pic_iiv_duart_init(uint32_t priority, uint32_t vector);
 uint32_t pic_iack_get(void);
 void pic_eoi_put(void);
-void pic_global_timer_init(int i, uint32_t priority, uint32_t vector, uint32_t base_count);
+void pic_global_timer_init(unsigned int i, uint32_t priority, uint32_t vector, uint32_t base_count);

@@ -30,13 +30,18 @@ Comment [rework]:
 	-  if (base_count & 0x80000000) { => MAX_BASE_COUNT
 	-  if (i < 4) { = > what is 4 ???
 
+[robs: Fixed]
+
 Location: packages/machine-p2020rdb-pca/example/interrupt-demux-example.c
 Comment: [rework]
 - There is a magic number in here:
 	- for (i = 0; i < 8; i++) {  => MAX_..._TIMERS
+
+[robs: Fixed]
 
 Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c
 Comment: [rework]
 - There is a magic constant here:
 	- a_buf[BUF_CAPACITY - 1] = '#';  => RX_OVERRUN
 
+[robs: Fixed]

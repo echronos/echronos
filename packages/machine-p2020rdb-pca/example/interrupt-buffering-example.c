@@ -36,6 +36,7 @@
 /* 16 bytes is the size of the DUART FIFOs.
  * But we can pick a totally arbitrary size for the buffer we use to pass bytes to Task A. */
 #define BUF_CAPACITY 256
+#define RX_BUF_OVERRUN_CHAR '#'
 
 #define SPURIOUS_LIMIT 10
 #define EXAMPLE_ERROR_ID_BUFFER_COUNT_OOB 0xfe
@@ -91,7 +92,7 @@ exti_duart_irq_handle(uint8_t iid)
 
         if (a_count == BUF_CAPACITY) {
             /* Indicate a_buf[] rx buffer capacity overrun with a special character. */
-            a_buf[BUF_CAPACITY - 1] = '#';
+            a_buf[BUF_CAPACITY - 1] = RX_BUF_OVERRUN_CHAR;
             /* Reset the FIFO and clear the receiver shift register. */
             duart2_rx_fifo_reset();
             duart2_rx_get();

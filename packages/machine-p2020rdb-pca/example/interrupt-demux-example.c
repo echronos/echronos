@@ -171,7 +171,7 @@ main(void)
     duart1_rx_irq_init();
 
     /* Use all 8 of the PIC's global timers as distinct interrupt sources. */
-    for (i = 0; i < 8; i++) {
+    for (i = 0; i < PIC_NUM_GLOBAL_TIMERS; i++) {
         pic_global_timer_init(i, PIC_GT_EXAMPLE_PRIORITY, PIC_GT_EXAMPLE_VECTOR(i),
                 PIC_GT_EXAMPLE_BASE_COUNT * (i + 1));
     }

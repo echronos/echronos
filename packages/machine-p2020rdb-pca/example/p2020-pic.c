@@ -23,25 +23,31 @@
 #include "p2020-pic.h"
 #include "debug.h"
 
-/* PIC registers are 32 bits wide */
+#define PIC_REGISTER_WIDTH_BITS 32
 #define PIC_REGISTER_BASE (CCSRBAR + 0x40000)
 #define PIC_GCR (volatile uint32_t *)(PIC_REGISTER_BASE + 0x1020)
 #define PIC_CTPR_CPU0 (volatile uint32_t *)(PIC_REGISTER_BASE + 0x20080)
 #define PIC_IACK_CPU0 (volatile uint32_t *)(PIC_REGISTER_BASE + 0x200a0)
 #define PIC_EOI_CPU0 (volatile uint32_t *)(PIC_REGISTER_BASE + 0x200b0)
+#define PIC_INTERRUPT_PRIORITY_MAX 15
+#define PIC_INTERRUPT_VECTOR_MAX 0xffff
 
 #define PIC_IIVPR_BASE (PIC_REGISTER_BASE + 0x10200)
 /* x is the internal interrupt number, range 0 to 63 */
-#define PIC_IIVPR(x) (volatile uint32_t *)(PIC_IIVPR_BASE + (32 * (x)))
+#define PIC_IIVPR(x) (volatile uint32_t *)(PIC_IIVPR_BASE + (PIC_REGISTER_WIDTH_BITS * (x)))
 #define PIC_IIVPR_PRIORITY_SHIFT 16
+#define PIC_IIVPR_MSK_MASK 0x7fffffff
 
+#define PIC_GT_REGISTER_SPACING_BITS 64
+#define PIC_NUM_GLOBAL_TIMERS_PER_GROUP 4
 /* Global timer group A, x is valid from 0 to 3 */
-#define PIC_GTBCRA(x) (volatile uint32_t *)(PIC_REGISTER_BASE + 0x1110 + (64 * (x)))
-#define PIC_GTVPRA(x) (volatile uint32_t *)(PIC_REGISTER_BASE + 0x1120 + (64 * (x)))
+#define PIC_GTBCRA(x) (volatile uint32_t *)(PIC_REGISTER_BASE + 0x1110 + (PIC_GT_REGISTER_SPACING_BITS * (x)))
+#define PIC_GTVPRA(x) (volatile uint32_t *)(PIC_REGISTER_BASE + 0x1120 + (PIC_GT_REGISTER_SPACING_BITS * (x)))
 /* Global timer group B, x is valid from 0 to 3 */
-#define PIC_GTBCRB(x) (volatile uint32_t *)(PIC_REGISTER_BASE + 0x2110 + (64 * (x)))
-#define PIC_GTVPRB(x) (volatile uint32_t *)(PIC_REGISTER_BASE + 0x2120 + (64 * (x)))
+#define PIC_GTBCRB(x) (volatile uint32_t *)(PIC_REGISTER_BASE + 0x2110 + (PIC_GT_REGISTER_SPACING_BITS * (x)))
+#define PIC_GTVPRB(x) (volatile uint32_t *)(PIC_REGISTER_BASE + 0x2120 + (PIC_GT_REGISTER_SPACING_BITS * (x)))
 #define PIC_GTVPR_PRIORITY_SHIFT 16
+#define PIC_GTBCR_BASE_COUNT_MAX 0x7fffffff
 
 #define PIC_EOI_CODE 0
 #define PIC_IIV_DUART 26
@@ -49,13 +55,13 @@
 static void
 assert_priority_vector_valid(const char *caller, uint32_t priority, uint32_t vector)
 {
-    if (priority > 15) {
+    if (priority > PIC_INTERRUPT_PRIORITY_MAX) {
         debug_print(caller);
         debug_println(": Priority must be in range 0..15!");
         while (1);
     }
 
-    if (vector > 0xffff) {
+    if (vector > PIC_INTERRUPT_VECTOR_MAX) {
         debug_print(caller);
         debug_println(": Vector cannot be larger than 0xffff!");
         while (1);
@@ -75,11 +81,11 @@ pic_iiv_duart_init(uint32_t priority, uint32_t vector)
     /* Set CTPR[TASKP] to some value lower than DUART's priority so that DUART irq is sent to CPU */
     *PIC_CTPR_CPU0 = 0;
 
-    /* Set the DUART vector number to a recognisable, arbitrary value */
+    /* Set the DUART vector number to the given value */
     *PIC_IIVPR(PIC_IIV_DUART) |= vector;
 
     /* Unmask the DUART interrupt */
-    *PIC_IIVPR(PIC_IIV_DUART) &= 0x7fffffff;
+    *PIC_IIVPR(PIC_IIV_DUART) &= PIC_IIVPR_MSK_MASK;
 }
 
 uint32_t
@@ -98,16 +104,16 @@ pic_eoi_put(void)
 }
 
 void
-pic_global_timer_init(int i, uint32_t priority, uint32_t vector, uint32_t base_count)
+pic_global_timer_init(unsigned int i, uint32_t priority, uint32_t vector, uint32_t base_count)
 {
-    if (i < 0 || i > 7) {
+    if (i >= PIC_NUM_GLOBAL_TIMERS) {
         /* No. Bad! */
         debug_print(__func__);
         debug_println(": There are only 8 timers - only i in range 0..7 are valid!");
         while (1);
     }
 
-    if (base_count & 0x80000000) {
+    if (base_count > PIC_GTBCR_BASE_COUNT_MAX) {
         debug_print(__func__);
         debug_println(": Base count cannot exceed 0x7fffffff!");
         while (1);
@@ -115,11 +121,11 @@ pic_global_timer_init(int i, uint32_t priority, uint32_t vector, uint32_t base_c
 
     assert_priority_vector_valid(__func__, priority, vector);
 
-    if (i < 4) {
+    if (i < PIC_NUM_GLOBAL_TIMERS_PER_GROUP) {
         *PIC_GTVPRA(i) = (priority << PIC_GTVPR_PRIORITY_SHIFT) | vector;
         *PIC_GTBCRA(i) = base_count;
     } else {
-        *PIC_GTVPRB(i) = (priority << PIC_GTVPR_PRIORITY_SHIFT) | vector;
-        *PIC_GTBCRB(i) = base_count;
+        *PIC_GTVPRB(i - PIC_NUM_GLOBAL_TIMERS_PER_GROUP) = (priority << PIC_GTVPR_PRIORITY_SHIFT) | vector;
+        *PIC_GTBCRB(i - PIC_NUM_GLOBAL_TIMERS_PER_GROUP) = base_count;
     }
 }

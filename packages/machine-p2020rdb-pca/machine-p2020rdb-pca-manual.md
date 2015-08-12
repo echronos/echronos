@@ -59,10 +59,10 @@ The Machine P2020RDB-PCA package provides the following example systems for the 
   <dt>`kochab-sched-demo`</dt>
   <dd>A system demonstrating scheduling behavior on the Kochab variant.</dd>
 
-  <dt>`kochab-irq-demux-example`</dt>
+  <dt>`kochab-interrupt-demux-example`</dt>
   <dd>A (Kochab) system demonstrating demultiplexing of external interrupts using the P2020 PIC, and their delivery to particular tasks using eChronos' `interrupt_event_raise()` API.</dd>
 
-  <dt>`kochab-irq-buffering-example`</dt>
+  <dt>`kochab-interrupt-buffering-example`</dt>
   <dd>A (Kochab) system demonstrating buffering of data between interrupt handler and task, with access to the data synchronized via some platform-specific method, as well as interrupt-driven receipt/transmission of data via the P2020 DUART.</dd>
 
   <dt>`kochab-task-sync-example`</dt>
@@ -83,10 +83,10 @@ The Machine P2020RDB-PCA package provides the following example systems for the 
   <dt>`phact-sched-demo`</dt>
   <dd>A system demonstrating scheduling behavior on the Phact variant.</dd>
 
-  <dt>`phact-irq-demux-example`</dt>
+  <dt>`phact-interrupt-demux-example`</dt>
   <dd>A (Phact) system demonstrating demultiplexing of external interrupts using the P2020 PIC, and their delivery to particular tasks using eChronos' interrupt_event_raise API.</dd>
 
-  <dt>`phact-irq-buffering-example`</dt>
+  <dt>`phact-interrupt-buffering-example`</dt>
   <dd>A (Phact) system demonstrating buffering of data between interrupt handler and task, with access to the data synchronized via some platform-specific method, as well as interrupt-driven receipt/transmission of data via the P2020 DUART.</dd>
 
   <dt>`phact-task-sync-example`</dt>
@@ -133,12 +133,12 @@ To support code reuse across the above examples, this package also contains some
 
 This example program serves to demonstrate use of the P2020 PIC, as well as interrupt delivery to distinct tasks using eChronos' `interrupt_event_raise()` API.
 
-The program configures the following external interrupt sources, and handles them with the `exti_irq` function:
+The program configures the following external interrupt sources, and handles them with the `exti_interrupt` function:
 - P2020 DUART1 RX (on the P2020RDB-PCA, this is the RJ45 port labelled "UART0")
 - P2020 DUART2 RX (on the P2020RDB-PCA, this is the RJ45 port labelled "UART1")
 - All 8 of the P2020 PIC' global timers, configured to occur at periods that are multiples of each other
 
-The program also configures the PowerPC e500 CPU's fixed interval timer, and handles it separately with the `tick_irq` function.
+The program also configures the PowerPC e500 CPU's fixed interval timer, and handles it separately with the `tick_interrupt` function.
 
 Each distinct interrupt source will trigger an interrupt delivery to a distinct task running in the system.
 

@@ -28,7 +28,7 @@
     <module name="ppce500.vectable">
       <preemption>true</preemption>
       <external_input>
-        <handler>exti_irq</handler>
+        <handler>exti_interrupt</handler>
         <preempting>true</preempting>
       </external_input>
     </module>

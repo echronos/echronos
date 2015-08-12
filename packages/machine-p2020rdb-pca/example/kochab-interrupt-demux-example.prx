@@ -28,11 +28,11 @@
     <module name="ppce500.vectable">
       <preemption>true</preemption>
       <fixed_interval_timer>
-        <handler>tick_irq</handler>
+        <handler>tick_interrupt</handler>
         <preempting>false</preempting>
       </fixed_interval_timer>
       <external_input>
-        <handler>exti_irq</handler>
+        <handler>exti_interrupt</handler>
         <preempting>true</preempting>
       </external_input>
     </module>

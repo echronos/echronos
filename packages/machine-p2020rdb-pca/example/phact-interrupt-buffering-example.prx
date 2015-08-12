@@ -28,14 +28,14 @@
     <module name="ppce500.vectable">
       <preemption>true</preemption>
       <external_input>
-        <handler>exti_irq</handler>
+        <handler>exti_interrupt</handler>
         <preempting>true</preempting>
       </external_input>
     </module>
     <module name="ppce500.section-init" />
     <module name="generic.debug" />
 
-    <module name="ppce500.rtos-kochab">
+    <module name="ppce500.rtos-phact">
       <internal_asserts>true</internal_asserts>
       <fatal_error>fatal</fatal_error>
       <prefix>rtos</prefix>
@@ -90,10 +90,10 @@
     <module name="machine-p2020rdb-pca.example.p2020-duart" />
     <!-- main .c file: -->
     <module name="machine-p2020rdb-pca.example.interrupt-buffering-example">
-      <variant>kochab</variant>
+      <variant>phact</variant>
     </module>
     <module name="machine-p2020rdb-pca.example.task-echo-example">
-      <variant>kochab</variant>
+      <variant>phact</variant>
     </module>
 
   </modules>

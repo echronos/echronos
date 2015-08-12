@@ -35,23 +35,23 @@
 uint8_t duart2_iid_get(void);
 void duart2_init(void);
 
-void duart2_rx_irq_init(void);
+void duart2_rx_interrupt_init(void);
 bool duart2_rx_ready(void);
 void duart2_rx_fifo_reset(void);
 bool duart2_rx_overrun(void);
 void duart2_rx_init(void);
 char duart2_rx_get(void);
 
-void duart2_tx_irq_init(void);
+void duart2_tx_interrupt_init(void);
 bool duart2_tx_ready(void);
 void duart2_tx_put(char c);
 
-void duart2_irq_disable(void);
+void duart2_interrupt_disable(void);
 
 /* DUART1 */
 void duart1_init(void);
 
-void duart1_rx_irq_init(void);
+void duart1_rx_interrupt_init(void);
 bool duart1_rx_ready(void);
 char duart1_rx_get(void);
 

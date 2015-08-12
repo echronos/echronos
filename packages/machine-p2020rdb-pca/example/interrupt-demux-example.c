@@ -38,11 +38,11 @@
 #define PIC_GT_EXAMPLE_VECTOR(x) (0xf000 + ((x) & 1) + (((x) & 2) ? 0x10 : 0) + (((x) & 4) ? 0x100 : 0))
 
 bool
-exti_irq(void)
+exti_interrupt(void)
 {
     uint32_t inc_vector;
 
-    debug_print("exti_irq: ");
+    debug_print("exti_interrupt: ");
 
     inc_vector = pic_iack_get();
 
@@ -114,11 +114,11 @@ exti_irq(void)
 }
 
 bool
-tick_irq(void)
+tick_interrupt(void)
 {
     machine_timer_clear();
 
-    debug_println("tick_irq");
+    debug_println("tick_interrupt");
 
     rtos_interrupt_event_raise(RTOS_INTERRUPT_EVENT_ID_EVT_I);
 
@@ -166,9 +166,9 @@ main(void)
     /* The p2020-util library uses DUART1 tx for debug output.
      * Use DUART1 and DUART2 rx as distinct interrupt sources. */
     duart2_init();
-    duart2_rx_irq_init();
+    duart2_rx_interrupt_init();
     /* Assume here that duart1_init has already been called by the initial debug print. */
-    duart1_rx_irq_init();
+    duart1_rx_interrupt_init();
 
     /* Use all 8 of the PIC's global timers as distinct interrupt sources. */
     for (i = 0; i < PIC_NUM_GLOBAL_TIMERS; i++) {

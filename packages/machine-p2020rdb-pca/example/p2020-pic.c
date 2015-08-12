@@ -78,7 +78,7 @@ pic_iiv_duart_init(uint32_t priority, uint32_t vector)
     /* Set the DUART interrupt priority to a non-zero value so its delivery isn't inhibited */
     *PIC_IIVPR(PIC_IIV_DUART) |= (priority << PIC_IIVPR_PRIORITY_SHIFT);
 
-    /* Set CTPR[TASKP] to some value lower than DUART's priority so that DUART irq is sent to CPU */
+    /* Set CTPR[TASKP] to some value lower than DUART's priority so that DUART interrupt is sent to CPU */
     *PIC_CTPR_CPU0 = 0;
 
     /* Set the DUART vector number to the given value */

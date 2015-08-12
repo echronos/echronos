@@ -66,7 +66,7 @@ fn_a(void)
 
     debug_println("Task A");
 
-    duart2_tx_irq_init();
+    duart2_tx_interrupt_init();
 
     for (;;) {
         rtos_signal_wait(RTOS_SIGNAL_ID_RX);

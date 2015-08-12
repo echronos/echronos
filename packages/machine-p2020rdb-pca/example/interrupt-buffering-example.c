@@ -45,7 +45,7 @@ uint8_t rx_buf[BUF_CAPACITY];
 volatile int rx_count;
 
 bool
-exti_duart_irq_handle(uint8_t iid)
+exti_duart_interrupt_handle(uint8_t iid)
 {
     int original_rx_count;
     static int spurious_count;
@@ -93,7 +93,7 @@ exti_duart_irq_handle(uint8_t iid)
             if (spurious_count == SPURIOUS_LIMIT) {
                 /* Disable the interrupt. */
                 debug_println("Disabling DUART.");
-                duart2_irq_disable();
+                duart2_interrupt_disable();
             }
             return false;
         }
@@ -114,7 +114,7 @@ exti_duart_irq_handle(uint8_t iid)
 }
 
 bool
-exti_irq(void)
+exti_interrupt(void)
 {
     uint32_t inc_vector;
     uint8_t iid;
@@ -131,9 +131,9 @@ exti_irq(void)
                     break;
                 }
                 if (ret) {
-                    exti_duart_irq_handle(iid);
+                    exti_duart_interrupt_handle(iid);
                 } else {
-                    ret = exti_duart_irq_handle(iid);
+                    ret = exti_duart_interrupt_handle(iid);
                 }
             }
             break;
@@ -160,5 +160,5 @@ interrupt_buffering_example_init(void)
 
     /* Set up DUART2 to be a source of input characters. */
     duart2_init();
-    duart2_rx_irq_init();
+    duart2_rx_interrupt_init();
 }

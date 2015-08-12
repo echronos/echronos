@@ -89,14 +89,14 @@ duart2_iid_get(void)
 }
 
 void
-duart2_tx_irq_init(void)
+duart2_tx_interrupt_init(void)
 {
     /* Enable transmitter holding register empty interrupt (ETHREI) */
     *DUART_UIER2 |= UIER_ETHREI_SET;
 }
 
 void
-duart2_rx_irq_init(void)
+duart2_rx_interrupt_init(void)
 {
     /* Enable received data available interrupt (ERDAI) */
     *DUART_UIER2 |= UIER_ERDAI_SET;
@@ -168,7 +168,7 @@ duart2_tx_put(const char c)
 }
 
 void
-duart2_irq_disable(void)
+duart2_interrupt_disable(void)
 {
     *DUART_UIER2 = UIER_MASK_ALL;
 }
@@ -207,7 +207,7 @@ duart1_tx_put(const char c)
 }
 
 void
-duart1_rx_irq_init(void)
+duart1_rx_interrupt_init(void)
 {
     /* Enable received data available interrupt (ERDAI) only */
     *DUART_UIER1 |= UIER_ERDAI_SET;

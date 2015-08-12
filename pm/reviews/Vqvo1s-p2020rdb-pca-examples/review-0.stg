@@ -112,6 +112,8 @@ Comment 15: rework
 These system configuration files share a massive amount of XML data.
 I would recommend to move the shared parts into separate files and include them via the <include> mechanism to reduce duplication and improve maintainability.
 
+[robs: As discussed, the actual amount of XML spec in common isn't enough to justify a new file - leaving as-is]
+
 Location: packages/machine-p2020rdb-pca/example/p2020-pic.c:50 and others
 Comment 16: rework
 The function arguments of `assert_priority_vector_valid()` and all other functions in this file should be declared as constant as per convention BXCwte.
@@ -121,6 +123,8 @@ The function arguments of `assert_priority_vector_valid()` and all other functio
 Location: packages/machine-p2020rdb-pca/example/p2020-pic.c:104 & 111
 Comment 17: rework
 Would it make sense for this code to be replaced by calls to `fatal()`?
+
+[robs: As discussed, not keen on making this "lib" code dependent on the existence of an extern fatal if I can help it]
 
 Location: packages/machine-p2020rdb-pca/example/task-sync-example.c
 Comment 18: rework

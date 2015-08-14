@@ -1,0 +1,41 @@
+Task: ZTC5ft-new_wording_for_CAA_trademark_terms_for_AGPLv3
+==============================================================================
+
+Motivation
+----------
+
+The trade-mark use of the terms 'eChronos' and NICTA and the contribution process need to be clarified for the open-source release of the RTOS.
+
+
+Goals
+--------
+
+- in all licensing information for genuine eChronos RTOS data, replace the clause
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as published by
+ the Free Software Foundation, version 3, provided that no right, title
+ or interest in or to any trade mark, service mark, logo or trade name
+ of NICTA or its licensors is granted.
+
+with
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as published by
+ the Free Software Foundation, version 3, provided that these additional
+ terms apply under section 7:
+
+   No right, title or interest in or to any trade mark, service mark, logo
+   or trade name of of National ICT Australia Limited, ABN 62 102 206 173
+   ("NICTA") or its licensors is granted. Modified versions of the Program
+   must be plainly marked as such, and must not be distributed using
+   "eChronos" as a trade mark or product name, or misrepresented as being
+   the original Program.
+
+- update CONTRIBUTING.md so that it explains the correct contribution process and points to the agreement form
+
+
+Test Plan
+---------
+
+- manual review

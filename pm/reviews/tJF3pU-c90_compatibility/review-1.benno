@@ -1,0 +1,19 @@
+RTOS Task Review
+=======================
+
+Task name: tJF3pU-c90_compatibility
+Version reviewed: 29c80ab3836180741a72adc54bf2cf880a0b9ca1
+Reviewer: benno
+Date: 2015-05-25
+Conclusion: Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: components/context-switch-preempt-stub/implementation.c
+Comment: Has a comment that references "ARM".
+
+[stg: removed comment]

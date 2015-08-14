@@ -1,0 +1,19 @@
+Task: hNicZN-contributor_agreement
+==============================================================================
+
+Motivation
+----------
+
+We have new Contributor Agreements for the release and need to add information about these, and a proper link, in CONTRIBUTING.md.
+
+
+Goals
+--------
+
+Add information about, and a link to, contributor agreements in CONTRIBUTING.md.
+
+
+Test Plan
+---------
+
+Read the document, test the links.

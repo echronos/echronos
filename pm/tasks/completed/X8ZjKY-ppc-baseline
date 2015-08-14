@@ -4,7 +4,7 @@ Task: X8ZjKY-ppc-baseline
 Motivation
 ----------
 
-We'd like to port eChronos to PowerPC and test it with QEMU emulation until boards can be obtained.
+We'd like to port the RTOS to PowerPC and test it with QEMU emulation until boards can be obtained.
 
 
 Goals

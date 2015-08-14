@@ -1,0 +1,17 @@
+RTOS Task Review
+=======================
+
+Task name: tJF3pU-c90_compatibility
+Version reviewed: 02c4477d490d2cd9fb5bb00071c5e384d9b969b7
+Reviewer: benno
+Date: 2015-05-28
+Conclusion: Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: packages/stub/build.py
+Comment: Use os.path.join('packages', 'stub') rather than 'packages/stub'

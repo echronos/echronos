@@ -1,0 +1,20 @@
+Task: pVXsiD-ppc_acknowledgement_and_disclaimer
+==============================================================================
+
+Motivation
+----------
+
+The PPC work needs an acknowledgement as it was performed as part of the SMACCM project.
+
+
+Goals
+--------
+
+Add acknowledgements to the PPC Readme documents and generated manual.
+
+
+Test Plan
+---------
+
+build and manually review manual, ensure regression tests don't fail.
+

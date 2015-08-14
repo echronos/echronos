@@ -4,7 +4,7 @@ Task: mPqfai-remove_manual_logo
 Motivation
 ----------
 
-RTOS manuals are generated including the Breakaway Consulting logo.
+RTOS manuals are generated including the logo of Breakaway Consulting Pty. Ltd.
 The logo is currently in the repository from where it would become part of the open-source release.
 It is currently considered undesirable that manuals generated from the open-source release also include that logo.
 

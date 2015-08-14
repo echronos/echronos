@@ -1,4 +1,4 @@
-Breakaway Task Review
+RTOS Task Review
 =======================
 
 Task name: icHGes-release-licensing
@@ -11,15 +11,15 @@ Overall comments:
 
 An appropriate license should be determined for the documentation rather than AGPL.
 
-[ikuz: We have decided to use AGPL for documentation as well. 
+[ikuz: We have decided to use AGPL for documentation as well.
 I've added this to documentation files, and include a NICTA_DOC_AGPL tag so that they can be identified as documentation headers.]
 
-The licensing terms for the Breakaway Logo should be reworded to avoid referring to a specific file.
+The licensing terms for the logo of Breakaway Consulting Ltd. Pty. should be reworded to avoid referring to a specific file.
 The wording could be something like:
 
     Any instances of the Breakaway Consulting Pty. Ltd. logo are copyright Breakaway Consulting Pty. Ltd. and may not be used without further permission.
 
-[robs: Reworded terms for Breakaway logo in LICENSE.md accordingly]
+[robs: Reworded terms for logo in LICENSE.md accordingly]
 
 The creation of temporary files should be avoided as a pattern.
 Instead simply write to a memory buffer, and then use the zip file `writestr` method instead of `write`.

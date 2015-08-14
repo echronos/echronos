@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+     eChronos Real-Time Operating System
+     Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+
+     This program is free software: you can redistribute it and/or modify
+     it under the terms of the GNU Affero General Public License as published by
+     the Free Software Foundation, version 3, provided that these additional
+     terms apply under section 7:
+
+       No right, title or interest in or to any trade mark, service mark, logo
+       or trade name of of National ICT Australia Limited, ABN 62 102 206 173
+       "NICTA" or its licensors is granted. Modified versions of the Program
+       must be plainly marked as such, and must not be distributed using
+       "eChronos" as a trade mark or product name, or misrepresented as being
+       the original Program.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU Affero General Public License for more details.
+
+     You should have received a copy of the GNU Affero General Public License
+     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+     @TAG(NICTA_AGPL)
+  -->
+
+<system>
+  <modules>
+    <module name="stub.build" />
+    <module name="stub.debug" />
+    <module name="generic.debug" />
+
+    <module name="stub.rtos-kochab">
+      <internal_asserts>true</internal_asserts>
+      <fatal_error>fatal</fatal_error>
+      <prefix>rtos</prefix>
+      <taskid_size>8</taskid_size>
+      <signalset_size>8</signalset_size>
+      <tasks>
+
+        <task>
+          <name>a</name>
+          <function>fn_a</function>
+          <priority>30</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>b</name>
+          <function>fn_b</function>
+          <priority>10</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+      </tasks>
+
+      <signal_labels>
+
+        <signal_label>
+          <name>timer</name>
+        </signal_label>
+
+        <signal_label>
+          <name>test</name>
+        </signal_label>
+
+      </signal_labels>
+
+      <interrupt_events>
+        <interrupt_event>
+          <name>tick</name>
+          <task>a</task>
+          <sig_set>timer</sig_set>
+        </interrupt_event>
+      </interrupt_events>
+
+      <mutexes>
+        <mutex>
+          <name>m0</name>
+        </mutex>
+      </mutexes>
+      <mutex>
+        <stats>false</stats>
+      </mutex>
+
+      <semaphores>
+        <semaphore>
+          <name>sem0</name>
+        </semaphore>
+      </semaphores>
+    </module>
+
+    <module name="rtos-example.kochab-test" />
+
+  </modules>
+</system>

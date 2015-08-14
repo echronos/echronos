@@ -211,8 +211,9 @@ message_queue_wait_timeout(const {{prefix_type}}MessageQueueId message_queue,
 }
 
 /* assumptions: max length 255, no overlap of dst & src */
+/* called memcopy instead of memcpy to not conflict with gcc's built-in memcpy declaration on unit test targets */
 static void
-memcpy(uint8_t *dst, const uint8_t *src, const uint8_t length)
+memcopy(uint8_t *dst, const uint8_t *src, const uint8_t length)
 {
     uint8_t *const dst_end = dst + length;
 
@@ -259,7 +260,7 @@ bool
         {
             const uint8_t buffer_index = (mq->head + mq->available) % mq->queue_length;
             const uint16_t buffer_offset = buffer_index * mq->message_size;
-            memcpy(&mq->messages[buffer_offset], message, mq->message_size);
+            memcopy(&mq->messages[buffer_offset], message, mq->message_size);
             mq->available += 1;
 
             if (mq->available == 1)
@@ -325,7 +326,8 @@ bool
         else
         {
             const uint16_t buffer_offset = mq->head * mq->message_size;
-            memcpy((uint8_t*)message, &mq->messages[buffer_offset], mq->message_size);
+            memcopy((uint8_t*)message, &mq->messages[buffer_offset], mq->message_size);
+            mq->head = (mq->head + 1) % mq->queue_length;
             mq->available -= 1;
 
             if (mq->available == ({{message_queues.length}} - 1))

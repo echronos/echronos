@@ -4,9 +4,15 @@ Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
-the Free Software Foundation, version 3, provided that no right, title
-or interest in or to any trade mark, service mark, logo or trade name
-of NICTA or its licensors is granted.
+the Free Software Foundation, version 3, provided that these additional
+terms apply under section 7:
+
+  No right, title or interest in or to any trade mark, service mark, logo
+  or trade name of of National ICT Australia Limited, ABN 62 102 206 173
+  ("NICTA") or its licensors is granted. Modified versions of the Program
+  must be plainly marked as such, and must not be distributed using
+  "eChronos" as a trade mark or product name, or misrepresented as being
+  the original Program.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -19,16 +25,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 @TAG(NICTA_DOC_AGPL)
   -->
 
-eChronos README
-===============
+README
+======
 
 Overview
 --------
 
-The eChronos release contains a tool `prj` which is used for configuring the RTOS and (optionally) building systems based on the RTOS.
+The RTOS release contains a tool `prj` which is used for configuring the RTOS and (optionally) building systems based on the RTOS.
 The `prj` tool can be found in the `x86_64-unknown-linux-gnu/bin` directory.
 
-eChronos itself is organised as a series of packages stored in the `share/packages` directory.
+The RTOS itself is organised as a series of packages stored in the `share/packages` directory.
 These are described in the following sections, and in further detail in their respective manual files.
 
 For completeness, `LICENSE` contains the license under which this release is made available and `build_info` contains the specific build information used to uniquely identify the release.
@@ -36,7 +42,7 @@ For completeness, `LICENSE` contains the license under which this release is mad
 Installation
 -------------
 
-To install eChronos simply extract the release archive in to a suitable location.
+To install the RTOS, simply extract the release archive in to a suitable location.
 This can either be within a specific project directory, (e.g: `project/echronos`) or in a more general location (e.g: ~/local/echronos).
 
 The `prj` binary is used to configure the RTOS, so should be installed somewhere such that it is convenient to use.
@@ -231,8 +237,15 @@ The default stack size is 4KiB (0x1000).
 `ppce500.rtos-kochab`
 ----------------------
 
-eChronos comes in a number of different *flavors*, each of varying complexity, code size and feature set.
+The RTOS comes in a number of different *flavors*, each of varying complexity, code size and feature set.
 
 The RTOS flavor *kochab* supports tasks, priority scheduling, mutexes with priority inheritance, semaphores, signals, and interrupt events which can cause task preemption and trigger the sending of signals.
 
 For more information including configuration options, please see `share/packages/ppce500/rtos-kochab/documentation.pdf`.
+
+Acknowledgements
+----------------
+
+This material is based on research sponsored by the Air Force Research Laboratory and the Defense Advanced Research Projects Agency (DARPA) under agreement number FA8750-12-9-0179.
+The U.S. Government is authorised to reproduce and distribute reprints for Governmental purposes notwithstanding any copyright notation thereon.
+The views and conclusions contained herein are those of the authors and should not be interpreted as necessarily representing the official policies or endorsements, either express or implied, of Air Force Research Laboratory, the Defense Advanced Research Projects Agency or the U.S. Government.

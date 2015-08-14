@@ -31,7 +31,10 @@
 #include "interrupt-buffering-example.h"
 #include "debug.h"
 
-/* This file defines a simple echo task for the `interrupt-buffering-example` system. */
+/* This file defines a simple echo task for the `interrupt-buffering-example` system.
+ * The main purpose of this code is to demonstrate one way of synchronizing access to data buffered by an interrupt
+ * handler, a choice which will typically need to be platform-specific.
+ * Please see `machine-p2020rdb-pca-manual.md` for more information. */
 
 #define EXAMPLE_ERROR_ID_RX_BUF_OVERRUN 0xfc
 #define EXAMPLE_ERROR_ID_BUFFER_COUNT_OOB 0xfe

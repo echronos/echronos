@@ -14,6 +14,7 @@ Good clear examples.  I think it might help clarify the examples even more by ad
 - for each of the key functions what they are/do (especially for the interrupt handlers0 and how they relate to the overall structure and example goal.
 - for the prx files, some comments highlighting the irq handlers, the signals, and the interrupt events and how they are wired up.
 
+[robs: Thanks - added some more detail, hope this is sufficient]
 
 Specific comments
 =================

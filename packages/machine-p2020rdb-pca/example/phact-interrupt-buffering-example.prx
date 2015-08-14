@@ -26,7 +26,9 @@
     <module name="ppce500.default-linker" />
     <module name="ppce500.interrupts-util" />
     <module name="ppce500.vectable">
+      <!-- Preemption must be enabled for this module if using with preemptive RTOS variants like Phact -->
       <preemption>true</preemption>
+      <!-- We must designate an interrupt handler preempting if it potentially raises interrupt events -->
       <external_input>
         <handler>exti_interrupt</handler>
         <preempting>true</preempting>
@@ -42,6 +44,7 @@
       <taskid_size>8</taskid_size>
       <signalset_size>8</signalset_size>
 
+      <!-- Distinct signal labels indicating data receive-ready, receive-overrun, and transmit-ready status -->
       <signal_labels>
 
         <signal_label>
@@ -58,6 +61,7 @@
 
       </signal_labels>
 
+      <!-- All the interrupt events are propagated to the only task in the system -->
       <interrupt_events>
         <interrupt_event>
           <name>rx</name>
@@ -94,14 +98,16 @@
       </mutex>
     </module>
 
+    <!-- Machine-specific library code -->
     <module name="machine-p2020rdb-pca.example.machine-timer" />
     <module name="machine-p2020rdb-pca.example.p2020-pic" />
     <module name="machine-p2020rdb-pca.example.p2020-util" />
     <module name="machine-p2020rdb-pca.example.p2020-duart" />
-    <!-- main .c file: -->
+    <!-- C file defining interrupt handler -->
     <module name="machine-p2020rdb-pca.example.interrupt-buffering-example">
       <variant>phact</variant>
     </module>
+    <!-- C file defining task -->
     <module name="machine-p2020rdb-pca.example.task-echo-example">
       <variant>phact</variant>
     </module>

@@ -31,7 +31,10 @@
 #include "interrupt-buffering-example.h"
 #include "debug.h"
 
-/* This file defines a pair of tasks for the `task-sync-example` system. */
+/* This file defines a pair of tasks for the `task-sync-example` system.
+ * The main purpose of this code is to demonstrate one possible way of synchronizing access to a data structure shared
+ * between two tasks, using some choice of API offered by the RTOS.
+ * Please see `machine-p2020rdb-pca-manual.md` for more information. */
 
 #define MSG_SIZE 42
 

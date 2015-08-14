@@ -30,7 +30,10 @@
 #include "rtos-{{variant}}.h"
 #include "debug.h"
 
-/* This file defines the interrupt handlers and task code for the `interrupt-demux-example` system. */
+/* This file defines the interrupt handlers and task code for the `interrupt-demux-example` system.
+ * The main purpose of this code is to demonstrate the demultiplexing of external interrupts on the P2020, and the
+ * raising of interrupt events, which propagate to tasks as signals accessible via the signal API.
+ * Please see `machine-p2020rdb-pca-manual.md` for more information. */
 
 #define PIC_IIV_DUART_EXAMPLE_PRIORITY 2
 #define PIC_IIV_DUART_EXAMPLE_VECTOR 0xbeef

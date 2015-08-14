@@ -31,7 +31,9 @@
 #include "interrupt-buffering-example.h"
 #include "debug.h"
 
-/* This file defines the interrupt handler for the `interrupt-buffering-example` and `task-sync-example` systems. */
+/* This file defines the interrupt handler for the `interrupt-buffering-example` and `task-sync-example` systems.
+ * The main purpose of this code is to demonstrate one possible way to buffer data from an interrupt handler to a task.
+ * Please see `machine-p2020rdb-pca-manual.md` for more information. */
 
 #define PIC_IIV_DUART_EXAMPLE_PRIORITY 2
 #define PIC_IIV_DUART_EXAMPLE_VECTOR 0xbeef

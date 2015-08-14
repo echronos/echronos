@@ -49,6 +49,7 @@
       <taskid_size>8</taskid_size>
       <signalset_size>8</signalset_size>
 
+      <!-- Only one signal label needed for this demo -->
       <signal_labels>
 
         <signal_label>
@@ -57,6 +58,7 @@
 
       </signal_labels>
 
+      <!-- Distinct interrupt events routed to distinct tasks, but all using the same signal label -->
       <interrupt_events>
 
         <interrupt_event>
@@ -127,6 +129,7 @@
 
       </interrupt_events>
 
+      <!-- One task per distinct interrupt event for demo purposes -->
       <tasks>
 
         <task>
@@ -213,6 +216,7 @@
       </mutex>
     </module>
 
+    <!-- Machine-specific library code -->
     <module name="machine-p2020rdb-pca.example.machine-timer" />
     <module name="machine-p2020rdb-pca.example.p2020-util" />
     <module name="machine-p2020rdb-pca.example.p2020-duart" />

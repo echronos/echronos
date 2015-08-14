@@ -62,7 +62,7 @@ exti_interrupt(void)
         if (duart1_rx_ready()) {
             debug_print("DUART1: ");
             debug_putc(duart1_rx_get());
-            rtos_interrupt_event_raise(RTOS_INTERRUPT_EVENT_ID_EVT_J);
+            rtos_interrupt_event_raise(RTOS_INTERRUPT_EVENT_ID_EVT_I);
             if (duart2_rx_ready()) {
                 debug_print(", DUART2: ");
                 debug_putc(duart2_rx_get());
@@ -71,7 +71,7 @@ exti_interrupt(void)
         } else if (duart2_rx_ready()) {
             debug_print("DUART2: ");
             debug_putc(duart2_rx_get());
-            rtos_interrupt_event_raise(RTOS_INTERRUPT_EVENT_ID_EVT_L);
+            rtos_interrupt_event_raise(RTOS_INTERRUPT_EVENT_ID_EVT_J);
         }
         debug_println("");
         break;
@@ -121,17 +121,15 @@ exti_interrupt(void)
 }
 
 /* Handler for tick interrupts.
- * For demo purposes we just send them to a particular task distinct from the others. */
-bool
+ * This function is of return type void because we designated it non-preempting in the system XML.
+ * This is an optimization appropriate for interrupt handlers that don't raise any interrupt events or otherwise take
+ * any actions that may affect the schedulability of any tasks. */
+void
 tick_interrupt(void)
 {
     machine_timer_clear();
 
     debug_println("tick_interrupt");
-
-    rtos_interrupt_event_raise(RTOS_INTERRUPT_EVENT_ID_EVT_I);
-
-    return true;
 }
 
 /* Fatal error function provided for debugging purposes. */

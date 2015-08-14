@@ -26,11 +26,14 @@
     <module name="ppce500.default-linker" />
     <module name="ppce500.interrupts-util" />
     <module name="ppce500.vectable">
+      <!-- Preemption must be enabled for this module if using with preemptive RTOS variants like Phact -->
       <preemption>true</preemption>
+      <!-- Designating an interrupt handler non-preempting is only allowed if it can't affect task schedulability -->
       <fixed_interval_timer>
         <handler>tick_interrupt</handler>
         <preempting>false</preempting>
       </fixed_interval_timer>
+      <!-- We must designate an interrupt handler preempting if it potentially raises interrupt events -->
       <external_input>
         <handler>exti_interrupt</handler>
         <preempting>true</preempting>
@@ -122,12 +125,6 @@
           <sig_set>demo_sig</sig_set>
         </interrupt_event>
 
-        <interrupt_event>
-          <name>evt_l</name>
-          <task>l</task>
-          <sig_set>demo_sig</sig_set>
-        </interrupt_event>
-
       </interrupt_events>
 
       <tasks>
@@ -206,13 +203,6 @@
           <name>k</name>
           <function>fn_k</function>
           <priority>20</priority>
-          <stack_size>8192</stack_size>
-        </task>
-
-        <task>
-          <name>l</name>
-          <function>fn_l</function>
-          <priority>19</priority>
           <stack_size>8192</stack_size>
         </task>
 

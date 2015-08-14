@@ -31,6 +31,8 @@
 #include "interrupt-buffering-example.h"
 #include "debug.h"
 
+/* This file defines a simple echo task for the `interrupt-buffering-example` system. */
+
 #define EXAMPLE_ERROR_ID_RX_BUF_OVERRUN 0xfc
 #define EXAMPLE_ERROR_ID_BUFFER_COUNT_OOB 0xfe
 
@@ -39,6 +41,7 @@
 extern uint8_t rx_buf[BUF_CAPACITY];
 extern volatile unsigned int rx_count;
 
+/* Fatal error function provided for debugging purposes. */
 void
 fatal(const RtosErrorId error_id)
 {
@@ -50,6 +53,7 @@ fatal(const RtosErrorId error_id)
     for (;;) ;
 }
 
+/* Helper function that just waits until DUART2 is ready to transmit, then transmits the given character. */
 static void
 tx_put_when_ready(const char c)
 {
@@ -111,6 +115,7 @@ fn_a(void)
     }
 }
 
+/* We invoke a helper to initialize the P2020 DUART and PIC before starting the RTOS. */
 int
 main(void)
 {
@@ -120,6 +125,7 @@ main(void)
     /* We won't be using any CPU-based timer interrupt sources - disable any the bootloader may have set up. */
     machine_timer_deinit();
 
+    /* Invoke helpers to set up the buffering interrupt handler for DUART rx. */
     interrupt_buffering_example_init();
 
     rtos_start();

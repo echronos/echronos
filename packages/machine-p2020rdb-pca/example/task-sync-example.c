@@ -31,6 +31,8 @@
 #include "interrupt-buffering-example.h"
 #include "debug.h"
 
+/* This file defines a pair of tasks for the `task-sync-example` system. */
+
 #define MSG_SIZE 42
 
 #define EXAMPLE_ERROR_ID_RX_BUF_OVERRUN 0xfc
@@ -45,6 +47,7 @@ extern volatile unsigned int rx_count;
 uint8_t msg_buf[MSG_SIZE];
 unsigned int msg_len;
 
+/* Fatal error function provided for debugging purposes. */
 void
 fatal(const RtosErrorId error_id)
 {
@@ -56,6 +59,7 @@ fatal(const RtosErrorId error_id)
     for (;;) ;
 }
 
+/* Helper function that just waits until DUART2 is ready to transmit, then transmits the given character. */
 static void
 tx_put_when_ready(const char c)
 {
@@ -65,7 +69,7 @@ tx_put_when_ready(const char c)
     duart2_tx_put(c);
 }
 
-/* This task waits for "message"-sized chunks of bytes, then forward data one chunk at a time to Task B. */
+/* This task waits for a "message"-sized chunk of bytes from DUART2 to accumulate, then forwards it to Task B. */
 void
 fn_a(void)
 {
@@ -122,7 +126,7 @@ fn_a(void)
     }
 }
 
-/* This task takes a message-sized "chunk" of bytes and outputs it in reverse order. */
+/* This task takes a message-sized "chunk" of bytes and transmits it via DUART2 in reverse order. */
 void
 fn_b(void)
 {
@@ -144,6 +148,7 @@ fn_b(void)
     }
 }
 
+/* We invoke a helper to initialize the P2020 DUART and PIC before starting the RTOS. */
 int
 main(void)
 {
@@ -153,6 +158,7 @@ main(void)
     /* We won't be using any CPU-based timer interrupt sources - disable any the bootloader may have set up. */
     machine_timer_deinit();
 
+    /* Invoke helpers to set up the buffering interrupt handler for DUART rx. */
     interrupt_buffering_example_init();
 
     rtos_start();

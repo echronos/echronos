@@ -31,6 +31,8 @@
 #include "interrupt-buffering-example.h"
 #include "debug.h"
 
+/* This file defines the interrupt handler for the `interrupt-buffering-example` and `task-sync-example` systems. */
+
 #define PIC_IIV_DUART_EXAMPLE_PRIORITY 2
 #define PIC_IIV_DUART_EXAMPLE_VECTOR 0xbeef
 
@@ -43,6 +45,12 @@ extern void fatal(RtosErrorId error_id);
 uint8_t rx_buf[BUF_CAPACITY];
 volatile unsigned int rx_count;
 
+/* Helper function that handles just P2020 DUART interrupts.
+ * For demo purposes, we append incoming data to a buffer, and raise an interrupt event to a task to indicate that
+ * data is ready for collection from the buffer.
+ * Note that the task is responsible for using some platform-specific method for synchronizing its access to this
+ * buffer with that of this interrupt handler.
+ * This function also raises a distinct interrupt event to indicate when the DUART is ready to transmit data. */
 bool
 exti_duart_interrupt_handle(const uint8_t iid)
 {
@@ -73,7 +81,7 @@ exti_duart_interrupt_handle(const uint8_t iid)
             }
 
             /* While there are bytes in the DUART rx FIFO, copy them to rx_buf[], the rx buffer shared between the
-             * interrupt handler and Task A. */
+             * interrupt handler and the task. */
             rx_buf[rx_count] = duart2_rx_get();
             rx_count++;
         }
@@ -96,7 +104,7 @@ exti_duart_interrupt_handle(const uint8_t iid)
             fatal(EXAMPLE_ERROR_ID_RX_SPURIOUS_RDA);
         }
 
-        /* Wake up Task A */
+        /* Wake up the task */
         rtos_interrupt_event_raise(RTOS_INTERRUPT_EVENT_ID_RX);
         return true;
 
@@ -110,6 +118,11 @@ exti_duart_interrupt_handle(const uint8_t iid)
     return false;
 }
 
+/* Handler for external interrupts.
+ * On the P2020, the various external interrupt sources are multiplexed onto the one external interrupt vector by a
+ * Programmable Interrupt Controller (PIC).
+ * For demo purposes, this particular handler only cares about DUART interrupts - it identifies them as such by
+ * querying the P2020 PIC and calls a helper function to handle them. */
 bool
 exti_interrupt(void)
 {
@@ -143,7 +156,7 @@ exti_interrupt(void)
     return ret;
 }
 
-
+/* Invoke library code to initialize the P2020 for interrupt-driven receipt of data from DUART2 via the PIC. */
 void
 interrupt_buffering_example_init(void)
 {

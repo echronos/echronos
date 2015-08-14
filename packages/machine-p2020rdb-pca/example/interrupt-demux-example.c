@@ -30,6 +30,8 @@
 #include "rtos-{{variant}}.h"
 #include "debug.h"
 
+/* This file defines the interrupt handlers and task code for the `interrupt-demux-example` system. */
+
 #define PIC_IIV_DUART_EXAMPLE_PRIORITY 2
 #define PIC_IIV_DUART_EXAMPLE_VECTOR 0xbeef
 
@@ -37,6 +39,11 @@
 #define PIC_GT_EXAMPLE_PRIORITY 0xa
 #define PIC_GT_EXAMPLE_VECTOR(x) (0xf000 + ((x) & 1) + (((x) & 2) ? 0x10 : 0) + (((x) & 4) ? 0x100 : 0))
 
+/* Handler for external interrupts.
+ * On the P2020, the various external interrupt sources are multiplexed onto the one external interrupt vector by a
+ * Programmable Interrupt Controller (PIC).
+ * For demo purposes, we just handle each interrupt by raising an interrupt event to a distinct task, for each
+ * distinct interrupt source we are able to disambiguate by querying the P2020 PIC. */
 bool
 exti_interrupt(void)
 {
@@ -113,6 +120,8 @@ exti_interrupt(void)
     return true;
 }
 
+/* Handler for tick interrupts.
+ * For demo purposes we just send them to a particular task distinct from the others. */
 bool
 tick_interrupt(void)
 {
@@ -125,6 +134,7 @@ tick_interrupt(void)
     return true;
 }
 
+/* Fatal error function provided for debugging purposes. */
 void
 fatal(const RtosErrorId error_id)
 {
@@ -136,6 +146,7 @@ fatal(const RtosErrorId error_id)
     for (;;) ;
 }
 
+/* This block defines a generic set of tasks that each just prints its name whenever it receives the demo signal. */
 {{#rtos.tasks}}
 void
 {{function}}(void)
@@ -148,6 +159,7 @@ void
 }
 {{/rtos.tasks}}
 
+/* We invoke library code to initialize a variety of interrupt sources on the P2020 before starting the RTOS. */
 int
 main(void)
 {

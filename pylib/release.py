@@ -397,6 +397,8 @@ def build_partials(args):
 
 def build_single_release(config, topdir):
     """Build a release archive for a specific release configuration."""
+    # for an unknown reason, tarfile.bltn_open is not reliably reset to the open() function in the extra files loop
+    tarfile.bltn_open = open
     basename = '{}-{}-{}'.format(config.product_name, config.release_name, config.version)
     logging.info("Building {}".format(basename))
     tarfilename = top_path(topdir, 'release', '{}.tar.gz'.format(basename))

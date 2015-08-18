@@ -348,7 +348,8 @@ def systems(args):
     if args.unknown_args and isinstance(args.unknown_args[-1], str) and args.unknown_args[-1].endswith('.py'):
         tests = []
     else:
-        tests = list(find_gdb_test_py_files('packages'))
+        for packages_dir in base_to_top_paths(args.topdir, 'packages'):
+            tests = list(find_gdb_test_py_files(packages_dir))
 
     nose.core.run(argv=[''] + args.unknown_args + tests)
 
@@ -371,18 +372,18 @@ class GdbTestCase(unittest.TestCase):
 
     """
     system_name = None
-    search_path = 'packages'
 
     def setUp(self):
         topdir = os.path.abspath('.')
+        self.search_paths = list(base_to_top_paths(topdir, 'packages'))
         if self.system_name is None:
             py_path = inspect.getfile(self.__class__)
             self.prx_path = os.path.splitext(py_path)[0] + '.prx'
-            rel_py_path = os.path.relpath(py_path, os.path.abspath(self.search_path))
+            rel_py_path = os.path.relpath(py_path, os.path.abspath(self.search_paths[0]))
             self.system_name = os.path.splitext(rel_py_path)[0].replace(os.sep, '.')
         else:
-            rel_prx_path = os.path.join(self.search_path, self.system_name.replace('.', os.sep)) + '.prx'
-            self.prx_path = os.path.abspath(rel_prx_path)
+            rel_prx_path = os.path.join('packages', self.system_name.replace('.', os.sep) + '.prx')
+            self.prx_path = list(base_to_top_paths(topdir, rel_prx_path))[0]
         self.executable_path = os.path.abspath(os.path.join('out', self.system_name.replace('.', os.sep),
                                                             'system' + get_executable_extension()))
         self.gdb_commands_path = os.path.splitext(self.prx_path)[0] + '.gdb'
@@ -400,8 +401,9 @@ class GdbTestCase(unittest.TestCase):
         assert test_output == reference_output
 
     def _build(self):
-        subprocess.check_call((sys.executable, os.path.join('prj', 'app', 'prj.py'), '--search-path',
-                              self.search_path, 'build', self.system_name))
+        subprocess.check_call([sys.executable, os.path.join(BASE_DIR, 'prj', 'app', 'prj.py')] +
+                              ['--search-path={}'.format(sp) for sp in self.search_paths] +
+                              ['build', self.system_name])
 
     def _get_test_output(self):
         test_command = self._get_test_command()

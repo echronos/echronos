@@ -1,0 +1,21 @@
+Task: TJx2Ei-bugfix_message_queue_try_get_does_not_update_queue_head
+==============================================================================
+
+Motivation
+----------
+
+The implementation of the message_queue_try_get() API function does not update the queue's head index.
+Therefore, retrieving a message from the message queue does not appear to 'consume' the message or remove it from the message queue.
+
+
+Goals
+--------
+
+- resolve the issue described above by appropriately updating a message queue's head index after a message is successfully read from the queue.
+
+
+Test Plan
+---------
+
+- manual review
+- existing regression tests

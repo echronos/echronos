@@ -4,8 +4,8 @@ Task: use5gL-arm-preempt-await-pendsv
 Motivation
 ----------
 
-For the verification of eChronos, we wish to be able to guarantee the property that the RTOS does not allow a task to run if it is a different task that ought to currently be running according to the RTOS' scheduling policy.
-On preemptive eChronos variants, this means the decision of what task to allow to run must always have been subject to all previous events indicating a preemption.
+For the verification of the RTOS, we wish to be able to guarantee the property that the RTOS does not allow a task to run if it is a different task that ought to currently be running according to the RTOS' scheduling policy.
+On preemptive RTOS variants, this means the decision of what task to allow to run must always have been subject to all previous events indicating a preemption.
 
 On ARMv7-M, we use the PendSV handler to implement the preemption mechanism.
 During most RTOS calls we disable preemption by setting the BASEPRI such that the PendSV interrupt is disabled.

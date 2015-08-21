@@ -1,0 +1,19 @@
+Breakaway Task Review
+=======================
+
+Task name: pVXsiD-ppc_acknowledgement_and_disclaimer
+Version reviewed: f9ef20562cfb2634c12952ff326ab0378ba414cc
+Reviewer: robert.sison
+Date: 2015-08-07
+Conclusion: Accepted
+
+Overall comments:
+None
+
+
+Specific comments
+=================
+
+Location: docs/ppce500_kochab_readme.md:243
+Comment:
+I fixed some trailing whitespace here.

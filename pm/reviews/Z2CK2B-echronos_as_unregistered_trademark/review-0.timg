@@ -1,0 +1,17 @@
+RTOS Task Review
+=======================
+
+Task name: Z2CK2B-echronos_as_unregistered_trademark
+Version reviewed: 425bbb10256c8f624bc099e28d9381ca0c305df4
+Reviewer: timg
+Date: 2015-08-05
+Conclusion: Rework
+
+Specific comments
+=================
+
+Location: README.md:26
+Comment: Consider rewording this sentence.
+
+Location: pm/tasks/completed/use5gL-arm-preempt-await-pendsv:8
+Comment: Typo; "On preemptive the RTOS variants"

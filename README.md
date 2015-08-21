@@ -4,9 +4,15 @@ Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
-the Free Software Foundation, version 3, provided that no right, title
-or interest in or to any trade mark, service mark, logo or trade name
-of NICTA or its licensors is granted.
+the Free Software Foundation, version 3, provided that these additional
+terms apply under section 7:
+
+  No right, title or interest in or to any trade mark, service mark, logo
+  or trade name of of National ICT Australia Limited, ABN 62 102 206 173
+  ("NICTA") or its licensors is granted. Modified versions of the Program
+  must be plainly marked as such, and must not be distributed using
+  "eChronos" as a trade mark or product name, or misrepresented as being
+  the original Program.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -19,14 +25,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 @TAG(NICTA_DOC_AGPL)
   -->
 
-# eChronos Repository README
+# Repository README
 
 ## Overview
 
-eChronos is a real-time operating system (RTOS) developed by NICTA and Breakaway Consulting.
+The eChronos RTOS is a real-time operating system (RTOS) originally developed by NICTA and Breakaway Consulting Pty. Ltd.
 
 It is intended for tightly resource-constrained devices without memory protection.
-To this end, the eChronos code base is designed to be highly modular and configurable on multiple levels, so that only the minimal amount of code necessary is ever compiled into a given system image.
+To this end, the RTOS code base is designed to be highly modular and configurable on multiple levels, so that only the minimal amount of code necessary is ever compiled into a given system image.
 
 Available implementations currently target ARM Cortex-M4, and (as of writing, only QEMU-emulated) PowerPC e500.
 
@@ -95,7 +101,7 @@ Build and run an example system for the RTOS variant *Kochab* on QEMU-emulated P
 The following tools are supplied with this repository in the [`tools`](tools) directory:
 
 * Python 3.3 for the Python scripts in the repository
-* The `arm-none-eabi` GNU toolchain and `arm-none-eabi-gdb` for building and debugging eChronos for ARMv7-M
+* The `arm-none-eabi` GNU toolchain and `arm-none-eabi-gdb` for building and debugging the RTOS for ARMv7-M
 
 The included [`setenv`](setenv) script makes these tools the default ones by including them in the PATH environment variable.
 
@@ -107,7 +113,7 @@ To obtain and build `qemu-system-arm` with target `simple-armv7m` for testing th
     make
     export PATH=`pwd`/arm-softmmu:$PATH
 
-To obtain the `powerpc-linux-gnu` GNU toolchain for building eChronos for PowerPC e500 on Ubuntu Linux systems, run:
+To obtain the `powerpc-linux-gnu` GNU toolchain for building the RTOS for PowerPC e500 on Ubuntu Linux systems, run:
 
     sudo apt-get install gcc-powerpc-linux-gnu
 
@@ -136,33 +142,33 @@ To obtain `pandoc` and `wkhtmltopdf` needed for building user documentation on U
 
 ## Documentation
 
-Basic eChronos concepts and usage are documented in this README.
+Basic RTOS concepts and usage are documented in this README.
 
 More detailed documentation for the `x.py` tool can be found inside [`x.py`](x.py) itself.
 More detailed documentation for the `prj` tool can be found in [`prj/manual/prj-user-manual`](prj/manual/prj-user-manual).
 
-Pregenerated eChronos API manuals can be found on the [eChronos GitHub wiki](https://github.com/echronos/echronos/wiki).
+Pregenerated RTOS API manuals can be found on the [eChronos GitHub wiki](https://github.com/echronos/echronos/wiki).
 They can also be generated with the command `x.py build docs`.
 
 ## Software model
 
-The software model and structure of eChronos is governed by two stages of customization.
+The software model and structure of the RTOS is governed by two stages of customization.
 
-In the first stage, features, in the form of *components*, are customized for and composed into *variants* of eChronos such that each variant has a specific feature set.
+In the first stage, features, in the form of *components*, are customized for and composed into *variants* of the RTOS such that each variant has a specific feature set.
 This stage is supported by the `x.py` tool.
 
-In the second stage, the eChronos variant is customized to the specific properties and requirements of a specific application.
+In the second stage, the RTOS variant is customized to the specific properties and requirements of a specific application.
 Although this customization is limited to the functionality provided by the given variant, it controls details such as the number of tasks required by the application.
 This stage is supported by the `prj` tool.
 
 The two stages can optionally be separated by deploying a *product release* to an application project.
-The application project is then only exposed to the second stage and the variant and functionality of eChronos they require.
+The application project is then only exposed to the second stage and the variant and functionality of the RTOS they require.
 
 The following sections cover these concepts in more detail.
 
 ### Variants and Components
 
-The eChronos RTOS comes in a number of different *variants*, each offering a specific set of features for a particular platform.
+The RTOS comes in a number of different *variants*, each offering a specific set of features for a particular platform.
 
 For example:
 
@@ -173,26 +179,26 @@ It is available for QEMU-emulated ARMv7-M.
 It is available for the ARMv7-M STM32F4-Discovery board, and QEMU-emulated PowerPC e500.
 
 Features are implemented as individual *components* in individual C files.
-Unlike typical C-based software, eChronos does not compile components individually and later link them into a single binary.
-Instead, the eChronos `x.py` tool merges the component files of a variant into a single C file called the *RTOS module*.
+Unlike typical C-based software, the RTOS does not compile components individually and later link them into a single binary.
+Instead, the RTOS `x.py` tool merges the component files of a variant into a single C file called the *RTOS module*.
 The feature set of each RTOS variant is specified within the `x.py` tool itself.
 This allows for better compile-time optimizations.
 
-The `x.py` tool also supports building *product releases* of eChronos.
-A product release bundles a set of variants and target platforms tailored for a certain application product that builds on eChronos.
-Thus, the application product sees only what it needs without being needlessly exposed to all features and platforms supported by eChronos.
+The `x.py` tool also supports building *product releases* of the RTOS.
+A product release bundles a set of variants and target platforms tailored for a certain application product that builds on the RTOS.
+Thus, the application product sees only what it needs without being needlessly exposed to all features and platforms supported by the RTOS.
 The variants and platforms contained in a release are defined by [`release_cfg.py`](release_cfg.py).
 
 
 ### Systems, Modules and Packages
 
-An eChronos *system* encompasses the entirety of the OS and an application on top of it.
+An RTOS *system* encompasses the entirety of the OS and an application on top of it.
 It consists in particular of:
-- the OS in the form of a variant of eChronos with a feature set suitable for the application (e.g., which form of scheduling is supported)
+- the OS in the form of a variant of the RTOS with a feature set suitable for the application (e.g., which form of scheduling is supported)
 - a *system configuration* that tailors the variant to the specific application instance (e.g., how many task or mutexes the application requires)
 - the application code itself
 
-Systems are built via the `prj` tool which implements the eChronos build system.
+Systems are built via the `prj` tool which implements the RTOS build system.
 At the build system level, systems are composed of *modules* (such as the RTOS module), so modules provide the unit of composition and reusability.
 
 In its simplest form, a module is a C file and that is usually all that applications need to know about modules.
@@ -220,7 +226,7 @@ A complete system typically consists of
 
 For example, the Kochab RTOS example system for QEMU-emulated PowerPC e500 (defined in [`packages/machine-qemu-ppce500/example/kochab-system.prx`](packages/machine-qemu-ppce500/example/kochab-system.prx)) contains the following modules:
 
-* `ppce500.rtos-kochab`, the Kochab variant of the eChronos RTOS for ppce500.
+* `ppce500.rtos-kochab`, the Kochab variant of the RTOS for ppce500.
 * `ppce500.build` and `ppce500.default-linker`, which define building and linking for ppce500.
 * `ppce500.interrupts-util` and `ppce500.vectable`, which provide assembly-level RTOS code for ppce500.
 * `ppce500.debug` and `generic.debug`, which define stubs for debug printing.
@@ -234,7 +240,7 @@ As another example, platform-agnostic RTOS example code such as the `kochab-mute
 
 As described above, `x.py` provides the means to generate all the different RTOS variants and `prj` provides the means to combine an RTOS module with other modules to produce a system binary.
 
-There are two main steps in building an eChronos-based system from the eChronos repository.
+There are two main steps in building an RTOS-based system from the RTOS repository.
 
 Step 1: Generate the RTOS variants.
 
@@ -360,7 +366,7 @@ Each product release contains:
 
 * a `LICENSE` file
 * a `README.md` file containing a brief introduction to the release
-* a `build_info` file containing the commit hash of the eChronos repository from which the release was built
+* a `build_info` file containing the commit hash of the RTOS repository from which the release was built
 * a `share` directory, containing the package directory structure containing all the released packages
 * a pre-built `prj` binary for the host platform targeted by the release
 
@@ -379,10 +385,10 @@ Here is a example that points to its relative location from the root of the rele
         <search-path>share/packages</search-path>
     </project>
 
-After this, the `prj` binary packaged with the release can be used in the same way as in the eChronos repository.
+After this, the `prj` binary packaged with the release can be used in the same way as in the RTOS repository.
 Additional application code can be placed in other directories as long as they are included as search paths in the project.prj file.
 
-For example, to build the Kochab timer demo system provided with the PowerPC e500 release of eChronos for Linux, run:
+For example, to build the Kochab timer demo system provided with the PowerPC e500 release of the RTOS for Linux, run:
 
     x86_64-unknown-linux-gnu/bin/prj build machine-qemu-ppce500.example.kochab-timer-demo
 

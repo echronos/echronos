@@ -1,0 +1,22 @@
+Task: Z2CK2B-echronos_as_unregistered_trademark
+==============================================================================
+
+Motivation
+----------
+
+To use eChronos as an unregistered trademark, it shall be used as an adjective, not a noun.
+To avoid copyright issues with the terms Breakaway and Breakaway Consulting, these terms shall not be used in the repository except for referring to the company itself.
+
+
+Goals
+--------
+
+- ensure that 'eChronos' is not used as a noun in the repository
+- ensure that 'Breakaway' is not used in the repository except for referring to the company itself.
+
+
+Test Plan
+---------
+
+- check that no code is affected
+- check that existing regression tests pass

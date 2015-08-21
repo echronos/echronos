@@ -4,9 +4,15 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, version 3, provided that no right, title
-# or interest in or to any trade mark, service mark, logo or trade name
-# of NICTA or its licensors is granted.
+# the Free Software Foundation, version 3, provided that these additional
+# terms apply under section 7:
+#
+#   No right, title or interest in or to any trade mark, service mark, logo or
+#   trade name of of National ICT Australia Limited, ABN 62 102 206 173
+#   ("NICTA") or its licensors is granted. Modified versions of the Program
+#   must be plainly marked as such, and must not be distributed using
+#   "eChronos" as a trade mark or product name, or misrepresented as being the
+#   original Program.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -39,6 +45,6 @@ def system_build(system, configuration):
     if len(system.c_files) == 0:
         raise SystemBuildError("Zero C files in system definition")
 
-    shared_args = ['-shared', '-fPIC'] if configuration['output_type'] == 'shared-library' else []
+    shared_args = ['-shared', '-fPIC', '-std=c90'] if configuration['output_type'] == 'shared-library' else []
 
     execute(['gcc', '-o', system.output_file, '-Wall', '-Werror'] + shared_args + inc_path_args + system.c_files)

@@ -4,7 +4,7 @@ Task: qQ7uct-phact-pcp-variant
 Motivation
 ----------
 
-The Kochab variant of eChronos uses a strict priority scheduling algorithm with priority inheritance.
+The Kochab variant uses a strict priority scheduling algorithm with priority inheritance.
 Sometime last year, Gernot pointed out that this algorithm is susceptible to deadlock under certain circumstances, avoidable by instead scheduling tasks according to the priority ceiling protocol (PCP).
 
 This motivates the development of a PCP scheduler component, and the addition of a new RTOS variant with the same features as Kochab only using the PCP scheduler instead of the priority inheritance one.

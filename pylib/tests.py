@@ -4,9 +4,15 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, version 3, provided that no right, title
-# or interest in or to any trade mark, service mark, logo or trade name
-# of NICTA or its licensors is granted.
+# the Free Software Foundation, version 3, provided that these additional
+# terms apply under section 7:
+#
+#   No right, title or interest in or to any trade mark, service mark, logo or
+#   trade name of of National ICT Australia Limited, ABN 62 102 206 173
+#   ("NICTA") or its licensors is granted. Modified versions of the Program
+#   must be plainly marked as such, and must not be distributed using
+#   "eChronos" as a trade mark or product name, or misrepresented as being the
+#   original Program.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -424,6 +430,11 @@ class GdbTestCase(unittest.TestCase):
         test_output = self._get_test_output()
         reference_output = self._get_reference_output()
         if test_output != reference_output:
+            new_reference_path = os.path.splitext(self.prx_path)[0] + '.gdboutnew'
+            open(new_reference_path, 'wb').write(self.gdb_output)
+            sys.stdout.write('System test failed:\n\t{}\n\t{}\n\t{}\n'.format(self.gdb_commands_path,
+                                                                              self.executable_path,
+                                                                              new_reference_path))
             for line in difflib.unified_diff(reference_output.splitlines(), test_output.splitlines(),
                                              'reference', 'test'):
                 sys.stdout.write(line + '\n')
@@ -435,9 +446,9 @@ class GdbTestCase(unittest.TestCase):
 
     def _get_test_output(self):
         test_command = self._get_test_command()
-        gdb_output = subprocess.check_output(test_command)
+        self.gdb_output = subprocess.check_output(test_command)
         # for an unknown reason, decode() handles Windows line breaks incorrectly so convert them to UNIX linebreaks
-        output_str = gdb_output.replace(b'\r\n', b'\n').decode()
+        output_str = self.gdb_output.replace(b'\r\n', b'\n').decode()
         return self._filter_gdb_output(output_str)
 
     def _get_test_command(self):

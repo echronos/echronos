@@ -44,7 +44,7 @@ extern void {{ll_debug}}debug_putc(char);
 void
 {{prefix}}debug_print(const char *msg)
 {
-    while (*msg != 0)
+    while (*msg != '\x00')
     {
         {{ll_debug}}debug_putc(*msg);
         msg++;

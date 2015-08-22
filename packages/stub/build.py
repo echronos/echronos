@@ -48,5 +48,5 @@ def system_build(system, configuration):
 
     shared_args = ['-shared', '-fPIC'] if configuration['output_type'] == 'shared-library' else []
 
-    execute('gcc -std=c90 -Werror -Wall --all-warnings -Wpedantic -pedantic -Wextra -o'.split() +
+    execute('gcc -std=c90 -Werror -Wall --all-warnings -Wpedantic -pedantic -Wextra -O -o'.split() +
             [system.output_file] + shared_args + inc_path_args + system.c_files)

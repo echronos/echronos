@@ -33,6 +33,11 @@
 #include "machine-timer.h"
 #include "debug.h"
 
+bool tick_irq(void);
+void fatal(RtosErrorId error_id);
+void fn_a(void);
+void fn_b(void);
+
 bool
 tick_irq(void)
 {

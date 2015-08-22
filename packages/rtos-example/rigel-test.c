@@ -47,6 +47,11 @@ extern void debug_println(const char *msg);
 #define SYST_CVR_READ() (*((volatile uint32_t*)SYST_CVR_REG))
 #define SYST_CVR_WRITE(x) (*((volatile uint32_t*)SYST_CVR_REG) = x)
 
+void tick_irq(void);
+void fatal(RtosErrorId error_id);
+void fn_a(void);
+void fn_b(void);
+
 void
 tick_irq(void)
 {
@@ -55,7 +60,7 @@ tick_irq(void)
 }
 
 void
-fatal(RtosErrorId error_id)
+fatal(const RtosErrorId error_id)
 {
     debug_print("FATAL ERROR: ");
     debug_printhex32(error_id);

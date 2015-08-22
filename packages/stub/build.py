@@ -51,5 +51,6 @@ def system_build(system, configuration):
     # -Wconversion
     execute('gcc -std=c90 -Werror -Wall --all-warnings -Wpedantic -pedantic -Wextra -O -Winit-self -Wswitch-default \
 -Wswitch-enum -fstrict-aliasing -fstrict-overflow -Wstrict-overflow=5 -Wundef -Wbad-function-cast -Wcast-qual \
--Wcast-align -Wwrite-strings -Wjump-misses-init -Wlogical-op -Waggregate-return -Wstrict-prototypes -o'.split() +
+-Wcast-align -Wwrite-strings -Wjump-misses-init -Wlogical-op -Waggregate-return -Wstrict-prototypes \
+-Wmissing-prototypes -o'.split() +
             [system.output_file] + shared_args + inc_path_args + system.c_files)

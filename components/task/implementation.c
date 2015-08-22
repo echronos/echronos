@@ -26,7 +26,9 @@ static {{prefix_type}}TaskId get_current_task_check(void);
 {{/internal_asserts}}
 
 /*| state |*/
+/*@unused@ must be public so that packages/armv7m/ctxt-switch-preempt.s */
 {{prefix_type}}TaskId rtos_internal_current_task;
+/*@unused@ must be public so that packages/armv7m/ctxt-switch-preempt.s */
 struct task rtos_internal_tasks[{{tasks.length}}];
 
 /*| function_like_macros |*/

@@ -8,9 +8,6 @@
 /*| structures |*/
 
 /*| extern_declarations |*/
-{{#tasks}}
-extern void {{function}}(void);
-{{/tasks}}
 
 /*| function_declarations |*/
 static void block(void);

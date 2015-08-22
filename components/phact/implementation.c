@@ -13,7 +13,7 @@ extern void {{function}}(void);
 {{/tasks}}
 
 /*| function_declarations |*/
-static void block();
+static void block(void);
 static void unblock({{prefix_type}}TaskId task);
 {{#mutexes.length}}
 static void mutex_core_locked_by({{prefix_type}}MutexId mutex, {{prefix_type}}TaskId task);

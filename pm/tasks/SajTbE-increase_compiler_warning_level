@@ -1,0 +1,23 @@
+Task: SajTbE-increase_compiler_warning_level
+==============================================================================
+
+Motivation
+----------
+
+The compiler is able to point out a wide range of potential issues with code quality if configured to do so.
+The core components are currently compiled for the stub architecture with a reasonable, but not overly strict warning level.
+Increasing the warning level for at least this core code can help with overall code quality.
+
+
+Goals
+--------
+
+- enable additional warnings in the gcc compiler through additional compiler options in the build module of the stub architecture
+- improve code where necessary to resolve warnings raised through the increased warning level
+
+
+Test Plan
+---------
+
+- code review
+- existing regression tests must pass

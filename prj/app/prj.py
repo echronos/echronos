@@ -795,9 +795,18 @@ class System:
         self._run_action(Loader)
 
     def analyze(self):
+        try:
+            subprocess.check_call(["splint", "--help"])
+        except subprocess.CalledProcessError:
+            print("Unable to invoke 'splint' command. The splint static code analysis tool might not be installed or \
+might not be available on the PATH search path for executables.")
+            return 1
+
         self.generate(copy_all_files=False)
+
+        include_path_options = ['-I{}'.format(include_path) for include_path in self.include_paths]
         for c_file in self.c_files:
-            print(c_file)
+            subprocess.check_call(["splint"] + include_path_options + [c_file])
 
     def _run_action(self, typ):
         try:

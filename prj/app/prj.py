@@ -796,7 +796,7 @@ class System:
 
     def analyze(self):
         try:
-            subprocess.check_call(["splint", "--help"])
+            subprocess.check_output(["splint", "--help"], stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError:
             print("Unable to invoke 'splint' command. The splint static code analysis tool might not be installed or \
 might not be available on the PATH search path for executables.")

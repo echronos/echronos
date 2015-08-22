@@ -794,6 +794,11 @@ class System:
         """
         self._run_action(Loader)
 
+    def analyze(self):
+        self.generate(copy_all_files=False)
+        for c_file in self.c_files:
+            print(c_file)
+
     def _run_action(self, typ):
         try:
             return self._get_instance_by_type(typ).run()
@@ -1064,6 +1069,19 @@ def load(args):
     return call_system_function(args, System.load)
 
 
+def analyze(args):
+    """Statically analyze the code of the system specified on the command line.
+
+    `args` is expected to provide the following attributes:
+    - `project`: an instance of Project
+    - `system`: the name of a system entity to analyze
+
+    This function returns 0 on success and 1 if an error occurs.
+
+    """
+    return call_system_function(args, System.analyze)
+
+
 def call_system_function(args, function, extra_args=None, sys_is_path=False):
     """Instantiate a system and call the given member function of the System class on it."""
     project = args.project
@@ -1109,6 +1127,7 @@ SUBCOMMAND_TABLE = {
     'gen': generate,
     'build': build,
     'load': load,
+    'analyze': analyze,
 }
 
 
@@ -1138,6 +1157,9 @@ def get_command_line_arguments():
     load_parser = subparsers.add_parser('load', help='Load a system image onto a device and execute it')
     load_parser.add_argument('system', help='system to load')
 
+    load_parser = subparsers.add_parser('analyze', help='Statically analyze the code of a system')
+    load_parser.add_argument('system', help='system to analyze')
+
     args = parser.parse_args()
 
     if args.quiet:
@@ -1150,7 +1172,7 @@ def get_command_line_arguments():
         parser.print_help()
         parser.exit(1, "\nSee 'prj <subcommand> -h' for more information on a specific command\n")
 
-    if args.command in ['build', 'load'] and args.project is None:
+    if args.command in ('build', 'load', 'analyze') and args.project is None:
         args.project = 'project.prj'
 
     if args.no_project:

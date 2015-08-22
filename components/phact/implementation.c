@@ -60,7 +60,7 @@ block(void)
 
 {{#mutexes.length}}
 static void
-mutex_core_block_on_timeout(const {{prefix_type}}TaskId t, const {{prefix_type}}TicksRelative ticks)
+mutex_core_block_on_timeout(__attribute__((unused)) const {{prefix_type}}TaskId t, const {{prefix_type}}TicksRelative ticks)
 {
     precondition_preemption_disabled();
 

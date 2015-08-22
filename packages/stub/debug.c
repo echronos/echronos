@@ -26,6 +26,6 @@
  */
 
 void
-debug_putc(char c)
+debug_putc(__attribute__((unused)) char c)
 {
 }

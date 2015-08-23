@@ -24,7 +24,7 @@ static bool system_is_idle;
 {{prefix_type}}TaskId
 rtos_internal_interrupt_event_get_next(void)
 {
-    TaskIdOption next;
+    TaskIdOption next = TASK_ID_NONE;
 
     for (;;)
     {

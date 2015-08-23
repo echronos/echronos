@@ -806,7 +806,7 @@ might not be available on the PATH search path for executables.")
 
         include_path_options = ['-I{}'.format(include_path) for include_path in self.include_paths]
         for c_file in self.c_files:
-            subprocess.check_call(["splint", "+quiet"] + include_path_options + [c_file])
+            subprocess.check_call(["splint", "+quiet", "+charintliteral"] + include_path_options + [c_file])
 
     def _run_action(self, typ):
         try:

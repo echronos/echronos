@@ -807,7 +807,7 @@ might not be available on the PATH search path for executables.")
         include_path_options = ['-I{}'.format(include_path) for include_path in self.include_paths]
         for c_file in self.c_files:
             if os.path.basename(c_file).startswith('rtos-'):
-                subprocess.check_call(["splint", "+quiet", "+charintliteral"] + include_path_options + [c_file])
+                subprocess.check_call(["splint", "-DUINT8_C(x)=(uint8_t)(x)", "+quiet", "+charintliteral"] + include_path_options + [c_file])
 
     def _run_action(self, typ):
         try:

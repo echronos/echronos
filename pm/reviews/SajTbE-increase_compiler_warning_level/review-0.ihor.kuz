@@ -5,16 +5,12 @@ Task name: SajTbE-increase_compiler_warning_level
 Version reviewed: 692705414ea24a2d43c07dca696bbd7b18d9f3f6
 Reviewer: ihor.kuz
 Date: 2015-08-23
-Conclusion: Accepted/Rework
-
-Overall comments:
-
+Conclusion: Rework
 
 Specific comments
 =================
 
-Location: filename:linenum
+Location: components/phact/implementation.c:60
 Comment:
+- consider defining a global macro (e.g. UNUSED) for __attribute__((unused)), to make it easier to type, and make it more obvious what it is.
 
-Location: filename:linenum
-Comment:

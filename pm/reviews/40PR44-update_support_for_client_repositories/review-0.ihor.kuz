@@ -16,3 +16,4 @@ I think that the following should add to tests, not overwrite it.
    for packages_dir in base_to_top_paths(args.topdir, 'packages'):
             tests = list(find_gdb_test_py_files(packages_dir))
 
+[stg: resolved as suggested]

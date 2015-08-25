@@ -345,11 +345,11 @@ def systems(args):
                 if file.endswith('.py') and os.path.splitext(file)[0] + '.gdb' in files:
                     yield os.path.join(parent, file)
 
-    if args.unknown_args and isinstance(args.unknown_args[-1], str) and args.unknown_args[-1].endswith('.py'):
-        tests = []
-    else:
+    tests = []
+    uargs = args.unknown_args
+    if not uargs or not isinstance(uargs[-1], str) or not uargs[-1].endswith('.py'):
         for packages_dir in base_to_top_paths(args.topdir, 'packages'):
-            tests = list(find_gdb_test_py_files(packages_dir))
+            tests.extend(find_gdb_test_py_files(packages_dir))
 
     nose.core.run(argv=[''] + args.unknown_args + tests)
 

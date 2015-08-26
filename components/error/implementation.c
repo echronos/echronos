@@ -40,7 +40,7 @@
 /*| structures |*/
 
 /*| extern_declarations |*/
-extern void {{fatal_error}}({{prefix_type}}ErrorId error_id);
+extern /*@noreturn@*/ void {{fatal_error}}({{prefix_type}}ErrorId error_id);
 
 /*| function_declarations |*/
 

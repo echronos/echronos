@@ -1,0 +1,22 @@
+Task: ht4Ih9-ppce500-ctxt-switch-toolchain-notes
+==============================================================================
+
+Motivation
+----------
+
+The PowerPC context switch implementations (both preemptive and non-preemptive) make some assumptions about the calling convention (e.g. use of EABI) that are only documented in-line in the source code.
+
+We should at the very least add a note to the proper user documentation about the expectations placed on the user regarding their toolchain configuration.
+
+
+Goals
+--------
+
+Document in the user manual assumptions made by the PowerPC context switch implementations re: toolchain config.
+
+
+Test Plan
+---------
+
+Build the user manual.
+Read and review the documentation additions.

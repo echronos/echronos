@@ -243,7 +243,7 @@ void
 }
 
 bool
-{{prefix_func}}message_queue_try_put(const {{prefix_type}}MessageQueueId message_queue, const void *message)
+{{prefix_func}}message_queue_try_put(const {{prefix_type}}MessageQueueId message_queue, const void *const message)
 {
     message_queue_api_assert_valid(message_queue);
     api_assert(message, ERROR_ID_MESSAGE_QUEUE_INVALID_POINTER);
@@ -310,7 +310,7 @@ void
 }
 
 bool
-{{prefix_func}}message_queue_try_get(const {{prefix_type}}MessageQueueId message_queue, void *message)
+{{prefix_func}}message_queue_try_get(const {{prefix_type}}MessageQueueId message_queue, void *const message)
 {
     message_queue_api_assert_valid(message_queue);
     api_assert(message, ERROR_ID_MESSAGE_QUEUE_INVALID_POINTER);
@@ -326,7 +326,7 @@ bool
         else
         {
             const uint16_t buffer_offset = mq->head * mq->message_size;
-            memcopy((uint8_t*)message, &mq->messages[buffer_offset], mq->message_size);
+            memcopy((uint8_t *const)message, &mq->messages[buffer_offset], mq->message_size);
             mq->head = (mq->head + 1) % mq->queue_length;
             mq->available -= 1;
 

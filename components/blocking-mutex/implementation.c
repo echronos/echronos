@@ -174,7 +174,7 @@ void
     mutex_core_unlocked(m);
 [[/prio_ceiling]]
 
-    for (t = {{prefix_const}}TASK_ID_ZERO; t <= {{prefix_const}}TASK_ID_MAX; t++)
+    for (t = {{prefix_const}}TASK_ID_ZERO; t < TASK_ID_END; t++)
     {
         if (mutex_waiters[t] == m)
         {

@@ -2,7 +2,15 @@
 #include <stdint.h>
 
 /*| object_like_macros |*/
+/* The TASK_ID_NONE and TASK_ID_END macros require some care:
+ * - TASK_ID_NONE is a valid integer within the value range of the TaskIdOption/TaskId types.
+ *   There is no fundamental safeguard against the application defining TASK_ID_NONE+1 tasks so that the last task
+ *   receives a task ID that is numerically equal to TASK_ID_NONE.
+ * - TASK_ID_END is of type integer, not TaskIdOption/TaskId.
+ *   It may hold the value TASK_ID_MAX + 1 which potentially exceeds the valid value range of TaskIdOption/TaskId.
+ *   It can therefore not necessarily be safely assigned to or cast to type TaskIdOption/TaskId. */
 #define TASK_ID_NONE ((TaskIdOption) UINT{{taskid_size}}_MAX)
+#define TASK_ID_END ({{tasks.length}})
 #define current_task rtos_internal_current_task
 #define tasks rtos_internal_tasks
 

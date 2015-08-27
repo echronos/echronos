@@ -14,7 +14,7 @@ struct message_queue
 {
     /* pointer to the array holding the message data
      * the array contains message_size * queue_length bytes */
-    uint8_t *messages;
+    /*@shared@*/ uint8_t *messages; /* "shared" tells splint that message_queue_{name}_messages may be accessed directly, not only through this field */
     /* size of each message in bytes */
     const uint8_t message_size;
     /* maximum number of messages this queue can hold */

@@ -1,0 +1,16 @@
+RTOS Task Review
+=======================
+
+Task name: Vqvo1s-p2020rdb-pca-examples
+Version reviewed: 2a98f92df15102123e0109855a005ef0d2b99740
+Reviewer: stg
+Date: 2015-08-20
+Conclusion: Rework
+
+Overall comments:
+
+Comment 1: Rework
+The wording in the license headers has changed slightly upstream since the files on this task branch have been created.
+Please update the license headers in those new files so that they match the new wording in the rest of the repository.
+
+[robs: Done]

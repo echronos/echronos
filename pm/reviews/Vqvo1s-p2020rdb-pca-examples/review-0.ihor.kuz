@@ -1,0 +1,48 @@
+Breakaway Task Review
+=======================
+
+Task name: Vqvo1s-p2020rdb-pca-examples
+Version reviewed: f4ec12397af6aa82f3ec0c970f2d7e1b5c6db940
+Reviewer: ihor.kuz
+Date: 2015-07-14
+Conclusion: Rework
+
+Overall comments: [rework]
+
+Good clear examples.  I think it might help clarify the examples even more by adding some more comments.  Specifically:
+- at the top of each of the three example source files, explaining what ech example does, and the general structure (similar to what's in the documentation, but possibly not as extensive).
+- for each of the key functions what they are/do (especially for the interrupt handlers0 and how they relate to the overall structure and example goal.
+- for the prx files, some comments highlighting the irq handlers, the signals, and the interrupt events and how they are wired up.
+
+[robs: Thanks - added some more detail, hope this is sufficient]
+
+Specific comments
+=================
+
+Location: packages/machine-p2020rdb-pca/example/p2020-pic.c
+Comment [rework]:
+- There are some magic numbers in this code, that I'd prefer to see as constants:
+	- #define PIC_IIVPR(x) (volatile uint32_t *)(PIC_IIVPR_BASE + (32 * (x))) // what is the 32? is it word size or something?
+	- #define PIC_GTBCRA(x) (volatile uint32_t *)(PIC_REGISTER_BASE + 0x1110 + (64 * (x))) // what is the 64?
+	-    if (priority > 15) {  => MAX_..._PRIORITY
+	-    if (vector > 0xffff) { => MAX_..._VECTOR
+	-    *PIC_IIVPR(PIC_IIV_DUART) &= 0x7fffffff;  => ..._MASK
+	-    if (i < 0 || i > 7) { => MAX_TIMERS
+	-  if (base_count & 0x80000000) { => MAX_BASE_COUNT
+	-  if (i < 4) { = > what is 4 ???
+
+[robs: Fixed]
+
+Location: packages/machine-p2020rdb-pca/example/interrupt-demux-example.c
+Comment: [rework]
+- There is a magic number in here:
+	- for (i = 0; i < 8; i++) {  => MAX_..._TIMERS
+
+[robs: Fixed]
+
+Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c
+Comment: [rework]
+- There is a magic constant here:
+	- a_buf[BUF_CAPACITY - 1] = '#';  => RX_OVERRUN
+
+[robs: Fixed]

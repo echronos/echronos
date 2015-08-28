@@ -20,19 +20,26 @@ typedef uint8_t {{prefix_type}}MutexId;
 
 /*| public_state |*/
 {{#mutex.stats}}
+/*@unused@*/
 extern bool {{prefix_func}}mutex_stats_enabled;
 {{/mutex.stats}}
 
 /*| public_function_declarations |*/
 {{#mutexes.length}}
+/*@unused@*/
 void {{prefix_func}}mutex_lock({{prefix_type}}MutexId) {{prefix_const}}REENTRANT;
 [[#lock_timeout]]
+/*@unused@*/
 bool {{prefix_func}}mutex_lock_timeout({{prefix_type}}MutexId, {{prefix_type}}TicksRelative) {{prefix_const}}REENTRANT;
 [[/lock_timeout]]
+/*@unused@*/
 bool {{prefix_func}}mutex_try_lock({{prefix_type}}MutexId);
+/*@unused@*/
 void {{prefix_func}}mutex_unlock({{prefix_type}}MutexId);
+/*@unused@*/
 bool {{prefix_func}}mutex_holder_is_current({{prefix_type}}MutexId);
 {{#mutex.stats}}
+/*@unused@*/
 void {{prefix_func}}mutex_stats_clear(void);
 {{/mutex.stats}}
 {{/mutexes.length}}

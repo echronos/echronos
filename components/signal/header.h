@@ -32,7 +32,11 @@ typedef {{prefix_type}}SignalSet {{prefix_type}}SignalId;
 /*| public_state |*/
 
 /*| public_function_declarations |*/
+/*@unused@*/
 {{prefix_type}}SignalSet {{prefix_func}}signal_wait_set({{prefix_type}}SignalSet requested_signals) {{prefix_const}}REENTRANT;
+/*@unused@*/
 {{prefix_type}}SignalSet {{prefix_func}}signal_poll_set({{prefix_type}}SignalSet requested_signals);
+/*@unused@*/
 {{prefix_type}}SignalSet {{prefix_func}}signal_peek_set({{prefix_type}}SignalSet requested_signals);
+/*@unused@*/
 void {{prefix_func}}signal_send_set({{prefix_type}}TaskId task_id, {{prefix_type}}SignalSet signals);

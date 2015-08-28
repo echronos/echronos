@@ -18,14 +18,20 @@ typedef uint8_t {{prefix_type}}MessageQueueId;
 
 /*| public_function_declarations |*/
 {{#message_queues.length}}
+/*@unused@*/
 void {{prefix_func}}message_queue_put({{prefix_type}}MessageQueueId message_queue, const void *message)
         {{prefix_const}}REENTRANT;
+/*@unused@*/
 bool {{prefix_func}}message_queue_try_put({{prefix_type}}MessageQueueId message_queue, const void *message);
+/*@unused@*/
 bool {{prefix_func}}message_queue_put_timeout({{prefix_type}}MessageQueueId message_queue, const void *message,
                                               {{prefix_type}}TicksRelative timeout) {{prefix_const}}REENTRANT;
+/*@unused@*/
 void {{prefix_func}}message_queue_get({{prefix_type}}MessageQueueId message_queue, void *message)
         {{prefix_const}}REENTRANT;
+/*@unused@*/
 bool {{prefix_func}}message_queue_try_get({{prefix_type}}MessageQueueId message_queue, void *message);
+/*@unused@*/
 bool {{prefix_func}}message_queue_get_timeout({{prefix_type}}MessageQueueId message_queue, void *message,
                                               {{prefix_type}}TicksRelative timeout) {{prefix_const}}REENTRANT;
 

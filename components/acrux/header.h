@@ -11,8 +11,12 @@
 /*| public_state |*/
 
 /*| public_function_declarations |*/
+/*@unused@*/
 void {{prefix_func}}yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT;
+/*@unused@*/
 void {{prefix_func}}yield(void) {{prefix_const}}REENTRANT;
+/*@unused@*/
 void {{prefix_func}}block(void) {{prefix_const}}REENTRANT;
+/*@unused@*/
 void {{prefix_func}}unblock({{prefix_type}}TaskId task);
 void {{prefix_func}}start(void);

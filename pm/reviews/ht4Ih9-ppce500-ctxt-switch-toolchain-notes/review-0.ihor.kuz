@@ -14,6 +14,10 @@ Location: components/context-switch-ppce500/docs.md
 Comment: rework
 I made some slight changes related to the placement of the examples of gcc flags. The changes are checked in with this commit. 
 
+[robs: Looks good]
+
 Location: components/context-switch-preempt-ppce500/docs.md 
 Comment: rework
 I made some slight changes related to the perenthetical examples. The changes are checked in with this commit. 
+
+[robs: Looks good, thanks]

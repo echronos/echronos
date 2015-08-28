@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+     eChronos Real-Time Operating System
+     Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+
+     This program is free software: you can redistribute it and/or modify
+     it under the terms of the GNU Affero General Public License as published by
+     the Free Software Foundation, version 3, provided that these additional
+     terms apply under section 7:
+
+       No right, title or interest in or to any trade mark, service mark, logo
+       or trade name of of National ICT Australia Limited, ABN 62 102 206 173
+       ("NICTA") or its licensors is granted. Modified versions of the Program
+       must be plainly marked as such, and must not be distributed using
+       "eChronos" as a trade mark or product name, or misrepresented as being
+       the original Program.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU Affero General Public License for more details.
+
+     You should have received a copy of the GNU Affero General Public License
+     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+     @TAG(NICTA_AGPL)
+  -->
+
+<system>
+  <modules>
+    <module name="ppce500.build" />
+    <module name="ppce500.default-linker" />
+    <module name="ppce500.interrupts-util" />
+    <module name="ppce500.vectable">
+      <!-- Preemption must be enabled for this module if using with preemptive RTOS variants like Phact -->
+      <preemption>true</preemption>
+      <!-- We must designate an interrupt handler preempting if it potentially raises interrupt events -->
+      <external_input>
+        <handler>exti_interrupt</handler>
+        <preempting>true</preempting>
+      </external_input>
+    </module>
+    <module name="ppce500.section-init" />
+    <module name="generic.debug" />
+
+    <module name="ppce500.rtos-phact">
+      <internal_asserts>true</internal_asserts>
+      <fatal_error>fatal</fatal_error>
+      <prefix>rtos</prefix>
+      <taskid_size>8</taskid_size>
+      <signalset_size>8</signalset_size>
+
+      <!-- Distinct signal labels indicating data receive-ready, receive-overrun, and transmit-ready status -->
+      <signal_labels>
+
+        <signal_label>
+          <name>rx</name>
+        </signal_label>
+
+        <signal_label>
+          <name>rx_overrun</name>
+        </signal_label>
+
+        <signal_label>
+          <name>tx</name>
+        </signal_label>
+
+      </signal_labels>
+
+      <interrupt_events>
+        <!-- Propagate the rx-related events to Task A, the one responsible for receiving data from the DUART -->
+        <interrupt_event>
+          <name>rx</name>
+          <task>a</task>
+          <sig_set>rx</sig_set>
+        </interrupt_event>
+
+        <interrupt_event>
+          <name>rx_overrun</name>
+          <task>a</task>
+          <sig_set>rx_overrun</sig_set>
+        </interrupt_event>
+
+        <!-- Propagate the tx-related event to Task B, the one responsible for transmitting data on the DUART -->
+        <interrupt_event>
+          <name>tx</name>
+          <task>b</task>
+          <sig_set>tx</sig_set>
+        </interrupt_event>
+      </interrupt_events>
+
+      <tasks>
+
+        <task>
+          <name>a</name>
+          <function>fn_a</function>
+          <priority>30</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>b</name>
+          <function>fn_b</function>
+          <priority>29</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+      </tasks>
+
+      <mutex>
+        <stats>false</stats>
+      </mutex>
+    </module>
+
+    <!-- Machine-specific library code -->
+    <module name="machine-p2020rdb-pca.example.machine-timer" />
+    <module name="machine-p2020rdb-pca.example.p2020-pic" />
+    <module name="machine-p2020rdb-pca.example.p2020-util" />
+    <module name="machine-p2020rdb-pca.example.p2020-duart" />
+    <!-- C file defining interrupt handler -->
+    <module name="machine-p2020rdb-pca.example.interrupt-buffering-example">
+      <variant>phact</variant>
+    </module>
+    <!-- C file defining tasks -->
+    <module name="machine-p2020rdb-pca.example.task-sync-example">
+      <variant>phact</variant>
+    </module>
+
+  </modules>
+</system>

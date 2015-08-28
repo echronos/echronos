@@ -1,0 +1,41 @@
+Task: Vqvo1s-p2020rdb-pca-examples
+==============================================================================
+
+Motivation
+----------
+
+A customer wants eChronos working on a board based on the P2020 chip, which features dual e500 processor cores.
+eChronos is only required to run on core 0.
+
+The recently merged task zwIbyS-machine-p2020rdb-pca brought up eChronos on the Freescale P2020RDB-PCA, which is an evaluation board also based on the P2020 chip.
+That task only presented example systems corresponding to existing example systems for other platforms.
+
+In order to support the customer, we would also like to provide example systems demonstrating possible implementations for some typical use cases for eChronos on the P2020.
+
+
+Goals
+--------
+
+Addition of example systems for machine-p2020rdb-pca that demonstrate a possible implementation for each of the following, generic use cases:
+(1) Delivery of interrupt events to particular tasks using eChronos' interrupt_event_raise API.
+(2) Buffering of data between ISR and task, with access to the data synchronized via some platform-specific method.
+(3) Sharing of data between two tasks, with access to the data synchronized using some eChronos API.
+
+Incidentally, the systems may also demonstrate use of various P2020-specific hardware features, such as:
+- the P2020's Programmable Interrupt Controller (PIC), for demultiplexing of external interrupts
+- the P2020 PIC's global timers, as interrupt sources
+- the P2020's Dual Universal Asynchronous Receiver/Transmitters (DUARTs), for interrupt-driven receipt and transmission of bytes
+
+The code should be factored into modules corresponding to driver "libraries" where appropriate, to provide a serving suggestion for how one may structure their project code for reuse.
+
+
+Test Plan
+---------
+
+Build system images in ELF format using prj.py build.
+
+Use the stock U-Boot firmware on the P2020RDB-PCA to load images via 'tftpboot' and run them with 'bootelf':
+
+    tftpboot path/to/img.elf
+    interrupts off
+    bootelf

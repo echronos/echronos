@@ -1,0 +1,19 @@
+RTOS Task Review
+=======================
+
+Task name: 40PR44-update_support_for_client_repositories
+Version reviewed: a40aa805c4f9b68a1b0800e190b57e3461537fef
+Reviewer: ihor.kuz
+Date: 2015-08-18
+Conclusion: Rework
+
+Specific comments
+=================
+
+Location: pylib/tests.py:352
+Comment: rework
+I think that the following should add to tests, not overwrite it.
+   for packages_dir in base_to_top_paths(args.topdir, 'packages'):
+            tests = list(find_gdb_test_py_files(packages_dir))
+
+[stg: resolved as suggested]

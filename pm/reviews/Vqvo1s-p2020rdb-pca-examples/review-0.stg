@@ -1,0 +1,136 @@
+Breakaway Task Review
+=======================
+
+Task name: Vqvo1s-p2020rdb-pca-examples
+Version reviewed: f4ec12397af6aa82f3ec0c970f2d7e1b5c6db940
+Reviewer: stg
+Date: 2015-07-26
+Conclusion: Rework
+
+Overall comments:
+
+Nice examples that must have required a fair bit of work!
+
+
+Specific comments
+=================
+
+Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:40
+Comment 1: rework
+Please explain in a comment why this limit is 10 instead of 1, i.e., why the system does not panic on the first spurious interrupt.
+
+[robs: Just made it panic instead.]
+
+Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:44&45
+Comment 2: rework
+The variables `a_buf` and `a_count` (and related local variables) are not very descriptive.
+How about `duart_rx_buf` and `duart_rx_buf_used` for example?
+
+[robs: Done, named them rx_buf and rx_count because I prefer to avoid the 'duart' prefix that's used by p2020-duart's interface, as well as having names that are prefixes of other names.]
+
+Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:45
+Comment 3: rework
+Does the variable `a_count` ever need to hold a negative value?
+If no, I would recommend to change it to an unsigned integer.
+
+[robs: Fixed]
+
+Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:53
+Comment 4: rework
+Would it make sense to additionally disable interrupts before going into the endless loop to ensure that there is truly no other activity possible on the system?
+
+[robs: Sounds good to me]
+
+Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:57 and others
+Comment 5: rework
+Please rename `exti_duart_irq_handle()` to `exti_duart_interrupt_handle()` because this function handles an interrupt, not an interrupt request.
+Please change all other occurrences of irq in files and file names in the same manner.
+
+[robs: Done for all new files added by this task]
+
+Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:57
+Comment 6: rework
+The function argument `iid` should be declared as constant as per convention BXCwte.
+
+[robs: Fixed]
+
+Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:58&59
+Comment 7: rework
+Do the variables `original_a_count` and `spurious_count` ever need to hold negative values?
+If not, I would recommend to give them unsigned types.
+
+[robs: Fixed]
+
+Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:94
+Comment 8: rework
+Indicating a buffer overrun through a special byte at the end of the buffer is inelegant because it is prone to false positives and uses the RX buffer for a purpose it is not intended for.
+How about indicating this circumstance with a dedicated signal?
+Note that the hard-coded '#' in this file seems to be inconsistent with the macro value '@' for `TX_PUT_OVERRUN_CHAR` in `packages/machine-p2020rdb-pca/example/p2020-duart.c`.
+
+[robs: Making it a dedicated signal instead, and having the tasks choose to panic]
+
+Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:137
+Comment 9: rework
+It is unusual to express the relatively simple termination condition for this loop in a separate if/break pair instead of the `while` condition itself.
+I would recommend to move it into there.
+
+[robs: Done]
+
+Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:166&168
+Comment 10: rework
+Do the variables `i` and `p_count` ever need to hold negative numbers?
+If not, I would recommend to give them an unsigned type.
+
+[robs: Fixed]
+
+Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:166-168
+Comment 11: rework
+In general, it is highly recommended to declare variables in the smallest possible scope.
+For `i`, `p_buf`, and `p_count`, that would be the `for` loop scope starting in line 175.
+
+[robs: Fixed]
+
+Location: packages/machine-p2020rdb-pca/example/interrupt-buffering-example.c:202-211
+Comment 12: rework
+To reduce code duplication and improve readability, I would recommend to move these two almost identical code blocks into a function.
+
+[robs: Done]
+
+Location: packages/machine-p2020rdb-pca/example/interrupt-demux-example.c:134
+Comment 13: rework
+Would it make sense to additionally disable interrupts before going into the endless loop to ensure that there is truly no other activity possible on the system?
+
+[robs: Done]
+
+Location: packages/machine-p2020rdb-pca/example/interrupt-demux-example.c:152
+Comment 14: rework
+Does the variable `i` ever need to hold a negative value?
+If not, I would recommend to give it an unsigned type.
+
+[robs: Fixed]
+
+Location: packages/machine-p2020rdb-pca/example/acamar-system.prx packages/machine-p2020rdb-pca/example/acrux-system.prx packages/machine-p2020rdb-pca/example/gatria-system.prx packages/machine-p2020rdb-pca/example/kochab-irq-buffering-example.prx packages/machine-p2020rdb-pca/example/kochab-irq-demux-example.prx packages/machine-p2020rdb-pca/example/kochab-mutex-demo.prx packages/machine-p2020rdb-pca/example/kochab-sched-demo.prx packages/machine-p2020rdb-pca/example/kochab-sem-demo.prx packages/machine-p2020rdb-pca/example/kochab-signal-demo.prx packages/machine-p2020rdb-pca/example/kochab-system.prx packages/machine-p2020rdb-pca/example/kochab-task-sync-example.prx packages/machine-p2020rdb-pca/example/kochab-timer-demo.prx packages/machine-p2020rdb-pca/example/kraz-system.prx packages/machine-p2020rdb-pca/example/phact-irq-buffering-example.prx packages/machine-p2020rdb-pca/example/phact-irq-demux-example.prx packages/machine-p2020rdb-pca/example/phact-mutex-demo.prx packages/machine-p2020rdb-pca/example/phact-sched-demo.prx packages/machine-p2020rdb-pca/example/phact-sem-demo.prx packages/machine-p2020rdb-pca/example/phact-signal-demo.prx packages/machine-p2020rdb-pca/example/phact-task-sync-example.prx packages/machine-p2020rdb-pca/example/phact-timer-demo.prx
+Comment 15: rework
+These system configuration files share a massive amount of XML data.
+I would recommend to move the shared parts into separate files and include them via the <include> mechanism to reduce duplication and improve maintainability.
+
+[robs: As discussed, the actual amount of XML spec in common isn't enough to justify a new file - leaving as-is]
+
+Location: packages/machine-p2020rdb-pca/example/p2020-pic.c:50 and others
+Comment 16: rework
+The function arguments of `assert_priority_vector_valid()` and all other functions in this file should be declared as constant as per convention BXCwte.
+
+[robs: Fixed]
+
+Location: packages/machine-p2020rdb-pca/example/p2020-pic.c:104 & 111
+Comment 17: rework
+Would it make sense for this code to be replaced by calls to `fatal()`?
+
+[robs: As discussed, not keen on making this "lib" code dependent on the existence of an extern fatal if I can help it]
+
+Location: packages/machine-p2020rdb-pca/example/task-sync-example.c
+Comment 18: rework
+Most of the comments for interrupt-buffering-example.c apply also to this file.
+Since these two files share so much code, I would recommend to move the shared code to a common file both systems can use to reduce code duplication and improve maintainability.
+
+[robs: Done]

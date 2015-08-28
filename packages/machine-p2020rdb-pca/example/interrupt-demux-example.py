@@ -9,7 +9,7 @@
 #
 #   No right, title or interest in or to any trade mark, service mark, logo or
 #   trade name of of National ICT Australia Limited, ABN 62 102 206 173
-#   "NICTA" or its licensors is granted. Modified versions of the Program
+#   ("NICTA") or its licensors is granted. Modified versions of the Program
 #   must be plainly marked as such, and must not be distributed using
 #   "eChronos" as a trade mark or product name, or misrepresented as being the
 #   original Program.
@@ -25,28 +25,17 @@
 # @TAG(NICTA_AGPL)
 #
 
-import os.path
-from prj import execute, SystemBuildError
+from prj import Module
 
 
-schema = {
-    'type': 'dict',
-    'name': 'module',
-    'dict_type': ([{'type': 'string', 'name': 'output_type', 'default': 'executable'}], [])
-}
+class InterruptDemuxExampleModule(Module):
+    xml_schema = """
+<schema>
+    <entry name="variant" type="c_ident" />
+</schema>"""
 
+    files = [
+        {'input': 'interrupt-demux-example.c', 'render': True, 'type': 'c'},
+    ]
 
-def run(system, configuration=None):
-    return system_build(system, configuration)
-
-
-def system_build(system, configuration):
-    inc_path_args = ['-I%s' % i for i in system.include_paths + [os.path.dirname(os.path.abspath(__file__))]]
-
-    if len(system.c_files) == 0:
-        raise SystemBuildError("Zero C files in system definition")
-
-    shared_args = ['-shared', '-fPIC'] if configuration['output_type'] == 'shared-library' else []
-
-    execute('gcc -std=c90 -Werror -Wall --all-warnings -Wpedantic -pedantic -o'.split() +
-            [system.output_file] + shared_args + inc_path_args + system.c_files)
+module = InterruptDemuxExampleModule()

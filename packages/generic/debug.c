@@ -89,3 +89,13 @@ void
     put_hexdigit((val >> 4) & 0xf);
     put_hexdigit((val >> 0) & 0xf);
 }
+
+void
+{{prefix}}debug_printhex8(const uint8_t val)
+{
+    {{ll_debug}}debug_putc('0');
+    {{ll_debug}}debug_putc('x');
+
+    put_hexdigit((val >> 4) & 0xf);
+    put_hexdigit((val >> 0) & 0xf);
+}

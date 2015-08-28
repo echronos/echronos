@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+     eChronos Real-Time Operating System
+     Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+
+     This program is free software: you can redistribute it and/or modify
+     it under the terms of the GNU Affero General Public License as published by
+     the Free Software Foundation, version 3, provided that these additional
+     terms apply under section 7:
+
+       No right, title or interest in or to any trade mark, service mark, logo
+       or trade name of of National ICT Australia Limited, ABN 62 102 206 173
+       ("NICTA") or its licensors is granted. Modified versions of the Program
+       must be plainly marked as such, and must not be distributed using
+       "eChronos" as a trade mark or product name, or misrepresented as being
+       the original Program.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU Affero General Public License for more details.
+
+     You should have received a copy of the GNU Affero General Public License
+     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+     @TAG(NICTA_AGPL)
+  -->
+
+<system>
+  <modules>
+    <module name="ppce500.build" />
+    <module name="ppce500.default-linker" />
+    <module name="ppce500.interrupts-util" />
+    <module name="ppce500.vectable">
+      <!-- Preemption must be enabled for this module if using with preemptive RTOS variants like Phact -->
+      <preemption>true</preemption>
+      <!-- Designating an interrupt handler non-preempting is only allowed if it can't affect task schedulability -->
+      <fixed_interval_timer>
+        <handler>tick_interrupt</handler>
+        <preempting>false</preempting>
+      </fixed_interval_timer>
+      <!-- We must designate an interrupt handler preempting if it potentially raises interrupt events -->
+      <external_input>
+        <handler>exti_interrupt</handler>
+        <preempting>true</preempting>
+      </external_input>
+    </module>
+    <module name="ppce500.section-init" />
+    <module name="generic.debug" />
+
+    <module name="ppce500.rtos-phact">
+      <internal_asserts>true</internal_asserts>
+      <fatal_error>fatal</fatal_error>
+      <prefix>rtos</prefix>
+      <taskid_size>8</taskid_size>
+      <signalset_size>8</signalset_size>
+
+      <!-- Only one signal label needed for this demo -->
+      <signal_labels>
+
+        <signal_label>
+          <name>demo_sig</name>
+        </signal_label>
+
+      </signal_labels>
+
+      <!-- Distinct interrupt events routed to distinct tasks, but all using the same signal label -->
+      <interrupt_events>
+
+        <interrupt_event>
+          <name>evt_a</name>
+          <task>a</task>
+          <sig_set>demo_sig</sig_set>
+        </interrupt_event>
+
+        <interrupt_event>
+          <name>evt_b</name>
+          <task>b</task>
+          <sig_set>demo_sig</sig_set>
+        </interrupt_event>
+
+        <interrupt_event>
+          <name>evt_c</name>
+          <task>c</task>
+          <sig_set>demo_sig</sig_set>
+        </interrupt_event>
+
+        <interrupt_event>
+          <name>evt_d</name>
+          <task>d</task>
+          <sig_set>demo_sig</sig_set>
+        </interrupt_event>
+
+        <interrupt_event>
+          <name>evt_e</name>
+          <task>e</task>
+          <sig_set>demo_sig</sig_set>
+        </interrupt_event>
+
+        <interrupt_event>
+          <name>evt_f</name>
+          <task>f</task>
+          <sig_set>demo_sig</sig_set>
+        </interrupt_event>
+
+        <interrupt_event>
+          <name>evt_g</name>
+          <task>g</task>
+          <sig_set>demo_sig</sig_set>
+        </interrupt_event>
+
+        <interrupt_event>
+          <name>evt_h</name>
+          <task>h</task>
+          <sig_set>demo_sig</sig_set>
+        </interrupt_event>
+
+        <interrupt_event>
+          <name>evt_i</name>
+          <task>i</task>
+          <sig_set>demo_sig</sig_set>
+        </interrupt_event>
+
+        <interrupt_event>
+          <name>evt_j</name>
+          <task>j</task>
+          <sig_set>demo_sig</sig_set>
+        </interrupt_event>
+
+        <interrupt_event>
+          <name>evt_k</name>
+          <task>k</task>
+          <sig_set>demo_sig</sig_set>
+        </interrupt_event>
+
+      </interrupt_events>
+
+      <!-- One task per distinct interrupt event for demo purposes -->
+      <tasks>
+
+        <task>
+          <name>a</name>
+          <function>fn_a</function>
+          <priority>30</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>b</name>
+          <function>fn_b</function>
+          <priority>29</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>c</name>
+          <function>fn_c</function>
+          <priority>28</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>d</name>
+          <function>fn_d</function>
+          <priority>27</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>e</name>
+          <function>fn_e</function>
+          <priority>26</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>f</name>
+          <function>fn_f</function>
+          <priority>25</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>g</name>
+          <function>fn_g</function>
+          <priority>24</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>h</name>
+          <function>fn_h</function>
+          <priority>23</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>i</name>
+          <function>fn_i</function>
+          <priority>22</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>j</name>
+          <function>fn_j</function>
+          <priority>21</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>k</name>
+          <function>fn_k</function>
+          <priority>20</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+      </tasks>
+
+      <mutex>
+        <stats>false</stats>
+      </mutex>
+    </module>
+
+    <!-- Machine-specific library code -->
+    <module name="machine-p2020rdb-pca.example.machine-timer" />
+    <module name="machine-p2020rdb-pca.example.p2020-pic" />
+    <module name="machine-p2020rdb-pca.example.p2020-util" />
+    <module name="machine-p2020rdb-pca.example.p2020-duart" />
+    <!-- main .c file: -->
+    <module name="machine-p2020rdb-pca.example.interrupt-demux-example">
+      <variant>phact</variant>
+    </module>
+
+  </modules>
+</system>

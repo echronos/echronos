@@ -25,7 +25,8 @@
  * @TAG(NICTA_AGPL)
  */
 
-extern void {{prefix}}debug_println(const char *msg);
-extern void {{prefix}}debug_print(const char *msg);
-extern void {{prefix}}debug_printhex32(uint32_t val);
-extern void {{prefix}}debug_printhex8(uint8_t val);
+/* 16 bytes is the size of the DUART FIFOs.
+ * But we can pick a totally arbitrary size for the buffer we use to pass bytes to the task. */
+#define BUF_CAPACITY 256
+
+void interrupt_buffering_example_init(void);

@@ -40,7 +40,7 @@ import inspect
 
 from .xunittest import discover_tests, TestSuite, SimpleTestNameResult, testcase_matches, testsuite_list
 from .release import _LicenseOpener
-from .utils import get_executable_extension
+from .utils import get_executable_extension, BASE_DIR, find_path, base_to_top_paths
 from .cmdline import subcmd, Arg
 
 
@@ -56,9 +56,9 @@ _std_subcmd_args = (
 def prj(args):
     """Run tests associated with prj modules."""
     modules = ['prj', 'util']
-    directories = [os.path.join('prj', 'app'),
-                   os.path.join('prj', 'app', 'pystache'),
-                   os.path.join('prj', 'app', 'lib')]
+    directories = [find_path(os.path.join('prj', 'app'), args.topdir),
+                   find_path(os.path.join('prj', 'app', 'pystache'), args.topdir),
+                   find_path(os.path.join('prj', 'app', 'lib'), args.topdir)]
 
     return _run_module_tests_with_args(modules, directories, args)
 
@@ -73,9 +73,10 @@ def x(args):
 
 
 @subcmd(cmd="test")
-def pystache(_):
+def pystache(args):
     """Run tests assocaited with pystache modules."""
-    return subprocess.call([sys.executable, os.path.join('prj', 'app', 'pystache', 'test_pystache.py')])
+    return subprocess.call([sys.executable,
+                            find_path(os.path.join('prj', 'app', 'pystache', 'test_pystache.py'), args.topdir)])
 
 
 @subcmd(cmd="test", args=_std_subcmd_args)
@@ -234,75 +235,36 @@ def style(args):
 @subcmd(cmd="test", help='Check that all files have the appropriate license header',
         args=(Arg('--excludes', nargs='*', help="Exclude directories from license header checks", default=[]),))
 def licenses(args):
-    excludes = args.excludes + [
-        '.git',
-        '.gitignore',
-        'external_tools',
-        'tools',
-        'pm',
-        'provenance',
-        'out',
-        'release',
-    ]
     files_without_license = []
     files_unknown_type = []
 
-    for top_file in [f for f in os.listdir() if os.path.isfile(f) and f not in excludes]:
-        # Check setenv as a shell script and expect shell-style comment format for .pylintrc
-        if top_file == 'setenv' or top_file == '.pylintrc':
-            agpl_sentinel = _LicenseOpener._agpl_sentinel('.sh')
-        else:
-            ext = os.path.splitext(top_file)[1]
-            try:
-                agpl_sentinel = _LicenseOpener._agpl_sentinel(ext)
-            except _LicenseOpener.UnknownFiletypeException:
-                files_unknown_type.append(top_file)
-                continue
-
-        if agpl_sentinel is not None:
-            f = open(top_file, 'rb')
-            old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
-            if not sentinel_found:
-                files_without_license.append(top_file)
-            f.close()
-
-    for top_subdir in [f for f in os.listdir() if os.path.isdir(f) and f not in excludes]:
-        # Ignore prj_build*
-        if top_subdir.startswith('prj_build'):
-            continue
-
-        for dirpath, subdirs, files in os.walk(top_subdir):
-            # Ignore prj/app
-            if os.path.basename(dirpath) == 'prj' and 'app' in subdirs:
-                subdirs.remove('app')
-
-            # Ignore docs/manual_template
-            if os.path.basename(dirpath) == 'docs' and 'manual_template' in subdirs:
-                subdirs.remove('manual_template')
-
-            # Ignore packages/*/rtos-*
-            if dirpath.startswith('packages') and len(dirpath.split('/')) == 2:
-                for d in [d for d in subdirs if d.startswith('rtos-')]:
-                    subdirs.remove(d)
-
-            for file_path in [os.path.join(dirpath, f) for f in files]:
-                ext = os.path.splitext(file_path)[1]
-
-                # Ignore component C, header, XML, and Markdown files that will be composed by x.py into RTOS packages
-                if top_subdir == "components" and ext in ['.c', '.h', '.xml', '.md']:
-                    continue
-
-                try:
-                    agpl_sentinel = _LicenseOpener._agpl_sentinel(ext)
-                except _LicenseOpener.UnknownFiletypeException:
-                    files_unknown_type.append(file_path)
-                    continue
+    sep = os.path.sep
+    if sep == '\\':
+        sep = '\\\\'
+    pattern = re.compile('\.git|components{0}.*\.(c|h|xml|md)$|external_tools{0}|pm{0}|prj{0}app{0}(ply|pystache){0}|\
+provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|packages{0}[^{0}]+{0}rtos-|\
+.*__pycache__'.format(sep))
+    for dirpath, subdirs, files in os.walk(BASE_DIR):
+        for file_name in files:
+            path = os.path.join(dirpath, file_name)
+            rel_path = os.path.relpath(path, BASE_DIR)
+            if not pattern.match(rel_path):
+                # Check setenv as a shell script and expect shell-style comment format for .pylintrc
+                if rel_path in ('setenv', '.pylintrc'):
+                    agpl_sentinel = _LicenseOpener._agpl_sentinel('.sh')
+                else:
+                    ext = os.path.splitext(file_name)[1]
+                    try:
+                        agpl_sentinel = _LicenseOpener._agpl_sentinel(ext)
+                    except _LicenseOpener.UnknownFiletypeException:
+                        files_unknown_type.append(path)
+                        continue
 
                 if agpl_sentinel is not None:
-                    f = open(file_path, 'rb')
+                    f = open(path, 'rb')
                     old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
                     if not sentinel_found:
-                        files_without_license.append(file_path)
+                        files_without_license.append(path)
                     f.close()
 
     if len(files_without_license):
@@ -322,21 +284,23 @@ def licenses(args):
 
 @subcmd(cmd="test", help='Check that all files belonging to external tools map 1-1 with provenance listings')
 def provenance(args):
-    target_dirs = ['tools', 'external_tools']
-    exemptions = [['tools', 'LICENSE.md'], ['external_tools', 'LICENSE.md']]
+    target_dirs = base_to_top_paths(args.topdir, ('tools', 'external_tools'))
+    exemptions = [os.path.join(BASE_DIR, 'tools', 'LICENSE.md'),
+                  os.path.join(BASE_DIR, 'external_tools', 'LICENSE.md')]
     files_nonexistent = []
     files_not_listed = []
     files_listed = []
 
     # Check that all files in provenance FILES listings exist.
-    for dirpath, subdirs, files in os.walk('provenance'):
-        for list_path in [os.path.join(dirpath, f) for f in files if f == 'FILES']:
-            for file_path in [line.strip() for line in open(list_path)]:
-                if os.path.exists(file_path):
-                    # FILES paths have UNIX '/' separators but we wish to compare in an OS-agnostic manner.
-                    files_listed.append(file_path.split('/'))
-                else:
-                    files_nonexistent.append((file_path, list_path))
+    for provenance_path in base_to_top_paths(args.topdir, 'provenance'):
+        for dirpath, subdirs, files in os.walk(provenance_path):
+            for list_path in [os.path.join(dirpath, f) for f in files if f == 'FILES']:
+                for file_path in [line.strip() for line in open(list_path)]:
+                    file_abs_path = os.path.normpath(os.path.join(os.path.dirname(provenance_path), file_path))
+                    if os.path.exists(file_abs_path):
+                        files_listed.append(file_abs_path)
+                    else:
+                        files_nonexistent.append((file_path, list_path))
 
     # Check that all files in 'external_tools' and 'tools' are listed in a provenance FILES listing.
     for target_dir in target_dirs:
@@ -349,12 +313,12 @@ def provenance(args):
             # This directory contains xyz-generated provenance information including file listings with paths relative
             # to the 'tools' directory, sometimes including other files in tools/share/xyz, so we leave them here to
             # preserve their paths and put a note in the relevant ORIGIN files to refer here for more info.
-            if dirpath == os.path.join('tools', 'share') and 'xyz' in subdirs:
+            if dirpath == os.path.abspath(os.path.join(BASE_DIR, 'tools', 'share')) and 'xyz' in subdirs:
                 subdirs.remove('xyz')
 
-            for file_path in [dirpath.split(os.sep) + [f] for f in files]:
+            for file_path in [os.path.normpath(os.path.join(dirpath, f)) for f in files]:
                 if file_path not in files_listed + exemptions:
-                    files_not_listed.append(os.path.join(*file_path))
+                    files_not_listed.append(file_path)
 
     # Log all results and return 1 if there were any problematic cases
     if len(files_nonexistent):
@@ -381,10 +345,11 @@ def systems(args):
                 if file.endswith('.py') and os.path.splitext(file)[0] + '.gdb' in files:
                     yield os.path.join(parent, file)
 
-    if args.unknown_args and isinstance(args.unknown_args[-1], str) and args.unknown_args[-1].endswith('.py'):
-        tests = []
-    else:
-        tests = list(find_gdb_test_py_files('packages'))
+    tests = []
+    uargs = args.unknown_args
+    if not uargs or not isinstance(uargs[-1], str) or not uargs[-1].endswith('.py'):
+        for packages_dir in base_to_top_paths(args.topdir, 'packages'):
+            tests.extend(find_gdb_test_py_files(packages_dir))
 
     nose.core.run(argv=[''] + args.unknown_args + tests)
 
@@ -407,18 +372,18 @@ class GdbTestCase(unittest.TestCase):
 
     """
     system_name = None
-    search_path = 'packages'
 
     def setUp(self):
         topdir = os.path.abspath('.')
+        self.search_paths = list(base_to_top_paths(topdir, 'packages'))
         if self.system_name is None:
             py_path = inspect.getfile(self.__class__)
             self.prx_path = os.path.splitext(py_path)[0] + '.prx'
-            rel_py_path = os.path.relpath(py_path, os.path.abspath(self.search_path))
+            rel_py_path = os.path.relpath(py_path, os.path.abspath(self.search_paths[0]))
             self.system_name = os.path.splitext(rel_py_path)[0].replace(os.sep, '.')
         else:
-            rel_prx_path = os.path.join(self.search_path, self.system_name.replace('.', os.sep)) + '.prx'
-            self.prx_path = os.path.abspath(rel_prx_path)
+            rel_prx_path = os.path.join('packages', self.system_name.replace('.', os.sep) + '.prx')
+            self.prx_path = list(base_to_top_paths(topdir, rel_prx_path))[0]
         self.executable_path = os.path.abspath(os.path.join('out', self.system_name.replace('.', os.sep),
                                                             'system' + get_executable_extension()))
         self.gdb_commands_path = os.path.splitext(self.prx_path)[0] + '.gdb'
@@ -441,8 +406,9 @@ class GdbTestCase(unittest.TestCase):
         assert test_output == reference_output
 
     def _build(self):
-        subprocess.check_call((sys.executable, os.path.join('prj', 'app', 'prj.py'), '--search-path',
-                              self.search_path, 'build', self.system_name))
+        subprocess.check_call([sys.executable, os.path.join(BASE_DIR, 'prj', 'app', 'prj.py')] +
+                              ['--search-path={}'.format(sp) for sp in self.search_paths] +
+                              ['build', self.system_name])
 
     def _get_test_output(self):
         test_command = self._get_test_command()

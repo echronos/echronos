@@ -1,0 +1,20 @@
+RTOS Task Review
+=======================
+
+Task name: 40PR44-update_support_for_client_repositories
+Version reviewed: a40aa805c4f9b68a1b0800e190b57e3461537fef
+Reviewer: timl
+Date: 2015-08-18
+Conclusion: Accepted/Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: filename:linenum
+Comment:
+
+Location: filename:linenum
+Comment:

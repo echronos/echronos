@@ -41,3 +41,5 @@ can become:
     const {{prefix_type}}SignalSet received_signals = signal_set_intersection(*pending_signals, requested_signals);
 
 Possibly this is overkill putting all this in a single task though.
+
+[stg: created task s7HmJh-refactor_intersection_of_signal_sets_in_signal_component to address these suggestions]

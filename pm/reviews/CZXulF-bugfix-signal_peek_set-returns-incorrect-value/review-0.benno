@@ -5,16 +5,36 @@ Task name: CZXulF-bugfix-signal_peek_set-returns-incorrect-value
 Version reviewed: 8d2e63da6f82768f84e0936d7054d848ee9d3f33
 Reviewer: benno
 Date: 2015-09-01
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
+I think this slightly loses the original intent of factoring out the operation of a signal_set_intersection.
+I would prefer an implementation that was something like:
 
-Specific comments
-=================
 
-Location: filename:linenum
-Comment:
+#define signal_set_intersection(signal_set_1, signal_set_2) ((signal_set_1) & (signal_set_2))
+#define signal_peek(pending_signals, requested_signals) (signal_set_intersection(pending_signals, requested_signals) != {{prefix_const}}SIGNAL_SET_EMPTY)
 
-Location: filename:linenum
-Comment:
+And then:
+
+{{prefix_type}}SignalSet
+{{prefix_func}}signal_peek_set(const {{prefix_type}}SignalSet requested_signals)
+{
+    const {{prefix_type}}SignalSet pending_signals = PENDING_SIGNALS(get_current_task());
+    return signal_set_intersection(pending_signals, requested_signals);
+}
+
+Also, it seems like "signal_wait" and "signal_pending" macros are not used, so should probably me removed.
+
+If we have the "signal_set_intersection" macro then,
+
+    const {{prefix_type}}SignalSet received_signals = *pending_signals & requested_signals;
+
+(in signal_recv)
+
+can become:
+
+    const {{prefix_type}}SignalSet received_signals = signal_set_intersection(*pending_signals, requested_signals);
+
+Possibly this is overkill putting all this in a single task though.

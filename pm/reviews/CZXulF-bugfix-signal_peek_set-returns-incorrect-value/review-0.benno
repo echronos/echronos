@@ -5,9 +5,12 @@ Task name: CZXulF-bugfix-signal_peek_set-returns-incorrect-value
 Version reviewed: 8d2e63da6f82768f84e0936d7054d848ee9d3f33
 Reviewer: benno
 Date: 2015-09-01
-Conclusion: Rework
+Conclusion: Accept
 
 Overall comments:
+
+This rework achieves the goal of the task, specifically fixing the incorrect behaviour.
+Comments below can be addressed in a follow-up task.
 
 I think this slightly loses the original intent of factoring out the operation of a signal_set_intersection.
 I would prefer an implementation that was something like:

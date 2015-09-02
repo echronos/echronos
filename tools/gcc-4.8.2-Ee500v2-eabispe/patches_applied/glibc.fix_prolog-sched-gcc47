@@ -1,0 +1,24 @@
+diff -ur libc-orig/csu/Makefile libc/csu/Makefile
+--- libc-orig/csu/Makefile	2011-05-10 10:50:00.000000000 -0500
++++ libc/csu/Makefile	2012-01-11 13:48:24.616488681 -0600
+@@ -95,7 +95,7 @@
+ $(crtstuff:%=$(objpfx)%.o): %.o: %.S $(objpfx)defs.h
+ 	$(compile.S) -g0 $(ASFLAGS-.os) -o $@
+ 
+-CFLAGS-initfini.s = -g0 -fPIC -fno-inline-functions $(fno-unit-at-a-time)
++CFLAGS-initfini.s = -g0 -fPIC -fno-inline-functions -fno-inline $(fno-unit-at-a-time)
+ 
+ vpath initfini.c $(sysdirs)
+ 
+diff -ur libc-orig/nptl/Makefile libc/nptl/Makefile
+--- libc-orig/nptl/Makefile	2011-05-10 10:50:22.000000000 -0500
++++ libc/nptl/Makefile	2012-01-11 13:48:43.580488030 -0600
+@@ -361,7 +361,7 @@
+ extra-objs += $(crti-objs) $(crtn-objs)
+ omit-deps += crti crtn
+ 
+-CFLAGS-pt-initfini.s = -g0 -fPIC -fno-inline-functions $(fno-unit-at-a-time)
++CFLAGS-pt-initfini.s = -g0 -fPIC -fno-inline-functions -fno-inline $(fno-unit-at-a-time)
+ endif
+ 
+ CFLAGS-flockfile.c = -D_IO_MTSAFE_IO

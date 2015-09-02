@@ -1,0 +1,56 @@
+# Problem Statement:
+  For e5500/e6500 bare-board tool chain, when '-m64' option is used,
+  the corresponding emulation option '-melf64ppc' is not being passed
+  to the linker by default.
+
+# Reported by:
+  Rohit [23.April.2013]
+
+# Owned by:
+  Rohit
+
+# Action:
+  * Update the header file e500mc.h to set appropriate target macros.
+  * AEABI is a proxy for Linux ABI, so these changes should not affect
+    e500mc (EABI) tool chain.
+  * Fix typo in config.gcc file
+
+diff -Naur gcc-4.7.2/gcc/config/rs6000/e500mc.h gcc-4.7.2-emulation-spec/gcc/config/rs6000/e500mc.h
+--- gcc-4.7.2/gcc/config/rs6000/e500mc.h	2013-05-31 07:40:08.638001570 -0500
++++ gcc-4.7.2-emulation-spec/gcc/config/rs6000/e500mc.h	2013-05-31 07:39:34.794001566 -0500
+@@ -83,6 +83,8 @@
+   { "asm_spec_common",		ASM_SPEC_COMMON },			\
+   { "asm_spec32",		ASM_SPEC32 },				\
+   { "asm_spec64",		ASM_SPEC64 },				\
++  { "link_os_linux_spec32",	LINK_OS_LINUX_SPEC32 },			\
++  { "link_os_linux_spec64",	LINK_OS_LINUX_SPEC64 },
+ 
+ #undef	MULTILIB_DEFAULTS
+ #if DEFAULT_ARCH64_P
+@@ -170,6 +172,14 @@
+     }							\
+   while (0)
+ 
++#ifdef RS6000BI_ARCH_P
++#undef	LINK_OS_DEFAULT_SPEC
++#define LINK_OS_DEFAULT_SPEC "%(link_os_linux)"
++#endif
++
++#define LINK_OS_LINUX_SPEC32 "-m elf32ppclinux"
++#define LINK_OS_LINUX_SPEC64 "-m elf64ppc"
++
+ /* Must be at least as big as our pointer type.  */
+ #undef	SIZE_TYPE
+ #define	SIZE_TYPE (TARGET_64BIT ? "long unsigned int" : "unsigned int")
+diff -Naur gcc-4.7.2/gcc/config.gcc gcc-4.7.2-emulation-spec/gcc/config.gcc
+--- gcc-4.7.2/gcc/config.gcc	2013-05-31 07:40:01.544000724 -0500
++++ gcc-4.7.2-emulation-spec/gcc/config.gcc	2013-05-31 07:39:32.758001571 -0500
+@@ -421,7 +421,7 @@
+ 	extra_headers="ppc-asm.h altivec.h spe.h ppu_intrinsics.h paired.h spu2vmx.h vec_types.h si2vmx.h"
+ 	need_64bit_hwint=yes
+ 	case x$with_cpu in
+-	    xpowerpc64|xdefault64|x6[23]0|x970|xG5|xpower[345678]|xpower6x|xrs64a|xcell|xa2|xe500mc64|xe5500|Xe6500)
++	    xpowerpc64|xdefault64|x6[23]0|x970|xG5|xpower[345678]|xpower6x|xrs64a|xcell|xa2|xe500mc64|xe5500|xe6500)
+ 		cpu_is_64bit=yes
+ 		;;
+ 	esac

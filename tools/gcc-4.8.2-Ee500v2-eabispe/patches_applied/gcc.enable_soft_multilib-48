@@ -1,0 +1,26 @@
+--- src_gcc/gcc/config/rs6000/t-linux64-orig	2013-01-10 10:14:46.750175050 -0800
++++ src_gcc/gcc/config/rs6000/t-linux64	2013-01-10 10:16:23.400175105 -0800
+@@ -26,8 +26,11 @@
+ # it doesn't tell anything about the 32bit libraries on those systems.  Set
+ # MULTILIB_OSDIRNAMES according to what is found on the target.
+ 
+-MULTILIB_OPTIONS        = m64/m32
+-MULTILIB_DIRNAMES       = 64 32
+-MULTILIB_EXTRA_OPTS     = fPIC
++MULTILIB_OPTIONS        = m64/m32 msoft-float
++MULTILIB_DIRNAMES       = 64 32 nof
++MULTILIB_EXTRA_OPTS     = fPIC mstrict-align
++MULTILIB_EXCEPTIONS     = m64/msoft-float
++MULTILIB_EXCLUSIONS     = m64/!m32/msoft-float
+ MULTILIB_OSDIRNAMES	= ../lib64$(call if_multiarch,:powerpc64-linux-gnu)
+ MULTILIB_OSDIRNAMES    += $(if $(wildcard $(shell echo $(SYSTEM_HEADER_DIR))/../../usr/lib32),../lib32,../lib)$(call if_multiarch,:powerpc-linux-gnu)
++MULTILIB_MATCHES        = $(MULTILIB_MATCHES_FLOAT)
+--- src_gcc/gcc/config/rs6000/t-linux64.orig	2013-01-10 13:39:51.650175772 -0800
++++ src_gcc/gcc/config/rs6000/t-linux64	2013-01-10 13:40:00.150176071 -0800
+@@ -32,5 +32,5 @@
+ MULTILIB_EXCEPTIONS     = m64/msoft-float
+ MULTILIB_EXCLUSIONS     = m64/!m32/msoft-float
+ MULTILIB_OSDIRNAMES	= ../lib64$(call if_multiarch,:powerpc64-linux-gnu)
+-MULTILIB_OSDIRNAMES    += $(if $(wildcard $(shell echo $(SYSTEM_HEADER_DIR))/../../usr/lib32),../lib32,../lib)$(call if_multiarch,:powerpc-linux-gnu)
++MULTILIB_OSDIRNAMES    += $(if $(wildcard $(shell echo $(SYSTEM_HEADER_DIR))/../../usr/lib32),../lib32,../lib)$(call if_multiarch,:powerpc-linux-gnu) nof$(call if_multiarch,:powerpc-linux-gnu)
+ MULTILIB_MATCHES        = $(MULTILIB_MATCHES_FLOAT)

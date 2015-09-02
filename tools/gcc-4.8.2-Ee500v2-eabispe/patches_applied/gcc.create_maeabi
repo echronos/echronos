@@ -1,0 +1,746 @@
+--- gcc-4.7.2/gcc/config/rs6000/sysv4.opt-orig  2013-03-29 13:13:27.001603071 -0500
++++ gcc-4.7.2/gcc/config/rs6000/sysv4.opt       2013-03-29 13:15:05.637602550 -0500
+@@ -117,6 +117,10 @@
+ Target RejectNegative
+ Link with libsim.a, libc.a and sim-crt0.o
+ 
++maeabi
++Target RejectNegative
++Link with libaeabi.a, crtaeabi0.o and crtaeabi9.o
++
+ mads
+ Target RejectNegative
+ Link with libads.a, libc.a and crt0.o
+diff -ruN gcc-4.7.3-orig/gcc/config/rs6000/e500mc.h gcc-4.7.3-new/gcc/config/rs6000/e500mc.h
+--- gcc-4.7.3-orig/gcc/config/rs6000/e500mc.h	2013-04-29 16:40:59.759000075 -0500
++++ gcc-4.7.3-new/gcc/config/rs6000/e500mc.h	2013-04-29 18:32:49.436000171 -0500
+@@ -84,7 +84,22 @@
+   { "asm_spec32",		ASM_SPEC32 },				\
+   { "asm_spec64",		ASM_SPEC64 },				\
+   { "link_os_linux_spec32",	LINK_OS_LINUX_SPEC32 },			\
+-  { "link_os_linux_spec64",	LINK_OS_LINUX_SPEC64 },
++  { "link_os_linux_spec64",	LINK_OS_LINUX_SPEC64 },                 \
++  { "startfile_aeabi",          STARTFILE_AEABI_SPEC },                 \
++  { "lib_aeabi",                LIB_AEABI_SPEC },                       \
++  { "endfile_aeabi",            ENDFILE_AEABI_SPEC },
++
++#define STARTFILE_AEABI_SPEC ""
++#define LIB_AEABI_SPEC ""
++#define ENDFILE_AEABI_SPEC ""
++
++/* This is the case of e5500 and e6500 targets */
++#undef STARTFILE_AEABI_SPEC
++#undef LIB_AEABI_SPEC
++#undef ENDFILE_AEABI_SPEC
++#define STARTFILE_AEABI_SPEC "%{m32:-m elf32ppc} %{m64:-m elf64ppc} %{!m32:%{!m64:-m elf32ppc}} ecrti.o%s crtaeabi0.o%s crtbegin.o%s"
++#define LIB_AEABI_SPEC "--start-group -laeabi -lc --end-group"
++#define ENDFILE_AEABI_SPEC "crtend.o%s crtaeabi9.o%s ecrtn.o%s"
+ 
+ #undef	MULTILIB_DEFAULTS
+ #if DEFAULT_ARCH64_P
+diff -ruN gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/crtaeabi0.S gcc-4.7.3-new/gcc/config/rs6000/libaeabi/crtaeabi0.S
+--- gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/crtaeabi0.S	1969-12-31 18:00:00.000000000 -0600
++++ gcc-4.7.3-new/gcc/config/rs6000/libaeabi/crtaeabi0.S	2013-04-29 18:34:39.483000083 -0500
+@@ -0,0 +1,57 @@
++/*
++ * crt0.S -- startup file for PowerPC systems.
++ *
++ * Copyright (c) 1995 Cygnus Support
++ *
++ * The authors hereby grant permission to use, copy, modify, distribute,
++ * and license this software and its documentation for any purpose, provided
++ * that existing copyright notices are retained in all copies and that this
++ * notice is included verbatim in any distributions. No written agreement,
++ * license, or royalty fee is required for any of the authorized uses.
++ * Modifications to this software may be copyrighted by their authors
++ * and need not follow the licensing terms described here, provided that
++ * the new terms are clearly indicated on the first page of each file where
++ * they apply.
++ */
++
++#include "ppc-asm.h"
++
++	.file	"sim-crt0.S"
++	.text
++FUNC_START(_start)
++	lis	r0,0
++	stw	r0,0(sp)	/* clear back chain */
++	stwu	sp,-64(sp)	/* push another stack frame */
++
++	/* Let her rip */
++#if defined (__powerpc64__)
++	.section ".init"
++._init:
++	.text
++	bl	FUNC_NAME(_init)
++	nop
++	/* return value from main is argument to exit */
++	bl	FUNC_NAME(exit)
++	nop
++#else
++	bl	FUNC_NAME(__init)
++	bl	FUNC_NAME(main)#
++	/* return value from main is argument to exit */
++	bl	FUNC_NAME(exit)
++#endif
++FUNC_END(_start)
++
++	.extern	FUNC_NAME(atexit)
++	.globl	FUNC_NAME(__atexit)
++	.section ".sdata","aw"
++	.align	2
++FUNC_NAME(__atexit):			/* tell C's eabi-ctor's we have an atexit function */
++#if defined (__powerpc64__)
++	.long	FUNC_NAME(atexit)	/* and that it is to register __do_global_dtors */
++#else
++	.long	FUNC_NAME(atexit)@fixup	/* and that it is to register __do_global_dtors */
++
++	.section ".fixup","aw"
++	.align	2
++	.long	FUNC_NAME(__atexit)
++#endif
+diff -ruN gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/crtaeabi9.S gcc-4.7.3-new/gcc/config/rs6000/libaeabi/crtaeabi9.S
+--- gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/crtaeabi9.S	1969-12-31 18:00:00.000000000 -0600
++++ gcc-4.7.3-new/gcc/config/rs6000/libaeabi/crtaeabi9.S	2013-04-29 18:34:39.498000079 -0500
+@@ -0,0 +1,12 @@
++#include "ppc-asm.h"
++
++	.file	"sim-crt9.S"
++
++#if defined (__powerpc64__)
++	.section ".init","ax"
++	bl	FUNC_NAME(main)
++	nop
++	/* return value from main is argument to exit */
++	bl	FUNC_NAME(exit)
++	nop
++#endif
+diff -ruN gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/fstat.c gcc-4.7.3-new/gcc/config/rs6000/libaeabi/fstat.c
+--- gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/fstat.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-4.7.3-new/gcc/config/rs6000/libaeabi/fstat.c	2013-04-29 18:34:39.518000116 -0500
+@@ -0,0 +1,30 @@
++/* fstat.c -- get status of a file.
++ *
++ * Copyright (c) 1995 Cygnus Support
++ *
++ * The authors hereby grant permission to use, copy, modify, distribute,
++ * and license this software and its documentation for any purpose, provided
++ * that existing copyright notices are retained in all copies and that this
++ * notice is included verbatim in any distributions. No written agreement,
++ * license, or royalty fee is required for any of the authorized uses.
++ * Modifications to this software may be copyrighted by their authors
++ * and need not follow the licensing terms described here, provided that
++ * the new terms are clearly indicated on the first page of each file where
++ * they apply.
++ */
++#include <sys/stat.h>
++#include "glue.h"
++
++/*
++ * fstat -- Since we have no file system, we just return an error.
++ */
++int
++_DEFUN (fstat, (fd, buf),
++       int fd _AND
++       struct stat *buf)
++{
++  buf->st_mode = S_IFCHR;	/* Always pretend to be a tty */
++  buf->st_blksize = 0;
++
++  return (0);
++}
+diff -ruN gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/getpid.c gcc-4.7.3-new/gcc/config/rs6000/libaeabi/getpid.c
+--- gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/getpid.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-4.7.3-new/gcc/config/rs6000/libaeabi/getpid.c	2013-04-29 18:34:39.562000126 -0500
+@@ -0,0 +1,25 @@
++/* getpid.c -- get the current process id.
++ *
++ * Copyright (c) 1995 Cygnus Support
++ *
++ * The authors hereby grant permission to use, copy, modify, distribute,
++ * and license this software and its documentation for any purpose, provided
++ * that existing copyright notices are retained in all copies and that this
++ * notice is included verbatim in any distributions. No written agreement,
++ * license, or royalty fee is required for any of the authorized uses.
++ * Modifications to this software may be copyrighted by their authors
++ * and need not follow the licensing terms described here, provided that
++ * the new terms are clearly indicated on the first page of each file where
++ * they apply.
++ */
++#include "glue.h"
++
++/*
++ * getpid -- only one process, so just return 1.
++ */
++int
++_DEFUN (getpid, (),
++        )
++{
++  return __MYPID;
++}
+diff -ruN gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/glue.h gcc-4.7.3-new/gcc/config/rs6000/libaeabi/glue.h
+--- gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/glue.h	1969-12-31 18:00:00.000000000 -0600
++++ gcc-4.7.3-new/gcc/config/rs6000/libaeabi/glue.h	2013-04-29 18:34:39.581999971 -0500
+@@ -0,0 +1,31 @@
++/* glue.h -- common definitions for "glue" fucntions.
++ *
++ * Copyright (c) 1995 Cygnus Support
++ *
++ * The authors hereby grant permission to use, copy, modify, distribute,
++ * and license this software and its documentation for any purpose, provided
++ * that existing copyright notices are retained in all copies and that this
++ * notice is included verbatim in any distributions. No written agreement,
++ * license, or royalty fee is required for any of the authorized uses.
++ * Modifications to this software may be copyrighted by their authors
++ * and need not follow the licensing terms described here, provided that
++ * the new terms are clearly indicated on the first page of each file where
++ * they apply.
++ */
++#include <_ansi.h>
++
++#ifndef NULL
++#  define NULL 0
++#endif
++
++#ifdef __NO_UNDERSCORE__
++#  define _end    end
++#  define _exit	  exit
++#endif
++
++extern char _end[];                /* _end is set in the linker command file */
++
++/* only one prcess support, as this is OS dependant */
++#define __MYPID 1
++
++
+diff -ruN gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/isatty.c gcc-4.7.3-new/gcc/config/rs6000/libaeabi/isatty.c
+--- gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/isatty.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-4.7.3-new/gcc/config/rs6000/libaeabi/isatty.c	2013-04-29 18:34:39.603000235 -0500
+@@ -0,0 +1,27 @@
++/* isatty.c -- chek the terminal device.
++ * 
++ * Copyright (c) 1995 Cygnus Support
++ *
++ * The authors hereby grant permission to use, copy, modify, distribute,
++ * and license this software and its documentation for any purpose, provided
++ * that existing copyright notices are retained in all copies and that this
++ * notice is included verbatim in any distributions. No written agreement,
++ * license, or royalty fee is required for any of the authorized uses.
++ * Modifications to this software may be copyrighted by their authors
++ * and need not follow the licensing terms described here, provided that
++ * the new terms are clearly indicated on the first page of each file where
++ * they apply.
++ */
++#include "glue.h"
++
++/*
++ * isatty -- returns 1 if connected to a terminal device,
++ *           returns 0 if not. Since we're hooked up to a
++ *           serial port, we'll say yes _AND return a 1.
++ */
++int
++_DEFUN (isatty, (fd),
++       int fd)
++{
++  return (1);
++}
+diff -ruN gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/kill.c gcc-4.7.3-new/gcc/config/rs6000/libaeabi/kill.c
+--- gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/kill.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-4.7.3-new/gcc/config/rs6000/libaeabi/kill.c	2013-04-29 18:34:39.627000022 -0500
+@@ -0,0 +1,29 @@
++/* kill.c -- remove a process.
++ *
++ * Copyright (c) 1995 Cygnus Support
++ *
++ * The authors hereby grant permission to use, copy, modify, distribute,
++ * and license this software and its documentation for any purpose, provided
++ * that existing copyright notices are retained in all copies and that this
++ * notice is included verbatim in any distributions. No written agreement,
++ * license, or royalty fee is required for any of the authorized uses.
++ * Modifications to this software may be copyrighted by their authors
++ * and need not follow the licensing terms described here, provided that
++ * the new terms are clearly indicated on the first page of each file where
++ * they apply.
++ */
++#include <unistd.h>
++#include "glue.h"
++
++/*
++ * kill -- go out via exit...
++ */
++int
++_DEFUN (kill, (pid, sig),
++        int pid _AND 
++        int sig)
++{
++  if(pid == __MYPID)
++    _exit(sig);
++  return 0;
++}
+diff -ruN gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/mcount.S gcc-4.7.3-new/gcc/config/rs6000/libaeabi/mcount.S
+--- gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/mcount.S	1969-12-31 18:00:00.000000000 -0600
++++ gcc-4.7.3-new/gcc/config/rs6000/libaeabi/mcount.S	2013-04-29 18:34:39.669000101 -0500
+@@ -0,0 +1,27 @@
++/*
++ * mcount.S -- dummy module for profiling.
++ *
++ * Copyright (c) 1997 Cygnus Support
++ *
++ * The authors hereby grant permission to use, copy, modify, distribute,
++ * and license this software and its documentation for any purpose, provided
++ * that existing copyright notices are retained in all copies and that this
++ * notice is included verbatim in any distributions. No written agreement,
++ * license, or royalty fee is required for any of the authorized uses.
++ * Modifications to this software may be copyrighted by their authors
++ * and need not follow the licensing terms described here, provided that
++ * the new terms are clearly indicated on the first page of each file where
++ * they apply.
++ */
++
++#include "ppc-asm.h"
++
++	.file	"mcount-dummy.S"
++	.text
++FUNC_START(_mcount)
++	mflr	r11
++	lwz	r0,4(sp)
++	mtctr	r11
++	mtlr	r0
++	bctr
++FUNC_END(_mcount)
+diff -ruN gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/putnum.c gcc-4.7.3-new/gcc/config/rs6000/libaeabi/putnum.c
+--- gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/putnum.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-4.7.3-new/gcc/config/rs6000/libaeabi/putnum.c	2013-04-29 18:34:39.678000079 -0500
+@@ -0,0 +1,41 @@
++/* putnum.c -- put a hex number on the output device.
++ * 
++ * Copyright (c) 1995 Cygnus Support
++ *
++ * The authors hereby grant permission to use, copy, modify, distribute,
++ * and license this software and its documentation for any purpose, provided
++ * that existing copyright notices are retained in all copies and that this
++ * notice is included verbatim in any distributions. No written agreement,
++ * license, or royalty fee is required for any of the authorized uses.
++ * Modifications to this software may be copyrighted by their authors
++ * and need not follow the licensing terms described here, provided that
++ * the new terms are clearly indicated on the first page of each file where
++ * they apply.
++ */
++#include "glue.h"
++
++/*
++ * putnum -- print a 32 bit number in hex
++ */
++void
++_DEFUN (putnum, (num),
++	unsigned int num)
++{
++  char  buf[9];
++  int   cnt;
++  char  *ptr;
++  int   digit;
++  
++  ptr = buf;
++  for (cnt = 7 ; cnt >= 0 ; cnt--) {
++    digit = (num >> (cnt * 4)) & 0xf;
++    
++    if (digit <= 9)
++      *ptr++ = (char) ('0' + digit);
++    else
++      *ptr++ = (char) ('a' - 10 + digit);
++  }
++
++  *ptr = (char) 0;
++  print (buf);
++}
+diff -ruN gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/sim-abort.c gcc-4.7.3-new/gcc/config/rs6000/libaeabi/sim-abort.c
+--- gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/sim-abort.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-4.7.3-new/gcc/config/rs6000/libaeabi/sim-abort.c	2013-04-29 18:34:39.700000034 -0500
+@@ -0,0 +1,22 @@
++/*
++ * sim-abort.c -- PowerPC abort support when running under the simulator.
++ *
++ * Copyright (c) 1995 Cygnus Support
++ *
++ * The authors hereby grant permission to use, copy, modify, distribute,
++ * and license this software and its documentation for any purpose, provided
++ * that existing copyright notices are retained in all copies and that this
++ * notice is included verbatim in any distributions. No written agreement,
++ * license, or royalty fee is required for any of the authorized uses.
++ * Modifications to this software may be copyrighted by their authors
++ * and need not follow the licensing terms described here, provided that
++ * the new terms are clearly indicated on the first page of each file where
++ * they apply.
++ */
++
++#include <stdlib.h>
++void abort(void)
++{
++  write (2, "Abort called.\n", sizeof("Abort called.\n")-1);
++  exit (1);
++}
+diff -ruN gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/sim-errno.c gcc-4.7.3-new/gcc/config/rs6000/libaeabi/sim-errno.c
+--- gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/sim-errno.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-4.7.3-new/gcc/config/rs6000/libaeabi/sim-errno.c	2013-04-29 18:34:39.707000107 -0500
+@@ -0,0 +1,28 @@
++/*
++ * sim-errno.c -- return address of errno for current thread.
++ *
++ * Copyright (c) 1995 Cygnus Support
++ *
++ * The authors hereby grant permission to use, copy, modify, distribute,
++ * and license this software and its documentation for any purpose, provided
++ * that existing copyright notices are retained in all copies and that this
++ * notice is included verbatim in any distributions. No written agreement,
++ * license, or royalty fee is required for any of the authorized uses.
++ * Modifications to this software may be copyrighted by their authors
++ * and need not follow the licensing terms described here, provided that
++ * the new terms are clearly indicated on the first page of each file where
++ * they apply.
++ */
++
++#include <errno.h>
++#include <reent.h>
++
++/* syscall handler branches here in case of error. */
++
++int
++_cerror (e)
++     int e;
++{
++  _REENT->_errno = e;
++  return -1;
++}
+diff -ruN gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/sim-getrusage.S gcc-4.7.3-new/gcc/config/rs6000/libaeabi/sim-getrusage.S
+--- gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/sim-getrusage.S	1969-12-31 18:00:00.000000000 -0600
++++ gcc-4.7.3-new/gcc/config/rs6000/libaeabi/sim-getrusage.S	2013-04-29 18:34:39.727999978 -0500
+@@ -0,0 +1,25 @@
++/*
++ * sim-getrusage.S -- PowerPC simulator getrusage call.
++ *
++ * Copyright (c) 1995, 2000, 2001 Cygnus Support
++ *
++ * The authors hereby grant permission to use, copy, modify, distribute,
++ * and license this software and its documentation for any purpose, provided
++ * that existing copyright notices are retained in all copies and that this
++ * notice is included verbatim in any distributions. No written agreement,
++ * license, or royalty fee is required for any of the authorized uses.
++ * Modifications to this software may be copyrighted by their authors
++ * and need not follow the licensing terms described here, provided that
++ * the new terms are clearly indicated on the first page of each file where
++ * they apply.
++ */
++
++#include "ppc-asm.h"
++
++FUNC_START(getrusage)
++	li	r0,117
++	sc
++	bns+	0f
++	b	FUNC_NAME(_cerror)
++0:	blr
++FUNC_END(getrusage)
+diff -ruN gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/sim-inbyte.c gcc-4.7.3-new/gcc/config/rs6000/libaeabi/sim-inbyte.c
+--- gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/sim-inbyte.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-4.7.3-new/gcc/config/rs6000/libaeabi/sim-inbyte.c	2013-04-29 18:34:39.751000179 -0500
+@@ -0,0 +1,26 @@
++/*
++ * sim-inbyte.c -- read a character from standard input.
++ *
++ * Copyright (c) 1995 Cygnus Support
++ *
++ * The authors hereby grant permission to use, copy, modify, distribute,
++ * and license this software and its documentation for any purpose, provided
++ * that existing copyright notices are retained in all copies and that this
++ * notice is included verbatim in any distributions. No written agreement,
++ * license, or royalty fee is required for any of the authorized uses.
++ * Modifications to this software may be copyrighted by their authors
++ * and need not follow the licensing terms described here, provided that
++ * the new terms are clearly indicated on the first page of each file where
++ * they apply.
++ */
++
++int
++inbyte ()
++{
++  char c;
++
++  if (read (0, &c, 1) <= 0)
++    return -1;
++
++  return c;
++}
+diff -ruN gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/sim-print.c gcc-4.7.3-new/gcc/config/rs6000/libaeabi/sim-print.c
+--- gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/sim-print.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-4.7.3-new/gcc/config/rs6000/libaeabi/sim-print.c	2013-04-29 18:34:39.768999944 -0500
+@@ -0,0 +1,43 @@
++/* sim-print.c -- print a string on the output device.
++ *
++ * Copyright (c) 1995 Cygnus Support
++ *
++ * The authors hereby grant permission to use, copy, modify, distribute,
++ * and license this software and its documentation for any purpose, provided
++ * that existing copyright notices are retained in all copies and that this
++ * notice is included verbatim in any distributions. No written agreement,
++ * license, or royalty fee is required for any of the authorized uses.
++ * Modifications to this software may be copyrighted by their authors
++ * and need not follow the licensing terms described here, provided that
++ * the new terms are clearly indicated on the first page of each file where
++ * they apply.
++ */
++
++/*
++ * print -- do a raw print of a string
++ */ 
++void
++print (ptr)
++     char *ptr;
++{
++  int len = 0;
++  char *p = ptr;
++
++  while (*p != '\0')
++    p++;
++
++  write (1, ptr, p-ptr);
++}
++
++/*
++ * outbyte -- write a single character.
++ */
++
++void
++outbyte (c_int)
++     int c_int;
++{
++  char c = c_int;
++
++  write (1, &c, 1);
++}
+diff -ruN gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/sim-sbrk.c gcc-4.7.3-new/gcc/config/rs6000/libaeabi/sim-sbrk.c
+--- gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/sim-sbrk.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-4.7.3-new/gcc/config/rs6000/libaeabi/sim-sbrk.c	2013-04-29 18:34:39.789000253 -0500
+@@ -0,0 +1,31 @@
++/*
++ * sim-sbrk.c -- PowerPC sbrk support when running under the simulator.
++ *
++ * Copyright (c) 1995 Cygnus Support
++ *
++ * The authors hereby grant permission to use, copy, modify, distribute,
++ * and license this software and its documentation for any purpose, provided
++ * that existing copyright notices are retained in all copies and that this
++ * notice is included verbatim in any distributions. No written agreement,
++ * license, or royalty fee is required for any of the authorized uses.
++ * Modifications to this software may be copyrighted by their authors
++ * and need not follow the licensing terms described here, provided that
++ * the new terms are clearly indicated on the first page of each file where
++ * they apply.
++ */
++
++extern char _end[];
++static char *curbrk = _end;
++extern char *brk(char *);
++
++char *
++sbrk (incr)
++     int incr;
++{
++  char *oldbrk = curbrk;
++  curbrk = brk (oldbrk + incr);
++  if (curbrk == oldbrk)
++    return (char *) -1;
++
++  return oldbrk;
++}
+diff -ruN gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/simulator.S gcc-4.7.3-new/gcc/config/rs6000/libaeabi/simulator.S
+--- gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/simulator.S	1969-12-31 18:00:00.000000000 -0600
++++ gcc-4.7.3-new/gcc/config/rs6000/libaeabi/simulator.S	2013-04-29 18:34:39.810999897 -0500
+@@ -0,0 +1,95 @@
++/*
++ * simulator.S -- PowerPC simulator system calls.
++ *
++ * Copyright (c) 1995, 2000, 2001 Cygnus Support
++ *
++ * The authors hereby grant permission to use, copy, modify, distribute,
++ * and license this software and its documentation for any purpose, provided
++ * that existing copyright notices are retained in all copies and that this
++ * notice is included verbatim in any distributions. No written agreement,
++ * license, or royalty fee is required for any of the authorized uses.
++ * Modifications to this software may be copyrighted by their authors
++ * and need not follow the licensing terms described here, provided that
++ * the new terms are clearly indicated on the first page of each file where
++ * they apply.
++ */
++
++#include "ppc-asm.h"
++
++FUNC_START(_exit)
++	li	r0, 1
++	sc
++
++/*
++ * Insure that the debugger tells the client that the PC is in _exit,
++ * not whatever function happens to follow this function.
++ */
++
++0:	trap
++	b	0b			/* we never should return, but... */
++
++FUNC_END(_exit)
++
++FUNC_START(read)
++	li	r0,3
++	sc
++	bnslr+
++	b	FUNC_NAME(_cerror)
++FUNC_END(read)
++
++FUNC_START(write)
++	li	r0,4
++	sc
++	bnslr+
++	b	FUNC_NAME(_cerror)
++FUNC_END(write)
++
++FUNC_START(open)
++	li	r0,5
++	sc
++	bnslr+
++	b	FUNC_NAME(_cerror)
++FUNC_END(open)
++
++FUNC_START(close)
++	li	r0,6
++	sc
++	bnslr+
++	b	FUNC_NAME(_cerror)
++FUNC_END(close)
++
++FUNC_START(brk)
++	li	r0,45
++	sc
++	bnslr+
++	b	FUNC_NAME(_cerror)
++FUNC_END(brk)
++
++FUNC_START(access)
++	li	r0,33
++	sc
++	bnslr+
++	b	FUNC_NAME(_cerror)
++FUNC_END(access)
++
++FUNC_START(dup)
++	li	r0,41
++	sc
++	bnslr+
++	b	FUNC_NAME(_cerror)
++FUNC_END(dup)
++
++FUNC_START(gettimeofday)
++	li	r0,116
++	sc
++	bns+	0f
++	b	FUNC_NAME(_cerror)
++0:	blr
++FUNC_END(gettimeofday)
++
++FUNC_START(lseek)
++	li	r0,199
++	sc
++	bnslr+
++	b	FUNC_NAME(_cerror)
++FUNC_END(lseek)
+diff -ruN gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/stat.c gcc-4.7.3-new/gcc/config/rs6000/libaeabi/stat.c
+--- gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/stat.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-4.7.3-new/gcc/config/rs6000/libaeabi/stat.c	2013-04-29 18:34:39.826000177 -0500
+@@ -0,0 +1,30 @@
++/* stat.c -- Get the status of a file.
++ *
++ * Copyright (c) 1995 Cygnus Support
++ *
++ * The authors hereby grant permission to use, copy, modify, distribute,
++ * and license this software and its documentation for any purpose, provided
++ * that existing copyright notices are retained in all copies and that this
++ * notice is included verbatim in any distributions. No written agreement,
++ * license, or royalty fee is required for any of the authorized uses.
++ * Modifications to this software may be copyrighted by their authors
++ * and need not follow the licensing terms described here, provided that
++ * the new terms are clearly indicated on the first page of each file where
++ * they apply.
++ */
++#include <sys/stat.h>
++#include <errno.h>
++#include "glue.h"
++
++/*
++ * stat -- Since we have no file system, we just return an error.
++ */
++int
++_DEFUN (stat, (path, buf),
++       const char *path _AND
++       struct stat *buf)
++{
++  errno = EIO;
++  return (-1);
++}
++
+diff -ruN gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/unlink.c gcc-4.7.3-new/gcc/config/rs6000/libaeabi/unlink.c
+--- gcc-4.7.3-orig/gcc/config/rs6000/libaeabi/unlink.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-4.7.3-new/gcc/config/rs6000/libaeabi/unlink.c	2013-04-29 18:34:39.846999914 -0500
+@@ -0,0 +1,28 @@
++/* unlink.c -- remove a file.
++ * 
++ * Copyright (c) 1995 Cygnus Support
++ *
++ * The authors hereby grant permission to use, copy, modify, distribute,
++ * and license this software and its documentation for any purpose, provided
++ * that existing copyright notices are retained in all copies and that this
++ * notice is included verbatim in any distributions. No written agreement,
++ * license, or royalty fee is required for any of the authorized uses.
++ * Modifications to this software may be copyrighted by their authors
++ * and need not follow the licensing terms described here, provided that
++ * the new terms are clearly indicated on the first page of each file where
++ * they apply.
++ */
++#include <errno.h>
++#include "glue.h"
++
++/*
++ * unlink -- since we have no file system, 
++ *           we just return an error.
++ */
++int
++_DEFUN (unlink, (path),
++        char * path)
++{
++  errno = EIO;
++  return (-1);
++}
+diff -ruN gcc-4.7.3-orig/gcc/config/rs6000/sysv4.h gcc-4.7.3-new/gcc/config/rs6000/sysv4.h
+--- gcc-4.7.3-orig/gcc/config/rs6000/sysv4.h	2013-04-29 16:40:59.757000074 -0500
++++ gcc-4.7.3-new/gcc/config/rs6000/sysv4.h	2013-04-29 18:10:58.189000389 -0500
+@@ -673,6 +673,7 @@
+   mcall-linux  : %(startfile_linux)       ; \
+   mcall-netbsd : %(startfile_netbsd)      ; \
+   mcall-openbsd: %(startfile_openbsd)     ; \
++  maeabi       : %(startfile_aeabi)       ; \
+                : %(startfile_default)     }"
+ 
+ #define	STARTFILE_DEFAULT_SPEC "ecrti.o%s crtbegin.o%s"
+@@ -687,6 +688,7 @@
+   mcall-linux  : %(lib_linux)       ; \
+   mcall-netbsd : %(lib_netbsd)      ; \
+   mcall-openbsd: %(lib_openbsd)     ; \
++  maeabi       : %(lib_aeabi)       ; \
+                : %(lib_default)     }"
+ 
+ #define LIB_DEFAULT_SPEC "-lc"
+@@ -701,6 +703,7 @@
+   mcall-linux  : %(endfile_linux)       ; \
+   mcall-netbsd : %(endfile_netbsd)      ; \
+   mcall-openbsd: %(endfile_openbsd)     ; \
++  maeabi       : %(endfile_aeabi)       ; \
+                : %(crtsavres_default) %(endfile_default)     }"
+ 
+ #define CRTSAVRES_DEFAULT_SPEC ""

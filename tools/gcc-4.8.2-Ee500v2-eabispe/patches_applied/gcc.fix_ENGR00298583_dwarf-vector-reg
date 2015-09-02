@@ -1,0 +1,89 @@
+# Problem Statement:
+  In Altivec targets (e.g. e6500), DWARF vector register indices for DW_OP_regx
+  locations are not in range. According to "64-bit PowerPC ELF Application
+  Binary Interface Supplement 1.9", DWARF Register Number Mapping section, the
+  expected range for vector registers is:
+                 Vector Registers 0-31 1124-1155 vr0-vr31.
+
+  However, the compiler generates indices in the 77-108 range that overlap with
+  other defined mappings.
+
+# Reported by:
+  Doan Vu Van
+
+# Owned by:
+  Rohit
+
+# Action:
+  While mapping gcc register numbers to DWARF2 register numbers,
+  we digress a bit from the standard ABI.
+  http://gcc.gnu.org/ml/gcc-patches/2012-11/msg02136.html
+ 
+  The above change is handled by GDB, but CodeWarrior PowerPC debugger
+  stricity follows the ABI especially while mapping the vector registers.
+
+  We have provided an compiler option, '-mmap_dwarf_vecreg' so that the user can 
+  generate the dwarf register indexes for vector registers as per standard.
+
+
+diff -Naur gcc-4.8.1/gcc/config/rs6000/rs6000.c gcc-4.8.1-dbx-vector-reg/gcc/config/rs6000/rs6000.c
+--- gcc-4.8.1/gcc/config/rs6000/rs6000.c	2014-02-21 07:15:58.325893001 -0600
++++ gcc-4.8.1-dbx-vector-reg/gcc/config/rs6000/rs6000.c	2014-02-24 01:03:18.514893001 -0600
+@@ -27996,6 +27996,22 @@
+   return regno;
+ }
+ 
++/* While mapping gcc register numbers to DWARF2 register numbers, 
++ * we digress a bit from the standard ABI.
++ * http://gcc.gnu.org/ml/gcc-patches/2012-11/msg02136.html
++ *
++ * The above change is handled by GDB, but CodeWarrior PowerPC debugger
++ * stricity follows the ABI especially while mapping the vector registers */
++
++unsigned int
++rs6000_fsl_dbx_register_number (unsigned int regno)
++{
++  if (global_options_set.x_rs6000_map_dwarf_vec_reg)
++    return rs6000_dbx_register_number (regno);
++
++  return regno;
++}
++
+ /* target hook eh_return_filter_mode */
+ static enum machine_mode
+ rs6000_eh_return_filter_mode (void)
+diff -Naur gcc-4.8.1/gcc/config/rs6000/rs6000.opt gcc-4.8.1-dbx-vector-reg/gcc/config/rs6000/rs6000.opt
+--- gcc-4.8.1/gcc/config/rs6000/rs6000.opt	2014-02-21 07:16:00.100893001 -0600
++++ gcc-4.8.1-dbx-vector-reg/gcc/config/rs6000/rs6000.opt	2014-02-24 01:09:06.669893001 -0600
+@@ -359,6 +359,10 @@
+ Target RejectNegative Joined
+ -mdebug=	Enable debug output
+ 
++mmap_dwarf_vecreg
++Target RejectNegative Var(rs6000_map_dwarf_vec_reg, 0) Save
++Generate expected DWARF Register Number Mapping for Vector Registers 
++
+ mabi=altivec
+ Target RejectNegative Var(rs6000_altivec_abi) Save
+ Use the AltiVec ABI extensions
+diff -Naur gcc-4.8.1/gcc/config/rs6000/rs6000-protos.h gcc-4.8.1-dbx-vector-reg/gcc/config/rs6000/rs6000-protos.h
+--- gcc-4.8.1/gcc/config/rs6000/rs6000-protos.h	2014-02-21 07:15:45.914893001 -0600
++++ gcc-4.8.1-dbx-vector-reg/gcc/config/rs6000/rs6000-protos.h	2014-02-24 00:37:40.706893001 -0600
+@@ -167,6 +167,7 @@
+ extern void rs6000_emit_prologue (void);
+ extern void rs6000_emit_load_toc_table (int);
+ extern unsigned int rs6000_dbx_register_number (unsigned int);
++extern unsigned int rs6000_fsl_dbx_register_number (unsigned int);
+ extern void rs6000_emit_epilogue (int);
+ extern void rs6000_emit_eh_reg_restore (rtx, rtx);
+ extern const char * output_isel (rtx *);
+diff -Naur gcc-4.8.1/gcc/config/rs6000/sysv4.h gcc-4.8.1-dbx-vector-reg/gcc/config/rs6000/sysv4.h
+--- gcc-4.8.1/gcc/config/rs6000/sysv4.h	2014-02-21 07:15:36.950893001 -0600
++++ gcc-4.8.1-dbx-vector-reg/gcc/config/rs6000/sysv4.h	2014-02-24 00:37:49.904893001 -0600
+@@ -980,4 +980,6 @@
+ /* This target uses the sysv4.opt file.  */
+ #define TARGET_USES_SYSV4_OPT 1
+ 
++/* Use standard DWARF numbering for DWARF debugging information.  */
+ #undef DBX_REGISTER_NUMBER
++#define DBX_REGISTER_NUMBER(REGNO) rs6000_fsl_dbx_register_number (REGNO)

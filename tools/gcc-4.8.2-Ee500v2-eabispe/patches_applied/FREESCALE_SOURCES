@@ -1,0 +1,19 @@
+The specific source code versions used in this distribution, and their
+corresponding locations are the following:
+
+gcc-4.8.2               ftp://ftp.gnu.org/gnu/gcc/gcc-4.8.2/gcc-4.8.2.tar.bz2
+binutils-2.23           http://ftp.gnu.org/gnu/binutils/binutils-2.23.tar.gz
+eglibc-2.15-rv19577     svn co -r19577 svn://svn.eglibc.org/branches/eglibc-2_15 eglibc-2.15-rv19577
+libtirpc-0.2.2          http://downloads.sourceforge.net/project/libtirpc/libtirpc/0.2.2/libtirpc-0.2.2.tar.bz2
+newlib-1.20.0           ftp://sources.redhat.com/pub/newlib/newlib-1.20.0.tar.gz
+linux-2.6.29            https://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.29.tar.bz2
+zlib-1.2.5              http://sourceforge.net/projects/libpng/files/zlib/1.2.5/zlib-1.2.5.tar.gz/download
+libelf-0.8.13           http://www.mr511.de/software/libelf-0.8.13.tar.gz
+libiconv-1.14           http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.14.tar.gz
+gettext-0.18.1.1        http://ftp.gnu.org/gnu/gettext/gettext-0.18.1.1.tar.gz
+gmp-4.3.2               ftp://ftp.gnu.org/gnu/gmp/gmp-4.3.2.tar.bz2
+mpfr-3.0.1              http://www.mpfr.org/mpfr-3.0.1/mpfr-3.0.1.tar.bz2
+mpc-0.9                 http://www.multiprecision.org/mpc/download/mpc-0.9.tar.gz
+ppl-0.11.2              http://bugseng.com/products/ppl/download/ftp/releases/0.11.2/ppl-0.11.2.tar.bz2
+cloog-0.18.0            ftp://gcc.gnu.org/pub/gcc/infrastructure/cloog-0.18.0.tar.gz
+isl-0.11.1	        ftp://gcc.gnu.org/pub/gcc/infrastructure/isl-0.11.1.tar.bz2

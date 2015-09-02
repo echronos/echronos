@@ -1,0 +1,16 @@
+diff -u gcc-4.6.0-orig/libstdc++-v3/testsuite/ext/pb_ds/regression/priority_queue_rand.cc gcc-4.6.0/libstdc++-v3/testsuite/ext/pb_ds/regression/priority_queue_rand.cc
+--- gcc-4.6.0-orig/libstdc++-v3/testsuite/ext/pb_ds/regression/priority_queue_rand.cc	2011-05-11 20:01:58.000000000 -0500
++++ gcc-4.6.0/libstdc++-v3/testsuite/ext/pb_ds/regression/priority_queue_rand.cc	2011-05-11 20:02:23.000000000 -0500
+@@ -45,10 +45,10 @@
+ #include <regression/common_type.hpp>
+ 
+ #ifndef ITERATIONS
+-#define ITERATIONS 5000
++#define ITERATIONS 2
+ #endif
+ #ifndef KEYS
+-#define KEYS 10000
++#define KEYS 5
+ #endif
+ int
+ main(int argc, char* a_p_argv[])

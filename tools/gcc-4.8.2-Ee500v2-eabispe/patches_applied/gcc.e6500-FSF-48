@@ -1,0 +1,2615 @@
+diff -ruN gcc-20120516-orig/gcc/config/rs6000/altivec.h gcc-20120516-new/gcc/config/rs6000/altivec.h
+--- gcc-20120516-orig/gcc/config/rs6000/altivec.h	2012-05-16 11:29:04.000000000 -0500
++++ gcc-20120516-new/gcc/config/rs6000/altivec.h	2012-05-16 12:29:04.000000000 -0500
+@@ -322,6 +322,30 @@
+ #define vec_vsx_st __builtin_vec_vsx_st
+ #endif
+ 
++#ifdef __ALTIVEC2__
++/* New Altivec instructions */
++#define vec_absd __builtin_vec_absd
++#define vec_lvexbx __builtin_vec_lvexbx
++#define vec_lvexhx __builtin_vec_lvexhx
++#define vec_lvexwx __builtin_vec_lvexwx
++#define vec_stvexbx __builtin_vec_stvexbx
++#define vec_stvexhx __builtin_vec_stvexhx
++#define vec_stvexwx __builtin_vec_stvexwx
++#define vec_lvswx __builtin_vec_lvswx
++#define vec_lvswxl __builtin_vec_lvswxl
++#define vec_stvswx __builtin_vec_stvswx
++#define vec_stvswxl __builtin_vec_stvswxl
++#define vec_lvsm __builtin_vec_lvsm
++#define vec_lvtlx __builtin_vec_lvtlx
++#define vec_lvtlxl __builtin_vec_lvtlxl
++#define vec_lvtrx __builtin_vec_lvtrx
++#define vec_lvtrxl __builtin_vec_lvtrxl
++#define vec_stvflx __builtin_vec_stvflx
++#define vec_stvflxl __builtin_vec_stvflxl
++#define vec_stvfrx __builtin_vec_stvfrx
++#define vec_stvfrxl __builtin_vec_stvfrxl
++#endif
++
+ /* Predicates.
+    For C++, we use templates in order to allow non-parenthesized arguments.
+    For C, instead, we use macros since non-parenthesized arguments were
+diff -ruN gcc-20120516-orig/gcc/config/rs6000/altivec.md gcc-20120516-new/gcc/config/rs6000/altivec.md
+--- gcc-20120516-orig/gcc/config/rs6000/altivec.md	2012-05-16 11:29:04.000000000 -0500
++++ gcc-20120516-new/gcc/config/rs6000/altivec.md	2012-05-16 12:29:04.000000000 -0500
+@@ -85,9 +85,11 @@
+    UNSPEC_LVSL
+    UNSPEC_LVSR
+    UNSPEC_LVE
++   UNSPEC_LVEX
+    UNSPEC_STVX
+    UNSPEC_STVXL
+    UNSPEC_STVE
++   UNSPEC_STVEX
+    UNSPEC_SET_VSCR
+    UNSPEC_GET_VRSAVE
+    UNSPEC_LVX
+@@ -115,6 +117,19 @@
+    UNSPEC_STVLXL
+    UNSPEC_STVRX
+    UNSPEC_STVRXL
++   UNSPEC_LVTLX
++   UNSPEC_LVTLXL
++   UNSPEC_LVTRX
++   UNSPEC_LVTRXL
++   UNSPEC_STVFLX
++   UNSPEC_STVFLXL
++   UNSPEC_STVFRX
++   UNSPEC_STVFRXL
++   UNSPEC_LVSWX
++   UNSPEC_LVSWXL
++   UNSPEC_STVSWX
++   UNSPEC_STVSWXL
++   UNSPEC_LVSM
+    UNSPEC_VMULWHUB
+    UNSPEC_VMULWLUB
+    UNSPEC_VMULWHSB
+@@ -135,6 +150,9 @@
+    UNSPEC_VUPKLS_V4SF
+    UNSPEC_VUPKHU_V4SF
+    UNSPEC_VUPKLU_V4SF
++   UNSPEC_VABSDUB
++   UNSPEC_VABSDUH
++   UNSPEC_VABSDUW
+ ])
+ 
+ (define_c_enum "unspecv"
+@@ -377,6 +395,34 @@
+ 
+ ;; Simple binary operations.
+ 
++;; absd
++(define_insn "altivec_vabsduw"
++  [(set (match_operand:V4SI 0 "register_operand" "=v")
++        (unspec:V4SI [(match_operand:V4SI 1 "register_operand" "v")
++                      (match_operand:V4SI 2 "register_operand" "v")]
++		     UNSPEC_VABSDUW))]
++  "TARGET_ALTIVEC2"
++  "vabsduw %0,%1,%2"
++  [(set_attr "type" "vecsimple")])
++
++(define_insn "altivec_vabsduh"
++  [(set (match_operand:V8HI 0 "register_operand" "=v")
++        (unspec:V8HI [(match_operand:V8HI 1 "register_operand" "v")
++                      (match_operand:V8HI 2 "register_operand" "v")]
++		     UNSPEC_VABSDUH))]
++  "TARGET_ALTIVEC2"
++  "vabsduh %0,%1,%2"
++  [(set_attr "type" "vecsimple")])
++
++(define_insn "altivec_vabsdub"
++  [(set (match_operand:V16QI 0 "register_operand" "=v")
++        (unspec:V16QI [(match_operand:V16QI 1 "register_operand" "v")
++                       (match_operand:V16QI 2 "register_operand" "v")]
++		      UNSPEC_VABSDUB))]
++  "TARGET_ALTIVEC2"
++  "vabsdub %0,%1,%2"
++  [(set_attr "type" "vecsimple")])
++
+ ;; add
+ (define_insn "add<mode>3"
+   [(set (match_operand:VI 0 "register_operand" "=v")
+@@ -1727,6 +1773,15 @@
+   "lvewx %0,%y1"
+   [(set_attr "type" "vecload")])
+ 
++(define_insn "altivec_lvex<VI_char>x"
++  [(parallel
++    [(set (match_operand:VI 0 "register_operand" "=v")
++	  (match_operand:VI 1 "memory_operand" "Z"))
++     (unspec [(const_int 0)] UNSPEC_LVEX)])]
++  "TARGET_ALTIVEC2"
++  "lvex<VI_char>x %0,%y1"
++  [(set_attr "type" "vecload")])
++
+ (define_insn "altivec_lvxl"
+   [(parallel
+     [(set (match_operand:V4SI 0 "register_operand" "=v")
+@@ -1777,6 +1832,13 @@
+   "stvewx %1,%y0"
+   [(set_attr "type" "vecstore")])
+ 
++(define_insn "altivec_stvex<VI_char>x"
++  [(set (match_operand:<VI_scalar> 0 "memory_operand" "=Z")
++	(unspec:<VI_scalar> [(match_operand:VI 1 "register_operand" "v")] UNSPEC_STVEX))]
++  "TARGET_ALTIVEC2"
++  "stvex<VI_char>x %1,%y0"
++  [(set_attr "type" "vecstore")])
++
+ ;; Generate
+ ;;    vspltis? SCRATCH0,0
+ ;;    vsubu?m SCRATCH2,SCRATCH1,%1
+@@ -2414,6 +2476,116 @@
+   "stvrxl %1,%y0"
+   [(set_attr "type" "vecstore")])
+ 
++(define_insn "altivec_lvtlx"
++  [(set (match_operand:V16QI 0 "register_operand" "=v")
++        (unspec:V16QI [(match_operand 1 "memory_operand" "Z")] 
++		      UNSPEC_LVTLX))]
++  "TARGET_ALTIVEC2"
++  "lvtlx %0,%y1"
++  [(set_attr "type" "vecload")])
++
++(define_insn "altivec_lvtlxl"
++  [(set (match_operand:V16QI 0 "register_operand" "=v")
++        (unspec:V16QI [(match_operand 1 "memory_operand" "Z")] 
++		      UNSPEC_LVTLXL))]
++  "TARGET_ALTIVEC2"
++  "lvtlxl %0,%y1"
++  [(set_attr "type" "vecload")])
++
++(define_insn "altivec_lvtrx"
++  [(set (match_operand:V16QI 0 "register_operand" "=v")
++        (unspec:V16QI [(match_operand 1 "memory_operand" "Z")] 
++		      UNSPEC_LVTRX))]
++  "TARGET_ALTIVEC2"
++  "lvtrx %0,%y1"
++  [(set_attr "type" "vecload")])
++
++(define_insn "altivec_lvtrxl"
++  [(set (match_operand:V16QI 0 "register_operand" "=v")
++        (unspec:V16QI [(match_operand 1 "memory_operand" "Z")] 
++		      UNSPEC_LVTRXL))]
++  "TARGET_ALTIVEC2"
++  "lvtrxl %0,%y1"
++  [(set_attr "type" "vecload")])
++
++(define_insn "altivec_stvflx"
++  [(parallel
++    [(set (match_operand:V16QI 0 "memory_operand" "=Z")
++	  (match_operand:V16QI 1 "register_operand" "v"))
++     (unspec [(const_int 0)] UNSPEC_STVFLX)])]
++  "TARGET_ALTIVEC2"
++  "stvflx %1,%y0"
++  [(set_attr "type" "vecstore")])
++
++(define_insn "altivec_stvflxl"
++  [(parallel
++    [(set (match_operand:V16QI 0 "memory_operand" "=Z")
++	  (match_operand:V16QI 1 "register_operand" "v"))
++     (unspec [(const_int 0)] UNSPEC_STVFLXL)])]
++  "TARGET_ALTIVEC2"
++  "stvflxl %1,%y0"
++  [(set_attr "type" "vecstore")])
++
++(define_insn "altivec_stvfrx"
++  [(parallel
++    [(set (match_operand:V16QI 0 "memory_operand" "=Z")
++	  (match_operand:V16QI 1 "register_operand" "v"))
++     (unspec [(const_int 0)] UNSPEC_STVFRX)])]
++  "TARGET_ALTIVEC2"
++  "stvfrx %1,%y0"
++  [(set_attr "type" "vecstore")])
++
++(define_insn "altivec_stvfrxl"
++  [(parallel
++    [(set (match_operand:V16QI 0 "memory_operand" "=Z")
++	  (match_operand:V16QI 1 "register_operand" "v"))
++     (unspec [(const_int 0)] UNSPEC_STVFRXL)])]
++  "TARGET_ALTIVEC2"
++  "stvfrxl %1,%y0"
++  [(set_attr "type" "vecstore")])
++
++(define_insn "altivec_lvswx"
++  [(set (match_operand:V16QI 0 "register_operand" "=v")
++        (unspec:V16QI [(match_operand 1 "memory_operand" "Z")] 
++		      UNSPEC_LVSWX))]
++  "TARGET_ALTIVEC2"
++  "lvswx %0,%y1"
++  [(set_attr "type" "vecload")])
++
++(define_insn "altivec_lvswxl"
++  [(set (match_operand:V16QI 0 "register_operand" "=v")
++        (unspec:V16QI [(match_operand 1 "memory_operand" "Z")] 
++		      UNSPEC_LVSWXL))]
++  "TARGET_ALTIVEC2"
++  "lvswxl %0,%y1"
++  [(set_attr "type" "vecload")])
++
++(define_insn "altivec_lvsm"
++  [(set (match_operand:V16QI 0 "register_operand" "=v")
++        (unspec:V16QI [(match_operand 1 "memory_operand" "Z")] 
++		      UNSPEC_LVSM))]
++  "TARGET_ALTIVEC2"
++  "lvsm %0,%y1"
++  [(set_attr "type" "vecload")])
++
++(define_insn "altivec_stvswx"
++  [(parallel
++    [(set (match_operand:V16QI 0 "memory_operand" "=Z")
++	  (match_operand:V16QI 1 "register_operand" "v"))
++     (unspec [(const_int 0)] UNSPEC_STVSWX)])]
++  "TARGET_ALTIVEC2"
++  "stvswx %1,%y0"
++  [(set_attr "type" "vecstore")])
++
++(define_insn "altivec_stvswxl"
++  [(parallel
++    [(set (match_operand:V16QI 0 "memory_operand" "=Z")
++	  (match_operand:V16QI 1 "register_operand" "v"))
++     (unspec [(const_int 0)] UNSPEC_STVSWXL)])]
++  "TARGET_ALTIVEC2"
++  "stvswxl %1,%y0"
++  [(set_attr "type" "vecstore")])
++
+ (define_expand "vec_unpacks_float_hi_v8hi"
+  [(set (match_operand:V4SF 0 "register_operand" "")
+         (unspec:V4SF [(match_operand:V8HI 1 "register_operand" "")]
+diff -ruN gcc-20120516-orig/gcc/config/rs6000/rs6000-builtin.def gcc-20120516-new/gcc/config/rs6000/rs6000-builtin.def
+--- gcc-20120516-orig/gcc/config/rs6000/rs6000-builtin.def	2012-05-16 11:29:04.000000000 -0500
++++ gcc-20120516-new/gcc/config/rs6000/rs6000-builtin.def	2012-05-16 12:29:04.000000000 -0500
+@@ -398,6 +398,43 @@
+ 		    MASK,				/* MASK */	\
+ 		    (ATTR | RS6000_BTC_SPECIAL),	/* ATTR */	\
+ 		    CODE_FOR_nothing)			/* ICODE */
++
++/* Power ISA 2.07 altivec */
++#define BU_ALTIVC2_2(ENUM, NAME, ATTR, ICODE)				\
++  RS6000_BUILTIN_2 (ALTIVEC_BUILTIN_ ## ENUM,		/* ENUM */	\
++		    "__builtin_altivec_" NAME,		/* NAME */	\
++		    (RS6000_BTM_ALTIVEC			/* MASK */	\
++		     | RS6000_BTM_ALTIVEC2),				\
++		    (RS6000_BTC_ ## ATTR		/* ATTR */	\
++		     | RS6000_BTC_BINARY),				\
++		    CODE_FOR_ ## ICODE)			/* ICODE */
++
++#define BU_ALTIVC2_X(ENUM, NAME, ATTR)					\
++  RS6000_BUILTIN_X (ALTIVEC_BUILTIN_ ## ENUM,		/* ENUM */	\
++		    "__builtin_altivec_" NAME,		/* NAME */	\
++		    (RS6000_BTM_ALTIVEC			/* MASK */	\
++		     | RS6000_BTM_ALTIVEC2),				\
++		    (RS6000_BTC_ ## ATTR		/* ATTR */	\
++		     | RS6000_BTC_SPECIAL),				\
++		    CODE_FOR_nothing)			/* ICODE */
++
++#define BU_ALTIVC2_OVERLOAD_2(ENUM, NAME)				\
++  RS6000_BUILTIN_2 (ALTIVEC_BUILTIN_VEC_ ## ENUM,	/* ENUM */	\
++		    "__builtin_vec_" NAME,		/* NAME */	\
++		    (RS6000_BTM_ALTIVEC			/* MASK */	\
++		     | RS6000_BTM_ALTIVEC2),				\
++		    (RS6000_BTC_OVERLOADED		/* ATTR */	\
++		     | RS6000_BTC_BINARY),				\
++		    CODE_FOR_nothing)			/* ICODE */
++
++#define BU_ALTIVC2_OVERLOAD_X(ENUM, NAME)				\
++  RS6000_BUILTIN_X (ALTIVEC_BUILTIN_VEC_ ## ENUM,	/* ENUM */	\
++		    "__builtin_vec_" NAME,		/* NAME */	\
++		    (RS6000_BTM_ALTIVEC			/* MASK */	\
++		     | RS6000_BTM_ALTIVEC2),				\
++		    (RS6000_BTC_OVERLOADED		/* ATTR */	\
++		     | RS6000_BTC_SPECIAL),				\
++		    CODE_FOR_nothing)			/* ICODE */
+ #endif
+ 
+ /* Insure 0 is not a legitimate index.  */
+@@ -447,6 +484,9 @@
+ BU_ALTIVEC_D (DSTSTT,	      "dststt",		MISC,  	altivec_dststt)
+ 
+ /* Altivec 2 argument builtin functions.  */
++BU_ALTIVC2_2 (VABSDUB,        "vabsdub",	CONST,	altivec_vabsdub)
++BU_ALTIVC2_2 (VABSDUH,        "vabsduh",	CONST,	altivec_vabsduh)
++BU_ALTIVC2_2 (VABSDUW,        "vabsduw",	CONST,	altivec_vabsduw)
+ BU_ALTIVEC_2 (VADDUBM,        "vaddubm",	CONST,	addv16qi3)
+ BU_ALTIVEC_2 (VADDUHM,	      "vadduhm",	CONST,	addv8hi3)
+ BU_ALTIVEC_2 (VADDUWM,	      "vadduwm",	CONST,	addv4si3)
+@@ -636,6 +676,9 @@
+ BU_ALTIVEC_X (LVEBX,		"lvebx",	    MEM)
+ BU_ALTIVEC_X (LVEHX,		"lvehx",	    MEM)
+ BU_ALTIVEC_X (LVEWX,		"lvewx",	    MEM)
++BU_ALTIVC2_X (LVEXBX,		"lvexbx",	    MEM)
++BU_ALTIVC2_X (LVEXHX,		"lvexhx",	    MEM)
++BU_ALTIVC2_X (LVEXWX,		"lvexwx",	    MEM)
+ BU_ALTIVEC_X (LVXL,		"lvxl",		    MEM)
+ BU_ALTIVEC_X (LVX,		"lvx",		    MEM)
+ BU_ALTIVEC_X (STVX,		"stvx",		    MEM)
+@@ -643,14 +686,30 @@
+ BU_ALTIVEC_C (LVLXL,		"lvlxl",	    MEM)
+ BU_ALTIVEC_C (LVRX,		"lvrx",		    MEM)
+ BU_ALTIVEC_C (LVRXL,		"lvrxl",	    MEM)
++BU_ALTIVC2_X (LVTLX,		"lvtlx",	    MEM)
++BU_ALTIVC2_X (LVTLXL,		"lvtlxl",	    MEM)
++BU_ALTIVC2_X (LVTRX,		"lvtrx",	    MEM)
++BU_ALTIVC2_X (LVTRXL,		"lvtrxl",	    MEM)
++BU_ALTIVC2_X (LVSWX,		"lvswx",	    MEM)
++BU_ALTIVC2_X (LVSWXL,		"lvswxl",	    MEM)
++BU_ALTIVC2_X (LVSM,		"lvsm",		    MEM)
+ BU_ALTIVEC_X (STVEBX,		"stvebx",	    MEM)
+ BU_ALTIVEC_X (STVEHX,		"stvehx",	    MEM)
+ BU_ALTIVEC_X (STVEWX,		"stvewx",	    MEM)
++BU_ALTIVC2_X (STVEXBX,		"stvexbx",	    MEM)
++BU_ALTIVC2_X (STVEXHX,		"stvexhx",	    MEM)
++BU_ALTIVC2_X (STVEXWX,		"stvexwx",	    MEM)
+ BU_ALTIVEC_X (STVXL,		"stvxl",	    MEM)
+ BU_ALTIVEC_C (STVLX,		"stvlx",	    MEM)
+ BU_ALTIVEC_C (STVLXL,		"stvlxl",	    MEM)
+ BU_ALTIVEC_C (STVRX,		"stvrx",	    MEM)
+ BU_ALTIVEC_C (STVRXL,		"stvrxl",	    MEM)
++BU_ALTIVC2_X (STVFLX,		"stvflx",	    MEM)
++BU_ALTIVC2_X (STVFLXL,		"stvflxl",	    MEM)
++BU_ALTIVC2_X (STVFRX,		"stvfrx",	    MEM)
++BU_ALTIVC2_X (STVFRXL,		"stvfrxl",	    MEM)
++BU_ALTIVC2_X (STVSWX,		"stvswx",	    MEM)
++BU_ALTIVC2_X (STVSWXL,		"stvswxl",	    MEM)
+ BU_ALTIVEC_X (MASK_FOR_LOAD,	"mask_for_load",    MISC)
+ BU_ALTIVEC_X (MASK_FOR_STORE,	"mask_for_store",   MISC)
+ BU_ALTIVEC_X (VEC_INIT_V4SI,	"vec_init_v4si",    CONST)
+@@ -695,6 +754,10 @@
+ BU_ALTIVEC_OVERLOAD_D (DSTSTT,	   "dststt")
+ 
+ /* 2 argument Altivec overloaded builtins.  */
++BU_ALTIVC2_OVERLOAD_2 (ABSD,	   "absd")
++BU_ALTIVC2_OVERLOAD_2 (ABSDUB,	   "absdub")
++BU_ALTIVC2_OVERLOAD_2 (ABSDUH,	   "absduh")
++BU_ALTIVC2_OVERLOAD_2 (ABSDUW,	   "absduw")
+ BU_ALTIVEC_OVERLOAD_2 (ADD,	   "add")
+ BU_ALTIVEC_OVERLOAD_2 (ADDC,	   "addc")
+ BU_ALTIVEC_OVERLOAD_2 (ADDS,	   "adds")
+@@ -867,10 +930,20 @@
+ BU_ALTIVEC_OVERLOAD_X (LVEBX,	   "lvebx")
+ BU_ALTIVEC_OVERLOAD_X (LVEHX,	   "lvehx")
+ BU_ALTIVEC_OVERLOAD_X (LVEWX,	   "lvewx")
++BU_ALTIVC2_OVERLOAD_X (LVEXBX,	   "lvexbx")
++BU_ALTIVC2_OVERLOAD_X (LVEXHX,	   "lvexhx")
++BU_ALTIVC2_OVERLOAD_X (LVEXWX,	   "lvexwx")
+ BU_ALTIVEC_OVERLOAD_X (LVLX,	   "lvlx")
+ BU_ALTIVEC_OVERLOAD_X (LVLXL,	   "lvlxl")
+ BU_ALTIVEC_OVERLOAD_X (LVRX,	   "lvrx")
+ BU_ALTIVEC_OVERLOAD_X (LVRXL,	   "lvrxl")
++BU_ALTIVC2_OVERLOAD_X (LVTLX,	   "lvtlx")
++BU_ALTIVC2_OVERLOAD_X (LVTLXL,	   "lvtlxl")
++BU_ALTIVC2_OVERLOAD_X (LVTRX,	   "lvtrx")
++BU_ALTIVC2_OVERLOAD_X (LVTRXL,	   "lvtrxl")
++BU_ALTIVC2_OVERLOAD_X (LVSWX,	   "lvswx")
++BU_ALTIVC2_OVERLOAD_X (LVSWXL,	   "lvswxl")
++BU_ALTIVC2_OVERLOAD_X (LVSM,	   "lvsm")
+ BU_ALTIVEC_OVERLOAD_X (LVSL,	   "lvsl")
+ BU_ALTIVEC_OVERLOAD_X (LVSR,	   "lvsr")
+ BU_ALTIVEC_OVERLOAD_X (PROMOTE,	   "promote")
+@@ -884,10 +957,19 @@
+ BU_ALTIVEC_OVERLOAD_X (STVEBX,	   "stvebx")
+ BU_ALTIVEC_OVERLOAD_X (STVEHX,	   "stvehx")
+ BU_ALTIVEC_OVERLOAD_X (STVEWX,	   "stvewx")
++BU_ALTIVC2_OVERLOAD_X (STVEXBX,	   "stvexbx")
++BU_ALTIVC2_OVERLOAD_X (STVEXHX,	   "stvexhx")
++BU_ALTIVC2_OVERLOAD_X (STVEXWX,	   "stvexwx")
+ BU_ALTIVEC_OVERLOAD_X (STVLX,	   "stvlx")
+ BU_ALTIVEC_OVERLOAD_X (STVLXL,	   "stvlxl")
+ BU_ALTIVEC_OVERLOAD_X (STVRX,	   "stvrx")
+ BU_ALTIVEC_OVERLOAD_X (STVRXL,	   "stvrxl")
++BU_ALTIVC2_OVERLOAD_X (STVFLX,	   "stvflx")
++BU_ALTIVC2_OVERLOAD_X (STVFLXL,	   "stvflxl")
++BU_ALTIVC2_OVERLOAD_X (STVFRX,	   "stvfrx")
++BU_ALTIVC2_OVERLOAD_X (STVFRXL,	   "stvfrxl")
++BU_ALTIVC2_OVERLOAD_X (STVSWX,	   "stvswx")
++BU_ALTIVC2_OVERLOAD_X (STVSWXL,	   "stvswxl")
+ BU_ALTIVEC_OVERLOAD_X (VCFSX,	   "vcfsx")
+ BU_ALTIVEC_OVERLOAD_X (VCFUX,	   "vcfux")
+ BU_ALTIVEC_OVERLOAD_X (VSPLTB,	   "vspltb")
+diff -ruN gcc-20120516-orig/gcc/config/rs6000/rs6000.c gcc-20120516-new/gcc/config/rs6000/rs6000.c
+--- gcc-20120516-orig/gcc/config/rs6000/rs6000.c	2012-05-16 11:29:04.000000000 -0500
++++ gcc-20120516-new/gcc/config/rs6000/rs6000.c	2012-05-16 12:39:46.000000000 -0500
+@@ -2572,6 +2610,7 @@
+ rs6000_builtin_mask_calculate (void)
+ {
+   return (((TARGET_ALTIVEC)		    ? RS6000_BTM_ALTIVEC  : 0)
++	  | ((TARGET_ALTIVEC2)		    ? RS6000_BTM_ALTIVEC2 : 0)
+ 	  | ((TARGET_VSX)		    ? RS6000_BTM_VSX	  : 0)
+ 	  | ((TARGET_SPE)		    ? RS6000_BTM_SPE	  : 0)
+ 	  | ((TARGET_PAIRED_FLOAT)	    ? RS6000_BTM_PAIRED	  : 0)
+@@ -2840,6 +2882,15 @@
+	  || rs6000_cpu == PROCESSOR_PPCE500MC64))
+     rs6000_block_move_inline_limit = 128;
+ 
++  /* Those machines does not have fsqrt instruction */
++  if (rs6000_cpu == PROCESSOR_PPCE5500
++      || rs6000_cpu == PROCESSOR_PPCE6500)
++    target_flags &= ~(MASK_PPC_GPOPT);
++
++  /* Those machines implements a slow mfocr opcode */
++  if (rs6000_cpu == PROCESSOR_PPCE5500)
++    target_flags &= ~MASK_MFCRF;
++
+   /* store_one_arg depends on expand_block_move to handle at least the
+      size of reg_parm_stack_space.  */
+   if (rs6000_block_move_inline_limit < (TARGET_POWERPC64 ? 64 : 32))
+@@ -10683,6 +10751,12 @@
+       return altivec_expand_stv_builtin (CODE_FOR_altivec_stvehx, exp);
+     case ALTIVEC_BUILTIN_STVEWX:
+       return altivec_expand_stv_builtin (CODE_FOR_altivec_stvewx, exp);
++    case ALTIVEC_BUILTIN_STVEXBX:
++      return altivec_expand_stv_builtin (CODE_FOR_altivec_stvexbx, exp);
++    case ALTIVEC_BUILTIN_STVEXHX:
++      return altivec_expand_stv_builtin (CODE_FOR_altivec_stvexhx, exp);
++    case ALTIVEC_BUILTIN_STVEXWX:
++      return altivec_expand_stv_builtin (CODE_FOR_altivec_stvexwx, exp);
+     case ALTIVEC_BUILTIN_STVXL:
+       return altivec_expand_stv_builtin (CODE_FOR_altivec_stvxl, exp);
+ 
+@@ -10694,6 +10768,18 @@
+       return altivec_expand_stv_builtin (CODE_FOR_altivec_stvrx, exp);
+     case ALTIVEC_BUILTIN_STVRXL:
+       return altivec_expand_stv_builtin (CODE_FOR_altivec_stvrxl, exp);
++    case ALTIVEC_BUILTIN_STVFLX:
++      return altivec_expand_stv_builtin (CODE_FOR_altivec_stvflx, exp);
++    case ALTIVEC_BUILTIN_STVFLXL:
++      return altivec_expand_stv_builtin (CODE_FOR_altivec_stvflxl, exp);
++    case ALTIVEC_BUILTIN_STVFRX:
++      return altivec_expand_stv_builtin (CODE_FOR_altivec_stvfrx, exp);
++    case ALTIVEC_BUILTIN_STVFRXL:
++      return altivec_expand_stv_builtin (CODE_FOR_altivec_stvfrxl, exp);
++    case ALTIVEC_BUILTIN_STVSWX:
++      return altivec_expand_stv_builtin (CODE_FOR_altivec_stvswx, exp);
++    case ALTIVEC_BUILTIN_STVSWXL:
++      return altivec_expand_stv_builtin (CODE_FOR_altivec_stvswxl, exp);
+ 
+     case VSX_BUILTIN_STXVD2X_V2DF:
+       return altivec_expand_stv_builtin (CODE_FOR_vsx_store_v2df, exp);
+@@ -10828,6 +10914,15 @@
+     case ALTIVEC_BUILTIN_LVEWX:
+       return altivec_expand_lv_builtin (CODE_FOR_altivec_lvewx,
+ 					exp, target, false);
++    case ALTIVEC_BUILTIN_LVEXBX:
++      return altivec_expand_lv_builtin (CODE_FOR_altivec_lvexbx,
++					exp, target, false);
++    case ALTIVEC_BUILTIN_LVEXHX:
++      return altivec_expand_lv_builtin (CODE_FOR_altivec_lvexhx,
++					exp, target, false);
++    case ALTIVEC_BUILTIN_LVEXWX:
++      return altivec_expand_lv_builtin (CODE_FOR_altivec_lvexwx,
++					exp, target, false);
+     case ALTIVEC_BUILTIN_LVXL:
+       return altivec_expand_lv_builtin (CODE_FOR_altivec_lvxl,
+ 					exp, target, false);
+@@ -10846,6 +10941,27 @@
+     case ALTIVEC_BUILTIN_LVRXL:
+       return altivec_expand_lv_builtin (CODE_FOR_altivec_lvrxl,
+ 					exp, target, true);
++    case ALTIVEC_BUILTIN_LVTLX:
++      return altivec_expand_lv_builtin (CODE_FOR_altivec_lvtlx,
++					exp, target, true);
++    case ALTIVEC_BUILTIN_LVTLXL:
++      return altivec_expand_lv_builtin (CODE_FOR_altivec_lvtlxl,
++					exp, target, true);
++    case ALTIVEC_BUILTIN_LVTRX:
++      return altivec_expand_lv_builtin (CODE_FOR_altivec_lvtrx,
++					exp, target, true);
++    case ALTIVEC_BUILTIN_LVTRXL:
++      return altivec_expand_lv_builtin (CODE_FOR_altivec_lvtrxl,
++					exp, target, true);
++    case ALTIVEC_BUILTIN_LVSWX:
++      return altivec_expand_lv_builtin (CODE_FOR_altivec_lvswx,
++					exp, target, true);
++    case ALTIVEC_BUILTIN_LVSWXL:
++      return altivec_expand_lv_builtin (CODE_FOR_altivec_lvswxl,
++					exp, target, true);
++    case ALTIVEC_BUILTIN_LVSM:
++      return altivec_expand_lv_builtin (CODE_FOR_altivec_lvsm,
++					exp, target, true);
+     case VSX_BUILTIN_LXVD2X_V2DF:
+       return altivec_expand_lv_builtin (CODE_FOR_vsx_load_v2df,
+ 					exp, target, false);
+@@ -12107,6 +12223,9 @@
+   def_builtin ("__builtin_altivec_lvebx", v16qi_ftype_long_pcvoid, ALTIVEC_BUILTIN_LVEBX);
+   def_builtin ("__builtin_altivec_lvehx", v8hi_ftype_long_pcvoid, ALTIVEC_BUILTIN_LVEHX);
+   def_builtin ("__builtin_altivec_lvewx", v4si_ftype_long_pcvoid, ALTIVEC_BUILTIN_LVEWX);
++  def_builtin ("__builtin_altivec_lvexbx", v16qi_ftype_long_pcvoid, ALTIVEC_BUILTIN_LVEXBX);
++  def_builtin ("__builtin_altivec_lvexhx", v8hi_ftype_long_pcvoid, ALTIVEC_BUILTIN_LVEXHX);
++  def_builtin ("__builtin_altivec_lvexwx", v4si_ftype_long_pcvoid, ALTIVEC_BUILTIN_LVEXWX);
+   def_builtin ("__builtin_altivec_lvxl", v4si_ftype_long_pcvoid, ALTIVEC_BUILTIN_LVXL);
+   def_builtin ("__builtin_altivec_lvx", v4si_ftype_long_pcvoid, ALTIVEC_BUILTIN_LVX);
+   def_builtin ("__builtin_altivec_stvx", void_ftype_v4si_long_pvoid, ALTIVEC_BUILTIN_STVX);
+@@ -12114,6 +12233,9 @@
+   def_builtin ("__builtin_altivec_stvxl", void_ftype_v4si_long_pvoid, ALTIVEC_BUILTIN_STVXL);
+   def_builtin ("__builtin_altivec_stvebx", void_ftype_v16qi_long_pvoid, ALTIVEC_BUILTIN_STVEBX);
+   def_builtin ("__builtin_altivec_stvehx", void_ftype_v8hi_long_pvoid, ALTIVEC_BUILTIN_STVEHX);
++  def_builtin ("__builtin_altivec_stvexbx", void_ftype_v16qi_long_pvoid, ALTIVEC_BUILTIN_STVEXBX);
++  def_builtin ("__builtin_altivec_stvexhx", void_ftype_v8hi_long_pvoid, ALTIVEC_BUILTIN_STVEXHX);
++  def_builtin ("__builtin_altivec_stvexwx", void_ftype_v4si_long_pvoid, ALTIVEC_BUILTIN_STVEXWX);
+   def_builtin ("__builtin_vec_ld", opaque_ftype_long_pcvoid, ALTIVEC_BUILTIN_VEC_LD);
+   def_builtin ("__builtin_vec_lde", opaque_ftype_long_pcvoid, ALTIVEC_BUILTIN_VEC_LDE);
+   def_builtin ("__builtin_vec_ldl", opaque_ftype_long_pcvoid, ALTIVEC_BUILTIN_VEC_LDL);
+@@ -12122,12 +12244,18 @@
+   def_builtin ("__builtin_vec_lvebx", v16qi_ftype_long_pcvoid, ALTIVEC_BUILTIN_VEC_LVEBX);
+   def_builtin ("__builtin_vec_lvehx", v8hi_ftype_long_pcvoid, ALTIVEC_BUILTIN_VEC_LVEHX);
+   def_builtin ("__builtin_vec_lvewx", v4si_ftype_long_pcvoid, ALTIVEC_BUILTIN_VEC_LVEWX);
++  def_builtin ("__builtin_vec_lvexbx", v16qi_ftype_long_pcvoid, ALTIVEC_BUILTIN_VEC_LVEXBX);
++  def_builtin ("__builtin_vec_lvexhx", v8hi_ftype_long_pcvoid, ALTIVEC_BUILTIN_VEC_LVEXHX);
++  def_builtin ("__builtin_vec_lvexwx", v4si_ftype_long_pcvoid, ALTIVEC_BUILTIN_VEC_LVEXWX);
+   def_builtin ("__builtin_vec_st", void_ftype_opaque_long_pvoid, ALTIVEC_BUILTIN_VEC_ST);
+   def_builtin ("__builtin_vec_ste", void_ftype_opaque_long_pvoid, ALTIVEC_BUILTIN_VEC_STE);
+   def_builtin ("__builtin_vec_stl", void_ftype_opaque_long_pvoid, ALTIVEC_BUILTIN_VEC_STL);
+   def_builtin ("__builtin_vec_stvewx", void_ftype_opaque_long_pvoid, ALTIVEC_BUILTIN_VEC_STVEWX);
+   def_builtin ("__builtin_vec_stvebx", void_ftype_opaque_long_pvoid, ALTIVEC_BUILTIN_VEC_STVEBX);
+   def_builtin ("__builtin_vec_stvehx", void_ftype_opaque_long_pvoid, ALTIVEC_BUILTIN_VEC_STVEHX);
++  def_builtin ("__builtin_vec_stvexwx", void_ftype_opaque_long_pvoid, ALTIVEC_BUILTIN_VEC_STVEXWX);
++  def_builtin ("__builtin_vec_stvexbx", void_ftype_opaque_long_pvoid, ALTIVEC_BUILTIN_VEC_STVEXBX);
++  def_builtin ("__builtin_vec_stvexhx", void_ftype_opaque_long_pvoid, ALTIVEC_BUILTIN_VEC_STVEXHX);
+ 
+   def_builtin ("__builtin_vsx_lxvd2x_v2df", v2df_ftype_long_pcvoid,
+ 	       VSX_BUILTIN_LXVD2X_V2DF);
+@@ -12158,6 +12286,40 @@
+   def_builtin ("__builtin_vec_vsx_st", void_ftype_opaque_long_pvoid,
+ 	       VSX_BUILTIN_VEC_ST);
+ 
++  /* Power ISA 2.07 */
++  def_builtin ("__builtin_altivec_lvtlx",  v16qi_ftype_long_pcvoid, ALTIVEC_BUILTIN_LVTLX);
++  def_builtin ("__builtin_altivec_lvtlxl", v16qi_ftype_long_pcvoid, ALTIVEC_BUILTIN_LVTLXL);
++  def_builtin ("__builtin_altivec_lvtrx",  v16qi_ftype_long_pcvoid, ALTIVEC_BUILTIN_LVTRX);
++  def_builtin ("__builtin_altivec_lvtrxl", v16qi_ftype_long_pcvoid, ALTIVEC_BUILTIN_LVTRXL);
++
++  def_builtin ("__builtin_vec_lvtlx",  v16qi_ftype_long_pcvoid, ALTIVEC_BUILTIN_VEC_LVTLX);
++  def_builtin ("__builtin_vec_lvtlxl", v16qi_ftype_long_pcvoid, ALTIVEC_BUILTIN_VEC_LVTLXL);
++  def_builtin ("__builtin_vec_lvtrx",  v16qi_ftype_long_pcvoid, ALTIVEC_BUILTIN_VEC_LVTRX);
++  def_builtin ("__builtin_vec_lvtrxl", v16qi_ftype_long_pcvoid, ALTIVEC_BUILTIN_VEC_LVTRXL);
++
++  def_builtin ("__builtin_altivec_stvflx",  void_ftype_v16qi_long_pvoid, ALTIVEC_BUILTIN_STVFLX);
++  def_builtin ("__builtin_altivec_stvflxl", void_ftype_v16qi_long_pvoid, ALTIVEC_BUILTIN_STVFLXL);
++  def_builtin ("__builtin_altivec_stvfrx",  void_ftype_v16qi_long_pvoid, ALTIVEC_BUILTIN_STVFRX);
++  def_builtin ("__builtin_altivec_stvfrxl", void_ftype_v16qi_long_pvoid, ALTIVEC_BUILTIN_STVFRXL);
++
++  def_builtin ("__builtin_vec_stvflx",  void_ftype_v16qi_long_pvoid, ALTIVEC_BUILTIN_VEC_STVFLX);
++  def_builtin ("__builtin_vec_stvflxl", void_ftype_v16qi_long_pvoid, ALTIVEC_BUILTIN_VEC_STVFLXL);
++  def_builtin ("__builtin_vec_stvfrx",  void_ftype_v16qi_long_pvoid, ALTIVEC_BUILTIN_VEC_STVFRX);
++  def_builtin ("__builtin_vec_stvfrxl", void_ftype_v16qi_long_pvoid, ALTIVEC_BUILTIN_VEC_STVFRXL);
++
++  def_builtin ("__builtin_altivec_lvswx",  v16qi_ftype_long_pcvoid, ALTIVEC_BUILTIN_LVSWX);
++  def_builtin ("__builtin_altivec_lvswxl", v16qi_ftype_long_pcvoid, ALTIVEC_BUILTIN_LVSWXL);
++  def_builtin ("__builtin_vec_lvswx",  v16qi_ftype_long_pcvoid, ALTIVEC_BUILTIN_VEC_LVSWX);
++  def_builtin ("__builtin_vec_lvswxl", v16qi_ftype_long_pcvoid, ALTIVEC_BUILTIN_VEC_LVSWXL);
++
++  def_builtin ("__builtin_altivec_lvsm",  v16qi_ftype_long_pcvoid, ALTIVEC_BUILTIN_LVSM);
++  def_builtin ("__builtin_vec_lvsm",  v16qi_ftype_long_pcvoid, ALTIVEC_BUILTIN_VEC_LVSM);
++
++  def_builtin ("__builtin_altivec_stvswx",  void_ftype_v16qi_long_pvoid, ALTIVEC_BUILTIN_STVSWX);
++  def_builtin ("__builtin_altivec_stvswxl", void_ftype_v16qi_long_pvoid, ALTIVEC_BUILTIN_STVSWXL);
++  def_builtin ("__builtin_vec_stvswx",  void_ftype_v16qi_long_pvoid, ALTIVEC_BUILTIN_VEC_STVSWX);
++  def_builtin ("__builtin_vec_stvswxl", void_ftype_v16qi_long_pvoid, ALTIVEC_BUILTIN_VEC_STVSWXL);
++
+   def_builtin ("__builtin_vec_step", int_ftype_opaque, ALTIVEC_BUILTIN_VEC_STEP);
+   def_builtin ("__builtin_vec_splats", opaque_ftype_opaque, ALTIVEC_BUILTIN_VEC_SPLATS);
+   def_builtin ("__builtin_vec_promote", opaque_ftype_opaque, ALTIVEC_BUILTIN_VEC_PROMOTE);
+@@ -12461,6 +12623,9 @@
+     case ALTIVEC_BUILTIN_VMULEUH_UNS:
+     case ALTIVEC_BUILTIN_VMULOUB_UNS:
+     case ALTIVEC_BUILTIN_VMULOUH_UNS:
++    case ALTIVEC_BUILTIN_VABSDUB:
++    case ALTIVEC_BUILTIN_VABSDUH:
++    case ALTIVEC_BUILTIN_VABSDUW:
+       h.uns_p[0] = 1;
+       h.uns_p[1] = 1;
+       h.uns_p[2] = 1;
+@@ -27395,6 +27564,7 @@
+ static struct rs6000_opt_mask const rs6000_builtin_mask_names[] =
+ {
+   { "altivec",		 RS6000_BTM_ALTIVEC,	false, false },
++  { "altivec2",		 RS6000_BTM_ALTIVEC2,	false, false },
+   { "vsx",		 RS6000_BTM_VSX,	false, false },
+   { "spe",		 RS6000_BTM_SPE,	false, false },
+   { "paired",		 RS6000_BTM_PAIRED,	false, false },
+diff -ruN gcc-20120516-orig/gcc/config/rs6000/rs6000-c.c gcc-20120516-new/gcc/config/rs6000/rs6000-c.c
+--- gcc-20120516-orig/gcc/config/rs6000/rs6000-c.c	2012-05-16 11:29:04.000000000 -0500
++++ gcc-20120516-new/gcc/config/rs6000/rs6000-c.c	2012-05-16 12:29:04.000000000 -0500
+@@ -332,6 +332,8 @@
+       if (!flag_iso)
+ 	rs6000_define_or_undefine_macro (define_p, "__APPLE_ALTIVEC__");
+     }
++  if ((flags & OPTION_MASK_ALTIVEC2) != 0)
++    rs6000_define_or_undefine_macro (define_p, "__ALTIVEC2__");
+   if ((flags & OPTION_MASK_VSX) != 0)
+     rs6000_define_or_undefine_macro (define_p, "__VSX__");
+ 
+@@ -622,6 +624,24 @@
+     RS6000_BTI_bool_V8HI, RS6000_BTI_bool_V16QI, 0, 0 },
+ 
+   /* Binary AltiVec/VSX builtins.  */
++  { ALTIVEC_BUILTIN_VEC_ABSD, ALTIVEC_BUILTIN_VABSDUB,
++    RS6000_BTI_unsigned_V16QI, RS6000_BTI_bool_V16QI, RS6000_BTI_unsigned_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_ABSD, ALTIVEC_BUILTIN_VABSDUB,
++    RS6000_BTI_unsigned_V16QI, RS6000_BTI_unsigned_V16QI, RS6000_BTI_unsigned_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_ABSD, ALTIVEC_BUILTIN_VABSDUB,
++    RS6000_BTI_unsigned_V16QI, RS6000_BTI_unsigned_V16QI, RS6000_BTI_bool_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_ABSD, ALTIVEC_BUILTIN_VABSDUH,
++    RS6000_BTI_unsigned_V8HI, RS6000_BTI_bool_V8HI, RS6000_BTI_unsigned_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_ABSD, ALTIVEC_BUILTIN_VABSDUH,
++    RS6000_BTI_unsigned_V8HI, RS6000_BTI_unsigned_V8HI, RS6000_BTI_unsigned_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_ABSD, ALTIVEC_BUILTIN_VABSDUH,
++    RS6000_BTI_unsigned_V8HI, RS6000_BTI_unsigned_V8HI, RS6000_BTI_bool_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_ABSD, ALTIVEC_BUILTIN_VABSDUW,
++    RS6000_BTI_unsigned_V4SI, RS6000_BTI_bool_V4SI, RS6000_BTI_unsigned_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_ABSD, ALTIVEC_BUILTIN_VABSDUW,
++    RS6000_BTI_unsigned_V4SI, RS6000_BTI_unsigned_V4SI, RS6000_BTI_unsigned_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_ABSD, ALTIVEC_BUILTIN_VABSDUW,
++    RS6000_BTI_unsigned_V4SI, RS6000_BTI_unsigned_V4SI, RS6000_BTI_bool_V4SI, 0 },
+   { ALTIVEC_BUILTIN_VEC_ADD, ALTIVEC_BUILTIN_VADDUBM,
+     RS6000_BTI_V16QI, RS6000_BTI_bool_V16QI, RS6000_BTI_V16QI, 0 },
+   { ALTIVEC_BUILTIN_VEC_ADD, ALTIVEC_BUILTIN_VADDUBM,
+@@ -1137,6 +1157,24 @@
+     RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_INTQI, 0 },
+   { ALTIVEC_BUILTIN_VEC_LVEBX, ALTIVEC_BUILTIN_LVEBX,
+     RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTQI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVEXWX, ALTIVEC_BUILTIN_LVEXWX,
++    RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_float, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVEXWX, ALTIVEC_BUILTIN_LVEXWX,
++    RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_INTSI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVEXWX, ALTIVEC_BUILTIN_LVEXWX,
++    RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTSI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVEXWX, ALTIVEC_BUILTIN_LVEXWX,
++    RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_long, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVEXWX, ALTIVEC_BUILTIN_LVEXWX,
++    RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_long, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVEXHX, ALTIVEC_BUILTIN_LVEXHX,
++    RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_INTHI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVEXHX, ALTIVEC_BUILTIN_LVEXHX,
++    RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTHI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVEXBX, ALTIVEC_BUILTIN_LVEXBX,
++    RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_INTQI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVEXBX, ALTIVEC_BUILTIN_LVEXBX,
++    RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTQI, 0 },
+   { ALTIVEC_BUILTIN_VEC_LDL, ALTIVEC_BUILTIN_LVXL,
+     RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_V4SF, 0 },
+   { ALTIVEC_BUILTIN_VEC_LDL, ALTIVEC_BUILTIN_LVXL,
+@@ -1389,6 +1427,258 @@
+     RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V16QI, 0 },
+   { ALTIVEC_BUILTIN_VEC_LVRXL, ALTIVEC_BUILTIN_LVRXL,
+     RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTQI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLX, ALTIVEC_BUILTIN_LVTLX,
++    RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_V4SF, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLX, ALTIVEC_BUILTIN_LVTLX,
++    RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_float, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLX, ALTIVEC_BUILTIN_LVTLX,
++    RS6000_BTI_bool_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLX, ALTIVEC_BUILTIN_LVTLX,
++    RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLX, ALTIVEC_BUILTIN_LVTLX,
++    RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_INTSI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLX, ALTIVEC_BUILTIN_LVTLX,
++    RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLX, ALTIVEC_BUILTIN_LVTLX,
++    RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTSI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLX, ALTIVEC_BUILTIN_LVTLX,
++    RS6000_BTI_bool_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLX, ALTIVEC_BUILTIN_LVTLX,
++    RS6000_BTI_pixel_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_pixel_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLX, ALTIVEC_BUILTIN_LVTLX,
++    RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLX, ALTIVEC_BUILTIN_LVTLX,
++    RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_INTHI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLX, ALTIVEC_BUILTIN_LVTLX,
++    RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLX, ALTIVEC_BUILTIN_LVTLX,
++    RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTHI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLX, ALTIVEC_BUILTIN_LVTLX,
++    RS6000_BTI_bool_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLX, ALTIVEC_BUILTIN_LVTLX,
++    RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLX, ALTIVEC_BUILTIN_LVTLX,
++    RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_INTQI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLX, ALTIVEC_BUILTIN_LVTLX,
++    RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLX, ALTIVEC_BUILTIN_LVTLX,
++    RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTQI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLXL, ALTIVEC_BUILTIN_LVTLXL,
++    RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_V4SF, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLXL, ALTIVEC_BUILTIN_LVTLXL,
++    RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_float, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLXL, ALTIVEC_BUILTIN_LVTLXL,
++    RS6000_BTI_bool_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLXL, ALTIVEC_BUILTIN_LVTLXL,
++    RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLXL, ALTIVEC_BUILTIN_LVTLXL,
++    RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_INTSI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLXL, ALTIVEC_BUILTIN_LVTLXL,
++    RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLXL, ALTIVEC_BUILTIN_LVTLXL,
++    RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTSI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLXL, ALTIVEC_BUILTIN_LVTLXL,
++    RS6000_BTI_bool_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLXL, ALTIVEC_BUILTIN_LVTLXL,
++    RS6000_BTI_pixel_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_pixel_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLXL, ALTIVEC_BUILTIN_LVTLXL,
++    RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLXL, ALTIVEC_BUILTIN_LVTLXL,
++    RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_INTHI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLXL, ALTIVEC_BUILTIN_LVTLXL,
++    RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLXL, ALTIVEC_BUILTIN_LVTLXL,
++    RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTHI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLXL, ALTIVEC_BUILTIN_LVTLXL,
++    RS6000_BTI_bool_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLXL, ALTIVEC_BUILTIN_LVTLXL,
++    RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLXL, ALTIVEC_BUILTIN_LVTLXL,
++    RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_INTQI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLXL, ALTIVEC_BUILTIN_LVTLXL,
++    RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTLXL, ALTIVEC_BUILTIN_LVTLXL,
++    RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTQI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRX, ALTIVEC_BUILTIN_LVTRX,
++    RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_V4SF, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRX, ALTIVEC_BUILTIN_LVTRX,
++    RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_float, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRX, ALTIVEC_BUILTIN_LVTRX,
++    RS6000_BTI_bool_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRX, ALTIVEC_BUILTIN_LVTRX,
++    RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRX, ALTIVEC_BUILTIN_LVTRX,
++    RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_INTSI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRX, ALTIVEC_BUILTIN_LVTRX,
++    RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRX, ALTIVEC_BUILTIN_LVTRX,
++    RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTSI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRX, ALTIVEC_BUILTIN_LVTRX,
++    RS6000_BTI_bool_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRX, ALTIVEC_BUILTIN_LVTRX,
++    RS6000_BTI_pixel_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_pixel_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRX, ALTIVEC_BUILTIN_LVTRX,
++    RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRX, ALTIVEC_BUILTIN_LVTRX,
++    RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_INTHI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRX, ALTIVEC_BUILTIN_LVTRX,
++    RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRX, ALTIVEC_BUILTIN_LVTRX,
++    RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTHI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRX, ALTIVEC_BUILTIN_LVTRX,
++    RS6000_BTI_bool_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRX, ALTIVEC_BUILTIN_LVTRX,
++    RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRX, ALTIVEC_BUILTIN_LVTRX,
++    RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_INTQI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRX, ALTIVEC_BUILTIN_LVTRX,
++    RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRX, ALTIVEC_BUILTIN_LVTRX,
++    RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTQI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRXL, ALTIVEC_BUILTIN_LVTRXL,
++    RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_V4SF, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRXL, ALTIVEC_BUILTIN_LVTRXL,
++    RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_float, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRXL, ALTIVEC_BUILTIN_LVTRXL,
++    RS6000_BTI_bool_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRXL, ALTIVEC_BUILTIN_LVTRXL,
++    RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRXL, ALTIVEC_BUILTIN_LVTRXL,
++    RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_INTSI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRXL, ALTIVEC_BUILTIN_LVTRXL,
++    RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRXL, ALTIVEC_BUILTIN_LVTRXL,
++    RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTSI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRXL, ALTIVEC_BUILTIN_LVTRXL,
++    RS6000_BTI_bool_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRXL, ALTIVEC_BUILTIN_LVTRXL,
++    RS6000_BTI_pixel_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_pixel_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRXL, ALTIVEC_BUILTIN_LVTRXL,
++    RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRXL, ALTIVEC_BUILTIN_LVTRXL,
++    RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_INTHI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRXL, ALTIVEC_BUILTIN_LVTRXL,
++    RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRXL, ALTIVEC_BUILTIN_LVTRXL,
++    RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTHI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRXL, ALTIVEC_BUILTIN_LVTRXL,
++    RS6000_BTI_bool_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRXL, ALTIVEC_BUILTIN_LVTRXL,
++    RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRXL, ALTIVEC_BUILTIN_LVTRXL,
++    RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_INTQI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRXL, ALTIVEC_BUILTIN_LVTRXL,
++    RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVTRXL, ALTIVEC_BUILTIN_LVTRXL,
++    RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTQI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWX, ALTIVEC_BUILTIN_LVSWX,
++    RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_V4SF, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWX, ALTIVEC_BUILTIN_LVSWX,
++    RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_float, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWX, ALTIVEC_BUILTIN_LVSWX,
++    RS6000_BTI_bool_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWX, ALTIVEC_BUILTIN_LVSWX,
++    RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWX, ALTIVEC_BUILTIN_LVSWX,
++    RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_INTSI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWX, ALTIVEC_BUILTIN_LVSWX,
++    RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWX, ALTIVEC_BUILTIN_LVSWX,
++    RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTSI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWX, ALTIVEC_BUILTIN_LVSWX,
++    RS6000_BTI_bool_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWX, ALTIVEC_BUILTIN_LVSWX,
++    RS6000_BTI_pixel_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_pixel_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWX, ALTIVEC_BUILTIN_LVSWX,
++    RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWX, ALTIVEC_BUILTIN_LVSWX,
++    RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_INTHI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWX, ALTIVEC_BUILTIN_LVSWX,
++    RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWX, ALTIVEC_BUILTIN_LVSWX,
++    RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTHI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWX, ALTIVEC_BUILTIN_LVSWX,
++    RS6000_BTI_bool_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWX, ALTIVEC_BUILTIN_LVSWX,
++    RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWX, ALTIVEC_BUILTIN_LVSWX,
++    RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_INTQI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWX, ALTIVEC_BUILTIN_LVSWX,
++    RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWX, ALTIVEC_BUILTIN_LVSWX,
++    RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTQI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWXL, ALTIVEC_BUILTIN_LVSWXL,
++    RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_V4SF, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWXL, ALTIVEC_BUILTIN_LVSWXL,
++    RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_float, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWXL, ALTIVEC_BUILTIN_LVSWXL,
++    RS6000_BTI_bool_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWXL, ALTIVEC_BUILTIN_LVSWXL,
++    RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWXL, ALTIVEC_BUILTIN_LVSWXL,
++    RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_INTSI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWXL, ALTIVEC_BUILTIN_LVSWXL,
++    RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWXL, ALTIVEC_BUILTIN_LVSWXL,
++    RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTSI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWXL, ALTIVEC_BUILTIN_LVSWXL,
++    RS6000_BTI_bool_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWXL, ALTIVEC_BUILTIN_LVSWXL,
++    RS6000_BTI_pixel_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_pixel_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWXL, ALTIVEC_BUILTIN_LVSWXL,
++    RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWXL, ALTIVEC_BUILTIN_LVSWXL,
++    RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_INTHI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWXL, ALTIVEC_BUILTIN_LVSWXL,
++    RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWXL, ALTIVEC_BUILTIN_LVSWXL,
++    RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTHI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWXL, ALTIVEC_BUILTIN_LVSWXL,
++    RS6000_BTI_bool_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWXL, ALTIVEC_BUILTIN_LVSWXL,
++    RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWXL, ALTIVEC_BUILTIN_LVSWXL,
++    RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_INTQI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWXL, ALTIVEC_BUILTIN_LVSWXL,
++    RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSWXL, ALTIVEC_BUILTIN_LVSWXL,
++    RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTQI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSM, ALTIVEC_BUILTIN_LVSM,
++    RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_V4SF, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSM, ALTIVEC_BUILTIN_LVSM,
++    RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_float, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSM, ALTIVEC_BUILTIN_LVSM,
++    RS6000_BTI_bool_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSM, ALTIVEC_BUILTIN_LVSM,
++    RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSM, ALTIVEC_BUILTIN_LVSM,
++    RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_INTSI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSM, ALTIVEC_BUILTIN_LVSM,
++    RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V4SI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSM, ALTIVEC_BUILTIN_LVSM,
++    RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTSI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSM, ALTIVEC_BUILTIN_LVSM,
++    RS6000_BTI_bool_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSM, ALTIVEC_BUILTIN_LVSM,
++    RS6000_BTI_pixel_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_pixel_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSM, ALTIVEC_BUILTIN_LVSM,
++    RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSM, ALTIVEC_BUILTIN_LVSM,
++    RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_INTHI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSM, ALTIVEC_BUILTIN_LVSM,
++    RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V8HI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSM, ALTIVEC_BUILTIN_LVSM,
++    RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTHI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSM, ALTIVEC_BUILTIN_LVSM,
++    RS6000_BTI_bool_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSM, ALTIVEC_BUILTIN_LVSM,
++    RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSM, ALTIVEC_BUILTIN_LVSM,
++    RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_INTQI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSM, ALTIVEC_BUILTIN_LVSM,
++    RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V16QI, 0 },
++  { ALTIVEC_BUILTIN_VEC_LVSM, ALTIVEC_BUILTIN_LVSM,
++    RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTQI, 0 },
+   { ALTIVEC_BUILTIN_VEC_MAX, ALTIVEC_BUILTIN_VMAXUB,
+     RS6000_BTI_unsigned_V16QI, RS6000_BTI_bool_V16QI, RS6000_BTI_unsigned_V16QI, 0 },
+   { ALTIVEC_BUILTIN_VEC_MAX, ALTIVEC_BUILTIN_VMAXUB,
+@@ -2865,6 +3155,46 @@
+     RS6000_BTI_void, RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_void },
+   { ALTIVEC_BUILTIN_VEC_STVEBX, ALTIVEC_BUILTIN_STVEBX,
+     RS6000_BTI_void, RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_void },
++  { ALTIVEC_BUILTIN_VEC_STVEXWX, ALTIVEC_BUILTIN_STVEXWX,
++    RS6000_BTI_void, RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_float },
++  { ALTIVEC_BUILTIN_VEC_STVEXWX, ALTIVEC_BUILTIN_STVEXWX,
++    RS6000_BTI_void, RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_INTSI },
++  { ALTIVEC_BUILTIN_VEC_STVEXWX, ALTIVEC_BUILTIN_STVEXWX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTSI },
++  { ALTIVEC_BUILTIN_VEC_STVEXWX, ALTIVEC_BUILTIN_STVEXWX,
++    RS6000_BTI_void, RS6000_BTI_bool_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_INTSI },
++  { ALTIVEC_BUILTIN_VEC_STVEXWX, ALTIVEC_BUILTIN_STVEXWX,
++    RS6000_BTI_void, RS6000_BTI_bool_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTSI },
++  { ALTIVEC_BUILTIN_VEC_STVEXWX, ALTIVEC_BUILTIN_STVEXWX,
++    RS6000_BTI_void, RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_void },
++  { ALTIVEC_BUILTIN_VEC_STVEXWX, ALTIVEC_BUILTIN_STVEXWX,
++    RS6000_BTI_void, RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_void },
++  { ALTIVEC_BUILTIN_VEC_STVEXWX, ALTIVEC_BUILTIN_STVEXWX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_void },
++  { ALTIVEC_BUILTIN_VEC_STVEXHX, ALTIVEC_BUILTIN_STVEXHX,
++    RS6000_BTI_void, RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_INTHI },
++  { ALTIVEC_BUILTIN_VEC_STVEXHX, ALTIVEC_BUILTIN_STVEXHX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTHI },
++  { ALTIVEC_BUILTIN_VEC_STVEXHX, ALTIVEC_BUILTIN_STVEXHX,
++    RS6000_BTI_void, RS6000_BTI_bool_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_INTHI },
++  { ALTIVEC_BUILTIN_VEC_STVEXHX, ALTIVEC_BUILTIN_STVEXHX,
++    RS6000_BTI_void, RS6000_BTI_bool_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTHI },
++  { ALTIVEC_BUILTIN_VEC_STVEXHX, ALTIVEC_BUILTIN_STVEXHX,
++    RS6000_BTI_void, RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_void },
++  { ALTIVEC_BUILTIN_VEC_STVEXHX, ALTIVEC_BUILTIN_STVEXHX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_void },
++  { ALTIVEC_BUILTIN_VEC_STVEXBX, ALTIVEC_BUILTIN_STVEXBX,
++    RS6000_BTI_void, RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_INTQI },
++  { ALTIVEC_BUILTIN_VEC_STVEXBX, ALTIVEC_BUILTIN_STVEXBX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTQI },
++  { ALTIVEC_BUILTIN_VEC_STVEXBX, ALTIVEC_BUILTIN_STVEXBX,
++    RS6000_BTI_void, RS6000_BTI_bool_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_INTQI },
++  { ALTIVEC_BUILTIN_VEC_STVEXBX, ALTIVEC_BUILTIN_STVEXBX,
++    RS6000_BTI_void, RS6000_BTI_bool_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTQI },
++  { ALTIVEC_BUILTIN_VEC_STVEXBX, ALTIVEC_BUILTIN_STVEXBX,
++    RS6000_BTI_void, RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_void },
++  { ALTIVEC_BUILTIN_VEC_STVEXBX, ALTIVEC_BUILTIN_STVEXBX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_void },
+   { ALTIVEC_BUILTIN_VEC_STL, ALTIVEC_BUILTIN_STVXL,
+     RS6000_BTI_void, RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_V4SF },
+   { ALTIVEC_BUILTIN_VEC_STL, ALTIVEC_BUILTIN_STVXL,
+@@ -3069,6 +3399,222 @@
+     RS6000_BTI_void, RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V16QI },
+   { ALTIVEC_BUILTIN_VEC_STVRXL, ALTIVEC_BUILTIN_STVRXL,
+     RS6000_BTI_void, RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTQI },
++  { ALTIVEC_BUILTIN_VEC_STVFLX, ALTIVEC_BUILTIN_STVFLX,
++    RS6000_BTI_void, RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_V4SF },
++  { ALTIVEC_BUILTIN_VEC_STVFLX, ALTIVEC_BUILTIN_STVFLX,
++    RS6000_BTI_void, RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_float },
++  { ALTIVEC_BUILTIN_VEC_STVFLX, ALTIVEC_BUILTIN_STVFLX,
++    RS6000_BTI_void, RS6000_BTI_bool_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V4SI },
++  { ALTIVEC_BUILTIN_VEC_STVFLX, ALTIVEC_BUILTIN_STVFLX,
++    RS6000_BTI_void, RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_V4SI },
++  { ALTIVEC_BUILTIN_VEC_STVFLX, ALTIVEC_BUILTIN_STVFLX,
++    RS6000_BTI_void, RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_INTSI },
++  { ALTIVEC_BUILTIN_VEC_STVFLX, ALTIVEC_BUILTIN_STVFLX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V4SI },
++  { ALTIVEC_BUILTIN_VEC_STVFLX, ALTIVEC_BUILTIN_STVFLX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTSI },
++  { ALTIVEC_BUILTIN_VEC_STVFLX, ALTIVEC_BUILTIN_STVFLX,
++    RS6000_BTI_void, RS6000_BTI_bool_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVFLX, ALTIVEC_BUILTIN_STVFLX,
++    RS6000_BTI_void, RS6000_BTI_pixel_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_pixel_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVFLX, ALTIVEC_BUILTIN_STVFLX,
++    RS6000_BTI_void, RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVFLX, ALTIVEC_BUILTIN_STVFLX,
++    RS6000_BTI_void, RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_INTHI },
++  { ALTIVEC_BUILTIN_VEC_STVFLX, ALTIVEC_BUILTIN_STVFLX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVFLX, ALTIVEC_BUILTIN_STVFLX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTHI },
++  { ALTIVEC_BUILTIN_VEC_STVFLX, ALTIVEC_BUILTIN_STVFLX,
++    RS6000_BTI_void, RS6000_BTI_bool_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V16QI },
++  { ALTIVEC_BUILTIN_VEC_STVFLX, ALTIVEC_BUILTIN_STVFLX,
++    RS6000_BTI_void, RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_V16QI },
++  { ALTIVEC_BUILTIN_VEC_STVFLX, ALTIVEC_BUILTIN_STVFLX,
++    RS6000_BTI_void, RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_INTQI },
++  { ALTIVEC_BUILTIN_VEC_STVFLX, ALTIVEC_BUILTIN_STVFLX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V16QI },
++  { ALTIVEC_BUILTIN_VEC_STVFLX, ALTIVEC_BUILTIN_STVFLX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTQI },
++  { ALTIVEC_BUILTIN_VEC_STVFLXL, ALTIVEC_BUILTIN_STVFLXL,
++    RS6000_BTI_void, RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_V4SF },
++  { ALTIVEC_BUILTIN_VEC_STVFLXL, ALTIVEC_BUILTIN_STVFLXL,
++    RS6000_BTI_void, RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_float },
++  { ALTIVEC_BUILTIN_VEC_STVFLXL, ALTIVEC_BUILTIN_STVFLXL,
++    RS6000_BTI_void, RS6000_BTI_bool_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V4SI },
++  { ALTIVEC_BUILTIN_VEC_STVFLXL, ALTIVEC_BUILTIN_STVFLXL,
++    RS6000_BTI_void, RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_V4SI },
++  { ALTIVEC_BUILTIN_VEC_STVFLXL, ALTIVEC_BUILTIN_STVFLXL,
++    RS6000_BTI_void, RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_INTSI },
++  { ALTIVEC_BUILTIN_VEC_STVFLXL, ALTIVEC_BUILTIN_STVFLXL,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V4SI },
++  { ALTIVEC_BUILTIN_VEC_STVFLXL, ALTIVEC_BUILTIN_STVFLXL,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTSI },
++  { ALTIVEC_BUILTIN_VEC_STVFLXL, ALTIVEC_BUILTIN_STVFLXL,
++    RS6000_BTI_void, RS6000_BTI_bool_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVFLXL, ALTIVEC_BUILTIN_STVFLXL,
++    RS6000_BTI_void, RS6000_BTI_pixel_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_pixel_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVFLXL, ALTIVEC_BUILTIN_STVFLXL,
++    RS6000_BTI_void, RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVFLXL, ALTIVEC_BUILTIN_STVFLXL,
++    RS6000_BTI_void, RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_INTHI },
++  { ALTIVEC_BUILTIN_VEC_STVFLXL, ALTIVEC_BUILTIN_STVFLXL,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVFLXL, ALTIVEC_BUILTIN_STVFLXL,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTHI },
++  { ALTIVEC_BUILTIN_VEC_STVFLXL, ALTIVEC_BUILTIN_STVFLXL,
++    RS6000_BTI_void, RS6000_BTI_bool_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V16QI },
++  { ALTIVEC_BUILTIN_VEC_STVFLXL, ALTIVEC_BUILTIN_STVFLXL,
++    RS6000_BTI_void, RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_V16QI },
++  { ALTIVEC_BUILTIN_VEC_STVFLXL, ALTIVEC_BUILTIN_STVFLXL,
++    RS6000_BTI_void, RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_INTQI },
++  { ALTIVEC_BUILTIN_VEC_STVFLXL, ALTIVEC_BUILTIN_STVFLXL,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V16QI },
++  { ALTIVEC_BUILTIN_VEC_STVFLXL, ALTIVEC_BUILTIN_STVFLXL,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTQI },
++  { ALTIVEC_BUILTIN_VEC_STVFRX, ALTIVEC_BUILTIN_STVFRX,
++    RS6000_BTI_void, RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_V4SF },
++  { ALTIVEC_BUILTIN_VEC_STVFRX, ALTIVEC_BUILTIN_STVFRX,
++    RS6000_BTI_void, RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_float },
++  { ALTIVEC_BUILTIN_VEC_STVFRX, ALTIVEC_BUILTIN_STVFRX,
++    RS6000_BTI_void, RS6000_BTI_bool_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V4SI },
++  { ALTIVEC_BUILTIN_VEC_STVFRX, ALTIVEC_BUILTIN_STVFRX,
++    RS6000_BTI_void, RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_V4SI },
++  { ALTIVEC_BUILTIN_VEC_STVFRX, ALTIVEC_BUILTIN_STVFRX,
++    RS6000_BTI_void, RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_INTSI },
++  { ALTIVEC_BUILTIN_VEC_STVFRX, ALTIVEC_BUILTIN_STVFRX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V4SI },
++  { ALTIVEC_BUILTIN_VEC_STVFRX, ALTIVEC_BUILTIN_STVFRX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTSI },
++  { ALTIVEC_BUILTIN_VEC_STVFRX, ALTIVEC_BUILTIN_STVFRX,
++    RS6000_BTI_void, RS6000_BTI_bool_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVFRX, ALTIVEC_BUILTIN_STVFRX,
++    RS6000_BTI_void, RS6000_BTI_pixel_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_pixel_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVFRX, ALTIVEC_BUILTIN_STVFRX,
++    RS6000_BTI_void, RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVFRX, ALTIVEC_BUILTIN_STVFRX,
++    RS6000_BTI_void, RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_INTHI },
++  { ALTIVEC_BUILTIN_VEC_STVFRX, ALTIVEC_BUILTIN_STVFRX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVFRX, ALTIVEC_BUILTIN_STVFRX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTHI },
++  { ALTIVEC_BUILTIN_VEC_STVFRX, ALTIVEC_BUILTIN_STVFRX,
++    RS6000_BTI_void, RS6000_BTI_bool_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V16QI },
++  { ALTIVEC_BUILTIN_VEC_STVFRX, ALTIVEC_BUILTIN_STVFRX,
++    RS6000_BTI_void, RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_V16QI },
++  { ALTIVEC_BUILTIN_VEC_STVFRX, ALTIVEC_BUILTIN_STVFRX,
++    RS6000_BTI_void, RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_INTQI },
++  { ALTIVEC_BUILTIN_VEC_STVFRX, ALTIVEC_BUILTIN_STVFRX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V16QI },
++  { ALTIVEC_BUILTIN_VEC_STVFRX, ALTIVEC_BUILTIN_STVFRX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTQI },
++  { ALTIVEC_BUILTIN_VEC_STVFRXL, ALTIVEC_BUILTIN_STVFRXL,
++    RS6000_BTI_void, RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_V4SF },
++  { ALTIVEC_BUILTIN_VEC_STVFRXL, ALTIVEC_BUILTIN_STVFRXL,
++    RS6000_BTI_void, RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_float },
++  { ALTIVEC_BUILTIN_VEC_STVFRXL, ALTIVEC_BUILTIN_STVFRXL,
++    RS6000_BTI_void, RS6000_BTI_bool_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V4SI },
++  { ALTIVEC_BUILTIN_VEC_STVFRXL, ALTIVEC_BUILTIN_STVFRXL,
++    RS6000_BTI_void, RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_V4SI },
++  { ALTIVEC_BUILTIN_VEC_STVFRXL, ALTIVEC_BUILTIN_STVFRXL,
++    RS6000_BTI_void, RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_INTSI },
++  { ALTIVEC_BUILTIN_VEC_STVFRXL, ALTIVEC_BUILTIN_STVFRXL,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V4SI },
++  { ALTIVEC_BUILTIN_VEC_STVFRXL, ALTIVEC_BUILTIN_STVFRXL,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTSI },
++  { ALTIVEC_BUILTIN_VEC_STVFRXL, ALTIVEC_BUILTIN_STVFRXL,
++    RS6000_BTI_void, RS6000_BTI_bool_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVFRXL, ALTIVEC_BUILTIN_STVFRXL,
++    RS6000_BTI_void, RS6000_BTI_pixel_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_pixel_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVFRXL, ALTIVEC_BUILTIN_STVFRXL,
++    RS6000_BTI_void, RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVFRXL, ALTIVEC_BUILTIN_STVFRXL,
++    RS6000_BTI_void, RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_INTHI },
++  { ALTIVEC_BUILTIN_VEC_STVFRXL, ALTIVEC_BUILTIN_STVFRXL,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVFRXL, ALTIVEC_BUILTIN_STVFRXL,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTHI },
++  { ALTIVEC_BUILTIN_VEC_STVFRXL, ALTIVEC_BUILTIN_STVFRXL,
++    RS6000_BTI_void, RS6000_BTI_bool_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V16QI },
++  { ALTIVEC_BUILTIN_VEC_STVFRXL, ALTIVEC_BUILTIN_STVFRXL,
++    RS6000_BTI_void, RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_V16QI },
++  { ALTIVEC_BUILTIN_VEC_STVFRXL, ALTIVEC_BUILTIN_STVFRXL,
++    RS6000_BTI_void, RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_INTQI },
++  { ALTIVEC_BUILTIN_VEC_STVFRXL, ALTIVEC_BUILTIN_STVFRXL,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V16QI },
++  { ALTIVEC_BUILTIN_VEC_STVFRXL, ALTIVEC_BUILTIN_STVFRXL,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTQI },
++  { ALTIVEC_BUILTIN_VEC_STVSWX, ALTIVEC_BUILTIN_STVSWX,
++    RS6000_BTI_void, RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_V4SF },
++  { ALTIVEC_BUILTIN_VEC_STVSWX, ALTIVEC_BUILTIN_STVSWX,
++    RS6000_BTI_void, RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_float },
++  { ALTIVEC_BUILTIN_VEC_STVSWX, ALTIVEC_BUILTIN_STVSWX,
++    RS6000_BTI_void, RS6000_BTI_bool_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V4SI },
++  { ALTIVEC_BUILTIN_VEC_STVSWX, ALTIVEC_BUILTIN_STVSWX,
++    RS6000_BTI_void, RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_V4SI },
++  { ALTIVEC_BUILTIN_VEC_STVSWX, ALTIVEC_BUILTIN_STVSWX,
++    RS6000_BTI_void, RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_INTSI },
++  { ALTIVEC_BUILTIN_VEC_STVSWX, ALTIVEC_BUILTIN_STVSWX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V4SI },
++  { ALTIVEC_BUILTIN_VEC_STVSWX, ALTIVEC_BUILTIN_STVSWX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTSI },
++  { ALTIVEC_BUILTIN_VEC_STVSWX, ALTIVEC_BUILTIN_STVSWX,
++    RS6000_BTI_void, RS6000_BTI_bool_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVSWX, ALTIVEC_BUILTIN_STVSWX,
++    RS6000_BTI_void, RS6000_BTI_pixel_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_pixel_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVSWX, ALTIVEC_BUILTIN_STVSWX,
++    RS6000_BTI_void, RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVSWX, ALTIVEC_BUILTIN_STVSWX,
++    RS6000_BTI_void, RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_INTHI },
++  { ALTIVEC_BUILTIN_VEC_STVSWX, ALTIVEC_BUILTIN_STVSWX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVSWX, ALTIVEC_BUILTIN_STVSWX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTHI },
++  { ALTIVEC_BUILTIN_VEC_STVSWX, ALTIVEC_BUILTIN_STVSWX,
++    RS6000_BTI_void, RS6000_BTI_bool_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V16QI },
++  { ALTIVEC_BUILTIN_VEC_STVSWX, ALTIVEC_BUILTIN_STVSWX,
++    RS6000_BTI_void, RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_V16QI },
++  { ALTIVEC_BUILTIN_VEC_STVSWX, ALTIVEC_BUILTIN_STVSWX,
++    RS6000_BTI_void, RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_INTQI },
++  { ALTIVEC_BUILTIN_VEC_STVSWX, ALTIVEC_BUILTIN_STVSWX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V16QI },
++  { ALTIVEC_BUILTIN_VEC_STVSWX, ALTIVEC_BUILTIN_STVSWX,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTQI },
++  { ALTIVEC_BUILTIN_VEC_STVSWXL, ALTIVEC_BUILTIN_STVSWXL,
++    RS6000_BTI_void, RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_V4SF },
++  { ALTIVEC_BUILTIN_VEC_STVSWXL, ALTIVEC_BUILTIN_STVSWXL,
++    RS6000_BTI_void, RS6000_BTI_V4SF, RS6000_BTI_INTSI, ~RS6000_BTI_float },
++  { ALTIVEC_BUILTIN_VEC_STVSWXL, ALTIVEC_BUILTIN_STVSWXL,
++    RS6000_BTI_void, RS6000_BTI_bool_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V4SI },
++  { ALTIVEC_BUILTIN_VEC_STVSWXL, ALTIVEC_BUILTIN_STVSWXL,
++    RS6000_BTI_void, RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_V4SI },
++  { ALTIVEC_BUILTIN_VEC_STVSWXL, ALTIVEC_BUILTIN_STVSWXL,
++    RS6000_BTI_void, RS6000_BTI_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_INTSI },
++  { ALTIVEC_BUILTIN_VEC_STVSWXL, ALTIVEC_BUILTIN_STVSWXL,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V4SI },
++  { ALTIVEC_BUILTIN_VEC_STVSWXL, ALTIVEC_BUILTIN_STVSWXL,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V4SI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTSI },
++  { ALTIVEC_BUILTIN_VEC_STVSWXL, ALTIVEC_BUILTIN_STVSWXL,
++    RS6000_BTI_void, RS6000_BTI_bool_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVSWXL, ALTIVEC_BUILTIN_STVSWXL,
++    RS6000_BTI_void, RS6000_BTI_pixel_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_pixel_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVSWXL, ALTIVEC_BUILTIN_STVSWXL,
++    RS6000_BTI_void, RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVSWXL, ALTIVEC_BUILTIN_STVSWXL,
++    RS6000_BTI_void, RS6000_BTI_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_INTHI },
++  { ALTIVEC_BUILTIN_VEC_STVSWXL, ALTIVEC_BUILTIN_STVSWXL,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V8HI },
++  { ALTIVEC_BUILTIN_VEC_STVSWXL, ALTIVEC_BUILTIN_STVSWXL,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V8HI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTHI },
++  { ALTIVEC_BUILTIN_VEC_STVSWXL, ALTIVEC_BUILTIN_STVSWXL,
++    RS6000_BTI_void, RS6000_BTI_bool_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_bool_V16QI },
++  { ALTIVEC_BUILTIN_VEC_STVSWXL, ALTIVEC_BUILTIN_STVSWXL,
++    RS6000_BTI_void, RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_V16QI },
++  { ALTIVEC_BUILTIN_VEC_STVSWXL, ALTIVEC_BUILTIN_STVSWXL,
++    RS6000_BTI_void, RS6000_BTI_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_INTQI },
++  { ALTIVEC_BUILTIN_VEC_STVSWXL, ALTIVEC_BUILTIN_STVSWXL,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_unsigned_V16QI },
++  { ALTIVEC_BUILTIN_VEC_STVSWXL, ALTIVEC_BUILTIN_STVSWXL,
++    RS6000_BTI_void, RS6000_BTI_unsigned_V16QI, RS6000_BTI_INTSI, ~RS6000_BTI_UINTQI },
+   { VSX_BUILTIN_VEC_XXSLDWI, VSX_BUILTIN_XXSLDWI_16QI,
+     RS6000_BTI_V16QI, RS6000_BTI_V16QI, RS6000_BTI_V16QI, RS6000_BTI_NOT_OPAQUE },
+   { VSX_BUILTIN_VEC_XXSLDWI, VSX_BUILTIN_XXSLDWI_16QI,
+diff -ruN gcc-20120516-orig/gcc/config/rs6000/rs6000.h gcc-20120516-new/gcc/config/rs6000/rs6000.h
+--- gcc-20120516-orig/gcc/config/rs6000/rs6000.h	2012-05-16 11:29:04.000000000 -0500
++++ gcc-20120516-new/gcc/config/rs6000/rs6000.h	2012-05-16 12:29:04.000000000 -0500
+@@ -475,13 +477,15 @@
+ 
+ #define TARGET_FCTIDZ	TARGET_FCFID
+ #define TARGET_STFIWX	TARGET_PPC_GFXOPT
+-#define TARGET_LFIWAX	TARGET_CMPB
+-#define TARGET_LFIWZX	TARGET_POPCNTD
+-#define TARGET_FCFIDS	TARGET_POPCNTD
+-#define TARGET_FCFIDU	TARGET_POPCNTD
+-#define TARGET_FCFIDUS	TARGET_POPCNTD
+-#define TARGET_FCTIDUZ	TARGET_POPCNTD
+-#define TARGET_FCTIWUZ	TARGET_POPCNTD
++#define TARGET_LFIWAX	(TARGET_CMPB && rs6000_cpu != PROCESSOR_PPCE5500 \
++			 && rs6000_cpu != PROCESSOR_PPCE6500)
++#define TARGET_LFIWZX	(TARGET_POPCNTD && rs6000_cpu != PROCESSOR_PPCE5500 \
++			 && rs6000_cpu != PROCESSOR_PPCE6500)
++#define TARGET_FCFIDS	TARGET_LFIWZX
++#define TARGET_FCFIDU	TARGET_LFIWZX
++#define TARGET_FCFIDUS	TARGET_LFIWZX
++#define TARGET_FCTIDUZ	TARGET_LFIWZX
++#define TARGET_FCTIWUZ	TARGET_LFIWZX
+ 
+ /* For power systems, we want to enable Altivec and VSX builtins even if the
+    user did not use -maltivec or -mvsx to allow the builtins to be used inside
+@@ -510,10 +514,14 @@
+ 
+ #define TARGET_FRE	(TARGET_HARD_FLOAT && TARGET_FPRS \
+ 			 && TARGET_DOUBLE_FLOAT \
+-			 && (TARGET_POPCNTB || VECTOR_UNIT_VSX_P (DFmode)))
++			 && (TARGET_POPCNTB || VECTOR_UNIT_VSX_P (DFmode)) \
++			 && rs6000_cpu != PROCESSOR_PPCE5500 \
++			 && rs6000_cpu != PROCESSOR_PPCE6500)
+ 
+ #define TARGET_FRSQRTES	(TARGET_HARD_FLOAT && TARGET_POPCNTB \
+-			 && TARGET_FPRS && TARGET_SINGLE_FLOAT)
++			 && TARGET_FPRS && TARGET_SINGLE_FLOAT \
++			 && rs6000_cpu != PROCESSOR_PPCE5500 \
++			 && rs6000_cpu != PROCESSOR_PPCE6500)
+ 
+ #define TARGET_FRSQRTE	(TARGET_HARD_FLOAT && TARGET_FPRS \
+ 			 && TARGET_DOUBLE_FLOAT \
+@@ -2325,6 +2333,7 @@
+    target flags, and pick two random bits for SPE and paired which aren't in
+    target_flags.  */
+ #define RS6000_BTM_ALTIVEC	MASK_ALTIVEC	/* VMX/altivec vectors.  */
++#define RS6000_BTM_ALTIVEC2	OPTION_MASK_ALTIVEC2 /* ISA 2.07 altivec vectors.  */
+ #define RS6000_BTM_VSX		MASK_VSX	/* VSX (vector/scalar).  */
+ #define RS6000_BTM_SPE		MASK_STRING	/* E500 */
+ #define RS6000_BTM_PAIRED	MASK_MULHW	/* 750CL paired insns.  */
+@@ -2337,6 +2346,7 @@
+ #define RS6000_BTM_CELL		MASK_FPRND	/* Target is cell powerpc.  */
+ 
+ #define RS6000_BTM_COMMON	(RS6000_BTM_ALTIVEC			\
++				 | RS6000_BTM_ALTIVEC2			\
+ 				 | RS6000_BTM_VSX			\
+ 				 | RS6000_BTM_FRE			\
+ 				 | RS6000_BTM_FRES			\
+diff -ruN gcc-20120516-orig/gcc/config/rs6000/rs6000.md gcc-20120516-new/gcc/config/rs6000/rs6000.md
+--- gcc-20120516-orig/gcc/config/rs6000/rs6000.md	2012-05-16 11:29:04.000000000 -0500
++++ gcc-20120516-new/gcc/config/rs6000/rs6000.md	2012-05-16 12:39:49.000000000 -0500
+@@ -6027,10 +6033,10 @@
+    && ((TARGET_PPC_GFXOPT
+         && !HONOR_NANS (<MODE>mode)
+         && !HONOR_SIGNED_ZEROS (<MODE>mode))
+-       || TARGET_CMPB
++       || TARGET_LFIWAX
+        || VECTOR_UNIT_VSX_P (<MODE>mode))"
+ {
+-  if (TARGET_CMPB || VECTOR_UNIT_VSX_P (<MODE>mode))
++  if (TARGET_LFIWAX || VECTOR_UNIT_VSX_P (<MODE>mode))
+     {
+       emit_insn (gen_copysign<mode>3_fcpsgn (operands[0], operands[1],
+ 					     operands[2]));
+@@ -6049,7 +6055,7 @@
+ 	(unspec:SFDF [(match_operand:SFDF 1 "gpc_reg_operand" "<rreg2>")
+ 		      (match_operand:SFDF 2 "gpc_reg_operand" "<rreg2>")]
+ 		     UNSPEC_COPYSIGN))]
+-  "TARGET_CMPB && !VECTOR_UNIT_VSX_P (<MODE>mode)"
++  "TARGET_LFIWAX && !VECTOR_UNIT_VSX_P (<MODE>mode)"
+   "fcpsgn %0,%2,%1"
+   [(set_attr "type" "fp")])
+ 
+diff -ruN gcc-20120516-orig/gcc/config/rs6000/rs6000.opt gcc-20120516-new/gcc/config/rs6000/rs6000.opt
+--- gcc-20120516-orig/gcc/config/rs6000/rs6000.opt	2012-05-16 11:29:04.000000000 -0500
++++ gcc-20120516-new/gcc/config/rs6000/rs6000.opt	2012-05-16 12:29:04.000000000 -0500
+@@ -147,6 +147,10 @@
+ Target Report Mask(ALTIVEC) Save
+ Use AltiVec instructions
+ 
++maltivec2
++Target Report Mask(ALTIVEC2) Var(rs6000_isa_flags)
++Use AltiVec PowerPC V2.07 instructions
++
+ mhard-dfp
+ Target Report Mask(DFP) Save
+ Use decimal floating point instructions
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-10.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-10.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-10.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-10.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,66 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "lvtlx" 37 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++vsc  lc1(long a, void *p)           { return __builtin_altivec_lvtlx (a,p); }
++vsf  llx01(long a, vsf *p)          { return __builtin_vec_lvtlx (a,p); }
++vsf  llx02(long a, sf *p)           { return __builtin_vec_lvtlx (a,p); }
++vbi  llx03(long a, vbi *p)          { return __builtin_vec_lvtlx (a,p); }
++vsi  llx04(long a, vsi *p)          { return __builtin_vec_lvtlx (a,p); }
++vsi  llx05(long a, si *p)           { return __builtin_vec_lvtlx (a,p); }
++vui  llx06(long a, vui *p)          { return __builtin_vec_lvtlx (a,p); }
++vui  llx07(long a, ui *p)           { return __builtin_vec_lvtlx (a,p); }
++vbs  llx08(long a, vbs *p)          { return __builtin_vec_lvtlx (a,p); }
++vp   llx09(long a, vp *p)           { return __builtin_vec_lvtlx (a,p); }
++vss  llx10(long a, vss *p)          { return __builtin_vec_lvtlx (a,p); }
++vss  llx11(long a, ss *p)           { return __builtin_vec_lvtlx (a,p); }
++vus  llx12(long a, vus *p)          { return __builtin_vec_lvtlx (a,p); }
++vus  llx13(long a, us *p)           { return __builtin_vec_lvtlx (a,p); }
++vbc  llx14(long a, vbc *p)          { return __builtin_vec_lvtlx (a,p); }
++vsc  llx15(long a, vsc *p)          { return __builtin_vec_lvtlx (a,p); }
++vsc  llx16(long a, sc *p)           { return __builtin_vec_lvtlx (a,p); }
++vuc  llx17(long a, vuc *p)          { return __builtin_vec_lvtlx (a,p); }
++vuc  llx18(long a, uc *p)           { return __builtin_vec_lvtlx (a,p); }
++vsf  Dllx01(long a, vsf *p)         { return vec_lvtlx (a,p); }
++vsf  Dllx02(long a, sf *p)          { return vec_lvtlx (a,p); }
++vbi  Dllx03(long a, vbi *p)         { return vec_lvtlx (a,p); }
++vsi  Dllx04(long a, vsi *p)         { return vec_lvtlx (a,p); }
++vsi  Dllx05(long a, si *p)          { return vec_lvtlx (a,p); }
++vui  Dllx06(long a, vui *p)         { return vec_lvtlx (a,p); }
++vui  Dllx07(long a, ui *p)          { return vec_lvtlx (a,p); }
++vbs  Dllx08(long a, vbs *p)         { return vec_lvtlx (a,p); }
++vp   Dllx09(long a, vp *p)          { return vec_lvtlx (a,p); }
++vss  Dllx10(long a, vss *p)         { return vec_lvtlx (a,p); }
++vss  Dllx11(long a, ss *p)          { return vec_lvtlx (a,p); }
++vus  Dllx12(long a, vus *p)         { return vec_lvtlx (a,p); }
++vus  Dllx13(long a, us *p)          { return vec_lvtlx (a,p); }
++vbc  Dllx14(long a, vbc *p)         { return vec_lvtlx (a,p); }
++vsc  Dllx15(long a, vsc *p)         { return vec_lvtlx (a,p); }
++vsc  Dllx16(long a, sc *p)          { return vec_lvtlx (a,p); }
++vuc  Dllx17(long a, vuc *p)         { return vec_lvtlx (a,p); }
++vuc  Dllx18(long a, uc *p)          { return vec_lvtlx (a,p); }
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-11.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-11.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-11.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-11.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,66 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "lvtlxl" 37 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++vsc  lc2(long a, void *p)           { return __builtin_altivec_lvtlxl (a,p); }
++vsf  llxl01(long a, vsf *p)         { return __builtin_vec_lvtlxl (a,p); }
++vsf  llxl02(long a, sf *p)          { return __builtin_vec_lvtlxl (a,p); }
++vbi  llxl03(long a, vbi *p)         { return __builtin_vec_lvtlxl (a,p); }
++vsi  llxl04(long a, vsi *p)         { return __builtin_vec_lvtlxl (a,p); }
++vsi  llxl05(long a, si *p)          { return __builtin_vec_lvtlxl (a,p); }
++vui  llxl06(long a, vui *p)         { return __builtin_vec_lvtlxl (a,p); }
++vui  llxl07(long a, ui *p)          { return __builtin_vec_lvtlxl (a,p); }
++vbs  llxl08(long a, vbs *p)         { return __builtin_vec_lvtlxl (a,p); }
++vp   llxl09(long a, vp *p)          { return __builtin_vec_lvtlxl (a,p); }
++vss  llxl10(long a, vss *p)         { return __builtin_vec_lvtlxl (a,p); }
++vss  llxl11(long a, ss *p)          { return __builtin_vec_lvtlxl (a,p); }
++vus  llxl12(long a, vus *p)         { return __builtin_vec_lvtlxl (a,p); }
++vus  llxl13(long a, us *p)          { return __builtin_vec_lvtlxl (a,p); }
++vbc  llxl14(long a, vbc *p)         { return __builtin_vec_lvtlxl (a,p); }
++vsc  llxl15(long a, vsc *p)         { return __builtin_vec_lvtlxl (a,p); }
++vsc  llxl16(long a, sc *p)          { return __builtin_vec_lvtlxl (a,p); }
++vuc  llxl17(long a, vuc *p)         { return __builtin_vec_lvtlxl (a,p); }
++vuc  llxl18(long a, uc *p)          { return __builtin_vec_lvtlxl (a,p); }
++vsf  Dllxl01(long a, vsf *p)        { return vec_lvtlxl (a,p); }
++vsf  Dllxl02(long a, sf *p)         { return vec_lvtlxl (a,p); }
++vbi  Dllxl03(long a, vbi *p)        { return vec_lvtlxl (a,p); }
++vsi  Dllxl04(long a, vsi *p)        { return vec_lvtlxl (a,p); }
++vsi  Dllxl05(long a, si *p)         { return vec_lvtlxl (a,p); }
++vui  Dllxl06(long a, vui *p)        { return vec_lvtlxl (a,p); }
++vui  Dllxl07(long a, ui *p)         { return vec_lvtlxl (a,p); }
++vbs  Dllxl08(long a, vbs *p)        { return vec_lvtlxl (a,p); }
++vp   Dllxl09(long a, vp *p)         { return vec_lvtlxl (a,p); }
++vss  Dllxl10(long a, vss *p)        { return vec_lvtlxl (a,p); }
++vss  Dllxl11(long a, ss *p)         { return vec_lvtlxl (a,p); }
++vus  Dllxl12(long a, vus *p)        { return vec_lvtlxl (a,p); }
++vus  Dllxl13(long a, us *p)         { return vec_lvtlxl (a,p); }
++vbc  Dllxl14(long a, vbc *p)        { return vec_lvtlxl (a,p); }
++vsc  Dllxl15(long a, vsc *p)        { return vec_lvtlxl (a,p); }
++vsc  Dllxl16(long a, sc *p)         { return vec_lvtlxl (a,p); }
++vuc  Dllxl17(long a, vuc *p)        { return vec_lvtlxl (a,p); }
++vuc  Dllxl18(long a, uc *p)         { return vec_lvtlxl (a,p); }
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-12.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-12.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-12.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-12.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,66 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "lvtrx" 37 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++vsc  lc3(long a, void *p)           { return __builtin_altivec_lvtrx (a,p); }
++vsf  lrx01(long a, vsf *p)          { return __builtin_vec_lvtrx (a,p); }
++vsf  lrx02(long a, sf *p)           { return __builtin_vec_lvtrx (a,p); }
++vbi  lrx03(long a, vbi *p)          { return __builtin_vec_lvtrx (a,p); }
++vsi  lrx04(long a, vsi *p)          { return __builtin_vec_lvtrx (a,p); }
++vsi  lrx05(long a, si *p)           { return __builtin_vec_lvtrx (a,p); }
++vui  lrx06(long a, vui *p)          { return __builtin_vec_lvtrx (a,p); }
++vui  lrx07(long a, ui *p)           { return __builtin_vec_lvtrx (a,p); }
++vbs  lrx08(long a, vbs *p)          { return __builtin_vec_lvtrx (a,p); }
++vp   lrx09(long a, vp *p)           { return __builtin_vec_lvtrx (a,p); }
++vss  lrx10(long a, vss *p)          { return __builtin_vec_lvtrx (a,p); }
++vss  lrx11(long a, ss *p)           { return __builtin_vec_lvtrx (a,p); }
++vus  lrx12(long a, vus *p)          { return __builtin_vec_lvtrx (a,p); }
++vus  lrx13(long a, us *p)           { return __builtin_vec_lvtrx (a,p); }
++vbc  lrx14(long a, vbc *p)          { return __builtin_vec_lvtrx (a,p); }
++vsc  lrx15(long a, vsc *p)          { return __builtin_vec_lvtrx (a,p); }
++vsc  lrx16(long a, sc *p)           { return __builtin_vec_lvtrx (a,p); }
++vuc  lrx17(long a, vuc *p)          { return __builtin_vec_lvtrx (a,p); }
++vuc  lrx18(long a, uc *p)           { return __builtin_vec_lvtrx (a,p); }
++vsf  Dlrx01(long a, vsf *p)         { return vec_lvtrx (a,p); }
++vsf  Dlrx02(long a, sf *p)          { return vec_lvtrx (a,p); }
++vbi  Dlrx03(long a, vbi *p)         { return vec_lvtrx (a,p); }
++vsi  Dlrx04(long a, vsi *p)         { return vec_lvtrx (a,p); }
++vsi  Dlrx05(long a, si *p)          { return vec_lvtrx (a,p); }
++vui  Dlrx06(long a, vui *p)         { return vec_lvtrx (a,p); }
++vui  Dlrx07(long a, ui *p)          { return vec_lvtrx (a,p); }
++vbs  Dlrx08(long a, vbs *p)         { return vec_lvtrx (a,p); }
++vp   Dlrx09(long a, vp *p)          { return vec_lvtrx (a,p); }
++vss  Dlrx10(long a, vss *p)         { return vec_lvtrx (a,p); }
++vss  Dlrx11(long a, ss *p)          { return vec_lvtrx (a,p); }
++vus  Dlrx12(long a, vus *p)         { return vec_lvtrx (a,p); }
++vus  Dlrx13(long a, us *p)          { return vec_lvtrx (a,p); }
++vbc  Dlrx14(long a, vbc *p)         { return vec_lvtrx (a,p); }
++vsc  Dlrx15(long a, vsc *p)         { return vec_lvtrx (a,p); }
++vsc  Dlrx16(long a, sc *p)          { return vec_lvtrx (a,p); }
++vuc  Dlrx17(long a, vuc *p)         { return vec_lvtrx (a,p); }
++vuc  Dlrx18(long a, uc *p)          { return vec_lvtrx (a,p); }
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-13.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-13.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-13.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-13.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,66 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "lvtrxl" 37 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++vsc  lc4(long a, void *p)           { return __builtin_altivec_lvtrxl (a,p); }
++vsf  lrxl01(long a, vsf *p)         { return __builtin_vec_lvtrxl (a,p); }
++vsf  lrxl02(long a, sf *p)          { return __builtin_vec_lvtrxl (a,p); }
++vbi  lrxl03(long a, vbi *p)         { return __builtin_vec_lvtrxl (a,p); }
++vsi  lrxl04(long a, vsi *p)         { return __builtin_vec_lvtrxl (a,p); }
++vsi  lrxl05(long a, si *p)          { return __builtin_vec_lvtrxl (a,p); }
++vui  lrxl06(long a, vui *p)         { return __builtin_vec_lvtrxl (a,p); }
++vui  lrxl07(long a, ui *p)          { return __builtin_vec_lvtrxl (a,p); }
++vbs  lrxl08(long a, vbs *p)         { return __builtin_vec_lvtrxl (a,p); }
++vp   lrxl09(long a, vp *p)          { return __builtin_vec_lvtrxl (a,p); }
++vss  lrxl10(long a, vss *p)         { return __builtin_vec_lvtrxl (a,p); }
++vss  lrxl11(long a, ss *p)          { return __builtin_vec_lvtrxl (a,p); }
++vus  lrxl12(long a, vus *p)         { return __builtin_vec_lvtrxl (a,p); }
++vus  lrxl13(long a, us *p)          { return __builtin_vec_lvtrxl (a,p); }
++vbc  lrxl14(long a, vbc *p)         { return __builtin_vec_lvtrxl (a,p); }
++vsc  lrxl15(long a, vsc *p)         { return __builtin_vec_lvtrxl (a,p); }
++vsc  lrxl16(long a, sc *p)          { return __builtin_vec_lvtrxl (a,p); }
++vuc  lrxl17(long a, vuc *p)         { return __builtin_vec_lvtrxl (a,p); }
++vuc  lrxl18(long a, uc *p)          { return __builtin_vec_lvtrxl (a,p); }
++vsf  Dlrxl01(long a, vsf *p)        { return vec_lvtrxl (a,p); }
++vsf  Dlrxl02(long a, sf *p)         { return vec_lvtrxl (a,p); }
++vbi  Dlrxl03(long a, vbi *p)        { return vec_lvtrxl (a,p); }
++vsi  Dlrxl04(long a, vsi *p)        { return vec_lvtrxl (a,p); }
++vsi  Dlrxl05(long a, si *p)         { return vec_lvtrxl (a,p); }
++vui  Dlrxl06(long a, vui *p)        { return vec_lvtrxl (a,p); }
++vui  Dlrxl07(long a, ui *p)         { return vec_lvtrxl (a,p); }
++vbs  Dlrxl08(long a, vbs *p)        { return vec_lvtrxl (a,p); }
++vp   Dlrxl09(long a, vp *p)         { return vec_lvtrxl (a,p); }
++vss  Dlrxl10(long a, vss *p)        { return vec_lvtrxl (a,p); }
++vss  Dlrxl11(long a, ss *p)         { return vec_lvtrxl (a,p); }
++vus  Dlrxl12(long a, vus *p)        { return vec_lvtrxl (a,p); }
++vus  Dlrxl13(long a, us *p)         { return vec_lvtrxl (a,p); }
++vbc  Dlrxl14(long a, vbc *p)        { return vec_lvtrxl (a,p); }
++vsc  Dlrxl15(long a, vsc *p)        { return vec_lvtrxl (a,p); }
++vsc  Dlrxl16(long a, sc *p)         { return vec_lvtrxl (a,p); }
++vuc  Dlrxl17(long a, vuc *p)        { return vec_lvtrxl (a,p); }
++vuc  Dlrxl18(long a, uc *p)         { return vec_lvtrxl (a,p); }
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-14.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-14.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-14.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-14.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,66 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "stvflx" 37 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++void sc1(vsc v, long a, void *p)    { __builtin_altivec_stvflx (v,a,p); }
++void slx01(vsf v, long a, vsf *p)   { __builtin_vec_stvflx (v,a,p); }
++void slx02(vsf v, long a, sf *p)    { __builtin_vec_stvflx (v,a,p); }
++void slx03(vbi v, long a, vbi *p)   { __builtin_vec_stvflx (v,a,p); }
++void slx04(vsi v, long a, vsi *p)   { __builtin_vec_stvflx (v,a,p); }
++void slx05(vsi v, long a, si *p)    { __builtin_vec_stvflx (v,a,p); }
++void slx06(vui v, long a, vui *p)   { __builtin_vec_stvflx (v,a,p); }
++void slx07(vui v, long a, ui *p)    { __builtin_vec_stvflx (v,a,p); }
++void slx08(vbs v, long a, vbs *p)   { __builtin_vec_stvflx (v,a,p); }
++void slx09(vp v, long a, vp *p)     { __builtin_vec_stvflx (v,a,p); }
++void slx10(vss v, long a, vss *p)   { __builtin_vec_stvflx (v,a,p); }
++void slx11(vss v, long a, ss *p)    { __builtin_vec_stvflx (v,a,p); }
++void slx12(vus v, long a, vus *p)   { __builtin_vec_stvflx (v,a,p); }
++void slx13(vus v, long a, us *p)    { __builtin_vec_stvflx (v,a,p); }
++void slx14(vbc v, long a, vbc *p)   { __builtin_vec_stvflx (v,a,p); }
++void slx15(vsc v, long a, vsc *p)   { __builtin_vec_stvflx (v,a,p); }
++void slx16(vsc v, long a, sc *p)    { __builtin_vec_stvflx (v,a,p); }
++void slx17(vuc v, long a, vuc *p)   { __builtin_vec_stvflx (v,a,p); }
++void slx18(vuc v, long a, uc *p)    { __builtin_vec_stvflx (v,a,p); }
++void Dslx01(vsf v, long a, vsf *p)  { vec_stvflx (v,a,p); }
++void Dslx02(vsf v, long a, sf *p)   { vec_stvflx (v,a,p); }
++void Dslx03(vbi v, long a, vbi *p)  { vec_stvflx (v,a,p); }
++void Dslx04(vsi v, long a, vsi *p)  { vec_stvflx (v,a,p); }
++void Dslx05(vsi v, long a, si *p)   { vec_stvflx (v,a,p); }
++void Dslx06(vui v, long a, vui *p)  { vec_stvflx (v,a,p); }
++void Dslx07(vui v, long a, ui *p)   { vec_stvflx (v,a,p); }
++void Dslx08(vbs v, long a, vbs *p)  { vec_stvflx (v,a,p); }
++void Dslx09(vp v, long a, vp *p)    { vec_stvflx (v,a,p); }
++void Dslx10(vss v, long a, vss *p)  { vec_stvflx (v,a,p); }
++void Dslx11(vss v, long a, ss *p)   { vec_stvflx (v,a,p); }
++void Dslx12(vus v, long a, vus *p)  { vec_stvflx (v,a,p); }
++void Dslx13(vus v, long a, us *p)   { vec_stvflx (v,a,p); }
++void Dslx14(vbc v, long a, vbc *p)  { vec_stvflx (v,a,p); }
++void Dslx15(vsc v, long a, vsc *p)  { vec_stvflx (v,a,p); }
++void Dslx16(vsc v, long a, sc *p)   { vec_stvflx (v,a,p); }
++void Dslx17(vuc v, long a, vuc *p)  { vec_stvflx (v,a,p); }
++void Dslx18(vuc v, long a, uc *p)   { vec_stvflx (v,a,p); }
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-15.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-15.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-15.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-15.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,66 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "stvflxl" 37 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++void sc2(vsc v, long a, void *p)    { __builtin_altivec_stvflxl (v,a,p); }
++void slxl01(vsf v, long a, vsf *p)  { __builtin_vec_stvflxl (v,a,p); }
++void slxl02(vsf v, long a, sf *p)   { __builtin_vec_stvflxl (v,a,p); }
++void slxl03(vbi v, long a, vbi *p)  { __builtin_vec_stvflxl (v,a,p); }
++void slxl04(vsi v, long a, vsi *p)  { __builtin_vec_stvflxl (v,a,p); }
++void slxl05(vsi v, long a, si *p)   { __builtin_vec_stvflxl (v,a,p); }
++void slxl06(vui v, long a, vui *p)  { __builtin_vec_stvflxl (v,a,p); }
++void slxl07(vui v, long a, ui *p)   { __builtin_vec_stvflxl (v,a,p); }
++void slxl08(vbs v, long a, vbs *p)  { __builtin_vec_stvflxl (v,a,p); }
++void slxl09(vp v, long a, vp *p)    { __builtin_vec_stvflxl (v,a,p); }
++void slxl10(vss v, long a, vss *p)  { __builtin_vec_stvflxl (v,a,p); }
++void slxl11(vss v, long a, ss *p)   { __builtin_vec_stvflxl (v,a,p); }
++void slxl12(vus v, long a, vus *p)  { __builtin_vec_stvflxl (v,a,p); }
++void slxl13(vus v, long a, us *p)   { __builtin_vec_stvflxl (v,a,p); }
++void slxl14(vbc v, long a, vbc *p)  { __builtin_vec_stvflxl (v,a,p); }
++void slxl15(vsc v, long a, vsc *p)  { __builtin_vec_stvflxl (v,a,p); }
++void slxl16(vsc v, long a, sc *p)   { __builtin_vec_stvflxl (v,a,p); }
++void slxl17(vuc v, long a, vuc *p)  { __builtin_vec_stvflxl (v,a,p); }
++void slxl18(vuc v, long a, uc *p)   { __builtin_vec_stvflxl (v,a,p); }
++void Dslxl01(vsf v, long a, vsf *p) { vec_stvflxl (v,a,p); }
++void Dslxl02(vsf v, long a, sf *p)  { vec_stvflxl (v,a,p); }
++void Dslxl03(vbi v, long a, vbi *p) { vec_stvflxl (v,a,p); }
++void Dslxl04(vsi v, long a, vsi *p) { vec_stvflxl (v,a,p); }
++void Dslxl05(vsi v, long a, si *p)  { vec_stvflxl (v,a,p); }
++void Dslxl06(vui v, long a, vui *p) { vec_stvflxl (v,a,p); }
++void Dslxl07(vui v, long a, ui *p)  { vec_stvflxl (v,a,p); }
++void Dslxl08(vbs v, long a, vbs *p) { vec_stvflxl (v,a,p); }
++void Dslxl09(vp v, long a, vp *p)   { vec_stvflxl (v,a,p); }
++void Dslxl10(vss v, long a, vss *p) { vec_stvflxl (v,a,p); }
++void Dslxl11(vss v, long a, ss *p)  { vec_stvflxl (v,a,p); }
++void Dslxl12(vus v, long a, vus *p) { vec_stvflxl (v,a,p); }
++void Dslxl13(vus v, long a, us *p)  { vec_stvflxl (v,a,p); }
++void Dslxl14(vbc v, long a, vbc *p) { vec_stvflxl (v,a,p); }
++void Dslxl15(vsc v, long a, vsc *p) { vec_stvflxl (v,a,p); }
++void Dslxl16(vsc v, long a, sc *p)  { vec_stvflxl (v,a,p); }
++void Dslxl17(vuc v, long a, vuc *p) { vec_stvflxl (v,a,p); }
++void Dslxl18(vuc v, long a, uc *p)  { vec_stvflxl (v,a,p); }
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-16.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-16.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-16.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-16.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,66 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "stvfrx" 37 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++void sc3(vsc v, long a, void *p)    { __builtin_altivec_stvfrx (v,a,p); }
++void srx01(vsf v, long a, vsf *p)   { __builtin_vec_stvfrx (v,a,p); }
++void srx02(vsf v, long a, sf *p)    { __builtin_vec_stvfrx (v,a,p); }
++void srx03(vbi v, long a, vbi *p)   { __builtin_vec_stvfrx (v,a,p); }
++void srx04(vsi v, long a, vsi *p)   { __builtin_vec_stvfrx (v,a,p); }
++void srx05(vsi v, long a, si *p)    { __builtin_vec_stvfrx (v,a,p); }
++void srx06(vui v, long a, vui *p)   { __builtin_vec_stvfrx (v,a,p); }
++void srx07(vui v, long a, ui *p)    { __builtin_vec_stvfrx (v,a,p); }
++void srx08(vbs v, long a, vbs *p)   { __builtin_vec_stvfrx (v,a,p); }
++void srx09(vp v, long a, vp *p)     { __builtin_vec_stvfrx (v,a,p); }
++void srx10(vss v, long a, vss *p)   { __builtin_vec_stvfrx (v,a,p); }
++void srx11(vss v, long a, ss *p)    { __builtin_vec_stvfrx (v,a,p); }
++void srx12(vus v, long a, vus *p)   { __builtin_vec_stvfrx (v,a,p); }
++void srx13(vus v, long a, us *p)    { __builtin_vec_stvfrx (v,a,p); }
++void srx14(vbc v, long a, vbc *p)   { __builtin_vec_stvfrx (v,a,p); }
++void srx15(vsc v, long a, vsc *p)   { __builtin_vec_stvfrx (v,a,p); }
++void srx16(vsc v, long a, sc *p)    { __builtin_vec_stvfrx (v,a,p); }
++void srx17(vuc v, long a, vuc *p)   { __builtin_vec_stvfrx (v,a,p); }
++void srx18(vuc v, long a, uc *p)    { __builtin_vec_stvfrx (v,a,p); }
++void Dsrx01(vsf v, long a, vsf *p)  { vec_stvfrx (v,a,p); }
++void Dsrx02(vsf v, long a, sf *p)   { vec_stvfrx (v,a,p); }
++void Dsrx03(vbi v, long a, vbi *p)  { vec_stvfrx (v,a,p); }
++void Dsrx04(vsi v, long a, vsi *p)  { vec_stvfrx (v,a,p); }
++void Dsrx05(vsi v, long a, si *p)   { vec_stvfrx (v,a,p); }
++void Dsrx06(vui v, long a, vui *p)  { vec_stvfrx (v,a,p); }
++void Dsrx07(vui v, long a, ui *p)   { vec_stvfrx (v,a,p); }
++void Dsrx08(vbs v, long a, vbs *p)  { vec_stvfrx (v,a,p); }
++void Dsrx09(vp v, long a, vp *p)    { vec_stvfrx (v,a,p); }
++void Dsrx10(vss v, long a, vss *p)  { vec_stvfrx (v,a,p); }
++void Dsrx11(vss v, long a, ss *p)   { vec_stvfrx (v,a,p); }
++void Dsrx12(vus v, long a, vus *p)  { vec_stvfrx (v,a,p); }
++void Dsrx13(vus v, long a, us *p)   { vec_stvfrx (v,a,p); }
++void Dsrx14(vbc v, long a, vbc *p)  { vec_stvfrx (v,a,p); }
++void Dsrx15(vsc v, long a, vsc *p)  { vec_stvfrx (v,a,p); }
++void Dsrx16(vsc v, long a, sc *p)   { vec_stvfrx (v,a,p); }
++void Dsrx17(vuc v, long a, vuc *p)  { vec_stvfrx (v,a,p); }
++void Dsrx18(vuc v, long a, uc *p)   { vec_stvfrx (v,a,p); }
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-17.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-17.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-17.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-17.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,66 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "stvfrxl" 37 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++void sc4(vsc v, long a, void *p)    { __builtin_altivec_stvfrxl (v,a,p); }
++void srxl01(vsf v, long a, vsf *p)  { __builtin_vec_stvfrxl (v,a,p); }
++void srxl02(vsf v, long a, sf *p)   { __builtin_vec_stvfrxl (v,a,p); }
++void srxl03(vbi v, long a, vbi *p)  { __builtin_vec_stvfrxl (v,a,p); }
++void srxl04(vsi v, long a, vsi *p)  { __builtin_vec_stvfrxl (v,a,p); }
++void srxl05(vsi v, long a, si *p)   { __builtin_vec_stvfrxl (v,a,p); }
++void srxl06(vui v, long a, vui *p)  { __builtin_vec_stvfrxl (v,a,p); }
++void srxl07(vui v, long a, ui *p)   { __builtin_vec_stvfrxl (v,a,p); }
++void srxl08(vbs v, long a, vbs *p)  { __builtin_vec_stvfrxl (v,a,p); }
++void srxl09(vp v, long a, vp *p)    { __builtin_vec_stvfrxl (v,a,p); }
++void srxl10(vss v, long a, vss *p)  { __builtin_vec_stvfrxl (v,a,p); }
++void srxl11(vss v, long a, ss *p)   { __builtin_vec_stvfrxl (v,a,p); }
++void srxl12(vus v, long a, vus *p)  { __builtin_vec_stvfrxl (v,a,p); }
++void srxl13(vus v, long a, us *p)   { __builtin_vec_stvfrxl (v,a,p); }
++void srxl14(vbc v, long a, vbc *p)  { __builtin_vec_stvfrxl (v,a,p); }
++void srxl15(vsc v, long a, vsc *p)  { __builtin_vec_stvfrxl (v,a,p); }
++void srxl16(vsc v, long a, sc *p)   { __builtin_vec_stvfrxl (v,a,p); }
++void srxl17(vuc v, long a, vuc *p)  { __builtin_vec_stvfrxl (v,a,p); }
++void srxl18(vuc v, long a, uc *p)   { __builtin_vec_stvfrxl (v,a,p); }
++void Dsrxl01(vsf v, long a, vsf *p) { vec_stvfrxl (v,a,p); }
++void Dsrxl02(vsf v, long a, sf *p)  { vec_stvfrxl (v,a,p); }
++void Dsrxl03(vbi v, long a, vbi *p) { vec_stvfrxl (v,a,p); }
++void Dsrxl04(vsi v, long a, vsi *p) { vec_stvfrxl (v,a,p); }
++void Dsrxl05(vsi v, long a, si *p)  { vec_stvfrxl (v,a,p); }
++void Dsrxl06(vui v, long a, vui *p) { vec_stvfrxl (v,a,p); }
++void Dsrxl07(vui v, long a, ui *p)  { vec_stvfrxl (v,a,p); }
++void Dsrxl08(vbs v, long a, vbs *p) { vec_stvfrxl (v,a,p); }
++void Dsrxl09(vp v, long a, vp *p)   { vec_stvfrxl (v,a,p); }
++void Dsrxl10(vss v, long a, vss *p) { vec_stvfrxl (v,a,p); }
++void Dsrxl11(vss v, long a, ss *p)  { vec_stvfrxl (v,a,p); }
++void Dsrxl12(vus v, long a, vus *p) { vec_stvfrxl (v,a,p); }
++void Dsrxl13(vus v, long a, us *p)  { vec_stvfrxl (v,a,p); }
++void Dsrxl14(vbc v, long a, vbc *p) { vec_stvfrxl (v,a,p); }
++void Dsrxl15(vsc v, long a, vsc *p) { vec_stvfrxl (v,a,p); }
++void Dsrxl16(vsc v, long a, sc *p)  { vec_stvfrxl (v,a,p); }
++void Dsrxl17(vuc v, long a, vuc *p) { vec_stvfrxl (v,a,p); }
++void Dsrxl18(vuc v, long a, uc *p)  { vec_stvfrxl (v,a,p); }
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-18.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-18.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-18.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-18.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,66 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "lvswx" 37 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++vsc  ls1(long a, void *p)           { return __builtin_altivec_lvswx (a,p); }
++vsf  ls01(long a, vsf *p)           { return __builtin_vec_lvswx (a,p); }
++vsf  ls02(long a, sf *p)            { return __builtin_vec_lvswx (a,p); }
++vbi  ls03(long a, vbi *p)           { return __builtin_vec_lvswx (a,p); }
++vsi  ls04(long a, vsi *p)           { return __builtin_vec_lvswx (a,p); }
++vsi  ls05(long a, si *p)            { return __builtin_vec_lvswx (a,p); }
++vui  ls06(long a, vui *p)           { return __builtin_vec_lvswx (a,p); }
++vui  ls07(long a, ui *p)            { return __builtin_vec_lvswx (a,p); }
++vbs  ls08(long a, vbs *p)           { return __builtin_vec_lvswx (a,p); }
++vp   ls09(long a, vp *p)            { return __builtin_vec_lvswx (a,p); }
++vss  ls10(long a, vss *p)           { return __builtin_vec_lvswx (a,p); }
++vss  ls11(long a, ss *p)            { return __builtin_vec_lvswx (a,p); }
++vus  ls12(long a, vus *p)           { return __builtin_vec_lvswx (a,p); }
++vus  ls13(long a, us *p)            { return __builtin_vec_lvswx (a,p); }
++vbc  ls14(long a, vbc *p)           { return __builtin_vec_lvswx (a,p); }
++vsc  ls15(long a, vsc *p)           { return __builtin_vec_lvswx (a,p); }
++vsc  ls16(long a, sc *p)            { return __builtin_vec_lvswx (a,p); }
++vuc  ls17(long a, vuc *p)           { return __builtin_vec_lvswx (a,p); }
++vuc  ls18(long a, uc *p)            { return __builtin_vec_lvswx (a,p); }
++vsf  Dls01(long a, vsf *p)          { return vec_lvswx (a,p); }
++vsf  Dls02(long a, sf *p)           { return vec_lvswx (a,p); }
++vbi  Dls03(long a, vbi *p)          { return vec_lvswx (a,p); }
++vsi  Dls04(long a, vsi *p)          { return vec_lvswx (a,p); }
++vsi  Dls05(long a, si *p)           { return vec_lvswx (a,p); }
++vui  Dls06(long a, vui *p)          { return vec_lvswx (a,p); }
++vui  Dls07(long a, ui *p)           { return vec_lvswx (a,p); }
++vbs  Dls08(long a, vbs *p)          { return vec_lvswx (a,p); }
++vp   Dls09(long a, vp *p)           { return vec_lvswx (a,p); }
++vss  Dls10(long a, vss *p)          { return vec_lvswx (a,p); }
++vss  Dls11(long a, ss *p)           { return vec_lvswx (a,p); }
++vus  Dls12(long a, vus *p)          { return vec_lvswx (a,p); }
++vus  Dls13(long a, us *p)           { return vec_lvswx (a,p); }
++vbc  Dls14(long a, vbc *p)          { return vec_lvswx (a,p); }
++vsc  Dls15(long a, vsc *p)          { return vec_lvswx (a,p); }
++vsc  Dls16(long a, sc *p)           { return vec_lvswx (a,p); }
++vuc  Dls17(long a, vuc *p)          { return vec_lvswx (a,p); }
++vuc  Dls18(long a, uc *p)           { return vec_lvswx (a,p); }
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-19.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-19.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-19.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-19.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,66 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "lvswxl" 37 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++vsc  ls2l(long a, void *p)          { return __builtin_altivec_lvswxl (a,p); }
++vsf  lsl01(long a, vsf *p)          { return __builtin_vec_lvswxl (a,p); }
++vsf  lsl02(long a, sf *p)           { return __builtin_vec_lvswxl (a,p); }
++vbi  lsl03(long a, vbi *p)          { return __builtin_vec_lvswxl (a,p); }
++vsi  lsl04(long a, vsi *p)          { return __builtin_vec_lvswxl (a,p); }
++vsi  lsl05(long a, si *p)           { return __builtin_vec_lvswxl (a,p); }
++vui  lsl06(long a, vui *p)          { return __builtin_vec_lvswxl (a,p); }
++vui  lsl07(long a, ui *p)           { return __builtin_vec_lvswxl (a,p); }
++vbs  lsl08(long a, vbs *p)          { return __builtin_vec_lvswxl (a,p); }
++vp   lsl09(long a, vp *p)           { return __builtin_vec_lvswxl (a,p); }
++vss  lsl10(long a, vss *p)          { return __builtin_vec_lvswxl (a,p); }
++vss  lsl11(long a, ss *p)           { return __builtin_vec_lvswxl (a,p); }
++vus  lsl12(long a, vus *p)          { return __builtin_vec_lvswxl (a,p); }
++vus  lsl13(long a, us *p)           { return __builtin_vec_lvswxl (a,p); }
++vbc  lsl14(long a, vbc *p)          { return __builtin_vec_lvswxl (a,p); }
++vsc  lsl15(long a, vsc *p)          { return __builtin_vec_lvswxl (a,p); }
++vsc  lsl16(long a, sc *p)           { return __builtin_vec_lvswxl (a,p); }
++vuc  lsl17(long a, vuc *p)          { return __builtin_vec_lvswxl (a,p); }
++vuc  lsl18(long a, uc *p)           { return __builtin_vec_lvswxl (a,p); }
++vsf  Dlsl01(long a, vsf *p)         { return vec_lvswxl (a,p); }
++vsf  Dlsl02(long a, sf *p)          { return vec_lvswxl (a,p); }
++vbi  Dlsl03(long a, vbi *p)         { return vec_lvswxl (a,p); }
++vsi  Dlsl04(long a, vsi *p)         { return vec_lvswxl (a,p); }
++vsi  Dlsl05(long a, si *p)          { return vec_lvswxl (a,p); }
++vui  Dlsl06(long a, vui *p)         { return vec_lvswxl (a,p); }
++vui  Dlsl07(long a, ui *p)          { return vec_lvswxl (a,p); }
++vbs  Dlsl08(long a, vbs *p)         { return vec_lvswxl (a,p); }
++vp   Dlsl09(long a, vp *p)          { return vec_lvswxl (a,p); }
++vss  Dlsl10(long a, vss *p)         { return vec_lvswxl (a,p); }
++vss  Dlsl11(long a, ss *p)          { return vec_lvswxl (a,p); }
++vus  Dlsl12(long a, vus *p)         { return vec_lvswxl (a,p); }
++vus  Dlsl13(long a, us *p)          { return vec_lvswxl (a,p); }
++vbc  Dlsl14(long a, vbc *p)         { return vec_lvswxl (a,p); }
++vsc  Dlsl15(long a, vsc *p)         { return vec_lvswxl (a,p); }
++vsc  Dlsl16(long a, sc *p)          { return vec_lvswxl (a,p); }
++vuc  Dlsl17(long a, vuc *p)         { return vec_lvswxl (a,p); }
++vuc  Dlsl18(long a, uc *p)          { return vec_lvswxl (a,p); }
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-1.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-1.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-1.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-1.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,36 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "vabsdub" 7 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++vuc  fa1b(vuc a, vuc b)             { return __builtin_altivec_vabsdub (a,b); }
++vuc  ad1(vuc a, vuc b)              { return __builtin_vec_absd (a,b); }
++vuc  ad2(vbc a, vuc b)              { return __builtin_vec_absd (a,b); }
++vuc  ad3(vuc a, vbc b)              { return __builtin_vec_absd (a,b); }
++vuc  Dad1(vuc a, vuc b)             { return vec_absd (a,b); }
++vuc  Dad2(vbc a, vuc b)             { return vec_absd (a,b); }
++vuc  Dad3(vuc a, vbc b)             { return vec_absd (a,b); }
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-20.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-20.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-20.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-20.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,66 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "stvswx" 37 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++void ss1(vsc v, long a, vsc *p)     { __builtin_altivec_stvswx (v,a,p); }
++void ssx01(vsf v, long a, vsf *p)   { __builtin_vec_stvswx (v,a,p); }
++void ssx02(vsf v, long a, sf  *p)   { __builtin_vec_stvswx (v,a,p); }
++void ssx03(vbi v, long a, vbi *p)   { __builtin_vec_stvswx (v,a,p); }
++void ssx04(vsi v, long a, vsi *p)   { __builtin_vec_stvswx (v,a,p); }
++void ssx05(vsi v, long a, si  *p)   { __builtin_vec_stvswx (v,a,p); }
++void ssx06(vui v, long a, vui *p)   { __builtin_vec_stvswx (v,a,p); }
++void ssx07(vui v, long a, ui  *p)   { __builtin_vec_stvswx (v,a,p); }
++void ssx08(vbs v, long a, vbs *p)   { __builtin_vec_stvswx (v,a,p); }
++void ssx09(vp  v, long a, vp  *p)   { __builtin_vec_stvswx (v,a,p); }
++void ssx10(vss v, long a, vss *p)   { __builtin_vec_stvswx (v,a,p); }
++void ssx11(vss v, long a, ss  *p)   { __builtin_vec_stvswx (v,a,p); }
++void ssx12(vus v, long a, vus *p)   { __builtin_vec_stvswx (v,a,p); }
++void ssx13(vus v, long a, us  *p)   { __builtin_vec_stvswx (v,a,p); }
++void ssx14(vbc v, long a, vbc *p)   { __builtin_vec_stvswx (v,a,p); }
++void ssx15(vsc v, long a, vsc *p)   { __builtin_vec_stvswx (v,a,p); }
++void ssx16(vsc v, long a, sc  *p)   { __builtin_vec_stvswx (v,a,p); }
++void ssx17(vuc v, long a, vuc *p)   { __builtin_vec_stvswx (v,a,p); }
++void ssx18(vuc v, long a, uc  *p)   { __builtin_vec_stvswx (v,a,p); }
++void Dssx01(vsf v, long a, vsf *p)  { vec_stvswx (v,a,p); }
++void Dssx02(vsf v, long a, sf  *p)  { vec_stvswx (v,a,p); }
++void Dssx03(vbi v, long a, vbi *p)  { vec_stvswx (v,a,p); }
++void Dssx04(vsi v, long a, vsi *p)  { vec_stvswx (v,a,p); }
++void Dssx05(vsi v, long a, si  *p)  { vec_stvswx (v,a,p); }
++void Dssx06(vui v, long a, vui *p)  { vec_stvswx (v,a,p); }
++void Dssx07(vui v, long a, ui  *p)  { vec_stvswx (v,a,p); }
++void Dssx08(vbs v, long a, vbs *p)  { vec_stvswx (v,a,p); }
++void Dssx09(vp  v, long a, vp  *p)  { vec_stvswx (v,a,p); }
++void Dssx10(vss v, long a, vss *p)  { vec_stvswx (v,a,p); }
++void Dssx11(vss v, long a, ss  *p)  { vec_stvswx (v,a,p); }
++void Dssx12(vus v, long a, vus *p)  { vec_stvswx (v,a,p); }
++void Dssx13(vus v, long a, us  *p)  { vec_stvswx (v,a,p); }
++void Dssx14(vbc v, long a, vbc *p)  { vec_stvswx (v,a,p); }
++void Dssx15(vsc v, long a, vsc *p)  { vec_stvswx (v,a,p); }
++void Dssx16(vsc v, long a, sc  *p)  { vec_stvswx (v,a,p); }
++void Dssx17(vuc v, long a, vuc *p)  { vec_stvswx (v,a,p); }
++void Dssx18(vuc v, long a, uc  *p)  { vec_stvswx (v,a,p); }
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-21.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-21.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-21.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-21.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,66 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "stvswxl" 37 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++void ss2l(vsc v, long a, vsc *p)    { __builtin_altivec_stvswxl (v,a,p); }
++void ssxl01(vsf v, long a, vsf *p)  { __builtin_vec_stvswxl (v,a,p); }
++void ssxl02(vsf v, long a, sf  *p)  { __builtin_vec_stvswxl (v,a,p); }
++void ssxl03(vbi v, long a, vbi *p)  { __builtin_vec_stvswxl (v,a,p); }
++void ssxl04(vsi v, long a, vsi *p)  { __builtin_vec_stvswxl (v,a,p); }
++void ssxl05(vsi v, long a, si  *p)  { __builtin_vec_stvswxl (v,a,p); }
++void ssxl06(vui v, long a, vui *p)  { __builtin_vec_stvswxl (v,a,p); }
++void ssxl07(vui v, long a, ui  *p)  { __builtin_vec_stvswxl (v,a,p); }
++void ssxl08(vbs v, long a, vbs *p)  { __builtin_vec_stvswxl (v,a,p); }
++void ssxl09(vp  v, long a, vp  *p)  { __builtin_vec_stvswxl (v,a,p); }
++void ssxl10(vss v, long a, vss *p)  { __builtin_vec_stvswxl (v,a,p); }
++void ssxl11(vss v, long a, ss  *p)  { __builtin_vec_stvswxl (v,a,p); }
++void ssxl12(vus v, long a, vus *p)  { __builtin_vec_stvswxl (v,a,p); }
++void ssxl13(vus v, long a, us  *p)  { __builtin_vec_stvswxl (v,a,p); }
++void ssxl14(vbc v, long a, vbc *p)  { __builtin_vec_stvswxl (v,a,p); }
++void ssxl15(vsc v, long a, vsc *p)  { __builtin_vec_stvswxl (v,a,p); }
++void ssxl16(vsc v, long a, sc  *p)  { __builtin_vec_stvswxl (v,a,p); }
++void ssxl17(vuc v, long a, vuc *p)  { __builtin_vec_stvswxl (v,a,p); }
++void ssxl18(vuc v, long a, uc  *p)  { __builtin_vec_stvswxl (v,a,p); }
++void Dssxl01(vsf v, long a, vsf *p) { vec_stvswxl (v,a,p); }
++void Dssxl02(vsf v, long a, sf  *p) { vec_stvswxl (v,a,p); }
++void Dssxl03(vbi v, long a, vbi *p) { vec_stvswxl (v,a,p); }
++void Dssxl04(vsi v, long a, vsi *p) { vec_stvswxl (v,a,p); }
++void Dssxl05(vsi v, long a, si  *p) { vec_stvswxl (v,a,p); }
++void Dssxl06(vui v, long a, vui *p) { vec_stvswxl (v,a,p); }
++void Dssxl07(vui v, long a, ui  *p) { vec_stvswxl (v,a,p); }
++void Dssxl08(vbs v, long a, vbs *p) { vec_stvswxl (v,a,p); }
++void Dssxl09(vp  v, long a, vp  *p) { vec_stvswxl (v,a,p); }
++void Dssxl10(vss v, long a, vss *p) { vec_stvswxl (v,a,p); }
++void Dssxl11(vss v, long a, ss  *p) { vec_stvswxl (v,a,p); }
++void Dssxl12(vus v, long a, vus *p) { vec_stvswxl (v,a,p); }
++void Dssxl13(vus v, long a, us  *p) { vec_stvswxl (v,a,p); }
++void Dssxl14(vbc v, long a, vbc *p) { vec_stvswxl (v,a,p); }
++void Dssxl15(vsc v, long a, vsc *p) { vec_stvswxl (v,a,p); }
++void Dssxl16(vsc v, long a, sc  *p) { vec_stvswxl (v,a,p); }
++void Dssxl17(vuc v, long a, vuc *p) { vec_stvswxl (v,a,p); }
++void Dssxl18(vuc v, long a, uc  *p) { vec_stvswxl (v,a,p); }
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-22.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-22.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-22.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-22.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,66 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "lvsm" 37 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++vsc  lsm(long a, void *p)           { return __builtin_altivec_lvsm (a,p); }
++vsf  lm01(long a, vsf *p)           { return __builtin_vec_lvsm (a,p); }
++vsf  lm02(long a, sf *p)            { return __builtin_vec_lvsm (a,p); }
++vbi  lm03(long a, vbi *p)           { return __builtin_vec_lvsm (a,p); }
++vsi  lm04(long a, vsi *p)           { return __builtin_vec_lvsm (a,p); }
++vsi  lm05(long a, si *p)            { return __builtin_vec_lvsm (a,p); }
++vui  lm06(long a, vui *p)           { return __builtin_vec_lvsm (a,p); }
++vui  lm07(long a, ui *p)            { return __builtin_vec_lvsm (a,p); }
++vbs  lm08(long a, vbs *p)           { return __builtin_vec_lvsm (a,p); }
++vp   lm09(long a, vp *p)            { return __builtin_vec_lvsm (a,p); }
++vss  lm10(long a, vss *p)           { return __builtin_vec_lvsm (a,p); }
++vss  lm11(long a, ss *p)            { return __builtin_vec_lvsm (a,p); }
++vus  lm12(long a, vus *p)           { return __builtin_vec_lvsm (a,p); }
++vus  lm13(long a, us *p)            { return __builtin_vec_lvsm (a,p); }
++vbc  lm14(long a, vbc *p)           { return __builtin_vec_lvsm (a,p); }
++vsc  lm15(long a, vsc *p)           { return __builtin_vec_lvsm (a,p); }
++vsc  lm16(long a, sc *p)            { return __builtin_vec_lvsm (a,p); }
++vuc  lm17(long a, vuc *p)           { return __builtin_vec_lvsm (a,p); }
++vuc  lm18(long a, uc *p)            { return __builtin_vec_lvsm (a,p); }
++vsf  Dlm01(long a, vsf *p)          { return vec_lvsm (a,p); }
++vsf  Dlm02(long a, sf *p)           { return vec_lvsm (a,p); }
++vbi  Dlm03(long a, vbi *p)          { return vec_lvsm (a,p); }
++vsi  Dlm04(long a, vsi *p)          { return vec_lvsm (a,p); }
++vsi  Dlm05(long a, si *p)           { return vec_lvsm (a,p); }
++vui  Dlm06(long a, vui *p)          { return vec_lvsm (a,p); }
++vui  Dlm07(long a, ui *p)           { return vec_lvsm (a,p); }
++vbs  Dlm08(long a, vbs *p)          { return vec_lvsm (a,p); }
++vp   Dlm09(long a, vp *p)           { return vec_lvsm (a,p); }
++vss  Dlm10(long a, vss *p)          { return vec_lvsm (a,p); }
++vss  Dlm11(long a, ss *p)           { return vec_lvsm (a,p); }
++vus  Dlm12(long a, vus *p)          { return vec_lvsm (a,p); }
++vus  Dlm13(long a, us *p)           { return vec_lvsm (a,p); }
++vbc  Dlm14(long a, vbc *p)          { return vec_lvsm (a,p); }
++vsc  Dlm15(long a, vsc *p)          { return vec_lvsm (a,p); }
++vsc  Dlm16(long a, sc *p)           { return vec_lvsm (a,p); }
++vuc  Dlm17(long a, vuc *p)          { return vec_lvsm (a,p); }
++vuc  Dlm18(long a, uc *p)           { return vec_lvsm (a,p); }
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-2.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-2.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-2.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-2.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,36 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "vabsduh" 7 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++vus  fa2h(vus a, vus b)             { return __builtin_altivec_vabsduh (a,b); }
++vus  ad4(vus a, vus b)              { return __builtin_vec_absd (a,b); }
++vus  ad5(vbs a, vus b)              { return __builtin_vec_absd (a,b); }
++vus  ad6(vus a, vbs b)              { return __builtin_vec_absd (a,b); }
++vus  Dad4(vus a, vus b)             { return vec_absd (a,b); }
++vus  Dad5(vbs a, vus b)             { return vec_absd (a,b); }
++vus  Dad6(vus a, vbs b)             { return vec_absd (a,b); }
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-3.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-3.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-3.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-3.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,36 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "vabsduw" 7 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++vui  fa3w(vui a, vui b)             { return __builtin_altivec_vabsduw (a,b); }
++vui  ad7(vui a, vui b)              { return __builtin_vec_absd (a,b); }
++vui  ad8(vbi a, vui b)              { return __builtin_vec_absd (a,b); }
++vui  ad9(vui a, vbi b)              { return __builtin_vec_absd (a,b); }
++vui  Dad7(vui a, vui b)             { return vec_absd (a,b); }
++vui  Dad8(vbi a, vui b)             { return vec_absd (a,b); }
++vui  Dad9(vui a, vbi b)             { return vec_absd (a,b); }
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-4.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-4.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-4.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-4.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,34 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "lvexbx" 5 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++vsc  le1b(long a, void *p)          { return __builtin_altivec_lvexbx (a,p); }
++vsc  leb1(long a, sc *p)            { return __builtin_vec_lvexbx (a,p); }
++vuc  leb2(long a, uc *p)            { return __builtin_vec_lvexbx (a,p); }
++vsc  Dleb1(long a, sc *p)           { return vec_lvexbx (a,p); }
++vuc  Dleb2(long a, uc *p)           { return vec_lvexbx (a,p); }
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-5.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-5.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-5.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-5.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,34 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "lvexhx" 5 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++vss  le2h(long a, void *p)          { return __builtin_altivec_lvexhx (a,p); }
++vss  leh1(long a, ss *p)            { return __builtin_vec_lvexhx (a,p); }
++vus  leh2(long a, us *p)            { return __builtin_vec_lvexhx (a,p); }
++vss  Dleh1(long a, ss *p)           { return vec_lvexhx (a,p); }
++vus  Dleh2(long a, us *p)           { return vec_lvexhx (a,p); }
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-6.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-6.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-6.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-6.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,40 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "lvexwx" 11 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++vsi  le3w(long a, void *p)          { return __builtin_altivec_lvexwx (a,p); }
++vsf  lew1(long a, sf *p)            { return __builtin_vec_lvexwx (a,p); }
++vsi  lew2(long a, si *p)            { return __builtin_vec_lvexwx (a,p); }
++vui  lew3(long a, ui *p)            { return __builtin_vec_lvexwx (a,p); }
++vsi  lew4(long a, sl *p)            { return __builtin_vec_lvexwx (a,p); }
++vui  lew5(long a, ul *p)            { return __builtin_vec_lvexwx (a,p); }
++vsf  Dlew1(long a, sf *p)           { return vec_lvexwx (a,p); }
++vsi  Dlew2(long a, si *p)           { return vec_lvexwx (a,p); }
++vui  Dlew3(long a, ui *p)           { return vec_lvexwx (a,p); }
++vsi  Dlew4(long a, sl *p)           { return vec_lvexwx (a,p); }
++vui  Dlew5(long a, ul *p)           { return vec_lvexwx (a,p); }
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-7.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-7.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-7.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-7.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,42 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "stvexbx" 13 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++void se1b(vsc v, long a, vsc *p)    { __builtin_altivec_stvexbx (v,a,p); }
++void seb1(vsc v, long a, sc *p)     { __builtin_vec_stvexbx (v,a,p); }
++void seb2(vuc v, long a, uc *p)     { __builtin_vec_stvexbx (v,a,p); }
++void seb3(vbc v, long a, sc *p)     { __builtin_vec_stvexbx (v,a,p); }
++void seb4(vbc v, long a, uc *p)     { __builtin_vec_stvexbx (v,a,p); }
++void seb5(vsc v, long a, void *p)   { __builtin_vec_stvexbx (v,a,p); }
++void seb6(vuc v, long a, void *p)   { __builtin_vec_stvexbx (v,a,p); }
++void Dseb1(vsc v, long a, sc *p)    { vec_stvexbx (v,a,p); }
++void Dseb2(vuc v, long a, uc *p)    { vec_stvexbx (v,a,p); }
++void Dseb3(vbc v, long a, sc *p)    { vec_stvexbx (v,a,p); }
++void Dseb4(vbc v, long a, uc *p)    { vec_stvexbx (v,a,p); }
++void Dseb5(vsc v, long a, void *p)  { vec_stvexbx (v,a,p); }
++void Dseb6(vuc v, long a, void *p)  { vec_stvexbx (v,a,p); }
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-8.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-8.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-8.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-8.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,42 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "stvexhx" 13 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++void se2h(vss v, long a, vss *p)    { __builtin_altivec_stvexhx (v,a,p); }
++void seh1(vss v, long a, ss *p)     { __builtin_vec_stvexhx (v,a,p); }
++void seh2(vus v, long a, us *p)     { __builtin_vec_stvexhx (v,a,p); }
++void seh3(vbs v, long a, ss *p)     { __builtin_vec_stvexhx (v,a,p); }
++void seh4(vbs v, long a, us *p)     { __builtin_vec_stvexhx (v,a,p); }
++void seh5(vss v, long a, void *p)   { __builtin_vec_stvexhx (v,a,p); }
++void seh6(vus v, long a, void *p)   { __builtin_vec_stvexhx (v,a,p); }
++void Dseh1(vss v, long a, ss *p)    { vec_stvexhx (v,a,p); }
++void Dseh2(vus v, long a, us *p)    { vec_stvexhx (v,a,p); }
++void Dseh3(vbs v, long a, ss *p)    { vec_stvexhx (v,a,p); }
++void Dseh4(vbs v, long a, us *p)    { vec_stvexhx (v,a,p); }
++void Dseh5(vss v, long a, void *p)  { vec_stvexhx (v,a,p); }
++void Dseh6(vus v, long a, void *p)  { vec_stvexhx (v,a,p); }
+diff -ruN gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-9.c gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-9.c
+--- gcc-20120516-orig/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-9.c	1969-12-31 18:00:00.000000000 -0600
++++ gcc-20120516-new/gcc/testsuite/gcc.target/powerpc/altivec2_builtin-9.c	2012-05-16 12:29:04.000000000 -0500
+@@ -0,0 +1,46 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_altivec_ok } */
++/* { dg-options "-O2 -maltivec -maltivec2" } */
++/* { dg-final { scan-assembler-times "stvexwx" 17 } } */
++
++#include <altivec.h>
++
++typedef __vector signed char vsc;
++typedef __vector signed short vss;
++typedef __vector signed int vsi;
++typedef __vector unsigned char vuc;
++typedef __vector unsigned short vus;
++typedef __vector unsigned int vui;
++typedef __vector bool char vbc;
++typedef __vector bool short vbs;
++typedef __vector bool int vbi;
++typedef __vector float vsf;
++typedef __vector pixel vp;
++typedef signed char sc;
++typedef signed short ss;
++typedef signed int si;
++typedef signed long sl;
++typedef unsigned char uc;
++typedef unsigned short us;
++typedef unsigned int ui;
++typedef unsigned long ul;
++typedef float sf;
++
++void se3w(vsi v, long a, vsi *p)    { __builtin_altivec_stvexwx (v,a,p); }
++void sew1(vsf v, long a, sf *p)     { __builtin_vec_stvexwx (v,a,p); }
++void sew2(vsi v, long a, si *p)     { __builtin_vec_stvexwx (v,a,p); }
++void sew3(vui v, long a, ui *p)     { __builtin_vec_stvexwx (v,a,p); }
++void sew4(vbi v, long a, si *p)     { __builtin_vec_stvexwx (v,a,p); }
++void sew5(vbi v, long a, ui *p)     { __builtin_vec_stvexwx (v,a,p); }
++void sew6(vsf v, long a, void *p)   { __builtin_vec_stvexwx (v,a,p); }
++void sew7(vsi v, long a, void *p)   { __builtin_vec_stvexwx (v,a,p); }
++void sew8(vui v, long a, void *p)   { __builtin_vec_stvexwx (v,a,p); }
++void Dsew1(vsf v, long a, sf *p)    { vec_stvexwx (v,a,p); }
++void Dsew2(vsi v, long a, si *p)    { vec_stvexwx (v,a,p); }
++void Dsew3(vui v, long a, ui *p)    { vec_stvexwx (v,a,p); }
++void Dsew4(vbi v, long a, si *p)    { vec_stvexwx (v,a,p); }
++void Dsew5(vbi v, long a, ui *p)    { vec_stvexwx (v,a,p); }
++void Dsew6(vsf v, long a, void *p)  { vec_stvexwx (v,a,p); }
++void Dsew7(vsi v, long a, void *p)  { vec_stvexwx (v,a,p); }
++void Dsew8(vui v, long a, void *p)  { vec_stvexwx (v,a,p); }
+--- src_gcc/gcc/config/rs6000/rs6000-cpus.def-orig	2013-01-10 10:04:11.000175287 -0800
++++ src_gcc/gcc/config/rs6000/rs6000-cpus.def	2013-01-10 10:05:04.340151032 -0800
+@@ -76,7 +76,8 @@
+ 				 | OPTION_MASK_RECIP_PRECISION		\
+ 				 | OPTION_MASK_SOFT_FLOAT		\
+ 				 | OPTION_MASK_STRICT_ALIGN_OPTIONAL	\
+-				 | OPTION_MASK_VSX)
++				 | OPTION_MASK_VSX			\
++				 | OPTION_MASK_ALTIVEC2)
+ 
+ #endif
+ 
+--- src_gcc/gcc/config/rs6000/rs6000.c-orig	2013-01-10 10:43:48.130175388 -0800
++++ src_gcc/gcc/config/rs6000/rs6000.c	2013-01-10 10:44:12.510176981 -0800
+@@ -27735,6 +27735,7 @@
+ static struct rs6000_opt_mask const rs6000_opt_masks[] =
+ {
+   { "altivec",			OPTION_MASK_ALTIVEC,		false, true  },
++  { "altivec2",			OPTION_MASK_ALTIVEC2,		false, true  },
+   { "cmpb",			OPTION_MASK_CMPB,		false, true  },
+   { "dlmzb",			OPTION_MASK_DLMZB,		false, true  },
+   { "fprnd",			OPTION_MASK_FPRND,		false, true  },

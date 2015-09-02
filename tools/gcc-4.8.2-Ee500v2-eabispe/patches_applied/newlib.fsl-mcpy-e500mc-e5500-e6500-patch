@@ -1,0 +1,2613 @@
+# Problem Statement:
+  Implement target specific optimized memcpy for e500mc,
+  32-bit e5500/e6500, 64-bit e5500/6500
+
+# Owned by:
+  Rohit [based on 'C' implementation by Ruchika Gupta & Vakul Garg]
+
+# Actions:
+  * For e500mc and e5500 [64-bit] targets, we have a separate version of memcpy
+    which makes use of cache management instructions.
+
+  * The cache management version of memcpy is called 'largememcpy'.
+
+  * For application portability, we have created an memcpy alias (largememcpy)
+    for all other targets that do not have specific largememcpy definition.
+
+diff -Naur newlib-2.0.0/newlib/libc/include/powerpc/asm.h newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/include/powerpc/asm.h
+--- newlib-2.0.0/newlib/libc/include/powerpc/asm.h	2013-05-28 01:33:16.052001286 -0500
++++ newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/include/powerpc/asm.h	2013-05-28 05:01:23.158000879 -0500
+@@ -29,4 +29,13 @@
+ #define r1 1
+ #define r2 2
+ 
++#ifdef __ASSEMBLER__
++#define C_SYMBOL_NAME(name) name
++#define ASM_LINE_SEP ;
++#define weak_alias(original,alias) .weak C_SYMBOL_NAME (alias) ASM_LINE_SEP C_SYMBOL_NAME (alias) = C_SYMBOL_NAME (original)
++#else
++#define weak_alias(name,aliasname) _weak_alias (name, aliasname)
++#define _weak_alias(name,aliasname) extern __typeof (name) aliasname __attribute__ ((weak, alias (#name)));
++#endif
++
+ #endif
+diff -Naur newlib-2.0.0/newlib/libc/include/string.h newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/include/string.h
+--- newlib-2.0.0/newlib/libc/include/string.h	2012-11-01 06:51:11.000000000 -0500
++++ newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/include/string.h	2013-05-28 05:41:11.957000107 -0500
+@@ -21,6 +21,9 @@
+ _PTR 	 _EXFUN(memchr,(const _PTR, int, size_t));
+ int 	 _EXFUN(memcmp,(const _PTR, const _PTR, size_t));
+ _PTR 	 _EXFUN(memcpy,(_PTR, const _PTR, size_t));
++#ifdef __powerpc__
++_PTR 	 _EXFUN(largememcpy,(_PTR, const _PTR, size_t));
++#endif
+ _PTR	 _EXFUN(memmove,(_PTR, const _PTR, size_t));
+ _PTR	 _EXFUN(memset,(_PTR, int, size_t));
+ char 	*_EXFUN(strcat,(char *, const char *));
+diff -Naur newlib-2.0.0/newlib/libc/machine/powerpc/configure newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/configure
+--- newlib-2.0.0/newlib/libc/machine/powerpc/configure	2013-05-28 01:33:16.060001286 -0500
++++ newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/configure	2013-05-28 02:10:20.307001286 -0500
+@@ -89,6 +89,7 @@
+ IFS=" ""	$as_nl"
+ 
+ # Find who we are.  Look in the path if we contain no directory separator.
++as_myself=
+ case $0 in #((
+   *[\\/]* ) as_myself=$0 ;;
+   *) as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+@@ -213,11 +214,18 @@
+   # We cannot yet assume a decent shell, so we have to provide a
+ 	# neutralization value for shells without unset; and this also
+ 	# works around shells that cannot unset nonexistent variables.
++	# Preserve -v and -x to the replacement shell.
+ 	BASH_ENV=/dev/null
+ 	ENV=/dev/null
+ 	(unset BASH_ENV) >/dev/null 2>&1 && unset BASH_ENV ENV
+ 	export CONFIG_SHELL
+-	exec "$CONFIG_SHELL" "$as_myself" ${1+"$@"}
++	case $- in # ((((
++	  *v*x* | *x*v* ) as_opts=-vx ;;
++	  *v* ) as_opts=-v ;;
++	  *x* ) as_opts=-x ;;
++	  * ) as_opts= ;;
++	esac
++	exec "$CONFIG_SHELL" $as_opts "$as_myself" ${1+"$@"}
+ fi
+ 
+     if test x$as_have_required = xno; then :
+@@ -558,6 +566,14 @@
+ LIBOBJS
+ extra_sources
+ extra_objs
++TARGET_64_FALSE
++TARGET_64_TRUE
++E6500_FALSE
++E6500_TRUE
++E5500_FALSE
++E5500_TRUE
++E500MC_FALSE
++E500MC_TRUE
+ sys_dir
+ machine_dir
+ libm_machine_dir
+@@ -753,8 +769,9 @@
+   fi
+ 
+   case $ac_option in
+-  *=*)	ac_optarg=`expr "X$ac_option" : '[^=]*=\(.*\)'` ;;
+-  *)	ac_optarg=yes ;;
++  *=?*) ac_optarg=`expr "X$ac_option" : '[^=]*=\(.*\)'` ;;
++  *=)   ac_optarg= ;;
++  *)    ac_optarg=yes ;;
+   esac
+ 
+   # Accept the important Cygnus configure options, so we can diagnose typos.
+@@ -1094,7 +1111,7 @@
+     $as_echo "$as_me: WARNING: you should use --build, --host, --target" >&2
+     expr "x$ac_option" : ".*[^-._$as_cr_alnum]" >/dev/null &&
+       $as_echo "$as_me: WARNING: invalid host type: $ac_option" >&2
+-    : ${build_alias=$ac_option} ${host_alias=$ac_option} ${target_alias=$ac_option}
++    : "${build_alias=$ac_option} ${host_alias=$ac_option} ${target_alias=$ac_option}"
+     ;;
+ 
+   esac
+@@ -1440,7 +1457,7 @@
+ 
+ 	ac_retval=1
+ fi
+-  eval $as_lineno_stack; test "x$as_lineno_stack" = x && { as_lineno=; unset as_lineno;}
++  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+   as_fn_set_status $ac_retval
+ 
+ } # ac_fn_c_try_compile
+@@ -1835,7 +1852,7 @@
+ 
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking build system type" >&5
+ $as_echo_n "checking build system type... " >&6; }
+-if test "${ac_cv_build+set}" = set; then :
++if ${ac_cv_build+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   ac_build_alias=$build_alias
+@@ -1869,7 +1886,7 @@
+ 
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking host system type" >&5
+ $as_echo_n "checking host system type... " >&6; }
+-if test "${ac_cv_host+set}" = set; then :
++if ${ac_cv_host+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   if test "x$host_alias" = x; then
+@@ -1919,7 +1936,7 @@
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for a BSD-compatible install" >&5
+ $as_echo_n "checking for a BSD-compatible install... " >&6; }
+ if test -z "$INSTALL"; then
+-if test "${ac_cv_path_install+set}" = set; then :
++if ${ac_cv_path_install+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+@@ -2096,7 +2113,7 @@
+ set dummy ${ac_tool_prefix}strip; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_prog_STRIP+set}" = set; then :
++if ${ac_cv_prog_STRIP+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   if test -n "$STRIP"; then
+@@ -2136,7 +2153,7 @@
+ set dummy strip; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_prog_ac_ct_STRIP+set}" = set; then :
++if ${ac_cv_prog_ac_ct_STRIP+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   if test -n "$ac_ct_STRIP"; then
+@@ -2189,7 +2206,7 @@
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for a thread-safe mkdir -p" >&5
+ $as_echo_n "checking for a thread-safe mkdir -p... " >&6; }
+ if test -z "$MKDIR_P"; then
+-  if test "${ac_cv_path_mkdir+set}" = set; then :
++  if ${ac_cv_path_mkdir+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+@@ -2240,7 +2257,7 @@
+ set dummy $ac_prog; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_prog_AWK+set}" = set; then :
++if ${ac_cv_prog_AWK+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   if test -n "$AWK"; then
+@@ -2280,7 +2297,7 @@
+ $as_echo_n "checking whether ${MAKE-make} sets \$(MAKE)... " >&6; }
+ set x ${MAKE-make}
+ ac_make=`$as_echo "$2" | sed 's/+/p/g; s/[^a-zA-Z0-9_]/_/g'`
+-if eval "test \"\${ac_cv_prog_make_${ac_make}_set+set}\"" = set; then :
++if eval \${ac_cv_prog_make_${ac_make}_set+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   cat >conftest.make <<\_ACEOF
+@@ -2568,7 +2585,7 @@
+ set dummy gcc; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_prog_CC+set}" = set; then :
++if ${ac_cv_prog_CC+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   if test -n "$CC"; then
+@@ -2606,7 +2623,7 @@
+ 
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking dependency style of $depcc" >&5
+ $as_echo_n "checking dependency style of $depcc... " >&6; }
+-if test "${am_cv_CC_dependencies_compiler_type+set}" = set; then :
++if ${am_cv_CC_dependencies_compiler_type+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   if test -z "$AMDEP_TRUE" && test -f "$am_depcomp"; then
+@@ -2735,7 +2752,7 @@
+ set dummy cc; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_prog_CC+set}" = set; then :
++if ${ac_cv_prog_CC+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   if test -n "$CC"; then
+@@ -2790,7 +2807,7 @@
+ 
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether we are using GNU C" >&5
+ $as_echo_n "checking whether we are using GNU C... " >&6; }
+-if test "${ac_cv_c_compiler_gnu+set}" = set; then :
++if ${ac_cv_c_compiler_gnu+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   cat > conftest.c <<EOF
+@@ -2820,7 +2837,7 @@
+ ac_save_CFLAGS=$CFLAGS
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $CC accepts -g" >&5
+ $as_echo_n "checking whether $CC accepts -g... " >&6; }
+-if test "${ac_cv_prog_cc_g+set}" = set; then :
++if ${ac_cv_prog_cc_g+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   ac_save_c_werror_flag=$ac_c_werror_flag
+@@ -2914,7 +2931,7 @@
+ set dummy ${ac_tool_prefix}as; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_prog_AS+set}" = set; then :
++if ${ac_cv_prog_AS+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   if test -n "$AS"; then
+@@ -2954,7 +2971,7 @@
+ set dummy as; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_prog_ac_ct_AS+set}" = set; then :
++if ${ac_cv_prog_ac_ct_AS+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   if test -n "$ac_ct_AS"; then
+@@ -3006,7 +3023,7 @@
+ set dummy ${ac_tool_prefix}ar; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_prog_AR+set}" = set; then :
++if ${ac_cv_prog_AR+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   if test -n "$AR"; then
+@@ -3046,7 +3063,7 @@
+ set dummy ar; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_prog_ac_ct_AR+set}" = set; then :
++if ${ac_cv_prog_ac_ct_AR+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   if test -n "$ac_ct_AR"; then
+@@ -3098,7 +3115,7 @@
+ set dummy ${ac_tool_prefix}ranlib; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_prog_RANLIB+set}" = set; then :
++if ${ac_cv_prog_RANLIB+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   if test -n "$RANLIB"; then
+@@ -3138,7 +3155,7 @@
+ set dummy ranlib; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_prog_ac_ct_RANLIB+set}" = set; then :
++if ${ac_cv_prog_ac_ct_RANLIB+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   if test -n "$ac_ct_RANLIB"; then
+@@ -3190,7 +3207,7 @@
+ set dummy ${ac_tool_prefix}readelf; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_prog_READELF+set}" = set; then :
++if ${ac_cv_prog_READELF+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   if test -n "$READELF"; then
+@@ -3230,7 +3247,7 @@
+ set dummy readelf; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_prog_ac_ct_READELF+set}" = set; then :
++if ${ac_cv_prog_ac_ct_READELF+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+   if test -n "$ac_ct_READELF"; then
+@@ -3403,6 +3420,82 @@
+ 
+ 
+ 
++{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether the compiler supports any of e500mc/e5500/e6500" >&5
++$as_echo_n "checking whether the compiler supports any of e500mc/e5500/e6500... " >&6; }
++if ${compiler_cv_cpu_select+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++
++cat > conftest.c <<EOF
++int
++main ()
++{
++
++  ;
++  return 0;
++}
++EOF
++if { ac_try='${CC-cc} -S -v conftest.c 2>&1'
++  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
++  test $ac_status = 0; }; } | egrep 'mcpu=e500mc|mcpu=e5500|mcpu=e6500' > conftest.err 2>&1;
++then
++  if (grep 'mcpu=e500mc' conftest.err) >/dev/null 2>&1; then
++    compiler_cv_cpu_select=e500mc
++  elif (grep 'mcpu=e5500' conftest.err) >/dev/null 2>&1; then
++    compiler_cv_cpu_select=e5500
++  elif (grep 'mcpu=e6500' conftest.err) >/dev/null 2>&1; then
++    compiler_cv_cpu_select=e6500
++  fi
++  if (grep 'm64' conftest.err) >/dev/null 2>&1; then
++    compiler_cpu_64_bit=yes
++  else
++    compiler_cpu_64_bit=no
++  fi
++else
++  compiler_cpu_select=no
++  compiler_cpu_64_bit=no
++fi
++rm -f conftest*
++fi
++{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $compiler_cv_cpu_select" >&5
++$as_echo "$compiler_cv_cpu_select" >&6; }
++
++ if test $compiler_cv_cpu_select = e500mc; then
++  E500MC_TRUE=
++  E500MC_FALSE='#'
++else
++  E500MC_TRUE='#'
++  E500MC_FALSE=
++fi
++
++ if test $compiler_cv_cpu_select = e5500; then
++  E5500_TRUE=
++  E5500_FALSE='#'
++else
++  E5500_TRUE='#'
++  E5500_FALSE=
++fi
++
++ if test $compiler_cv_cpu_select = e6500; then
++  E6500_TRUE=
++  E6500_FALSE='#'
++else
++  E6500_TRUE='#'
++  E6500_FALSE=
++fi
++
++ if test $compiler_cpu_64_bit = yes; then
++  TARGET_64_TRUE=
++  TARGET_64_FALSE='#'
++else
++  TARGET_64_TRUE='#'
++  TARGET_64_FALSE=
++fi
++
++
+ extra_objs=
+ extra_sources=
+ case $host in
+@@ -3484,10 +3577,21 @@
+      :end' >>confcache
+ if diff "$cache_file" confcache >/dev/null 2>&1; then :; else
+   if test -w "$cache_file"; then
+-    test "x$cache_file" != "x/dev/null" &&
++    if test "x$cache_file" != "x/dev/null"; then
+       { $as_echo "$as_me:${as_lineno-$LINENO}: updating cache $cache_file" >&5
+ $as_echo "$as_me: updating cache $cache_file" >&6;}
+-    cat confcache >$cache_file
++      if test ! -f "$cache_file" || test -h "$cache_file"; then
++	cat confcache >"$cache_file"
++      else
++        case $cache_file in #(
++        */* | ?:*)
++	  mv -f confcache "$cache_file"$$ &&
++	  mv -f "$cache_file"$$ "$cache_file" ;; #(
++        *)
++	  mv -f confcache "$cache_file" ;;
++	esac
++      fi
++    fi
+   else
+     { $as_echo "$as_me:${as_lineno-$LINENO}: not updating unwritable cache $cache_file" >&5
+ $as_echo "$as_me: not updating unwritable cache $cache_file" >&6;}
+@@ -3595,8 +3699,24 @@
+   as_fn_error $? "conditional \"USE_LIBTOOL\" was never defined.
+ Usually this means the macro was only invoked conditionally." "$LINENO" 5
+ fi
++if test -z "${E500MC_TRUE}" && test -z "${E500MC_FALSE}"; then
++  as_fn_error $? "conditional \"E500MC\" was never defined.
++Usually this means the macro was only invoked conditionally." "$LINENO" 5
++fi
++if test -z "${E5500_TRUE}" && test -z "${E5500_FALSE}"; then
++  as_fn_error $? "conditional \"E5500\" was never defined.
++Usually this means the macro was only invoked conditionally." "$LINENO" 5
++fi
++if test -z "${E6500_TRUE}" && test -z "${E6500_FALSE}"; then
++  as_fn_error $? "conditional \"E6500\" was never defined.
++Usually this means the macro was only invoked conditionally." "$LINENO" 5
++fi
++if test -z "${TARGET_64_TRUE}" && test -z "${TARGET_64_FALSE}"; then
++  as_fn_error $? "conditional \"TARGET_64\" was never defined.
++Usually this means the macro was only invoked conditionally." "$LINENO" 5
++fi
+ 
+-: ${CONFIG_STATUS=./config.status}
++: "${CONFIG_STATUS=./config.status}"
+ ac_write_fail=0
+ ac_clean_files_save=$ac_clean_files
+ ac_clean_files="$ac_clean_files $CONFIG_STATUS"
+@@ -3697,6 +3817,7 @@
+ IFS=" ""	$as_nl"
+ 
+ # Find who we are.  Look in the path if we contain no directory separator.
++as_myself=
+ case $0 in #((
+   *[\\/]* ) as_myself=$0 ;;
+   *) as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+@@ -4082,11 +4203,16 @@
+ while test $# != 0
+ do
+   case $1 in
+-  --*=*)
++  --*=?*)
+     ac_option=`expr "X$1" : 'X\([^=]*\)='`
+     ac_optarg=`expr "X$1" : 'X[^=]*=\(.*\)'`
+     ac_shift=:
+     ;;
++  --*=)
++    ac_option=`expr "X$1" : 'X\([^=]*\)='`
++    ac_optarg=
++    ac_shift=:
++    ;;
+   *)
+     ac_option=$1
+     ac_optarg=$2
+@@ -4108,6 +4234,7 @@
+     $ac_shift
+     case $ac_optarg in
+     *\'*) ac_optarg=`$as_echo "$ac_optarg" | sed "s/'/'\\\\\\\\''/g"` ;;
++    '') as_fn_error $? "missing file argument" ;;
+     esac
+     as_fn_append CONFIG_FILES " '$ac_optarg'"
+     ac_need_defaults=false;;
+@@ -4197,9 +4324,10 @@
+ # after its creation but before its name has been assigned to `$tmp'.
+ $debug ||
+ {
+-  tmp=
++  tmp= ac_tmp=
+   trap 'exit_status=$?
+-  { test -z "$tmp" || test ! -d "$tmp" || rm -fr "$tmp"; } && exit $exit_status
++  : "${ac_tmp:=$tmp}"
++  { test ! -d "$ac_tmp" || rm -fr "$ac_tmp"; } && exit $exit_status
+ ' 0
+   trap 'as_fn_exit 1' 1 2 13 15
+ }
+@@ -4207,12 +4335,13 @@
+ 
+ {
+   tmp=`(umask 077 && mktemp -d "./confXXXXXX") 2>/dev/null` &&
+-  test -n "$tmp" && test -d "$tmp"
++  test -d "$tmp"
+ }  ||
+ {
+   tmp=./conf$$-$RANDOM
+   (umask 077 && mkdir "$tmp")
+ } || as_fn_error $? "cannot create a temporary directory in ." "$LINENO" 5
++ac_tmp=$tmp
+ 
+ # Set up the scripts for CONFIG_FILES section.
+ # No need to generate them if there are no CONFIG_FILES.
+@@ -4234,7 +4363,7 @@
+   ac_cs_awk_cr=$ac_cr
+ fi
+ 
+-echo 'BEGIN {' >"$tmp/subs1.awk" &&
++echo 'BEGIN {' >"$ac_tmp/subs1.awk" &&
+ _ACEOF
+ 
+ 
+@@ -4262,7 +4391,7 @@
+ rm -f conf$$subs.sh
+ 
+ cat >>$CONFIG_STATUS <<_ACEOF || ac_write_fail=1
+-cat >>"\$tmp/subs1.awk" <<\\_ACAWK &&
++cat >>"\$ac_tmp/subs1.awk" <<\\_ACAWK &&
+ _ACEOF
+ sed -n '
+ h
+@@ -4310,7 +4439,7 @@
+ rm -f conf$$subs.awk
+ cat >>$CONFIG_STATUS <<_ACEOF || ac_write_fail=1
+ _ACAWK
+-cat >>"\$tmp/subs1.awk" <<_ACAWK &&
++cat >>"\$ac_tmp/subs1.awk" <<_ACAWK &&
+   for (key in S) S_is_set[key] = 1
+   FS = ""
+ 
+@@ -4342,7 +4471,7 @@
+   sed "s/$ac_cr\$//; s/$ac_cr/$ac_cs_awk_cr/g"
+ else
+   cat
+-fi < "$tmp/subs1.awk" > "$tmp/subs.awk" \
++fi < "$ac_tmp/subs1.awk" > "$ac_tmp/subs.awk" \
+   || as_fn_error $? "could not setup config files machinery" "$LINENO" 5
+ _ACEOF
+ 
+@@ -4401,7 +4530,7 @@
+     for ac_f
+     do
+       case $ac_f in
+-      -) ac_f="$tmp/stdin";;
++      -) ac_f="$ac_tmp/stdin";;
+       *) # Look for the file first in the build tree, then in the source tree
+ 	 # (if the path is not absolute).  The absolute path cannot be DOS-style,
+ 	 # because $ac_f cannot contain `:'.
+@@ -4436,7 +4565,7 @@
+     esac
+ 
+     case $ac_tag in
+-    *:-:* | *:-) cat >"$tmp/stdin" \
++    *:-:* | *:-) cat >"$ac_tmp/stdin" \
+       || as_fn_error $? "could not create $ac_file" "$LINENO" 5 ;;
+     esac
+     ;;
+@@ -4573,21 +4702,22 @@
+ s&@MKDIR_P@&$ac_MKDIR_P&;t t
+ $ac_datarootdir_hack
+ "
+-eval sed \"\$ac_sed_extra\" "$ac_file_inputs" | $AWK -f "$tmp/subs.awk" >$tmp/out \
+-  || as_fn_error $? "could not create $ac_file" "$LINENO" 5
++eval sed \"\$ac_sed_extra\" "$ac_file_inputs" | $AWK -f "$ac_tmp/subs.awk" \
++  >$ac_tmp/out || as_fn_error $? "could not create $ac_file" "$LINENO" 5
+ 
+ test -z "$ac_datarootdir_hack$ac_datarootdir_seen" &&
+-  { ac_out=`sed -n '/\${datarootdir}/p' "$tmp/out"`; test -n "$ac_out"; } &&
+-  { ac_out=`sed -n '/^[	 ]*datarootdir[	 ]*:*=/p' "$tmp/out"`; test -z "$ac_out"; } &&
++  { ac_out=`sed -n '/\${datarootdir}/p' "$ac_tmp/out"`; test -n "$ac_out"; } &&
++  { ac_out=`sed -n '/^[	 ]*datarootdir[	 ]*:*=/p' \
++      "$ac_tmp/out"`; test -z "$ac_out"; } &&
+   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: $ac_file contains a reference to the variable \`datarootdir'
+ which seems to be undefined.  Please make sure it is defined" >&5
+ $as_echo "$as_me: WARNING: $ac_file contains a reference to the variable \`datarootdir'
+ which seems to be undefined.  Please make sure it is defined" >&2;}
+ 
+-  rm -f "$tmp/stdin"
++  rm -f "$ac_tmp/stdin"
+   case $ac_file in
+-  -) cat "$tmp/out" && rm -f "$tmp/out";;
+-  *) rm -f "$ac_file" && mv "$tmp/out" "$ac_file";;
++  -) cat "$ac_tmp/out" && rm -f "$ac_tmp/out";;
++  *) rm -f "$ac_file" && mv "$ac_tmp/out" "$ac_file";;
+   esac \
+   || as_fn_error $? "could not create $ac_file" "$LINENO" 5
+  ;;
+diff -Naur newlib-2.0.0/newlib/libc/machine/powerpc/configure.in newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/configure.in
+--- newlib-2.0.0/newlib/libc/machine/powerpc/configure.in	2006-04-13 14:56:26.000000000 -0500
++++ newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/configure.in	2013-05-28 02:10:20.308001286 -0500
+@@ -10,6 +10,41 @@
+ 
+ NEWLIB_CONFIGURE(../../..)
+ 
++AC_CACHE_CHECK(whether the compiler supports any of e500mc/e5500/e6500, compiler_cv_cpu_select, [
++cat > conftest.c <<EOF
++int
++main ()
++{
++
++  ;
++  return 0;
++}
++EOF
++if AC_TRY_COMMAND(${CC-cc} -S -v conftest.c 2>&1) | egrep 'mcpu=e500mc|mcpu=e5500|mcpu=e6500' > conftest.err 2>&1; 
++then
++  if (grep 'mcpu=e500mc' conftest.err) >/dev/null 2>&1; then
++    compiler_cv_cpu_select=e500mc
++  elif (grep 'mcpu=e5500' conftest.err) >/dev/null 2>&1; then
++    compiler_cv_cpu_select=e5500
++  elif (grep 'mcpu=e6500' conftest.err) >/dev/null 2>&1; then
++    compiler_cv_cpu_select=e6500
++  fi
++  if (grep 'm64' conftest.err) >/dev/null 2>&1; then
++    compiler_cpu_64_bit=yes
++  else
++    compiler_cpu_64_bit=no
++  fi
++else
++  compiler_cpu_select=no
++  compiler_cpu_64_bit=no
++fi
++rm -f conftest*])
++
++AM_CONDITIONAL(E500MC, test $compiler_cv_cpu_select = e500mc)
++AM_CONDITIONAL(E5500, test $compiler_cv_cpu_select = e5500)
++AM_CONDITIONAL(E6500, test $compiler_cv_cpu_select = e6500)
++AM_CONDITIONAL(TARGET_64, test $compiler_cpu_64_bit = yes)
++
+ extra_objs=
+ extra_sources=
+ case $host in
+diff -Naur newlib-2.0.0/newlib/libc/machine/powerpc/e500mc/largememcpy.S newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/e500mc/largememcpy.S
+--- newlib-2.0.0/newlib/libc/machine/powerpc/e500mc/largememcpy.S	1969-12-31 18:00:00.000000000 -0600
++++ newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/e500mc/largememcpy.S	2013-05-29 09:14:13.000001272 -0500
+@@ -0,0 +1,411 @@
++/* Optimized memcpy implementation for e500mc 32-bit PowerPC.
++   This version uses cache management instructions.
++ */
++
++#include <powerpc/asm.h>
++
++/* __ptr_t [r3] largememcpy (__ptr_t dst [r3], __ptr_t src [r4], size_t len [r5]);
++   Returns 'dst'.
++
++	 r3 = destination
++	 r4 = source
++	 r5 = byte count
++	
++	 volatile fixed point registers usable:
++	 r0, r3-r12
++
++	 volatile floating point registers usable:
++	 f0-f13
++*/	 
++
++FUNC_START (largememcpy)
++	cmplw cr0,r4,r3		/* if source==destination, return */
++	beqlr cr0
++
++	cmplwi r5,8		/* if number of bytes is less than 8 (optimal value TBD), but greater than zero. copy byte-by-byte */
++	mr r6, r3
++	blt Lcopy_bytes
++
++	neg r0,r4		/* temp = r0 */
++
++	andi. r11,r0,3		/* count = r11 [temp & 3] */
++	beq L1
++	
++	lwz r12,0(r4)
++	subf r5,r11,r5		/* n = n - count */
++	add r4,r4,r11
++	stw r12,0(r6)	
++	add r6,r6,r11
++L1:
++	cmplwi 7,r5,63
++	ble 7,Lcopy_remaining
++
++	andi. r10,r0,63		/* rem = r10 */
++	beq Lsrc_aligned
++
++	subf. r10,r11,r10	/* rem = rem - count; */
++	beq 0,Lsrc_aligned
++
++	srwi r11,r10,2		/* count = rem / sizeof(unsigned long); */
++	subf r5,r10,r5		/* n = n - rem; */
++	mtctr r11
++L2:
++	lwz 0,0(r4)
++	addi r4,r4,4	
++	stw 0,0(r6)
++	addi r6,r6,4	
++	bdnz L2
++
++Lsrc_aligned:	
++	srwi. r11,r5,6		/* count = n / CACHE_LINE_SIZE; */
++	beq 0, Lcopy_remaining
++	rlwinm r5,r5,0,26,31	/* rem = n % CACHE_LINE_SIZE; */
++	rlwinm. r0,r6,0,29,31
++
++	bne 0, Lcopy_nalign
++
++	cmplwi 7,r11,256	/* while (count > (L1_CACHE_SIZE/2)/CACHE_LINE_SIZE) {  */
++	ble 7, L4
++
++	addi r7,r11,-256
++	mtctr r7
++
++	li r10,256
++	li r12,64
++L3:
++	dcbt r10,r4
++	dcbzl r12,r6
++#ifndef _SOFT_FLOAT
++	lfd  0, 0(r4)
++	lfd  1, 8(r4)
++	lfd  2,16(r4)
++	lfd  3,24(r4)
++	lfd  4,32(r4)
++	lfd  5,40(r4)
++	lfd  6,48(r4)
++	lfd  7,56(r4)
++	
++	stfd 0, 0(r6)
++	stfd 1, 8(r6)
++	stfd 2,16(r6)
++	stfd 3,24(r6)
++	addi r4, r4, 64
++
++	stfd 4,32(r6)
++	stfd 5,40(r6)
++	stfd 6,48(r6)
++	stfd 7,56(r6)
++#else
++	lwz r0,0(r4)
++	lwz r8,4(r4)
++	lwz r9,8(r4)
++
++	stw r0,0(r6)
++	stw r8,4(r6)
++	stw r9,8(r6)
++
++	lwz r0,12(r4)
++	lwz r8,16(r4)
++	lwz r9,20(r4)
++
++	stw r0,12(r6)
++	stw r8,16(r6)
++	stw r9,20(r6)
++
++	lwz r0,24(r4)
++	lwz r8,28(r4)
++	lwz r9,32(r4)
++
++	stw r0,24(r6)
++	stw r8,28(r6)
++	stw r9,32(r6)
++
++	lwz r0,36(r4)
++	lwz r8,40(r4)
++	lwz r9,44(r4)
++
++	stw r0,36(r6)
++	stw r8,40(r6)
++	stw r9,44(r6)
++
++	lwz r0,48(r4)
++	lwz r8,52(r4)
++	lwz r9,56(r4)
++	stw r0,48(r6)
++	lwz r0,60(r4)
++	addi r4,r4,64
++	stw r8,52(r6)
++	stw r9,56(r6)
++	stw r0,60(r6)
++#endif
++	dcbf 0,r6
++	addi r6,r6,64
++
++	bdnz L3
++	subf r11,r7,r11
++L4:
++	mtctr r11
++L5:
++#ifndef _SOFT_FLOAT	
++	lfd 0, 0(r4)
++	lfd 1, 8(r4)
++	lfd 2,16(r4)
++	lfd 3,24(r4)
++
++	stfd 0, 0(r6)
++	stfd 1, 8(r6)
++	stfd 2,16(r6)
++	stfd 3,24(r6)
++
++	lfd 0,32(r4)
++	lfd 1,40(r4)
++	lfd 2,48(r4)
++	lfd 3,56(r4)
++	addi r4,r4,64
++
++	stfd 0,32(r6)
++	stfd 1,40(r6)
++	stfd 2,48(r6)
++	stfd 3,56(r6)
++#else
++	lwz r0,0(r4)
++	lwz r8,4(r4)
++	lwz r9,8(r4)
++
++	stw r0,0(r6)
++	stw r8,4(r6)
++	stw r9,8(r6)
++
++	lwz r0,12(r4)
++	lwz r8,16(r4)
++	lwz r9,20(r4)
++
++	stw r0,12(r6)
++	stw r8,16(r6)
++	stw r9,20(r6)
++
++	lwz r0,24(r4)
++	lwz r8,28(r4)
++	lwz r9,32(r4)
++
++	stw r0,24(r6)
++	stw r8,28(r6)
++	stw r9,32(r6)
++
++	lwz r0,36(r4)
++	lwz r8,40(r4)
++	lwz r9,44(r4)
++
++	stw r0,36(r6)
++	stw r8,40(r6)
++	stw r9,44(r6)
++
++	lwz r0,48(r4)
++	lwz r8,52(r4)
++	lwz r9,56(r4)
++
++	stw r0,48(r6)
++	lwz r0,60(r4)
++	addi r4,r4,64
++
++	stw r8,52(r6)
++	stw r9,56(r6)
++	stw r0,60(r6)
++#endif
++	addi r6,r6,64
++	bdnz L5
++Lcopy_remaining:
++	srwi.  r11,r5,3		/* count = rem / sizeof(unsigned long); */
++	rlwinm r5,r5,0,29,31	/* n =   rem % sizeof(unsigned long); */
++	beq 0, Lcopy_bytes
++
++	mtcrf   0x01,r11
++	bf cr7*4+1,16f
++
++	lwz r0,0(r4)		/* copy 32 bytes */
++	lwz r8,4(r4)
++	lwz r9,8(r4)
++
++	stw r0,0(r6)
++	stw r8,4(r6)
++	stw r9,8(r6)
++
++	lwz r0,12(r4)
++	lwz r8,16(r4)
++	lwz r9,20(r4)
++
++	stw r0,12(r6)
++	stw r8,16(r6)
++	lwz r0,24(r4)
++	lwz r8,28(r4)
++	addi r4,r4,32	
++
++	stw r9,20(r6)
++	stw r0,24(r6)
++	stw r8,28(r6)
++	addi r6,r6,32
++	
++16:
++	bf cr7*4+2,8f
++
++	lwz r0, 0(r4)		/* copy 16 bytes */
++	lwz r7, 4(r4)
++	lwz r8, 8(r4)
++	lwz r9,12(r4)
++	addi r4,r4,16
++
++	stw r0, 0(r6)
++	stw r7, 4(r6)
++	stw r8, 8(r6)
++	stw r9,12(r6)
++	addi r6,r6,16
++8:
++	bf cr7*4+3, Lcopy_bytes
++	lwz r0, 0(r4)		/* copy 8 bytes */
++	lwz r7, 4(r4)
++	addi r4,r4,8
++
++	stw r0, 0(r6)
++	stw r7, 4(r6)
++	addi r6,r6,8
++Lcopy_bytes:
++	cmplwi cr1,r5,4
++	cmplwi cr0,r5,1
++	bgt cr1,1f		/* nb > 4?  (5, 6, 7 bytes) */
++	ble cr0,2f		/* nb <= 1? (0, 1 bytes) */
++
++	addi r0,r5,-2		/* 2, 3, 4 bytes */
++	lhz r9,0(r4)
++	lhzx r11,r4,r0
++	sth r9,0(r6)
++	sthx r11,r6,r0
++	blr
++1:
++	addi r0,r5,-4		/* 5, 6, 7 bytes */
++	lwz r9,0(r4)
++	lwzx r11,r4,r0
++	stw r9,0(r6)
++	stwx r11,r6,r0
++	blr
++2:
++	mtocrf 0x1,r5		/* nbytes == 0 ? return */
++	bflr 31
++	lbz r0,0(r4)		/* nbytes == 1 */
++	stb r0,0(r6)
++	blr
++
++Lcopy_nalign:
++	cmplwi 7,r11,256	/*while (count > (L1_CACHE_SIZE/2)/CACHE_LINE_SIZE) { */
++	ble 7, L6
++
++	addi r7,r11,-256
++	mtctr r7
++
++	li r10,256
++	li r12,64
++L7:	
++	dcbt r10,r4
++	dcbzl r12,r6
++
++	lwz r0,0(r4)		/* copy 64 bytes */
++	lwz r8,4(r4)
++	lwz r9,8(r4)
++
++	stw r0,0(r6)
++	stw r8,4(r6)
++	stw r9,8(r6)
++
++	lwz r0,12(r4)
++	lwz r8,16(r4)
++	lwz r9,20(r4)
++
++	stw r0,12(r6)
++	stw r8,16(r6)
++	stw r9,20(r6)
++
++	lwz r0,24(r4)
++	lwz r8,28(r4)
++	lwz r9,32(r4)
++
++	stw r0,24(r6)
++	stw r8,28(r6)
++	stw r9,32(r6)
++
++	lwz r0,36(r4)
++	lwz r8,40(r4)
++	lwz r9,44(r4)
++
++	stw r0,36(r6)
++	stw r8,40(r6)
++	stw r9,44(r6)
++
++	lwz r0,48(r4)
++	lwz r8,52(r4)
++	lwz r9,56(r4)
++
++	stw r0,48(r6)
++	lwz r0,60(r4)
++	addi r4,r4,64	
++
++	stw r8,52(r6)
++	stw r9,56(r6)
++	stw r0,60(r6)
++
++	dcbf 0, r6
++	addi r6,r6,64
++
++	bdnz L7
++	li r11, 256
++L6:
++	mtctr r11
++L8:
++	lwz r0,0(r4)		/* copy 64 bytes */
++	lwz r8,4(r4)
++	lwz r9,8(r4)
++
++	stw r0,0(r6)
++	stw r8,4(r6)
++	stw r9,8(r6)
++
++	lwz r0,12(r4)
++	lwz r8,16(r4)
++	lwz r9,20(r4)
++
++	stw r0,12(r6)
++	stw r8,16(r6)
++	stw r9,20(r6)
++
++	lwz r0,24(r4)
++	lwz r8,28(r4)
++	lwz r9,32(r4)
++
++	stw r0,24(r6)
++	stw r8,28(r6)
++	stw r9,32(r6)
++
++	lwz r0,36(r4)
++	lwz r8,40(r4)
++	lwz r9,44(r4)
++
++	stw r0,36(r6)
++	stw r8,40(r6)
++	stw r9,44(r6)
++
++	lwz r0,48(r4)
++	lwz r8,52(r4)
++	lwz r9,56(r4)
++
++	stw r0,48(r6)
++	lwz r0,60(r4)
++	addi r4,r4,64	
++
++	stw r8,52(r6)
++	stw r9,56(r6)
++	stw r0,60(r6)
++	addi r6,r6,64
++
++	bdnz L8
++
++	b Lcopy_remaining
++
++FUNC_END (largememcpy)
+diff -Naur newlib-2.0.0/newlib/libc/machine/powerpc/e500mc/memcpy.S newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/e500mc/memcpy.S
+--- newlib-2.0.0/newlib/libc/machine/powerpc/e500mc/memcpy.S	1969-12-31 18:00:00.000000000 -0600
++++ newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/e500mc/memcpy.S	2013-05-29 09:10:24.792001867 -0500
+@@ -0,0 +1,298 @@
++/* Optimized memcpy implementation for e500mc PowerPC. */
++
++#include <powerpc/asm.h>
++
++/* __ptr_t [r3] memcpy (__ptr_t dst [r3], __ptr_t src [r4], size_t len [r5]);
++   Returns 'dst'.
++
++	 r3 = destination
++	 r4 = source
++	 r5 = byte count
++	
++	 volatile fixed point registers usable:
++	 r0, r3-r12
++
++	 volatile floating point registers usable:
++	 f0-f13
++*/	 
++
++FUNC_START (memcpy)
++	cmplw cr0,r4,r3		/* if source==destination, return */
++	beqlr cr0
++
++	cmplwi r5,8		/* if number of bytes is less than 8 (optimal value TBD), but greater than zero. copy byte-by-byte */
++	mr r6, r3
++	blt Lcopy_bytes
++
++	neg r0,r4		/* temp = r0 */
++	andi. r11,r0,7		/* count = r11 [temp & 7] */
++	beq L1
++
++	lwz r0,0(r4)
++	lwz r12,4(r4)
++	subf r5,r11,r5		/* n = n - count */
++	add r4,r4,r11
++	stw r0,0(r6)	
++	stw r12,4(r6)	
++	add r6,r6,r11
++L1:
++	cmplwi 7,r5,63
++	ble 7,Lcopy_remaining
++
++	srwi r11,r5,6		/*count = n / CACHE_LINE_SIZE; */
++	rlwinm r5,r5,0,26,31	/*rem = n % CACHE_LINE_SIZE; */
++	rlwinm. r0,r6,0,29,31
++
++	mtctr r11		/* move count */
++	bne 0, Lcopy_nalign8
++
++L5:
++#ifndef _SOFT_FLOAT
++	lfd  0, 0(r4)
++	lfd  1, 8(r4)
++	lfd  2,16(r4)
++	lfd  3,24(r4)
++
++	stfd 0, 0(r6)
++	stfd 1, 8(r6)
++	stfd 2,16(r6)
++	stfd 3,24(r6)
++
++	lfd  0,32(r4)
++	lfd  1,40(r4)
++	lfd  2,48(r4)
++	lfd  3,56(r4)
++	addi r4,r4,64
++
++	stfd 0,32(r6)
++	stfd 1,40(r6)
++	stfd 2,48(r6)
++	stfd 3,56(r6)
++#else
++	lwz r0,0(r4)
++	lwz r8,4(r4)
++	lwz r9,8(r4)
++
++	stw r0,0(r6)
++	stw r8,4(r6)
++	stw r9,8(r6)
++
++	lwz r0,12(r4)
++	lwz r8,16(r4)
++	lwz r9,20(r4)
++
++	stw r0,12(r6)
++	stw r8,16(r6)
++	stw r9,20(r6)
++
++	lwz r0,24(r4)
++	lwz r8,28(r4)
++	lwz r9,32(r4)
++
++	stw r0,24(r6)
++	stw r8,28(r6)
++	stw r9,32(r6)
++
++	lwz r0,36(r4)
++	lwz r8,40(r4)
++	lwz r9,44(r4)
++
++	stw r0,36(r6)
++	stw r8,40(r6)
++	stw r9,44(r6)
++
++	lwz r0,48(r4)
++	lwz r8,52(r4)
++	lwz r9,56(r4)
++
++	stw r0,48(r6)
++	lwz r0,60(r4)
++	addi r4,r4,64	
++	stw r8,52(r6)
++	stw r9,56(r6)
++	stw r0,60(r6)
++#endif
++	addi r6,r6,64
++	bdnz L5
++
++Lcopy_remaining:
++	srwi.  r11,r5,3		/* count = rem / sizeof(unsigned long); */
++	rlwinm r5,r5,0,29,31	/* n =   rem % sizeof(unsigned long); */
++	beq 0, Lcopy_bytes
++
++	mtcrf   0x01,r11
++	bf cr7*4+1,16f
++
++	lwz r0, 0(r4)		/* copy 32 bytes */
++	lwz r7, 4(r4)
++	lwz r8, 8(r4)
++	lwz r9,12(r4)
++
++	stw r0, 0(r6)
++	stw r7, 4(r6)
++	stw r8, 8(r6)
++	stw r9,12(r6)
++
++	lwz r0,16(r4)
++	lwz r7,20(r4)
++	lwz r8,24(r4)
++	lwz r9,28(r4)
++	addi r4,r4,32
++
++	stw r0,16(r6)
++	stw r7,20(r6)
++	stw r8,24(r6)
++	stw r9,28(r6)
++	addi r6,r6,32
++
++16:
++	bf cr7*4+2,8f
++
++	lwz r0, 0(r4)		/* copy 16 bytes */
++	lwz r7, 4(r4)
++	lwz r8, 8(r4)
++	lwz r9,12(r4)
++	addi r4,r4,16
++
++	stw r0, 0(r6)
++	stw r7, 4(r6)
++	stw r8, 8(r6)
++	stw r9,12(r6)
++	addi r6,r6,16
++8:
++	bf cr7*4+3, Lcopy_bytes
++	lwz r0,0(r4)		/* copy 8 bytes */
++	lwz r7,4(r4)
++	addi r4,r4,8
++
++	stw r0,0(r6)
++	stw r7,4(r6)
++	addi r6,r6,8
++Lcopy_bytes:
++	cmplwi cr1,r5,4
++	cmplwi cr0,r5,1
++	bgt cr1,1f		/* nb > 4?  (5, 6, 7 bytes) */
++	ble cr0,2f		/* nb <= 1? (0, 1 bytes) */
++
++	addi r0,r5,-2		/* 2, 3, 4 bytes */
++	lhz r9,0(r4)
++	lhzx r11,r4,r0
++	sth r9,0(r6)
++	sthx r11,r6,r0
++	blr
++
++1:
++	addi r0,r5,-4		/* 5, 6, 7 bytes */
++	lwz r9,0(r4)
++	lwzx r11,r4,r0
++	stw r9,0(r6)
++	stwx r11,r6,r0
++	blr
++
++2:
++	mtocrf 0x1,r5		/* nbytes == 0 ? return */
++	bflr 31
++	lbz r0,0(r4)		/* nbytes == 1 */
++	stb r0,0(r6)
++	blr
++
++Lcopy_nalign8:
++	rlwinm. r0,r6,0,30,31
++	beq 0, Lcopy_align4
++
++Lcopy_nalign:
++	lwz r0,0(r4)		/* copy 64 bytes */
++	lwz r8,4(r4)
++	lwz r9,8(r4)
++
++	stw r0,0(r6)
++	stw r8,4(r6)
++	stw r9,8(r6)
++
++	lwz r0,12(r4)
++	lwz r8,16(r4)
++	lwz r9,20(r4)
++
++	stw r0,12(r6)
++	stw r8,16(r6)
++	stw r9,20(r6)
++
++	lwz r0,24(r4)
++	lwz r8,28(r4)
++	lwz r9,32(r4)
++
++	stw r0,24(r6)
++	stw r8,28(r6)
++	stw r9,32(r6)
++
++	lwz r0,36(r4)
++	lwz r8,40(r4)
++	lwz r9,44(r4)
++
++	stw r0,36(r6)
++	stw r8,40(r6)
++	stw r9,44(r6)
++
++	lwz r0,48(r4)
++	lwz r8,52(r4)
++	lwz r9,56(r4)
++
++	stw r0,48(r6)
++	lwz r0,60(r4)
++	addi r4,r4,64	
++
++	stw r8,52(r6)
++	stw r9,56(r6)
++	stw r0,60(r6)
++	addi r6,r6,64
++
++	bdnz Lcopy_nalign
++	b Lcopy_remaining
++
++Lcopy_align4:
++	lwz r0, 0(r4)
++	lwz r7, 4(r4)
++	lwz r8, 8(r4)
++	lwz r9,12(r4)
++
++	stw r0, 0(r6)
++	stw r7, 4(r6)
++	stw r8, 8(r6)
++	stw r9,12(r6)
++
++	lwz r0,16(r4)
++	lwz r7,20(r4)
++	lwz r8,24(r4)
++	lwz r9,28(r4)
++
++	stw r0,16(r6)
++	stw r7,20(r6)
++	stw r8,24(r6)
++	stw r9,28(r6)
++
++	lwz r0,32(r4)
++	lwz r7,36(r4)
++	lwz r8,40(r4)
++	lwz r9,44(r4)
++
++	stw r0,32(r6)
++	stw r7,36(r6)
++	stw r8,40(r6)
++	stw r9,44(r6)
++
++	lwz r0,48(r4)
++	lwz r7,52(r4)
++	lwz r8,56(r4)
++	lwz r9,60(r4)
++	addi r4,r4,64
++
++	stw r0,48(r6)
++	stw r7,52(r6)
++	stw r8,56(r6)
++	stw r9,60(r6)
++	addi r6,r6,64
++
++	bdnz Lcopy_align4
++	b Lcopy_remaining
++
++FUNC_END (memcpy)
+diff -Naur newlib-2.0.0/newlib/libc/machine/powerpc/e5500/32-bit/memcpy.S newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/e5500/32-bit/memcpy.S
+--- newlib-2.0.0/newlib/libc/machine/powerpc/e5500/32-bit/memcpy.S	1969-12-31 18:00:00.000000000 -0600
++++ newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/e5500/32-bit/memcpy.S	2013-05-29 09:15:44.779001889 -0500
+@@ -0,0 +1,259 @@
++/* Optimized memcpy implementation for e5500 32-bit PowerPC. */
++
++#include <powerpc/asm.h>
++
++/* __ptr_t [r3] memcpy (__ptr_t dst [r3], __ptr_t src [r4], size_t len [r5]);
++   Returns 'dst'.
++
++	 r3 = destination
++	 r4 = source
++	 r5 = byte count
++	
++	 volatile fixed point registers usable:
++	 r0, r3-r12
++
++	 volatile floating point registers usable:
++	 f0-f13
++*/	 
++
++FUNC_START (memcpy)
++	cmplw cr0,r4,r3		/* if source==destination, return */
++	beqlr cr0
++
++	cmplwi r5,8		/* if number of bytes is less than 8 (optimal value TBD), but greater than zero. copy byte-by-byte  */
++	mr r6, r3
++	blt Lcopy_bytes
++
++	neg r0,r4		/* temp = r0 */
++	andi. r11,r0,3		/* count = r11 [temp & 3] */
++	beq L1
++
++	lwz r12,0(r4)
++	subf r5,r11,r5		/* n = n - count */
++	add r4,r4,r11
++	stw r12,0(r6)	
++	add r6,r6,r11
++L1:
++	cmplwi 7,r5,63
++	ble 7,Lcopy_remaining
++
++	andi. r10,r0,15		/* rem = r10 */
++	beq Lsrc_aligned
++
++	subf. r10,r11,r10	/* rem = rem - count; */
++	beq 0,Lsrc_aligned
++
++	srwi r11,r10,2		/* count = rem / sizeof(unsigned long); */
++	subf r5,r10,r5		/* n = n - rem; */
++	mtctr r11
++L2:
++	lwz 0,0(r4)
++	addi r4,r4,4
++	stw 0,0(r6)
++	addi r6,r6,4
++	bdnz L2
++
++Lsrc_aligned:
++	srwi. r11,r5,6		/* count = n / CACHE_LINE_SIZE; */
++	beq 0, Lcopy_remaining
++	rlwinm r5,r5,0,26,31	/* rem = n % CACHE_LINE_SIZE; */
++	rlwinm. r0,r6,0,29,31
++	mtctr r11		/* move count */
++	bne 0, Lcopy_nalign
++
++L5:
++#ifndef _SOFT_FLOAT
++	lfd  0, 0(r4)		/* copy 64 bytes */
++	lfd  1, 8(r4)
++	lfd  2,16(r4)
++	lfd  3,24(r4)
++
++	stfd 0, 0(r6)
++	stfd 1, 8(r6)
++	stfd 2,16(r6)
++	stfd 3,24(r6)
++
++	lfd  0,32(r4)
++	lfd  1,40(r4)
++	lfd  2,48(r4)
++	lfd  3,56(r4)
++	addi r4,r4,64
++
++	stfd 0,32(r6)
++	stfd 1,40(r6)
++	stfd 2,48(r6)
++	stfd 3,56(r6)
++	addi r6,r6,64
++#else
++	lwz r0, 0(r4)
++	lwz r7, 4(r4)
++	lwz r8, 8(r4)
++	lwz r9,12(r4)
++
++	stw r0, 0(r6)
++	stw r7, 4(r6)
++	stw r8, 8(r6)
++	stw r9,12(r6)
++
++	lwz r0,16(r4)
++	lwz r7,20(r4)
++	lwz r8,24(r4)
++	lwz r9,28(r4)
++
++	stw r0,16(r6)
++	stw r7,20(r6)
++	stw r8,24(r6)
++	stw r9,28(r6)
++
++	lwz r0,32(r4)
++	lwz r7,36(r4)
++	lwz r8,40(r4)
++	lwz r9,44(r4)
++
++	stw r0,32(r6)
++	stw r7,36(r6)
++	stw r8,40(r6)
++	stw r9,44(r6)
++
++	lwz r0,48(r4)
++	lwz r7,52(r4)
++	lwz r8,56(r4)
++	lwz r9,60(r4)
++	addi r4,r4,64
++
++	stw r0,48(r6)
++	stw r7,52(r6)
++	stw r8,56(r6)
++	stw r9,60(r6)
++	addi r6,r6,64
++#endif
++	bdnz L5
++
++Lcopy_remaining:
++	srwi.  r11,r5,3		/* count = rem / sizeof(unsigned long); */
++	rlwinm r5,r5,0,29,31	/* n =   rem % sizeof(unsigned long); */
++	beq 0, Lcopy_bytes
++
++	mtcrf   0x01,r11
++	bf cr7*4+1,16f
++
++	lwz r0, 0(r4)		/* copy 32 bytes */
++	lwz r7, 4(r4)
++	lwz r8, 8(r4)
++	lwz r9,12(r4)
++
++	stw r0, 0(r6)
++	stw r7, 4(r6)
++	stw r8, 8(r6)
++	stw r9,12(r6)
++
++	lwz r0,16(r4)
++	lwz r7,20(r4)
++	lwz r8,24(r4)
++	lwz r9,28(r4)
++	addi r4,r4,32
++
++	stw r0,16(r6)
++	stw r7,20(r6)
++	stw r8,24(r6)
++	stw r9,28(r6)
++	addi r6,r6,32
++
++16:
++	bf cr7*4+2,8f
++
++	lwz r0, 0(r4)		/* copy 16 bytes */
++	lwz r7, 4(r4)
++	lwz r8, 8(r4)
++	lwz r9,12(r4)
++	addi r4,r4,16
++
++	stw r0, 0(r6)	
++	stw r7, 4(r6)
++	stw r8, 8(r6)
++	stw r9,12(r6)
++	addi r6,r6,16
++8:
++	bf cr7*4+3, Lcopy_bytes
++	lwz r0, 0(r4)		/* copy 8 bytes */
++	lwz r7, 4(r4)
++	addi r4,r4,8
++
++	stw r0, 0(r6)
++	stw r7, 4(r6)
++	addi r6,r6,8
++Lcopy_bytes:
++	cmplwi cr1,r5,4
++	cmplwi cr0,r5,1
++	bgt cr1,1f		/* nb > 4?  (5, 6, 7 bytes) */
++	ble cr0,2f		/* nb <= 1? (0, 1 bytes) */
++
++	addi r0,r5,-2		/* 2, 3, 4 bytes */
++	lhz r9,0(r4)
++	lhzx r11,r4,r0
++	sth r9,0(r6)
++	sthx r11,r6,r0
++	blr
++1:
++	addi r0,r5,-4		/* 5, 6, 7 bytes */
++	lwz r9,0(r4)
++	lwzx r11,r4,r0
++	stw r9,0(r6)
++	stwx r11,r6,r0
++	blr
++2:
++	mtocrf 0x1,r5		/* nbytes == 0 ? return */
++	bflr 31
++	lbz r0,0(r4)		/* nbytes == 1 */
++	stb r0,0(r6)
++	blr
++
++Lcopy_nalign:
++	lwz r0, 0(r4)		/* copy 64 bytes; unaligned data */
++	lwz r7, 4(r4)
++	lwz r8, 8(r4)
++	lwz r9,12(r4)
++
++	stw r0, 0(r6)
++	stw r7, 4(r6)
++	stw r8, 8(r6)
++	stw r9,12(r6)
++
++	lwz r0,16(r4)
++	lwz r7,20(r4)
++	lwz r8,24(r4)
++	lwz r9,28(r4)
++
++	stw r0,16(r6)
++	stw r7,20(r6)
++	stw r8,24(r6)
++	stw r9,28(r6)
++
++	lwz r0,32(r4)
++	lwz r7,36(r4)
++	lwz r8,40(r4)
++	lwz r9,44(r4)
++
++	stw r0,32(r6)
++	stw r7,36(r6)
++	stw r8,40(r6)
++	stw r9,44(r6)
++
++	lwz r0,48(r4)
++	lwz r7,52(r4)
++	lwz r8,56(r4)
++	lwz r9,60(r4)
++	addi r4,r4,64
++
++	stw r0,48(r6)
++	stw r7,52(r6)
++	stw r8,56(r6)
++	stw r9,60(r6)
++	addi r6,r6,64
++
++	bdnz Lcopy_nalign
++
++	b Lcopy_remaining
++
++FUNC_END (memcpy)
++weak_alias (memcpy, largememcpy)
+diff -Naur newlib-2.0.0/newlib/libc/machine/powerpc/e5500/64-bit/largememcpy.S newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/e5500/64-bit/largememcpy.S
+--- newlib-2.0.0/newlib/libc/machine/powerpc/e5500/64-bit/largememcpy.S	1969-12-31 18:00:00.000000000 -0600
++++ newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/e5500/64-bit/largememcpy.S	2013-05-29 09:19:29.595001573 -0500
+@@ -0,0 +1,204 @@
++/* Optimized memcpy implementation for e5500 64-bit PowerPC64. 
++   This version uses cache management instructions.
++ */
++
++#include <powerpc/asm.h>
++
++/* __ptr_t [r3] memcpy (__ptr_t dst [r3], __ptr_t src [r4], size_t len [r5]);
++   Returns 'dst'.
++
++	 r3 = destination
++	 r4 = source
++	 r5 = byte count
++	
++	 volatile fixed point registers usable:
++	 r0, r3-r12
++
++	 volatile floating point registers usable:
++	 f0-f13
++*/	 
++
++FUNC_START (largememcpy)
++	cmpld cr0,r4,r3			/* if source==destination, return */
++	beqlr cr0
++
++	cmpldi r5,8			/* if number of bytes is less than 8 (optimal value TBD), but greater than zero. copy byte-by-byte */
++	mr r6, r3
++	blt Lcopy_bytes
++
++	neg r0,r4			/* temp = r0 */
++	andi. r11,r0,7			/* count = r11 [temp & 7] */
++	beq L1
++
++	ld r12,0(r4)
++	subf r5,r11,r5			/* n = n - count */
++	add r4,r4,r11
++	std r12,0(r6)
++	add r6,r6,r11
++
++L1:
++	cmpldi 7,r5,63
++	ble 7,Lcopy_remaining
++
++	srwi r11,r5,6			/* count = n / CACHE_LINE_SIZE; */
++	rlwinm. r5,r5,0,26,31		/* rem = n % CACHE_LINE_SIZE; */
++
++	cmpldi 7,r11,256		/* while (count > (L1_CACHE_SIZE/2)/CACHE_LINE_SIZE) { */
++	ble 7, L4
++
++	rlwinm. r0,r6,0,28,31
++	cmpldi r0, 8
++
++	addi r7,r11,-256
++	mtctr r7
++
++	ble L3_nalign
++
++	li r10, 256
++	li r12, 64
++
++L3:
++	dcbt r10,r4
++	dcbzl r12,r6
++
++	ld  r0, 0(r4)			/* 64-byte copy */
++	ld  r7, 8(r4)
++	ld  r8,16(r4)
++	ld  r9,24(r4)
++
++	std r0, 0(r6)
++	std r7, 8(r6)
++	std r8,16(r6)
++	std r9,24(r6)
++
++	ld  r0,32(r4)
++	ld  r7,40(r4)
++	ld  r8,48(r4)
++	ld  r9,56(r4)
++	addi r4,r4,64
++
++	std r0,32(r6)
++	std r7,40(r6)
++	std r8,48(r6)
++	std r9,56(r6)
++
++	dcbf 0,r6
++	addi r6,r6,64
++
++	bdnz L3
++L6:	li r11, 256
++L4:	mtctr r11			/* move count */
++L5:
++	ld  r0, 0(r4)
++	ld  r7, 8(r4)
++	ld  r8,16(r4)
++	ld  r9,24(r4)
++
++	std r0, 0(r6)
++	std r7, 8(r6)
++	std r8,16(r6)
++	std r9,24(r6)
++
++	ld  r0,32(r4)
++	ld  r7,40(r4)
++	ld  r8,48(r4)
++	ld  r9,56(r4)
++
++	addi r4,r4,64
++
++	std r0,32(r6)
++	std r7,40(r6)
++	std r8,48(r6)
++	std r9,56(r6)
++
++	addi r6,r6,64
++	bdnz L5
++
++Lcopy_remaining:
++	srwi.  r11,r5,3			/* count = rem / sizeof(unsigned long); */
++	rlwinm r5,r5,0,29,31		/* n =   rem % sizeof(unsigned long); */
++	beq 0, Lcopy_bytes
++
++	mtcrf   0x01,r11
++	bf cr7*4+1,16f
++	ld  r0, 0(r4)			/* copy 32 byte */
++	ld  r7, 8(r4)
++	ld  r8,16(r4)
++	ld  r9,24(r4)
++	addi r4,r4,32
++	std r0,0(r6)
++	std r7,8(r6)
++	std r8,16(r6)
++	std r9,24(r6)
++	addi r6,r6,32
++
++16:
++	bf cr7*4+2,8f 			/* copy 16 byte */
++	ld  r7,0(r4)
++	ld  r8,8(r4)
++	addi r4,r4,16
++	std r7,0(r6)
++	std r8,8(r6)
++	addi r6,r6,16
++8:
++	bf cr7*4+3, Lcopy_bytes 	/* copy 8 bytes */
++	ld  r7,0(r4)
++	addi r4,r4,8
++	std r7,0(r6)
++	addi r6,r6,8
++
++Lcopy_bytes:
++	cmpldi cr1,r5,4
++	cmpldi cr0,r5,1
++	bgt cr1,1f			/* nb > 4?  (5, 6, 7 bytes) */
++	ble cr0,2f			/* nb <= 1? (0, 1 bytes) */
++
++	addi r0,r5,-2			/* 2, 3, 4 bytes */
++	lhz r9,0(r4)
++	lhzx r11,r4,r0
++	sth r9,0(r6)
++	sthx r11,r6,r0
++	blr
++1:
++	addi r0,r5,-4			/* 5, 6, 7 bytes */
++	lwz r9,0(r4)
++	lwzx r11,r4,r0
++	stw r9,0(r6)
++	stwx r11,r6,r0
++	blr
++2:
++	mtocrf 0x1,r5			/* nbytes == 0 ? return */
++	bflr 31
++	lbz r0,0(r4)			/* nbytes == 1 */
++	stb r0,0(r6)
++	blr
++
++L3_nalign:
++	ld  r0, 0(r4)
++	ld  r7, 8(r4)
++	ld  r8,16(r4)
++	ld  r9,24(r4)
++
++	std r0, 0(r6)
++	std r7, 8(r6)
++	std r8,16(r6)
++	std r9,24(r6)
++
++	ld  r0,32(r4)
++	ld  r7,40(r4)
++	ld  r8,48(r4)
++	ld  r9,56(r4)
++
++	addi r4,r4,64
++
++	std r0,32(r6)
++	std r7,40(r6)
++	std r8,48(r6)
++	std r9,56(r6)
++
++	addi r6,r6,64
++
++	bdnz L3_nalign
++	b L6
++
++FUNC_END (largememcpy)
+diff -Naur newlib-2.0.0/newlib/libc/machine/powerpc/e5500/64-bit/memcpy.S newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/e5500/64-bit/memcpy.S
+--- newlib-2.0.0/newlib/libc/machine/powerpc/e5500/64-bit/memcpy.S	1969-12-31 18:00:00.000000000 -0600
++++ newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/e5500/64-bit/memcpy.S	2013-05-29 09:16:49.553001314 -0500
+@@ -0,0 +1,127 @@
++/* Optimized memcpy implementation for e5500 64-bit PowerPC. */
++
++#include <powerpc/asm.h>
++
++/* __ptr_t [r3] memcpy (__ptr_t dst [r3], __ptr_t src [r4], size_t len [r5]);
++   Returns 'dst'.
++
++	 r3 = destination
++	 r4 = source
++	 r5 = byte count
++	
++	 volatile fixed point registers usable:
++	 r0, r3-r12
++
++	 volatile floating point registers usable:
++	 f0-f13
++*/
++
++FUNC_START (memcpy)
++	cmpld cr0,r4,r3		/* if source==destination, return */
++	beqlr cr0
++
++	cmpldi r5,8		/* if number of bytes is less than 8 but greater than zero, copy byte-by-byte */
++	mr r6, r3
++	blt Lcopy_bytes
++
++	neg r0,r4		/* temp = r0 */
++	andi. r11,r0,7		/* count = r11 [temp & 7] */
++	beq L1
++
++	ld r12,0(r4)
++	subf r5,r11,r5		/* n = n - count */
++	add r4,r4,r11
++	std r12,0(r6)	
++	add r6,r6,r11
++
++L1:
++	cmpldi 7,r5,63
++	ble 7,Lcopy_remaining
++	srwi r11,r5,6		/* count = n / CACHE_LINE_SIZE; */
++	rlwinm. r5,r5,0,26,31	/* rem = n % CACHE_LINE_SIZE; */
++	mtctr r11		/* move count */
++L5:
++	ld  r0, 0(r4)		/* 64-byte copy */
++	ld  r7, 8(r4)
++	ld  r8,16(r4)
++	ld  r9,24(r4)
++
++	std r0, 0(r6)
++	std r7, 8(r6)
++	std r8,16(r6)
++	std r9,24(r6)
++
++	ld  r0,32(r4)
++	ld  r7,40(r4)
++	ld  r8,48(r4)
++	ld  r9,56(r4)
++	addi r4,r4,64
++
++	std r0,32(r6)
++	std r7,40(r6)
++	std r8,48(r6)
++	std r9,56(r6)
++	addi r6,r6,64
++
++	bdnz L5
++
++Lcopy_remaining:
++	srwi.  r11,r5,3		/* count = rem / sizeof(unsigned long); */
++	rlwinm r5,r5,0,29,31	/* n =   rem % sizeof(unsigned long); */
++	beq 0, Lcopy_bytes
++
++	mtcrf   0x01,r11
++	bf cr7*4+1,16f
++	ld  r0, 0(r4)		/* copy 32 bytes */
++	ld  r7, 8(r4)
++	ld  r8,16(r4)
++	ld  r9,24(r4)
++	addi r4,r4,32
++
++	std r0,0(r6)
++	std r7,8(r6)
++	std r8,16(r6)
++	std r9,24(r6)
++	addi r6,r6,32
++16:
++	bf cr7*4+2,8f
++	ld  r7,0(r4)		/* copy 16 bytes */
++	ld  r8,8(r4)
++	addi r4,r4,16
++	std r7,0(r6)
++	std r8,8(r6)
++	addi r6,r6,16
++8:
++	bf cr7*4+3, Lcopy_bytes
++	ld  r7,0(r4)		/* copy 8 bytes */
++	addi r4,r4,8
++	std r7,0(r6)
++	addi r6,r6,8
++
++Lcopy_bytes:
++	cmpldi cr1,r5,4
++	cmpldi cr0,r5,1
++	bgt cr1,1f		/* nb > 4?  (5, 6, 7 bytes) */
++	ble cr0,2f		/* nb <= 1? (0, 1 bytes) */
++
++	addi r0,r5,-2		/* 2, 3, 4 bytes */
++	lhz r9,0(r4)
++	lhzx r11,r4,r0
++	sth r9,0(r6)
++	sthx r11,r6,r0
++	blr
++1:
++	addi r0,r5,-4		/* 5, 6, 7 bytes */
++	lwz r9,0(r4)
++	lwzx r11,r4,r0
++	stw r9,0(r6)
++	stwx r11,r6,r0
++	blr
++2:
++	mtocrf 0x1,r5		/* nbytes == 0 ? return */
++	bflr 31
++	lbz r0,0(r4)		/* nbytes == 1 */
++	stb r0,0(r6)
++	blr
++
++FUNC_END (memcpy)
+diff -Naur newlib-2.0.0/newlib/libc/machine/powerpc/e6500/32-bit/memcpy.S newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/e6500/32-bit/memcpy.S
+--- newlib-2.0.0/newlib/libc/machine/powerpc/e6500/32-bit/memcpy.S	1969-12-31 18:00:00.000000000 -0600
++++ newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/e6500/32-bit/memcpy.S	2013-05-29 09:25:46.166001310 -0500
+@@ -0,0 +1,220 @@
++/* Optimized memcpy implementation for e6500 32-bit PowerPC. */
++
++#include <powerpc/asm.h>
++
++/* __ptr_t [r3] memcpy (__ptr_t dst [r3], __ptr_t src [r4], size_t len [r5]);
++   Returns 'dst'.
++
++	 r3 = destination
++	 r4 = source
++	 r5 = byte count
++	
++	 volatile fixed point registers usable:
++	 r0, r3-r12
++
++	 volatile floating point registers usable:
++	 f0-f13
++*/	 
++
++FUNC_START(memcpy)
++	cmplw cr0,r4,r3		/* if source==destination, return.*/
++	beqlr cr0
++
++	cmplwi r5,16		/* if number of bytes is less than 8 (optimal value TBD), but greater than zero. copy byte-by-byte */
++	mr r6, r3
++	blt Lcopy_remaining
++	
++	neg r0,r3		/* temp = r0 */
++	andi. r11,r0,15		/* count = r11 [temp & 3] */
++	beq L1
++
++	lwz r0, 0(r4)
++	lwz r7, 4(r4)
++	lwz r8, 8(r4)
++	lwz r9,12(r4)
++	subf r5,r11,r5		/* n = n - count */
++	add r4,r4,r11
++
++	stw r0, 0(r6)
++	stw r7, 4(r6)
++	stw r8, 8(r6)
++	stw r9,12(r6)
++	add r6,r6,r11
++
++L1:
++	cmplwi 7,r5,63
++	ble 7,Lcopy_remaining
++
++	srwi r11,r5,6		/* count = n / CACHE_LINE_SIZE */;
++	rlwinm r5,r5,0,26,31	/* rem = n % CACHE_LINE_SIZE; */
++	rlwinm. r0,r4,0,28,31
++	mtctr r11		/* move count */
++	li r7,16
++	li r8,32
++	li r9,48
++	bne 0, Lcopy_nalign
++
++L5:
++	lvx v14,0,r4
++        lvx v15,r7,r4
++        lvx v16,r8,r4
++        lvx v17,r9,r4
++        addi r4,r4,64
++
++        stvx v14,0,r6
++        stvx v15,r7,r6
++        stvx v16,r8,r6
++        stvx v17,r9,r6
++        addi r6,r6,64
++	bdnz L5
++
++Lcopy_remaining:
++	srwi.  r11,r5,3		/* count = rem / sizeof(unsigned long); */
++	rlwinm r5,r5,0,29,31	/* n =   rem % sizeof(unsigned long); */
++	beq 0, Lcopy_bytes
++
++	mtcrf  0x01,r11
++	bf cr7*4+1,16f
++
++	lwz r0, 0(r4)		/* copy 32 bytes */
++	lwz r7, 4(r4)
++	lwz r8, 8(r4)
++	lwz r9,12(r4)
++
++	stw r0, 0(r6)
++	stw r7, 4(r6)
++	stw r8, 8(r6)
++	stw r9,12(r6)
++
++	lwz r0,16(r4)
++	lwz r7,20(r4)
++	lwz r8,24(r4)
++	lwz r9,28(r4)
++	addi r4,r4,32
++
++	stw r0,16(r6)
++	stw r7,20(r6)
++	stw r8,24(r6)
++	stw r9,28(r6)
++	addi r6,r6,32
++
++16:
++	bf cr7*4+2,8f
++
++	lwz r0, 0(r4)		/* copy 16 bytes */
++	lwz r7, 4(r4)
++	lwz r8, 8(r4)
++	lwz r9,12(r4)
++	addi r4,r4,16
++
++	stw r0, 0(r6)	
++	stw r7, 4(r6)
++	stw r8, 8(r6)
++	stw r9,12(r6)
++	addi r6,r6,16
++8:
++	bf cr7*4+3, Lcopy_bytes
++	lwz r0, 0(r4)		/* copy 8 bytes */
++	lwz r7, 4(r4)
++	addi r4,r4,8
++	
++	stw r0, 0(r6)
++	stw r7, 4(r6)
++	addi r6,r6,8
++
++Lcopy_bytes:
++	cmplwi cr1,r5,4
++	cmplwi cr0,r5,1
++	bgt cr1,1f		/* nb > 4?  (5, 6, 7 bytes) */
++	ble cr0,2f		/* nb <= 1? (0, 1 bytes) */
++
++	addi r0,r5,-2		/* 2, 3, 4 bytes */
++	lhz r9,0(r4)
++	lhzx r11,r4,r0
++	sth r9,0(r6)
++	sthx r11,r6,r0
++	blr
++
++1:
++	addi r0,r5,-4		/* 5, 6, 7 bytes */
++	lwz r9,0(r4)
++	lwzx r11,r4,r0
++	stw r9,0(r6)
++	stwx r11,r6,r0
++	blr
++
++2:
++	mtocrf 0x1,r5		/* nbytes == 0 ? return */
++	bflr 31
++	lbz r0,0(r4)		/* nbytes == 1 */
++	stb r0,0(r6)
++	blr
++
++Lcopy_nalign:
++#ifndef _SOFT_FLOAT
++	rlwinm. r0,r4,0,29,31
++	beq 0, Lcopy_nalign_ldst
++#endif
++
++Lcopy_nalign_altivec:
++        lvx v0,0,r4             /* load MSQ */
++        lvsl v18,0,r4           /* set permute control vector */
++        lvx v19,r7,r4           /* load LSQ */
++        vperm v14,v0,v19,v18    /* align the data */
++
++        lvx v0,r7,r4            /* load MSQ */
++        lvsl v18,r7,r4          /* set permute control vector */
++        lvx v19,r8,r4           /* load LSQ */
++        vperm v15,v0,v19,v18    /* align the data */
++
++        lvx v0,r8,r4            /* load MSQ */
++        lvsl v18,r8,r4          /* set permute control vector */
++        lvx v19,r9,r4           /* load LSQ */
++        vperm v16,v0,v19,v18    /* align the data */
++
++        lvx v0,r9,r4            /* load MSQ */
++        lvsl v18,r9,r4          /* set permute control vector */
++        addi r4,r4,64
++        lvx v19,0,r4            /* load LSQ */
++        vperm v17,v0,v19,v18    /* align the data */
++
++        stvx v14,0,r6
++        stvx v15,r7,r6
++        stvx v16,r8,r6
++        stvx v17,r9,r6
++        addi r6,r6,64
++
++	bdnz Lcopy_nalign_altivec
++	b Lcopy_remaining
++
++#ifndef _SOFT_FLOAT
++Lcopy_nalign_ldst:
++	lfd  0, 0(r4)		/* copy 64 bytes */
++	lfd  1, 8(r4)
++	lfd  2,16(r4)
++	lfd  3,24(r4)
++	
++	stfd 0, 0(r6)
++	stfd 1, 8(r6)
++	stfd 2,16(r6)
++	stfd 3,24(r6)
++	
++	lfd  0,32(r4)
++	lfd  1,40(r4)
++	lfd  2,48(r4)
++	lfd  3,56(r4)
++	addi r4,r4,64
++
++	stfd 0,32(r6)
++	stfd 1,40(r6)
++	stfd 2,48(r6)
++	stfd 3,56(r6)
++	addi r6,r6,64
++
++	bdnz Lcopy_nalign_ldst
++
++	b Lcopy_remaining
++#endif
++
++FUNC_END (memcpy)
++weak_alias (memcpy, largememcpy)
+diff -Naur newlib-2.0.0/newlib/libc/machine/powerpc/e6500/64-bit/memcpy.S newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/e6500/64-bit/memcpy.S
+--- newlib-2.0.0/newlib/libc/machine/powerpc/e6500/64-bit/memcpy.S	1969-12-31 18:00:00.000000000 -0600
++++ newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/e6500/64-bit/memcpy.S	2013-05-29 09:27:02.187000988 -0500
+@@ -0,0 +1,186 @@
++/* Optimized memcpy implementation for e6500 64-bit PowerPC. */
++
++#include <powerpc/asm.h>
++
++/* __ptr_t [r3] memcpy (__ptr_t dst [r3], __ptr_t src [r4], size_t len [r5]);
++   Returns 'dst'.
++
++	 r3 = destination
++	 r4 = source
++	 r5 = byte count
++	
++	 volatile fixed point registers usable:
++	 r0, r3-r12
++
++	 volatile floating point registers usable:
++	 f0-f13
++*/
++
++FUNC_START (memcpy)
++	cmpld cr0,r4,r3		/* if source==destination, return */
++	beqlr cr0
++
++	cmpldi r5,16		/* if number of bytes is less than 8 but greater than zero, copy byte-by-byte */
++	mr r6, r3
++	ble Lcopy_remaining
++
++	neg r0,r3		/* temp = r0 */
++	andi. r11,r0,15		/* count = r11 [temp & 15] */
++	beq L1
++
++	ld r12,0(r4)
++	ld r0,8(r4)
++	subf r5,r11,r5		/* n = n - count */
++	add r4,r4,r11
++	std r12,0(r6)
++	std r0,8(r6)
++	add r6,r6,r11
++
++L1:
++	cmpldi 7,r5,63
++	ble 7,Lcopy_remaining
++	srwi r11,r5,6		/* count = n / CACHE_LINE_SIZE; */
++	rlwinm r5,r5,0,26,31	/* rem = n % CACHE_LINE_SIZE; */
++	rlwinm. r0,r4,0,28,31
++	mtctr r11		/* move count */
++	li r7,16
++	li r8,32
++	li r9,48
++	bne 0, Lcopy_nalign
++
++L5:
++        lvx v14,0,r4
++        lvx v15,r7,r4
++        lvx v16,r8,r4
++        lvx v17,r9,r4
++        addi r4,r4,64
++
++        stvx v14,0,r6
++        stvx v15,r7,r6
++        stvx v16,r8,r6
++        stvx v17,r9,r6
++        addi r6,r6,64
++        bdnz L5
++
++Lcopy_remaining:
++	srwi.  r11,r5,3		/* count = rem / sizeof(unsigned long); */
++	rlwinm r5,r5,0,29,31	/* n =   rem % sizeof(unsigned long); */
++	beq 0, Lcopy_bytes
++
++	mtcrf   0x01,r11
++	bf cr7*4+1,16f
++	ld  r0, 0(r4)		/* copy 32 bytes */
++	ld  r7, 8(r4)
++	ld  r8,16(r4)
++	ld  r9,24(r4)
++	addi r4,r4,32
++
++	std r0,0(r6)
++	std r7,8(r6)
++	std r8,16(r6)
++	std r9,24(r6)
++	addi r6,r6,32
++16:
++	bf cr7*4+2,8f
++	ld  r7,0(r4)		/* copy 16 bytes */
++	ld  r8,8(r4)
++	addi r4,r4,16
++	std r7,0(r6)
++	std r8,8(r6)
++	addi r6,r6,16
++8:
++	bf cr7*4+3, Lcopy_bytes
++	ld  r7,0(r4)		/* copy 8 bytes */
++	addi r4,r4,8
++	std r7,0(r6)
++	addi r6,r6,8
++
++Lcopy_bytes:
++	cmpldi cr1,r5,4
++	cmpldi cr0,r5,1
++	bgt cr1,1f		/* nb > 4?  (5, 6, 7 bytes) */
++	ble cr0,2f		/* nb <= 1? (0, 1 bytes) */
++
++	addi r0,r5,-2		/* 2, 3, 4 bytes */
++	lhz r9,0(r4)
++	lhzx r11,r4,r0
++	sth r9,0(r6)
++	sthx r11,r6,r0
++	blr
++1:
++	addi r0,r5,-4		/* 5, 6, 7 bytes */
++	lwz r9,0(r4)
++	lwzx r11,r4,r0
++	stw r9,0(r6)
++	stwx r11,r6,r0
++	blr
++2:
++	mtocrf 0x1,r5		/* nbytes == 0 ? return */
++	bflr 31
++	lbz r0,0(r4)		/* nbytes == 1 */
++	stb r0,0(r6)
++	blr	
++
++Lcopy_nalign:
++	rlwinm. r0,r4,0,29,31
++	beq 0, Lcopy_nalign_ldst
++
++Lcopy_nalign_altivec:	
++        lvx v0,0,r4             /* load MSQ */
++        lvsl v18,0,r4           /* set permute control vector */
++        lvx v19,r7,r4           /* load LSQ */
++        vperm v14,v0,v19,v18    /* align the data */
++
++        lvx v0,r7,r4            /* load MSQ */
++        lvsl v18,r7,r4          /* set permute control vector */
++        lvx v19,r8,r4           /* load LSQ */
++        vperm v15,v0,v19,v18    /* align the data */
++
++        lvx v0,r8,r4            /* load MSQ */
++        lvsl v18,r8,r4          /* set permute control vector */
++        lvx v19,r9,r4           /* load LSQ */
++        vperm v16,v0,v19,v18    /* align the data */
++
++        lvx v0,r9,r4            /* load MSQ */
++        lvsl v18,r9,r4          /* set permute control vector */
++        addi r4,r4,64
++        lvx v19,0,r4            /* load LSQ */
++        vperm v17,v0,v19,v18    /* align the data */
++
++        stvx v14,0,r6
++        stvx v15,r7,r6
++        stvx v16,r8,r6
++        stvx v17,r9,r6
++        addi r6,r6,64
++
++	bdnz Lcopy_nalign_altivec
++	b Lcopy_remaining
++
++Lcopy_nalign_ldst:
++	ld  r0, 0(r4)
++	ld  r7, 8(r4)
++	ld  r8,16(r4)
++	ld  r9,24(r4)
++
++	std r0, 0(r6)
++	std r7, 8(r6)
++	std r8,16(r6)
++	std r9,24(r6)
++
++	ld  r0,32(r4)
++	ld  r7,40(r4)
++	ld  r8,48(r4)
++	ld  r9,56(r4)
++	addi r4,r4,64
++
++	std r0,32(r6)
++	std r7,40(r6)
++	std r8,48(r6)
++	std r9,56(r6)
++	addi r6,r6,64
++
++	bdnz Lcopy_nalign_ldst
++	b Lcopy_remaining
++
++FUNC_END (memcpy)
++weak_alias (memcpy, largememcpy)
+diff -Naur newlib-2.0.0/newlib/libc/machine/powerpc/Makefile.am newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/Makefile.am
+--- newlib-2.0.0/newlib/libc/machine/powerpc/Makefile.am	2013-05-28 01:33:16.060001286 -0500
++++ newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/Makefile.am	2013-05-29 09:28:38.781002236 -0500
+@@ -1,16 +1,39 @@
+ ## Process this file with automake to generate Makefile.in
+ 
+-AUTOMAKE_OPTIONS = cygnus
++AUTOMAKE_OPTIONS = cygnus subdir-objects
+ 
+ INCLUDES = $(NEWLIB_CFLAGS) $(CROSS_CFLAGS) $(TARGET_CFLAGS)
+ 
+-AM_CCASFLAGS = $(INCLUDES)
++AM_CCASFLAGS = $(INCLUDES) -D__ASSEMBLER__
+ 
+ noinst_LIBRARIES = lib.a
+ 
+ AM_CFLAGS = -I $(srcdir)/../../stdio -I $(srcdir)/../../stdlib
+ 
+ lib_a_SOURCES = setjmp.S times.c
++
++if E500MC
++lib_a_SOURCES += e500mc/memcpy.S e500mc/largememcpy.S
++else		#E500MC else
++if E5500
++if TARGET_64
++lib_a_SOURCES += e5500/64-bit/memcpy.S e5500/64-bit/largememcpy.S
++else		#E5500 TARGET_64 else
++lib_a_SOURCES += e5500/32-bit/memcpy.S    
++endif		#E5500 TARGET_64
++else		#E5500 else
++if E6500
++if TARGET_64
++lib_a_SOURCES += e6500/64-bit/memcpy.S    
++else		#E6500 TARGET_64 else
++lib_a_SOURCES += e6500/32-bit/memcpy.S    
++endif		#E6500 TARGET_64
++else            #e6500 else
++lib_a_SOURCES += memcpy.c
++endif		#E6500
++endif		#E5500
++endif		#E500MC
++
+ lib_a_CCASFLAGS=$(AM_CCASFLAGS)
+ lib_a_CFLAGS=$(AM_CFLAGS)
+ 
+diff -Naur newlib-2.0.0/newlib/libc/machine/powerpc/Makefile.in newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/Makefile.in
+--- newlib-2.0.0/newlib/libc/machine/powerpc/Makefile.in	2013-05-28 01:33:16.060001286 -0500
++++ newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/Makefile.in	2013-05-29 09:28:50.821001302 -0500
+@@ -51,6 +51,12 @@
+ POST_UNINSTALL = :
+ build_triplet = @build@
+ host_triplet = @host@
++@E500MC_TRUE@am__append_1 = e500mc/memcpy.S e500mc/largememcpy.S
++@E500MC_FALSE@@E5500_TRUE@@TARGET_64_TRUE@am__append_2 = e5500/64-bit/memcpy.S e5500/64-bit/largememcpy.S
++@E500MC_FALSE@@E5500_TRUE@@TARGET_64_FALSE@am__append_3 = e5500/32-bit/memcpy.S    
++@E500MC_FALSE@@E5500_FALSE@@E6500_TRUE@@TARGET_64_TRUE@am__append_4 = e6500/64-bit/memcpy.S    
++@E500MC_FALSE@@E5500_FALSE@@E6500_TRUE@@TARGET_64_FALSE@am__append_5 = e6500/32-bit/memcpy.S    
++@E500MC_FALSE@@E5500_FALSE@@E6500_FALSE@am__append_6 = memcpy.c
+ subdir = .
+ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
+ 	$(top_srcdir)/configure $(am__configure_deps) \
+@@ -69,7 +75,18 @@
+ ARFLAGS = cru
+ lib_a_AR = $(AR) $(ARFLAGS)
+ lib_a_LIBADD =
+-am_lib_a_OBJECTS = lib_a-setjmp.$(OBJEXT) lib_a-times.$(OBJEXT)
++am__dirstamp = $(am__leading_dot)dirstamp
++@E500MC_TRUE@am__objects_1 = e500mc/lib_a-memcpy.$(OBJEXT) \
++@E500MC_TRUE@	e500mc/lib_a-largememcpy.$(OBJEXT)
++@E500MC_FALSE@@E5500_TRUE@@TARGET_64_TRUE@am__objects_2 = e5500/64-bit/lib_a-memcpy.$(OBJEXT) \
++@E500MC_FALSE@@E5500_TRUE@@TARGET_64_TRUE@	e5500/64-bit/lib_a-largememcpy.$(OBJEXT)
++@E500MC_FALSE@@E5500_TRUE@@TARGET_64_FALSE@am__objects_3 = e5500/32-bit/lib_a-memcpy.$(OBJEXT)
++@E500MC_FALSE@@E5500_FALSE@@E6500_TRUE@@TARGET_64_TRUE@am__objects_4 = e6500/64-bit/lib_a-memcpy.$(OBJEXT)
++@E500MC_FALSE@@E5500_FALSE@@E6500_TRUE@@TARGET_64_FALSE@am__objects_5 = e6500/32-bit/lib_a-memcpy.$(OBJEXT)
++@E500MC_FALSE@@E5500_FALSE@@E6500_FALSE@am__objects_6 = lib_a-memcpy.$(OBJEXT)
++am_lib_a_OBJECTS = lib_a-setjmp.$(OBJEXT) lib_a-times.$(OBJEXT) \
++	$(am__objects_1) $(am__objects_2) $(am__objects_3) \
++	$(am__objects_4) $(am__objects_5) $(am__objects_6)
+ lib_a_OBJECTS = $(am_lib_a_OBJECTS)
+ DEFAULT_INCLUDES = -I.@am__isrc@
+ depcomp =
+@@ -193,12 +210,14 @@
+ top_build_prefix = @top_build_prefix@
+ top_builddir = @top_builddir@
+ top_srcdir = @top_srcdir@
+-AUTOMAKE_OPTIONS = cygnus
++AUTOMAKE_OPTIONS = cygnus subdir-objects
+ INCLUDES = $(NEWLIB_CFLAGS) $(CROSS_CFLAGS) $(TARGET_CFLAGS)
+-AM_CCASFLAGS = $(INCLUDES)
++AM_CCASFLAGS = $(INCLUDES) -D__ASSEMBLER__
+ noinst_LIBRARIES = lib.a
+ AM_CFLAGS = -I $(srcdir)/../../stdio -I $(srcdir)/../../stdlib
+-lib_a_SOURCES = setjmp.S times.c
++lib_a_SOURCES = setjmp.S times.c $(am__append_1) $(am__append_2) \
++	$(am__append_3) $(am__append_4) $(am__append_5) \
++	$(am__append_6)
+ lib_a_CCASFLAGS = $(AM_CCASFLAGS)
+ lib_a_CFLAGS = $(AM_CFLAGS)
+ ACLOCAL_AMFLAGS = -I ../../.. -I ../../../.. 
+@@ -245,6 +264,29 @@
+ 
+ clean-noinstLIBRARIES:
+ 	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
++e500mc/$(am__dirstamp):
++	@$(MKDIR_P) e500mc
++	@: > e500mc/$(am__dirstamp)
++e500mc/lib_a-memcpy.$(OBJEXT): e500mc/$(am__dirstamp)
++e500mc/lib_a-largememcpy.$(OBJEXT): e500mc/$(am__dirstamp)
++e5500/64-bit/$(am__dirstamp):
++	@$(MKDIR_P) e5500/64-bit
++	@: > e5500/64-bit/$(am__dirstamp)
++e5500/64-bit/lib_a-memcpy.$(OBJEXT): e5500/64-bit/$(am__dirstamp)
++e5500/64-bit/lib_a-largememcpy.$(OBJEXT):  \
++	e5500/64-bit/$(am__dirstamp)
++e5500/32-bit/$(am__dirstamp):
++	@$(MKDIR_P) e5500/32-bit
++	@: > e5500/32-bit/$(am__dirstamp)
++e5500/32-bit/lib_a-memcpy.$(OBJEXT): e5500/32-bit/$(am__dirstamp)
++e6500/64-bit/$(am__dirstamp):
++	@$(MKDIR_P) e6500/64-bit
++	@: > e6500/64-bit/$(am__dirstamp)
++e6500/64-bit/lib_a-memcpy.$(OBJEXT): e6500/64-bit/$(am__dirstamp)
++e6500/32-bit/$(am__dirstamp):
++	@$(MKDIR_P) e6500/32-bit
++	@: > e6500/32-bit/$(am__dirstamp)
++e6500/32-bit/lib_a-memcpy.$(OBJEXT): e6500/32-bit/$(am__dirstamp)
+ lib.a: $(lib_a_OBJECTS) $(lib_a_DEPENDENCIES) $(EXTRA_lib_a_DEPENDENCIES) 
+ 	-rm -f lib.a
+ 	$(lib_a_AR) lib.a $(lib_a_OBJECTS) $(lib_a_LIBADD)
+@@ -252,6 +294,13 @@
+ 
+ mostlyclean-compile:
+ 	-rm -f *.$(OBJEXT)
++	-rm -f e500mc/lib_a-largememcpy.$(OBJEXT)
++	-rm -f e500mc/lib_a-memcpy.$(OBJEXT)
++	-rm -f e5500/32-bit/lib_a-memcpy.$(OBJEXT)
++	-rm -f e5500/64-bit/lib_a-largememcpy.$(OBJEXT)
++	-rm -f e5500/64-bit/lib_a-memcpy.$(OBJEXT)
++	-rm -f e6500/32-bit/lib_a-memcpy.$(OBJEXT)
++	-rm -f e6500/64-bit/lib_a-memcpy.$(OBJEXT)
+ 
+ distclean-compile:
+ 	-rm -f *.tab.c
+@@ -268,11 +317,53 @@
+ lib_a-setjmp.obj: setjmp.S
+ 	$(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CCASFLAGS) $(CCASFLAGS) -c -o lib_a-setjmp.obj `if test -f 'setjmp.S'; then $(CYGPATH_W) 'setjmp.S'; else $(CYGPATH_W) '$(srcdir)/setjmp.S'; fi`
+ 
++e500mc/lib_a-memcpy.o: e500mc/memcpy.S
++	$(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CCASFLAGS) $(CCASFLAGS) -c -o e500mc/lib_a-memcpy.o `test -f 'e500mc/memcpy.S' || echo '$(srcdir)/'`e500mc/memcpy.S
++
++e500mc/lib_a-memcpy.obj: e500mc/memcpy.S
++	$(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CCASFLAGS) $(CCASFLAGS) -c -o e500mc/lib_a-memcpy.obj `if test -f 'e500mc/memcpy.S'; then $(CYGPATH_W) 'e500mc/memcpy.S'; else $(CYGPATH_W) '$(srcdir)/e500mc/memcpy.S'; fi`
++
++e500mc/lib_a-largememcpy.o: e500mc/largememcpy.S
++	$(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CCASFLAGS) $(CCASFLAGS) -c -o e500mc/lib_a-largememcpy.o `test -f 'e500mc/largememcpy.S' || echo '$(srcdir)/'`e500mc/largememcpy.S
++
++e500mc/lib_a-largememcpy.obj: e500mc/largememcpy.S
++	$(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CCASFLAGS) $(CCASFLAGS) -c -o e500mc/lib_a-largememcpy.obj `if test -f 'e500mc/largememcpy.S'; then $(CYGPATH_W) 'e500mc/largememcpy.S'; else $(CYGPATH_W) '$(srcdir)/e500mc/largememcpy.S'; fi`
++
++e5500/64-bit/lib_a-memcpy.o: e5500/64-bit/memcpy.S
++	$(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CCASFLAGS) $(CCASFLAGS) -c -o e5500/64-bit/lib_a-memcpy.o `test -f 'e5500/64-bit/memcpy.S' || echo '$(srcdir)/'`e5500/64-bit/memcpy.S
++
++e5500/64-bit/lib_a-memcpy.obj: e5500/64-bit/memcpy.S
++	$(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CCASFLAGS) $(CCASFLAGS) -c -o e5500/64-bit/lib_a-memcpy.obj `if test -f 'e5500/64-bit/memcpy.S'; then $(CYGPATH_W) 'e5500/64-bit/memcpy.S'; else $(CYGPATH_W) '$(srcdir)/e5500/64-bit/memcpy.S'; fi`
++
++e5500/64-bit/lib_a-largememcpy.o: e5500/64-bit/largememcpy.S
++	$(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CCASFLAGS) $(CCASFLAGS) -c -o e5500/64-bit/lib_a-largememcpy.o `test -f 'e5500/64-bit/largememcpy.S' || echo '$(srcdir)/'`e5500/64-bit/largememcpy.S
++
++e5500/64-bit/lib_a-largememcpy.obj: e5500/64-bit/largememcpy.S
++	$(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CCASFLAGS) $(CCASFLAGS) -c -o e5500/64-bit/lib_a-largememcpy.obj `if test -f 'e5500/64-bit/largememcpy.S'; then $(CYGPATH_W) 'e5500/64-bit/largememcpy.S'; else $(CYGPATH_W) '$(srcdir)/e5500/64-bit/largememcpy.S'; fi`
++
++e5500/32-bit/lib_a-memcpy.o: e5500/32-bit/memcpy.S
++	$(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CCASFLAGS) $(CCASFLAGS) -c -o e5500/32-bit/lib_a-memcpy.o `test -f 'e5500/32-bit/memcpy.S' || echo '$(srcdir)/'`e5500/32-bit/memcpy.S
++
++e5500/32-bit/lib_a-memcpy.obj: e5500/32-bit/memcpy.S
++	$(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CCASFLAGS) $(CCASFLAGS) -c -o e5500/32-bit/lib_a-memcpy.obj `if test -f 'e5500/32-bit/memcpy.S'; then $(CYGPATH_W) 'e5500/32-bit/memcpy.S'; else $(CYGPATH_W) '$(srcdir)/e5500/32-bit/memcpy.S'; fi`
++
++e6500/64-bit/lib_a-memcpy.o: e6500/64-bit/memcpy.S
++	$(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CCASFLAGS) $(CCASFLAGS) -c -o e6500/64-bit/lib_a-memcpy.o `test -f 'e6500/64-bit/memcpy.S' || echo '$(srcdir)/'`e6500/64-bit/memcpy.S
++
++e6500/64-bit/lib_a-memcpy.obj: e6500/64-bit/memcpy.S
++	$(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CCASFLAGS) $(CCASFLAGS) -c -o e6500/64-bit/lib_a-memcpy.obj `if test -f 'e6500/64-bit/memcpy.S'; then $(CYGPATH_W) 'e6500/64-bit/memcpy.S'; else $(CYGPATH_W) '$(srcdir)/e6500/64-bit/memcpy.S'; fi`
++
++e6500/32-bit/lib_a-memcpy.o: e6500/32-bit/memcpy.S
++	$(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CCASFLAGS) $(CCASFLAGS) -c -o e6500/32-bit/lib_a-memcpy.o `test -f 'e6500/32-bit/memcpy.S' || echo '$(srcdir)/'`e6500/32-bit/memcpy.S
++
++e6500/32-bit/lib_a-memcpy.obj: e6500/32-bit/memcpy.S
++	$(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CCASFLAGS) $(CCASFLAGS) -c -o e6500/32-bit/lib_a-memcpy.obj `if test -f 'e6500/32-bit/memcpy.S'; then $(CYGPATH_W) 'e6500/32-bit/memcpy.S'; else $(CYGPATH_W) '$(srcdir)/e6500/32-bit/memcpy.S'; fi`
++
+ .c.o:
+-	$(COMPILE) -c $<
++	$(COMPILE) -c -o $@ $<
+ 
+ .c.obj:
+-	$(COMPILE) -c `$(CYGPATH_W) '$<'`
++	$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+ 
+ lib_a-times.o: times.c
+ 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-times.o `test -f 'times.c' || echo '$(srcdir)/'`times.c
+@@ -280,6 +371,12 @@
+ lib_a-times.obj: times.c
+ 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-times.obj `if test -f 'times.c'; then $(CYGPATH_W) 'times.c'; else $(CYGPATH_W) '$(srcdir)/times.c'; fi`
+ 
++lib_a-memcpy.o: memcpy.c
++	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-memcpy.o `test -f 'memcpy.c' || echo '$(srcdir)/'`memcpy.c
++
++lib_a-memcpy.obj: memcpy.c
++	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(lib_a_CFLAGS) $(CFLAGS) -c -o lib_a-memcpy.obj `if test -f 'memcpy.c'; then $(CYGPATH_W) 'memcpy.c'; else $(CYGPATH_W) '$(srcdir)/memcpy.c'; fi`
++
+ ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
+ 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
+ 	unique=`for i in $$list; do \
+@@ -361,6 +458,11 @@
+ distclean-generic:
+ 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
+ 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
++	-rm -f e500mc/$(am__dirstamp)
++	-rm -f e5500/32-bit/$(am__dirstamp)
++	-rm -f e5500/64-bit/$(am__dirstamp)
++	-rm -f e6500/32-bit/$(am__dirstamp)
++	-rm -f e6500/64-bit/$(am__dirstamp)
+ 
+ maintainer-clean-generic:
+ 	@echo "This command is intended for maintainers to use"
+@@ -451,10 +553,10 @@
+ 	uninstall-am
+ 
+ 
+-vec_reallocr.o: vec_mallocr.c
++$(lpfx)vec_reallocr.o: vec_mallocr.c
+ 	$(VEC_MALLOC_COMPILE) -DDEFINE_VECREALLOC -c $(srcdir)/vec_mallocr.c -o $@
+ 
+-vec_callocr.o: vec_mallocr.c
++$(lpfx)vec_callocr.o: vec_mallocr.c
+ 	$(VEC_MALLOC_COMPILE) -DDEFINE_VECCALLOC -c $(srcdir)/vec_mallocr.c -o $@
+ 
+ # Tell versions [3.59,3.63) of GNU make to not export all variables.
+diff -Naur newlib-2.0.0/newlib/libc/machine/powerpc/memcpy.c newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/memcpy.c
+--- newlib-2.0.0/newlib/libc/machine/powerpc/memcpy.c	1969-12-31 18:00:00.000000000 -0600
++++ newlib-2.0.0-e500mc-e5500-e6500-patch/newlib/libc/machine/powerpc/memcpy.c	2013-05-28 05:04:36.956001152 -0500
+@@ -0,0 +1,4 @@
++#include <powerpc/asm.h>
++#include "../../string/memcpy.c"
++
++weak_alias(memcpy, largememcpy)

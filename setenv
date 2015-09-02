@@ -63,6 +63,10 @@ setenv () {
         fi
 
         export PATH=$PATH
+
+        PATH=$(pwd)/tools/gcc-4.8.2-Ee500v2-eabispe/bin:$PATH
+
+        export PATH=$PATH
     fi;
 }
 

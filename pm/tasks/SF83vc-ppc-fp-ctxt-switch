@@ -1,0 +1,35 @@
+Task: SF83vc-ppc-fp-ctxt-switch
+==============================================================================
+
+Motivation
+----------
+
+For users who need it, context switch on PowerPC needs to support the preservation of floating-point values.
+
+Firstly, our testing coverage for PowerPC currently doesn't really reflect this requirement.
+
+Secondly, our PowerPC e500 board support code needs to enable the SPE (signal processing engine enable) bit in the MSR if floating point instructions are to be used.
+
+Thirdly, our context switch implementations for PowerPC don't currently preserve the upper 32 bits of general-purpose register needed for 64-bit floating point operations on the e500.
+Going by customer requirements, at present this is more urgent for the preemptive RTOS variants (Kochab, Phact).
+
+Finally, building code that uses SPE instructions requires a toolchain that is not so widely available.
+
+
+Goals
+--------
+
+Improve test coverage to exercise some use of floating point on PowerPC e500 (and possibly ARMv7-M).
+
+Add optional board support code that enables MSR[SPE] when necessary.
+
+Extend PowerPC e500 preemptive context switch implementation to support preservation of 64-bit floating point values.
+If possible, make this extra support optionally configurable from the prx file (i.e. can be disabled for systems where only 32-bit floating point is needed, or where floating point support is not required).
+
+Either document where to obtain a SPE-supporting toolchain for PowerPC e500, or add such a toolchain to our repo.
+
+
+Test Plan
+---------
+
+Manually test all new floating point-related systems on PowerPC e500 (and ARMv7-M if applicable).

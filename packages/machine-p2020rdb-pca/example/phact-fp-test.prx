@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+     eChronos Real-Time Operating System
+     Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+
+     This program is free software: you can redistribute it and/or modify
+     it under the terms of the GNU Affero General Public License as published by
+     the Free Software Foundation, version 3, provided that no right, title
+     or interest in or to any trade mark, service mark, logo or trade name
+     of NICTA or its licensors is granted.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU Affero General Public License for more details.
+
+     You should have received a copy of the GNU Affero General Public License
+     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+     @TAG(NICTA_AGPL)
+  -->
+
+<system>
+  <modules>
+    <module name="machine-p2020rdb-pca.build" />
+    <module name="ppce500.default-linker" />
+    <module name="ppce500.interrupts-util" />
+    <module name="ppce500.vectable" >
+      <do_pic_init>true</do_pic_init>
+      <preemption>true</preemption>
+      <fixed_interval_timer>
+        <handler>tick_irq</handler>
+        <preempting>true</preempting>
+      </fixed_interval_timer>
+    </module>
+    <module name="ppce500.section-init" />
+    <module name="generic.debug" />
+
+    <module name="ppce500.rtos-phact">
+      <internal_asserts>true</internal_asserts>
+      <api_asserts>true</api_asserts>
+      <fatal_error>fatal</fatal_error>
+      <prefix>rtos</prefix>
+      <taskid_size>8</taskid_size>
+      <signalset_size>8</signalset_size>
+      <tasks>
+
+        <task>
+          <name>z</name>
+          <function>fn_z</function>
+          <priority>31</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>a</name>
+          <function>fn_a</function>
+          <priority>30</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>b</name>
+          <function>fn_b</function>
+          <priority>10</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+      </tasks>
+
+      <signal_labels>
+
+        <signal_label>
+          <name>timer</name>
+        </signal_label>
+
+      </signal_labels>
+
+      <interrupt_events>
+        <interrupt_event>
+          <name>subfp</name>
+          <task>a</task>
+          <sig_set>timer</sig_set>
+        </interrupt_event>
+
+        <interrupt_event>
+          <name>zero</name>
+          <task>z</task>
+          <sig_set>timer</sig_set>
+        </interrupt_event>
+      </interrupt_events>
+
+      <mutex>
+        <stats>false</stats>
+      </mutex>
+
+    </module>
+
+    <module name="machine-p2020rdb-pca.example.machine-timer" />
+    <module name="machine-p2020rdb-pca.example.machine-fp">
+      <all_tasks_spe_enable>true</all_tasks_spe_enable>
+    </module>
+    <module name="machine-p2020rdb-pca.example.p2020-util" />
+    <module name="machine-p2020rdb-pca.example.p2020-duart" />
+    <module name="rtos-example.fp-test">
+      <variant>phact</variant>
+      <doubles_test>false</doubles_test>
+    </module>
+
+  </modules>
+</system>

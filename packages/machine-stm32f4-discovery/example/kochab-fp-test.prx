@@ -5,15 +5,9 @@
 
      This program is free software: you can redistribute it and/or modify
      it under the terms of the GNU Affero General Public License as published by
-     the Free Software Foundation, version 3, provided that these additional
-     terms apply under section 7:
-
-       No right, title or interest in or to any trade mark, service mark, logo
-       or trade name of of National ICT Australia Limited, ABN 62 102 206 173
-       ("NICTA") or its licensors is granted. Modified versions of the Program
-       must be plainly marked as such, and must not be distributed using
-       "eChronos" as a trade mark or product name, or misrepresented as being
-       the original Program.
+     the Free Software Foundation, version 3, provided that no right, title
+     or interest in or to any trade mark, service mark, logo or trade name
+     of NICTA or its licensors is granted.
 
      This program is distributed in the hope that it will be useful,
      but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -27,7 +21,7 @@
   -->
 
 <system>
-  <modules>
+    <modules>
     <module name="machine-stm32f4-discovery.build" />
     <module name="armv7m.ctxt-switch-preempt" />
     <module name="armv7m.exception-preempt">
@@ -48,11 +42,19 @@
     <module name="generic.debug" />
 
     <module name="armv7m.rtos-kochab">
-      <api_asserts>true</api_asserts>
       <internal_asserts>true</internal_asserts>
       <fatal_error>fatal</fatal_error>
       <prefix>rtos</prefix>
+      <taskid_size>8</taskid_size>
+      <signalset_size>8</signalset_size>
       <tasks>
+
+        <task>
+          <name>z</name>
+          <function>fn_z</function>
+          <priority>31</priority>
+          <stack_size>8192</stack_size>
+        </task>
 
         <task>
           <name>a</name>
@@ -68,14 +70,29 @@
           <stack_size>8192</stack_size>
         </task>
 
-        <task>
-          <name>c</name>
-          <function>fn_c</function>
-          <priority>1</priority>
-          <stack_size>8192</stack_size>
-        </task>
-
       </tasks>
+
+      <signal_labels>
+
+        <signal_label>
+          <name>timer</name>
+        </signal_label>
+
+      </signal_labels>
+
+      <interrupt_events>
+        <interrupt_event>
+          <name>subfp</name>
+          <task>a</task>
+          <sig_set>timer</sig_set>
+        </interrupt_event>
+
+        <interrupt_event>
+          <name>zero</name>
+          <task>z</task>
+          <sig_set>timer</sig_set>
+        </interrupt_event>
+      </interrupt_events>
 
       <mutex>
         <stats>false</stats>
@@ -85,7 +102,11 @@
 
     <module name="machine-armv7m-common.example.machine-timer" />
     <module name="machine-stm32f4-discovery.example.machine-fp" />
-    <module name="machine-stm32f4-discovery.example.fp-regs-test" />
+    <module name="rtos-example.fp-test">
+      <variant>kochab</variant>
+      <doubles_test>false</doubles_test>
+      <super_verbose>true</super_verbose>
+    </module>
 
   </modules>
 </system>

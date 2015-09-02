@@ -27,6 +27,7 @@
 
 #include "rtos-kochab.h"
 #include "machine-timer.h"
+#include "machine-fp.h"
 #include "debug.h"
 
 #define DEMO_ERROR_ID_TEST_FAIL 0xff
@@ -47,19 +48,6 @@
 /* Respectively set/get the current values of the floating-point registers, from/to an array */
 #define demo_fp_regs_set(vals) __asm volatile("vldm %0, {s0-s31}"::"r"(vals))
 #define demo_fp_regs_get(regs) __asm volatile("vstm %0, {s0-s31}"::"r"(regs))
-
-void
-enable_fpu(void)
-{
-    /* This is the example code given in the Cortex-M4 Devices Generic User Guide */
-    __asm volatile(
-        "ldr.w r0, =0xe000ed88\n"
-        "ldr r1, [r0]\n"
-        "orr r1, r1, #(0xf << 20)\n"
-        "str r1, [r0]\n"
-        "dsb\n"
-        "isb\n");
-}
 
 bool
 tick_irq(void)
@@ -161,7 +149,7 @@ main(void)
 {
     machine_timer_init();
 
-    enable_fpu();
+    machine_fp_init();
 
     debug_println("Starting RTOS");
     rtos_start();

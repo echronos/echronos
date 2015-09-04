@@ -22,23 +22,31 @@
 from prj import execute
 import os
 
+schema = {'type': 'dict', 'name': 'module', 'dict_type':
+          ([{'type': 'bool', 'name': 'double_precision_fp', 'optional': 'true', 'default': 'false'}], [])
+          }
 
-def run(system, configuration=None):
-    return system_build(system)
+
+def run(system, prx_config={}):
+    return system_build(system, prx_config)
 
 
-def system_build(system):
+def system_build(system, prx_config={}):
     inc_path_args = ['-I%s' % i for i in system.include_paths]
     common_flags = ['-g3']
     a_flags = common_flags
     c_flags = common_flags
+    if prx_config.get('double_precision_fp'):
+        c_float_gprs_flag = '-mfloat-gprs=double'
+    else:
+        c_float_gprs_flag = '-mfloat-gprs=single'
 
     # Compile all C files.
     c_obj_files = [os.path.join(system.output, os.path.basename(c.replace('.c', '.o'))) for c in system.c_files]
 
     for c, o in zip(system.c_files, c_obj_files):
         os.makedirs(os.path.dirname(o), exist_ok=True)
-        execute(['powerpc-eabispe-gcc', '-mcpu=8548', '-mfloat-gprs=single', '-meabi', '-mno-sdata', '-G', '0',
+        execute(['powerpc-eabispe-gcc', '-mcpu=8548', c_float_gprs_flag, '-meabi', '-mno-sdata', '-G', '0',
                 '-mabi=spe', '-mspe', '-ffreestanding', '-c', c, '-o', o, '-Wall', '-Werror'] +
                 c_flags + inc_path_args)
 

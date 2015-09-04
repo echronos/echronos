@@ -97,9 +97,7 @@
     </module>
 
     <module name="machine-p2020rdb-pca.example.machine-timer" />
-    <module name="machine-p2020rdb-pca.example.machine-fp">
-      <all_tasks_spe_enable>true</all_tasks_spe_enable>
-    </module>
+    <module name="machine-p2020rdb-pca.example.machine-fp" />
     <module name="machine-p2020rdb-pca.example.p2020-util" />
     <module name="machine-p2020rdb-pca.example.p2020-duart" />
     <module name="rtos-example.fp-test">

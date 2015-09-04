@@ -156,3 +156,24 @@ On preemption-supporting RTOS variants, interrupts of the *non-critical* class m
 The user should configure an interrupt as `preempting` when its interrupt handler has the potential to cause task preemption.
 Handler functions marked `preempting` MUST return a boolean value that is true if the handler has just made an action with the potential to cause a preemption, such as raising an interrupt event.
 These requirements must be adhered to for the RTOS to be able to enforce its scheduling policies.
+
+To enable support for the preservation of 64-bit SPE registers during interrupts and across context switch for tasks where the `MSR[SPE]` bit is set, set the `spe_64bit_support` tag to `true` for both this module and the RTOS module in the `.prx` file:
+
+    <module name="ppce500.vectable">
+      <spe_64bit_support>true</spe_64bit_support>
+      ...
+    </module>
+    ...
+    <module name="ppce500.rtos-phact">
+      <spe_64bit_support>true</spe_64bit_support>
+      ...
+    </module>
+
+(Note that the `spe_64bit_support` feature is currently only implemented for the RTOS variants that provide preemption support.)
+
+The module also provides an optional default handler for the `eis_spe_apu` interrupt that when activated, sets the `MSR[SPE]` bit to enable the use of SPE APU instructions - enable this feature by setting the `eis_spe_auto_enable` tag to `true` in the `.prx` file:
+
+    <module name="ppce500.vectable">
+      <eis_spe_auto_enable>true</eis_spe_auto_enable>
+      ...
+    </module>

@@ -55,6 +55,9 @@ The RTOS Example package contains the code for a number of RTOS example programs
 
   <dt>`kochab-test`</dt>
   <dd>An example C program demonstrating task preemption functionality on the Kochab variant, driven by timer interrupt events.</dd>
+
+  <dt>`fp-test`</dt>
+  <dd>An example C program that tests consistency of floating-point values across context switch.</dd>
 </dl>
 
 RTOS variant-agnostic program modules in this package take a non-optional `variant` configuration element that must be supplied to them by the system `.prx` file, so that they can include the correct RTOS variant header.
@@ -814,3 +817,27 @@ The `kochab-test` program's expected output is as follows:
     task b unblocked
     tick
     (...)
+
+
+`fp-test`
+==========
+
+This system tests that floating-point values in use by a task remain consistent across a context switch.
+
+More specifically, it is designed to catch inconsistencies that might arise due to a faulty implementation of the floating-point context switch support, under the assumption that int values are preserved correctly by the context switch.
+
+It does this by interleaving:
+
+- a free-running task B that continually increments its floating-point value(s)
+
+- a timer tick-driven task A that decrements its floating-point value(s) whenever it is scheduled
+
+- a timer tick-driven task Z that zeroes out all non-floating-point register values whenever it is scheduled.
+
+Whenever modifying one of its floating-point values, tasks A and B will likewise modify a companion int value, and check that the value of the int (cast to the appropriate floating-point type) matches that of its companion float/double.
+If the values do not match, the test will print information on the mismatch and cause a fatal error.
+
+The range of values covered is arbitrarily limited in order to ensure that corresponding float-int value pairs are reset at the same time so that their comparison remains meaningful.
+The test will continue (resetting values when necessary) until the user manually shuts the system down.
+
+For platforms or system configurations that only support or wish to use single-precision floating point, the use of double-precision floating point in the test can be disabled by setting the `doubles_test` option to `false` when configuring this module in the system `.prx` file.

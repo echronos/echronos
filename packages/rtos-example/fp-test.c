@@ -44,6 +44,7 @@ fatal(const RtosErrorId error_id)
     debug_print("FATAL ERROR: ");
     debug_printhex32(error_id);
     debug_println("");
+    machine_timer_deinit();
     for (;;)
     {
     }

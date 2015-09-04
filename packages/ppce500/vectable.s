@@ -31,6 +31,7 @@
     <entry name="preemption" type="bool" optional="true" default="false" />
     <entry name="do_bss_init" type="bool" optional="true" default="false" />
     <entry name="do_pic_init" type="bool" optional="true" default="false" />
+    <entry name="spe_64bit_support" type="bool" optional="true" default="false" />
     <entry name="machine_check" type="dict" optional="true">
         <entry name="handler" type="c_ident" />
     </entry>
@@ -161,20 +162,28 @@ undefined:
  */
 
 {{^preemption}}
+{{#spe_64bit_support}}
+.error "64-bit SPE register support is currently only available for preemption-supporting RTOS variants"
+{{/spe_64bit_support}}
 /*
  * In order to support arbitrary, project-defined handlers potentially implemented in C, we define the following stack
  * frame structure in which to preserve the interrupted context:
  *
- *  76 +------------------------------------------------------------+ Highest address
- *     | r12                                                        |
+ * Highest address
+ *  80 +------------------------------------------------------------+ 120 <- Total size when SRR1[SPE]=1 indicating
+ *     | Padding for 8-byte alignment |                             |        SPE or floating point APU in use.
+ *  76 +------------------------------| r12 (volatile)              |        (PROPOSED)
+ *     | r12 (volatile)               |                             |
+ *  72 +------------------------------------------------------------+ 112
+ *     | r11                                                        |
  *     ... (r11-r4)   volatile general-purpose registers          ...
  *     | r3                                                         |
- *  36 +------------------------------------------------------------+
- *     | r0                                                         |
- *  32 +------------------------------------------------------------+
- *     | CR (condition register)                                    |
- *  28 +------------------------------------------------------------+
- *     | CTR (count register)                                       |
+ *  36 +------------------------------------------------------------+ 40
+ *     | r0 (volatile)                                              |
+ *  32 +------------------------------------------------------------+ 32
+ *     | CR (condition register)                                    | ^ When SRR1[SPE]=1, store all 64 bits of each
+ *  28 +------------------------------------------------------------+   GPR in case needed for SPE/FP APU operations.
+ *     | CTR (count register)                                       |   (PROPOSED)
  *  24 +------------------------------------------------------------+
  *     | XER (integer exception register)                           |
  *  20 +------------------------------------------------------------+
@@ -194,16 +203,18 @@ undefined:
  *
  * Only the volatile registers (r3-r12) are preserved, because by the EABI convention, any handler would be
  * responsible for preserving the contents of the nonvolatile registers (r14-r31).
+ *
+ * Please note that 64-bit context switch support for non-preemptive variants is not currently implemented.
  */
 
 /* Reserve space needed by the context frame on the stack */
 .macro irq_frame_create
-        stwu %sp,-76(%sp)
+        stwu %sp,-80(%sp)
 .endm
 
 /* Used for dismantling the context frame after it has been restored */
 .macro irq_frame_dismantle
-        addi %sp,%sp,76
+        addi %sp,%sp,80
 .endm
 {{/preemption}}
 {{#preemption}}
@@ -213,21 +224,26 @@ undefined:
  * This allows us to prevent unnecessary stack frame operations once we determine that an interrupted context is to be
  * preempted.
  *
- * 152 +------------------------------------------------------------+ Highest address
- *     | Preempted context restore status flags                     |
- * 148 +------------------------------------------------------------+
- *     | r31                                                        |
- *     ... (r30-r15)  nonvolatile general-purpose registers       ...
+ * Highest address
+ * 152 +------------------------------------------------------------+ 272 <- Total size when SRR1[SPE]=1 indicating
+ *     | Preempted context restore status flags                     |        SPE or floating point APU in use.
+ * 148 +------------------------------------------------------------+ 268
+ *     |                           | Padding for 8-byte alignment   |
+ *     | r31 (nonvolatile)         |--------------------------------+ 264
+ *     |                           | r31 (nonvolatile)              |
+ *  80 +------------------------------------------------------------+ 256
+ *     | r30                                                        |
+ *     ... (r29-r15)  nonvolatile general-purpose registers       ...
  *     | r14                                                        |
- *  76 +------------------------------------------------------------+
+ *  76 +------------------------------------------------------------+ 120
  *     | r12                                                        |
  *     ... (r11-r4)   volatile general-purpose registers          ...
  *     | r3                                                         |
- *  36 +------------------------------------------------------------+
- *     | r0                                                         |
- *  32 +------------------------------------------------------------+
- *     | CR (condition register)                                    |
- *  28 +------------------------------------------------------------+
+ *  36 +------------------------------------------------------------+ 40
+ *     | r0 (volatile)                                              |
+ *  32 +------------------------------------------------------------+ 32
+ *     | CR (condition register)                                    | ^ When SRR1[SPE]=1, store all 64 bits of each
+ *  28 +------------------------------------------------------------+   GPR in case needed for SPE/FP APU operations.
  *     | CTR (count register)                                       |
  *  24 +------------------------------------------------------------+
  *     | XER (integer exception register)                           |
@@ -253,39 +269,202 @@ undefined:
 
 /* Reserves space needed by the context frame on the stack */
 .macro irq_frame_create
+{{#spe_64bit_support}}
+        /* Because of the chicken-and-egg situation of needing to know the size of the stack frame before being able
+         * to save volatile GPRs to it, temporarily use the unused r2 as a scratch register.
+         * Assumes there is no use of the small-data areas (i.e. everything compiled with -mno-sdata -G 0) */
+        mfsrr1 %r2
+        andis. %r2,%r2,0x200
+        cmpi 0,%r2,0
+        beq 42f
+        /* If SRR1[SPE]=1 then we need the context stack frame to be sized to fit 64-bit GPR values. */
+        stwu %sp,-272(%sp)
+        b 43f
+42:     /* Else, the standard context stack frame size. */
+{{/spe_64bit_support}}
         stwu %sp,-152(%sp)
+{{#spe_64bit_support}}
+43:     /* Re-zero r2 for more consistent error behavior if someone uses the small-data area functionality. */
+        li %r2,0
+{{/spe_64bit_support}}
 .endm
 
 /* Used for dismantling the context frame after it has been restored */
 .macro irq_frame_dismantle
+{{#spe_64bit_support}}
+        /* Again we must use the unused r2, because the rest of the registers are already restored by this point. */
+        mfsrr1 %r2
+        andis. %r2,%r2,0x200
+        cmpi 0,%r2,0
+        beq 44f
+        /* SPE size */
+        addi %sp,%sp,272
+        b 45f
+44:     /* Standard size */
+{{/spe_64bit_support}}
         addi %sp,%sp,152
+{{#spe_64bit_support}}
+45:     /* Re-zero r2 for more consistent error behavior in case of use. */
+        li %r2,0
+{{/spe_64bit_support}}
 .endm
 
 /* Stores the contents of all nonvolatile general-purpose registers (GPRs) to the context frame.
  * Since function calls are required to preserve nonvolatile register contents, we generally don't need to call this
  * macro until we are certain of a context switch. */
 .macro irq_frame_store_nonvolatile_gprs
-        /* r14-r31 */
+{{#spe_64bit_support}}
+        irq_frame_restore_srr1 %r2
+        andis. %r2,%r2,0x200
+        cmpi 0,%r2,0
+        beq 46f
+        /* Turn MSR[SPE] on so we can use evstdd to store the 64-bit values onto the context stack frame */
+        mfmsr %r2
+        oris %r2,%r2,0x200
+        mtmsr %r2
+        /* Cheat a little by rewinding the SP to where GPR14 is, because 256 is too big an offset for evstdd */
+        mr %r2,%sp
+        addi %sp,%sp,120
+        /* r14-r31, 64 bits each */
+        evstdd %r14,0(%sp)
+        evstdd %r15,8(%sp)
+        evstdd %r16,16(%sp)
+        evstdd %r17,24(%sp)
+        evstdd %r18,32(%sp)
+        evstdd %r19,40(%sp)
+        evstdd %r20,48(%sp)
+        evstdd %r21,56(%sp)
+        evstdd %r22,64(%sp)
+        evstdd %r23,72(%sp)
+        evstdd %r24,80(%sp)
+        evstdd %r25,88(%sp)
+        evstdd %r26,96(%sp)
+        evstdd %r27,104(%sp)
+        evstdd %r28,112(%sp)
+        evstdd %r29,120(%sp)
+        evstdd %r30,128(%sp)
+        evstdd %r31,136(%sp)
+        /* Revert cheat */
+        mr %sp,%r2
+        /* Don't bother turning off MSR[SPE], it'll go away on rfi */
+        b 47f
+46:
+{{/spe_64bit_support}}
+        /* r14-r31, 32 bits each */
         stmw %r14,76(%sp)
+{{#spe_64bit_support}}
+47:     /* Re-zero r2 for more consistent error behavior */
+        li %r2,0
+{{/spe_64bit_support}}
 .endm
 
 /* Restores all the values of the nonvolatile GPRs from the context frame. */
 .macro irq_frame_restore_nonvolatile_gprs
-        /* r14-r31 */
+{{#spe_64bit_support}}
+        irq_frame_restore_srr1 %r2
+        andis. %r2,%r2,0x200
+        cmpi 0,%r2,0
+        beq 48f
+        /* Turn MSR[SPE] on so we can use evldd */
+        mfmsr %r2
+        oris %r2,%r2,0x200
+        mtmsr %r2
+        /* Cheat a little by rewinding the SP to where GPR14 is, because 256 is too big an offset for evldd */
+        mr %r2,%sp
+        addi %sp,%sp,120
+        /* r14-r31, 64 bits each */
+        evldd %r14,0(%sp)
+        evldd %r15,8(%sp)
+        evldd %r16,16(%sp)
+        evldd %r17,24(%sp)
+        evldd %r18,32(%sp)
+        evldd %r19,40(%sp)
+        evldd %r20,48(%sp)
+        evldd %r21,56(%sp)
+        evldd %r22,64(%sp)
+        evldd %r23,72(%sp)
+        evldd %r24,80(%sp)
+        evldd %r25,88(%sp)
+        evldd %r26,96(%sp)
+        evldd %r27,104(%sp)
+        evldd %r28,112(%sp)
+        evldd %r29,120(%sp)
+        evldd %r30,128(%sp)
+        evldd %r31,136(%sp)
+        /* Revert cheat */
+        mr %sp,%r2
+        /* Don't bother turning off MSR[SPE], it'll go away on rfi */
+        b 49f
+48:     /* Turn off MSR[SPE] so latter checks will treat destination context as a non-SPE one */
+        mfmsr %r2
+        /* Use r13, the read-write SDA anchor register, as a 2nd scratch register, again assuming no SDAs are in use.
+         * Compile with -mno-sdata and -G 0 to disable all use of small data areas. */
+        lis %r13,0x200
+        andc %r2,%r2,%r13
+        mtmsr %r2
+        /* Re-zero r13 for more consistent error behavior in case of use.*/
+        li %r13,0
+{{/spe_64bit_support}}
+        /* r14-r31, 32 bits each */
         lmw %r14,76(%sp)
+{{#spe_64bit_support}}
+49:     /* Re-zero r2 for more consistent error behavior */
+        li %r2,0
+{{/spe_64bit_support}}
 .endm
 {{/preemption}}
 
 /* Stores the value of the first volatile general-purpose register (GPR) r3 to the context frame.
  * This is defined separately because r3 is set to a per-vector handler function address at each vector entry point. */
 .macro irq_frame_store_r3
+{{#spe_64bit_support}}
+        mfsrr1 %r2
+        andis. %r2,%r2,0x200
+        cmpi 0,%r2,0
+        beq 50f
+        /* Turn MSR[SPE] on so we can use evstdd */
+        mfmsr %r2
+        oris %r2,%r2,0x200
+        mtmsr %r2
+        evstdd %r3,40(%sp)
+        /* Don't bother turning off MSR[SPE], it'll go away on rfi */
+        b 51f
+50:
+{{/spe_64bit_support}}
         stw %r3,36(%sp)
+{{#spe_64bit_support}}
+51:     /* Re-zero r2 for more consistent error behavior */
+        li %r2,0
+{{/spe_64bit_support}}
 .endm
 
 /* Stores the values of the remaining volatile GPRs (not including r3) to the context frame.
  * Function calls are not required to preserve volatile register contents, so we must preserve them before doing much
  * else whenever we handle an interrupt. */
 .macro irq_frame_store_remaining_volatile_gprs
+{{#spe_64bit_support}}
+        mfsrr1 %r2
+        andis. %r2,%r2,0x200
+        cmpi 0,%r2,0
+        beq 52f
+        /* Turn MSR[SPE] on so we can use evstdd to store the 64-bit values onto the context stack frame */
+        mfmsr %r2
+        oris %r2,%r2,0x200
+        mtmsr %r2
+        evstdd %r0,32(%sp)
+        evstdd %r4,48(%sp)
+        evstdd %r5,56(%sp)
+        evstdd %r6,64(%sp)
+        evstdd %r7,72(%sp)
+        evstdd %r8,80(%sp)
+        evstdd %r9,88(%sp)
+        evstdd %r10,96(%sp)
+        evstdd %r11,104(%sp)
+        evstdd %r12,112(%sp)
+        /* Don't bother turning off MSR[SPE], it'll go away on rfi */
+        b 53f
+52:
+{{/spe_64bit_support}}
         stw %r0,32(%sp)
         stw %r4,40(%sp)
         stw %r5,44(%sp)
@@ -296,12 +475,40 @@ undefined:
         stw %r10,64(%sp)
         stw %r11,68(%sp)
         stw %r12,72(%sp)
+{{#spe_64bit_support}}
+53:     /* Re-zero r2 for more consistent error behavior */
+        li %r2,0
+{{/spe_64bit_support}}
 .endm
 
 /* Restores all of the values of the volatile GPRs from the context frame.
  * The caller is expected to have previously stored all of the volatile registers to the context frame, using both the
  * macros 'irq_frame_store_r3' and 'irq_frame_store_remaining_volatile_gprs'. */
 .macro irq_frame_restore_volatile_gprs
+{{#spe_64bit_support}}
+        mfsrr1 %r2
+        andis. %r2,%r2,0x200
+        cmpi 0,%r2,0
+        beq 54f
+        /* Turn MSR[SPE] on so we can use evldd */
+        mfmsr %r2
+        oris %r2,%r2,0x200
+        mtmsr %r2
+        evldd %r0,32(%sp)
+        evldd %r3,40(%sp)
+        evldd %r4,48(%sp)
+        evldd %r5,56(%sp)
+        evldd %r6,64(%sp)
+        evldd %r7,72(%sp)
+        evldd %r8,80(%sp)
+        evldd %r9,88(%sp)
+        evldd %r10,96(%sp)
+        evldd %r11,104(%sp)
+        evldd %r12,112(%sp)
+        /* Don't bother turning off MSR[SPE], it'll go away on rfi */
+        b 55f
+54:
+{{/spe_64bit_support}}
         lwz %r0,32(%sp)
         lwz %r3,36(%sp)
         lwz %r4,40(%sp)
@@ -313,6 +520,10 @@ undefined:
         lwz %r10,64(%sp)
         lwz %r11,68(%sp)
         lwz %r12,72(%sp)
+{{#spe_64bit_support}}
+55:     /* Re-zero r2 for more consistent error behavior */
+        li %r2,0
+{{/spe_64bit_support}}
 .endm
 
 /* Stores the contents of special-purpose registers (SPRs) to the context frame. */

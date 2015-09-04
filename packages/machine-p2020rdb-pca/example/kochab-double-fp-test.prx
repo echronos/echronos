@@ -28,6 +28,7 @@
     <module name="ppce500.default-linker" />
     <module name="ppce500.interrupts-util" />
     <module name="ppce500.vectable" >
+      <spe_64bit_support>true</spe_64bit_support>
       <do_pic_init>true</do_pic_init>
       <preemption>true</preemption>
       <fixed_interval_timer>
@@ -40,6 +41,7 @@
     <module name="generic.debug" />
 
     <module name="ppce500.rtos-kochab">
+      <spe_64bit_support>true</spe_64bit_support>
       <internal_asserts>true</internal_asserts>
       <api_asserts>true</api_asserts>
       <fatal_error>fatal</fatal_error>

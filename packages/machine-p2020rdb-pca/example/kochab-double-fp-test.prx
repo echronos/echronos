@@ -34,6 +34,7 @@
         <handler>tick_irq</handler>
         <preempting>true</preempting>
       </fixed_interval_timer>
+      <eis_spe_auto_enable>true</eis_spe_auto_enable>
     </module>
     <module name="ppce500.section-init" />
     <module name="generic.debug" />
@@ -99,9 +100,7 @@
     </module>
 
     <module name="machine-p2020rdb-pca.example.machine-timer" />
-    <module name="machine-p2020rdb-pca.example.machine-fp">
-      <all_tasks_spe_enable>true</all_tasks_spe_enable>
-    </module>
+    <module name="machine-p2020rdb-pca.example.machine-fp" />
     <module name="machine-p2020rdb-pca.example.p2020-util" />
     <module name="machine-p2020rdb-pca.example.p2020-duart" />
     <module name="rtos-example.fp-test">

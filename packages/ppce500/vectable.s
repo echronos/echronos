@@ -90,6 +90,7 @@
         <entry name="handler" type="c_ident" />
         <entry name="preempting" type="bool" optional="true" default="false" />
     </entry>
+    <entry name="eis_spe_auto_enable" type="bool" optional="true" default="false" />
     <entry name="eis_spe_apu" type="dict" optional="true">
         <entry name="handler" type="c_ident" />
         <entry name="preempting" type="bool" optional="true" default="false" />
@@ -617,6 +618,21 @@ itlb_vector:    b itlb_vector
 /* Interrupts defined by Freescale Book E Implementation Standards (EIS) */
 
 .align 4
+{{#eis_spe_auto_enable}}
+{{#eis_spe_apu}}
+.error "Please choose between SPE auto-enable handler and a custom handler for the SPE APU interrupt"
+{{/eis_spe_apu}}
+eis_spe_apu_vector:
+        /* Turn MSR[SPE] on in the interrupted context.
+         * This implementation assumes no use of r2, the read-only SDA anchor register.
+         * Compile with -mno-sdata and -G 0 to disable all use of small data areas. */
+        mfsrr1 %r2
+        oris %r2,%r2,0x200
+        mtsrr1 %r2
+        li %r2,0
+        rfi
+{{/eis_spe_auto_enable}}
+{{^eis_spe_auto_enable}}
 {{#eis_spe_apu}}
 eis_spe_apu_vector:
         create_irq_frame_set_r3 {{eis_spe_apu.handler}}
@@ -630,6 +646,7 @@ eis_spe_apu_vector:
 {{^eis_spe_apu}}
 eis_spe_apu_vector: b eis_spe_apu_vector
 {{/eis_spe_apu}}
+{{/eis_spe_auto_enable}}
 
 .align 4
 {{#eis_fp_data}}

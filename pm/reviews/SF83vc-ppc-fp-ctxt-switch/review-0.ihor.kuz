@@ -14,6 +14,8 @@ Location: setenv: 67
 Comment: [rework]
 If the PPC compiler is only compiled for Linux, then the line adding it to the PATH should be conditional on running on Linux (e.g. as with code above it that adds Darwin specific elements to the path)
 
+[robs: Fixed]
+
 Location: packages/ppce500/vectable.s: 207
 Comment: [rework]
 Please move the comment line saying that this stack structure is not yet implemented to the top of the comment (after the first line) so that it is more obvious.

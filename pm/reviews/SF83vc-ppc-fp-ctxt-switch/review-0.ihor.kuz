@@ -20,9 +20,12 @@ Location: packages/ppce500/vectable.s: 207
 Comment: [rework]
 Please move the comment line saying that this stack structure is not yet implemented to the top of the comment (after the first line) so that it is more obvious.
 
+[robs: Fixed]
+
 Location: packages/ppce500/vectable.s: 173-183, 228-244
 Comment: [rework]
 It's not clear to me how to interpret the numbers on the left and right of the stack drawings.  
 After asking about it, it turns out that the left numbers are addresses when using 32-bit registers, and the right ones are addresses when using 64-bit registers.
 Please add an explanation of this.
 
+[robs: Fixed]

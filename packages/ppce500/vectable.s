@@ -167,7 +167,13 @@ undefined:
 {{/spe_64bit_support}}
 /*
  * In order to support arbitrary, project-defined handlers potentially implemented in C, we define the following stack
- * frame structure in which to preserve the interrupted context:
+ * frame structure in which to preserve the interrupted context.
+ *
+ * Please note that 64-bit context switch support for non-preemptive variants is not currently implemented.
+ *
+ * The numbers on the left-hand side indicate the address offsets (in bytes) assuming 32-bit general-purpose registers
+ * (GPRs), and the numbers on the right-hand side indicate (proposed) address offsets that could be used to implement
+ * context switch support for 64-bit GPRs.
  *
  * Highest address
  *  80 +------------------------------------------------------------+ 120 <- Total size when SRR1[SPE]=1 indicating
@@ -203,8 +209,6 @@ undefined:
  *
  * Only the volatile registers (r3-r12) are preserved, because by the EABI convention, any handler would be
  * responsible for preserving the contents of the nonvolatile registers (r14-r31).
- *
- * Please note that 64-bit context switch support for non-preemptive variants is not currently implemented.
  */
 
 /* Reserve space needed by the context frame on the stack */
@@ -223,6 +227,9 @@ undefined:
  * switching.
  * This allows us to prevent unnecessary stack frame operations once we determine that an interrupted context is to be
  * preempted.
+ *
+ * The numbers on the left-hand side indicate the address offsets (in bytes) when using 32-bit general-purpose
+ * registers (GPRs), and the numbers on the right-hand side indicate the address offsets when 64-bit GPRs are in use.
  *
  * Highest address
  * 152 +------------------------------------------------------------+ 272 <- Total size when SRR1[SPE]=1 indicating

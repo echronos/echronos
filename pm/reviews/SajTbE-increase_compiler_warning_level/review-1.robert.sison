@@ -5,16 +5,4 @@ Task name: SajTbE-increase_compiler_warning_level
 Version reviewed: f6077be579bb9150eb73239f41e3f75d54bab744
 Reviewer: robert.sison
 Date: 2015-09-01
-Conclusion: Accepted/Rework
-
-Overall comments:
-
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Conclusion: Accepted

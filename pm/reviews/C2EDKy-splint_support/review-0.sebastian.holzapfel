@@ -5,16 +5,65 @@ Task name: C2EDKy-splint_support
 Version reviewed: 474fc141a921573abb7b171e6d671e50d66e403a
 Reviewer: sebastian.holzapfel
 Date: 2015-11-18
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
+
+- I ignored the undocumented @unused@ annotations in various component API functions, 
+their purpose is obvious, perhaps a comment at the top of the file might be useful
+stating that splint complains despite the fact that these functions aren't necessary
+API calls in user-level code.
 
 
 Specific comments
 =================
 
-Location: filename:linenum
+Location: /packages/stub/debug.c:31
 Comment:
+Unused symbol is annotated but undocumented.
+ - It may be appropriate to document why this parameter is @unused@, in a similar 
+vein to the function calls at components/task/implementation.c:[37, 39]
 
-Location: filename:linenum
+Location: components/phact/implementation.c:60
 Comment:
+Unused symbol is annotated but undocumented.
+ - Similar to above.
+
+Location: components/task/docs.md:180
+          components/task/header.h:11
+          components/sched-prio-test/header.h:9
+          components/sched-prio-inherit-test/header.h:9
+          components/sched-rr-test/header.h:9
+          components/blocking-mutex-test/header.h:11
+Comment:
+ - With the introduction of TASK_ID_END, TASK_ID_MAX is no longer used in the codebase 
+(including example code). Currently the documentation states that TASK_ID_MAX should be
+used by user-level code. It *may* be worth considering, for a similar reason to why this
+macro was introduced; standardizing on TASK_ID_END, updating the documentation, pushing
+it into headers and removing TASK_ID_MAX altogether.
+
+Location: prj/app/prj.py:810
+Comment:
+(NOTE: This is not an issue per se, just some notes)
+ - I've looked briefly into why splint isn't processing the definitions of UINT8_C, 
+UINT8_MAX etc; as it will probably become cumbersome to have to add these macros as
+additional flags if a new one is used.
+ - There doesn't seem to be a stdint.h in splint's standard system include path.
+ - Just for testing, I attempted to remove the dependency on the in-built libraries using
+'-skip-iso-headers', and changed the system include path to 'tools/x86_64-unknown-linux-gnu/lib/gcc/arm-none-eabi/4.7.2/include'
+which did not work as these files require a bunch of gnu macros that splint doesn't support.
+ - I exported these macros from the arm version of gcc, and forced their inclusion. This
+fixes the UINT8_C (etc) macros, however splint now has some complaints about the GCC headers.
+ - Conclusion: I think your solution is the fine for now. If we end up having to add
+more flags, it may be possible down the track to do an automated macro export (depending
+on the target platform under test) using 'gcc -E -dM ...', and then have this used by
+splint to process the target's include files [whilst avoiding a header lint] instead of the default
+set, which would fix this issue.
+
+Location: prj/app/prj.py:810
+Comment:
+ - This subprocess call will throw an unhandled exception if splint finds anything wrong.
+ It may be nicer to catch the CalledProcessError in the case that splint finds something,
+ and report it as an analysis fault, as opposed to a fault in prj.
+ - Despite the fact that the text dump makes it obvious when splint is at fault, this
+ behaviour does not seem consistent with other external calls by prj. (i.e line 986)

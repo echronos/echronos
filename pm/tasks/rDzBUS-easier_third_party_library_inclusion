@@ -4,11 +4,9 @@ Task: rDzBUS-easier_third_party_library_inclusion
 Motivation
 ----------
 
-- Currently there isn't really an easy way of using a lot of headers (as in common
- when working with third-party libraries), in an eChronos package.
+- Currently there isn't really an easy way of using a lot of headers (as in common when working with third-party libraries), in an eChronos package.
 
-- A possible solution is to just create a .c file that contains a large schema
-forcing prj to include all of the headers like:
+- A possible solution is to just create a .c file that contains a large schema forcing prj to include all of the headers like:
 
     /*<module>
     <headers>
@@ -22,9 +20,7 @@ forcing prj to include all of the headers like:
     </module>*/
     ... all the c code (this example from Ihor)
 
-- However the problem with this is interdependency using relative paths. For example,
-in the TI libraries, there are hundreds of header files & c files with include
-declarations of the form:
+- However the problem with this is interdependency using relative paths. For example, in the TI libraries, there are hundreds of header files & c files with include declarations of the form:
 
     #include <stdbool.h>
     #include <stdint.h>
@@ -39,22 +35,19 @@ declarations of the form:
     #include "driverlib/interrupt.h"
     ...
 
-- This means that, as prj moves every interdependent file to one directory before final
-compilation, all of these relative links break
+- This means that, as prj moves every interdependent file to one directory before final compilation, all of these relative links break
 
 Goals
 --------
 
 - Make it easier to include large sets of third-party libraries with prj. 
 
-- Below is what I am currently using; however it would be good to have some discussion
-on how best to approach this
+- Below is what I am currently using; however it would be good to have some discussion on how best to approach this
 
 Test Plan
 ---------
 
-- Perform build tests to ensure that adding this functionality doesn't adversely affect
-other areas of prj.
+- Perform build tests to ensure that adding this functionality doesn't adversely affect other areas of prj.
 
 Sample Implementation
 ---------------------
@@ -74,9 +67,7 @@ Sample Implementation
     def add_include_path(self, path):
         self.extra_includes.append(path)
 
-- IMPORTANT: There is a redundant syntax check in the vector table build script,
-which you have to remove in order for this modification to work. For ARM,
-it's at: packages/armv7/vectable.py:106
+- IMPORTANT: There is a redundant syntax check in the vector table build script, which you have to remove in order for this modification to work. For ARM,it's at: packages/armv7/vectable.py:106
 
     for c_file in system.c_files:
         with open(c_file) as f:
@@ -94,7 +85,7 @@ it's at: packages/armv7/vectable.py:106
             except ply.cpp.CppError as e:
                 pass
 
-Now in your build script it's much simpler to include headers directory-wise:
+- Now in your build script it's much simpler to include headers directory-wise:
 
     def system_build(system):
         ti_lib_dir = os.getcwd() + "/packages/machine-tm4c1294-launchpad/ti_libs/"

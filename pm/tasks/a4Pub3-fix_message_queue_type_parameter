@@ -4,8 +4,7 @@ Task: a4Pub3-fix_message_queue_type_parameter
 Motivation
 ----------
 
-- This problem manifests itself when using the message_type parameter with
-message queues on Rigel. Take a look at this:
+- This problem manifests itself when using the message_type parameter with message queues on Rigel. Take a look at this:
 
 (from components/message-queue/implementation.c:34)
 
@@ -25,8 +24,7 @@ message queues on Rigel. Take a look at this:
             sizeof({{message_type}}),
     {{/message_type}}
 
-- In the above, line 36 you can see that {{message_size}} is used to provide
-the second dimension of message_queue_x_messages.
+- In the above, line 36 you can see that {{message_size}} is used to provide the second dimension of message_queue_x_messages.
 
 - However, in the documentation it is listed (and you can see in line 47):
 
@@ -36,8 +34,7 @@ the second dimension of message_queue_x_messages.
     > item with no default. Either message_size or message_type needs to be specified
     > for a message queue.
 
-- With the above implementation, the absence of message_size results in python
-replacing it with 'None', hence a compiler error come gcc
+- With the above implementation, the absence of message_size results in python replacing it with 'None', hence a compiler error come gcc
 
 - This means you can't use message_type.
 
@@ -49,5 +46,4 @@ Goals
 Test Plan
 ---------
 
-- Verify that the template will compile when using message_type, and ensure
-that sizeof is correctly interpreting the type from schema.
+- Verify that the template will compile when using message_type, and ensure that sizeof is correctly interpreting the type from schema.

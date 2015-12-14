@@ -95,8 +95,8 @@
  * Some platforms do not implement the low 4 bits of priority.
  * Thus, we choose priority values that are distinct regardless of the lower 4 bits. */
 
-#define SVCALL_PRIORITY 224u
-#define PENDSV_PRIORITY 240u
+#define SVCALL_PRIORITY {{svcall_priority}}u
+#define PENDSV_PRIORITY {{pendsv_priority}}u
 
 /* System Handler Priority Registers (SHPR) */
 #define SHPR2_PHYSADDR 0xE000ED1C

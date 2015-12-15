@@ -1,6 +1,7 @@
 /*| provides |*/
 context-switch-preempt-armv7m
 /*| requires |*/
+preempt
 /*| doc_header |*/
 /*| doc_concepts |*/
 ## Internal RTOS Interrupts

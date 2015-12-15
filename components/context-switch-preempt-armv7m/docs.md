@@ -3,6 +3,7 @@ context-switch-preempt-armv7m
 /*| requires |*/
 preempt
 /*| doc_header |*/
+<!-- %architecture ARMv7m -->
 /*| doc_concepts |*/
 ## Internal RTOS Interrupts
 

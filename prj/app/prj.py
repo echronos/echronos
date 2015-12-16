@@ -703,8 +703,21 @@ class System:
             include_els = [e for e in include_el.childNodes
                            if e.nodeType == e.ELEMENT_NODE and e.tagName == 'additional_include']
 
+            named_includes = {}
+
             for i_el in include_els:
-                path = get_attribute(i_el, 'path')
+                path = get_attribute(i_el, 'path', None)
+
+                # name, relative_to, hidden facilite sets of subdirectories in one place
+                name = get_attribute(i_el, 'name', None)
+                relative_to = get_attribute(i_el, 'relative_to', None)
+                hidden = get_attribute(i_el, 'hidden', None)
+
+                if path is None:
+                    raise SystemConsistencyError(xml_error_str(i_el, "Additional include with unspecified path"))
+
+                if relative_to:
+                    path = os.path.join(relative_to, path)
 
                 # If we aren't given an absolute path treat it as relative to this .prx's directory
                 if not os.path.isabs(path):
@@ -716,8 +729,17 @@ class System:
                     path = os.path.abspath(inc_path)
 
                 path = os.path.normpath(path)
-                self.add_additional_include(path)
-                logger.info("Added additional include path: %s", path)
+
+                if hidden != "true":
+                    self.add_additional_include(path)
+
+                if name:
+                    named_includes[name] = path
+
+                # Name the different include types for logging purposes
+                include_types = zip([name, relative_to, hidden], ["named", "relative", "hidden"])
+                include_type = ''.join([x[1] + ' ' for x in include_types if x[0]])
+                logger.info("Added %sinclude path: %s", include_type, path)
 
         # Parse the DOM to load all the entities.
         module_el = single_named_child(self.dom, 'modules')

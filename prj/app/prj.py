@@ -698,12 +698,13 @@ class System:
 
         # Parse the DOM to load any additional include paths
         include_el = maybe_single_named_child(self.dom, 'additional_includes')
-        
+
         if include_el:
-            include_els = [e for e in include_el.childNodes if e.nodeType == e.ELEMENT_NODE and e.tagName == 'additional_include']
+            include_els = [e for e in include_el.childNodes
+                           if e.nodeType == e.ELEMENT_NODE and e.tagName == 'additional_include']
 
             for i_el in include_els:
-                path = get_attribute( i_el, 'path' )
+                path = get_attribute(i_el, 'path')
 
                 # If we aren't given an absolute path treat it as relative to this .prx's directory
                 if not os.path.isabs(path):
@@ -711,7 +712,7 @@ class System:
                     prx_directory = os.path.join(packages_path, *self.name.split('.')[:-1])
                     inc_path = os.path.join(prx_directory, path)
 
-                    # Absolute paths make it obvious what directory prj is actually including                
+                    # Absolute paths make it obvious what directory prj is actually including
                     path = os.path.abspath(inc_path)
 
                 path = os.path.normpath(path)

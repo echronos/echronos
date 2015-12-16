@@ -717,7 +717,11 @@ class System:
                     raise SystemConsistencyError(xml_error_str(i_el, "Additional include with unspecified path"))
 
                 if relative_to:
-                    path = os.path.join(relative_to, path)
+                    if relative_to in named_includes:
+                        path = os.path.join(named_includes[relative_to], path)
+                    else:
+                        error_string = "Named include path '{}' unknown".format(relative_to)
+                        raise SystemConsistencyError(xml_error_str(i_el, error_string))
 
                 # If we aren't given an absolute path treat it as relative to this .prx's directory
                 if not os.path.isabs(path):

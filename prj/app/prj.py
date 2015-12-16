@@ -765,7 +765,7 @@ class System:
             i.validate()
 
         return instances
-    
+
     def parse_additional_includes(self):
         # Parse the DOM to load any additional include paths
         include_el = maybe_single_named_child(self.dom, 'additional_includes')
@@ -819,8 +819,6 @@ class System:
             include_types = zip([name, relative_to, hidden], ["named", "relative", "hidden"])
             include_type = ''.join([x[1] + ' ' for x in include_types if x[0]])
             logger.info("Added %sinclude path: %s", include_type, path)
-
-
 
     def generate(self, *, copy_all_files):
         """Generate the source for the system.

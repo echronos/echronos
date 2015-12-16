@@ -695,7 +695,7 @@ class System:
         Returns a list of instances of class ModuleInstance.
 
         """
-        self.parse_additional_includes()
+        self._parse_additional_includes()
 
         # Parse the DOM to load all the entities.
         module_el = single_named_child(self.dom, 'modules')
@@ -766,7 +766,7 @@ class System:
 
         return instances
 
-    def parse_additional_includes(self):
+    def _parse_additional_includes(self):
         # Parse the DOM to load any additional include paths
         include_el = maybe_single_named_child(self.dom, 'additional_includes')
 

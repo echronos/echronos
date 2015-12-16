@@ -695,55 +695,7 @@ class System:
         Returns a list of instances of class ModuleInstance.
 
         """
-
-        # Parse the DOM to load any additional include paths
-        include_el = maybe_single_named_child(self.dom, 'additional_includes')
-
-        if include_el:
-            include_els = [e for e in include_el.childNodes
-                           if e.nodeType == e.ELEMENT_NODE and e.tagName == 'additional_include']
-
-            named_includes = {}
-
-            for i_el in include_els:
-                path = get_attribute(i_el, 'path', None)
-
-                # name, relative_to, hidden facilite sets of subdirectories in one place
-                name = get_attribute(i_el, 'name', None)
-                relative_to = get_attribute(i_el, 'relative_to', None)
-                hidden = get_attribute(i_el, 'hidden', None)
-
-                if path is None:
-                    raise SystemConsistencyError(xml_error_str(i_el, "Additional include with unspecified path"))
-
-                if relative_to:
-                    if relative_to in named_includes:
-                        path = os.path.join(named_includes[relative_to], path)
-                    else:
-                        error_string = "Named include path '{}' unknown".format(relative_to)
-                        raise SystemConsistencyError(xml_error_str(i_el, error_string))
-
-                # If we aren't given an absolute path treat it as relative to this .prx's directory
-                if not os.path.isabs(path):
-                    packages_path = os.path.join(__file__, "../../../packages")
-                    prx_directory = os.path.join(packages_path, *self.name.split('.')[:-1])
-                    inc_path = os.path.join(prx_directory, path)
-
-                    # Absolute paths make it obvious what directory prj is actually including
-                    path = os.path.abspath(inc_path)
-
-                path = os.path.normpath(path)
-
-                if hidden != "true":
-                    self.add_additional_include(path)
-
-                if name:
-                    named_includes[name] = path
-
-                # Name the different include types for logging purposes
-                include_types = zip([name, relative_to, hidden], ["named", "relative", "hidden"])
-                include_type = ''.join([x[1] + ' ' for x in include_types if x[0]])
-                logger.info("Added %sinclude path: %s", include_type, path)
+        self.parse_additional_includes()
 
         # Parse the DOM to load all the entities.
         module_el = single_named_child(self.dom, 'modules')
@@ -813,6 +765,62 @@ class System:
             i.validate()
 
         return instances
+    
+    def parse_additional_includes(self):
+        # Parse the DOM to load any additional include paths
+        include_el = maybe_single_named_child(self.dom, 'additional_includes')
+
+        if include_el is None:
+            return
+
+        include_els = [e for e in include_el.childNodes
+                       if e.nodeType == e.ELEMENT_NODE and e.tagName == 'additional_include']
+
+        named_includes = {}
+
+        for i_el in include_els:
+            path = get_attribute(i_el, 'path', None)
+
+            # name, relative_to, hidden facilite sets of subdirectories in one place
+            name = get_attribute(i_el, 'name', None)
+            relative_to = get_attribute(i_el, 'relative_to', None)
+            hidden = get_attribute(i_el, 'hidden', None)
+
+            if path is None:
+                raise SystemConsistencyError(xml_error_str(i_el, "Additional include with unspecified path"))
+
+            if relative_to:
+                if relative_to in named_includes:
+                    path = os.path.join(named_includes[relative_to], path)
+                else:
+                    error_string = "Named include path '{}' unknown".format(relative_to)
+                    raise SystemConsistencyError(xml_error_str(i_el, error_string))
+
+            # If we aren't given an absolute path treat it as relative to this .prx's directory
+            if not os.path.isabs(path):
+                packages_path = os.path.join(__file__, "../../../packages")
+                prx_directory = os.path.join(packages_path, *self.name.split('.')[:-1])
+                inc_path = os.path.join(prx_directory, path)
+
+                # Absolute paths make it obvious what directory prj is actually including
+                path = os.path.abspath(inc_path)
+
+            path = os.path.normpath(path)
+
+            # Hidden means we still consider the directory for relative paths but don't actually
+            # use it as an include directory
+            if hidden != "true":
+                self.add_additional_include(path)
+
+            if name:
+                named_includes[name] = path
+
+            # Name the different include types for logging purposes
+            include_types = zip([name, relative_to, hidden], ["named", "relative", "hidden"])
+            include_type = ''.join([x[1] + ' ' for x in include_types if x[0]])
+            logger.info("Added %sinclude path: %s", include_type, path)
+
+
 
     def generate(self, *, copy_all_files):
         """Generate the source for the system.

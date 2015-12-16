@@ -611,6 +611,7 @@ class System:
         self._c_files = []
         self._asm_files = []
         self._linker_script = None
+        self._additional_includes = []
         self._output = None
         self.__instances = None
 
@@ -637,7 +638,7 @@ class System:
 
     @property
     def include_paths(self):
-        return [self.output]
+        return [self.output] + self._additional_includes
 
     @property
     def c_files(self):
@@ -668,6 +669,9 @@ class System:
         extension = os.path.splitext(path)[1]
         add_functions[extension](path)
 
+    def add_additional_include(self, path):
+        self._additional_includes.append(path)
+
     @property
     def image(self):
         """The image of this system once built.
@@ -691,6 +695,29 @@ class System:
         Returns a list of instances of class ModuleInstance.
 
         """
+
+        # Parse the DOM to load any additional include paths
+        include_el = maybe_single_named_child(self.dom, 'additional_includes')
+        
+        if include_el:
+            include_els = [e for e in include_el.childNodes if e.nodeType == e.ELEMENT_NODE and e.tagName == 'additional_include']
+
+            for i_el in include_els:
+                path = get_attribute( i_el, 'path' )
+
+                # If we aren't given an absolute path treat it as relative to this .prx's directory
+                if not os.path.isabs(path):
+                    packages_path = os.path.join(__file__, "../../../packages")
+                    prx_directory = os.path.join(packages_path, *self.name.split('.')[:-1])
+                    inc_path = os.path.join(prx_directory, path)
+
+                    # Absolute paths make it obvious what directory prj is actually including                
+                    path = os.path.abspath(inc_path)
+
+                path = os.path.normpath(path)
+                self.add_additional_include(path)
+                logger.info("Added additional include path: %s", path)
+
         # Parse the DOM to load all the entities.
         module_el = single_named_child(self.dom, 'modules')
         module_els = [e for e in module_el.childNodes if e.nodeType == e.ELEMENT_NODE and e.tagName == 'module']

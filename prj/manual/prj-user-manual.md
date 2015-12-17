@@ -118,7 +118,8 @@ An example system definition file:
     </system>
 
 The system definition file has a top-level `system` element.
-The `system` element should contain a `module` element.
+The `system` element should contain a `modules` element.
+The `system` element can optionally contain an `additional_includes` element; described below
 The `modules` element should contain 1 or more `module` elements.
 Each `module` element must have a `name` attribute.
 The `prj` tool will search for the module entity based on the `name` attribute.
@@ -153,6 +154,46 @@ Consequently when naming top-level configuration parameters for modules, the nam
 
 
 **Future:** Modules that support multiple inclusion in a system vs. single inclusion in a system.
+
+### Additional Includes
+
+A *system* can optionally contain an `additional_includes` element; which is used to indicate any additional paths that should be searched for header files during the system build process.
+A possible use-case for `additional_include` declarations are for indicating library directories that contain large sets of headers that refer to each other with relative paths.
+Using `additional_include`, it is possible to name directories and refer to them in following declarations using the `name` and `relative_to` attributes.
+If an include directory is to be purely used as a name for later reference, it is recommended that it be flagged as `hidden` so that it is not passed to the build process.
+It is important to note that the `additional_include` declaration is a convenience function not recommended for use when referring to user code, the *module* system (above) should be used instead for handling include paths.
+
+An example system definition file that contains `additional_include` elements:
+
+    <system>
+     <additional_includes>
+        <additional_include name="mcu_libs" path="/etc/lib/the_mcu_libs" hidden="true">
+        <additional_include relative_to="mcu_libs" path="system/include">
+        <additional_include relative_to="mcu_libs" path="utils/include">
+        <additional_include name="relative_lib" path="../the_relative_lib">
+        <additional_include relative_to="relative_lib" path="thirdparty/include">
+        <additional_include relative_to="relative_lib" path="sys/include">
+        <additional_include path="/etc/lib/another_lib"/>
+     </additional_includes>
+     <modules>
+      <module name="posix-build" />
+      <module name="rtos-acamar">
+        <taskid_size>8</taskid_size>
+           <num_tasks>2</num_tasks>
+      </module>
+      <module name="example/acamar-test" />
+     </modules>
+    </system>
+
+To clarify the behaviour of these commands, if the above system were to be parsed by prj; the following would occur:
+
+    INFO:prj:Added named hidden include path: /etc/lib/the_mcu_libs
+    INFO:prj:Added relative include path: /etc/lib/the_mcu_libs/system/include
+    INFO:prj:Added relative include path: /etc/lib/the_mcu_libs/utils/include
+    INFO:prj:Added named include path: <echronos_repo>/../the_relative_lib
+    INFO:prj:Added relative include path: <echronos_repo>/../the_relative_lib/thirdparty/include
+    INFO:prj:Added relative include path: <echronos_repo>/../the_relative_lib/sys/include
+    INFO:prj:Added include path: /etc/lib/another_lib
 
 
 ### Package

@@ -796,13 +796,11 @@ class System:
                     error_string = "Named include path '{}' unknown".format(relative_to)
                     raise SystemConsistencyError(xml_error_str(i_el, error_string))
 
-            # If we aren't given an absolute path treat it as relative to this .prx's directory
+            # If we aren't given an absolute path treat it as relative the base path
             if not os.path.isabs(path):
-                packages_path = os.path.join(__file__, "../../../packages")
-                prx_directory = os.path.join(packages_path, *self.name.split('.')[:-1])
-                inc_path = os.path.join(prx_directory, path)
+                inc_path = os.path.join(os.getcwd(), path)
 
-                # Absolute paths make it obvious what directory prj is actually including
+                # Absolute paths make it very obvious what directory prj is actually including
                 path = os.path.abspath(inc_path)
 
             path = os.path.normpath(path)

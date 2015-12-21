@@ -4,17 +4,18 @@ RTOS Task Review
 Task name: a4Pub3-fix_message_queue_type_parameter
 Version reviewed: 6baf73f38aac2f6febcbe55d13eb6b44c015ac7e
 Reviewer: ihor.kuz
-Date: 2015-12-10
-Conclusion: Accepted/Rework
+Date: 2015-12-21
+Conclusion: Accepted
 
 Overall comments:
+- a couple of issues in the task description, but not serious enough to require rework.
 
 
 Specific comments
 =================
 
-Location: filename:linenum
+Location: a4Pub3-fix_message_queue_type_parameter
 Comment:
+- 7: There's one sentence that doesn't start on a new line.
+- 37: There's what looks like a typo: "hence a compiler error come gcc"
 
-Location: filename:linenum
-Comment:

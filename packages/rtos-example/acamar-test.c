@@ -32,6 +32,9 @@
 
 extern void debug_println(const char *msg);
 
+void fn_a(void);
+void fn_b(void);
+
 void
 fn_a(void)
 {

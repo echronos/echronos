@@ -5,16 +5,9 @@ Task name: a4Pub3-fix_message_queue_type_parameter
 Version reviewed: 6baf73f38aac2f6febcbe55d13eb6b44c015ac7e
 Reviewer: stg
 Date: 2015-12-10
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
 Overall comments:
 
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Some typos and style violations in the task description, but nothing major.
+Thanks for this fix!

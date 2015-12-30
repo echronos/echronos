@@ -31,6 +31,9 @@ Rationale: consistent code style and improved readability.
 u1wSS9: The command 'x.py test style' shall check for compliance of all project Python files.
 Rationale: an automated check allows to detect and resolve non-compliance efficiently.
 
+05K0tk: In plain-text and markdown files, each sentence shall occupy exactly one line.
+Rationale: simplifies file handling with line-oriented tools, such as diff and patch.
+
 TZb0Uv: The maximum line length in project Python files is 118 characters.
 Rationale: a maximum line length allows for convenient source code handling with standard text management tools on the command line.
 Since an 80-character limit is considered overly restrictive, 120 characters are a viable compromise on modern displays.
@@ -53,7 +56,7 @@ Instead, they are considered implementation details that may change any time.
 Specific API assertions and internal assertions are therefore not to be documented in the RTOS manual.
 
 SKcASp: All documentation uses present tense.
-Other tenses are only acceptable where they are necessary grammatically for clarity.
+Other tenses are only acceptable where they are grammatically necessary for clarity.
 
 BXCwte: All C code must observe const correctness.
 Const correctness is described in more detail online in Wikipedia and in the C++ FQA lite.
@@ -65,3 +68,7 @@ For example for the function definition `int foo(const int *const bar) { return 
 r62xUL: All C code in architecture-independent components must be compatible with the ISO9899:1990 / C90 / ANSI C standard.
 This is necessary so that the RTOS can be built with C compilers that do not support later C standards.
 Architecture specific code, such as the interrupt or timer components and modules for specific target platforms, may use features of later C standards and compiler extensions.
+
+3zAfAI: The term 'eChronos' shall not be used in documentation and code unless necessary for disambiguation or marketing purposes.
+To avoid any misuse of the term, it shall not be used at all in documentation and code (instead, 'the RTOS' or a similar term may be used).
+Rationale: to use eChronos as an unregistered trademark, it shall be used as an adjective, not a noun (see task Z2CK2B-echronos_as_unregistered_trademark).

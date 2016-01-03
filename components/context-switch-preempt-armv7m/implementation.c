@@ -90,11 +90,7 @@
  *
  * We define the SVCALL priority to be a higher level (i.e. lower numerical value) than PENDSV so that when we disable
  * preemption by setting BASEPRI to PENDSV's priority, PENDSV is disabled but SVCALL remains enabled.
- * This reflects our desire for the RTOS to be able to manually yield (via svc) when preemption is disabled.
- *
- * Some platforms do not implement the low 4/5 bits of priority.
- * Thus, we should choose priority values that are distinct regardless of these lower bits.
- * If unspecified, svcall_priority & pendsv_priority will default to sane values given a 4-bit system*/
+ * This reflects our desire for the RTOS to be able to manually yield (via svc) when preemption is disabled. */
 
 #define SVCALL_PRIORITY {{svcall_priority}}u
 #define PENDSV_PRIORITY {{pendsv_priority}}u

@@ -1,0 +1,20 @@
+RTOS Task Review
+=======================
+
+Task name: rs2aHG-fix_hardcoded_interrupt_priority_resolution
+Version reviewed: 4af9f2aa367fbdedb805034f0860a03e556c3fb6
+Reviewer: robert.sison
+Date: 2016-01-04
+Conclusion: Accepted/Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: filename:linenum
+Comment:
+
+Location: filename:linenum
+Comment:

@@ -4,9 +4,9 @@ Task: rDzBUS-easier_third_party_library_inclusion
 Motivation
 ----------
 
-- Currently there isn't really an easy way of using a lot of headers (as in common when working with third-party libraries), in an eChronos package.
+- Currently there's no easy way of using large amounts of headers (as in common when working with third-party libraries), in an RTOS project.
 
-- A possible solution is to just create a .c file that contains a large schema forcing prj to include all of the headers like:
+- A possible solution is to create a .c file that contains a schema forcing prj to include all of the headers i.e:
 
     /*<module>
     <headers>
@@ -18,9 +18,9 @@ Motivation
         <header path="smaccm_test1_impl_types.h" />
     </headers>
     </module>*/
-    ... all the c code (this example from Ihor)
+    ... more c code
 
-- However the problem with this is interdependency using relative paths. For example, in the TI libraries, there are hundreds of header files & c files with include declarations of the form:
+- However the problem with this is interdependency using relative paths - for example, in the TI libraries, there are hundreds of header files & c files with include declarations of the form:
 
     #include <stdbool.h>
     #include <stdint.h>
@@ -35,7 +35,7 @@ Motivation
     #include "driverlib/interrupt.h"
     ...
 
-- This means that, as prj moves every interdependent file to one directory before final compilation, all of these relative links break
+- This means that, as prj moves every interdependent file to one directory before final compilation, these relative links break.
 
 Goals
 --------

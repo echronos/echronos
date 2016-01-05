@@ -611,7 +611,7 @@ class System:
         self._c_files = []
         self._asm_files = []
         self._linker_script = None
-        self._additional_includes = []
+        self._include_paths = []
         self._output = None
         self.__instances = None
 
@@ -638,7 +638,7 @@ class System:
 
     @property
     def include_paths(self):
-        return [self.output] + self._additional_includes
+        return [self.output] + self._include_paths
 
     @property
     def c_files(self):
@@ -669,8 +669,8 @@ class System:
         extension = os.path.splitext(path)[1]
         add_functions[extension](path)
 
-    def add_additional_include(self, path):
-        self._additional_includes.append(path)
+    def add_include_path(self, path):
+        self._include_paths.append(path)
 
     @property
     def image(self):
@@ -695,7 +695,7 @@ class System:
         Returns a list of instances of class ModuleInstance.
 
         """
-        self._parse_additional_includes()
+        self._parse_include_paths()
 
         # Parse the DOM to load all the entities.
         module_el = single_named_child(self.dom, 'modules')
@@ -766,7 +766,7 @@ class System:
 
         return instances
 
-    def _parse_additional_includes(self):
+    def _parse_include_paths(self):
         # Parse the DOM to load any additional include paths
         include_el = maybe_single_named_child(self.dom, 'include_paths')
 
@@ -788,8 +788,8 @@ class System:
                 path = os.path.abspath(inc_path)
 
             path = os.path.normpath(path)
-            self.add_additional_include(path)
-            logger.info("Added additional include path: %s", path)
+            self.add_include_path(path)
+            logger.info("Added include path: %s", path)
 
     def generate(self, *, copy_all_files):
         """Generate the source for the system.

@@ -37,29 +37,25 @@ Motivation
 
 - This means that, as prj moves every interdependent file to one directory before final compilation, all of these relative links break
 
-- It's important to note that there is a redundant syntax check in the vector table build script, which means you can't just add additional includes in client build scripts (easily). For ARM,it's at: packages/armv7/vectable.py:106
-
 Goals
 --------
 
 - Make it easier to include large sets of third-party libraries with prj, with declarations in systems i.e:
 
     <system>
-     <includes>
-        <include path="/etc/lib/stdlib_hook/src/include" />
-        <include path="/etc/lib/another_lib" />
-        <include path="some/relative/lib" />
-     </includes>
+     <include_paths>
+        <include_path>/etc/lib/stdlib_hook/src/include</include_path>
+        <include_path>/etc/lib/another_lib</include_path>
+        <include_path>some/relative/lib</include_path>
+     </include_paths>
      <modules>
         ...
      </modules>
     </system>
 
-- Display more sensible error message on bitband parsing failures inside the vector table build script, as if a developer currently tries to implement their own means of including other files; this area of code will fail with an error message that does not indicate why.
-
-- In the future, .prx files should make custom build scripts redundant, however this is not the case currently so a better description of errors occuring due to this check is necessary as it is possible for developers to trigger it.
-
 Test Plan
 ---------
 
-- Perform build tests to ensure that adding this functionality doesn't adversely affect other areas of prj.
+- Ensure that adding this functionality doesn't adversely affect other areas of prj.
+
+- Verify that include paths are correctly interpreted by gcc (or the chosen compiler), and fed through other preprocessing systems without error (i.e ARM vectable preprocessing)

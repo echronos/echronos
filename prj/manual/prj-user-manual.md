@@ -119,12 +119,12 @@ An example system definition file:
 
 The system definition file has a top-level `system` element.
 The `system` element should contain a `modules` element.
-The `system` element can optionally contain an `include_paths` element; described below
 The `modules` element should contain 1 or more `module` elements.
 Each `module` element must have a `name` attribute.
 The `prj` tool will search for the module entity based on the `name` attribute.
 `module` entities are described in the following section.
 The `module` element can have child elements that define the way in which the module is configured.
+The `system` element can optionally contain an `include_paths` element.
 
 ### Module
 
@@ -155,9 +155,9 @@ Consequently when naming top-level configuration parameters for modules, the nam
 
 **Future:** Modules that support multiple inclusion in a system vs. single inclusion in a system.
 
-### Additional Includes
+### Include Paths
 
-A *system* can optionally contain an `include_paths` element; which is used to indicate any additional paths that should be searched for header files during the system build process.
+A *system* can optionally contain an `include_paths` element, which is used to indicate any additional paths that should be searched for header files during the system build process.
 A possible use-case for `include_path` declarations are for indicating library directories that contain large sets of headers that refer to each other with relative paths.
 It is important to note that the `include_path` declaration is a convenience function not recommended for use when referring to user code, the *module* system (above) should be used instead for handling include paths.
 
@@ -179,11 +179,11 @@ An example system definition file that contains `include_path` elements:
      </modules>
     </system>
 
-To clarify the behaviour of these commands, if the above system were to be parsed by prj; the following would occur:
+To clarify the behaviour of these commands, if the above system were to be parsed by prj, the following would occur:
 
     INFO:prj:Added additional include path: /etc/lib/stdlib_hook/src/include
     INFO:prj:Added additional include path: /etc/lib/another_lib
-    INFO:prj:Added additional include path: /dev/echronos/some/relative/lib
+    INFO:prj:Added additional include path: /dev/my_package/some/relative/lib
 
 Note that the base path for relative declarations is the current working directory from which prj is invoked.
 

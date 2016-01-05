@@ -119,7 +119,7 @@ An example system definition file:
 
 The system definition file has a top-level `system` element.
 The `system` element should contain a `modules` element.
-The `system` element can optionally contain an `includes` element; described below
+The `system` element can optionally contain an `include_paths` element; described below
 The `modules` element should contain 1 or more `module` elements.
 Each `module` element must have a `name` attribute.
 The `prj` tool will search for the module entity based on the `name` attribute.
@@ -157,18 +157,18 @@ Consequently when naming top-level configuration parameters for modules, the nam
 
 ### Additional Includes
 
-A *system* can optionally contain an `includes` element; which is used to indicate any additional paths that should be searched for header files during the system build process.
-A possible use-case for `include` declarations are for indicating library directories that contain large sets of headers that refer to each other with relative paths.
-It is important to note that the `include` declaration is a convenience function not recommended for use when referring to user code, the *module* system (above) should be used instead for handling include paths.
+A *system* can optionally contain an `include_paths` element; which is used to indicate any additional paths that should be searched for header files during the system build process.
+A possible use-case for `include_path` declarations are for indicating library directories that contain large sets of headers that refer to each other with relative paths.
+It is important to note that the `include_path` declaration is a convenience function not recommended for use when referring to user code, the *module* system (above) should be used instead for handling include paths.
 
-An example system definition file that contains `include` elements:
+An example system definition file that contains `include_path` elements:
 
     <system>
-     <includes>
-        <include path="/etc/lib/stdlib_hook/src/include" />
-        <include path="/etc/lib/another_lib" />
-        <include path="some/relative/lib" />
-     </includes>
+     <include_paths>
+        <include_path>/etc/lib/stdlib_hook/src/include</include_path>
+        <include_path>/etc/lib/another_lib</include_path>
+        <include_path>some/relative/lib</include_path>
+     </include_paths>
      <modules>
       <module name="posix-build" />
       <module name="rtos-acamar">

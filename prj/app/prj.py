@@ -768,19 +768,17 @@ class System:
 
     def _parse_additional_includes(self):
         # Parse the DOM to load any additional include paths
-        include_el = maybe_single_named_child(self.dom, 'includes')
+        include_el = maybe_single_named_child(self.dom, 'include_paths')
 
         if include_el is None:
             return
 
+        # Find all include elements, ignoring any that are empty
         include_els = [e for e in include_el.childNodes
-                       if e.nodeType == e.ELEMENT_NODE and e.tagName == 'include']
+                       if e.nodeType == e.ELEMENT_NODE and e.tagName == 'include_path' and e.firstChild]
 
         for i_el in include_els:
-            path = get_attribute(i_el, 'path', None)
-
-            if path is None:
-                raise SystemConsistencyError(xml_error_str(i_el, "Additional include with unspecified path"))
+            path = i_el.firstChild.nodeValue
 
             # If we aren't given an absolute path treat it as relative the base path
             if not os.path.isabs(path):

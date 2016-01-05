@@ -1,0 +1,42 @@
+Task: rs2aHG-fix_hardcoded_interrupt_priority_resolution
+==============================================================================
+
+Motivation
+----------
+
+- Any pre-emptive OS variant will hard-fault on a platform with < 4 bits of priority resolution
+
+- At the moment, the interrupt priority of PendSV & SVC are fixed (at 4 bits max), however different hardware variants will likely change this.
+
+- For example, the TI TM4C129 is a Cortex-M4 device that only has 3 bits of priority resolution.
+
+- As soon as less priority resolution is available than is used in eChronos' implementation, BASEPRI sits on top of both of these interrupts (during a context switch) meaning neither can be called; and the system hard-resets.
+
+- The relevant pieces of code are in the pre-emptive context-switching implementations, such as components/context-switch-preempt-armv7m/implementation.c:98:
+
+#define SVCALL_PRIORITY 224u
+#define PENDSV_PRIORITY 240u
+
+- As well as the assembly code used for context switching: for example in packages/armv7/ctxt-switch-preempt.s:72:
+
+/* Setting BASEPRI to the same priority value as that of a configurable-priority interrupt disables the interrupt. */
+.macro asm_preempt_disable scratch
+        /* This hardcoded value must match the PendSV priority set by the ARM-specific preempt_init. */
+        ldr \scratch, =#240
+        msr basepri, \scratch
+.endm
+
+Goals
+--------
+
+- Add these parameters to the templates (with a default parameter so all of the example schemas do not need to be modified).
+
+- Perhaps it would be nicest to have a 'priority_resolution_bits' schema tag which automatically (from n bits) computes 2^n<<(8-n) and (2^n-1)<<(8-n) as priority levels for PendSV and SVC to avoid the user having to figure these values out correctly
+
+Test Plan
+---------
+
+- Diff the results of using the new templating engine (with 4-bits of priority resolution) on the context switching implementation with the existing context switching implementation, they should be the same. (for ARM & similar with other platforms)
+
+- Perhaps do some testing on hardware with different priority resolutions i.e ARM on QEMU implements 8-bits, the TI TM4C129 implements 3-bits etc.
+

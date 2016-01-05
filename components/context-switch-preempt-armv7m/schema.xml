@@ -1,0 +1,2 @@
+<entry name="svcall_priority" type="int" default="224"/>
+<entry name="pendsv_priority" type="int" default="240"/>

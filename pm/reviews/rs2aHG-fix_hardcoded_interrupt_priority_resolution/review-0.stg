@@ -1,0 +1,46 @@
+RTOS Task Review
+=======================
+
+Task name: rs2aHG-fix_hardcoded_interrupt_priority_resolution
+Version reviewed: df327e60c91ba5c95ddf59b805940081d5a9dd81
+Reviewer: stg
+Date: 2015-12-30
+Conclusion: Rework
+
+Overall comments:
+
+Nice generalization!
+
+
+Specific comments
+=================
+
+Location: components/context-switch-preempt-armv7m/docs.md:10 and following
+Comment 1: Rework
+In plain text files, every sentence is to use one and only one line, as per convention 05K0tk in internal-docs/conventions.md.
+
+Location: components/context-switch-preempt-armv7m/docs.md:10 and following
+Comment 2: Rework
+In order to allow the term 'eChronos' to be registered as a trademark, it must not be used as a noun, but only as an adjective.
+To avoid any misuse of the term, please remove it from the changes and replace it with 'the RTOS' or a similar term, as per convention 3zAfAI in internal-docs/conventions.md.
+
+Location: components/context-switch-preempt-armv7m/docs.md:14 and following
+Comment 3: Rework
+Please keep documentation in the present tense, as per convention SKcASp in internal-docs/conventions.md.
+
+Location: components/context-switch-preempt-armv7m/docs.md:16 and following
+Comment 4: Rework
+Connectives, such as 'Noting that [...]' and 'In general' are separated from the main clause by a comma, not a semicolon.
+Please change such semicolons to commas.
+
+Location: components/context-switch-preempt-armv7m/implementation.c:96
+Comment 5: Rework
+This line contains trailing white space, which we generally try to avoid.
+Please remove it and consider setting up your editor to automatically remove it.
+
+Location: components/context-switch-preempt-armv7m/implementation.c:95
+Comment 6: Rework
+This comment is ambiguous, for example in its use of 'we'.
+Although this is component code maintained by RTOS developers (presumably who is addressed as 'we'), it is in fact the responsibility of the application developer to choose valid values for `svcall_priority` and `pendsv_priority`.
+In this regard, this comment is misplaced, in particular since the manual now already documents for application developers how to correctly set those values.
+I would recommend to remove this comment because the manual describes the properties of the two configuration items very well.

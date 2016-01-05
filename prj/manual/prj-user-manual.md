@@ -158,8 +158,8 @@ Consequently when naming top-level configuration parameters for modules, the nam
 ### Include Paths
 
 A *system* can optionally contain an `include_paths` element, which is used to indicate any additional paths that should be searched for header files during the system build process.
-A possible use-case for `include_path` declarations are for indicating library directories that contain large sets of headers that refer to each other with relative paths.
-It is important to note that the `include_path` declaration is a convenience function not recommended for use when referring to user code, the *module* system (above) should be used instead for handling include paths.
+A possible use-case for `include_path` declarations is for indicating library directories containing large sets of headers that refer to each other with relative paths.
+It should be noted that `include_path` declarations are not intended as a substitute for the use of *modules* in new code, but to make existing libraries easier to integrate into an RTOS project.
 
 An example system definition file that contains `include_path` elements:
 

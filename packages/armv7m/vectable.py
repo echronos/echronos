@@ -103,8 +103,7 @@ class EntryModule(Module):
                 try:
                     p.parse(f.read(), c_file)
                 except ply.cpp.CppError as e:
-                    err_s = "Could not parse source file during bitband macro replacement. Error was: "
-                    raise SystemBuildError(err_s + str(e))
+                    raise SystemBuildError(str(e))
 
         super().post_prepare(system, config)
 

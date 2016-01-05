@@ -37,68 +37,29 @@ Motivation
 
 - This means that, as prj moves every interdependent file to one directory before final compilation, all of these relative links break
 
+- It's important to note that there is a redundant syntax check in the vector table build script, which means you can't just add additional includes in client build scripts (easily). For ARM,it's at: packages/armv7/vectable.py:106
+
 Goals
 --------
 
-- Make it easier to include large sets of third-party libraries with prj. 
+- Make it easier to include large sets of third-party libraries with prj, with declarations in systems i.e:
 
-- Below is what I am currently using; however it would be good to have some discussion on how best to approach this
+    <system>
+     <includes>
+        <include path="/etc/lib/stdlib_hook/src/include" />
+        <include path="/etc/lib/another_lib" />
+        <include path="some/relative/lib" />
+     </includes>
+     <modules>
+        ...
+     </modules>
+    </system>
+
+- Display more sensible error message on bitband parsing failures inside the vector table build script, as if a developer currently tries to implement their own means of including other files; this area of code will fail with an error message that does not indicate why.
+
+- In the future, .prx files should make custom build scripts redundant, however this is not the case currently so a better description of errors occuring due to this check is necessary as it is possible for developers to trigger it.
 
 Test Plan
 ---------
 
 - Perform build tests to ensure that adding this functionality doesn't adversely affect other areas of prj.
-
-Sample Implementation
----------------------
-
-- In prj/app/prj.py, it's pretty simple just to add a couple member functions.
-
-- At the bottom of System.__init__, add:
-
-    self.extra_includes = []
-
-- And then add/modify these 2 methods:
-
-    @property
-    def include_paths(self):
-        return [self.output] + self.extra_includes
-
-    def add_include_path(self, path):
-        self.extra_includes.append(path)
-
-- IMPORTANT: There is a redundant syntax check in the vector table build script, which you have to remove in order for this modification to work. For ARM,it's at: packages/armv7/vectable.py:106
-
-    for c_file in system.c_files:
-        with open(c_file) as f:
-            try:
-                p.parse(f.read(), c_file)
-            except ply.cpp.CppError as e:
-                raise SystemBuildError(str(e))
-
-- Change this to:
-
-    for c_file in system.c_files:
-        with open(c_file) as f:
-            try:
-                p.parse(f.read(), c_file)
-            except ply.cpp.CppError as e:
-                pass
-
-- Now in your build script it's much simpler to include headers directory-wise:
-
-    def system_build(system):
-        ti_lib_dir = os.getcwd() + "/packages/machine-tm4c1294-launchpad/ti_libs/"
-
-        system.add_include_path(ti_lib_dir)
-        system.add_include_path(ti_lib_dir + "inc")
-        system.add_include_path(ti_lib_dir + "stdlib_hook")
-        system.add_include_path(ti_lib_dir + "examples/boards/ek-tm4c1294xl")
-        system.add_include_path(ti_lib_dir + "third_party/lwip-1.4.1/src/include")
-        system.add_include_path(ti_lib_dir + "third_party/lwip-1.4.1/apps")
-        system.add_include_path(ti_lib_dir + "third_party/lwip-1.4.1/ports/tiva-tm4c129/include")
-        system.add_include_path(ti_lib_dir + "third_party/lwip-1.4.1/src/include/ipv4")
-
-        # ... rest of build script
-
-

@@ -181,9 +181,9 @@ An example system definition file that contains `include_path` elements:
 
 To clarify the behaviour of these commands, if the above system were to be parsed by prj, the following would occur:
 
-    INFO:prj:Added additional include path: /etc/lib/stdlib_hook/src/include
-    INFO:prj:Added additional include path: /etc/lib/another_lib
-    INFO:prj:Added additional include path: /dev/my_package/some/relative/lib
+    INFO:prj:Added include path: /etc/lib/stdlib_hook/src/include
+    INFO:prj:Added include path: /etc/lib/another_lib
+    INFO:prj:Added include path: /dev/my_package/some/relative/lib
 
 Note that the base path for relative declarations is the current working directory from which prj is invoked.
 

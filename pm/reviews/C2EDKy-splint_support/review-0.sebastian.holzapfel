@@ -24,6 +24,8 @@ Unused symbol is annotated but undocumented.
  - It may be appropriate to document why this parameter is @unused@, in a similar
 vein to the function calls at components/task/implementation.c:[37, 39]
 
+[stg: as clarified in personal communication, the necessity of the @unused@ comment is obvious in this case so no change is required]
+
 Location: components/phact/implementation.c:60
 Comment:
 Unused symbol is annotated but undocumented.

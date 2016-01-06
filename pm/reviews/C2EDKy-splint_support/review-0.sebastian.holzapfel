@@ -73,3 +73,5 @@ Comment:
  and report it as an analysis fault, as opposed to a fault in prj.
  - Despite the fact that the text dump makes it obvious when splint is at fault, this
  behaviour does not seem consistent with other external calls by prj. (i.e line 986)
+
+[stg: splint failure is now reported to user with clearer error message and without allowing the CalledProcessError exception to be visible to user]

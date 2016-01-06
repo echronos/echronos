@@ -1,3 +1,5 @@
+/* Applications do not necessarily access all RTOS APIs.
+ * Therefore, they are marked as potentially unused for static analysis. */
 /*| public_headers |*/
 #include <stdint.h>
 

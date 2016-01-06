@@ -14,6 +14,8 @@ their purpose is obvious, perhaps a comment at the top of the file might be usef
 stating that splint complains despite the fact that these functions aren't necessary
 API calls in user-level code.
 
+[stg: resolved as suggested]
+
 
 Specific comments
 =================

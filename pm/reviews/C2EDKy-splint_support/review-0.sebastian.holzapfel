@@ -44,6 +44,8 @@ used by user-level code. It *may* be worth considering, for a similar reason to 
 macro was introduced; standardizing on TASK_ID_END, updating the documentation, pushing
 it into headers and removing TASK_ID_MAX altogether.
 
+[stg: good idea, but this leads to an API change so I created a github issue to have this addressed in a separate task]
+
 Location: prj/app/prj.py:810
 Comment:
 (NOTE: This is not an issue per se, just some notes)

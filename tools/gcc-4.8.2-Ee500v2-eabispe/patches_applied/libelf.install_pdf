@@ -1,0 +1,16 @@
+--- libelf-0.8.13-orig/Makefile.in	2012-03-05 14:54:29.183001704 -0600
++++ libelf-0.8.13/Makefile.in	2012-03-05 14:55:37.878001704 -0600
+@@ -88,6 +88,13 @@
+ uninstall-local:
+ 	$(RM) $(instroot)$(pkgdir)/libelf.pc
+ 
++.PHONY: install-pdf install-html pdf html
++
++install-pdf:
++install-html:
++pdf:
++html:
++
+ mostlyclean-local:
+ 	$(RM) *~ core errlist
+ 

@@ -135,7 +135,9 @@ A user can configure the handler function for a system by setting the `handler` 
 
 In general, a user-supplied interrupt handler function like `tick_irq` in the example above MUST be responsible for clearing the hardware condition that caused its interrupt.
 
-When configuring a system using an RTOS variant that provides preemption support (such as Kochab), the vectable module must must have the `preemption` tag set to `true` in the `.prx` file:
+### Preemption support
+
+When configuring a system using an RTOS variant that provides preemption support (such as Kochab), the `vectable` module must must have the `preemption` tag set to `true` in the `.prx` file:
 
     <module name="ppce500.vectable">
       <preemption>true</preemption>
@@ -156,3 +158,36 @@ On preemption-supporting RTOS variants, interrupts of the *non-critical* class m
 The user should configure an interrupt as `preempting` when its interrupt handler has the potential to cause task preemption.
 Handler functions marked `preempting` MUST return a boolean value that is true if the handler has just made an action with the potential to cause a preemption, such as raising an interrupt event.
 These requirements must be adhered to for the RTOS to be able to enforce its scheduling policies.
+
+### Floating-point support
+
+On PowerPC e500, floating-point functionality is provided by the Signal Processing Engine (SPE), an application processing unit (APU).
+Thus, programs using floating-point operations must be compiled with a toolchain that supports the SPE instruction set.
+
+By default, the RTOS will preserve single-precision floating point values during interrupts and across context switch, as they are held by the regular 32-bit general-purpose registers (GPRs).
+
+To enable support for the preservation of double-precision floating values (which are held in 64-bit SPE registers), set the `spe_64bit_support` option to `true` for both the `vectable` module and the RTOS module in the `.prx` file:
+
+    <module name="ppce500.vectable">
+      <spe_64bit_support>true</spe_64bit_support>
+      ...
+    </module>
+    ...
+    <module name="ppce500.rtos-phact">
+      <spe_64bit_support>true</spe_64bit_support>
+      ...
+    </module>
+
+(Note that the `spe_64bit_support` feature is currently only implemented for the RTOS variants that provide preemption support.)
+
+With this feature enabled, at runtime the RTOS will ensure tasks whose `MSR[SPE]` bit is set will have their 64-bit SPE register values preserved.
+Tasks that do not have the `MSR[SPE]` bit set will only have their 32-bit GPR values preserved.
+
+For convenience, the `vectable` module also offers an optional default handler for the `eis_spe_apu` interrupt that when activated, sets the `MSR[SPE]` bit to enable the use of SPE APU instructions - enable this feature by setting the `eis_spe_auto_enable` tag to `true` in the `.prx` file:
+
+    <module name="ppce500.vectable">
+      <eis_spe_auto_enable>true</eis_spe_auto_enable>
+      ...
+    </module>
+
+This may be a useful default behavior for automatically enabling SPE functionality (including 64-bit SPE register preservation) only for those tasks that actually make use of it.

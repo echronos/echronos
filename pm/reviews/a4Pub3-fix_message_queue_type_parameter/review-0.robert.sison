@@ -1,0 +1,8 @@
+RTOS Task Review
+=======================
+
+Task name: a4Pub3-fix_message_queue_type_parameter
+Version reviewed: 6baf73f38aac2f6febcbe55d13eb6b44c015ac7e
+Reviewer: robert.sison
+Date: 2015-12-10
+Conclusion: Accepted

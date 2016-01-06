@@ -74,6 +74,12 @@ The Machine P2020RDB-PCA package provides the following example systems for the 
   <dt>`kochab-task-sync-example`</dt>
   <dd>A (Kochab) system demonstrating transfer of data between two tasks, with access to the data synchronized using some eChronos API, as well as interrupt-driven receipt/transmission of data via the P2020 DUART.</dd>
 
+  <dt>`kochab-fp-test`</dt>
+  <dd>A (Kochab) test system designed to test the consistency of single-precision floating point values in use by a task across context switch.</dd>
+
+  <dt>`kochab-double-fp-test`</dt>
+  <dd>A (Kochab) test system designed to test the consistency of both single-precision and double-precision floating point values in use by a task across context switch.</dd>
+
   <dt>`phact-signal-demo`</dt>
   <dd>A system demonstrating signal functionality on the Phact variant.</dd>
 
@@ -97,6 +103,12 @@ The Machine P2020RDB-PCA package provides the following example systems for the 
 
   <dt>`phact-task-sync-example`</dt>
   <dd>A (Phact) system demonstrating transfer of data between two tasks, with access to the data synchronized using some eChronos API, as well as interrupt-driven receipt/transmission of data via the P2020 DUART.</dd>
+
+  <dt>`phact-fp-test`</dt>
+  <dd>A (Phact) test system designed to test the consistency of single-precision floating point values in use by a task across context switch.</dd>
+
+  <dt>`phact-double-fp-test`</dt>
+  <dd>A (Phact) test system designed to test the consistency of both single-precision and double-precision floating point values in use by a task across context switch.</dd>
 </dl>
 
 The systems provided in this package build to ELF format, and can be booted on the Freescale P2020RDB-PCA board using its stock U-Boot image's `bootelf` command.

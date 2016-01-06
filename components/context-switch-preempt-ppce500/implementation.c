@@ -8,8 +8,11 @@
 #define PREEMPT_RESTORE_DISABLED 1
 #define PREEMPT_RESTORE_VOLATILES 2
 
-/* The 'external interrupts enable' (EE) bit of the PowerPC e500 machine state register (MSR) */
+/* Helper constants for bits of the PowerPC e500 machine state register (MSR). */
+/* The 'external interrupts enable' (EE) bit */
 #define PPCE500_MSR_EE_SET 0x8000
+/* The 'signal processing engine enable' (SPE) bit */
+#define PPCE500_MSR_SPE_BIT 0x2000000
 
 /*
  * The unified stack frame structure used here both to preserve interrupted contexts and to implement context switch
@@ -25,6 +28,8 @@
 #define CONTEXT_XER_IDX 5
 #define CONTEXT_CTR_IDX 6
 #define CONTEXT_CR_IDX 7
+
+/* If the task's MSR[SPE] (i.e. SRR1[SPE]) is disabled, then just store the standard 32-bit GPR values. */
 #define CONTEXT_GPR0_IDX 8
 #define CONTEXT_GPR3_IDX 9
 #define CONTEXT_GPR4_IDX 10
@@ -56,6 +61,41 @@
 #define CONTEXT_GPR31_IDX 36
 #define CONTEXT_PREEMPT_RESTORE_STATUS 37
 #define CONTEXT_FRAME_SIZE (CONTEXT_PREEMPT_RESTORE_STATUS + 1)
+
+/* If the task's MSR[SPE] (i.e. SRR1[SPE]) is enabled, then store all 64 bits of the GPRs.
+ * Start at the same place as CONTEXT_GPR0_IDX. */
+#define CONTEXT_SPE_GPR0_IDX 8
+#define CONTEXT_SPE_GPR3_IDX 10
+#define CONTEXT_SPE_GPR4_IDX 12
+#define CONTEXT_SPE_GPR5_IDX 14
+#define CONTEXT_SPE_GPR6_IDX 16
+#define CONTEXT_SPE_GPR7_IDX 18
+#define CONTEXT_SPE_GPR8_IDX 20
+#define CONTEXT_SPE_GPR9_IDX 22
+#define CONTEXT_SPE_GPR10_IDX 24
+#define CONTEXT_SPE_GPR11_IDX 26
+#define CONTEXT_SPE_GPR12_IDX 28
+#define CONTEXT_SPE_GPR14_IDX 30
+#define CONTEXT_SPE_GPR15_IDX 32
+#define CONTEXT_SPE_GPR16_IDX 34
+#define CONTEXT_SPE_GPR17_IDX 36
+#define CONTEXT_SPE_GPR18_IDX 38
+#define CONTEXT_SPE_GPR19_IDX 40
+#define CONTEXT_SPE_GPR20_IDX 42
+#define CONTEXT_SPE_GPR21_IDX 44
+#define CONTEXT_SPE_GPR22_IDX 46
+#define CONTEXT_SPE_GPR23_IDX 48
+#define CONTEXT_SPE_GPR24_IDX 50
+#define CONTEXT_SPE_GPR25_IDX 52
+#define CONTEXT_SPE_GPR26_IDX 54
+#define CONTEXT_SPE_GPR27_IDX 56
+#define CONTEXT_SPE_GPR28_IDX 58
+#define CONTEXT_SPE_GPR29_IDX 60
+#define CONTEXT_SPE_GPR30_IDX 62
+#define CONTEXT_SPE_GPR31_IDX 64
+#define CONTEXT_SPE_ALIGNMENT_PADDING 66
+#define CONTEXT_SPE_PREEMPT_RESTORE_STATUS 67
+#define CONTEXT_SPE_FRAME_SIZE (CONTEXT_SPE_PREEMPT_RESTORE_STATUS + 1)
 
 /*| types |*/
 typedef uint32_t* context_t;
@@ -302,7 +342,16 @@ rtos_internal_context_switch(const {{prefix_type}}TaskId to, const context_t ctx
             preempt_status |= PREEMPT_RESTORE_VOLATILES;
         }
 
+{{#spe_64bit_support}}
+        if (ctxt[CONTEXT_SRR1_IDX] & PPCE500_MSR_SPE_BIT) {
+            ctxt[CONTEXT_SPE_PREEMPT_RESTORE_STATUS] = preempt_status;
+        } else {
+            ctxt[CONTEXT_PREEMPT_RESTORE_STATUS] = preempt_status;
+        }
+{{/spe_64bit_support}}
+{{^spe_64bit_support}}
         ctxt[CONTEXT_PREEMPT_RESTORE_STATUS] = preempt_status;
+{{/spe_64bit_support}}
 
         /* Commit the constructed stack frame of the outgoing task */
         *ctxt_from = ctxt;
@@ -322,17 +371,29 @@ context_switch_first(const {{prefix_type}}TaskId to)
     precondition_preemption_disabled();
     {
         const context_t ctxt_to = *(get_task_context(to));
+        uint32_t restore_status;
         bool restore_volatiles;
 
         /* Set the current task id to the incoming one */
         current_task = to;
 
-        if (!(ctxt_to[CONTEXT_PREEMPT_RESTORE_STATUS] & PREEMPT_RESTORE_DISABLED)) {
+{{#spe_64bit_support}}
+        if (ctxt_to[CONTEXT_SRR1_IDX] & PPCE500_MSR_SPE_BIT) {
+            restore_status = ctxt_to[CONTEXT_SPE_PREEMPT_RESTORE_STATUS];
+        } else {
+            restore_status = ctxt_to[CONTEXT_PREEMPT_RESTORE_STATUS];
+        }
+{{/spe_64bit_support}}
+{{^spe_64bit_support}}
+        restore_status = ctxt_to[CONTEXT_PREEMPT_RESTORE_STATUS];
+{{/spe_64bit_support}}
+
+        if (!(restore_status & PREEMPT_RESTORE_DISABLED)) {
             /* only need the enable case because we entered with preemption disabled */
             preempt_disabled = false;
         }
 
-        restore_volatiles = (ctxt_to[CONTEXT_PREEMPT_RESTORE_STATUS] & PREEMPT_RESTORE_VOLATILES);
+        restore_volatiles = (restore_status & PREEMPT_RESTORE_VOLATILES);
 
         /* This never returns */
         rtos_internal_restore_preempted_context(restore_volatiles, ctxt_to);
@@ -343,8 +404,20 @@ static void
 context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack_base, const size_t stack_size)
 {
     uint32_t *const init_context = stack_base + stack_size - CONTEXT_HEADER_SIZE;
-    uint32_t *const context = init_context - CONTEXT_FRAME_SIZE;
+    uint32_t *context;
     uint32_t current_msr;
+
+    asm volatile("mfmsr %0":"=r"(current_msr)::);
+{{#spe_64bit_support}}
+    if (current_msr & PPCE500_MSR_SPE_BIT) {
+        context = init_context - CONTEXT_SPE_FRAME_SIZE;
+    } else {
+        context = init_context - CONTEXT_FRAME_SIZE;
+    }
+{{/spe_64bit_support}}
+{{^spe_64bit_support}}
+    context = init_context - CONTEXT_FRAME_SIZE;
+{{/spe_64bit_support}}
 
     /**
      * Set up an initial stack frame header containing just the back chain word and the LR save word.
@@ -360,9 +433,17 @@ context_init(context_t *const ctx, void (*const fn)(void), uint32_t *const stack
     /* Set SRR0 to the task entry point */
     context[CONTEXT_SRR0_IDX] = (uint32_t) fn;
     /* Set MSR[EE] = 1 (interrupts enabled) initially for all tasks */
-    asm volatile("mfmsr %0":"=r"(current_msr)::);
     context[CONTEXT_SRR1_IDX] = current_msr | PPCE500_MSR_EE_SET;
+{{#spe_64bit_support}}
+    if (context[CONTEXT_SRR1_IDX] & PPCE500_MSR_SPE_BIT) {
+        context[CONTEXT_SPE_PREEMPT_RESTORE_STATUS] = PREEMPT_RESTORE_DISABLED | PREEMPT_RESTORE_VOLATILES;
+    } else {
+        context[CONTEXT_PREEMPT_RESTORE_STATUS] = PREEMPT_RESTORE_DISABLED | PREEMPT_RESTORE_VOLATILES;
+    }
+{{/spe_64bit_support}}
+{{^spe_64bit_support}}
     context[CONTEXT_PREEMPT_RESTORE_STATUS] = PREEMPT_RESTORE_DISABLED | PREEMPT_RESTORE_VOLATILES;
+{{/spe_64bit_support}}
     context[CONTEXT_BC_IDX] = (uint32_t) &init_context[CONTEXT_BC_IDX];
     *ctx = context;
 }

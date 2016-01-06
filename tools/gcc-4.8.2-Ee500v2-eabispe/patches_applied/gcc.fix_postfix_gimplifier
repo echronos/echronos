@@ -1,0 +1,92 @@
+# Problem Statement:
+  With Flag mining options, EEMBC benchmarks [consumer-1.cjpeg,consumer-1.djpej]
+  showed performance degradation when built with GCC v4.8.1.
+
+# Reported by:
+  Edmar Wienskoski
+
+# Owned by:
+  Rohit
+
+# Action:
+  The issue was the way gimplifier was handing postfix operations
+  (self modifying expression) in GCC v4.8.1 compared to v4.7.3.
+ 
+  GCC v4.8.1 source was changed to confirm with C11 standard.
+  This is not a BUG.
+  http://gcc.gnu.org/bugzilla/show_bug.cgi?id=48814
+
+  Added flag '-fdisable-c11-self-mod-expr' to recover performance loss. 
+
+
+diff -Naur gcc-4.8.2/gcc/common.opt gcc-4.8.2-gimplify-selfmod-expr/gcc/common.opt
+--- gcc-4.8.2/gcc/common.opt	2014-02-24 03:29:58.689893016 -0600
++++ gcc-4.8.2-gimplify-selfmod-expr/gcc/common.opt	2014-02-24 07:30:28.930815001 -0600
+@@ -1035,6 +1035,10 @@
+ Common Joined RejectNegative Var(common_deferred_options) Defer
+ -fdisable-[tree|rtl|ipa]-<pass>=range1+range2 disables an optimization pass
+ 
++fdisable-c11-self-mod-expr
++Common RejectNegative Report Var(flag_disable_c11_self_mod_expr) Init(0) Optimization
++Disable c11 restriction on self modifying expression of gimplifier
++
+ fenable-
+ Common Joined RejectNegative Var(common_deferred_options) Defer
+ -fenable-[tree|rtl|ipa]-<pass>=range1+range2 enables an optimization pass
+diff -Naur gcc-4.8.2/gcc/gimplify.c gcc-4.8.2-gimplify-selfmod-expr/gcc/gimplify.c
+--- gcc-4.8.2/gcc/gimplify.c	2014-02-24 03:29:08.229893001 -0600
++++ gcc-4.8.2-gimplify-selfmod-expr/gcc/gimplify.c	2014-02-24 07:36:24.403815001 -0600
+@@ -2393,11 +2393,20 @@
+      that as the result value and in the postqueue operation.  */
+   if (postfix)
+     {
++      if (flag_disable_c11_self_mod_expr && !is_gimple_min_lval (lvalue))
++        {
++	   mark_addressable (lvalue);
++	   lvalue = build_fold_addr_expr_loc (input_location, lvalue);
++	   gimplify_expr (&lvalue, pre_p, post_p, is_gimple_val, fb_rvalue);
++	   lvalue = build_fold_indirect_ref_loc (input_location, lvalue);
++        }
++
+       ret = gimplify_expr (&lhs, pre_p, post_p, is_gimple_val, fb_rvalue);
+       if (ret == GS_ERROR)
+-	return ret;
+-
+-      lhs = get_initialized_tmp_var (lhs, pre_p, NULL);
++        return ret;
++	  
++      if (!flag_disable_c11_self_mod_expr)
++        lhs = get_initialized_tmp_var (lhs, pre_p, NULL);
+     }
+ 
+   /* For POINTERs increment, use POINTER_PLUS_EXPR.  */
+@@ -2405,18 +2414,25 @@
+     {
+       rhs = convert_to_ptrofftype_loc (loc, rhs);
+       if (arith_code == MINUS_EXPR)
+-	rhs = fold_build1_loc (loc, NEGATE_EXPR, TREE_TYPE (rhs), rhs);
+-      t1 = fold_build2 (POINTER_PLUS_EXPR, TREE_TYPE (*expr_p), lhs, rhs);
++        rhs = fold_build1_loc (loc, NEGATE_EXPR, TREE_TYPE (rhs), rhs);
++		
++      if (flag_disable_c11_self_mod_expr)
++        arith_code = POINTER_PLUS_EXPR;
++      else
++        t1 = fold_build2 (POINTER_PLUS_EXPR, TREE_TYPE (*expr_p), lhs, rhs);
+     }
+-  else
++  else if (!flag_disable_c11_self_mod_expr)
+     t1 = fold_convert (TREE_TYPE (*expr_p),
+ 		       fold_build2 (arith_code, arith_type,
+ 				    fold_convert (arith_type, lhs),
+ 				    fold_convert (arith_type, rhs)));
+ 
++  if (flag_disable_c11_self_mod_expr)
++    t1 = build2 (arith_code, TREE_TYPE (*expr_p), lhs, rhs);
++
+   if (postfix)
+     {
+-      gimplify_assign (lvalue, t1, pre_p);
++      gimplify_assign (lvalue, t1, ((flag_disable_c11_self_mod_expr) ? orig_post_p : pre_p));
+       gimplify_seq_add_seq (orig_post_p, post);
+       *expr_p = lhs;
+       return GS_ALL_DONE;

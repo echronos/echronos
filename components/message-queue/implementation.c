@@ -34,7 +34,12 @@ struct message_queue
 /*| state |*/
 {{#message_queues.length}}
 {{#message_queues}}
+{{#message_size}}
 static uint8_t message_queue_{{name}}_messages[{{queue_length}}][{{message_size}}];
+{{/message_size}}
+{{#message_type}}
+static uint8_t message_queue_{{name}}_messages[{{queue_length}}][sizeof({{message_type}})];
+{{/message_type}}
 {{/message_queues}}
 static struct message_queue message_queues[] =
 {

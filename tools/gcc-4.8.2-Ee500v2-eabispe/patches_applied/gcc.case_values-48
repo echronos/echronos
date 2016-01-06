@@ -1,0 +1,43 @@
+# Problem Statement:
+  Option 'case-values-threshold' has been integrated in to GCC v4.8.1 mainline
+  Set PowerPC target specific threshold value to generate jump tables for 
+  switch statement.
+
+# Owned by:
+  Rohit
+
+diff -Naur gcc-4.8.1/gcc/config/rs6000/rs6000.c gcc-4.8.1-case-value/gcc/config/rs6000/rs6000.c
+--- gcc-4.8.1/gcc/config/rs6000/rs6000.c	2013-07-30 06:31:20.052002899 -0500
++++ gcc-4.8.1-case-value/gcc/config/rs6000/rs6000.c	2013-07-30 06:56:15.329004807 -0500
+@@ -1458,6 +1458,9 @@
+ #undef TARGET_SET_CURRENT_FUNCTION
+ #define TARGET_SET_CURRENT_FUNCTION rs6000_set_current_function
+ 
++#undef TARGET_CASE_VALUES_THRESHOLD
++#define TARGET_CASE_VALUES_THRESHOLD rs6000_case_values_threshold
++
+ #undef TARGET_LEGITIMATE_CONSTANT_P
+ #define TARGET_LEGITIMATE_CONSTANT_P rs6000_legitimate_constant_p
+ 
+@@ -28639,6 +28642,21 @@
+     }
+ }
+ 
++/* Implement `CASE_VALUES_THRESHOLD'.  */
++/* Supply the default for --param case-values-threshold=0  */
++
++static unsigned int
++rs6000_case_values_threshold (void)
++{
++  if (rs6000_cpu == PROCESSOR_PPC8540
++      || rs6000_cpu == PROCESSOR_PPCE500MC
++      || rs6000_cpu == PROCESSOR_PPCE5500
++      || rs6000_cpu == PROCESSOR_PPCE6500)
++    return 8;
++
++  return 4;
++}
++
+ 
+ /* Save the current options */
+ 

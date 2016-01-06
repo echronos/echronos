@@ -1,0 +1,33 @@
+# Problem Statement:
+  This is an extension of patch file : glibc.fsl-mcpy-e500mc-e5500-e6500-patch
+
+  For application portability, we have created an memcpy alias (largememcpy)
+  for all other targets [e500v2 here] that do not have
+  specific largememcpy definition.
+
+# Owned by:
+  Rohit [based on 'C' implementation by Ruchika Gupta & Vakul Garg]
+
+diff -Naur ports-default/sysdeps/powerpc/powerpc32/405/memcpy.S ports-e500mc-e5500-e6500-memcpy/sysdeps/powerpc/powerpc32/405/memcpy.S
+--- ports-default/sysdeps/powerpc/powerpc32/405/memcpy.S	2013-05-27 07:01:39.493001378 -0500
++++ ports-e500mc-e5500-e6500-memcpy/sysdeps/powerpc/powerpc32/405/memcpy.S	2013-05-27 07:02:12.654001377 -0500
+@@ -131,3 +131,6 @@
+        blr
+ END (BP_SYM (memcpy))
+ libc_hidden_builtin_def (memcpy)
++weak_alias (BP_SYM (memcpy), BP_SYM (largememcpy))
++libc_hidden_def (largememcpy)
++
+diff -Naur ports-default/sysdeps/powerpc/powerpc32/e500/memcpy.S ports-e500mc-e5500-e6500-memcpy/sysdeps/powerpc/powerpc32/e500/memcpy.S
+--- ports-default/sysdeps/powerpc/powerpc32/e500/memcpy.S	2013-05-27 07:01:39.503001377 -0500
++++ ports-e500mc-e5500-e6500-memcpy/sysdeps/powerpc/powerpc32/e500/memcpy.S	2013-05-27 07:02:12.664001377 -0500
+@@ -408,3 +408,9 @@
+ 
+ END (BP_SYM (FUNCTION))
+ libc_hidden_builtin_def (FUNCTION)
++
++#ifndef __MEMMOVE__
++weak_alias (BP_SYM (memcpy), BP_SYM (largememcpy))
++libc_hidden_def (largememcpy)
++#endif
++

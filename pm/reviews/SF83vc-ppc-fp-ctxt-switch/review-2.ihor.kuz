@@ -1,0 +1,12 @@
+RTOS Task Review
+=======================
+
+Task name: SF83vc-ppc-fp-ctxt-switch
+Version reviewed: e91806b7174e8050d107bf80a2e79f9355699eb7
+Reviewer: ihor.kuz
+Date: 2015-12-22
+Conclusion: Accepted
+
+Overall comments:
+The documentation rewrites look good to me.
+

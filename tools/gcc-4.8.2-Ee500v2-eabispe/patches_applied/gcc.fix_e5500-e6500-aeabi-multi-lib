@@ -1,0 +1,46 @@
+# Problem Statement:
+  For e5500/e6500 bare-board tool chain, 
+  we do not build the 32-bit soft-float library.
+
+# Reported by:
+  Rohit [28.May.2013]
+
+# Owned by:
+  Rohit
+
+# Action:
+  * Generate the following multi-libs [same as e500mc eabi target].
+	.;@mno-eabi@mstrict-align
+	nof;@msoft-float@mno-eabi@mstrict-align
+	le;@mlittle@mno-eabi@mstrict-align
+	und;@fleading-underscore@mno-eabi@mstrict-align
+	64;@m64@mno-eabi@mstrict-align
+	le/und;@mlittle@fleading-underscore@mno-eabi@mstrict-align
+	nof/le;@msoft-float@mlittle@mno-eabi@mstrict-align
+	nof/und;@msoft-float@fleading-underscore@mno-eabi@mstrict-align
+	nof/le/und;@msoft-float@mlittle@fleading-underscore@mno-eabi@mstrict-align
+
+diff -Naur gcc-4.8.1/gcc/config/rs6000/t-ppc-e500mc gcc-4.8.1-e5500-e6500-multi-lib-patch/gcc/config/rs6000/t-ppc-e500mc
+--- gcc-4.8.1/gcc/config/rs6000/t-ppc-e500mc	2013-06-17 07:35:05.349002658 -0500
++++ gcc-4.8.1-e5500-e6500-multi-lib-patch/gcc/config/rs6000/t-ppc-e500mc	2013-06-18 02:43:10.331002656 -0500
+@@ -1,10 +1,15 @@
+ # Multilibs for powerpc embedded ELF targets.
++MULTILIB_OPTIONS	= msoft-float \
++			  mlittle \
++			  fleading-underscore \
++			  m64
++
++MULTILIB_DIRNAMES	= nof \
++			  le \
++			  und \
++			  64
+ 
+-MULTILIB_OPTIONS	= m32/m64
+-
+-MULTILIB_DIRNAMES	= 32 64
+-
+-MULTILIB_EXCEPTIONS	= 
++MULTILIB_EXCLUSIONS     = m64/msoft-float m64/mlittle m64/fleading-underscore
+ 
+ MULTILIB_EXTRA_OPTS	= mno-eabi mstrict-align
+ 

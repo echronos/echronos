@@ -61,7 +61,11 @@ $include-before$
 $endfor$
 $if(title)$
 <div id="$idprefix$header">
-<div class="document_title">$title$</div>
+<div class="document_title">$title$
+$if(architecture)$
+<br/><br/>$architecture$ Implementation
+$endif$
+</div>
 $for(author)$
 <h2 class="author">$author$</h2>
 $endfor$

@@ -1,0 +1,100 @@
+--- src_glibc/sysdeps/powerpc/Makefile.orig	2012-08-16 08:05:08.190005756 -0700
++++ src_glibc/sysdeps/powerpc/Makefile	2012-08-16 08:05:18.170005756 -0700
+@@ -1,6 +1,6 @@
+ # We always want to use the new mnemonic syntax even if we are on a RS6000
+ # machine.
+-+cflags += -mnew-mnemonics
++#+cflags += -mnew-mnemonics
+ 
+ ifeq ($(subdir),gmon)
+ sysdep_routines += ppc-mcount
+--- obj_glibc_0/stdlib/longlong.h-orig	2012-09-14 15:10:43.860161621 -0700
++++ obj_glibc_0/stdlib/longlong.h	2012-09-14 15:13:15.790167123 -0700
+@@ -700,37 +700,37 @@
+ #define add_ssaaaa(sh, sl, ah, al, bh, bl) \
+   do {									\
+     if (__builtin_constant_p (bh) && (bh) == 0)				\
+-      __asm__ ("{a%I4|add%I4c} %1,%3,%4\n\t{aze|addze} %0,%2"		\
++      __asm__ ("add%I4c %1,%3,%4\n\taddze %0,%2"		\
+ 	     : "=r" (sh), "=&r" (sl) : "r" (ah), "%r" (al), "rI" (bl));\
+     else if (__builtin_constant_p (bh) && (bh) == ~(USItype) 0)		\
+-      __asm__ ("{a%I4|add%I4c} %1,%3,%4\n\t{ame|addme} %0,%2"		\
++      __asm__ ("add%I4c %1,%3,%4\n\taddme %0,%2"		\
+ 	     : "=r" (sh), "=&r" (sl) : "r" (ah), "%r" (al), "rI" (bl));\
+     else								\
+-      __asm__ ("{a%I5|add%I5c} %1,%4,%5\n\t{ae|adde} %0,%2,%3"		\
++      __asm__ ("add%I5c %1,%4,%5\n\tadde %0,%2,%3"		\
+ 	     : "=r" (sh), "=&r" (sl)					\
+ 	     : "%r" (ah), "r" (bh), "%r" (al), "rI" (bl));		\
+   } while (0)
+ #define sub_ddmmss(sh, sl, ah, al, bh, bl) \
+   do {									\
+     if (__builtin_constant_p (ah) && (ah) == 0)				\
+-      __asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{sfze|subfze} %0,%2"	\
++      __asm__ ("subf%I3c %1,%4,%3\n\tsubfze %0,%2"	\
+ 	       : "=r" (sh), "=&r" (sl) : "r" (bh), "rI" (al), "r" (bl));\
+     else if (__builtin_constant_p (ah) && (ah) == ~(USItype) 0)		\
+-      __asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{sfme|subfme} %0,%2"	\
++      __asm__ ("subf%I3c %1,%4,%3\n\tsubfme %0,%2"	\
+ 	       : "=r" (sh), "=&r" (sl) : "r" (bh), "rI" (al), "r" (bl));\
+     else if (__builtin_constant_p (bh) && (bh) == 0)			\
+-      __asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{ame|addme} %0,%2"		\
++      __asm__ ("subf%I3c %1,%4,%3\n\taddme %0,%2"		\
+ 	       : "=r" (sh), "=&r" (sl) : "r" (ah), "rI" (al), "r" (bl));\
+     else if (__builtin_constant_p (bh) && (bh) == ~(USItype) 0)		\
+-      __asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{aze|addze} %0,%2"		\
++      __asm__ ("subf%I3c %1,%4,%3\n\taddze %0,%2"		\
+ 	       : "=r" (sh), "=&r" (sl) : "r" (ah), "rI" (al), "r" (bl));\
+     else								\
+-      __asm__ ("{sf%I4|subf%I4c} %1,%5,%4\n\t{sfe|subfe} %0,%3,%2"	\
++      __asm__ ("subf%I4c %1,%5,%4\n\tsubfe %0,%3,%2"	\
+ 	       : "=r" (sh), "=&r" (sl)					\
+ 	       : "r" (ah), "r" (bh), "rI" (al), "r" (bl));		\
+   } while (0)
+ #define count_leading_zeros(count, x) \
+-  __asm__ ("{cntlz|cntlzw} %0,%1" : "=r" (count) : "r" (x))
++  __asm__ ("cntlzw %0,%1" : "=r" (count) : "r" (x))
+ #define COUNT_LEADING_ZEROS_0 32
+ #if defined (_ARCH_PPC) || defined (__powerpc__) || defined (__POWERPC__) \
+   || defined (__ppc__)                                                    \
+@@ -769,32 +769,32 @@
+ #define add_ssaaaa(sh, sl, ah, al, bh, bl) \
+   do {									\
+     if (__builtin_constant_p (bh) && (bh) == 0)				\
+-      __asm__ ("{a%I4|add%I4c} %1,%3,%4\n\t{aze|addze} %0,%2"		\
++      __asm__ ("add%I4c %1,%3,%4\n\taddze %0,%2"		\
+ 	     : "=r" (sh), "=&r" (sl) : "r" (ah), "%r" (al), "rI" (bl));\
+     else if (__builtin_constant_p (bh) && (bh) == ~(UDItype) 0)		\
+-      __asm__ ("{a%I4|add%I4c} %1,%3,%4\n\t{ame|addme} %0,%2"		\
++      __asm__ ("add%I4c %1,%3,%4\n\taddme %0,%2"		\
+ 	     : "=r" (sh), "=&r" (sl) : "r" (ah), "%r" (al), "rI" (bl));\
+     else								\
+-      __asm__ ("{a%I5|add%I5c} %1,%4,%5\n\t{ae|adde} %0,%2,%3"		\
++      __asm__ ("add%I5c %1,%4,%5\n\tadde %0,%2,%3"		\
+ 	     : "=r" (sh), "=&r" (sl)					\
+ 	     : "%r" (ah), "r" (bh), "%r" (al), "rI" (bl));		\
+   } while (0)
+ #define sub_ddmmss(sh, sl, ah, al, bh, bl) \
+   do {									\
+     if (__builtin_constant_p (ah) && (ah) == 0)				\
+-      __asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{sfze|subfze} %0,%2"	\
++      __asm__ ("subf%I3c %1,%4,%3\n\tsubfze %0,%2"	\
+ 	       : "=r" (sh), "=&r" (sl) : "r" (bh), "rI" (al), "r" (bl));\
+     else if (__builtin_constant_p (ah) && (ah) == ~(UDItype) 0)		\
+-      __asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{sfme|subfme} %0,%2"	\
++      __asm__ ("subf%I3c %1,%4,%3\n\tsubfme %0,%2"	\
+ 	       : "=r" (sh), "=&r" (sl) : "r" (bh), "rI" (al), "r" (bl));\
+     else if (__builtin_constant_p (bh) && (bh) == 0)			\
+-      __asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{ame|addme} %0,%2"		\
++      __asm__ ("subf%I3c %1,%4,%3\n\taddme %0,%2"		\
+ 	       : "=r" (sh), "=&r" (sl) : "r" (ah), "rI" (al), "r" (bl));\
+     else if (__builtin_constant_p (bh) && (bh) == ~(UDItype) 0)		\
+-      __asm__ ("{sf%I3|subf%I3c} %1,%4,%3\n\t{aze|addze} %0,%2"		\
++      __asm__ ("subf%I3c %1,%4,%3\n\taddze %0,%2"		\
+ 	       : "=r" (sh), "=&r" (sl) : "r" (ah), "rI" (al), "r" (bl));\
+     else								\
+-      __asm__ ("{sf%I4|subf%I4c} %1,%5,%4\n\t{sfe|subfe} %0,%3,%2"	\
++      __asm__ ("subf%I4c %1,%5,%4\n\tsubfe %0,%3,%2"	\
+ 	       : "=r" (sh), "=&r" (sl)					\
+ 	       : "r" (ah), "r" (bh), "rI" (al), "r" (bl));		\
+   } while (0)

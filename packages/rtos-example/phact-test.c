@@ -28,6 +28,9 @@
 #include "rtos-phact.h"
 #include "debug.h"
 
+void fatal(RtosErrorId error_id);
+void t0(void);
+
 void
 fatal(const RtosErrorId error_id)
 {

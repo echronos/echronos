@@ -8,12 +8,9 @@
 /*| structures |*/
 
 /*| extern_declarations |*/
-{{#tasks}}
-extern void {{function}}(void);
-{{/tasks}}
 
 /*| function_declarations |*/
-static void block();
+static void block(void);
 static void unblock({{prefix_type}}TaskId task);
 {{#mutexes.length}}
 static void mutex_core_locked_by({{prefix_type}}MutexId mutex, {{prefix_type}}TaskId task);
@@ -60,7 +57,7 @@ block(void)
 
 {{#mutexes.length}}
 static void
-mutex_core_block_on_timeout(const {{prefix_type}}TaskId t, const {{prefix_type}}TicksRelative ticks)
+mutex_core_block_on_timeout(__attribute__((unused)) const {{prefix_type}}TaskId t, const {{prefix_type}}TicksRelative ticks)
 {
     precondition_preemption_disabled();
 

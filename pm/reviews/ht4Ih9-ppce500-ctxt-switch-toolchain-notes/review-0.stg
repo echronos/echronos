@@ -1,0 +1,14 @@
+RTOS Task Review
+=======================
+
+Task name: ht4Ih9-ppce500-ctxt-switch-toolchain-notes
+Version reviewed: 3ebf07b8aafed001ec13a0d8c03b1b4d5746c41a
+Reviewer: stg
+Date: 2015-08-26
+Conclusion: Accepted
+
+Overall comments:
+
+Comment 1: Accepted
+The information is not very obvious and easily missed at the end of the manual.
+Maybe it would help to extend prj.py so that it prints this information when the gen or build commands are used with the PowerPC platform version of the RTOS to make this information harder to miss.

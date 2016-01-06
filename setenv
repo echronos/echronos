@@ -58,6 +58,7 @@ setenv () {
             PATH=$(pwd)/tools/x86_64-apple-darwin/bin:$PATH
         elif test $(uname) = Linux; then
             PATH=$(pwd)/tools/x86_64-unknown-linux-gnu/bin:$PATH
+            PATH=$(pwd)/tools/gcc-4.8.2-Ee500v2-eabispe/bin:$PATH
         else
             echo "Unknown host operating system"
         fi

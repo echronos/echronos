@@ -138,7 +138,8 @@ signal_wait_set_blocked_on(const {{prefix_type}}SignalSet requested_signals, con
 {{prefix_type}}SignalSet
 {{prefix_func}}signal_peek_set(const {{prefix_type}}SignalSet requested_signals)
 {
-    return signal_peek(PENDING_SIGNALS(get_current_task()), requested_signals);
+    const {{prefix_type}}SignalSet pending_signals = PENDING_SIGNALS(get_current_task());
+    return pending_signals & requested_signals;
 }
 
 void

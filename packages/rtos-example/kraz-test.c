@@ -45,6 +45,9 @@ complete(RtosTaskId task)
     }
 }
 
+void fn_a(void);
+void fn_b(void);
+
 void
 fn_a(void)
 {

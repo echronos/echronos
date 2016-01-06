@@ -1,0 +1,28 @@
+--- src_gcc/libffi/doc/libffi.texi-orig	2013-03-25 14:02:14.310149199 -0700
++++ src_gcc/libffi/doc/libffi.texi	2013-03-25 14:04:55.470154133 -0700
+@@ -359,25 +359,6 @@
+ You must first describe the structure to @samp{libffi} by creating a
+ new @code{ffi_type} object for it.
+ 
+-@tindex ffi_type
+-@deftp ffi_type
+-The @code{ffi_type} has the following members:
+-@table @code
+-@item size_t size
+-This is set by @code{libffi}; you should initialize it to zero.
+-
+-@item unsigned short alignment
+-This is set by @code{libffi}; you should initialize it to zero.
+-
+-@item unsigned short type
+-For a structure, this should be set to @code{FFI_TYPE_STRUCT}.
+-
+-@item ffi_type **elements
+-This is a @samp{NULL}-terminated array of pointers to @code{ffi_type}
+-objects.  There is one element per field of the struct.
+-@end table
+-@end deftp
+-
+ 
+ @node Type Example
+ @subsection Type Example

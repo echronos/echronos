@@ -84,6 +84,7 @@
     </module>
 
     <module name="machine-armv7m-common.example.machine-timer" />
+    <module name="machine-stm32f4-discovery.example.machine-fp" />
     <module name="machine-stm32f4-discovery.example.fp-regs-test" />
 
   </modules>

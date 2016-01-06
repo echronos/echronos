@@ -1,0 +1,23 @@
+RTOS Task Review
+=======================
+
+Task name: ht4Ih9-ppce500-ctxt-switch-toolchain-notes
+Version reviewed: 3ebf07b8aafed001ec13a0d8c03b1b4d5746c41a
+Reviewer: ihor.kuz
+Date: 2015-08-26
+Conclusion: Rework
+
+Specific comments
+=================
+
+Location: components/context-switch-ppce500/docs.md 
+Comment: rework
+I made some slight changes related to the placement of the examples of gcc flags. The changes are checked in with this commit. 
+
+[robs: Looks good]
+
+Location: components/context-switch-preempt-ppce500/docs.md 
+Comment: rework
+I made some slight changes related to the perenthetical examples. The changes are checked in with this commit. 
+
+[robs: Looks good, thanks]

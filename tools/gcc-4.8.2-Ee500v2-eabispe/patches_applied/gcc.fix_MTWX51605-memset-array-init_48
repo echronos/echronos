@@ -1,0 +1,129 @@
+# Problem Statement:
+  Identify memory block setting and insert call to memset() or a loop-unrolled
+  code sequence
+
+# Reported by:
+  James Yang
+
+# Owned by:
+  Rohit
+
+# Action:
+  1. From v4.8 onwards, gcc generates 'memset' call for initialization loop
+     by default.
+  2. If the loop count of the initialization loop is known at compile time, 
+     generate sequence of store instructions for 'memset' calls based on the
+     target specific data given below.
+  3. For e500mc generate call to 'memset' if no. of bytes to
+     be cleared is > 136 else generate sequence of store instructions.
+  4. For e500v1/e500v2 generate call to 'memset' if no. of bytes to
+     be cleared is > 172 else generate sequence of store instructions (vector).
+  5. For e5500/e6500 (32-bit) generate  call to 'memset' if no. of bytes to be
+     cleared is > 120 else generate sequence of store instructions.
+  6. For e5500/e6500 (64-bit) generate  call to 'memset' if no. of bytes to be
+     cleared is > 248 else generate sequence of store instructions.
+  7. Set upper bound limit (256/512) for generation of sequence of store
+     instructions to prevent stack overflow due to code bloat.
+  8. To override the default no. of bytes to be cleared values, use the
+     target flag '-mmax_block_clear='.
+  9. To disable this change and get default GCC behavior use the flag
+     '-mno-opt-memset'.
+
+diff -Naur gcc-4.8.1/gcc/config/rs6000/rs6000.c gcc-4.8.1-MTWX51605-memset-array-init/gcc/config/rs6000/rs6000.c
+--- gcc-4.8.1/gcc/config/rs6000/rs6000.c	2013-06-07 08:09:43.578001466 -0500
++++ gcc-4.8.1-MTWX51605-memset-array-init/gcc/config/rs6000/rs6000.c	2013-06-07 09:28:04.641003044 -0500
+@@ -2423,6 +2423,10 @@
+   if (optimize >= 3 && global_init_p && !global_options_set.x_flag_ira_loop_pressure)
+     flag_ira_loop_pressure = 1;
+ 
++  if (!global_options_set.x_TARGET_OPT_MEMSET_STORE &&
++      (flag_tree_loop_distribution || flag_tree_loop_distribute_patterns))
++    TARGET_OPT_MEMSET_STORE = 1;
++
+   /* Set the pointer size.  */
+   if (TARGET_64BIT)
+     {
+@@ -13414,7 +13418,64 @@
+ 
+   if (optimize_size && bytes > 3 * clear_step)
+     return 0;
+-  if (! optimize_size && bytes > 8 * clear_step)
++
++  if (TARGET_OPT_MEMSET_STORE && !optimize_size)
++    {
++      if (rs6000_cpu == PROCESSOR_PPCE500MC)
++        {
++          /* Based on comparison of performance data between generating sequence
++             of store instructions and 'memset' call,'memset' executes faster if
++             the no of bytes is > 136.
++             An Upper bound limit has been set for the generation of store
++             instructions to prevent stack overflow due to code bloat.  */
++          if (bytes > (rs6000_max_block_clear ?
++             ((rs6000_max_block_clear > 256) ? 256 : rs6000_max_block_clear)  : 136))
++            return 0;
++        }
++      else if ((rs6000_cpu == PROCESSOR_PPC8540) && align >= 64)
++        {
++          /* Based on comparison of performance data between generating sequence
++             of store instructions (vector) and 'memset' call,'memset' executes faster if
++             the no of bytes is > 172.
++             An Upper bound limit has been set for the generation of store
++             instructions to prevent stack overflow due to code bloat.  */
++          if (bytes > (rs6000_max_block_clear ?
++             ((rs6000_max_block_clear > 256) ? 256 : rs6000_max_block_clear)  : 172))
++            return 0;
++        }
++      else if ((rs6000_cpu == PROCESSOR_PPCE5500 ||
++                rs6000_cpu == PROCESSOR_PPCE6500 ||
++                rs6000_cpu == PROCESSOR_PPCE500MC64) &&  TARGET_32BIT)
++        {
++          /* Based on comparison of performance data between generating sequence
++             of store instructions and 'memset' call,'memset' executes faster if
++             the no of bytes is > 120.
++             An Upper bound limit has been set for the generation of store
++             instructions to prevent stack overflow due to code bloat.  */
++          if (bytes > (rs6000_max_block_clear ?
++             ((rs6000_max_block_clear > 256) ? 256 : rs6000_max_block_clear)  : 120))
++            return 0;
++        }
++      else if ((rs6000_cpu == PROCESSOR_PPCE5500 ||
++                rs6000_cpu == PROCESSOR_PPCE6500 ||
++                rs6000_cpu == PROCESSOR_PPCE500MC64) &&  TARGET_64BIT)
++        {
++          /* Based on comparison of performance data between generating sequence
++             of store instructions and 'memset' call,'memset' executes faster if
++             the no of bytes is > 248.
++             An Upper bound limit has been set for the generation of store
++             instructions to prevent stack overflow due to code bloat.  */
++          if (bytes > (rs6000_max_block_clear ?
++             ((rs6000_max_block_clear > 512) ? 512 : rs6000_max_block_clear)  : 248))
++            return 0;
++        }
++          /* An Upper bound limit has been set for the generation of store
++             instructions to prevent stack overflow due to code bloat.  */
++      else if (bytes > (rs6000_max_block_clear ?
++              ((rs6000_max_block_clear > 256) ? 256 : rs6000_max_block_clear) : 8 * clear_step))
++        return 0;
++    }
++  else if (! optimize_size && bytes > 8 * clear_step)
+     return 0;
+ 
+   for (offset = 0; bytes > 0; offset += clear_bytes, bytes -= clear_bytes)
+diff -Naur gcc-4.8.1/gcc/config/rs6000/rs6000.opt gcc-4.8.1-MTWX51605-memset-array-init/gcc/config/rs6000/rs6000.opt
+--- gcc-4.8.1/gcc/config/rs6000/rs6000.opt	2013-06-07 08:09:43.660001466 -0500
++++ gcc-4.8.1-MTWX51605-memset-array-init/gcc/config/rs6000/rs6000.opt	2013-06-07 09:26:09.607001012 -0500
+@@ -157,6 +157,14 @@
+ Target Report Mask(MULTIPLE) Var(rs6000_isa_flags)
+ Generate load/store multiple instructions
+ 
++mmax_block_clear=
++Target RejectNegative Joined UInteger Var(rs6000_max_block_clear) Init(0)
++Maximum size in bytes above which generate string instructions for block clear
++
++mopt-memset
++Target Report Var(TARGET_OPT_MEMSET_STORE) Save
++If optimal emit sequence of stores for memset
++
+ mstring
+ Target Report Mask(STRING) Var(rs6000_isa_flags)
+ Generate string instructions for block moves

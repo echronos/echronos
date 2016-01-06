@@ -1,0 +1,33 @@
+# Problem Statement:
+  Altivec vector load instruction accepts non-aligned offsets, but it
+  will silently ignore the last 4 bits, resulting in accessing the
+  wrong memory.
+
+  Increase alignment for vector constants to take care of 
+  unaligned access.
+
+  This patch resolves the run-time segmentation fault on e6500 board.
+
+# Reported by:
+  Edmar [29.May.2013]
+
+# Owned by:
+  Edmar & Rohit
+
+# Action:
+  * Update GCC target macro to align vector constants on 16-byte
+    boundary. 
+  
+diff -Naur gcc-4.7.2/gcc/config/rs6000/rs6000.h gcc-4.7.2-altivec_const_align/gcc/config/rs6000/rs6000.h
+--- gcc-4.7.2/gcc/config/rs6000/rs6000.h        2013-05-30 06:20:45.631000574 -0500
++++ gcc-4.7.2-altivec_const_align/gcc/config/rs6000/rs6000.h    2013-05-30 06:24:30.663001475 -0500
+@@ -748,7 +748,8 @@
+    && (STRICT_ALIGNMENT || !optimize_size)                       \
+    && (ALIGN) < BITS_PER_WORD                                    \
+    ? BITS_PER_WORD                                               \
+-   : (ALIGN))
++   : ((TARGET_ALTIVEC && (TREE_CODE (EXP) == VECTOR_CST)       \
++     && ((ALIGN) < 128)) ? 128 : (ALIGN)))
+
+ /* Make arrays of chars word-aligned for the same reasons.
+    Align vectors to 128 bits.  Align SPE vectors and E500 v2 doubles to

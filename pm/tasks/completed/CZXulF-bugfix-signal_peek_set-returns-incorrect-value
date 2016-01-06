@@ -1,0 +1,22 @@
+Task: CZXulF-bugfix-signal_peek_set-returns-incorrect-value
+==============================================================================
+
+Motivation
+----------
+
+The signal_peek_set() API is meant to return the intersection of a specified signal set and the currently pending signals.
+However, the current implementatino returns the result of the signal_peek() macro which evaluates to a boolean value.
+Therefore, signal_peek_set() does not return which of the requested signals are pending but only whether or not one of the requested signals was pending, encoded as a SignalSet type.
+
+
+Goals
+--------
+
+- make signal_peek_set() provide the intended API semantics
+
+
+Test Plan
+---------
+
+- code review
+- existing regression tests must pass

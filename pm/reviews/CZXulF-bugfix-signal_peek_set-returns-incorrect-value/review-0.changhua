@@ -1,0 +1,20 @@
+RTOS Task Review
+=======================
+
+Task name: CZXulF-bugfix-signal_peek_set-returns-incorrect-value
+Version reviewed: 8d2e63da6f82768f84e0936d7054d848ee9d3f33
+Reviewer: changhua
+Date: 2015-09-01
+Conclusion: Accepted/Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: filename:linenum
+Comment:
+
+Location: filename:linenum
+Comment:

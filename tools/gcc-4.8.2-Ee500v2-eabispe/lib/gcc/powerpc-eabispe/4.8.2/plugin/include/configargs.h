@@ -1,0 +1,7 @@
+/* Generated automatically. */
+static const char configuration_arguments[] = "../src_gcc/configure --target=powerpc-eabispe --disable-shared --disable-threads --disable-decimal-float --with-gnu-as --with-gnu-ld --disable-libstdcxx-pch --disable-libssp --disable-libmudflap --disable-nls --with-newlib --prefix=/pkg/fs-DTgnu-/gcc-4.8.2-Ee500v2-eabispe/i686-linux --with-sysroot=/pkg/fs-DTgnu-/gcc-4.8.2-Ee500v2-eabispe/i686-linux/powerpc-eabispe --with-build-sysroot=/tmp/b30502/ELe500v2//pkg/fs-DTgnu-/gcc-4.8.2-Ee500v2-eabispe/i686-linux/powerpc-eabispe --with-built-time-tools=/tmp/b30502/ELe500v2//pkg/fs-DTgnu-/gcc-4.8.2-Ee500v2-eabispe/i686-linux/bin --with-headers=yes --enable-languages=c,c++,fortran --with-cpu=8548 --enable-e500_double --with-host-libstdcxx='-static-libgcc -static -Wl,-Bstatic,-lstdc++ -lm' --with-gmp=/tmp/b30502/ELe500v2//pkg/fs-DTgnu-/ELe500v2/linux_host_libs/usr --with-target-gmp=/tmp/b30502/ELe500v2//pkg/fs-DTgnu-/ELe500v2/linux_host_libs/tgmp --disable-target-multilib --with-mpfr=/tmp/b30502/ELe500v2//pkg/fs-DTgnu-/ELe500v2/linux_host_libs/usr --with-mpc=/tmp/b30502/ELe500v2//pkg/fs-DTgnu-/ELe500v2/linux_host_libs/usr --with-ppl=/tmp/b30502/ELe500v2//pkg/fs-DTgnu-/ELe500v2/linux_host_libs/usr --with-isl=/tmp/b30502/ELe500v2//pkg/fs-DTgnu-/ELe500v2/linux_host_libs/usr --with-cloog=/tmp/b30502/ELe500v2//pkg/fs-DTgnu-/ELe500v2/linux_host_libs/usr --enable-cloog-backend=isl";
+static const char thread_model[] = "single";
+
+static const struct {
+  const char *name, *value;
+} configure_default_options[] = { { "cpu", "8548" } };

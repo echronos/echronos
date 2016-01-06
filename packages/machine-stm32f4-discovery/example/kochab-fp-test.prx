@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+     eChronos Real-Time Operating System
+     Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+
+     This program is free software: you can redistribute it and/or modify
+     it under the terms of the GNU Affero General Public License as published by
+     the Free Software Foundation, version 3, provided that no right, title
+     or interest in or to any trade mark, service mark, logo or trade name
+     of NICTA or its licensors is granted.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU Affero General Public License for more details.
+
+     You should have received a copy of the GNU Affero General Public License
+     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+     @TAG(NICTA_AGPL)
+  -->
+
+<system>
+    <modules>
+    <module name="machine-stm32f4-discovery.build" />
+    <module name="armv7m.ctxt-switch-preempt" />
+    <module name="armv7m.exception-preempt">
+      <trampolines>
+        <trampoline>
+          <name>systick</name>
+          <handler>tick_irq</handler>
+        </trampoline>
+      </trampolines>
+    </module>
+    <module name="armv7m.vectable">
+      <flash_load_addr>0x8000000</flash_load_addr>
+      <pendsv>rtos_internal_pendsv_handler</pendsv>
+      <svcall>rtos_internal_svc_handler</svcall>
+      <systick>exception_preempt_trampoline_systick</systick>
+    </module>
+    <module name="armv7m.semihost-debug" />
+    <module name="generic.debug" />
+
+    <module name="armv7m.rtos-kochab">
+      <internal_asserts>true</internal_asserts>
+      <fatal_error>fatal</fatal_error>
+      <prefix>rtos</prefix>
+      <taskid_size>8</taskid_size>
+      <signalset_size>8</signalset_size>
+      <tasks>
+
+        <task>
+          <name>z</name>
+          <function>fn_z</function>
+          <priority>31</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>a</name>
+          <function>fn_a</function>
+          <priority>30</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+        <task>
+          <name>b</name>
+          <function>fn_b</function>
+          <priority>10</priority>
+          <stack_size>8192</stack_size>
+        </task>
+
+      </tasks>
+
+      <signal_labels>
+
+        <signal_label>
+          <name>timer</name>
+        </signal_label>
+
+      </signal_labels>
+
+      <interrupt_events>
+        <interrupt_event>
+          <name>subfp</name>
+          <task>a</task>
+          <sig_set>timer</sig_set>
+        </interrupt_event>
+
+        <interrupt_event>
+          <name>zero</name>
+          <task>z</task>
+          <sig_set>timer</sig_set>
+        </interrupt_event>
+      </interrupt_events>
+
+      <mutex>
+        <stats>false</stats>
+      </mutex>
+
+    </module>
+
+    <module name="machine-armv7m-common.example.machine-timer" />
+    <module name="machine-stm32f4-discovery.example.machine-fp" />
+    <module name="rtos-example.fp-test">
+      <variant>kochab</variant>
+      <doubles_test>false</doubles_test>
+      <super_verbose>true</super_verbose>
+    </module>
+
+  </modules>
+</system>

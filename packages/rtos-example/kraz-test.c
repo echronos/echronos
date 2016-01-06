@@ -34,8 +34,10 @@
 extern void debug_println(const char *msg);
 extern void debug_printhex32(uint32_t val);
 
-void
-complete(RtosTaskId task)
+static void complete(RtosTaskId task);
+
+static void
+complete(const RtosTaskId task)
 {
     debug_printhex32(task);
     debug_println(" completed");

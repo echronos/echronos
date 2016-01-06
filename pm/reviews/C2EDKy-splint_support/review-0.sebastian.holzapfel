@@ -9,7 +9,7 @@ Conclusion: Rework
 
 Overall comments:
 
-- I ignored the undocumented @unused@ annotations in various component API functions, 
+- I ignored the undocumented @unused@ annotations in various component API functions,
 their purpose is obvious, perhaps a comment at the top of the file might be useful
 stating that splint complains despite the fact that these functions aren't necessary
 API calls in user-level code.
@@ -21,13 +21,15 @@ Specific comments
 Location: /packages/stub/debug.c:31
 Comment:
 Unused symbol is annotated but undocumented.
- - It may be appropriate to document why this parameter is @unused@, in a similar 
+ - It may be appropriate to document why this parameter is @unused@, in a similar
 vein to the function calls at components/task/implementation.c:[37, 39]
 
 Location: components/phact/implementation.c:60
 Comment:
 Unused symbol is annotated but undocumented.
  - Similar to above.
+
+[stg: resolved as suggested]
 
 Location: components/task/docs.md:180
           components/task/header.h:11
@@ -36,7 +38,7 @@ Location: components/task/docs.md:180
           components/sched-rr-test/header.h:9
           components/blocking-mutex-test/header.h:11
 Comment:
- - With the introduction of TASK_ID_END, TASK_ID_MAX is no longer used in the codebase 
+ - With the introduction of TASK_ID_END, TASK_ID_MAX is no longer used in the codebase
 (including example code). Currently the documentation states that TASK_ID_MAX should be
 used by user-level code. It *may* be worth considering, for a similar reason to why this
 macro was introduced; standardizing on TASK_ID_END, updating the documentation, pushing
@@ -45,7 +47,7 @@ it into headers and removing TASK_ID_MAX altogether.
 Location: prj/app/prj.py:810
 Comment:
 (NOTE: This is not an issue per se, just some notes)
- - I've looked briefly into why splint isn't processing the definitions of UINT8_C, 
+ - I've looked briefly into why splint isn't processing the definitions of UINT8_C,
 UINT8_MAX etc; as it will probably become cumbersome to have to add these macros as
 additional flags if a new one is used.
  - There doesn't seem to be a stdint.h in splint's standard system include path.

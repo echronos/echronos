@@ -64,6 +64,8 @@ on the target platform under test) using 'gcc -E -dM ...', and then have this us
 splint to process the target's include files [whilst avoiding a header lint] instead of the default
 set, which would fix this issue.
 
+[stg: no change required]
+
 Location: prj/app/prj.py:810
 Comment:
  - This subprocess call will throw an unhandled exception if splint finds anything wrong.

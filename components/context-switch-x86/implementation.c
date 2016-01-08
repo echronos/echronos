@@ -79,12 +79,13 @@ static void
 context_init(context_t *const ctx, void (*const task_function)(void), uint8_t *const stack_base, const size_t stack_size)
 {
     /* x86 uses a pre-decrement stack.
-     * The initial stack pointer is set up to point to the high-address end of the task's stack area, with enough room
-     * for the initial context that is initialized in this function.
-     * The initial stack pointer is set so that, upon entering the task function, it is aligned at a 16-byte boundary.
+     * The initial stack pointer is set up to point to the high-address end of the task's stack area minus the size of
+     * the initial context set up in this function.
+     * The initial stack pointer is set so that, upon entering the task function, the stack pointer is aligned at a
+     * 16-byte boundary.
      * This ensures compliance with x86 gcc calling conventions. */
     uint32_t stack_top_address = (uint32_t)stack_base + stack_size;
-    *ctx = (context_t)(((stack_top_address - CONTEXT_SIZE) & 0xFFFFFFF0UL) + CONTEXT_SIZE);
+    *ctx = (context_t)((stack_top_address & 0xFFFFFFF0UL) - CONTEXT_SIZE);
     /* When the context-switch implementation switches the first time to a task, it will find the data on the stack
      * that is set up here.
      * First, it pops context->ebx,esi,edi, and ebp_stack_frame from the stack into the corresponding registers.

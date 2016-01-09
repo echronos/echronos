@@ -38,6 +38,11 @@
 {{/deadlock_test}}
 
 void
+application_tick_isr(void)
+{
+}
+
+void
 block(void)
 {
     rtos_signal_wait_set(RTOS_SIGNAL_SET_SIG_BLOCK);
@@ -372,7 +377,7 @@ fn_c(void)
 int
 main(void)
 {
-    machine_timer_deinit();
+    machine_timer_stop();
 
     rtos_start();
     /* Should never reach here, but if we do, an infinite loop is

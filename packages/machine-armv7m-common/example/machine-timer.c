@@ -25,26 +25,39 @@
  * @TAG(NICTA_AGPL)
  */
 
+/*<module>
+    <code_gen>template</code_gen>
+    <headers>
+        <header path="../../rtos-example/machine-timer.h" code_gen="template" />
+    </headers>
+</module>*/
+
 #include <stdint.h>
+#include "machine-timer.h"
 
 #define SYST_CSR_REG 0xE000E010
 #define SYST_RVR_REG 0xE000E014
 #define SYST_CVR_REG 0xE000E018
 
-#define SYST_CSR_READ() (*((volatile uint32_t*)SYST_CSR_REG))
 #define SYST_CSR_WRITE(x) (*((volatile uint32_t*)SYST_CSR_REG) = x)
-
-#define SYST_RVR_READ() (*((volatile uint32_t*)SYST_RVR_REG))
 #define SYST_RVR_WRITE(x) (*((volatile uint32_t*)SYST_RVR_REG) = x)
-
-#define SYST_CVR_READ() (*((volatile uint32_t*)SYST_CVR_REG))
 #define SYST_CVR_WRITE(x) (*((volatile uint32_t*)SYST_CVR_REG) = x)
 
 void
-machine_timer_init(void)
+machine_timer_start(void)
 {
-    /* Set the systick reload value */
     SYST_RVR_WRITE(0x0001ffff);
     SYST_CVR_WRITE(0);
     SYST_CSR_WRITE((1 << 1) | 1);
+}
+
+void
+machine_timer_stop(void)
+{
+}
+
+void
+machine_timer_tick_isr(void)
+{
+    application_tick_isr();
 }

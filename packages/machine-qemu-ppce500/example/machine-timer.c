@@ -25,19 +25,18 @@
  * @TAG(NICTA_AGPL)
  */
 
-void
-machine_timer_clear(void) {
-    asm volatile(
-        /* Write-1-to-clear:
-         *   In TSR (timer status register)
-         *     TSR[FIS] (fixed-interval timer interrupt status) */
-        "lis %%r3,0x400\n"
-        "mttsr %%r3\n"
-        ::: "r3");
-}
+/*<module>
+    <code_gen>template</code_gen>
+    <headers>
+        <header path="../../rtos-example/machine-timer.h" code_gen="template" />
+    </headers>
+</module>*/
+
+#include "machine-timer.h"
 
 void
-machine_timer_init(void) {
+machine_timer_start(void)
+{
     /*
      * Configure a fixed interval timer
      * Enable:
@@ -53,4 +52,22 @@ machine_timer_init(void) {
         "oris %%r3,%%r3,0x380\n" /* 0x300 = TCR[FP], 0x80 = TCR[FIE] */
         "mttcr %%r3"
         ::: "r3");
+}
+
+void
+machine_timer_stop(void)
+{
+}
+
+void
+machine_timer_tick_isr(void)
+{
+    asm volatile(
+        /* Write-1-to-clear:
+         *   In TSR (timer status register)
+         *     TSR[FIS] (fixed-interval timer interrupt status) */
+        "lis %%r3,0x400\n"
+        "mttsr %%r3\n"
+        ::: "r3");
+    application_tick_isr();
 }

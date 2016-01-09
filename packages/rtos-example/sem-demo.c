@@ -39,11 +39,14 @@
 bool
 tick_irq(void)
 {
-    machine_timer_clear();
-
-    rtos_timer_tick();
-
+    machine_timer_tick_isr();
     return true;
+}
+
+void
+application_tick_isr(void)
+{
+    rtos_timer_tick();
 }
 {{/timeout_tests}}
 
@@ -285,7 +288,7 @@ int
 main(void)
 {
 {{#timeout_tests}}
-    machine_timer_init();
+    machine_timer_start();
 {{/timeout_tests}}
 
     rtos_start();

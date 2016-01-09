@@ -41,11 +41,14 @@ void fn_b(void);
 bool
 tick_irq(void)
 {
-    machine_timer_clear();
-
-    rtos_interrupt_event_raise(RTOS_INTERRUPT_EVENT_ID_TICK);
-
+    machine_timer_tick_isr();
     return true;
+}
+
+void
+application_tick_isr(void)
+{
+    rtos_interrupt_event_raise(RTOS_INTERRUPT_EVENT_ID_TICK);
 }
 
 void
@@ -111,7 +114,7 @@ fn_b(void)
 int
 main(void)
 {
-    machine_timer_init();
+    machine_timer_start();
 
     debug_println("Starting RTOS");
     rtos_start();

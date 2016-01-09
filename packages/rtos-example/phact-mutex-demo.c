@@ -35,11 +35,14 @@
 bool
 tick_irq(void)
 {
-    machine_timer_clear();
-
-    rtos_timer_tick();
-
+    machine_timer_tick_isr();
     return true;
+}
+
+void
+application_tick_isr(void)
+{
+    rtos_timer_tick();
 }
 
 void
@@ -354,7 +357,7 @@ fn_z(void)
 int
 main(void)
 {
-    machine_timer_init();
+    machine_timer_start();
 
     rtos_start();
     /* Should never reach here, but if we do, an infinite loop is

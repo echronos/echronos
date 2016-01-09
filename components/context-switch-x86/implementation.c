@@ -43,10 +43,19 @@ static void context_init(context_t *ctx, void (*task_function)(void), uint8_t *s
 
 /*| function_like_macros |*/
 /* context_switch(context_t *from, context_t *to) is a component API; translate it to the implementation; */
-#define context_switch(from, to) rtos_internal_context_switch_x86(from, *to)
+#define context_switch(from, to)\
+    do\
+    {\
+        if (from != to)\
+        {\
+            rtos_internal_context_switch_x86(from, *to);\
+        }\
+    } while(0);
+
 /* context_switch_first(context_t *to) is a component API; translate it to the implementation; */
 #define context_switch_first(to)\
-    do {\
+    do\
+    {\
         context_t unused_context;\
         context_switch(&unused_context, to);\
     } while(0);

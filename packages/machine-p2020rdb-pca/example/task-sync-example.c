@@ -56,6 +56,11 @@ extern volatile unsigned int rx_count;
 uint8_t msg_buf[MSG_SIZE];
 unsigned int msg_len;
 
+void
+application_tick_isr(void)
+{
+}
+
 /* Fatal error function provided for debugging purposes. */
 void
 fatal(const RtosErrorId error_id)
@@ -165,7 +170,7 @@ main(void)
     debug_println("Task sync example");
 
     /* We won't be using any CPU-based timer interrupt sources - disable any the bootloader may have set up. */
-    machine_timer_deinit();
+    machine_timer_stop();
 
     /* Invoke helpers to set up the buffering interrupt handler for DUART rx. */
     interrupt_buffering_example_init();

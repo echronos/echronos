@@ -25,48 +25,22 @@
  * @TAG(NICTA_AGPL)
  */
 
-void
-machine_timer_clear(void)
-{
-    asm volatile(
-        /* Write-1-to-clear:
-         *   In TSR (timer status register)
-         *     TSR[FIS] (fixed-interval timer interrupt status) */
-        "lis %%r3,0x400\n"
-        "mttsr %%r3\n"
-        ::: "r3");
-}
+/*<module>
+    <code_gen>template</code_gen>
+    <headers>
+        <header path="../../rtos-example/machine-timer.h" code_gen="template" />
+    </headers>
+</module>*/
 
-static void
-decrementer_clear(void)
-{
-    asm volatile(
-        /* Write-1-to-clear:
-         *   In TSR (timer status register)
-         *     TSR[DIS] (decrementer interrupt status) */
-        "lis %%r3,0x800\n"
-        "mttsr %%r3\n"
-        ::: "r3");
-}
+#include "machine-timer.h"
 
-/* Useful primarily in case of bootloaders that make use of timer interrupts */
-void
-machine_timer_deinit(void)
-{
-    asm volatile(
-        "li %%r3,0\n"
-        "mttcr %%r3"
-        ::: "r3");
-
-    /* In case there are any decrementer interrupts pending, clear them */
-    decrementer_clear();
-}
+static void decrementer_clear(void);
 
 void
-machine_timer_init(void)
+machine_timer_start(void)
 {
     /* U-Boot has the decrementer on, so we turn this off here */
-    machine_timer_deinit();
+    machine_timer_stop();
 
     /*
      * Configure a fixed interval timer
@@ -92,4 +66,42 @@ machine_timer_init(void)
         "ori %%r3,%%r3,0x2000\n"
         "mttcr %%r3"
         ::: "r3");
+}
+
+/* Useful primarily in case of bootloaders that make use of timer interrupts */
+void
+machine_timer_stop(void)
+{
+    asm volatile(
+        "li %%r3,0\n"
+        "mttcr %%r3"
+        ::: "r3");
+
+    /* In case there are any decrementer interrupts pending, clear them */
+    decrementer_clear();
+}
+
+static void
+decrementer_clear(void)
+{
+    asm volatile(
+        /* Write-1-to-clear:
+         *   In TSR (timer status register)
+         *     TSR[DIS] (decrementer interrupt status) */
+        "lis %%r3,0x800\n"
+        "mttsr %%r3\n"
+        ::: "r3");
+}
+
+void
+machine_timer_tick_isr(void)
+{
+    asm volatile(
+        /* Write-1-to-clear:
+         *   In TSR (timer status register)
+         *     TSR[FIS] (fixed-interval timer interrupt status) */
+        "lis %%r3,0x400\n"
+        "mttsr %%r3\n"
+        ::: "r3");
+    application_tick_isr();
 }

@@ -24,26 +24,13 @@
  *
  * @TAG(NICTA_AGPL)
  */
-
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
 #include "rtos-rigel.h"
 #include "debug.h"
-
-#define SYST_CSR_REG 0xE000E010
-#define SYST_RVR_REG 0xE000E014
-#define SYST_CVR_REG 0xE000E018
-
-#define SYST_CSR_READ() (*((volatile uint32_t*)SYST_CSR_REG))
-#define SYST_CSR_WRITE(x) (*((volatile uint32_t*)SYST_CSR_REG) = x)
-
-#define SYST_RVR_READ() (*((volatile uint32_t*)SYST_RVR_REG))
-#define SYST_RVR_WRITE(x) (*((volatile uint32_t*)SYST_RVR_REG) = x)
-
-#define SYST_CVR_READ() (*((volatile uint32_t*)SYST_CVR_REG))
-#define SYST_CVR_WRITE(x) (*((volatile uint32_t*)SYST_CVR_REG) = x)
+#include "machine-timer.h"
 
 void tick_irq(void);
 void fatal(RtosErrorId error_id);
@@ -52,6 +39,12 @@ void fn_b(void);
 
 void
 tick_irq(void)
+{
+    machine_timer_tick_isr();
+}
+
+void
+application_tick_isr(void)
 {
     debug_println("irq tick");
     rtos_timer_tick();
@@ -167,10 +160,7 @@ fn_b(void)
 int
 main(void)
 {
-    /* Set the systick reload value */
-    SYST_RVR_WRITE(0x0001ffff);
-    SYST_CVR_WRITE(0);
-    SYST_CSR_WRITE((1 << 1) | 1);
+    machine_timer_start();
 
     debug_println("Starting RTOS");
     rtos_start();

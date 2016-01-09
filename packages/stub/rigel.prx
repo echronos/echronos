@@ -124,6 +124,7 @@
       </message_queues>
     </module>
 
+    <module name="stub.machine-timer" />
     <module name="rtos-example.rigel-test" />
 
   </modules>

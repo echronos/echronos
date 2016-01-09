@@ -44,7 +44,7 @@ fatal(const RtosErrorId error_id)
     debug_print("FATAL ERROR: ");
     debug_printhex32(error_id);
     debug_println("");
-    machine_timer_deinit();
+    machine_timer_stop();
     for (;;)
     {
     }
@@ -53,9 +53,14 @@ fatal(const RtosErrorId error_id)
 bool
 tick_irq(void)
 {
-    static bool toggle;
+    machine_timer_tick_isr();
+    return true;
+}
 
-    machine_timer_clear();
+void
+application_tick_isr(void)
+{
+    static bool toggle;
 
     if (toggle) {
         rtos_interrupt_event_raise(RTOS_INTERRUPT_EVENT_ID_SUBFP);
@@ -63,8 +68,6 @@ tick_irq(void)
         rtos_interrupt_event_raise(RTOS_INTERRUPT_EVENT_ID_ZERO);
     }
     toggle = !toggle;
-
-    return true;
 }
 
 /* This task, which *doesn't* use floating-point, is designed to interleave with the others to ensure floating-point
@@ -201,7 +204,7 @@ __eabi(void)
 int
 main(void)
 {
-    machine_timer_init();
+    machine_timer_start();
 
     machine_fp_init();
 

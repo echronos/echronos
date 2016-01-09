@@ -1,0 +1,20 @@
+RTOS Task Review
+=======================
+
+Task name: XaJQAN-userspace_x86
+Version reviewed: 5505e759de15b1730eb003e56671aa4f97ddff58
+Reviewer: changhua
+Date: 2016-01-09
+Conclusion: Accepted/Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: filename:linenum
+Comment:
+
+Location: filename:linenum
+Comment:

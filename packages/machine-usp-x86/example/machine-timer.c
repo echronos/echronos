@@ -36,6 +36,9 @@
 #include <unistd.h>
 #include "machine-timer.h"
 
+#define UALARM_MILLISECOND (1000U)
+#define TICK_DURATION (100U * UALARM_MILLISECOND)
+
 static void sigalrm_handler(int sig);
 
 static void
@@ -48,18 +51,17 @@ void
 machine_timer_start(void)
 {
     signal(SIGALRM, sigalrm_handler);
-    alarm(1);
+    ualarm(TICK_DURATION, TICK_DURATION);
 }
 
 void
 machine_timer_stop(void)
 {
-    alarm(0);
+    ualarm(0, 0);
 }
 
 void
 machine_timer_tick_isr(void)
 {
-    alarm(1);
     application_tick_isr();
 }

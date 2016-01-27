@@ -1,0 +1,23 @@
+Task: kpS51x-bugfix_for_incorrect_dependency_in_x_build_partials
+==============================================================================
+
+Motivation
+----------
+
+The command "x.py build partials" attempts to build a release before building the partial release files.
+This is an incorrect circular dependency and "x.py build partials" must only build the partial release files themselves, not a complete release.
+
+This issue is a relic of the task branch t7Kb5l-rename_x_commands.
+It was not picked up by regression tests because it only manifests when building the partials in a clean directory which the regression test system does not necessarily do.
+
+
+Goals
+--------
+
+- remove the call to "build(args)" in line 389 of pylib/release.py so that the x command "build partials" does not attempt to build a complete release
+
+
+Test Plan
+---------
+
+- existing regression tests with clean build directories

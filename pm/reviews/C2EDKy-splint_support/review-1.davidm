@@ -32,6 +32,9 @@ Similar to one-line if conditions where it works fine when it is implemented,
 but it is easy to subtly break something after modifying it later on.
 I leave it to your judgment to change this or not.
 
+[stg: I agree with this comment, but it is beyond the scope of this task.
+This should be addressed consistently throughout the code base with an updated coding style convention, but in a separate task.]
+
 
 Location: components/message-queue/implementation.c:100 and line 139
 Comment:

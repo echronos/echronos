@@ -106,7 +106,7 @@ def _prj_build_win32(output_dir):
     Therefore, collect prj and its dependencies in a zip file that is executable by the python interpreter.
 
     """
-    with zipfile.ZipFile(os.path.join(output_dir, 'prj'), mode='w') as zip_file:
+    with zipfile.ZipFile(os.path.join(output_dir, 'prj'), mode='w', compression=zipfile.ZIP_DEFLATED) as zip_file:
         top = os.path.abspath(base_path('prj', 'app'))
         for dir_path, _, file_names in os.walk(top):
             # Exclude temporary files created by the Python interpreter on the fly

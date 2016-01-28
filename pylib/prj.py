@@ -109,8 +109,16 @@ def _prj_build_win32(output_dir):
     with zipfile.ZipFile(os.path.join(output_dir, 'prj'), mode='w') as zip_file:
         top = os.path.abspath(base_path('prj', 'app'))
         for dir_path, _, file_names in os.walk(top):
+            # Exclude temporary files created by the Python interpreter on the fly
+            if '__pycache__' in dir_path.lower():
+                continue
+
             archive_dir_path = os.path.relpath(dir_path, top)
             for file_name in file_names:
+                # Exclude temporary files created by the Python interpreter on the fly
+                if file_name.lower().endswith('.pyc'):
+                    continue
+
                 file_path = os.path.join(dir_path, file_name)
 
                 with open(file_path, 'rb') as f:
@@ -134,6 +142,12 @@ def _prj_build_win32(output_dir):
                     archive_file_path = os.path.join(archive_dir_path, '__main__.py')
                 else:
                     archive_file_path = os.path.join(archive_dir_path, file_name)
+                # Normalize the path to drop unnecessary elements.
+                # For example, when the file path starts with "./", this prefix is included in the zip manifest as
+                # part of the file name.
+                # On Windows, however, this prefix effectively hides the file inside the zip file.
+                # Windows and the Python interpreter do not see any files with such a prefix inside a zip file.
+                archive_file_path = os.path.normpath(archive_file_path)
                 zip_file.writestr(archive_file_path, file_content)
     with open(os.path.join(output_dir, 'prj.bat'), 'w') as f:
         f.write('@ECHO OFF\npython %~dp0\\prj')

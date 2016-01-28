@@ -40,3 +40,5 @@ Location: components/message-queue/implementation.c:100 and line 139
 Comment:
 Nitpick: On line 100 we compare 'mq->messages' against NULL, and on line 139
 against 0. It should probably be consistent.
+
+[stg: resolved inconsistency by using NULL in both cases]

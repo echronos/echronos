@@ -97,7 +97,7 @@ message_queue_init(void)
     {
         struct message_queue *mq = &message_queues[message_queue];
 
-        internal_assert(mq->messages != 0 &&
+        internal_assert(mq->messages != NULL &&
                         mq->message_size != 0 &&
                         mq->queue_length != 0 &&
                         mq->head == 0 &&

@@ -1,3 +1,5 @@
+/* Applications do not necessarily access all RTOS APIs.
+ * Therefore, they are marked as potentially unused for static analysis. */
 /*| public_headers |*/
 #include <stdbool.h>
 #include <stddef.h>
@@ -21,7 +23,9 @@ typedef uint8_t {{prefix_type}}MutexId;
 
 /*| public_function_declarations |*/
 {{#mutexes.length}}
+/*@unused@*/
 void {{prefix_func}}mutex_lock({{prefix_type}}MutexId) {{prefix_const}}REENTRANT;
+/*@unused@*/
 bool {{prefix_func}}mutex_try_lock({{prefix_type}}MutexId);
 void {{prefix_func}}mutex_unlock({{prefix_type}}MutexId);
 {{/mutexes.length}}

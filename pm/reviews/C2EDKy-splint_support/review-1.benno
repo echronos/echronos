@@ -1,0 +1,20 @@
+RTOS Task Review
+=======================
+
+Task name: C2EDKy-splint_support
+Version reviewed: 7396711b15262c0659ab41c28bc357b679c027c6
+Reviewer: benno
+Date: 2016-01-06
+Conclusion: Accepted/Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: filename:linenum
+Comment:
+
+Location: filename:linenum
+Comment:

@@ -44,7 +44,7 @@ extern void {{ll_debug}}debug_putc(char);
 void
 {{prefix}}debug_print(const char *msg)
 {
-    while (*msg != 0)
+    while (*msg != '\x00')
     {
         {{ll_debug}}debug_putc(*msg);
         msg++;
@@ -67,9 +67,13 @@ put_hexdigit(const uint8_t val)
     {
         ch = '0' + val;
     }
+    else if ((val >= 10) && (val < 16))
+    {
+        ch = 'a' + (val - 10);
+    }
     else
     {
-        ch = ('a' - 10) + val;
+        ch = '?';
     }
     {{ll_debug}}debug_putc(ch);
 }

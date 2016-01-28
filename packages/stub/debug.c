@@ -28,6 +28,6 @@
 void debug_putc(__attribute__((unused)) char c);
 
 void
-debug_putc(__attribute__((unused)) char c)
+debug_putc(/*@unused@*/ __attribute__((unused)) char c)
 {
 }

@@ -37,7 +37,7 @@ sem_init(void)
 {
     {{prefix_type}}TaskId t;
 
-    for (t = {{prefix_const}}TASK_ID_ZERO; t <= {{prefix_const}}TASK_ID_MAX; t++)
+    for (t = {{prefix_const}}TASK_ID_ZERO; t < TASK_ID_END; t++)
     {
         sem_waiters[t] = SEM_ID_NONE;
     }
@@ -120,7 +120,7 @@ void
 
     if (semaphores[s].value == SEM_VALUE_ZERO)
     {
-        for (t = {{prefix_const}}TASK_ID_ZERO; t <= {{prefix_const}}TASK_ID_MAX; t++)
+        for (t = {{prefix_const}}TASK_ID_ZERO; t < TASK_ID_END; t++)
         {
             if (sem_waiters[t] == s)
             {

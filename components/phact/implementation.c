@@ -56,8 +56,10 @@ block(void)
 }
 
 {{#mutexes.length}}
+/* The function parameter 't' is unused because it is only required with a priority inheriting scheduler.
+ * However, the phact variant does not use priority inheritance. */
 static void
-mutex_core_block_on_timeout(__attribute__((unused)) const {{prefix_type}}TaskId t, const {{prefix_type}}TicksRelative ticks)
+mutex_core_block_on_timeout(/*@unused@*/ __attribute__((unused)) const {{prefix_type}}TaskId t, const {{prefix_type}}TicksRelative ticks)
 {
     precondition_preemption_disabled();
 

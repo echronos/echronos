@@ -40,7 +40,7 @@
 /*| structures |*/
 
 /*| extern_declarations |*/
-extern void {{fatal_error}}({{prefix_type}}ErrorId error_id);
+extern /*@noreturn@*/ void {{fatal_error}}({{prefix_type}}ErrorId error_id);
 
 /*| function_declarations |*/
 
@@ -51,26 +51,26 @@ extern void {{fatal_error}}({{prefix_type}}ErrorId error_id);
 #define api_error(error_id) {{fatal_error}}(error_id)
 {{/api_asserts}}
 {{^api_asserts}}
-#define api_error(error_id) do { } while(0)
+#define api_error(error_id)
 {{/api_asserts}}
 {{#api_asserts}}
 #define api_assert(expression, error_id) do { if (!(expression)) { api_error(error_id); } } while(0)
 {{/api_asserts}}
 {{^api_asserts}}
-#define api_assert(expression, error_id) do { } while(0)
+#define api_assert(expression, error_id)
 {{/api_asserts}}
 
 {{#internal_asserts}}
 #define internal_error(error_id) {{fatal_error}}(error_id)
 {{/internal_asserts}}
 {{^internal_asserts}}
-#define internal_error(error_id) do { } while(0)
+#define internal_error(error_id)
 {{/internal_asserts}}
 {{#internal_asserts}}
 #define internal_assert(expression, error_id) do { if (!(expression)) { internal_error(error_id); } } while(0)
 {{/internal_asserts}}
 {{^internal_asserts}}
-#define internal_assert(expression, error_id) do { } while(0)
+#define internal_assert(expression, error_id)
 {{/internal_asserts}}
 
 /*| functions |*/

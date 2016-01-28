@@ -1,3 +1,5 @@
+/* Applications do not necessarily access all RTOS APIs.
+ * Therefore, they are marked as potentially unused for static analysis. */
 /*| public_headers |*/
 
 /*| public_types |*/
@@ -12,5 +14,7 @@
 
 /*| public_function_declarations |*/
 void {{prefix_func}}start(void);
+/*@unused@*/
 void {{prefix_func}}yield(void) {{prefix_const}}REENTRANT;
+/*@unused@*/
 void {{prefix_func}}task_start({{prefix_type}}TaskId task);

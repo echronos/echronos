@@ -1,0 +1,25 @@
+Task: C2EDKy-splint_support
+==============================================================================
+
+Motivation
+----------
+
+Static code analysis can help to identify poor code quality and functional issues without explicit testing.
+Supporting such tools can help to further improve and maintain the code quality of the RTOS.
+
+
+Goals
+--------
+
+- extend the existing x or prj tools with support for running the splint static code analysis tool (http://www.splint.org/)
+- where necessary and reasonable, modify the RTOS code so that it passes the default splint checks
+
+- it is not a goal of this task to implement as strict as possible splint checks;
+  this can be addressed in follow-up tasks
+
+
+Test Plan
+---------
+
+- code review, in particular of the added regression tests
+- existing and new regression tests must pass

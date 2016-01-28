@@ -19,6 +19,8 @@ Nitpick: Would it make sense to document the use of the splint flags? For
 example why we explicitly provide the macros and what '+charintliteral' is
 needed for. Feel free to ignore this.
 
+[stg: documented flags as suggested (note that they are also documented in the commit messages)]
+
 Location: components/message-queue/implementation.c:100 and line 139
 Comment:
 Personally I would probably err on the side of caution here and use parentheses

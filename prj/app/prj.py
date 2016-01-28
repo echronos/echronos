@@ -808,6 +808,8 @@ might not be available on the PATH search path for executables.")
         for c_file in self.c_files:
             if os.path.basename(c_file).startswith('rtos-'):
                 try:
+                    # define UINT macros because splint does not pick them up from system headers for unknown reason
+                    # +charintliteral to allow code such as 'int value = ascii_character - '0';'
                     subprocess.check_call(["splint", "-DUINT8_C(x)=(uint8_t)(x)", "-DUINT8_MAX=255",
                                            "-DUINT32_C(x)=(uint32_t)(x)", "-DUINT32_MAX=0xFFFFFFFF", "+quiet",
                                            "+charintliteral"] + include_path_options + [c_file])

@@ -65,9 +65,9 @@ additional terms apply under section 7:
 
   * No right, title or interest in or to any trade mark, service mark, logo
     or trade name of National ICT Australia Limited, ABN 62 102 206 173
-    (“NICTA”) or its licensors is granted. Modified versions of the Program
+    (â€œNICTAâ€�) or its licensors is granted. Modified versions of the Program
     must be plainly marked as such, and must not be distributed using
-    “eChronos” as a trade mark or product name, or misrepresented as being
+    â€œeChronosâ€� as a trade mark or product name, or misrepresented as being
     the original Program.
 
 -----------------------------------------------------------------------
@@ -716,4 +716,14 @@ class PowerPCe500Linux(Standard):
     enabled = True
     extra_files = [
         ('README.md', 'docs/ppce500_kochab_readme.md'),
+    ]
+
+
+class Lca2016(Standard):
+    packages = ['generic', 'x86', 'posix', 'machine-usp-x86', 'lca2016']
+    platforms = ['x86_64-unknown-linux-gnu']
+    version = '0.0.0'
+    release_name = 'lca2016'
+    extra_files = [
+        ('README.md', 'README.md'),
     ]

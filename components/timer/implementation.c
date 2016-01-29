@@ -146,7 +146,7 @@ timer_tick_process(void)
             {{fatal_error}}(ERROR_ID_TICK_OVERFLOW);
         }
 
-        if (pending_ticks)
+        if (pending_ticks != 0)
         {
             {{#timers.length}}
             {{prefix_type}}TimerId timer_id;

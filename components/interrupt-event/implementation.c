@@ -21,10 +21,11 @@ static bool system_is_idle;
 #define interrupt_event_get_next() rtos_internal_interrupt_event_get_next()
 
 /*| functions |*/
+/*@unused@ must be public so that packages/armv7m/ctxt-switch-preempt.s can access this symbol */
 {{prefix_type}}TaskId
 rtos_internal_interrupt_event_get_next(void)
 {
-    TaskIdOption next;
+    TaskIdOption next = TASK_ID_NONE;
 
     for (;;)
     {

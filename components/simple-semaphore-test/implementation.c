@@ -4,6 +4,7 @@
 #include "rtos-simple-semaphore-test.h"
 
 /*| object_like_macros |*/
+#define TASK_ID_END ({{tasks.length}})
 
 /*| types |*/
 

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+     eChronos Real-Time Operating System
+     Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+
+     This program is free software: you can redistribute it and/or modify
+     it under the terms of the GNU Affero General Public License as published by
+     the Free Software Foundation, version 3, provided that these additional
+     terms apply under section 7:
+
+       No right, title or interest in or to any trade mark, service mark, logo
+       or trade name of of National ICT Australia Limited, ABN 62 102 206 173
+       ("NICTA") or its licensors is granted. Modified versions of the Program
+       must be plainly marked as such, and must not be distributed using
+       "eChronos" as a trade mark or product name, or misrepresented as being
+       the original Program.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU Affero General Public License for more details.
+
+     You should have received a copy of the GNU Affero General Public License
+     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+     @TAG(NICTA_AGPL)
+  -->
+
+<system>
+    <modules>
+        <module name="x86.rtos-rigel">
+            <prefix>rtos</prefix>
+            <signalset_size>8</signalset_size>
+            <api_asserts>true</api_asserts>
+            <internal_asserts>true</internal_asserts>
+            <fatal_error>fatal</fatal_error>
+            <tasks>
+                <task>
+                    <name>one</name>
+                    <function>task_one</function>
+                    <stack_size>8192</stack_size>
+                    <start>true</start>
+                </task>
+                <task>
+                    <name>two</name>
+                    <function>task_two</function>
+                    <stack_size>8192</stack_size>
+                </task>
+                <task>
+                    <name>three</name>
+                    <function>task_three</function>
+                    <stack_size>8192</stack_size>
+                </task>
+                <task>
+                    <name>four</name>
+                    <function>task_four</function>
+                    <stack_size>8192</stack_size>
+                </task>
+                <task>
+                    <name>five</name>
+                    <function>task_five</function>
+                    <stack_size>8192</stack_size>
+                </task>
+            </tasks>
+            <signal_labels>
+                <signal_label>
+                    <name>one</name>
+                    <global>true</global>
+                </signal_label>
+                <signal_label>
+                    <name>two</name>
+                    <global>true</global>
+                </signal_label>
+                <signal_label>
+                    <name>three</name>
+                    <global>true</global>
+                </signal_label>
+                <signal_label>
+                    <name>four</name>
+                    <global>true</global>
+                </signal_label>
+                <signal_label>
+                    <name>five</name>
+                    <global>true</global>
+                </signal_label>
+            </signal_labels>
+            <timers>
+                <timer>
+                    <name>one</name>
+                    <enabled>false</enabled>
+                </timer>
+                <timer>
+                    <name>two</name>
+                    <enabled>false</enabled>
+                </timer>
+            </timers>
+            <interrupt_events>
+                <interrupt_event>
+                    <name>one</name>
+                    <task>one</task>
+                    <sig_set>one</sig_set>
+                </interrupt_event>
+                <interrupt_event>
+                    <name>two</name>
+                    <task>two</task>
+                    <sig_set>two</sig_set>
+                </interrupt_event>
+                <interrupt_event>
+                    <name>three</name>
+                    <task>three</task>
+                    <sig_set>three</sig_set>
+                </interrupt_event>
+                <interrupt_event>
+                    <name>four</name>
+                    <task>four</task>
+                    <sig_set>four</sig_set>
+                </interrupt_event>
+                <interrupt_event>
+                    <name>five</name>
+                    <task>five</task>
+                    <sig_set>five</sig_set>
+                </interrupt_event>
+            </interrupt_events>
+            <mutexes>
+                <mutex>
+                    <name>one</name>
+                </mutex>
+                <mutex>
+                    <name>two</name>
+                </mutex>
+                <mutex>
+                    <name>three</name>
+                </mutex>
+                <mutex>
+                    <name>four</name>
+                </mutex>
+                <mutex>
+                    <name>five</name>
+                </mutex>
+            </mutexes>
+            <mutex>
+                <stats>false</stats>
+            </mutex>
+            <message_queues>
+                <message_queue>
+                    <name>one</name>
+                    <message_size>100</message_size>
+                    <queue_length>10</queue_length>
+                </message_queue>
+            </message_queues>
+        </module>
+        <module name="x86.ctxt-switch"/>
+        <module name="generic.debug"/>
+        <module name="posix.debug"/>
+        <module name="machine-usp-x86.example.machine-timer"/>
+        <module name="lca2016.default-handlers"/>
+        <module name="machine-usp-x86.build">
+            <output_type>shared-library</output_type>
+        </module>
+    </modules>
+</system>

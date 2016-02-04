@@ -4,7 +4,7 @@ linux.conf.au 2016 Tutorial
 1. make sure this file has the path name ~/echronos/README_lca2016.txt
 
 
-2. build the example system
+2. use the build outputs in the 'out' directory committed to this branch and hope it works with picoTCP - or:
 
 2.1 run `. setenv'
 

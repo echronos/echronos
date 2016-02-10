@@ -93,17 +93,6 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'prj/app/pystache'))
 if __name__ == '__main__':
     sys.modules['x'] = sys.modules['__main__']
 
-### Check that the correct Python is being used.
-correct = None
-if sys.platform == 'darwin':
-    correct = os.path.abspath(os.path.join(BASE_DIR, 'tools/x86_64-apple-darwin/bin/python3.3'))
-elif sys.platform.startswith('linux'):
-    correct = os.path.abspath(os.path.join(BASE_DIR, 'tools/x86_64-unknown-linux-gnu/bin/python3.3'))
-
-if correct is not None and sys.executable != correct:
-    print("x.py expects to be executed using {} (not {}).".format(correct, sys.executable), file=sys.stderr)
-    sys.exit(1)
-
 import argparse
 import logging
 

@@ -413,9 +413,12 @@ def build_single_release(config, topdir):
                         m.name = '{}/{}-{}-{}-{}.pdf'.format(basename, config.product_name, config.release_name,
                                                              variant, config.version)
                     tf.addfile(m, m_f)
-        for plat in config.platforms:
-            arcname = '{}/{}/bin/prj'.format(basename, plat)
-            tf.add('prj_build_{}/prj'.format(plat), arcname=arcname, filter=_tar_info_filter)
+
+        prj_build_dir = 'prj_build'
+        for file_name in os.listdir(prj_build_dir):
+            arcname = '{}/bin/{}'.format(basename, file_name)  # deliberately use '/' as the cross-platform delimiter
+            tf.add(os.path.join(prj_build_dir, file_name), arcname=arcname, filter=_tar_info_filter)
+
         if config.top_level_license is not None:
             _tar_add_data(tf, '{}/LICENSE'.format(basename),
                           config.top_level_license.encode('utf8'),
@@ -478,7 +481,8 @@ def release_test_one(archive):
                 raise RuntimeError("Release archive does not extract into top directory with the same name as the "
                                    "base name of the archive ({})".format(release_dir))
             with chdir(release_dir):
-                cmd = "./{}/bin/prj".format(platform)
+                prj_path = os.path.join("bin", "prj")
+                cmd = prj_path
                 try:
                     subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
                 except subprocess.CalledProcessError as e:
@@ -494,7 +498,7 @@ def release_test_one(archive):
                 with open('project.prj', 'w') as f:
                     f.write(project_prj_template.format(pkg_root))
                 for pkg, f in pkgs:
-                    cmd = "./{}/bin/prj build {}".format(platform, pkg)
+                    cmd = "{} build {}".format(prj_path, pkg)
                     try:
                         subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
                     except subprocess.CalledProcessError as e:

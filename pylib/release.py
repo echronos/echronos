@@ -32,6 +32,7 @@ import logging
 import inspect
 import tarfile
 import subprocess
+import functools
 from glob import glob
 from contextlib import contextmanager
 from .utils import chdir, tempdir, get_host_platform_name, BASE_TIME, top_path, base_to_top_paths, find_path, Git
@@ -331,12 +332,18 @@ class _LicenseOpener:
         return _tar_info_filter(tarinfo)
 
 
-def _tar_info_filter(tarinfo):
+def _tar_info_filter(tarinfo, execute_permission=False):
     tarinfo.uname = '_default_user_'
     tarinfo.gname = '_default_group_'
     tarinfo.mtime = BASE_TIME
     tarinfo.uid = 1000
     tarinfo.gid = 1000
+    # Directories automatically have the execute permission bit set which needs to be preserved.
+    # However, the default permission are to permissive for the group and other users, which needs to be reset.
+    if tarinfo.mode & 0o100 or execute_permission:
+        tarinfo.mode = 0o700
+    else:
+        tarinfo.mode = 0o600
     return tarinfo
 
 
@@ -416,8 +423,10 @@ def build_single_release(config, topdir):
 
         prj_build_dir = 'prj_build'
         for file_name in os.listdir(prj_build_dir):
+            # mark all files except the zipped prj 'binary' as executable because prj cannot be executed itself
+            filter = functools.partial(_tar_info_filter, execute_permission=not file_name.endswith('prj'))
             arcname = '{}/bin/{}'.format(basename, file_name)  # deliberately use '/' as the cross-platform delimiter
-            tf.add(os.path.join(prj_build_dir, file_name), arcname=arcname, filter=_tar_info_filter)
+            tf.add(os.path.join(prj_build_dir, file_name), arcname=arcname, filter=filter)
 
         if config.top_level_license is not None:
             _tar_add_data(tf, '{}/LICENSE'.format(basename),

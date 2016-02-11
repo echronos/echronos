@@ -36,6 +36,7 @@ import functools
 from glob import glob
 from contextlib import contextmanager
 from .utils import chdir, tempdir, get_host_platform_name, BASE_TIME, top_path, base_to_top_paths, find_path, Git
+from .utils import walk
 from .components import build
 from .cmdline import subcmd, Arg
 from .docs import is_release_doc_file, is_nonrelease_doc_file
@@ -106,6 +107,10 @@ class _ReleasePackage:
 
     def get_path(self):
         return self._pkg.path
+
+    def get_files(self):
+        flt = lambda file_path: '__pycache__' in file_path.lower()
+        return walk(self.get_path(), flt)
 
     def get_archive_name(self):
         return '{}-{}'.format(self._pkg.name, self._rls_cfg.release_name)
@@ -363,9 +368,9 @@ def _tar_add_data(tf, arcname, data, ti_filter=None):
     tf.addfile(ti, io.BytesIO(data))
 
 
-def _tar_gz_with_license(output, tree, prefix, license, doc_license, allow_unknown_filetypes):
+def _tar_gz_with_license(output, dir_path, file_paths, prefix, license, doc_license, allow_unknown_filetypes):
 
-    """Create a tar.gz file named `output` from a specified directory tree.
+    """Create a tar.gz file named `output` from a list of file paths relative to a directory path.
 
     Any appropriate files have the specified license attached.
 
@@ -376,8 +381,10 @@ def _tar_gz_with_license(output, tree, prefix, license, doc_license, allow_unkno
     try:
         with tarfile.open(output, 'w:gz', format=tarfile.GNU_FORMAT) as tf:
             tarfile.bltn_open = lo.open
-            with chdir(tree):
-                for f in os.listdir('.'):
+            with chdir(dir_path):
+                for f in file_paths:
+                    if os.path.isabs(f):
+                        f = os.path.relpath(f, dir_path)
                     tf.add(f, arcname='{}/{}'.format(prefix, f), filter=lo.tar_info_filter)
     finally:
         tarfile.bltn_open = open
@@ -386,7 +393,7 @@ def _tar_gz_with_license(output, tree, prefix, license, doc_license, allow_unkno
 def _mk_partial(pkg, topdir, allow_unknown_filetypes):
     fn = top_path(topdir, 'release', 'partials', '{}.tar.gz'.format(pkg.get_archive_name()))
     src_prefix = 'share/packages/{}'.format(pkg.get_name())
-    _tar_gz_with_license(fn, pkg.get_path(), src_prefix, pkg.get_license(), pkg.get_doc_license(),
+    _tar_gz_with_license(fn, pkg.get_path(), pkg.get_files(), src_prefix, pkg.get_license(), pkg.get_doc_license(),
                          allow_unknown_filetypes)
 
 

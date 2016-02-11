@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.3
+#!/usr/bin/env python3
 #
 # eChronos Real-Time Operating System
 # Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.

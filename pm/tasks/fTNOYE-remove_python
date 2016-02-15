@@ -1,0 +1,33 @@
+Task: fTNOYE-remove_python
+==============================================================================
+
+Motivation
+----------
+
+The RTOS repository and releases are, at least for the Linux and OS-X host platforms, packaged with a Python 3.3 interpreter.
+The original motivation behind this bundling is to make the RTOS repository and releases as independent of external dependencies as reasonably possible.
+
+While this motivation still holds, bundling Python also has disadvantages:
+- Python 3.3 is now obsolete and no longer receives updates
+- it is not straightforward to update the bundled Python interpreter to a more recent version
+- enforcing the use of a specific Python interpreter can be limiting, e.g., when attempting to build the RTOS on a 32-bit version of Linux, as the bundled Python interpreter is a 64-bit binary
+
+At the same time, the Python interpreter is a reasonably standard and stable dependency that is usually widely available and trivial to set up and maintain on a host system.
+On Windows, the RTOS utilities rely on using a default installation of Python which has not caused any issues that a bundled Windows Python interpreter would have prevented.
+In general, it is not clear whether the bundled Python interpreter for Linux and OS-X has prevented issue to a degree that justifies the effort required to bundle the interpreter in the first place.
+
+Therefore, it is feasible and probably advantageous to remove the bundled Python interpreter and instead rely on the Python interpreters available on host systems.
+
+
+Goals
+--------
+
+- remove Python interpreter bundled with RTOS repository
+- remove checks that enforce using the bundled interpreter with the x and prj utilities
+- build prj utility as a zip archive executable with Python instead of building a standalone binary
+- adapt build, release, and test infrastructure where necessary
+
+Test Plan
+---------
+
+- all existing regression tests must pass

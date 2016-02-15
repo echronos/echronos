@@ -497,7 +497,7 @@ def release_test_one(archive):
                 raise RuntimeError("Release archive does not extract into top directory with the same name as the "
                                    "base name of the archive ({})".format(release_dir))
             with chdir(release_dir):
-                prj_path = os.path.join("bin", "prj")
+                prj_path = os.path.join("bin", "prj.sh")
                 cmd = prj_path
                 try:
                     subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)

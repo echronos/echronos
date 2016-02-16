@@ -1,0 +1,280 @@
+Breakpoint 1 at 0x40173b
+Breakpoint 2 at 0x401a80
+Breakpoint 3 at 0x40190e
+Breakpoint 4 at 0x401359
+[New Thread 2888.0xa3c]
+[New Thread 2888.0xb4c]
+[New Thread 2888.0x13c0]
+
+Breakpoint 2, 0x00401a80 in main ()
+1: rtos_internal_current_task = 0
+[New Thread 2888.0x1388]
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a: taking lock
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 1
+task b: attempting lock
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a: releasing lock
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 1
+task b: got lock
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 1
+task b
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 1
+b blocking
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+unblocking b
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a blocking
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 1
+task b
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 1
+task b
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 1
+task b
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 1
+task b
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 1
+b blocking
+
+Breakpoint 4, 0x00401359 in interrupt_event_wait ()
+1: rtos_internal_current_task = 1
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a blocking
+
+Breakpoint 4, 0x00401359 in interrupt_event_wait ()
+1: rtos_internal_current_task = 0
+Tick 1-1
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a blocking
+
+Breakpoint 4, 0x00401359 in interrupt_event_wait ()
+1: rtos_internal_current_task = 0
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+Tick 1-2task a
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a blocking
+
+Breakpoint 4, 0x00401359 in interrupt_event_wait ()
+1: rtos_internal_current_task = 0
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+Tick 1-3task a blocking
+
+Breakpoint 4, 0x00401359 in interrupt_event_wait ()
+1: rtos_internal_current_task = 0
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+unblocking b
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+Tick 1-4task a blocking
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 1
+task b
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 1
+task b
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 1
+task b
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 1
+Tick 1-5task b
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 1
+b blocking
+
+Breakpoint 4, 0x00401359 in interrupt_event_wait ()
+1: rtos_internal_current_task = 1
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a blocking
+
+Breakpoint 4, 0x00401359 in interrupt_event_wait ()
+1: rtos_internal_current_task = 0
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a blocking
+
+Breakpoint 4, 0x00401359 in interrupt_event_wait ()
+1: rtos_internal_current_task = 0
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+Tick 2-1task a blocking
+
+Breakpoint 4, 0x00401359 in interrupt_event_wait ()
+1: rtos_internal_current_task = 0
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a blocking
+
+Breakpoint 4, 0x00401359 in interrupt_event_wait ()
+1: rtos_internal_current_task = 0
+Tick 2-2
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+unblocking b
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a blocking
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 1
+Tick 2-3task b
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 1
+task b
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 1
+task b
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 1
+task b
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 1
+Tick 2-4b blocking
+
+Breakpoint 4, 0x00401359 in interrupt_event_wait ()
+1: rtos_internal_current_task = 1
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a blocking
+
+Breakpoint 4, 0x00401359 in interrupt_event_wait ()
+1: rtos_internal_current_task = 0
+Tick 2-5
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a blocking
+
+Breakpoint 4, 0x00401359 in interrupt_event_wait ()
+1: rtos_internal_current_task = 0
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a blocking
+
+Breakpoint 4, 0x00401359 in interrupt_event_wait ()
+1: rtos_internal_current_task = 0
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+task a blocking
+
+Breakpoint 4, 0x00401359 in interrupt_event_wait ()
+1: rtos_internal_current_task = 0
+
+Breakpoint 1, 0x0040173b in debug_println ()
+1: rtos_internal_current_task = 0
+Tick 3, Done.A debugging session is active.
+
+	Inferior 1 [process 2888] will be killed.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]

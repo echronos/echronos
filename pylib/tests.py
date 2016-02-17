@@ -430,6 +430,7 @@ class GdbTestCase(unittest.TestCase):
         replace_patterns = (re.compile('Breakpoint [0-9]+ at (0x[0-9a-f]+): file (.+), line ([0-9]+)'),
                             re.compile('^Breakpoint .* at (.+)$'),
                             re.compile('^Breakpoint [0-9]+, (0x[0-9a-f]+) in'),
+                            re.compile('( <__register_frame_info\+[0-9a-f]+>)'),
                             re.compile('=(0x[0-9a-f]+)'),
                             re.compile('Inferior( [0-9]+ )\[process( [0-9]+\]) will be killed'),
                             re.compile('^([0-9]+\t.+)$'),

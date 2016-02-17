@@ -395,6 +395,11 @@ class GdbTestCase(unittest.TestCase):
         test_output = self._get_test_output()
         reference_output = self._get_reference_output()
         if test_output != reference_output:
+            new_reference_path = os.path.splitext(self.prx_path)[0] + '.gdboutnew'
+            open(new_reference_path, 'wb').write(self.gdb_output)
+            sys.stdout.write('System test failed:\n\t{}\n\t{}\n\t{}\n'.format(self.gdb_commands_path,
+                                                                              self.executable_path,
+                                                                              new_reference_path))
             for line in difflib.unified_diff(reference_output.splitlines(), test_output.splitlines(),
                                              'reference', 'test'):
                 sys.stdout.write(line + '\n')

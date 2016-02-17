@@ -412,8 +412,10 @@ class GdbTestCase(unittest.TestCase):
 
     def _get_test_output(self):
         test_command = self._get_test_command()
-        gdb_output = subprocess.check_output(test_command)
-        return self._filter_gdb_output(gdb_output.decode())
+        self.gdb_output = subprocess.check_output(test_command)
+        # for an unknown reason, decode() handles Windows line breaks incorrectly so convert them to UNIX linebreaks
+        output_str = self.gdb_output.replace(b'\r\n', b'\n').decode()
+        return self._filter_gdb_output(output_str)
 
     def _get_test_command(self):
         return ('gdb', '--batch', self.executable_path, '-x', self.gdb_commands_path)

@@ -1,0 +1,24 @@
+Task: prNZnk-posix_components_and_systems
+==============================================================================
+
+Motivation
+----------
+
+The existing task switch component for POSIX only allows building a small set of RTOS variants.
+However, having more components available for POSIX would allow being able to build and run more complex variants as POSIX user-space processes.
+This is useful for education, training, system and application prototyping, and debugging.
+
+
+Goals
+--------
+
+- implement remaining platform-dependent components for POSIX API
+- define acamar, acrux, krux, and rigel variants for POSIX
+- create sample systems and system tests for these variants
+
+
+Test Plan
+---------
+
+- code review
+- must pass existing and added regression tests

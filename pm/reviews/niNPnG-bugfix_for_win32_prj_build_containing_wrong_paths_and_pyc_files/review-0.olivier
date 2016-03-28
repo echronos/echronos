@@ -1,0 +1,20 @@
+RTOS Task Review
+=======================
+
+Task name: niNPnG-bugfix_for_win32_prj_build_containing_wrong_paths_and_pyc_files
+Version reviewed: d10a177fbacb063297f9aa214d1fecc47d98c9f0
+Reviewer: olivier
+Date: 2016-01-28
+Conclusion: Accepted/Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: filename:linenum
+Comment:
+
+Location: filename:linenum
+Comment:

@@ -1,0 +1,561 @@
+# Problem Statement:
+  Implement target specific optimized memset for e6500 [32 & 64 bit]
+
+# Owned by:
+  Rohit
+
+# Actions:
+  * Used altivec instructions to generate optimized performance.
+  * for memset zero, made use of 'dcbzl' cache management instruction.
+
+
+diff -Naur libc/sysdeps/powerpc/powerpc32/e6500/memset.S libc-e6500-memset-bzero/sysdeps/powerpc/powerpc32/e6500/memset.S
+--- libc/sysdeps/powerpc/powerpc32/e6500/memset.S	1969-12-31 18:00:00.000000000 -0600
++++ libc-e6500-memset-bzero/sysdeps/powerpc/powerpc32/e6500/memset.S	2014-03-04 13:14:53.334097001 -0600
+@@ -0,0 +1,273 @@
++/* Optimized memset implementation for e6500 32-bit PowerPC.
++   Copyright (C) 2003, 2006, 2011 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <sysdep.h>
++#include <bp-sym.h>
++#include <bp-asm.h>
++
++/* __ptr_t [r3] memset (__ptr_t s [r3], int c [r4], size_t n [r5]));
++   Returns 's'.
++ */
++
++#define rTMP	r0
++#define rRTN	r3	/* initial value of 1st argument */
++#define rMEMP0	r3	/* original value of 1st arg */
++#define rCHR	r4	/* char to set in each byte */
++#define rLEN	r5	/* length of region to set */
++#define rMEMP	r6	/* address at which we are storing */
++#define rALIGN	r7	/* number of bytes we are setting now (when aligning) */
++
++#define rPOS16	r7	/* constant +16 */
++#define rPOS32	r8	/* constant +32 */
++#define rPOS48	r9	/* constant +48 */
++
++#define rGOT	r9	/* Address of the Global Offset Table. */
++#define rCLS	r9	/* Cache line size obtained from static. */
++
++
++#define rCTR2	r7
++#define rCTR1	r11
++#define rTMP1	r12
++
++#define vCHR	v14	/* char to set in each byte */
++#define vTMP1	v15
++#define vTMP2	v16
++
++	.section	".text"
++EALIGN (BP_SYM (memset), 5, 1)
++	cmplwi	cr1, rLEN, 4
++	cmplwi	cr5, rLEN, 32
++	mr	rMEMP, rMEMP0
++	ble	cr1, Lsmall
++	rlwimi	rCHR, rCHR, 8, 16, 23
++	rlwimi	rCHR, rCHR, 16, 0, 15
++	blt	cr5, Lmedium
++
++	neg	rTMP, rMEMP	
++	andi.	rTMP, rTMP, 15	
++	bne	Lnalign16
++
++Lalign16:
++	cmplwi	7, rLEN, 63
++	rlwinm.	rTMP1, rCHR, 28, 28, 3
++	li	rPOS16, 16
++	ble	7, Lcopy_remaining
++	beq	Lcheck_cache_line_size
++
++Lvec_nz:
++	srwi	rCTR1, rLEN, 6		/* count = n / CACHE_LINE_SIZE */;
++	rlwinm	rLEN, rLEN, 0, 26, 31	/* rem = n % CACHE_LINE_SIZE; */
++	vxor	vCHR, vCHR, vCHR
++	mtctr	rCTR1			/* move count */
++	lvsl	vCHR, 0, rTMP1		/* LSU Move upper nibble to byte 0 of VR */
++	vspltisb	vTMP1, 4	/* VPU Splat 0x4 to every byte */
++	lvsl	vTMP2, 0, rCHR		/* LSU Move lower nibble to byte 0 of VR */
++	vslb	vCHR, vCHR, vTMP1	/* VIU Move upper nibble to VR[0:3] */
++	vor	vCHR, vCHR, vTMP2	/* VIU Form FILL byte in VR[0:7] */
++	vspltb	vCHR, vCHR, 0		/* VPU Splat the fill byte to all bytes */
++	li	rPOS32, 32
++	li	rPOS48, 48
++
++Lvnz_loop:
++	stvx	vCHR, 0, rMEMP
++	stvx	vCHR, rPOS16, rMEMP
++	stvx	vCHR, rPOS32, rMEMP
++	stvx	vCHR, rPOS48, rMEMP
++	addi	rMEMP, rMEMP, 64
++	bdnz	Lvnz_loop
++
++Lcopy_remaining:
++	srwi.	rCTR1, rLEN, 3		/* count = rem / sizeof(unsigned long); */
++	rlwinm	rLEN, rLEN, 0, 29, 31	/* n =   rem % sizeof(unsigned long); */
++	cmplwi	cr1, rLEN, 1
++	bne	0, Lcopy_words
++
++Lcopy_bytes:
++	bltlr	cr1
++	cmplwi	cr0, rLEN, 4
++	beq	cr1, 2f			/* nb <= 1? (0, 1 bytes) */
++	bgt	cr0, 1f			/* nb > 4?  (5, 6, 7 bytes) */
++
++	addi	rTMP, rLEN, -2		/* 2, 3, 4 bytes */
++	sth	rCHR, 0(rMEMP)
++	sthx	rCHR, rMEMP, rTMP
++	blr
++
++1:
++	addi	rTMP, rLEN, -4		/* 5, 6, 7 bytes */
++	stw	rCHR, 0(rMEMP)
++	stwx	rCHR, rMEMP, rTMP
++	blr
++
++2:	stb	rCHR, 0(rMEMP)
++	blr
++
++Lcopy_words:
++	mtcrf	0x01, rCTR1
++	insrdi	rCHR, rCHR, 32, 0	/* Replicate word to double word. */
++
++	bf	cr7*4+1, 16f
++	std	rCHR, 0(rMEMP)
++	std	rCHR, 8(rMEMP)
++	std	rCHR, 16(rMEMP)
++	std	rCHR, 24(rMEMP)
++	addi	rMEMP, rMEMP, 32
++
++16:
++	bf	cr7*4+2, 8f
++	std	rCHR, 0(rMEMP)
++	std	rCHR, 8(rMEMP)
++	addi	rMEMP, rMEMP, 16
++
++8:
++	bf	cr7*4+3, Lcopy_bytes
++	std	rCHR, 0(rMEMP)
++	bltlr	cr1
++	addi	rMEMP, rMEMP, 8
++	b Lcopy_bytes
++
++	.align	5	
++Lcheck_cache_line_size:
++#ifdef SHARED
++	mflr rTMP
++/* Establishes GOT addressability so we can load __cache_line_size
++   from static. This value was set from the aux vector during startup.  */
++	SETUP_GOT_ACCESS(rGOT,got_label_1)
++	addis	rGOT, rGOT, __cache_line_size-got_label_1@ha
++	lwz	rCLS, __cache_line_size-got_label_1@l(rGOT)
++	mtlr	rTMP
++#else
++/* Load __cache_line_size from static. This value was set from the
++   aux vector during startup.  */
++	lis	rCLS,__cache_line_size@ha
++	lwz	rCLS,__cache_line_size@l(rCLS)
++#endif
++
++	cmplwi	5, rCLS, 64
++	neg	rTMP, rMEMP		/* temp = rTMP */
++	bne	5, Lvec_nz
++
++	andi.	rTMP, rTMP, 63		/* count = r11 [temp & 63] */
++	bne	Lnalign64
++	
++Lalign64:
++	srwi	rCTR1, rLEN, 6		/* count = n / CACHE_LINE_SIZE */;
++	cmplwi	7, rCTR1, 32767
++	rlwinm	rLEN, rLEN, 0, 26, 31	/* rem = n % CACHE_LINE_SIZE; */	
++	mtctr	rCTR1			/* move count */
++	bgt	7, Lvec_zbig
++
++Lvz_loop:
++	dcbzl	0, rMEMP
++	addi	rMEMP, rMEMP, 64
++	bdnz	Lvz_loop
++	b	Lcopy_remaining
++
++Lvec_zbig:
++	addi	rCTR2, rCTR1, -32767
++	mtctr	rCTR2
++
++Lvz_big_loop:
++	dcbzl	0, rMEMP
++	dcbf	0, rMEMP
++	addi	rMEMP, rMEMP, 64
++	bdnz	Lvz_big_loop
++	li	rCTR1, 32767
++	mtctr	rCTR1
++	b	Lvz_loop
++
++Lnalign64:	
++	vxor	vCHR, vCHR, vCHR
++	subf	rLEN, rTMP, rLEN		/* n = n - count */
++	li	rPOS48, 48
++	li	rPOS32, 32
++	stvx	vCHR, 0, rMEMP
++	stvx	vCHR, rPOS16, rMEMP
++	cmplwi	7, rLEN, 64
++	stvx	vCHR, rPOS32, rMEMP
++	stvx	vCHR, rPOS48, rMEMP
++	add	rMEMP, rMEMP, rTMP
++	blt	7, Lcopy_remaining
++	b	Lalign64
++
++Lnalign16:
++	insrdi	rCHR, rCHR, 32, 0		/* Replicate word to double word.  */
++	std	rCHR, 0(rMEMP)
++	subf	rLEN, rTMP, rLEN
++	std	rCHR, 8(rMEMP)
++	add	rMEMP, rMEMP, rTMP
++	b	Lalign16
++
++	.align	5
++/* Memset of 0-4 bytes. Taken from GLIBC default memset */
++Lsmall:
++	cmplwi	cr5, rLEN, 1
++	cmplwi	cr1, rLEN, 3
++	bltlr	cr5
++	stb	rCHR, 0(rMEMP)
++	beqlr	cr5
++	nop
++	stb	rCHR, 1(rMEMP)
++	bltlr	cr1
++	stb	rCHR, 2(rMEMP)
++	beqlr	cr1
++	nop
++	stb	rCHR, 3(rMEMP)
++	blr
++
++/* Memset of 0-31 bytes. Taken from GLIBC default memset */
++	.align	5
++Lmedium:
++	mtcrf	0x01, rLEN
++	cmplwi	cr1, rLEN, 16
++	add	rMEMP, rMEMP, rLEN
++	bt	31, Lmedium_31t
++	bt	30, Lmedium_30t
++Lmedium_30f:
++	bt	29, Lmedium_29t
++Lmedium_29f:
++	bge	cr1, Lmedium_27t
++	bflr	28
++	stw	rCHR, -4(rMEMP)
++	stw	rCHR, -8(rMEMP)
++	blr
++
++Lmedium_31t:
++	stbu	rCHR, -1(rMEMP)
++	bf	30, Lmedium_30f
++Lmedium_30t:
++	sthu	rCHR, -2(rMEMP)
++	bf	29, Lmedium_29f
++Lmedium_29t:
++	stwu	rCHR, -4(rMEMP)
++	blt	cr1, Lmedium_27f
++Lmedium_27t:
++	stw	rCHR, -4(rMEMP)
++	stw	rCHR, -8(rMEMP)
++	stw	rCHR, -12(rMEMP)
++	stwu	rCHR, -16(rMEMP)
++Lmedium_27f:
++	bflr	28
++Lmedium_28t:
++	stw	rCHR, -4(rMEMP)
++	stw	rCHR, -8(rMEMP)
++	blr
++
++END (BP_SYM (memset))
++libc_hidden_builtin_def (memset)
+diff -Naur libc/sysdeps/powerpc/powerpc64/e6500/memset.S libc-e6500-memset-bzero/sysdeps/powerpc/powerpc64/e6500/memset.S
+--- libc/sysdeps/powerpc/powerpc64/e6500/memset.S	1969-12-31 18:00:00.000000000 -0600
++++ libc-e6500-memset-bzero/sysdeps/powerpc/powerpc64/e6500/memset.S	2014-03-04 13:14:53.334097002 -0600
+@@ -0,0 +1,269 @@
++/* Optimized memset implementation for e6500 64-bit PowerPC.
++   Copyright (C) 2003, 2006, 2011 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#define rTMP	r0
++#define rRTN	r3	/* initial value of 1st argument */
++#define rMEMP0	r3	/* original value of 1st arg */
++#define rCHR	r4	/* char to set in each byte */
++#define rLEN	r5	/* length of region to set */
++#define rMEMP	r6	/* address at which we are storing */
++#define rALIGN	r7	/* number of bytes we are setting now (when aligning) */
++
++#define rPOS16	r7	/* constant +16 */
++#define rPOS32	r8	/* constant +32 */
++#define rPOS48	r9	/* constant +48 */
++
++#define rGOT	r9	/* Address of the Global Offset Table.  */
++#define rCLS	r9	/* Cache line size obtained from static.  */
++
++#define rCTR2	r7
++#define rCTR1	r11
++#define rTMP1	r12
++
++#define vCHR	v14	/* char to set in each byte */
++#define vTMP1	v15
++#define vTMP2	v16
++
++
++#include <sysdep.h>
++#include <bp-sym.h>
++#include <bp-asm.h>
++
++	.section	".toc","aw"
++.LC0:
++	.tc __cache_line_size[TC],__cache_line_size
++	.section	".text"
++	.align 2
++
++/* __ptr_t [r3] memset (__ptr_t s [r3], int c [r4], size_t n [r5]));
++   Returns 's'. */
++
++EALIGN (BP_SYM (memset), 5, 0)
++	cmpldi	cr1, rLEN, 8	
++	cmpldi	cr5, rLEN, 32
++	mr	rMEMP, rMEMP0
++	ble	cr1, Lsmall
++	rlwimi	rCHR, rCHR, 8, 16, 23
++	rlwimi	rCHR, rCHR, 16, 0, 15
++	blt	cr5, Lmedium
++	neg	rTMP, rMEMP	
++	andi.	rTMP, rTMP, 15	
++	bne	Lnalign16
++	
++Lalign16:
++	cmpldi	7, rLEN, 63
++	rlwinm.	rTMP1, rCHR, 28, 28, 3
++	li	rPOS16, 16
++	ble	7, Lcopy_remaining
++	beq	Lcheck_cache_line_size
++
++Lvec_nz:	
++	srwi	rCTR1, rLEN, 6		/* count = n / CACHE_LINE_SIZE */;
++	rlwinm	rLEN, rLEN, 0, 26, 31	/* rem = n % CACHE_LINE_SIZE; */
++	vxor	vCHR, vCHR, vCHR
++	mtctr	rCTR1			/* move count */
++	lvsl	vCHR, 0, rTMP1		/* LSU Move upper nibble to byte 0 of VR */
++	vspltisb	vTMP1, 4	/* VPU Splat 0x4 to every byte */
++	lvsl	vTMP2, 0, rCHR		/* LSU Move lower nibble to byte 0 of VR */
++	vslb	vCHR, vCHR, vTMP1	/* VIU Move upper nibble to VR[0:3] */
++	vor	vCHR, vCHR, vTMP2	/* VIU Form FILL byte in VR[0:7] */
++	vspltb	vCHR, vCHR, 0		/* VPU Splat the fill byte to all bytes */
++	li	rPOS32, 32
++	li	rPOS48, 48
++
++Lvnz_loop:
++	stvx	vCHR, 0, rMEMP
++	stvx	vCHR, rPOS16, rMEMP
++	stvx	vCHR, rPOS32, rMEMP
++	stvx	vCHR, rPOS48, rMEMP
++	addi	rMEMP, rMEMP, 64
++	bdnz	Lvnz_loop
++
++Lcopy_remaining:
++	srwi.	rCTR1, rLEN, 3		/* count = rem / sizeof(unsigned long); */
++	rlwinm	rLEN, rLEN, 0, 29, 31	/* n =   rem % sizeof(unsigned long); */
++	cmpldi	cr1, rLEN, 1
++	bne	0, Lcopy_words
++
++Lcopy_bytes:
++	bltlr	cr1
++	cmpldi	cr0, rLEN, 4
++	beq	cr1, 2f			/* nb <= 1? (0, 1 bytes) */
++	bgt	cr0, 1f			/* nb > 4?  (5, 6, 7 bytes) */
++
++	addi	rTMP, rLEN, -2		/* 2, 3, 4 bytes */
++	sth	rCHR, 0(rMEMP)
++	sthx	rCHR, rMEMP, rTMP
++	blr
++
++1:
++	addi	rTMP, rLEN, -4		/* 5, 6, 7 bytes */
++	stw	rCHR, 0(rMEMP)
++	stwx	rCHR, rMEMP, rTMP
++	blr
++
++2:	stb	rCHR, 0(rMEMP)
++	blr
++
++Lcopy_words:
++	mtcrf	0x01, rCTR1
++	insrdi	rCHR, rCHR, 32, 0 /* Replicate word to double word.  */
++	bf	cr7*4+1, 16f
++	std	rCHR, 0(rMEMP)
++	std	rCHR, 8(rMEMP)
++	std	rCHR, 16(rMEMP)
++	std	rCHR, 24(rMEMP)
++	addi	rMEMP, rMEMP, 32
++	
++16:
++	bf	cr7*4+2, 8f
++	std	rCHR, 0(rMEMP)
++	std	rCHR, 8(rMEMP)
++	addi	rMEMP, rMEMP, 16
++
++8:
++	bf	cr7*4+3, Lcopy_bytes
++	std	rCHR, 0(rMEMP)
++	addi	rMEMP, rMEMP, 8
++	b Lcopy_bytes
++
++	.align	5	
++Lcheck_cache_line_size:
++	ld	rCLS,.LC0@toc(r2)
++	lwz	rCLS,0(rCLS)
++	cmpldi	5, rCLS, 64
++	neg	rTMP, rMEMP		/* temp = rTMP */
++	bne	5, Lvec_nz
++
++	andi.	rTMP, rTMP, 63		/* count = r11 [temp & 63] */
++	bne	Lnalign64
++
++Lalign64:
++	srwi	rCTR1, rLEN, 6		/* count = n / CACHE_LINE_SIZE */;
++	cmpldi	7, rCTR1, 32767
++	rlwinm	rLEN, rLEN, 0, 26, 31	/* rem = n % CACHE_LINE_SIZE; */
++	mtctr	rCTR1			/* move count */
++	bgt	7, Lvec_zbig
++
++Lvz_loop:
++	dcbzl	0, rMEMP
++	addi	rMEMP, rMEMP, 64
++	bdnz	Lvz_loop
++	b	Lcopy_remaining
++
++Lvec_zbig:
++	addi	rCTR2, rCTR1, -32767
++	mtctr	rCTR2
++
++Lvz_big_loop:
++	dcbzl	0, rMEMP
++	dcbf	0, rMEMP
++	addi	rMEMP, rMEMP, 64
++	bdnz	Lvz_big_loop
++	li	rCTR1, 32767
++	mtctr	rCTR1
++	b	Lvz_loop
++
++Lnalign64:
++	vxor	vCHR, vCHR, vCHR
++	subf	rLEN, rTMP, rLEN		/* n = n - count */
++	li	rPOS48, 48
++	li	rPOS32, 32
++	stvx	vCHR, 0, rMEMP
++	stvx	vCHR, rPOS16, rMEMP
++	cmpldi	7, rLEN, 64
++	stvx	vCHR, rPOS32, rMEMP
++	stvx	vCHR, rPOS48, rMEMP
++	add	rMEMP, rMEMP, rTMP
++	blt	7, Lcopy_remaining
++	b	Lalign64
++
++Lnalign16:
++	insrdi	rCHR, rCHR, 32, 0 		/* Replicate word to double word.  */
++	std	rCHR, 0(rMEMP)
++	subf	rLEN, rTMP, rLEN
++	std	rCHR, 8(rMEMP)
++	add	rMEMP, rMEMP, rTMP
++	b	Lalign16
++
++
++/* Memset of 8 bytes or less.  Taken from GLIBC default memset  */
++	.align	5
++Lsmall:
++	cmpldi	cr6, rLEN, 4
++	cmpldi	cr5, rLEN, 1
++	ble	cr6,Lle4
++	subi	rLEN, rLEN, 4
++	stb	rCHR,0(rMEMP)
++	stb	rCHR,1(rMEMP)
++	stb	rCHR,2(rMEMP)
++	stb	rCHR,3(rMEMP)
++	addi	rMEMP,rMEMP, 4
++	cmpldi	cr5, rLEN, 1
++Lle4:
++	cmpldi	cr1, rLEN, 3
++	bltlr	cr5
++	stb	rCHR, 0(rMEMP)
++	beqlr	cr5
++	stb	rCHR, 1(rMEMP)
++	bltlr	cr1
++	stb	rCHR, 2(rMEMP)
++	beqlr	cr1
++	stb	rCHR, 3(rMEMP)
++	blr
++
++/* Memset of 0-31 bytes. Taken from GLIBC default memset */
++	.align 5
++Lmedium:
++	mtcrf	0x01, rLEN
++	insrdi	rCHR,rCHR,32,0			/* Replicate word to double word.  */
++	cmpldi	cr1, rLEN, 16
++Lmedium_tail2:
++	add	rMEMP, rMEMP, rLEN
++Lmedium_tail:
++	bt	31, Lmedium_31t
++	bt	30, Lmedium_30t
++Lmedium_30f:
++	bt	29, Lmedium_29t
++Lmedium_29f:
++	bge	cr1, Lmedium_27t
++	bflr	28
++	std	rCHR, -8(rMEMP)
++	blr
++
++Lmedium_31t:
++	stbu	rCHR, -1(rMEMP)
++	bf	30, Lmedium_30f
++Lmedium_30t:
++	sthu	rCHR, -2(rMEMP)
++	bf	29, Lmedium_29f
++Lmedium_29t:
++	stwu	rCHR, -4(rMEMP)
++	blt	cr1, Lmedium_27f
++Lmedium_27t:
++	std	rCHR, -8(rMEMP)
++	stdu	rCHR, -16(rMEMP)
++Lmedium_27f:
++	bflr	28
++Lmedium_28t:
++	std	rCHR, -8(rMEMP)
++	blr
++
++END_GEN_TB (BP_SYM (memset),TB_TOCLESS)
++libc_hidden_builtin_def (memset)

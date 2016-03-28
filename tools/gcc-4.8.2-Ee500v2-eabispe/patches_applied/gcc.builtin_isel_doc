@@ -1,0 +1,109 @@
+--- gcc-4.5-2011.03/gcc/doc/extend.texi	2013-08-07 14:06:33.409961113 -0500
++++ gcc-4.5-2011.03/gcc/doc/extend.texi-new	2013-08-07 14:04:49.121960015 -0500
+@@ -11957,6 +11957,106 @@
+ int __builtin_bswap16 (int);
+ @end smallexample
+ 
++GCC also provides a family of builtins on PowerPC to explicitly use
++the @code{isel} instruction.  While GCC can and does generate
++@code{isel} instructions normally, the builtins enable you to
++explicitly force generation of these instructions.  The builtins are
++only available when compiling for processors that support the
++@code{isel} instruction; they compile to a code sequence of
++@code{cmpw} followed by @code{isel}.
++
++@table @code
++@item int __builtin_iseleq (int @var{x}, int @var{y}, int @var{a}, int @var{b})
++@itemx int __builtin_iseleq (unsigned int @var{x}, unsigned int @var{y}, int @var{a}, int @var{b})
++@itemx int __builtin_iseleq (void *@var{x}, void *@var{y}, int @var{a}, int @var{b})
++@itemx unsigned int __builtin_iseleq (int @var{x}, int @var{y}, unsigned int @var{a}, unsigned int @var{b})
++@itemx unsigned int __builtin_iseleq (unsigned int @var{x}, unsigned int @var{y}, unsigned int @var{a}, unsigned int @var{b})
++@itemx unsigned int __builtin_iseleq (void *@var{x}, void *@var{y}, unsigned int @var{a}, unsigned int @var{b})
++@itemx void *__builtin_iseleq (int @var{x}, int @var{y}, void *@var{a}, void *@var{b})
++@itemx void *__builtin_iseleq (unsigned int @var{x}, unsigned int @var{y}, void *@var{a}, void *@var{b})
++@itemx void *__builtin_iseleq (void *@var{x}, void *@var{y}, void *@var{a}, void *@var{b})
++Return @var{a} if @var{x} and @var{y} are equal, otherwise return @var{b}.
++
++@item int __builtin_isellt (int @var{x}, int @var{y}, int @var{a}, int @var{b})
++@itemx unsigned int __builtin_isellt (int @var{x}, int @var{y}, unsigned int @var{a}, unsigned int @var{b})
++@itemx void *__builtin_isellt (int @var{x}, int @var{y}, void *@var{a}, void *@var{b})
++Return @var{a} if @var{x} is less than @var{y}, otherwise return @var{b}.
++Note that this uses signed comparison.
++
++@item int __builtin_iselgt (int @var{x}, int @var{y}, int @var{a}, int @var{b})
++@itemx unsigned int __builtin_iselgt (int @var{x}, int @var{y}, unsigned int @var{a}, unsigned int @var{b})
++@itemx void *__builtin_iselgt (int @var{x}, int @var{y}, void *@var{a}, void *@var{b})
++Return @var{a} if @var{x} is greater than @var{y}, otherwise return @var{b}.
++Note that this uses signed comparison.
++
++@item int __builtin_iselltu (unsigned int @var{x}, unsigned int @var{y}, int @var{a}, int @var{b})
++@itemx int __builtin_iselltu (void *@var{x}, void *@var{y}, int @var{a}, int @var{b})
++@itemx unsigned int __builtin_iselltu (unsigned int @var{x}, unsigned int @var{y}, unsigned int @var{a}, unsigned int @var{b})
++@itemx unsigned int __builtin_iselltu (void *@var{x}, void *@var{y}, unsigned int @var{a}, unsigned int @var{b})
++@itemx void *__builtin_iselltu (unsigned int @var{x}, unsigned int @var{y}, void *@var{a}, void *@var{b})
++@itemx void *__builtin_iselltu (void *@var{x}, void *@var{y}, void *@var{a}, void *@var{b})
++Return @var{a} if @var{x} is less than @var{y}, otherwise return @var{b}
++In contrast to @code{__builtin_isellt}, this uses unsigned comparison.
++
++@item int __builtin_iselgtu (unsigned int @var{x}, unsigned int @var{y}, int @var{a}, int @var{b})
++@itemx int __builtin_iselgtu (void *@var{x}, void *@var{y}, int @var{a}, int @var{b})
++@itemx unsigned int __builtin_iselgtu (unsigned int @var{x}, unsigned int @var{y}, unsigned int @var{a}, unsigned int @var{b})
++@itemx unsigned int __builtin_iselgtu (void *@var{x}, void *@var{y}, unsigned int @var{a}, unsigned int @var{b})
++@itemx void *__builtin_iselgtu (unsigned int @var{x}, unsigned int @var{y}, void *@var{a}, void *@var{b})
++@itemx void *__builtin_iselgtu (void *@var{x}, void *@var{y}, void *@var{a}, void *@var{b})
++Return @var{a} if @var{x} is greater than @var{y}, otherwise return @var{b}
++In contrast to @code{__builtin_iselgt}, this uses unsigned comparison.
++
++@end table
++
++Builtins that do 64-bit comparisons (i.e. using @code{cmpd} instead of
++@code{cmpw}) are also available on 64-bit processors supporting
++@code{isel}.
++
++@table @code
++@item long __builtin_isel64eq (long @var{x}, long @var{y}, long @var{a}, long @var{b})
++@itemx long __builtin_isel64eq (unsigned long @var{x}, unsigned long @var{y}, long @var{a}, long @var{b})
++@itemx long __builtin_isel64eq (void *@var{x}, void *@var{y}, long @var{a}, long @var{b})
++@itemx unsigned long __builtin_isel64eq (long @var{x}, long @var{y}, unsigned long @var{a}, unsigned long @var{b})
++@itemx unsigned long __builtin_isel64eq (unsigned long @var{x}, unsigned long @var{y}, unsigned long @var{a}, unsigned long @var{b})
++@itemx unsigned long __builtin_isel64eq (void *@var{x}, void *@var{y}, unsigned long @var{a}, unsigned long @var{b})
++@itemx void *__builtin_isel64eq (long @var{x}, long @var{y}, void *@var{a}, void *@var{b})
++@itemx void *__builtin_isel64eq (unsigned long @var{x}, unsigned long @var{y}, void *@var{a}, void *@var{b})
++@itemx void *__builtin_isel64eq (void *@var{x}, void *@var{y}, void *@var{a}, void *@var{b})
++Return @var{a} if @var{x} and @var{y} are equal, otherwise return @var{b}.
++
++@item long __builtin_isel64lt (long @var{x}, long @var{y}, long @var{a}, long @var{b})
++@itemx unsigned long __builtin_isel64lt (long @var{x}, long @var{y}, unsigned long @var{a}, unsigned long @var{b})
++@itemx void *__builtin_isel64lt (long @var{x}, long @var{y}, void *@var{a}, void *@var{b})
++Return @var{a} if @var{x} is less than @var{y}, otherwise return @var{b}.
++Note that this uses signed comparison.
++
++@item long __builtin_isel64gt (long @var{x}, long @var{y}, long @var{a}, long @var{b})
++@itemx unsigned long __builtin_isel64gt (long @var{x}, long @var{y}, unsigned long @var{a}, unsigned long @var{b})
++@itemx void *__builtin_isel64gt (long @var{x}, long @var{y}, void *@var{a}, void *@var{b})
++Return @var{a} if @var{x} is greater than @var{y}, otherwise return @var{b}.
++Note that this uses signed comparison.
++
++@item long __builtin_isel64ltu (unsigned long @var{x}, unsigned long @var{y}, long @var{a}, long @var{b})
++@itemx long __builtin_isel64ltu (void *@var{x}, void *@var{y}, long @var{a}, long @var{b})
++@itemx unsigned long __builtin_isel64ltu (unsigned long @var{x}, unsigned long @var{y}, unsigned long @var{a}, unsigned long @var{b})
++@itemx unsigned long __builtin_isel64ltu (void *@var{x}, void *@var{y}, unsigned long @var{a}, unsigned long @var{b})
++@itemx void *__builtin_isel64ltu (unsigned long @var{x}, unsigned long @var{y}, void *@var{a}, void *@var{b})
++@itemx void *__builtin_isel64ltu (void *@var{x}, void *@var{y}, void *@var{a}, void *@var{b})
++Return @var{a} if @var{x} is less than @var{y}, otherwise return @var{b}
++In contrast to @code{__builtin_isel64lt}, this uses unsigned comparison.
++
++@item long __builtin_isel64gtu (unsigned long @var{x}, unsigned long @var{y}, long @var{a}, long @var{b})
++@itemx long __builtin_isel64gtu (void *@var{x}, void *@var{y}, long @var{a}, long @var{b})
++@itemx unsigned long __builtin_isel64gtu (unsigned long @var{x}, unsigned long @var{y}, unsigned long @var{a}, unsigned long @var{b})
++@itemx unsigned long __builtin_isel64gtu (void *@var{x}, void *@var{y}, unsigned long @var{a}, unsigned long @var{b})
++@itemx void *__builtin_isel64gtu (unsigned long @var{x}, unsigned long @var{y}, void *@var{a}, void *@var{b})
++@itemx void *__builtin_isel64gtu (void *@var{x}, void *@var{y}, void *@var{a}, void *@var{b})
++Return @var{a} if @var{x} is greater than @var{y}, otherwise return @var{b}
++In contrast to @code{__builtin_isel64gt}, this uses unsigned comparison.
++
++@end table
++
+ @node RX Built-in Functions
+ @subsection RX Built-in Functions
+ GCC supports some of the RX instructions which cannot be expressed in

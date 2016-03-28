@@ -1,0 +1,202 @@
+# Problem Statement:
+  With Flag mining options, Coremark benchmark showed performance
+  degradation when built with GCC v4.8.1.
+
+# Reported by:
+  Edmar Wienskoski
+
+# Owned by:
+  Rohit
+
+# Action:
+  The coalesce info generated for typedefs was wrong. 
+  Fixed code that was creating coalesce list for SSA.
+
+  Also, updated the patch to match GCC v4.9 trunk sources
+  which had a fix for this issue.
+
+diff -Naur gcc-4.8.1/gcc/gimple.h gcc-4.8.1-ssa-liveinfo/gcc/gimple.h
+--- gcc-4.8.1/gcc/gimple.h	2013-10-11 03:40:26.837662005 -0500
++++ gcc-4.8.1-ssa-liveinfo/gcc/gimple.h	2014-01-15 05:56:55.866968000 -0600
+@@ -1033,6 +1033,9 @@
+ extern bool useless_type_conversion_p (tree, tree);
+ extern bool types_compatible_p (tree, tree);
+ 
++/* In tree-ssa-coalesce.c */
++extern bool gimple_can_coalesce_p (tree, tree);
++
+ /* Return the first node in GIMPLE sequence S.  */
+ 
+ static inline gimple_seq_node
+diff -Naur gcc-4.8.1/gcc/tree.h gcc-4.8.1-ssa-liveinfo/gcc/tree.h
+--- gcc-4.8.1/gcc/tree.h	2013-10-11 03:40:24.165661992 -0500
++++ gcc-4.8.1-ssa-liveinfo/gcc/tree.h	2014-01-15 05:54:03.334968000 -0600
+@@ -165,6 +165,10 @@
+ #define DECL_P(CODE)\
+         (TREE_CODE_CLASS (TREE_CODE (CODE)) == tcc_declaration)
+ 
++/* True if NODE designates a variable declaration.  */
++#define VAR_P(NODE) \
++  (TREE_CODE (NODE) == VAR_DECL)
++
+ /* Nonzero if DECL represents a VAR_DECL or FUNCTION_DECL.  */
+ 
+ #define VAR_OR_FUNCTION_DECL_P(DECL)\
+diff -Naur gcc-4.8.1/gcc/tree-ssa-coalesce.c gcc-4.8.1-ssa-liveinfo/gcc/tree-ssa-coalesce.c
+--- gcc-4.8.1/gcc/tree-ssa-coalesce.c	2013-10-11 03:40:31.050662020 -0500
++++ gcc-4.8.1-ssa-liveinfo/gcc/tree-ssa-coalesce.c	2014-01-15 06:01:36.062968000 -0600
+@@ -979,9 +979,8 @@
+ 		continue;
+ 
+ 	      register_ssa_partition (map, arg);
+-	      if ((SSA_NAME_VAR (arg) == SSA_NAME_VAR (res)
+-		   && TREE_TYPE (arg) == TREE_TYPE (res))
+-		  || (e->flags & EDGE_ABNORMAL))
++             if (gimple_can_coalesce_p (arg, res)
++                 || (e->flags & EDGE_ABNORMAL))
+ 		{
+ 		  saw_copy = true;
+ 		  bitmap_set_bit (used_in_copy, SSA_NAME_VERSION (arg));
+@@ -1021,8 +1020,7 @@
+ 		if (gimple_assign_copy_p (stmt)
+                     && TREE_CODE (lhs) == SSA_NAME
+ 		    && TREE_CODE (rhs1) == SSA_NAME
+-		    && SSA_NAME_VAR (lhs) == SSA_NAME_VAR (rhs1)
+-		    && TREE_TYPE (lhs) == TREE_TYPE (rhs1))
++		    && gimple_can_coalesce_p (lhs, rhs1))
+ 		  {
+ 		    v1 = SSA_NAME_VERSION (lhs);
+ 		    v2 = SSA_NAME_VERSION (rhs1);
+@@ -1073,8 +1071,7 @@
+ 		    v1 = SSA_NAME_VERSION (outputs[match]);
+ 		    v2 = SSA_NAME_VERSION (input);
+ 
+-		    if (SSA_NAME_VAR (outputs[match]) == SSA_NAME_VAR (input)
+-			&& TREE_TYPE (outputs[match]) == TREE_TYPE (input))
++		    if (gimple_can_coalesce_p (outputs[match], input))
+ 		      {
+ 			cost = coalesce_cost (REG_BR_PROB_BASE,
+ 					      optimize_bb_for_size_p (bb));
+@@ -1108,8 +1105,7 @@
+ 		first = var;
+ 	      else
+ 		{
+-		  gcc_assert (SSA_NAME_VAR (var) == SSA_NAME_VAR (first)
+-			      && TREE_TYPE (var) == TREE_TYPE (first));
++                  gcc_assert (gimple_can_coalesce_p (var, first));
+ 		  v1 = SSA_NAME_VERSION (first);
+ 		  v2 = SSA_NAME_VERSION (var);
+ 		  bitmap_set_bit (used_in_copy, v1);
+@@ -1246,8 +1242,7 @@
+       var2 = ssa_name (y);
+ 
+       /* Assert the coalesces have the same base variable.  */
+-      gcc_assert (SSA_NAME_VAR (var1) == SSA_NAME_VAR (var2)
+-		  && TREE_TYPE (var1) == TREE_TYPE (var2));
++      gcc_assert (gimple_can_coalesce_p (var1, var2));
+ 
+       if (debug)
+ 	fprintf (debug, "Coalesce list: ");
+@@ -1377,3 +1372,43 @@
+ 
+   return map;
+ }
++
++/* Given SSA_NAMEs NAME1 and NAME2, return true if they are candidates for
++ * coalescing together, false otherwise.
++ *
++ * This must stay consistent with var_map_base_init in tree-ssa-live.c.  */
++
++bool
++gimple_can_coalesce_p (tree name1, tree name2)
++{
++  /* First check the SSA_NAME's associated DECL.  We only want to
++   * coalesce if they have the same DECL or both have no associated DECL.  */
++  tree var1 = SSA_NAME_VAR (name1);
++  tree var2 = SSA_NAME_VAR (name2);
++  var1 = (var1 && (!VAR_P (var1) || !DECL_IGNORED_P (var1))) ? var1 : NULL_TREE;
++  var2 = (var2 && (!VAR_P (var2) || !DECL_IGNORED_P (var2))) ? var2 : NULL_TREE;
++  if (var1 != var2)
++    return false;
++
++  /* Now check the types.  If the types are the same, then we should
++   * try to coalesce V1 and V2.  */
++  tree t1 = TREE_TYPE (name1);
++  tree t2 = TREE_TYPE (name2);
++  if (t1 == t2)
++    return true;
++
++  /* If the types are not the same, check for a canonical type match.  This
++   * (for example) allows coalescing when the types are fundamentally the
++   * same, but just have different names. 
++   *
++   * Note pointer types with different address spaces may have the same
++   * canonical type.  Those are rejected for coalescing by the
++   * types_compatible_p check.  */
++  if (TYPE_CANONICAL (t1)
++      && TYPE_CANONICAL (t1) == TYPE_CANONICAL (t2)
++      && types_compatible_p (t1, t2))
++    return true;
++
++  return false;
++}
++
+diff -Naur gcc-4.8.1/gcc/tree-ssa-live.c gcc-4.8.1-ssa-liveinfo/gcc/tree-ssa-live.c
+--- gcc-4.8.1/gcc/tree-ssa-live.c	2013-10-11 03:39:59.007661998 -0500
++++ gcc-4.8.1-ssa-liveinfo/gcc/tree-ssa-live.c	2014-01-15 05:57:40.691968000 -0600
+@@ -81,15 +81,23 @@
+       struct tree_int_map **slot;
+       unsigned baseindex;
+       var = partition_to_var (map, x);
+-      if (SSA_NAME_VAR (var))
+-	m->base.from = SSA_NAME_VAR (var);
++
++      if (SSA_NAME_VAR (var)
++          && (!VAR_P (SSA_NAME_VAR (var))
++              || !DECL_IGNORED_P (SSA_NAME_VAR (var))))
++        m->base.from = SSA_NAME_VAR (var);
+       else
+-	/* This restricts what anonymous SSA names we can coalesce
+-	   as it restricts the sets we compute conflicts for.
+-	   Using TREE_TYPE to generate sets is the easies as
+-	   type equivalency also holds for SSA names with the same
+-	   underlying decl.  */
+-	m->base.from = TREE_TYPE (var);
++      /* This restricts what anonymous SSA names we can coalesce
++       * as it restricts the sets we compute conflicts for.
++       * Using TREE_TYPE to generate sets is the easiest as
++       * type equivalency also holds for SSA names with the same
++       * underlying decl.
++       *
++       * Check gimple_can_coalesce_p when changing this code.  */
++        m->base.from = (TYPE_CANONICAL (TREE_TYPE (var))
++                        ? TYPE_CANONICAL (TREE_TYPE (var))
++                        : TREE_TYPE (var));
++
+       /* If base variable hasn't been seen, set it up.  */
+       slot = (struct tree_int_map **) htab_find_slot (tree_to_index,
+ 						      m, INSERT);
+diff -Naur gcc-4.8.1/gcc/tree-ssa-uncprop.c gcc-4.8.1-ssa-liveinfo/gcc/tree-ssa-uncprop.c
+--- gcc-4.8.1/gcc/tree-ssa-uncprop.c	2013-10-11 03:40:33.433661985 -0500
++++ gcc-4.8.1-ssa-liveinfo/gcc/tree-ssa-uncprop.c	2014-01-15 05:58:23.116968000 -0600
+@@ -470,8 +470,7 @@
+ 	     underlying variable as the PHI result, then there's no
+ 	     point in un-propagating the argument.  */
+ 	  if (!is_gimple_min_invariant (arg)
+-	      && (SSA_NAME_VAR (arg) == SSA_NAME_VAR (res)
+-		  && TREE_TYPE (arg) == TREE_TYPE (res)))
++	      && gimple_can_coalesce_p (arg, res))
+ 	    continue;
+ 
+ 	  /* Lookup this argument's value in the hash table.  */
+@@ -492,9 +491,7 @@
+ 	      for (j = elt->equivalences.length () - 1; j >= 0; j--)
+ 		{
+ 		  tree equiv = elt->equivalences[j];
+-
+-		  if (SSA_NAME_VAR (equiv) == SSA_NAME_VAR (res)
+-		      && TREE_TYPE (equiv) == TREE_TYPE (res))
++		  if (gimple_can_coalesce_p (equiv, res))
+ 		    {
+ 		      SET_PHI_ARG_DEF (phi, e->dest_idx, equiv);
+ 		      break;

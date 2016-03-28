@@ -1,0 +1,59 @@
+diff -ruN binutils-2.23/bfd/config.bfd binutils-2.23-new/bfd/config.bfd
+--- binutils-2.23/bfd/config.bfd	2012-09-04 09:14:59.000000000 -0500
++++ binutils-2.23-new/bfd/config.bfd	2012-11-09 13:16:44.526004042 -0600
+@@ -1195,7 +1195,7 @@
+     targ_selvecs="rs6000coff_vec bfd_elf32_powerpc_vec bfd_elf32_powerpcle_vec ppcboot_vec"
+     targ64_selvecs="bfd_elf64_powerpc_vec bfd_elf64_powerpcle_vec bfd_elf64_powerpc_freebsd_vec"
+     ;;
+-  powerpc-*-*bsd* | powerpc-*-elf* | powerpc-*-sysv4* | powerpc-*-eabi* | \
++  powerpc-*-*bsd* | powerpc-*-elf* | powerpc-*-sysv4* | powerpc-*-eabi* | powerpc-*-aeabi* | \
+   powerpc-*-solaris2* | powerpc-*-linux-* | powerpc-*-rtems* | \
+   powerpc-*-chorus*)
+     targ_defvec=bfd_elf32_powerpc_vec
+diff -ruN binutils-2.23/config.sub binutils-2.23-new/config.sub
+--- binutils-2.23/config.sub	2012-04-25 10:53:25.000000000 -0500
++++ binutils-2.23-new/config.sub	2012-11-09 13:15:33.540004041 -0600
+@@ -1356,7 +1356,7 @@
+ 	      | -ekkobsd* | -kfreebsd* | -freebsd* | -riscix* | -lynxos* \
+ 	      | -bosx* | -nextstep* | -cxux* | -aout* | -elf* | -oabi* \
+ 	      | -ptx* | -coff* | -ecoff* | -winnt* | -domain* | -vsta* \
+-	      | -udi* | -eabi* | -lites* | -ieee* | -go32* | -aux* \
++	      | -udi* | -eabi* | -aeabi* | -lites* | -ieee* | -go32* | -aux* \
+ 	      | -chorusos* | -chorusrdb* | -cegcc* \
+ 	      | -cygwin* | -msys* | -pe* | -psos* | -moss* | -proelf* | -rtems* \
+ 	      | -mingw32* | -linux-gnu* | -linux-android* \
+diff -ruN binutils-2.23/gas/configure.tgt binutils-2.23-new/gas/configure.tgt
+--- binutils-2.23/gas/configure.tgt	2012-09-04 07:53:45.000000000 -0500
++++ binutils-2.23-new/gas/configure.tgt	2012-11-09 13:15:33.544004041 -0600
+@@ -349,6 +349,7 @@
+   ppc-*-beos*)				fmt=coff ;;
+   ppc-*-*n*bsd* | ppc-*-elf*)		fmt=elf ;;
+   ppc-*-eabi* | ppc-*-sysv4*)		fmt=elf ;;
++  ppc-*-aeabi*)				fmt=elf ;;
+   ppc-*-linux-*)			fmt=elf em=linux ;;
+   ppc-*-solaris*)			fmt=elf em=solaris ;;
+   ppc-*-rtems*)				fmt=elf ;;
+diff -ruN binutils-2.23/ld/configure.tgt binutils-2.23-new/ld/configure.tgt
+--- binutils-2.23/ld/configure.tgt	2012-09-04 07:53:47.000000000 -0500
++++ binutils-2.23-new/ld/configure.tgt	2012-11-09 13:15:33.540004041 -0600
+@@ -529,7 +529,7 @@
+ 			*)	targ_emul=elf32lppc
+ 				targ_extra_emuls="elf32ppcsim" ;;
+ 			esac ;;
+-powerpc*-*-elf* | powerpc*-*-eabi* | powerpc*-*-sysv* \
++powerpc*-*-elf* | powerpc*-*-eabi* | powerpc*-*-aeabi* | powerpc*-*-sysv* \
+   | powerpc*-*-netbsd* | powerpc-*-openbsd* | powerpc*-*-kaos*)
+   		       case "${targ}" in
+ 		       *64*)	targ_emul=elf64ppc
+@@ -539,7 +539,10 @@
+ 				tdir_elf32ppcsim=$tdir_elf32ppc
+ 				;;
+ 			*)	targ_emul=elf32ppc
+-				targ_extra_emuls="elf32ppclinux elf32ppcsim" ;;
++				targ_extra_emuls="elf32ppclinux elf32ppcsim"
++                                targ64_extra_emuls=elf64ppc
++                                targ64_extra_libpath=elf64ppc
++				;;
+ 			esac ;;
+ powerpc-*-vxworks*)
+ 			targ_emul=elf32ppcvxworks

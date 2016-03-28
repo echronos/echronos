@@ -1,0 +1,19 @@
+RTOS Task Review
+=======================
+
+Task name: rs2aHG-fix_hardcoded_interrupt_priority_resolution
+Version reviewed: df327e60c91ba5c95ddf59b805940081d5a9dd81
+Reviewer: ihor.kuz
+Date: 2015-12-21
+Conclusion: Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: components/context-switch-preempt-armv7m/docs.md:10, 14,1 6, 23, 27
+Comment: [rework]
+For documentation (plain text files) "each sentence shall start on a new line". Please reformat.
+(see internal-docs/conventions.md tGT1n0)

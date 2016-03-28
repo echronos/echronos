@@ -4,6 +4,7 @@
 
 /*| object_like_macros |*/
 #define TASK_ID_NONE ((TaskIdOption) UINT8_MAX)
+#define TASK_ID_END ({{tasks.length}})
 
 /*| types |*/
 typedef {{prefix_type}}TaskId TaskIdOption;

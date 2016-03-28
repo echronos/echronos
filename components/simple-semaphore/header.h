@@ -1,3 +1,5 @@
+/* Applications do not necessarily access all RTOS APIs.
+ * Therefore, they are marked as potentially unused for static analysis. */
 /*| public_headers |*/
 #include <stdbool.h>
 #include <stddef.h>
@@ -21,10 +23,14 @@ typedef uint{{semaphore_value_size}}_t {{prefix_type}}SemValue;
 /*| public_state |*/
 
 /*| public_function_declarations |*/
+/*@unused@*/
 void {{prefix_func}}sem_post({{prefix_type}}SemId);
+/*@unused@*/
 bool {{prefix_func}}sem_try_wait({{prefix_type}}SemId);
+/*@unused@*/
 void {{prefix_func}}sem_wait({{prefix_type}}SemId) {{prefix_const}}REENTRANT;
 [[#timeouts]]
+/*@unused@*/
 bool {{prefix_func}}sem_wait_timeout({{prefix_type}}SemId, {{prefix_type}}TicksRelative timeout)
         {{prefix_const}}REENTRANT;
 [[/timeouts]]

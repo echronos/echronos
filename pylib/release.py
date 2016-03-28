@@ -386,7 +386,6 @@ def _mk_partial(pkg, topdir, allow_unknown_filetypes):
 @subcmd(name='partials', cmd='build', help='Build partial release files',
         args=(Arg('--allow-unknown-filetypes', action='store_true'),))
 def build_partials(args):
-    build(args)
     os.makedirs(top_path(args.topdir, 'release', 'partials'), exist_ok=True)
     packages = Package.create_from_disk(args.topdir).values()
     for pkg in packages:

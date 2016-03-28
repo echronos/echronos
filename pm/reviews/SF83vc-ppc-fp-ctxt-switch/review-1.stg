@@ -1,0 +1,21 @@
+RTOS Task Review
+=======================
+
+Task name: SF83vc-ppc-fp-ctxt-switch
+Version reviewed: bb5e1c550f65653d218ed5f93067f1bbff8156c2
+Reviewer: stg
+Date: 2015-11-18
+Conclusion: Rework
+
+Overall comments:
+
+Comment 1: Rework
+
+The PPC read-me file currently documents some implementation aspects of the floating point support.
+However, to an application developer who does not have a deep understanding of the platform behavior, this documentation is too low level.
+The read-me needs a section that tells an application developer with limited platform knowledge:
+- what they need to know and do in terms of system configuration and application code to make use of floating point operations in the application
+- how the floating point support is implemented in the eChronos RTOS for PPC at a high level
+(along the lines of "the RTOS preserves the state of the floating point engine only for those tasks that use floating point operations" with a bit more detail what impact that has on the application)
+
+[robs: Did some rewrites - hope these are adequate]

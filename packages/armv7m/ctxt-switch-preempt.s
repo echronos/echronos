@@ -56,6 +56,11 @@
  * preemption is disabled when invoking the 'svc' instruction and entering the SVCall handler.
  */
 
+/*<module>
+  <code_gen>template</code_gen>
+</module>*/
+
+
 .syntax unified
 .section .text
 
@@ -71,8 +76,8 @@
 
 /* Setting BASEPRI to the same priority value as that of a configurable-priority interrupt disables the interrupt. */
 .macro asm_preempt_disable scratch
-        /* This hardcoded value must match the PendSV priority set by the ARM-specific preempt_init. */
-        ldr \scratch, =#240
+        /* This value will match the PendSV priority used in the ARM-specific preempt_init function. */
+        ldr \scratch, =#{{rtos.pendsv_priority}}
         msr basepri, \scratch
 .endm
 

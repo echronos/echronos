@@ -1,0 +1,44 @@
+RTOS Task Review
+=======================
+
+Task name: C2EDKy-splint_support
+Version reviewed: 7396711b15262c0659ab41c28bc357b679c027c6
+Reviewer: davidm
+Date: 2016-01-28
+Conclusion: Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: prj/app/prj.py:811
+Comment:
+Nitpick: Would it make sense to document the use of the splint flags? For
+example why we explicitly provide the macros and what '+charintliteral' is
+needed for. Feel free to ignore this.
+
+[stg: documented flags as suggested (note that they are also documented in the commit messages)]
+
+Location: components/message-queue/implementation.c:100 and line 139
+Comment:
+Personally I would probably err on the side of caution here and use parentheses
+around the chained if statements. For example
+        internal_assert((mq->messages != 0) &&
+                        (mq->message_size != 0) &&
+                        ...
+Similar to one-line if conditions where it works fine when it is implemented,
+but it is easy to subtly break something after modifying it later on.
+I leave it to your judgment to change this or not.
+
+[stg: I agree with this comment, but it is beyond the scope of this task.
+This should be addressed consistently throughout the code base with an updated coding style convention, but in a separate task.]
+
+
+Location: components/message-queue/implementation.c:100 and line 139
+Comment:
+Nitpick: On line 100 we compare 'mq->messages' against NULL, and on line 139
+against 0. It should probably be consistent.
+
+[stg: resolved inconsistency by using NULL in both cases]

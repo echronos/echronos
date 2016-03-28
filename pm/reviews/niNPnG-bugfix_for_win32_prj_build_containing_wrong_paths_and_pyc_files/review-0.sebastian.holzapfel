@@ -1,0 +1,16 @@
+RTOS Task Review
+=======================
+
+Task name: niNPnG-bugfix_for_win32_prj_build_containing_wrong_paths_and_pyc_files
+Version reviewed: d10a177fbacb063297f9aa214d1fecc47d98c9f0
+Reviewer: sebastian.holzapfel
+Date: 2016-02-10
+Conclusion: Accepted
+
+Overall comments:
+Spun up a vanilla windows vm to double-check this, seems to work fine.
+Not sure if I agree with the choice of the .zip file having no extension (appears as an unknown filetype on Windows).
+I'm assuming this may be intended to hide how prj is packaged from a user, which is fair.
+
+[stg: the intention is indeed to hide the packaging mechanism from the user.
+Aside from that, changing the extension of the build output is not in the scope of this task.]

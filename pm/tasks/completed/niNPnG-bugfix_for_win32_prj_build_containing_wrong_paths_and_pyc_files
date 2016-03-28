@@ -1,0 +1,33 @@
+Task: niNPnG-bugfix_for_win32_prj_build_containing_wrong_paths_and_pyc_files
+==============================================================================
+
+Motivation
+----------
+
+When building the prj tool on Windows, the generated prj zip file has the following defects:
+
+# The files __main__.py and prj_test.py in the top folder are listed in the zip file manifest with the file name prefix "./", i.e., as "./__main__.py" and "./prj_test.py".
+This effectively makes them invisible to all tools attempting to unpack the zip file, including the Python interpreter that unsuccessfully looks for the file __main__.py.
+
+# The zip file can include some compiled Python code, i.e., *.pyc files and __pycache__ directories.
+Although this has no immediate functional impact, it unnecessarily increases the size of the resulting prj zip file.
+
+# The zip file is only an uncompressed archive file and does not utilize the space savings that could be achieved with compression
+
+
+Goals
+--------
+
+# Ensure that the paths of all files are added with the standard relative path names to the output zip file and its manifest.
+
+# Ensure that compiled Python code is excluded from the output zip file.
+
+# Ensure that the output zip file is compressed instead of just an uncompressed archive file.
+
+
+Test Plan
+---------
+
+# Ensure that all existing regression tests pass.
+
+# Manually inspect the contents of the the output zip file and ensure that it meets the task goals.

@@ -1,0 +1,2529 @@
+diff -urN glibc-ports-2.13-2011.03-orig/sysdeps/powerpc/powerpc32/e500/memcpy.S glibc-ports-2.13-2011.03/sysdeps/powerpc/powerpc32/e500/memcpy.S
+--- glibc-ports-2.13-2011.03-orig/sysdeps/powerpc/powerpc32/e500/memcpy.S	1969-12-31 18:00:00.000000000 -0600
++++ glibc-ports-2.13-2011.03/sysdeps/powerpc/powerpc32/e500/memcpy.S	2011-04-15 11:12:38.000000000 -0500
+@@ -0,0 +1,410 @@
++/*------------------------------------------------------------------
++ * memcpy.S
++ *
++ * Standard memcpy function optimized for e500 using SPE.  This
++ * function does not handle overlap, as per spec.  This file is
++ * identical to the memmove.S file.  To get a memmove out of it,
++ * specify -D__MEMMOVE__ to the compiler
++ *
++ *------------------------------------------------------------------
++ *      Copyright (c) 2005 Freescale Semiconductor, Inc
++ *      ALL RIGHTS RESERVED
++ *
++ *	Redistribution and use in source and binary forms, with or
++ *	without modification, are permitted provided that the following
++ *	conditions are met:
++ *	
++ *	
++ *	Redistributions of source code must retain the above copyright
++ *	notice, this list of conditions and the following disclaimer.
++ *	
++ *	Redistributions in binary form must reproduce the above copyright
++ *	notice, this list of conditions and the following disclaimer in
++ *	the documentation and/or other materials provided with the
++ *	distribution.
++ *	
++ *	Neither the name of Freescale Semiconductor, Inc nor the names of
++ *	its contributors may be used to endorse or promote products derived
++ *	from this software without specific prior written permission.
++ *	
++ *	
++ *	
++ *	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
++ *	CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
++ *	INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
++ *	MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
++ *	DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS
++ *	BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
++ *	EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
++ *	TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
++ *	DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
++ *	ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
++ *	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
++ *	OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ *	POSSIBILITY OF SUCH DAMAGE.
++ *------------------------------------------------------------------
++ */
++
++#include <sysdep.h>
++#include <bp-sym.h>
++#include <bp-asm.h>
++
++/*------------------------------------------------------------------
++ * int memcpy(const unsigned char* dst,
++ *            const unsigned char* src,
++ *            long count);
++ * void * memmove(const unsigned char* dst,
++ *                const unsigned char* src,
++ *                long count);
++ * Returns:
++ *  dst
++ *------------------------------------------------------------------
++ */
++
++#ifdef __MEMMOVE__
++	.file	"memmove.S"
++#else /* memcpy */
++	.file	"memcpy.S"
++#endif /* __MEMMOVE */
++	.section	".text"
++	.align 4
++#ifdef __MEMMOVE__
++	#define FUNCTION memmove
++#else /* memcpy */
++	#define FUNCTION memcpy
++#endif /* __MEMMOVE__ */
++EALIGN (BP_SYM (FUNCTION), 5, 1)
++
++/* Prologs are different for memcpy and memmove.  memmove needs
++ * to handle the case where the buffers overlap correctly.
++ * memcpy does not.  In order to make the implementation simple,
++ * memmove ONLY copies backwards if it needs to, and only for as 
++ * much as is necessary to remove the overlap.
++ */
++#ifdef __MEMMOVE__
++        or r0,r4,r3
++        subf r9,r4,r3
++        mr r6,r3
++        subf r11,r9,r5
++        andi. r0,r0,7
++        rlwinm r9,r9,0,0,0
++        xor r0,r4,r6
++        bne L(memcpy_unaligned)
++
++        or. r11,r9,r11
++        bgt L(Handle_Overlap)
++
++/* memcpy is simpler */
++#else /* memcpy */
++
++        or r0,r4,r3
++        mr r6,r3
++        andi. r0,r0,7
++        xor r0,r4,r6
++        bne L(memcpy_unaligned)
++
++#endif /* __MEMMOVE__ */
++
++L(aligned_copy):
++        srwi. r12,r5,5
++        mtcrf 0x2,r5
++        mtcrf 0x1,r5
++        bne L(big_loop)
++
++L(try_two_doubles):
++        bf 27,L(try_one_double)
++        evldd r7,0(r4)
++        evstdd r7,0(r6)
++        evldd r8,8(r4)
++        addi r4,r4,16
++        evstdd r8,8(r6)
++        addi r6,r6,16
++
++L(try_one_double):
++        bf 28,L(try_word)
++        evldd r7,0(r4)
++        addi r4,r4,8
++        evstdd r7,0(r6)
++        addi r6,r6,8
++
++L(try_word):
++        bf 29,L(try_half)
++        lwz r7,0(r4)
++        addi r4,r4,4
++        stw r7,0(r6)
++        addi r6,r6,4
++
++L(try_half):
++        bf 30,L(try_byte)
++        lhz r7,0(r4)
++        addi r4,r4,2
++        sth r7,0(r6)
++        addi r6,r6,2
++
++L(try_byte):
++        bf 31,L(finish)
++        lbz r7,0(r4)
++        stb r7,0(r6)
++
++L(finish):
++        blr
++
++L(big_loop):
++        evldd r7,0(r4)
++        addic. r12,r12,-1
++        evldd r8,8(r4)
++        evldd r9,16(r4)
++        evldd r10,24(r4)
++        addi r4,r4,32
++        evstdd r7,0(r6)
++        evstdd r8,8(r6)
++        evstdd r9,16(r6)
++        evstdd r10,24(r6)
++        addi r6,r6,32
++        bne L(big_loop)
++
++        b L(try_two_doubles)
++
++L(align_dest_word):
++L(align_dest_double):
++        /* First make sure there are at least 8 bytes left to
++	 * copy.  Otherwise, realignment could go out of bounds
++	 */
++        cmpwi r5,8
++        neg r0,r6
++        blt L(small_copy)
++
++        andi. r7,r6,0x3
++        mtcrf 0x1,r0
++
++        bne L(more_alignment)
++
++/* Don't need to check if r6 needs another word to be aligned.
++ * We're here, therefore we must have only been off by a word.
++ * So we shorten the path a bit by taking 2 branches out from the
++ * more common path (ie things tend to be at least word-aligned)
++ */
++L(align_one_word):
++        lwz r7,0(r4)
++        addi r4,r4,4
++        stw r7,0(r6)
++        addi r6,r6,4
++        addi r5,r5,-4
++        bne cr6,L(unaligned_double_copy)
++        b L(aligned_copy)
++
++L(more_alignment):
++        bf 31, L(try_align_word)
++        lbz r7,0(r4)
++        addi r4,r4,1
++        stb r7,0(r6)
++        addi r6,r6,1
++        addi r5,r5,-1
++
++L(try_align_word):
++        bf 30, L(try_align_double)
++        lhz r7,0(r4)
++        addi r4,r4,2
++        sth r7,0(r6)
++        addi r6,r6,2
++        addi r5,r5,-2
++
++L(try_align_double):
++        bt 29, L(align_one_word)
++        beq cr6,L(aligned_copy)
++
++/* For each double word copied, we load the double words with
++ * each half from r4 (which starts at 0x*4 or 0x*c).  Then we
++ * use evmergelohi to take the halves and rejoin them.  Notice
++ * that any double load will necessarily be 4 bytes ahead.
++ * Invariant: at the start of any block (except the first) which
++ * loads a doubleword, r10 will hold the first half of the
++ * first doubleword
++ */
++L(unaligned_double_copy):
++        /* align r4 to a doubleword boundary */
++        rlwinm r4,r4,0,0,28
++        srwi. r12, r5,5
++
++        /* grab the first doubleword */
++        evldd r10,0(r4)
++
++	/* Set the CR to indicate how many bytes remain to be
++	 * copied after the big loop is done */
++        mtcrf 0x2,r5
++        mtcrf 0x1,r5
++        bne L(unaligned_big_loop)
++
++/* There are less than 4 double words left, so we take care of
++ * them
++ */
++L(try_unaligned_2_doubles):
++        bf 27, L(try_unaligned_double)
++        evldd r9,8(r4)
++        evmergelohi r10,r10,r9
++        evstdd r10,0(r6)
++        evldd r10,16(r4)
++        addi r4,r4,16
++        evmergelohi r9,r9,r10
++        evstdd r9,8(r6)
++        addi r6,r6,16
++
++L(try_unaligned_double):
++        bf 28, L(try_unaligned_word)
++        evldd r9,8(r4)
++        addi r4,r4,8
++        evmergelohi r10,r10,r9
++        evstdd r10,0(r6)
++        addi r6,r6,8
++        evmr r10,r9
++
++L(try_unaligned_word):
++        addi r4,r4,4
++        bf 29, L(try_unaligned_half)
++        stw r10,0(r6)
++        addi r4,r4,4
++        addi r6,r6,4
++
++L(try_unaligned_half):
++        bf 30, L(try_unaligned_byte)
++        lhz r10,0(r4)
++        addi r4,r4,2
++        sth r10,0(r6)
++        addi r6,r6,2
++
++L(try_unaligned_byte):
++        bf 31, L(finish)
++        lbz r10,0(r4)
++        stb r10,0(r6)
++        blr
++
++L(unaligned_big_loop):
++        evldd r7,8(r4)
++        evldd r8,16(r4)
++        addic. r12,r12,-1
++        evldd r9,24(r4)
++        addi r4,r4,32
++        evmergelohi r10,r10,r7
++        evstdd r10,0(r6)
++        evmergelohi r7,r7,r8
++        evldd r10,0(r4)
++        evmergelohi r8,r8,r9
++        evstdd r7,8(r6)
++        evmergelohi r9,r9,r10
++        evstdd r8,16(r6)
++        evstdd r9,24(r6)
++        addi r6,r6,32
++        bne L(unaligned_big_loop)
++        b L(try_unaligned_2_doubles)
++
++
++L(small_copy):
++        mtcrf 0x1,r5
++        bf 29,L(try_small_half)
++        lbz r7,0(r4)
++        lbz r8,1(r4)
++        lbz r9,2(r4)
++        lbz r10,3(r4)
++        addi r4,r4,4
++        stb r7,0(r6)
++        stb r8,1(r6)
++        stb r9,2(r6)
++        stb r10,3(r6)
++        addi r6,r6,4
++
++L(try_small_half):
++        bf 30,L(try_small_byte)
++        lbz r7,0(r4)
++        lbz r8,1(r4)
++        addi r4,r4,2
++        stb r7,0(r6)
++        stb r8,1(r6)
++        addi r6,r6,2
++
++L(try_small_byte):
++        bf 31, L(finish)
++        lbz r7,0(r4)
++        stb r7,0(r6)
++        blr
++
++L(memcpy_unaligned):
++#ifdef __MEMMOVE__
++
++        or. r11,r9,r11
++        bgt L(Handle_Overlap)
++
++L(choose_alignment):
++#endif /* __MEMMOVE */
++        /* If both pointers can be double-aligned, align r6,
++	 * setting eq6 to indicate "aligned
++	 */
++        rlwinm. r0,r0,0,29,31
++        cmpw cr6,r31,r31 /* set eq6 */
++
++        /* Look at r6 to see if we're aligned already (but not
++	 * both aligned, which is why we're here)
++	 */
++        rlwinm r7,r6,0,29,31
++        beq L(align_dest_double)
++
++        /* Compare to find out if r6 is already doublealigned
++	 * If both pointers can be word-aligned, align r6,
++	 * clearing eq6 to indicate unaligned
++	 */
++        rlwinm. r0,r0,0,30,31
++        cmpwi cr1,r7,0
++
++        /* Only skip to unaligned_double_copy if r6 is aligned,
++	 * AND r0 indicates word-alignment
++	 */
++        crand 6,6,2
++
++        crxor 26,26,26 /* clear eq6 */
++        beq cr1,L(unaligned_double_copy)
++        beq L(align_dest_word)
++
++        /* Before we hop into bytewise copying, make sure that
++	 * there are bytes to copy (don't want to loop 4 billion+
++	 * times!
++	 */
++        cmpwi r5,0
++        beqlr
++
++        /* Well, alignment is just icky, copy bytewise */
++        mtctr r5
++L(byte_copy):
++        lbz r7,0(r4)
++        addi r4,r4,1
++        stb r7,0(r6)
++        addi r6,r6,1
++        bdnz L(byte_copy)
++        blr
++
++#ifdef __MEMMOVE__
++
++
++        /* If the regions being copied overlap, and r4 is lower
++	 * in memory than r6, then we need to copy backward
++	 * until the overlap is gone, then just do the normal
++	 * copy
++	 */
++L(Handle_Overlap):
++        /* r11 has the size of the overlap */
++        add r8,r6,r5
++        add r10,r4,r5
++
++        mtctr r11
++
++L(bkw_fix_loop):
++        lbzu r9,-1(r10)
++        stbu r9,-1(r8)
++        bdnz L(bkw_fix_loop)
++
++        /* We're done, correct r5, and return */
++        subf r5,r11,r5
++
++        b FUNCTION@local
++#endif /* __MEMMOVE */
++
++END (BP_SYM (FUNCTION))
++libc_hidden_builtin_def (FUNCTION)
+diff -urN glibc-ports-2.13-2011.03-orig/sysdeps/powerpc/powerpc32/e500/memmove.S glibc-ports-2.13-2011.03/sysdeps/powerpc/powerpc32/e500/memmove.S
+--- glibc-ports-2.13-2011.03-orig/sysdeps/powerpc/powerpc32/e500/memmove.S	1969-12-31 18:00:00.000000000 -0600
++++ glibc-ports-2.13-2011.03/sysdeps/powerpc/powerpc32/e500/memmove.S	2011-04-15 11:12:38.000000000 -0500
+@@ -0,0 +1,2 @@
++#define __MEMMOVE__ 1
++#include <memcpy.S>
+diff -urN glibc-ports-2.13-2011.03-orig/sysdeps/powerpc/powerpc32/e500/memset.S glibc-ports-2.13-2011.03/sysdeps/powerpc/powerpc32/e500/memset.S
+--- glibc-ports-2.13-2011.03-orig/sysdeps/powerpc/powerpc32/e500/memset.S	1969-12-31 18:00:00.000000000 -0600
++++ glibc-ports-2.13-2011.03/sysdeps/powerpc/powerpc32/e500/memset.S	2011-04-15 11:12:38.000000000 -0500
+@@ -0,0 +1,395 @@
++/*------------------------------------------------------------------
++ * memset.S
++ *
++ * Standard memset function optimized for e500 using SPE
++ *
++ * Copyright (c) 2005 Freescale Semiconductor, Inc
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *     * Redistributions of source code must retain the above copyright
++ *       notice, this list of conditions and the following disclaimer.
++ *     * Redistributions in binary form must reproduce the above copyright
++ *       notice, this list of conditions and the following disclaimer in the
++ *       documentation and/or other materials provided with the distribution.
++ *     * Neither the name of Freescale Semiconductor nor the
++ *       names of its contributors may be used to endorse or promote products
++ *       derived from this software without specific prior written permission.
++ *
++ * THIS SOFTWARE IS PROVIDED BY Freescale Semiconductor ``AS IS'' AND ANY
++ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
++ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
++ * DISCLAIMED. IN NO EVENT SHALL Freescale Semiconductor BE LIABLE FOR ANY
++ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
++ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
++ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
++ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
++ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
++ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ *------------------------------------------------------------------
++ */
++
++#include <sysdep.h>
++#include <bp-sym.h>
++#include <bp-asm.h>
++
++/*------------------------------------------------------------------
++ * void * memset(void *origdest, int value, size_t len)
++ *
++ * returns dest
++ *
++ *------------------------------------------------------------------
++ */
++
++
++	.file	"memset.S"
++	.section	".text"
++EALIGN (memset, 5, 0)
++        /* Find out whether the destination buffer is already
++	 * aligned, and propagate the byte through the entire
++	 * word.
++	 */
++        andi. r0,r3,0x7
++        rlwimi r4,r4,8,16,23
++
++        /* Check if value (r4) is zero (most common case).  If it
++	 * is, we jump to bzero
++	 */
++        cmpwi cr1,r4,0
++
++        rlwimi r4,r4,16,0,15
++
++        /* If r4 is 0, then we will jump to bzero.  If so,
++	 * we want the count to be in the right place for bzero (r4)
++	 */
++        mr r11,r4
++        mr r4,r5
++
++        beq cr1, L(bzero_entry)
++
++        mr r6,r3
++        bne L(align_dest_double)
++
++L(aligned_set):
++        /* Get the number of doubles/4, since we write 4 at a
++	 * time in the big loop.
++	 */
++        srwi. r12,r5,5
++
++        /* Set the condition register so that each bit represents
++	 * some number of bytes to set.
++	 */
++        mtcrf 0x2,r5
++        mtcrf 0x1,r5
++
++        /* Copy r11 up into the hi word, so we can set 8 bytes
++	 * at a time.
++	 */
++        evmergelo r11,r11,r11
++
++        /* If there aren't at least 32 bytes to set, take care of
++	 * the last 0-31
++	 */
++        bne L(big_loop)
++
++/* We only store to memory that we are changing.  No extra loads
++ * or stores are done.
++ */
++L(try_two_doubles):
++        bf 27,L(try_one_double)
++        evstdd r11,0(r6)
++        evstdd r11,8(r6)
++        addi r6,r6,16
++
++L(try_one_double):
++        bf 28,L(try_word)
++        evstdd r11,0(r6)
++        addi r6,r6,8
++        nop
++
++L(try_word):
++        bf 29,L(try_half)
++        stw r11,0(r6)
++        addi r6,r6,4
++        nop
++
++L(try_half):
++        bf 30,L(try_byte)
++        sth r11,0(r6)
++        addi r6,r6,2
++        nop
++
++L(try_byte):
++        bf 31,L(finish)
++        stb r11,0(r6)
++
++L(finish):
++        blr
++
++/* Write 32 bytes at a time */
++L(big_loop):
++        /* adjust r6 back by 8.  We need to do this so we can
++	 * hoist the pointer update above the last store in the
++	 * loop.  This means that a store can be done every cycle
++	 */
++        addi r6,r6,-8
++L(loop):
++        evstdd r11,8(r6)
++        addic. r12,r12,-1
++        evstdd r11,16(r6)
++        evstdd r11,24(r6)
++        addi r6,r6,32
++        evstdd r11,0(r6)
++        bne L(loop)
++
++        /* Readjust r6 */
++        addi r6,r6,8
++        /* Jump back to take care of the last 0-31 bytes */
++        b L(try_two_doubles)
++
++L(align_dest_double):
++        /* First make sure there are at least 8 bytes left to
++	 * set.  Otherwise, realignment could go out of bounds
++	 */
++        cmpwi cr1, r5,8
++
++        /* Find out how many bytes we need to set in order to
++	 * align r6
++	 */
++        neg r0,r6
++        andi. r7,r6,0x3
++
++        blt cr1, L(small_set)
++
++        /* Set the condition register so that each bit in cr7
++	 * represents a number of bytes to write to align r6
++	 */
++        mtcrf 0x1,r0
++
++        /* The most common case is that r6 is at least
++	 * word-aligned, so that is the fall-through case.
++	 * Otherwise, we skip ahead to align a bit more.
++	 */
++        bne L(more_alignment)
++L(align_one_word):
++        addi r5,r5,-4
++        stw r11,0(r6)
++        addi r6,r6,4
++        b L(aligned_set)
++
++L(more_alignment):
++        bf 31, L(try_align_word)
++        addi r5,r5,-1
++        stb r11,0(r6)
++        addi r6,r6,1
++
++L(try_align_word):
++        bf 30, L(try_align_double)
++        addi r5,r5,-2
++        sth r11,0(r6)
++        addi r6,r6,2
++
++L(try_align_double):
++        bt 29, L(align_one_word)
++        b L(aligned_set)
++
++L(small_set):
++        mtcrf 0x1,r5
++        bf 29,L(try_small_half)
++        /* This may be better, but stw SHOULD do the same thing
++	 * as fast or faster.  It just has a chance of being
++	 * unaligned
++	 *	stb	r11,0(r6)
++	 *	stb	r11,1(r6)
++	 *	stb	r11,2(r6)
++	 *	stb	r11,3(r6)
++	 */
++
++        stw r11,0(r6)
++        addi r6,r6,4
++
++L(try_small_half):
++        bf 30,L(try_small_byte)
++
++        /* Storing half should take the same or less time than
++	 * two stb, so we do that
++	 */
++        sth r11,0(r6)
++        addi r6,r6,2
++
++L(try_small_byte):
++        bf 31, L(finish)
++        stb r11,0(r6)
++        blr
++
++END (memset)
++libc_hidden_builtin_def (memset)
++
++EALIGN (bzero, 5, 0)
++L(bzero_entry):
++        /* Check dest's alignment (within a cache-line) */
++        neg r8,r3
++
++        /* r12, here, is the number of 128 byte chunks to
++	 * zero out.
++	 */
++        srwi r12,r4,7
++
++        /* Find out the number of bytes needed to copy to align
++	 * dest to a cacheline boundary
++	 */
++        andi. r8, r8,0x1f
++        cmpwi cr1,r12,0
++
++        /* bzero can be called from memset, so we want it to
++	 * return the same value memset would.  This doesn't hurt
++	 * anything, so we keep the old value of r3, and copy it
++	 * into another register which we are free to change.
++	 */
++        mr r6,r3
++
++        /* Jump to align r6 if it isn't already aligned */
++        bne L(align_dest_32)
++
++        /* r6 is aligned to a cache-line, so we can zero
++	 * out using dcbz if the buffer is large enough
++	 */
++L(zero_aligned):
++        /* set the cr bits for the last 0-127 bytes remaining */
++        mtcrf 0x1,r4
++        mtcrf 0x2,r4
++
++        li r10,-32
++        li r9,32
++        beq cr1,L(try_two_lines)
++
++        li r11,64
++
++L(zero_loop):
++        dcbz 0,r6
++        addic. r12,r12,-1
++        dcbz r9,r6
++        dcbz r11,r6
++        addi r6,r6,128
++        dcbz r10,r6
++        bne L(zero_loop)
++
++L(try_two_lines):
++        /* Put 0 into r11 such that memset can handle the last
++	 * 0-31 bytes (yay, instruction savings!)
++	 */
++        evsplati r11,0
++
++        rlwinm. r0, r4,0,27,31
++
++        bf 25, L(try_one_line)
++        dcbz 0,r6
++        dcbz r9,r6
++        addi r6,r6,64
++
++L(try_one_line):
++        bf 26, L(try_two_doubles)
++        dcbz 0,r6
++        addi r6,r6,32
++
++        bne L(try_two_doubles)
++        /* there weren't any bytes left, so we return */
++        blr
++
++L(align_dest_32):
++        /* move r8 into the crfields so that we can align
++	 * easily
++	 */
++        mtcrf 0x1,r8
++        mtcrf 0x2,r8
++
++        /* update the counter */
++        subf. r4,r8,r4
++
++        /* if r4 is not great enough to align r6, then we
++	 * zero in small amounts
++	 */
++        blt L(zero_small)
++
++        /* zero out a register to store to memory */
++        evsplati r8,0
++
++        bf 31,L(zero_one_half)
++        stb r8,0(r6)
++        addi r6,r6,1
++        nop
++
++L(zero_one_half):
++        bf 30, L(zero_word)
++        sth r8,0(r6)
++        addi r6,r6,2
++        nop
++
++L(zero_word):
++        bf 29, L(zero_double)
++        stw r8,0(r6)
++        addi r6,r6,4
++        nop
++
++L(zero_double):
++        bf 28, L(zero_two)
++        evstdd r8,0(r6)
++        addi r6,r6,8
++        nop
++
++L(zero_two):
++        bf 27,L(zero_finish)
++        evstdd r8,0(r6)
++        evstdd r8,8(r6)
++        addi r6,r6,16
++
++L(zero_finish):
++        srwi. r12,r4,7
++        li r9,32
++        li r11,64
++        li r10,-32
++
++        mtcrf 0x1,r4
++        mtcrf 0x2,r4
++        bne L(zero_loop)
++        b L(try_two_lines)
++
++L(zero_small):
++        add r4,r8,r4
++        mtcrf 0x1,r4
++        mtcrf 0x2,r4
++
++        evsplati r8,0
++
++        bf 27,L(zero_one_small)
++        stw r8,0(r6)
++        stw r8,4(r6)
++        stw r8,8(r6)
++        stw r8,12(r6)
++        addi r6,r6,16
++
++L(zero_one_small):
++        bf 28,L(zero_word_small)
++        stw r8,0(r6)
++        stw r8,4(r6)
++        addi r6,r6,8
++
++L(zero_word_small):
++        bf 29,L(zero_half_small)
++        stw r8,0(r6)
++        addi r6,r6,4
++
++L(zero_half_small):
++        bf 30,L(zero_byte_small)
++        sth r8,0(r6)
++        addi r6,r6,2
++
++L(zero_byte_small):
++        bf 31,L(finish)
++        stb r8,0(r6)
++
++        blr
++
++END (bzero)
++libc_hidden_builtin_def (bzero)
+diff -urN glibc-ports-2.13-2011.03-orig/sysdeps/powerpc/powerpc32/e500/strcmp.S glibc-ports-2.13-2011.03/sysdeps/powerpc/powerpc32/e500/strcmp.S
+--- glibc-ports-2.13-2011.03-orig/sysdeps/powerpc/powerpc32/e500/strcmp.S	1969-12-31 18:00:00.000000000 -0600
++++ glibc-ports-2.13-2011.03/sysdeps/powerpc/powerpc32/e500/strcmp.S	2011-04-15 11:12:38.000000000 -0500
+@@ -0,0 +1,687 @@
++/*------------------------------------------------------------------
++ * strcmp.S
++ * 
++ * Standard strcmp function optimized for e500 using SPE
++ *
++ * Copyright (c) 2005 Freescale Semiconductor, Inc
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *     * Redistributions of source code must retain the above copyright
++ *       notice, this list of conditions and the following disclaimer.
++ *     * Redistributions in binary form must reproduce the above copyright
++ *       notice, this list of conditions and the following disclaimer in the
++ *       documentation and/or other materials provided with the distribution.
++ *     * Neither the name of Freescale Semiconductor nor the
++ *       names of its contributors may be used to endorse or promote products
++ *       derived from this software without specific prior written permission.
++ *
++ * THIS SOFTWARE IS PROVIDED BY Freescale Semiconductor ``AS IS'' AND ANY
++ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
++ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
++ * DISCLAIMED. IN NO EVENT SHALL Freescale Semiconductor BE LIABLE FOR ANY
++ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
++ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
++ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
++ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
++ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
++ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ *------------------------------------------------------------------
++ */
++
++#include <sysdep.h>
++#include <bp-sym.h>
++#include <bp-asm.h>
++
++/*------------------------------------------------------------------
++ * int strcmp(const unsigned char* sourceA,
++ *            const unsigned char* sourceB);
++ * Returns:
++ *  value < 0  if source1 < source2
++ *  value = 0  if source1 = source2
++ *  value > 0  if source1 > source2
++ *------------------------------------------------------------------
++ */
++
++	.file   "strcmp.S"
++	.section        ".text"
++/* If sourceA and sourceB are aligned the same wrt doublewords,
++ * or aligned the same wrt words, we compare in doublewords.
++ * Otherwise, go byte by byte.
++ */
++EALIGN (strcmp, 5, 0)
++
++        /* Load constant 0x01010101 */
++        lis r11,0x0101
++        ori r11,r11,0x0101
++
++        /* r3 will be used for returning stuff, so lets move
++	 * sourceA out of there
++	 */
++        mr r10,r3
++
++        /* Load doubleword constant 0x01010101 */
++        evmergelo r12,r11,r11
++
++        /* generate a mask to set the unwanted bits to 1
++	 * take the alignment of r10 * 8
++	 */
++        rlwinm r6, r10, 3, 27,28
++
++        /* Load doubleword constant 0x80808080 */
++        evslwi r11,r12,7
++
++        /* start the mask with all Fs */
++        li r8, -1
++
++        or r0,r10,r4
++
++        subfic r6, r6, 32
++
++        andi. r0,r0,0x7
++
++        /* Shift r8 by r6 to mask off preceding bytes */
++        slw r8, r8, r6
++
++        /* Save the stack, cuz we need to save a reg */
++        stwu r1, -32(r1)
++
++        /* save r14 for counting.  This is cheaper than bdnz */
++        stw r14, 8(r1)
++
++        beq L(Aligned_Double)
++
++/* load the first words (on word boundaries) and process them,
++ * setting bits preceding the first byte to 1.
++ */
++
++        /* If r10 and r4 can't be aligned to words, then jump
++	 * to unaligned compare
++	 */
++        xor r0,r10,r4
++        rlwinm. r0,r0,0,30,31
++        bne L(unaligned_compare)
++
++        /* align r10 to word */
++        rlwinm r10, r10, 0,0,29
++
++        /* process the first word, and word align r4 */
++        lwz r5, 0(r10)
++        rlwinm r4, r4, 0,0,29
++
++        /* Check whether r10 and r4 are both aligned double or not.
++	 * Jump to Unaligned_Double if they are different.
++	 */
++        xor r0,r10,r4
++        addi r10, r10, 4
++
++        /* Load the other first word (B), and set all the bits
++	 * preceding the first real byte
++	 */
++        lwz r7, 0(r4)
++        or r5, r5, r8
++
++        /* This will be 0b100 if the ptrs are only word aligned
++	 * (not doubleword aligned)
++	 */
++        rlwinm r0,r0,0,29,29
++
++        /* Look for nulls in the first (partial) word */
++        subfc r3, r12, r5
++        andc r9, r11, r5
++
++        /* Update r4, and find out if there were any nulls */
++        addi r4,r4,4
++        and. r9, r3, r9
++
++        /* Find out if we are doubleword aligned, and set all the
++	 * bits preceding the first byte in word B
++	 */
++        cmpwi 6, r0,0
++        or r7,r7,r8
++
++        /* jump out if we found a null, otherwise compare the two words */
++        bne L(find_null1)
++        subfc. r0, r5, r7
++
++        /* Set a condition bit if r10 is not yet doubleword
++	 * aligned, and branch if the first words were different
++	 */
++        mtcrf 0x01,r10
++        bne L(found_diff_early)
++
++        /* process another word if necessary to align to a doubleword
++	 * boundary.
++	 */
++        bf 29, L(Check_Aligned_Double)
++
++        /* Load another word from each string, to align r10 to a
++	 * double word
++	 */
++        lwz r5, 0(r10)
++        addi r10, r10, 4
++        lwz r7, 0(r4)
++        addi r4,r4,4
++
++
++        /* Check for nulls and differences in the words */
++        subfc r3, r12, r5
++        andc r9, r11, r5
++        and. r9, r3, r9
++        bne L(find_null1)
++        subfc. r0, r5, r7
++        bne L(found_diff_early)
++
++        /* r10 is now aligned to a doubleword boundary, but it
++	 * may be that we are not both double aligned.  We set a
++	 * bit based on this earlier, so branch if it is set.
++	 */
++L(Check_Aligned_Double):
++        bne 6, L(Unaligned_Double)
++
++        /* loop through 2 doublewords at once in this page, until one of
++	 * these happens:
++	 * 1) A null byte is found in r10
++	 * 2) a byte is found which is different between r10 and r4
++	 * 3) the end of the page is reached
++	 * 
++	 * If 3 happens, then we finish processing the last doubleword in
++	 * the page, and if it checks out, we jump to the next one.  The
++	 * hope is that no small strings are going to cross page
++	 * boundaries.  For large strings, the hit should be minimal
++	 *
++	 * If 1 happens, some extra checking goes on to see whether the
++	 * strings are the same or not.
++	 */
++L(Aligned_Double):
++        /* Start figuring out how far to the next page */
++        not r6,r10
++        not r8,r4
++
++        rlwinm r6,r6,29,23,31
++        rlwinm r8,r8,29,23,31
++
++        subfc. r0,r6,r8
++        evldd r5, 0(r10)
++
++        /* zero out a reg for comparison (the result of the final
++	 * and is nonzero for any word with a null byte)
++	 */
++        evsplati r0,0
++        evldd r7, 0(r4)
++
++        /* Select the shortest distance to the page */
++        isellt r14,r8,r6
++
++        evsubfw r3, r12, r5
++        addic. r14,r14,-6
++
++        evandc r9, r11, r5
++
++        blt L(aligned_double_loop_end)
++
++        /* The loop */
++L(aligned_double_loop):
++        evldd r6, 8(r10)
++        evand r9, r9, r3
++        addi r10,r10,16
++        evcmpgtu 1, r9, r0
++        evldd r8, 8(r4)
++        evcmpeq 6, r5, r7
++        bt 6, L(found_null1)
++        evsubfw r3,r12, r6
++        bf 27, L(found_diff1)
++        evandc r9, r11, r6
++        evldd r5, 0(r10)
++        evand r9,r9,r3
++        addi r4,r4,16
++        evcmpgtu 5, r9, r0
++        evldd r7, 0(r4)
++        evcmpeq 7, r6, r8
++        bt 22, L(found_null2)
++        evsubfw r3, r12, r5
++        bf 31, L(found_diff2)
++        evandc r9, r11, r5
++
++        evldd r6, 8(r10)
++        evand r9, r9, r3
++        addi r10,r10,16
++        evcmpgtu 1, r9, r0
++        evldd r8, 8(r4)
++        evcmpeq 6, r5, r7
++        bt 6, L(found_null1)
++        evsubfw r3,r12, r6
++        bf 27, L(found_diff1)
++        evandc r9, r11, r6
++        evldd r5, 0(r10)
++        evand r9,r9,r3
++        addi r4,r4,16
++        evcmpgtu 5, r9, r0
++        evldd r7, 0(r4)
++        evcmpeq 7, r6, r8
++        bt 22, L(found_null2)
++        evsubfw r3, r12, r5
++        bf 31, L(found_diff2)
++        addic. r14,r14,-4
++        evandc r9, r11, r5
++        bge L(aligned_double_loop)
++
++        /* we exited the loop, we must be at the end of a page.
++	 * Finish the last one, and then see if we are done or
++	 * not.
++	 */
++L(aligned_double_loop_end):
++        evand r9, r9, r3
++        evcmpgtu 1, r9, r0
++        evcmpeq 6, r5, r7
++        bt 6, L(found_null1)
++        bf 27, L(found_diff1)
++        addi r10,r10,8
++        addi r4,r4,8
++
++        or r3, r10,r4
++        andi. r3, r3, 0xFFF
++        beq L(find_next_page)
++        /* We need to check the next doubleword, too.  It may be
++	 * in the next page, but it may be the last one in this
++	 * page.
++	 */
++        li r14,3
++L(find_page_end):
++        evldd r5, 0(r10)
++        addi r10,r10,8
++        evldd r7, 0(r4)
++        addi r4,r4,8
++        evsubfw r3, r12, r5
++        addic. r14,r14,-1
++        evandc r9, r11, r5
++        evand r9, r9, r3
++        evcmpgtu 1, r9, r0
++        evcmpeq 6, r5, r7
++        bt 6, L(found_null1)
++        bf 27, L(found_diff1)
++        bne L(find_page_end)
++
++
++        /* It is now safe to proceed to the next page.  load the
++	 * counter with the number of doublewords before the next
++	 * page
++	 */
++
++L(find_next_page):
++        not r6,r10
++        not r8,r4
++        rlwinm r6,r6,29,23,31
++        rlwinm r8,r8,29,23,31
++        subfc. r0,r6,r8
++        isellt r14,r8,r6
++        evldd r5, 0(r10)
++        addic. r14,r14,-6
++        evldd r7, 0(r4)
++        evsubfw r3, r12, r5
++        evandc r9, r11, r5
++        evsplati r0, 0
++        blt L(aligned_double_loop_end)
++        b L(aligned_double_loop)
++
++        /* The first doubleword had a null byte */
++L(found_unaligned_null1):
++        evmr r7,r15
++        evldd r15, 16(r1)
++L(found_null1):
++        /* If there was a null in the hi word, or if the hi words
++	 * were not equal, we want to check the hi word, so move
++	 * it down into the lo word
++	 */
++        crorc 4,4,24 
++        bf 4, L(find_null1)
++        evmergehi r5, r5, r5
++        evmergehi r7,r7,r7
++L(find_null1):
++        rlwinm. r11,r5,0,0,7
++        li r12,24
++        beq L(aligned_shift1)
++        rlwinm. r11,r5,0,8,15
++        li r12,16
++        beq L(aligned_shift1)
++        rlwinm. r11,r5,0,16,23
++        li r12,8
++        beq L(aligned_shift1)
++        li r12,0
++
++        /* If the signs are different for these words,
++	 * then overflow can occur
++	 */
++        xor. r0,r5,r7
++
++L(aligned_shift1):
++        srw r5,r5,r12
++        srw r7,r7,r12
++        lwz r14, 8(r1)
++        subfc r3,r7,r5
++        addi r1,r1,32
++
++        /* return now if the signs were the same (r3
++	 * has the appropriate value).  Otherwise, return
++	 * r7.  r7's sign matches that of the necessary
++	 * return value, since the comparison is actually
++	 * unsigned.  This means that a negative number is
++	 * actually large, and, if the signs are different,
++	 * guaranteed to be larger than r5. The same is true
++	 * for the opposite case.  We also make sure it is
++	 * non-zero.
++	 */
++        bgelr
++        ori r3,r7,1
++        blr
++
++L(found_unaligned_null2):
++        evmr r8,r15
++        evldd r15, 16(r1)
++L(found_null2):
++        /* If there was a null in the hi word, move that word
++	 * down into the lo word
++	 */
++        evmr r5,r6
++        crorc 20, 20, 28 
++        evmr r7,r8
++        bf 20, L(find_null1)
++        evmergehi r5, r5, r5
++        evmergehi r7, r7, r7
++        b L(find_null1)
++
++/* Now we know that there is a difference in one of the
++   two doublewords.  We find the first different bit within
++   each word, and then rotate each word of B so that the sign
++   bit is that bit.  When B is greater, that bit will be one, and
++   the sign of the return should be negative, and when B is less,
++   the bit will be zero, making the return positive.  Also,
++   we need to OR the r3 with 1 to make sure it is non-zero
++ */
++L(found_unaligned1):
++        evmr r7,r15
++        evldd r15, 16(r1)
++L(found_diff1):
++        evxor r0,r5,r7
++        lwz r14,8(r1)
++        evcntlzw r0,r0
++        addi r1,r1,32
++        evrlw r3,r7,r0
++        evmergehi r4,r3,r3
++        isel r3,r3,r4,24
++        ori r3,r3,1
++        blr
++
++/* See found_diff1 description for explanation of this code */
++L(found_unaligned2):
++        evmr r8,r15
++        evldd r15, 16(r1)
++L(found_diff2):
++        evxor r0,r6,r8
++        lwz r14,8(r1)
++        evcntlzw r0,r0
++        addi r1,r1,32
++        evrlw r3,r8,r0
++        evmergehi r4,r3,r3
++        isel r3,r3,r4,28
++        ori r3,r3,1
++        blr
++
++L(Unaligned_Double):
++        /* Invert the pointers so that the last 12 bits hold the
++	 * number of bytes to the end of the page (minus 1)
++	 */
++        not r6,r10
++        not r8,r4
++
++        /* remove all but the last 12 bits from the nots, and
++	 * shift the result right by 3, thus making it the number
++	 * of doubles to the end of the page
++	 */
++        rlwinm r6,r6,29,23,31
++        rlwinm r8,r8,29,23,31
++
++        /* align r4 to a doubleword boundary, and load the
++	 * first double of r10 (prologue for loop)
++	 */
++        rlwinm r4,r4,0,0,28
++        evldd r5, 0(r10)
++
++        /* subtract the distances from each other, setting the
++	 * condition code so we know which was shorter.
++	 * And load the first word of r4 into a doubleword
++	 */
++        subfc. r0,r6,r8
++        evldd r7, 0(r4)
++
++        /* zero out a reg for comparison (the result of the final
++	 * and is nonzero for any word with a null byte)
++	 * Save off a register for merging into
++	 */
++        evsplati r0,0
++        evstdd r15,16(r1)
++
++        /* And start looking for nulls in r10 */
++        evsubfw r3, r12, r5
++
++        /* Select the shortest distance to the page */
++        isellt r14,r8,r6
++
++        /* And continue looking for nulls */
++        evandc r9, r11, r5
++
++        /* We want to jump out early (before we load the next
++	 * double) if this is the last double.
++	 * Then update r14 so that it reflects the number of
++	 * doublewords that will have been loaded by the end
++	 * of the first iteration of the loop (4)
++	 */
++        cmpwi cr1,r14,1
++
++        addic. r14,r14,-4
++
++        /* Can't do this load until we know the previous one is
++	 * free of null bytes
++	 */
++        blt cr1,L(unaligned_last_was_first)
++        evldd r8, 8(r4)
++
++        /* Align the first double,  and branch over the loop if
++	 * we are less than 3 doubles from the end of the page
++	 */
++        evmergelohi r15,r7,r8
++        blt L(unaligned_double_loop_end)
++
++        /* And away we go!  Loop as many times as we can before
++	 * we hit the end of the page.  This code is scheduled
++	 * such that there are no stalls in execution.  Because
++	 * loads take 3 cycles, there could be stalls in
++	 * completion.
++	 * NOTE TO SELF:
++	 *
++	 * Issues:
++	 * 1) evmergelohi must be before any connected branch.
++	 *   the exit cases (found_null1, etc) assume that the
++	 *   values are all properly lined up.
++	 * 2) null case must branch before diff case.  diff
++	 *    assumes it to be so
++	 * 3) When near the end of the page, have to make sure
++	 *    that the hi word of r10, and the lo word of r4
++	 *    don't have any nulls before grabbing the next double
++	 *    for r4
++	 */
++L(unaligned_loop):
++        evcmpeq 6, r5,r15
++        evldd r6, 8(r10)
++        evand r9,r9,r3
++        addi r10,r10,16
++        evcmpgtu 1,r9, r0
++        evldd r7, 16(r4)
++        evsubfw r3,r12,r6
++        bt 6,L(found_unaligned_null1)
++        evandc r9,r11,r6
++        bf 27,L(found_unaligned1)
++        evmergelohi r15,r8,r7
++        addi r4,r4,16
++        evcmpeq 7,r6,r15
++        evldd r5,0(r10)
++        evand r9,r9,r3
++        addic. r14,r14,-2
++        evcmpgtu 5,r9, r0
++        evldd r8,8(r4)
++        evsubfw r3,r12,r5
++        bt 22,L(found_unaligned_null2)
++        evandc r9,r11,r5
++        bf 31,L(found_unaligned2)
++        evmergelohi r15,r7,r8
++        bge L(unaligned_loop)
++
++        /* we exited the loop, we must be at the end of a page.
++	 * Finish the last one, and then see if we are done or
++	 * not.
++	 */
++L(unaligned_double_loop_end):
++        evcmpeq 6, r5, r15
++        evand r9,r9,r3
++        evcmpgtu 1, r9, r0
++        addi r10,r10,8
++        bt 6, L(found_unaligned_null1)
++        addi r4,r4,8
++        bf 27, L(found_unaligned1)
++
++        /* We need to check the next doubleword, too.  It may be
++	 * in the next page, but it may be the last one in this
++	 * page.
++	 */
++L(unaligned_find_page_end):
++        evldd r6, 0(r10)
++        addi r10,r10,8
++        evsubfw r3, r12, r6
++        evandc r9, r11, r6
++        evand r9, r9, r3
++        evcmpgtu 5, r9, r0
++        bt 20,L(found_early_null2)
++
++        /* Check r8 */
++        evsubfw r3, r12,r8
++        evandc r9, r11,r8
++        evand r9,r9,r3
++        evcmpgtu 1,r9,r0
++        bt 6,L(found_early_null2)
++        evldd r7, 8(r4)
++        addi r4,r4,8
++        evmergelohi r15,r8,r7
++        evcmpeq 7, r6, r15
++        bt 22, L(found_unaligned_null2)
++        bf 31, L(found_unaligned2)
++
++
++        /* At this point, we will have crossed a page boundary in
++	 * one of the strings safely.  However, the other string
++	 * could be near the end of the page.  So we calculate
++	 * which string is closest to the end of the page again,
++	 * and redo the end of page code if it is less than 3
++	 * doublewords from the end.
++	 */
++L(unaligned_find_next_page):
++        not r6,r10
++        not r8,r4
++        rlwinm r6,r6,29,23,31
++        rlwinm r8,r8,29,23,31
++        subfc. r0,r6,r8
++        evldd r5, 0(r10)
++        evsplati r0,0
++        isellt r14,r8,r6
++        cmpwi cr1,r14,1
++        evsubfw r3, r12, r5
++        addic. r14,r14,-3
++        evandc r9, r11, r5
++        blt cr1,L(unaligned_last_was_first)
++        evldd r8, 8(r4)
++        evmergelohi r15,r7,r8
++        blt L(unaligned_double_loop_end)
++        b L(unaligned_loop)
++
++/* The end of the page happened so early, we couldn't load more
++ * than one doubleword safely.
++ * We need to make sure both CURRENTLY LOADED doublewords are
++ * null-free, since either one could be the one at the end of the
++ * page.
++ */
++L(unaligned_last_was_first):
++        evand r9,r9,r3
++        addi r10,r10,8
++        evcmpgtu 1,r9,r0
++        bt 4,L(found_early_null)
++
++        /* now check r7 */
++        evsubfw r3,r12,r7
++        evandc r9,r11,r7
++        evand r9,r3,r9
++        evcmpgtu 5,r9,r0
++        bt 22,L(found_early_null)
++
++        /* Now load the next 2 words of r4, and realign the
++	 * data to r10.  Then branch out if any of the bytes
++	 * were null.
++	 */
++        evldd r8,8(r4)
++        addi r4,r4,8
++        evmergelohi r15,r7,r8
++        evcmpeq 6,r5,r15
++        bt 6,L(found_unaligned_null1)
++        bf 27, L(found_unaligned1)
++
++        /* unaligned_find_next_page expects the previous
++	 * doubleword to be in r7, so move r8 there
++	 */
++        evmr r7,r8
++
++        /* find out where the next page is */
++        b L(unaligned_find_next_page)
++
++/* We found a null in the hi word of r5, near the end of the
++ * page.  r7 has the value we want to deal with, but we want
++ * the important word in A to be in the lo word.  So we merge
++ */
++L(found_early_null):
++        evmergehi r5,r5,r5
++        evldd r15,16(r1)
++        b L(find_null1)
++
++L(found_early_null2):
++        evmergehi r5,r6,r6
++        evldd r15,16(r1)
++        evmr r7,r8
++        b L(find_null1)
++
++L(unaligned_compare):
++        lbz r5, 0(r10)
++        lbz r7, 0(r4)
++        lwz r14, 8(r1)
++        addi r1,r1,32
++        subfc. r3, r7, r5
++        bnelr
++L(unaligned_byte_loop):
++        cmpwi cr1, r5,0
++        beq cr1, L(Null_Byte)
++        lbzu r5,1(r10)
++        lbzu r7,1(r4)
++        subfc. r3,r7,r5
++        beq L(unaligned_byte_loop)
++        blr
++L(Null_Byte):
++        li r3,0
++        blr
++
++L(found_diff_early):
++        subfe r3,r0,r0
++        not r3,r3
++        ori r3,r3,1
++        lwz r14, 8(r1)
++        addi r1,r1,32
++        blr
++
++END (strcmp)
++libc_hidden_builtin_def (strcmp)
+diff -urN glibc-ports-2.13-2011.03-orig/sysdeps/powerpc/powerpc32/e500/strcpy.S glibc-ports-2.13-2011.03/sysdeps/powerpc/powerpc32/e500/strcpy.S
+--- glibc-ports-2.13-2011.03-orig/sysdeps/powerpc/powerpc32/e500/strcpy.S	1969-12-31 18:00:00.000000000 -0600
++++ glibc-ports-2.13-2011.03/sysdeps/powerpc/powerpc32/e500/strcpy.S	2011-04-15 11:12:38.000000000 -0500
+@@ -0,0 +1,667 @@
++/*------------------------------------------------------------------
++ * strcpy.S
++ * 
++ * Standard strcpy function optimized for e500 using SPE
++ *
++ * Copyright (c) 2005 Freescale Semiconductor, Inc
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *     * Redistributions of source code must retain the above copyright
++ *       notice, this list of conditions and the following disclaimer.
++ *     * Redistributions in binary form must reproduce the above copyright
++ *       notice, this list of conditions and the following disclaimer in the
++ *       documentation and/or other materials provided with the distribution.
++ *     * Neither the name of Freescale Semiconductor nor the
++ *       names of its contributors may be used to endorse or promote products
++ *       derived from this software without specific prior written permission.
++ *
++ * THIS SOFTWARE IS PROVIDED BY Freescale Semiconductor ``AS IS'' AND ANY
++ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
++ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
++ * DISCLAIMED. IN NO EVENT SHALL Freescale Semiconductor BE LIABLE FOR ANY
++ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
++ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
++ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
++ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
++ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
++ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ *------------------------------------------------------------------
++ */
++
++#include <sysdep.h>
++#include <bp-sym.h>
++#include <bp-asm.h>
++
++/*------------------------------------------------------------------
++ * char * strcpy(char* dest, const char* src);
++ * Returns:
++ * dest
++ *------------------------------------------------------------------
++ */
++
++	.file   "strcpy.S"
++	.section        ".text"
++/* If dest and src are aligned the same wrt doublewords,
++ * or aligned the same wrt words, we copy in doublewords.
++ * Otherwise, go byte by byte.
++ */
++EALIGN (strcpy, 5, 0)
++
++        /* All of the string functions use an algorithm for null
++	 * detection taken from the original libmoto:
++	 *
++	 * 1) load in a word
++	 * 2a) subtract 0x01010101 from the word.  This will cause
++	 * all bytes with a null to be 0xff (unless it is right
++	 * before another null, in which case it will be 0xfe)
++	 *
++	 * 3b) AND 0x80808080 with the complement of the word.
++	 * The resulting bytes will only have their high bit set
++	 * if the corresponding bit was 0 in the original word
++	 *
++	 * So now we (basically) have a word with the high bit of
++	 * any byte set which was between 0x81 and 0xff, or 0x00.
++	 * We also have a mask which will only select the high
++	 * bits of bytes which were between 0x00 and 0x7f.  There
++	 * is only one overlap:  a null byte (0x00).  If we now:
++	 *
++	 * 4) and the two results
++	 *
++	 * The result will only have 1s in the high bits of bytes
++	 * which had nulls.  With one exception.  If there is a
++	 * byte with 0x01 before a byte with 0x00, then that
++	 * byte, too, will have a 1 in the high bit.  However,
++	 * since this only happens when a byte with 0x00 occurs
++	 * in the word, this technique is useful for detecting if
++	 * there are any nulls in the word.
++	 */
++
++        /* r3 needs to return the original dest, but r3 is used,
++	 * so move r3 into the upper half of r10
++	 */
++        evmergelo r10,r3,r3
++
++        /* Load constant 0x01010101 */
++        lis r11,0x0101
++        ori r11,r11,0x0101
++
++        /* Load doubleword constant 0x01010101 */
++        evmergelo r12,r11,r11
++
++        /* Determine whether r4 and r10 are doubleword-aligned */
++        or r0,r10,r4
++
++        /* Load doubleword constant 0x80808080 */
++        evslwi r11,r12,7
++
++        /* Save the stack, cuz we need to save a reg */
++        stwu r1, -16(r1)
++
++        andi. r0,r0,0x7
++
++        /* save r14.  This is cheaper than bdnz */
++        stw r14, 8(r1)
++
++        beq L(Aligned_Double)
++
++/* load the first words (on word boundaries) and process them,
++ * setting bits preceding the first byte to 1.
++ */
++
++        /* If r10 and r4 are off by 4, we can handle that almost
++	 * as fast as in the fully-aligned case, so we want to go
++	 * there as soon as possible.  If this is true, then
++	 * r0 will be 4.  The Unaligned_Double loop needs
++	 * r10 to be double-aligned, so we move bit 29 of r10
++	 * into bit 29 of r0, and if r0 is then zero,
++	 * r10 is already properly aligned, and we jump to
++	 * Unaligned_Double.
++	 */
++        rlwimi. r0,r10,0,29,29
++        not r6, r10
++        xor r0,r10,r4
++        beq L(Unaligned_Double)
++
++        /* If the last two bits of r4 and r10 are
++	 * different, then it is not efficient to copy
++	 * them in chunks larger than a byte
++	 */
++        andi. r14,r0,0x3
++        addi r6, r6, 1
++        bne L(unaligned_copy)
++
++        /* Check for double alignment */
++        rlwinm r0,r0,0,29,29
++
++        /* Move the alignment amount into the CR */
++        mtcrf 0x1, r6
++
++        /* Set the condition code for double alignment */
++        cmpwi 5, r0,0
++
++        /* Process a byte if r10 is only byte-aligned */
++        bf 31, L(try_halfword)
++        lbz r5, 0(r4)
++        addi r4,r4,1
++        cmpwi r5, 0
++        stb r5, 0(r10)
++        addi r10,r10,1
++        beq L(aligned_end1)
++
++        /* Process 2 bytes if r10 is only halfword aligned */
++L(try_halfword):
++        bf 30, L(try_word)
++        lbz r5, 0(r4)
++        lbz r6, 1(r4)
++        addi r4,r4,2
++        cmpwi r5, 0
++        stb r5, 0(r10)
++        beq L(aligned_end1)
++        cmpwi r6, 0
++        stb r6, 1(r10)
++        beq L(aligned_end1)
++        addi r10,r10,2
++
++        /* process another word if necessary to align to a doubleword
++	 * boundary.
++	 */
++L(try_word):
++        bf 29, L(Check_Aligned_Double)
++
++        /* Load the next word, to align r10 to a double word */
++        lwz r5, 0(r4)
++        addi r4,r4,4
++
++        /* Process it */
++        subfc r3, r12, r5
++        andc r9, r11, r5
++        and. r9, r3, r9
++
++        /* Need to have r5 in r0, because find_null1 assumes
++	 * that r0 will have the word in which the first null was
++	 * found.  (found_null1 assumes that condition codes have
++	 * been set by evcmpgtu, so we have to jump into that
++	 * block of code after the logic which figures out the
++	 * first word has been executed)
++	 */
++        mr r0,r5
++        bne L(find_null1)
++
++        /* Store the word */
++        stw r5,0(r10)
++        addi r10, r10, 4
++
++        /* r10 is now doubleword aligned, but both strings may
++	 * not be doubleword aligned.  We set a bit earlier for
++	 * this, so branch if it was set.
++	 */
++L(Check_Aligned_Double):
++        bne 5, L(Unaligned_Double)
++
++        /* loop through 2 doublewords at once in this page, until one of
++	 * these happens:
++	 * 1) A null byte is found in r4
++	 * 2) the end of the page is reached
++	 * 
++	 * If 2 happens, then we finish processing the last doubleword in
++	 * the page, and if it checks out, we jump to the next one.  The
++	 * hope is that no small strings are going to cross page
++	 * boundaries.  For large strings, the hit should be minimal
++	 *
++	 * If 1 happens, some extra checking goes on to see whether the
++	 * strings are the same or not.
++	 *
++	 * The primary loop is capable of 2 IPC (it issues
++	 * 2/cycle, but completion may stall).  If it gets 2 IPC,
++	 * then it is doing a load or store every other cycle.
++	 * This means that a doubleword is stored every fourth
++	 * cycle.  So the code will approach copying 2
++	 * bytes/cycle.  This is 2x what the optimized scalar
++	 * code can do.
++	 */
++L(Aligned_Double):
++        /* Start figuring out how far to the next page */
++        not r8,r4
++
++        evldd r5, 0(r4)
++
++        /* zero out a reg for comparison (the result of the final
++	 * and is nonzero for any word with a null byte)
++	 */
++        evsplati r0,0
++
++        rlwinm r8,r8,29,23,31
++
++        evsubfw r3, r12, r5
++
++        /* We will load 2 doublewords, but it could be that the
++	 * first null is in the the first double.
++	 * If this double is also the last in the page, then
++	 * loading the next double could cause a segmentation
++	 * fault.  So we check to see if this is the last, and if
++	 * so we jump to a special case.
++	 */
++        addic. r14, r8,-1
++        blt L(last_double_was_first)
++
++        evldd r6, 8(r4)
++        evandc r9, r11, r5
++
++        evand r9,r9,r3
++        addic. r14,r14,-5
++
++        evcmpgtu 1,r9,r0
++        evsubfw r3,r12, r6
++
++        blt L(aligned_double_loop_end)
++        /* The loop */
++L(aligned_double_loop):
++        evandc r9, r11, r6
++        evldd r7, 16(r4)
++        evand r9,r9,r3
++        bt 6, L(found_null1)
++        evcmpgtu 5, r9, r0
++        evstdd r5,0(r10)
++        evsubfw r3, r12, r7
++        evldd r8, 24(r4)
++        evandc r9, r11, r7
++        bt 22, L(found_null2)
++        evand r9, r9, r3
++        evstdd r6,8(r10)
++        evcmpgtu 6, r9, r0
++        addic. r14,r14,-4
++        evsubfw r3,r12, r8
++        addi r4,r4,32
++        evandc r9, r11, r8
++        evldd r5, 0(r4)
++        evand r9, r9, r3
++        bt 26, L(found_null3)
++        evcmpgtu 7, r9, r0
++        evstdd r7,16(r10)
++        evsubfw r3,r12, r5
++        evldd r6, 8(r4)
++        evandc r9, r11, r5
++        bt 30, L(found_null4)
++        evand r9, r9, r3
++        evstdd r8,24(r10)
++        evcmpgtu 1, r9, r0
++        addi r10,r10,32
++        evsubfw r3,r12, r6
++        bge L(aligned_double_loop)
++
++        /* we exited the loop, we must be at the end of a page.
++	 * Finish the last one, and then see if we are done or
++	 * not.
++	 */
++L(aligned_double_loop_end):
++        bt 6, L(found_null1)
++        evstdd r5, 0(r10)
++        evandc r9,r11,r6
++        evand r9,r9,r3
++        evcmpgtu 5,r9,r0
++        bt 22, L(found_null2)
++        evstdd r6, 8(r10)
++
++        addi r4,r4,16
++        addi r10,r10,16
++
++        andi. r3,r4,0xFFF
++        beq L(start_new_loop)
++
++L(find_page_end):
++        evldd r5,0(r4)
++        addi r4,r4,8
++        evsubfw r3, r12, r5
++        evandc r9, r11, r5
++        evand r9, r3, r9
++        andi. r3,r4,0xFFF
++        evcmpgtu 1, r9, r0
++        bt 6, L(found_null1)
++        evstdd r5, 0(r10)
++        addi r10,r10,8
++        bne L(find_page_end)
++
++L(start_new_loop):
++        /* It is now safe to proceed to the next page.  load the
++	 * r14 with the number of doublewords in a page 
++	 * (-6 to account for the first loop)
++	 */
++        evldd r5, 0(r4)
++        li r14, 505
++
++        /* Now we set up for the beginning of the loop */
++        evldd r6, 8(r4)
++        evsubfw r3, r12, r5
++        evandc r9, r11, r5
++        evand r9,r9,r3
++        evcmpgtu 1,r9,r0
++        evsubfw r3,r12,r6
++        b L(aligned_double_loop)
++
++L(last_double_was_first):
++        addi r4,r4,8
++        evandc r9,r11,r5
++        evand r9,r9,r3
++        evcmpgtu 1,r9,r0
++        bt 6, L(found_null1)
++        evstdd r5,0(r10)
++        addi r10,r10,8
++        b L(start_new_loop)
++
++
++        /* The first doubleword had a null byte */
++L(found_null1):
++        /* If there was a null in the hi word, move that word
++	 * down into the lo word
++	 */
++        evmergehi r0, r5, r5
++        bt 4, L(find_null1)
++        stw r0,0(r10)
++        addi r10,r10,4
++        mr r0,r5
++L(find_null1):
++        rlwinm. r11,r0,8,24,31
++        stb r11, 0(r10)
++        beq L(aligned_end1)
++        rlwinm. r11,r0,16,24,31
++        stb r11, 1(r10)
++        beq L(aligned_end1)
++        rlwinm. r11,r0,24,24,31
++        stb r11, 2(r10)
++        beq L(aligned_end1)
++        stb r0, 3(r10)
++
++L(aligned_end1):
++        evmergehi r3,r10,r10
++        lwz r14, 8(r1)
++        addi r1,r1,16
++        blr
++
++        /* The second doubleword had a null byte */
++L(found_null2):
++        /* If there was a null in the hi word, move that word
++	 * down into the lo word
++	 */
++        evmergehi r0, r6, r6
++        bt 20, L(find_null2)
++        stw r0,8(r10)
++        addi r10,r10,4
++        mr r0,r6
++L(find_null2):
++        rlwinm. r11,r0,8,24,31
++        stb r11, 8(r10)
++        beq L(aligned_end2)
++        rlwinm. r11,r0,16,24,31
++        stb r11, 9(r10)
++        beq L(aligned_end2)
++        rlwinm. r11,r0,24,24,31
++        stb r11, 10(r10)
++        beq L(aligned_end2)
++        stb r0, 11(r10)
++
++L(aligned_end2):
++        evmergehi r3,r10,r10
++        lwz r14, 8(r1)
++        addi r1,r1,16
++        blr
++
++        /* The third doubleword had a null byte */
++L(found_null3):
++        /* If there was a null in the hi word, move that word
++	 * down into the lo word
++	 */
++        evmergehi r0, r7, r7
++        bt 24, L(find_null3)
++        stw r0,16(r10)
++        addi r10,r10,4
++        mr r0,r7
++L(find_null3):
++        rlwinm. r11,r0,8,24,31
++        stb r11,16(r10)
++        beq L(aligned_shift3)
++        rlwinm. r11,r0,16,24,31
++        stb r11,17(r10)
++        beq L(aligned_shift3)
++        rlwinm. r11,r0,24,24,31
++        stb r11,18(r10)
++        beq L(aligned_shift3)
++        stb r0,19(r10)
++
++L(aligned_shift3):
++        evmergehi r3,r10,r10
++        lwz r14, 8(r1)
++        addi r1,r1,16
++        blr
++
++
++        /* The fourth doubleword had a null byte */
++L(found_null4):
++        /* If there was a null in the hi word, move that word
++	 * down into the lo word
++	 */
++        evmergehi r0, r8, r8
++        bt 28, L(find_null4)
++        stw r0,24(r10)
++        addi r10,r10,4
++        mr r0,r8
++L(find_null4):
++        rlwinm. r11,r0,8,24,31
++        stb r11,24(r10)
++        beq L(aligned_shift4)
++        rlwinm. r11,r0,16,24,31
++        stb r11,25(r10)
++        beq L(aligned_shift4)
++        rlwinm. r11,r0,24,24,31
++        stb r11,26(r10)
++        beq L(aligned_shift4)
++        stb r0,27(r10)
++
++L(aligned_shift4):
++        evmergehi r3,r10,r10
++        lwz r14, 8(r1)
++        addi r1,r1,16
++        blr
++
++L(found_unaligned_null1):
++        evmergehi r0,r7,r7
++        bt 24, L(find_unaligned_null1)
++        stw r0,0(r10)
++        addi r10,r10,4
++        mr r0,r7
++L(find_unaligned_null1):
++        rlwinm. r11,r0,8,24,31
++        stb r11, 0(r10)
++        beq L(unaligned_end1)
++        rlwinm. r11,r0,16,24,31
++        stb r11, 1(r10)
++        beq L(unaligned_end1)
++        rlwinm. r11,r0,24,24,31
++        stb r11, 2(r10)
++        beq L(unaligned_end1)
++        stb r0, 3(r10)
++
++L(unaligned_end1):
++        evmergehi r3,r10,r10
++        lwz r14, 8(r1)
++        addi r1,r1,16
++        blr
++
++L(found_unaligned_null2):
++        evmergehi r0,r8,r8
++        bt 28, L(find_unaligned_null2)
++        stw r0,8(r10)
++        addi r10,r10,4
++        mr r0,r8
++L(find_unaligned_null2):
++        rlwinm. r11,r0,8,24,31
++        stb r11, 8(r10)
++        beq L(unaligned_end2)
++        rlwinm. r11,r0,16,24,31
++        stb r11, 9(r10)
++        beq L(unaligned_end2)
++        rlwinm. r11,r0,24,24,31
++        stb r11, 10(r10)
++        beq L(unaligned_end2)
++        stb r0, 11(r10)
++
++L(unaligned_end2):
++        evmergehi r3,r10,r10
++        lwz r14, 8(r1)
++        addi r1,r1,16
++        blr
++
++L(Unaligned_Double):
++        /* Align r4 to doubleword.
++	 * Get number of bytes before end of page
++	 */
++        not r8,r4
++        rlwinm r4,r4,0,0,28
++
++        /* Load the first doubleword (only half of which is good) */
++        rlwinm r8,r8,29,23,31
++        evldd r6,0(r4)
++
++        /* We will load 2 doublewords, but it could be that the
++	 * first null is in the lower word of the first double.
++	 * If this double is also the last in the page, then
++	 * loading the next double could cause a segmentation
++	 * fault.  So we check to see if the word has any
++	 * nulls, and if so, we jump to a special case
++	 * And zero a register for comparison
++	 */
++        addic. r14,r8,-1
++        evsplati r0,0
++        addi r10,r10,-16 /* predecrement r10 */
++        blt L(unaligned_first_was_last)
++
++        evldd r5,8(r4)
++        addic. r14,r14,-5
++        evmergelohi r7,r6,r5
++        evsubfw r3,r12,r7
++        blt L(unaligned_loop_end)
++
++L(unaligned_double_loop):
++        evandc r9,r11,r7
++        evldd r6,16(r4)
++        evand r9,r9,r3
++        addi r4,r4,16
++        evcmpgtu 6,r9,r0
++        addi r10,r10,16
++        evmergelohi r8,r5,r6
++        bt 26, L(found_unaligned_null1)
++        evsubfw r3,r12,r8
++        evstdd r7,0(r10)
++        evandc r9,r11,r8
++        evldd r5,8(r4)
++        evand r9,r9,r3
++        addic. r14,r14,-4
++        evcmpgtu 7,r9,r0
++        evmergelohi r7,r6,r5
++        bt 30,L(found_unaligned_null2)
++        evsubfw r3,r12,r7
++        evstdd r8,8(r10)
++
++        evandc r9,r11,r7
++        evldd r6,16(r4)
++        evand r9,r9,r3
++        addi r4,r4,16
++        evcmpgtu 6,r9,r0
++        addi r10,r10,16
++        evmergelohi r8,r5,r6
++        bt 26,L(found_unaligned_null1)
++        evsubfw r3,r12,r8
++        evstdd r7,0(r10)
++        evandc r9,r11,r8
++        evldd r5,8(r4)
++        evand r9,r9,r3
++        evcmpgtu 7,r9,r0
++        bt 30,L(found_unaligned_null2)
++        evmergelohi r7,r6,r5
++        evstdd r8,8(r10)
++        evsubfw r3,r12,r7
++        bge L(unaligned_double_loop)
++
++/* Hit the end of the page, finish up the epilog of the loop, and
++ * then run the process without any special scheduling to get
++ * into the next page
++ */
++L(unaligned_loop_end):
++        evandc r9,r11,r7
++        addi r4,r4,16
++        evand r9,r9,r3
++        addi r10,r10,16
++        evcmpgtu 6,r9,r0
++        bt 26,L(found_unaligned_null1)
++        evstdd r7,0(r10)
++        addi r10,r10,8
++
++/* At this point, r4 and r10 point to the next place to load
++ * and store.  We move forward, one word at a time, until r4
++ * has passed over into a new page.
++ */
++L(unaligned_find_next_page):
++        /* Check this word for null bytes */
++        subf r3,r12,r5
++        andc r9,r11,r5
++        and. r9,r9,r3
++        mr r0,r5
++        bne L(find_null1)
++        stw r5,0(r10)
++        addi r10,r10,4
++
++        lwz r0,0(r4)
++        addi r4,r4,4
++        subf r3,r12,r0
++        andc r9,r11,r0
++        and. r9,r9,r3
++        bne L(find_null1)
++
++        /* Calculate if r4 is on a new page */
++        andi. r6,r4,0x0f00
++
++        /* Store the 2nd word */
++        stw r0,0(r10)
++        addi r10,r10,4
++
++        beq L(Unaligned_Double)
++        lwz r5,0(r4)
++        addi r4,r4,4
++        b L(unaligned_find_next_page)
++
++L(unaligned_first_was_last):
++        addi r10,r10,16
++        addi r4,r4,8
++        mr r5,r6
++        b L(unaligned_find_next_page)
++
++L(unaligned_copy):
++        lbz r5, 0(r4)
++        addi r10, r10, -1
++        cmpwi cr1,r5,0
++        beq cr1,L(Null_Byte1)
++L(unaligned_byte_loop):
++        lbzu r6,1(r4)
++        stbu r5,1(r10)
++        cmpwi cr1,r6,0
++        beq cr1,L(Null_Byte2)
++        lbzu r5,1(r4)
++        stbu r6,1(r10)
++        cmpwi cr1,r5,0
++        bne cr1, L(unaligned_byte_loop)
++
++L(Null_Byte1):
++        stb r5,1(r10)
++        b L(Byte_End)
++L(Null_Byte2):
++        stb r6, 1(r10)
++
++L(Byte_End):
++        /* r3 still has original r10 value */
++        lwz r14, 8(r1)
++        addi r1,r1,16
++        blr
++
++END (strcpy)
++libc_hidden_builtin_def (strcpy)
+diff -urN glibc-ports-2.13-2011.03-orig/sysdeps/powerpc/powerpc32/e500/strlen.S glibc-ports-2.13-2011.03/sysdeps/powerpc/powerpc32/e500/strlen.S
+--- glibc-ports-2.13-2011.03-orig/sysdeps/powerpc/powerpc32/e500/strlen.S	1969-12-31 18:00:00.000000000 -0600
++++ glibc-ports-2.13-2011.03/sysdeps/powerpc/powerpc32/e500/strlen.S	2011-04-15 11:12:38.000000000 -0500
+@@ -0,0 +1,344 @@
++/*------------------------------------------------------------------
++ * strlen.S
++ *
++ * Standard strlen function optimized for e500 using SPE
++ *
++ * Copyright (c) 2005 Freescale Semiconductor, Inc
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *     * Redistributions of source code must retain the above copyright
++ *       notice, this list of conditions and the following disclaimer.
++ *     * Redistributions in binary form must reproduce the above copyright
++ *       notice, this list of conditions and the following disclaimer in the
++ *       documentation and/or other materials provided with the distribution.
++ *     * Neither the name of Freescale Semiconductor nor the
++ *       names of its contributors may be used to endorse or promote products
++ *       derived from this software without specific prior written permission.
++ *
++ * THIS SOFTWARE IS PROVIDED BY Freescale Semiconductor ``AS IS'' AND ANY
++ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
++ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
++ * DISCLAIMED. IN NO EVENT SHALL Freescale Semiconductor BE LIABLE FOR ANY
++ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
++ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
++ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
++ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
++ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
++ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ *------------------------------------------------------------------
++ */
++
++#include <sysdep.h>
++#include <bp-sym.h>
++#include <bp-asm.h>
++
++/*------------------------------------------------------------------
++ * int strlen(const char *src)
++ *
++ * Returns:
++ * length of string up to first null byte
++ *------------------------------------------------------------------
++ */
++
++	.file   "strlen.S"
++	.section        ".text"
++        /* check enough bytes to align the src pointer to a
++	 * doubleword boundary, and then run through the bytes
++	 * until a null is detected, adding up the length as we
++	 * go.
++	 */
++EALIGN (strlen, 5, 0)
++
++        /* All of the string functions use an algorithm for null
++	 * detection taken from the original libmoto:
++	 *
++	 * 1) load in a word
++	 * 2a) subtract 0x01010101 from the word.  This will cause
++	 * all bytes with a null to be 0xff (unless it is right
++	 * before another null, in which case it will be 0xfe)
++	 *
++	 * 3b) AND 0x80808080 with the complement of the word.
++	 * The resulting bytes will only have their high bit set
++	 * if the corresponding bit was 0 in the original word
++	 *
++	 * So now we (basically) have a word with the high bit of
++	 * any byte set which was between 0x81 and 0xff, or 0x00.
++	 * We also have a mask which will only select the high
++	 * bits of bytes which were between 0x00 and 0x7f.  There
++	 * is only one overlap:  a null byte (0x00).  If we now:
++	 *
++	 * 4) and the two results
++	 *
++	 * The result will only have 1s in the high bits of bytes
++	 * which had nulls.  With one exception.  If there is a
++	 * byte with 0x01 before a byte with 0x00, then that
++	 * byte, too, will have a 1 in the high bit.  However,
++	 * since this only happens when a byte with 0x00 occurs
++	 * in the word, this technique is useful for detecting if
++	 * there are any nulls in the word.
++	 */
++
++        /* Load constant 0x01010101 */
++        lis r11,0x0101
++        ori r11,r11,0x0101
++
++        /* r3 will be used for returning length, so lets move src
++	 * out of there to r10
++	 */
++        mr r10,r3
++
++        /* Get src's alignment (within a doubleword), and check
++	 * if it's zero
++	 */
++        andi. r3,r3,0x7
++
++        /* Load doubleword constant 0x01010101 */
++        evmergelo r12,r11,r11
++
++        /* Clear r0 out */
++        evsplati r0,0
++
++        /* get (the word alignment of r10) * 8 to shift a mask by the
++	 * number of bytes which are unused by r10
++	 * This is: clrlslwi r6,r10,30,3
++	 */
++        rlwinm r6, r10, 3, 27,28
++
++        /* Load doubleword constant 0x80808080 */
++        evslwi r11,r12,7
++
++        /* Skip out now if r10 was aligned. */
++        beq L(Aligned_Double)
++
++        subfic r6, r6, 32
++
++        /* start the mask with all Fs */
++        li r5, -1
++
++        /* Shift r8 by r6 to mask off preceding bytes */
++        slw r8, r5, r6
++
++        /* We want the result of r3+r10 to be a
++	 * doubleword-aligned value, so r3 will be -1*(r10)
++	 * alignment)
++	 */
++        neg r3,r3
++
++/* load the first words (on word boundaries) and process them,
++ * setting bits preceding the first byte to 1.
++ */
++
++        /* Grab the first doubleword of r10 */
++        evlddx r4,r3,r10
++
++        /* The loop is usually ahead by 16, and if we detect a
++	 * null, the exit code assumes that r3 is ahead by
++	 * 16, so we add 16 now, and can subtract 8 if there was
++	 * no null
++	 */
++        addi r3,r3,16
++
++        mtcrf 0x01,r10
++
++        evmergelo r0,r8,r0
++        cror 28,29,29
++
++        evmergelo r5,r5,r8
++
++        evsel r8,r5,r0,cr7
++
++        evsplati r0,0
++
++        /* Set the unwanted bytes of the source */
++        evor r4, r4, r8
++
++        /* Process fist doubleword with fun algorithm */
++        evsubfw r7, r12, r4
++        evandc r9, r11, r4
++        evand r9, r7, r9
++        evcmpgtu 1,r9,r0
++
++        /* Skip out if there was a null */
++        bt 6, L(found_null1)
++
++        /* There was no null; correct the length */
++        addi r3,r3,-8
++
++        /* loop through 2 doublewords at once in this page, until one of
++	 * these happens:
++	 * 1) A null byte is found in src
++	 * 2) the end of the page is reached
++	 * 
++	 * If 2 happens, then we finish processing the last doubleword in
++	 * the page, and if it checks out, we jump to the next one.  The
++	 * hope is that no small strings are going to cross page
++	 * boundaries.  For large strings, the hit should be minimal
++	 */
++
++        /* The main loop is unrolled, and software pipelined to
++	 * get as close to 2 IPC as possible.  This means it has
++	 * a prolog and epilog that need to be executed.  Prolog
++	 * is:
++	 * load, subtract
++	 */
++L(Aligned_Double):
++        /* Start figuring out how far to the next page */
++        not r8,r10
++        evlddx r4,r3,r10
++
++        /* Find the distance (in doublewords) from r10 to the end
++	 * of the page
++	 */
++        rlwinm r8,r8,29,23,31
++
++        /* Find out if this is the last double on the page */
++        addic. r6, r8,-1
++        addi r3,r3,8 /* increment the length */
++
++        /* start calculating now, since the loop needs this at
++	 * the beginning.
++	 */
++        evsubfw r7, r12, r4
++        beq L(aligned_double_loop_end)
++
++        /* decrement the counter to account for the first
++	 * iteration of the loop, and skip to the end if it turns
++	 * out we don't have enough doubles left for 1 iter.
++	 */
++        addic. r6,r6,-2
++        blt L(aligned_double_loop_end)
++        /* The loop */
++L(aligned_double_loop):
++        evandc r9, r11, r4
++        evlddx r5,r3,r10
++        evand r9,r9,r7
++        addi r3,r3,8
++        evcmpgtu 1, r9, r0
++        addic. r6,r6,-2
++        evsubfw r7,r12,r5
++        bt 6, L(found_null1)
++        evandc r9, r11, r5
++        evlddx r4,r3,r10
++        evand r9, r9, r7
++        addi r3,r3,8
++        evcmpgtu 5, r9, r0
++        bt 22, L(found_null2)
++        evsubfw r7,r12, r4
++        bge L(aligned_double_loop)
++
++        /* we exited the loop, we must be at the end of a page.
++	 * Finish the last one, and then see if we are done or
++	 * not.
++	 */
++L(aligned_double_loop_end):
++        evandc r9,r11,r4
++        evand r9,r9,r7
++        evcmpgtu 1,r9,r0
++
++        /* r3 has to be ahead by 16 in found_null, and is
++	 * only ahead by 8 right now, so we add 8 here
++	 */
++        addi r3,r3,8
++        bt 6, L(found_null1)
++
++        /* However, r3 needed to be only 8 ahead to load the
++	 * next doubleword, so take 8 away again
++	 */
++        addi r3,r3,-8
++
++        /* To make things nice, we finish off the remaining
++	 * doublewords here, so that the next loop has exactly
++	 * 512 iterations
++	 */
++        addi r7, r10, r3
++        andi. r7,r7,0xFFF
++        beq L(start_new_loop)
++L(find_page_end):
++        evlddx r4,r3,r10
++        addi r3,r3,16 /* overadjust */
++        evsubfw r7, r12, r4
++        evandc r9, r11, r4
++        evand r9, r7, r9
++        evcmpgtu 1, r9, r0
++        bt 6, L(found_null1)
++        addi r3,r3,-8 /* readjust */
++        addi r7,r10,r3
++        andi. r7,r7,0xFFF
++        bne L(find_page_end)
++
++L(start_new_loop):
++        /* It is now safe to proceed to the next page.  load the
++	 * counter with the number of doublewords in a page
++	 * (minus 4 to account for the first iteration)
++	 */
++        evlddx r4,r3,r10
++        li r6, 508
++
++        evsubfw r7, r12, r4
++        addi r3,r3,8
++        b L(aligned_double_loop)
++
++L(last_double_was_first):
++        evandc r9,r11,r4
++        evand r9,r9,r7
++        evcmpgtu 1,r9,r0
++        addi r3,r3,8 /* adjust */
++        bt 6,L(found_null1)
++        addi r3,r3,-8 /*readjust */
++        b L(start_new_loop)
++
++
++        /* The first doubleword had a null byte */
++L(found_null1):
++        /* Compensate for the fact that r3 is 16 ahead */
++        addi r3,r3,-12
++
++        /* If there was a null in the hi word, move that word
++	 * down into the lo word, and subtract 4 from r3
++	 */
++        bf 4, L(find_null1)
++        evmergehi r4, r4, r4
++        addi r3,r3,-4
++L(find_null1):
++        rlwinm. r11,r4,0,0,7
++        beq L(finish1)
++        addi r3,r3,1
++        rlwinm. r11,r4,0,8,15
++        beq L(finish1)
++        addi r3,r3,1
++        rlwinm. r11,r4,0,16,23
++        beq L(finish1)
++        addi r3,r3,1
++
++L(finish1):
++        blr
++
++        /* The second doubleword had a null byte */
++L(found_null2):
++        /* Compensate for the fact that r3 is 16 ahead */
++        addi r3,r3,-12
++
++        /* If there was a null in the hi word, move that word
++	 * down into the lo word, and subtract 4 from r3
++	 */
++        bf 20, L(find_null2)
++        evmergehi r5, r5, r5
++        addi r3,r3,-4
++L(find_null2):
++        rlwinm. r11,r5,0,0,7
++        beq L(finish2)
++        addi r3,r3,1
++        rlwinm. r11,r5,0,8,15
++        beq L(finish2)
++        addi r3,r3,1
++        rlwinm. r11,r5,0,16,23
++        beq L(finish2)
++        addi r3,r3,1
++
++L(finish2):
++        blr
++
++END (strlen)
++libc_hidden_builtin_def (strlen)

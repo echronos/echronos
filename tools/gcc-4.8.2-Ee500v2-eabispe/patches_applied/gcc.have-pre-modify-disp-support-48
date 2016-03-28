@@ -1,0 +1,2009 @@
+
+ This patch implements -fuse-load-updates
+
+ Prior to this patch, GCC will only combine a load/store and unit-increment into a
+ load/store with update instruction. This patch adds support for the generation of
+ {load, store}-with-update instructions past non-unit increments.
+
+ -fuse-load-updates is ON by default for 64-bit and OFF by default for 32-bit
+
+ Cores supported: e5500, e6500, e500mc
+
+
+diff -ruN fsl-gcc-4.6.3-orig/gcc/common.opt fsl-gcc-4.6.3-new/gcc/common.opt
+--- fsl-gcc-4.6.3-orig/gcc/common.opt	2012-07-03 10:57:29.514254021 -0500
++++ fsl-gcc-4.6.3-new/gcc/common.opt	2012-08-07 17:09:35.144237725 -0500
+@@ -2051,6 +2051,14 @@
+ fuse-linker-plugin
+ Common Undocumented
+ 
++; Initialize flag_use_load_updates to -1
++; That way, it gets set to 1 on -fuse-load-updates and to 0 on -fno-use-load-updates
++; when these options are explicitly used by the user. This helps us default it to ON
++; on 64-bit and OFF in 32-bit
++fuse-load-updates
++Common Report Var(flag_use_load_updates) Init(-1) Optimization
++Support generation of {load, store}-with-update instructions past non-unit increments
++
+ ; Positive if we should track variables, negative if we should run
+ ; the var-tracking pass only to discard debug annotations, zero if
+ ; we're not to run it.  When flag_var_tracking == 2 (AUTODETECT_VALUE) it
+diff -ruN fsl-gcc-4.6.3-orig/gcc/config/rs6000/rs6000.c fsl-gcc-4.6.3-new/gcc/config/rs6000/rs6000.c
+--- fsl-gcc-4.6.3-orig/gcc/config/rs6000/rs6000.c	2012-07-03 10:57:32.327254002 -0500
++++ fsl-gcc-4.6.3-new/gcc/config/rs6000/rs6000.c	2012-08-07 17:00:31.646238146 -0500
+@@ -3476,6 +3476,12 @@
+     target_option_default_node = target_option_current_node
+       = build_target_option_node ();
+ 
++  /* If the user has not specified -fuse-load-updates nor -fno-use-load-updates
++   * in 64-bit, default to -fuse-load-updates
++   */
++  if (flag_use_load_updates == -1 && TARGET_64BIT)
++    flag_use_load_updates = 1;
++
+   return ret;
+ }
+ 
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-0.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-0.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-0.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-0.c	2012-08-22 14:33:28.016238008 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 " } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 2;
++		m += 2;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-10.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-10.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-10.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-10.c	2012-08-22 14:33:28.025237977 -0500
+@@ -0,0 +1,17 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += -1;
++		m += -1;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-11.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-11.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-11.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-11.c	2012-08-22 14:33:28.026237982 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += -1;
++		m += -1;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-12.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-12.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-12.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-12.c	2012-08-22 14:33:28.028238010 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 " } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += -2;
++		m += -2;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-13.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-13.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-13.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-13.c	2012-08-22 14:33:28.030238013 -0500
+@@ -0,0 +1,17 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += -2;
++		m += -2;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-14.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-14.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-14.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-14.c	2012-08-22 14:33:28.031238014 -0500
+@@ -0,0 +1,17 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += -2;
++		m += -2;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-15.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-15.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-15.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-15.c	2012-08-22 14:33:28.032238009 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += -2;
++		m += -2;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-16.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-16.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-16.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-16.c	2012-08-22 14:33:28.035237995 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 " } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m) {
++
++		s += 2;
++		m += 2;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-17.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-17.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-17.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-17.c	2012-08-22 14:33:28.035237995 -0500
+@@ -0,0 +1,17 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m) {
++
++		s += 2;
++		m += 2;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-18.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-18.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-18.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-18.c	2012-08-22 14:33:28.036237997 -0500
+@@ -0,0 +1,17 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m) {
++
++		s += 2;
++		m += 2;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-19.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-19.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-19.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-19.c	2012-08-22 14:33:28.038238005 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m) {
++
++		s += 2;
++		m += 2;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-1.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-1.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-1.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-1.c	2012-08-22 14:33:28.039238006 -0500
+@@ -0,0 +1,17 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 2;
++		m += 2;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-20.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-20.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-20.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-20.c	2012-08-22 14:33:28.040238005 -0500
+@@ -0,0 +1,18 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 " } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 2;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-21.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-21.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-21.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-21.c	2012-08-22 14:33:28.042237999 -0500
+@@ -0,0 +1,16 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 2;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "lbzu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-22.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-22.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-22.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-22.c	2012-08-22 14:33:28.043237999 -0500
+@@ -0,0 +1,16 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 2;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "lbzu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-23.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-23.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-23.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-23.c	2012-08-22 14:33:28.045238002 -0500
+@@ -0,0 +1,18 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 2;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-24.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-24.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-24.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-24.c	2012-08-22 14:33:28.046238003 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 " } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 2;
++		m += 2;
++	}
++
++	baz(s, m, end);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-25.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-25.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-25.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-25.c	2012-08-22 14:33:28.047238003 -0500
+@@ -0,0 +1,17 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 2;
++		m += 2;
++	}
++
++	baz(s, m, end);
++}
++
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-26.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-26.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-26.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-26.c	2012-08-22 14:33:28.048238003 -0500
+@@ -0,0 +1,17 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 2;
++		m += 2;
++	}
++
++	baz(s, m, end);
++}
++
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-27.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-27.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-27.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-27.c	2012-08-22 14:33:28.050238003 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 2;
++		m += 2;
++	}
++
++	baz(s, m, end);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-28.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-28.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-28.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-28.c	2012-08-22 14:33:28.056238004 -0500
+@@ -0,0 +1,20 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 " } */
++
++extern void baz(char *p, char *s);
++
++void foo(char *p, char *q, char *r, char *s)
++{
++        while (*p == *q && *p == *r && p < s) {
++
++		p += 2;
++		q += 2;
++		r += 2;
++	}
++
++	baz(p, s);
++}
++
++/* { dg-final { scan-assembler-times "addi" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-29.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-29.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-29.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-29.c	2012-08-22 14:33:28.058238001 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *p, char *s);
++
++void foo(char *p, char *q, char *r, char *s)
++{
++        while (*p == *q && *p == *r && p < s) {
++
++		p += 2;
++		q += 2;
++		r += 2;
++	}
++
++	baz(p, s);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-2.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-2.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-2.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-2.c	2012-08-22 14:33:28.059238002 -0500
+@@ -0,0 +1,17 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 2;
++		m += 2;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-30.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-30.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-30.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-30.c	2012-08-22 14:33:28.061238003 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *p, char *s);
++
++void foo(char *p, char *q, char *r, char *s)
++{
++        while (*p == *q && *p == *r && p < s) {
++
++		p += 2;
++		q += 2;
++		r += 2;
++	}
++
++	baz(p, s);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-31.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-31.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-31.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-31.c	2012-08-22 14:33:28.062238002 -0500
+@@ -0,0 +1,20 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *p, char *s);
++
++void foo(char *p, char *q, char *r, char *s)
++{
++        while (*p == *q && *p == *r && p < s) {
++
++		p += 2;
++		q += 2;
++		r += 2;
++	}
++
++	baz(p, s);
++}
++
++/* { dg-final { scan-assembler-times "addi" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-32.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-32.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-32.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-32.c	2012-08-22 14:33:28.063238001 -0500
+@@ -0,0 +1,20 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 " } */
++
++extern void baz(char *p, char *s);
++
++void foo(char *p, char *q, char *r, char *s)
++{
++        while (*p == *q && *p == *r && p < s) {
++
++		p += 2;
++		q += 3;
++		r += 7;
++	}
++
++	baz(p, s);
++}
++
++/* { dg-final { scan-assembler-times "addi" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-33.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-33.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-33.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-33.c	2012-08-22 14:33:28.065238002 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *p, char *s);
++
++void foo(char *p, char *q, char *r, char *s)
++{
++        while (*p == *q && *p == *r && p < s) {
++
++		p += 2;
++		q += 3;
++		r += 7;
++	}
++
++	baz(p, s);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-34.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-34.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-34.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-34.c	2012-08-22 14:33:28.066238003 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *p, char *s);
++
++void foo(char *p, char *q, char *r, char *s)
++{
++        while (*p == *q && *p == *r && p < s) {
++
++		p += 2;
++		q += 3;
++		r += 7;
++	}
++
++	baz(p, s);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-35.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-35.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-35.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-35.c	2012-08-22 14:33:28.067238003 -0500
+@@ -0,0 +1,20 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *p, char *s);
++
++void foo(char *p, char *q, char *r, char *s)
++{
++        while (*p == *q && *p == *r && p < s) {
++
++		p += 2;
++		q += 3;
++		r += 7;
++	}
++
++	baz(p, s);
++}
++
++/* { dg-final { scan-assembler-times "addi" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-36.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-36.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-36.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-36.c	2012-08-22 14:33:28.069238002 -0500
+@@ -0,0 +1,21 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 " } */
++
++extern void baz(char *p, char *s);
++
++void foo(char *p, char *q, char *r, char *s)
++{
++        while (*p && *q && *r && *s &&
++               *p == *q && *p == *r && *p == *s &&
++               *q == *r && *q == *s &&
++               *r == *s) {
++
++		p += 1;
++		q += 1;
++		r += 1;
++		s += 1;
++	}
++}
++
++/* { dg-final { scan-assembler-times "addi" 3 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-37.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-37.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-37.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-37.c	2012-08-22 14:33:28.070238004 -0500
+@@ -0,0 +1,21 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *p, char *s);
++
++void foo(char *p, char *q, char *r, char *s)
++{
++        while (*p && *q && *r && *s &&
++               *p == *q && *p == *r && *p == *s &&
++               *q == *r && *q == *s &&
++               *r == *s) {
++
++		p += 1;
++		q += 1;
++		r += 1;
++		s += 1;
++	}
++}
++
++/* { dg-final { scan-assembler-times "addi" 3 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-38.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-38.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-38.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-38.c	2012-08-22 14:33:28.071238002 -0500
+@@ -0,0 +1,21 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *p, char *s);
++
++void foo(char *p, char *q, char *r, char *s)
++{
++        while (*p && *q && *r && *s &&
++               *p == *q && *p == *r && *p == *s &&
++               *q == *r && *q == *s &&
++               *r == *s) {
++
++		p += 1;
++		q += 1;
++		r += 1;
++		s += 1;
++	}
++}
++
++/* { dg-final { scan-assembler-times "addi" 3 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-39.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-39.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-39.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-39.c	2012-08-22 14:33:28.072238001 -0500
+@@ -0,0 +1,21 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *p, char *s);
++
++void foo(char *p, char *q, char *r, char *s)
++{
++        while (*p && *q && *r && *s &&
++               *p == *q && *p == *r && *p == *s &&
++               *q == *r && *q == *s &&
++               *r == *s) {
++
++		p += 1;
++		q += 1;
++		r += 1;
++		s += 1;
++	}
++}
++
++/* { dg-final { scan-assembler-times "addi" 3 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-3.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-3.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-3.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-3.c	2012-08-22 14:33:28.074238003 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 2;
++		m += 2;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-40.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-40.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-40.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-40.c	2012-08-22 14:33:28.075238003 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 " } */
++
++extern void baz(int *s, int *m, int *end);
++
++void foo(int *s, int *m, int *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 1;
++		m += 1;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lwzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-41.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-41.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-41.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-41.c	2012-08-22 14:33:28.076238003 -0500
+@@ -0,0 +1,17 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(int *s, int *m, int *end);
++
++void foo(int *s, int *m, int *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 1;
++		m += 1;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "lwzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-42.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-42.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-42.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-42.c	2012-08-22 14:33:28.078238003 -0500
+@@ -0,0 +1,17 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(int *s, int *m, int *end);
++
++void foo(int *s, int *m, int *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 1;
++		m += 1;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "lwzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-43.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-43.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-43.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-43.c	2012-08-22 14:33:28.079238003 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(int *s, int *m, int *end);
++
++void foo(int *s, int *m, int *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 1;
++		m += 1;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lwzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-44.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-44.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-44.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-44.c	2012-08-22 14:33:28.080238003 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 " } */
++
++extern void baz(int *s, int *m, int *end);
++
++void foo(int *s, int *m, int *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 3;
++		m += 3;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lwzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-45.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-45.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-45.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-45.c	2012-08-22 14:33:28.082238003 -0500
+@@ -0,0 +1,17 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(int *s, int *m, int *end);
++
++void foo(int *s, int *m, int *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 3;
++		m += 3;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "lwzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-46.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-46.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-46.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-46.c	2012-08-22 14:33:28.083238003 -0500
+@@ -0,0 +1,17 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(int *s, int *m, int *end);
++
++void foo(int *s, int *m, int *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 3;
++		m += 3;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "lwzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-47.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-47.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-47.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-47.c	2012-08-22 14:33:28.084238003 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(int *s, int *m, int *end);
++
++void foo(int *s, int *m, int *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 3;
++		m += 3;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lwzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-48.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-48.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-48.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-48.c	2012-08-22 14:33:28.086238003 -0500
+@@ -0,0 +1,22 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 " } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 2;
++		m += 2;
++
++		*s = 0;
++		*m = 0;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stbu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-49.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-49.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-49.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-49.c	2012-08-22 14:33:28.087238003 -0500
+@@ -0,0 +1,20 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 2;
++		m += 2;
++
++		*s = 0;
++		*m = 0;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "stbu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-4.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-4.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-4.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-4.c	2012-08-22 14:33:28.088238003 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 " } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 1;
++		m += 1;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-50.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-50.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-50.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-50.c	2012-08-22 14:33:28.092238002 -0500
+@@ -0,0 +1,20 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 2;
++		m += 2;
++
++		*s = 0;
++		*m = 0;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "stbu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-51.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-51.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-51.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-51.c	2012-08-22 14:33:28.093238004 -0500
+@@ -0,0 +1,22 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 2;
++		m += 2;
++
++		*s = 0;
++		*m = 0;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stbu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-52.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-52.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-52.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-52.c	2012-08-22 14:33:28.095238004 -0500
+@@ -0,0 +1,22 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 " } */
++
++extern void baz(char *scan, char *match, char *strend);
++
++void foo(char *scan, char *match, char *strend)
++{
++        while (*scan == *match && scan > strend) {
++
++		scan  += -2;
++		match += -2;
++
++		*scan = 0;
++		*match = 0;
++	}
++
++	baz(scan, 0, strend);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stbu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-53.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-53.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-53.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-53.c	2012-08-22 14:33:28.096238002 -0500
+@@ -0,0 +1,20 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *scan, char *match, char *strend);
++
++void foo(char *scan, char *match, char *strend)
++{
++        while (*scan == *match && scan > strend) {
++
++		scan  += -2;
++		match += -2;
++
++		*scan = 0;
++		*match = 0;
++	}
++
++	baz(scan, 0, strend);
++}
++
++/* { dg-final { scan-assembler-times "stbu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-54.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-54.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-54.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-54.c	2012-08-22 14:33:28.097238001 -0500
+@@ -0,0 +1,20 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *scan, char *match, char *strend);
++
++void foo(char *scan, char *match, char *strend)
++{
++        while (*scan == *match && scan > strend) {
++
++		scan  += -2;
++		match += -2;
++
++		*scan = 0;
++		*match = 0;
++	}
++
++	baz(scan, 0, strend);
++}
++
++/* { dg-final { scan-assembler-times "stbu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-55.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-55.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-55.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-55.c	2012-08-22 14:33:28.099238003 -0500
+@@ -0,0 +1,22 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *scan, char *match, char *strend);
++
++void foo(char *scan, char *match, char *strend)
++{
++        while (*scan == *match && scan > strend) {
++
++		scan  += -2;
++		match += -2;
++
++		*scan = 0;
++		*match = 0;
++	}
++
++	baz(scan, 0, strend);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stbu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-56.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-56.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-56.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-56.c	2012-08-22 14:33:28.100238003 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 " } */
++
++extern void baz(char *s, char *m, char *strend);
++
++void foo(char *s, char *m, char *strend)
++{
++        while (*s == *m && s < strend) {
++
++		s += 2;
++		m -= 2;
++	}
++
++	baz(s, 0, strend);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-57.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-57.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-57.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-57.c	2012-08-22 14:33:28.101238003 -0500
+@@ -0,0 +1,17 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *strend);
++
++void foo(char *s, char *m, char *strend)
++{
++        while (*s == *m && s < strend) {
++
++		s += 2;
++		m -= 2;
++	}
++
++	baz(s, 0, strend);
++}
++
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-58.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-58.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-58.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-58.c	2012-08-22 14:33:28.103238003 -0500
+@@ -0,0 +1,17 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *strend);
++
++void foo(char *s, char *m, char *strend)
++{
++        while (*s == *m && s < strend) {
++
++		s += 2;
++		m -= 2;
++	}
++
++	baz(s, 0, strend);
++}
++
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-59.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-59.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-59.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-59.c	2012-08-22 14:33:28.104238003 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *strend);
++
++void foo(char *s, char *m, char *strend)
++{
++        while (*s == *m && s < strend) {
++
++		s += 2;
++		m -= 2;
++	}
++
++	baz(s, 0, strend);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-5.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-5.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-5.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-5.c	2012-08-22 14:33:28.105238003 -0500
+@@ -0,0 +1,17 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 1;
++		m += 1;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-60.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-60.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-60.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-60.c	2012-08-22 14:33:28.107238003 -0500
+@@ -0,0 +1,22 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 " } */
++
++extern void baz(char *scan, char *match, char *strend);
++
++void foo(char *scan, char *match, char *strend)
++{
++        while (*scan == *match && scan < strend) {
++
++		scan  += 1;
++		match += 1;
++
++		*scan = 0;
++		*match = 0;
++	}
++
++	baz(scan, 0, strend);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stbu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-61.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-61.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-61.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-61.c	2012-08-22 14:33:28.108238003 -0500
+@@ -0,0 +1,20 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *scan, char *match, char *strend);
++
++void foo(char *scan, char *match, char *strend)
++{
++        while (*scan == *match && scan < strend) {
++
++		scan  += 1;
++		match += 1;
++
++		*scan = 0;
++		*match = 0;
++	}
++
++	baz(scan, 0, strend);
++}
++
++/* { dg-final { scan-assembler-times "stbu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-62.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-62.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-62.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-62.c	2012-08-22 14:33:28.109238003 -0500
+@@ -0,0 +1,20 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *scan, char *match, char *strend);
++
++void foo(char *scan, char *match, char *strend)
++{
++        while (*scan == *match && scan < strend) {
++
++		scan  += 1;
++		match += 1;
++
++		*scan = 0;
++		*match = 0;
++	}
++
++	baz(scan, 0, strend);
++}
++
++/* { dg-final { scan-assembler-times "stbu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-63.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-63.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-63.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-63.c	2012-08-22 14:33:28.111238003 -0500
+@@ -0,0 +1,22 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *scan, char *match, char *strend);
++
++void foo(char *scan, char *match, char *strend)
++{
++        while (*scan == *match && scan < strend) {
++
++		scan  += 1;
++		match += 1;
++
++		*scan = 0;
++		*match = 0;
++	}
++
++	baz(scan, 0, strend);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stbu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-64.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-64.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-64.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-64.c	2012-08-22 14:33:28.112238003 -0500
+@@ -0,0 +1,22 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 " } */
++
++extern void baz(char *scan, char *match, char *strend);
++
++void foo(char *scan, char *match, char *strend)
++{
++        while (*scan == *match && scan > strend) {
++
++		scan  += -1;
++		match += -1;
++
++		*scan = 0;
++		*match = 0;
++	}
++
++	baz(scan, 0, strend);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stbu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-65.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-65.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-65.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-65.c	2012-08-22 14:33:28.113238003 -0500
+@@ -0,0 +1,20 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *scan, char *match, char *strend);
++
++void foo(char *scan, char *match, char *strend)
++{
++        while (*scan == *match && scan > strend) {
++
++		scan  += -1;
++		match += -1;
++
++		*scan = 0;
++		*match = 0;
++	}
++
++	baz(scan, 0, strend);
++}
++
++/* { dg-final { scan-assembler-times "stbu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-66.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-66.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-66.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-66.c	2012-08-22 14:33:28.115238003 -0500
+@@ -0,0 +1,20 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *scan, char *match, char *strend);
++
++void foo(char *scan, char *match, char *strend)
++{
++        while (*scan == *match && scan > strend) {
++
++		scan  += -1;
++		match += -1;
++
++		*scan = 0;
++		*match = 0;
++	}
++
++	baz(scan, 0, strend);
++}
++
++/* { dg-final { scan-assembler-times "stbu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-67.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-67.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-67.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-67.c	2012-08-22 14:33:28.116238003 -0500
+@@ -0,0 +1,22 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *scan, char *match, char *strend);
++
++void foo(char *scan, char *match, char *strend)
++{
++        while (*scan == *match && scan > strend) {
++
++		scan  += -1;
++		match += -1;
++
++		*scan = 0;
++		*match = 0;
++	}
++
++	baz(scan, 0, strend);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stbu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-68.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-68.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-68.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-68.c	2012-08-22 14:33:28.117238003 -0500
+@@ -0,0 +1,23 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 " } */
++
++extern void foo (char *p, char *q, const char *bound);
++
++void incrBytes(char *p, char *q, const char *bound)
++{
++	while (*p == *q && p < bound) {
++
++		p += 1;
++		*p = *p + 1;
++
++		q += 1;
++		*q = *q+ 1;
++
++	}
++
++	foo (p, 0, bound);
++}
++
++/* { dg-final { scan-assembler-times "addi" 3 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-69.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-69.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-69.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-69.c	2012-08-22 14:33:28.118238003 -0500
+@@ -0,0 +1,22 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void foo (char *p, char *q, const char *bound);
++
++void incrBytes(char *p, char *q, const char *bound)
++{
++	while (*p == *q && p < bound) {
++
++		p += 1;
++		*p = *p + 1;
++
++		q += 1;
++		*q = *q+ 1;
++
++	}
++
++	foo (p, 0, bound);
++}
++
++/* { dg-final { scan-assembler-times "addi" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-6.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-6.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-6.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-6.c	2012-08-22 14:33:28.120238003 -0500
+@@ -0,0 +1,17 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 1;
++		m += 1;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-70.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-70.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-70.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-70.c	2012-08-22 14:33:28.121238003 -0500
+@@ -0,0 +1,22 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void foo (char *p, char *q, const char *bound);
++
++void incrBytes(char *p, char *q, const char *bound)
++{
++	while (*p == *q && p < bound) {
++
++		p += 1;
++		*p = *p + 1;
++
++		q += 1;
++		*q = *q+ 1;
++
++	}
++
++	foo (p, 0, bound);
++}
++
++/* { dg-final { scan-assembler-times "addi" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-71.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-71.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-71.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-71.c	2012-08-22 14:33:28.123238003 -0500
+@@ -0,0 +1,23 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void foo (char *p, char *q, const char *bound);
++
++void incrBytes(char *p, char *q, const char *bound)
++{
++	while (*p == *q && p < bound) {
++
++		p += 1;
++		*p = *p + 1;
++
++		q += 1;
++		*q = *q+ 1;
++
++	}
++
++	foo (p, 0, bound);
++}
++
++/* { dg-final { scan-assembler-times "addi" 3 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-72.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-72.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-72.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-72.c	2012-08-22 14:33:28.124238003 -0500
+@@ -0,0 +1,29 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 " } */
++
++struct rx {
++ char **startp;
++};
++
++extern int *foo();
++
++int **bar(void)
++{
++ int **sp;
++ int iterations, i;
++ struct rx *rx;
++
++ for (i = i; i <= iterations; i++) {
++
++   ++sp;
++   *sp = foo();
++
++   if (rx->startp[i])
++     gorp();
++ }
++
++ return sp;
++}
++
++/* { dg-final { scan-assembler-times "addi" 3 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-73.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-73.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-73.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-73.c	2012-08-22 14:33:28.125238003 -0500
+@@ -0,0 +1,29 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++struct rx {
++ char **startp;
++};
++
++extern int *foo();
++
++int **bar(void)
++{
++ int **sp;
++ int iterations, i;
++ struct rx *rx;
++
++ for (i = i; i <= iterations; i++) {
++
++   ++sp;
++   *sp = foo();
++
++   if (rx->startp[i])
++     gorp();
++ }
++
++ return sp;
++}
++
++/* { dg-final { scan-assembler-times "addi" 3 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stwu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-74.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-74.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-74.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-74.c	2012-08-22 14:33:28.127238003 -0500
+@@ -0,0 +1,29 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++struct rx {
++ char **startp;
++};
++
++extern int *foo();
++
++int **bar(void)
++{
++ int **sp;
++ int iterations, i;
++ struct rx *rx;
++
++ for (i = i; i <= iterations; i++) {
++
++   ++sp;
++   *sp = foo();
++
++   if (rx->startp[i])
++     gorp();
++ }
++
++ return sp;
++}
++
++/* { dg-final { scan-assembler-times "addi" 3 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stwu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-75.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-75.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-75.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-75.c	2012-08-22 14:33:28.142238004 -0500
+@@ -0,0 +1,29 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++struct rx {
++ char **startp;
++};
++
++extern int *foo();
++
++int **bar(void)
++{
++ int **sp;
++ int iterations, i;
++ struct rx *rx;
++
++ for (i = i; i <= iterations; i++) {
++
++   ++sp;
++   *sp = foo();
++
++   if (rx->startp[i])
++     gorp();
++ }
++
++ return sp;
++}
++
++/* { dg-final { scan-assembler-times "addi" 3 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 2 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-76.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-76.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-76.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-76.c	2012-08-22 14:33:28.143238004 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 " } */
++
++void *memset(void *b, int c, unsigned long len)
++{
++        unsigned long i;
++
++        for (i = 0; i < len; i++)
++                ((unsigned char *)b)[i] = c;
++
++        return b;
++}
++
++/* NOTE: We ought to get at-least one stwu - there is some vector related stuff that
++ *       we need to take into consideration under -fuse-load-updates. With plain
++ *       vanilla GCC, we do get one stwu, so we are actually degrading performance
++ *       by not taking the "vector stuff" into account. */
++
++/* { dg-final { scan-assembler-times "addi" 4 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-77.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-77.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-77.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-77.c	2012-08-22 14:33:28.143238005 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++void *memset(void *b, int c, unsigned long len)
++{
++        unsigned long i;
++
++        for (i = 0; i < len; i++)
++                ((unsigned char *)b)[i] = c;
++
++        return b;
++}
++
++/* NOTE: We ought to get at-least one stwu - there is some vector related stuff that
++ *       we need to take into consideration under -fuse-load-updates. With plain
++ *       vanilla GCC, we do get one stwu, so we are actually degrading performance
++ *       by not taking the "vector stuff" into account. */
++
++/* { dg-final { scan-assembler-times "addi" 4 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-78.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-78.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-78.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-78.c	2012-08-22 14:33:28.145237999 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++void *memset(void *b, int c, unsigned long len)
++{
++        unsigned long i;
++
++        for (i = 0; i < len; i++)
++                ((unsigned char *)b)[i] = c;
++
++        return b;
++}
++
++/* NOTE: We ought to get at-least one stwu - there is some vector related stuff that
++ *       we need to take into consideration under -fuse-load-updates. With plain
++ *       vanilla GCC, we do get one stwu, so we are actually degrading performance
++ *       by not taking the "vector stuff" into account. */
++
++/* { dg-final { scan-assembler-times "addi" 4 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-79.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-79.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-79.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-79.c	2012-08-22 14:33:28.146237999 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++void *memset(void *b, int c, unsigned long len)
++{
++        unsigned long i;
++
++        for (i = 0; i < len; i++)
++                ((unsigned char *)b)[i] = c;
++
++        return b;
++}
++
++/* NOTE: We ought to get at-least one stwu - there is some vector related stuff that
++ *       we need to take into consideration under -fuse-load-updates. With plain
++ *       vanilla GCC, we do get one stwu, so we are actually degrading performance
++ *       by not taking the "vector stuff" into account. */
++
++/* { dg-final { scan-assembler-times "addi" 4 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-7.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-7.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-7.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-7.c	2012-08-22 14:33:28.148238002 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += 1;
++		m += 1;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-8.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-8.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-8.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-8.c	2012-08-22 14:33:28.149238004 -0500
+@@ -0,0 +1,19 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-O3 " } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += -1;
++		m += -1;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "addi" 1 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
++/* { dg-final { scan-assembler-times "stdu" 1 { target powerpc*-*-* } } } */
+diff -ruN fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-9.c fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-9.c
+--- fsl-gcc-4.6.3-orig/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-9.c	1969-12-31 18:00:00.000000000 -0600
++++ fsl-gcc-4.6.3-new/gcc/testsuite/gcc.dg/tree-ssa/fsl-use-load-updates-9.c	2012-08-22 14:33:28.150238002 -0500
+@@ -0,0 +1,17 @@
++/* { dg-do compile { target { powerpc*-*-* && ilp32 } } } */
++/* { dg-options "-O3 -fuse-load-updates" } */
++
++extern void baz(char *s, char *m, char *end);
++
++void foo(char *s, char *m, char *end)
++{
++        while (*s == *m && s < end) {
++
++		s += -1;
++		m += -1;
++	}
++
++	baz(s, 0, end);
++}
++
++/* { dg-final { scan-assembler-times "lbzu" 2 { target powerpc*-*-* } } } */
+--- gcc-4.8.0-orig/gcc/tree-ssa-loop-ivopts.c	2013-02-20 03:03:18.000000000 -0600
++++ gcc-4.8.0-new/gcc/tree-ssa-loop-ivopts.c	2013-05-07 15:29:24.360000597 -0500
+@@ -2322,6 +2322,8 @@
+   return false;
+ }
+ 
++#define WANT_LOAD_UPDATES (flag_use_load_updates == 1)
++
+ /* If possible, adds autoincrement candidates BASE + STEP * i based on use USE.
+    Important field is set to IMPORTANT.  */
+ 
+@@ -2351,7 +2353,10 @@
+        && GET_MODE_SIZE (mem_mode) == cstepi)
+       || ((USE_LOAD_PRE_DECREMENT (mem_mode)
+ 	   || USE_STORE_PRE_DECREMENT (mem_mode))
+-	  && GET_MODE_SIZE (mem_mode) == -cstepi))
++	  && GET_MODE_SIZE (mem_mode) == -cstepi)
++      || (WANT_LOAD_UPDATES && HAVE_PRE_MODIFY_DISP
++	  && (GET_MODE_SIZE (mem_mode) != 0
++	      && cstepi % GET_MODE_SIZE (mem_mode) == 0)))
+     {
+       enum tree_code code = MINUS_EXPR;
+       tree new_base;
+@@ -3150,6 +3155,7 @@
+   address_cost_data data;
+   static bool has_preinc[MAX_MACHINE_MODE], has_postinc[MAX_MACHINE_MODE];
+   static bool has_predec[MAX_MACHINE_MODE], has_postdec[MAX_MACHINE_MODE];
++  static bool has_premod_d[MAX_MACHINE_MODE];
+   unsigned cost, acost, complexity;
+   bool offset_p, ratio_p, autoinc;
+   HOST_WIDE_INT s_offset, autoinc_offset, msize;
+@@ -3250,6 +3256,14 @@
+ 	  has_postinc[mem_mode]
+ 	    = memory_address_addr_space_p (mem_mode, addr, as);
+ 	}
++      if (WANT_LOAD_UPDATES && HAVE_PRE_MODIFY_DISP)
++	{
++	  addr = gen_rtx_PRE_MODIFY (address_mode, reg0,
++	                             gen_rtx_PLUS (address_mode, reg0,
++	                                           GEN_INT (cstep)));
++	  has_premod_d[mem_mode]
++	    = memory_address_addr_space_p (mem_mode, addr, as);
++	}
+       for (i = 0; i < 16; i++)
+ 	{
+ 	  sym_p = i & 1;
+@@ -3358,7 +3372,8 @@
+ 	      fprintf (dump_file, "index costs %d\n", acost);
+ 	    }
+ 	  if (has_predec[mem_mode] || has_postdec[mem_mode]
+-	      || has_preinc[mem_mode] || has_postinc[mem_mode])
++	      || has_preinc[mem_mode] || has_postinc[mem_mode]
++	      || (WANT_LOAD_UPDATES && has_premod_d[mem_mode]))
+ 	    fprintf (dump_file, "  May include autoinc/dec\n");
+ 	  fprintf (dump_file, "\n");
+ 	}
+@@ -3387,7 +3402,11 @@
+ 	   || (has_preinc[mem_mode] && autoinc_offset == msize
+ 	       && msize == cstep)
+ 	   || (has_predec[mem_mode] && autoinc_offset == -msize
+-	       && msize == -cstep))
++	       && msize == -cstep)
++	   || (WANT_LOAD_UPDATES && has_premod_d[mem_mode]
++	       && msize != 0
++	       && autoinc_offset % msize == 0
++	       && cstep % msize == 0))
+     autoinc = true;
+ 
+   cost = 0;

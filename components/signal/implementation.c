@@ -32,10 +32,10 @@ static struct signal signal_tasks;
 /*| function_like_macros |*/
 
 [[#prio_inherit]]
-#define signal_wait_blocked_on(requested_signals, blocker) signal_wait_set_blocked_on(requested_signals, blocker)
+#define signal_wait_blocked_on(requested_signals, blocker) (void)signal_wait_set_blocked_on(requested_signals, blocker)
 #define signal_wait_set(requested_signals) signal_wait_set_blocked_on(requested_signals, TASK_ID_NONE)
 [[/prio_inherit]]
-#define signal_wait(requested_signals) signal_wait_set(requested_signals)
+#define signal_wait(requested_signals) (void)signal_wait_set(requested_signals)
 #define signal_peek(pending_signals, requested_signals) (((pending_signals) & (requested_signals)) != {{prefix_const}}SIGNAL_SET_EMPTY)
 #define signal_pending(task_id, mask) ((PENDING_SIGNALS(task_id) & mask) == mask)
 #define PENDING_SIGNALS(task_id) signal_tasks.tasks[task_id].signals

@@ -1,4 +1,5 @@
 /*| headers |*/
+#include <stddef.h>
 
 /*| object_like_macros |*/
 #define MESSAGE_QUEUE_ID_NONE ((MessageQueueIdOption)UINT8_C(255))
@@ -13,7 +14,7 @@ struct message_queue
 {
     /* pointer to the array holding the message data
      * the array contains message_size * queue_length bytes */
-    uint8_t *messages;
+    /*@shared@*/ uint8_t *messages; /* "shared" tells splint that message_queue_{name}_messages may be accessed directly, not only through this field */
     /* size of each message in bytes */
     const uint8_t message_size;
     /* maximum number of messages this queue can hold */
@@ -33,7 +34,12 @@ struct message_queue
 /*| state |*/
 {{#message_queues.length}}
 {{#message_queues}}
+{{#message_size}}
 static uint8_t message_queue_{{name}}_messages[{{queue_length}}][{{message_size}}];
+{{/message_size}}
+{{#message_type}}
+static uint8_t message_queue_{{name}}_messages[{{queue_length}}][sizeof({{message_type}})];
+{{/message_type}}
 {{/message_queues}}
 static struct message_queue message_queues[] =
 {
@@ -91,12 +97,12 @@ message_queue_init(void)
     {
         struct message_queue *mq = &message_queues[message_queue];
 
-        internal_assert(mq->messages &&
-                        mq->message_size &&
-                        mq->queue_length &&
-                        !mq->head &&
-                        !mq->available, ERROR_ID_MESSAGE_QUEUE_INTERNAL_INCORRECT_INITIALIZATION);
-    } while (message_queue--);
+        internal_assert(mq->messages != NULL &&
+                        mq->message_size != 0 &&
+                        mq->queue_length != 0 &&
+                        mq->head == 0 &&
+                        mq->available == 0, ERROR_ID_MESSAGE_QUEUE_INTERNAL_INCORRECT_INITIALIZATION);
+    } while (message_queue-- != 0);
 
     for (task = 0; task <= {{prefix_const}}TASK_ID_MAX; task += 1)
     {
@@ -130,7 +136,7 @@ message_queue_invariants_check(void)
     {
         const struct message_queue *const mq = &message_queues[message_queue];
 
-        internal_assert(mq->messages && mq->message_size && mq->queue_length,
+        internal_assert(mq->messages != NULL && mq->message_size != 0 && mq->queue_length != 0,
                         ERROR_ID_MESSAGE_QUEUE_INTERNAL_VIOLATED_INVARIANT_CONFIGURATION);
         internal_assert(mq->head < mq->queue_length, ERROR_ID_MESSAGE_QUEUE_INTERNAL_VIOLATED_INVARIANT_INVALID_HEAD);
         internal_assert(mq->available <= mq->queue_length,
@@ -200,7 +206,7 @@ message_queue_wait_timeout(const {{prefix_type}}MessageQueueId message_queue,
                            const {{prefix_type}}TicksRelative timeout) {{prefix_const}}REENTRANT
 {
     message_queue_internal_assert_valid(message_queue);
-    internal_assert(timeout, ERROR_ID_MESSAGE_QUEUE_INTERNAL_ZERO_TIMEOUT);
+    internal_assert(timeout != 0, ERROR_ID_MESSAGE_QUEUE_INTERNAL_ZERO_TIMEOUT);
     message_queue_invariants_check();
 
     message_queue_waiters[get_current_task()] = message_queue;
@@ -243,7 +249,7 @@ void
 }
 
 bool
-{{prefix_func}}message_queue_try_put(const {{prefix_type}}MessageQueueId message_queue, const void *message)
+{{prefix_func}}message_queue_try_put(const {{prefix_type}}MessageQueueId message_queue, const void *const message)
 {
     message_queue_api_assert_valid(message_queue);
     api_assert(message, ERROR_ID_MESSAGE_QUEUE_INVALID_POINTER);
@@ -282,7 +288,7 @@ bool
 
     message_queue_api_assert_valid(message_queue);
     api_assert(message, ERROR_ID_MESSAGE_QUEUE_INVALID_POINTER);
-    api_assert(timeout, ERROR_ID_MESSAGE_QUEUE_ZERO_TIMEOUT);
+    api_assert(timeout != 0, ERROR_ID_MESSAGE_QUEUE_ZERO_TIMEOUT);
     internal_assert({{prefix_func}}timer_current_ticks < (UINT32_MAX - timeout),\
                     ERROR_ID_MESSAGE_QUEUE_INTERNAL_TICK_OVERFLOW);
     message_queue_invariants_check();
@@ -310,7 +316,7 @@ void
 }
 
 bool
-{{prefix_func}}message_queue_try_get(const {{prefix_type}}MessageQueueId message_queue, void *message)
+{{prefix_func}}message_queue_try_get(const {{prefix_type}}MessageQueueId message_queue, void *const message)
 {
     message_queue_api_assert_valid(message_queue);
     api_assert(message, ERROR_ID_MESSAGE_QUEUE_INVALID_POINTER);
@@ -326,7 +332,7 @@ bool
         else
         {
             const uint16_t buffer_offset = mq->head * mq->message_size;
-            memcopy((uint8_t*)message, &mq->messages[buffer_offset], mq->message_size);
+            memcopy((uint8_t *const)message, &mq->messages[buffer_offset], mq->message_size);
             mq->head = (mq->head + 1) % mq->queue_length;
             mq->available -= 1;
 
@@ -349,7 +355,7 @@ bool
 
     message_queue_api_assert_valid(message_queue);
     api_assert(message, ERROR_ID_MESSAGE_QUEUE_INVALID_POINTER);
-    api_assert(timeout, ERROR_ID_MESSAGE_QUEUE_ZERO_TIMEOUT);
+    api_assert(timeout != 0, ERROR_ID_MESSAGE_QUEUE_ZERO_TIMEOUT);
     internal_assert({{prefix_func}}timer_current_ticks < (UINT32_MAX - timeout),\
                     ERROR_ID_MESSAGE_QUEUE_INTERNAL_TICK_OVERFLOW);
     message_queue_invariants_check();

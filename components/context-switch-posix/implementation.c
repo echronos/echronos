@@ -1,4 +1,5 @@
 /*| headers |*/
+/* The dependency on ucontext excludes certain posix-ish platforms, such as mingw on Windows */
 #include <ucontext.h>
 #include <stdint.h>
 #include <stddef.h>

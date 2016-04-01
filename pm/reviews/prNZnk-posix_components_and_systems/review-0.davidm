@@ -19,3 +19,5 @@ Location: packages/posix/{acamar, acrux, gatria, kraz}.py:31
 Comment: What happens if we try to compile or run the tests on MinGW with these
          changes? Does it break somewhere? Would it make sense to raise an
          explicit exception stating that MinGW is not supported?
+
+[stg: added comments documenting this fact to x.py and the POSIX context-switch component]

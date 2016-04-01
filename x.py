@@ -125,6 +125,8 @@ logger.setLevel(logging.INFO)
 topdir = os.path.normpath(os.path.dirname(__file__))
 
 
+# The POSIX context switch component depends on ucontext.h which is supported on real POSIX platforms,
+# on cygwin, but not on MinGW
 CORE_CONFIGURATIONS = {"posix": ["sched-rr-test", "sched-prio-inherit-test", "simple-mutex-test",
                                  "blocking-mutex-test", "simple-semaphore-test", "sched-prio-test",
                                  "acamar", "gatria", "kraz", "acrux", "rigel"],

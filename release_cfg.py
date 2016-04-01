@@ -702,3 +702,9 @@ class PowerPCe500Linux(Standard):
     extra_files = [
         ('README.md', 'docs/ppce500_kochab_readme.md'),
     ]
+
+
+class Posix(Standard):
+    packages = ['posix']
+    platforms = ['x86_64-apple-darwin', 'x86_64-unknown-linux-gnu', 'win32']
+    release_name = 'posix'

@@ -611,6 +611,7 @@ class System:
         self._c_files = []
         self._asm_files = []
         self._linker_script = None
+        self._include_paths = []
         self._output = None
         self.__instances = None
 
@@ -637,7 +638,7 @@ class System:
 
     @property
     def include_paths(self):
-        return [self.output]
+        return [self.output] + self._include_paths
 
     @property
     def c_files(self):
@@ -668,6 +669,9 @@ class System:
         extension = os.path.splitext(path)[1]
         add_functions[extension](path)
 
+    def add_include_path(self, path):
+        self._include_paths.append(path)
+
     @property
     def image(self):
         """The image of this system once built.
@@ -691,6 +695,8 @@ class System:
         Returns a list of instances of class ModuleInstance.
 
         """
+        self._parse_include_paths()
+
         # Parse the DOM to load all the entities.
         module_el = single_named_child(self.dom, 'modules')
         module_els = [e for e in module_el.childNodes if e.nodeType == e.ELEMENT_NODE and e.tagName == 'module']
@@ -759,6 +765,31 @@ class System:
             i.validate()
 
         return instances
+
+    def _parse_include_paths(self):
+        # Parse the DOM to load any additional include paths
+        include_el = maybe_single_named_child(self.dom, 'include_paths')
+
+        if include_el is None:
+            return
+
+        # Find all include elements, ignoring any that are empty
+        include_els = [e for e in include_el.childNodes
+                       if e.nodeType == e.ELEMENT_NODE and e.tagName == 'include_path' and e.firstChild]
+
+        for i_el in include_els:
+            path = i_el.firstChild.nodeValue
+
+            # If we aren't given an absolute path treat it as relative the base path
+            if not os.path.isabs(path):
+                inc_path = os.path.join(os.getcwd(), path)
+
+                # Absolute paths make it very obvious what directory prj is actually including
+                path = os.path.abspath(inc_path)
+
+            path = os.path.normpath(path)
+            self.add_include_path(path)
+            logger.info("Added include path: %s", path)
 
     def generate(self, *, copy_all_files):
         """Generate the source for the system.

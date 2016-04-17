@@ -1,0 +1,14 @@
+RTOS Task Review
+=======================
+
+Task name: rDzBUS-easier_third_party_library_inclusion
+Version reviewed: 18c436347790eeac7bfd08428832700821974169
+Reviewer: stg
+Date: 2015-12-17
+Conclusion: Rework
+
+Overall comments:
+
+Comment 1: Rework
+The approach seems unnecessarily complex to me.
+Let us discuss this before proceeding.

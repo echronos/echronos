@@ -1,0 +1,35 @@
+RTOS Task Review
+=======================
+
+Task name: rDzBUS-easier_third_party_library_inclusion
+Version reviewed: 18c436347790eeac7bfd08428832700821974169
+Reviewer: ihor.kuz
+Date: 2015-12-21
+Conclusion: Rework
+
+Overall comments:
+The task implementation is good. 
+Most of the comments are just about aligning the task description with what has actually been done.
+
+
+Specific comments
+=================
+
+Location: pm/tasks/rDzBUS-easier_third_party_library_inclusion
+Comment: [rework]
+I think it would be useful to update the task description (suggested implementation part) to better match what you've ultimately implemented.
+
+Location: pm/tasks/rDzBUS-easier_third_party_library_inclusion:70
+Comment: [rework]
+There is a section in the task description that mentions having to remove an overly strict syntax check.  
+However, the check is not removed in this task (only an improved error message is added).  Why?
+
+Location: prj/app/prj.py:784
+Comment: [rework]
+There's a comment that says "facilite sets of subdirectories in one place". I'm not sure what "facilite"
+means. Is this a typo?
+
+Location: packages/armv7m/vectable.py
+Comment: [rework]
+It is unclear why commit b330de7e49f837911b5b6c42157e9a47d36ece3d (Added more informative error message for problems during bitband macro replacement) is part of this task.  
+Perhaps more information in the commit message would make it clearer.

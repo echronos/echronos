@@ -118,12 +118,13 @@ An example system definition file:
     </system>
 
 The system definition file has a top-level `system` element.
-The `system` element should contain a `module` element.
+The `system` element should contain a `modules` element.
 The `modules` element should contain 1 or more `module` elements.
 Each `module` element must have a `name` attribute.
 The `prj` tool will search for the module entity based on the `name` attribute.
 `module` entities are described in the following section.
 The `module` element can have child elements that define the way in which the module is configured.
+The `system` element can optionally contain an `include_paths` element.
 
 ### Module
 
@@ -154,6 +155,37 @@ Consequently when naming top-level configuration parameters for modules, the nam
 
 **Future:** Modules that support multiple inclusion in a system vs. single inclusion in a system.
 
+### Include Paths
+
+A *system* can optionally contain an `include_paths` element, which is used to indicate any additional paths that should be searched for header files during the system build process.
+A possible use-case for `include_path` declarations is for indicating library directories containing large sets of headers that refer to each other with relative paths.
+Note that `include_path` declarations are not intended as a substitute for the use of *modules* in new code, but to make existing libraries easier to integrate into an RTOS project.
+
+An example system definition file that contains `include_path` elements:
+
+    <system>
+     <include_paths>
+        <include_path>/etc/lib/stdlib_hook/src/include</include_path>
+        <include_path>/etc/lib/another_lib</include_path>
+        <include_path>some/relative/lib</include_path>
+     </include_paths>
+     <modules>
+      <module name="posix-build" />
+      <module name="rtos-acamar">
+        <taskid_size>8</taskid_size>
+           <num_tasks>2</num_tasks>
+      </module>
+      <module name="example/acamar-test" />
+     </modules>
+    </system>
+
+To clarify the behaviour of these commands, if the above system were to be parsed by prj, the following would occur:
+
+    INFO:prj:Added include path: /etc/lib/stdlib_hook/src/include
+    INFO:prj:Added include path: /etc/lib/another_lib
+    INFO:prj:Added include path: /dev/my_package/some/relative/lib
+
+Note that the base path for relative declarations is the current working directory from which prj is invoked.
 
 ### Package
 

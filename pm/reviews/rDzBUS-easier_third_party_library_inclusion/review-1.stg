@@ -1,0 +1,24 @@
+RTOS Task Review
+=======================
+
+Task name: rDzBUS-easier_third_party_library_inclusion
+Version reviewed: 486304b9f28897bca1f66e8f69810227c24c97fd
+Reviewer: stg
+Date: 2016-01-06
+Conclusion: Rework
+
+
+Specific comments
+=================
+
+Location: prj/app/prj.py
+Comment 1: Rework
+The variable name `_additional_includes` seems to refer to individual "includes" where it is not quite clear what that is.
+However, the variable stores "header search paths" or less formally "include paths".
+Also, the name is inconsistent with the "include_paths" configuration item in system configuration files.
+For clarity and consistency, I recommend this variable (and related functions etc.) to be called "_include_paths".
+
+Location: prj/manual/prj-user-manual.md:162
+Comment 2: Rework
+I do not understand the meaning of the sentence "It is important to note that [...]".
+Please rephrase it for clarity.

@@ -1,0 +1,61 @@
+Task: rDzBUS-easier_third_party_library_inclusion
+==============================================================================
+
+Motivation
+----------
+
+- Currently there's no easy way of using large amounts of headers (as in common when working with third-party libraries), in an RTOS project.
+
+- A possible solution is to create a .c file that contains a schema forcing prj to include all of the headers i.e:
+
+    /*<module>
+    <headers>
+        <header path="clock_driver.h" />
+        <header path="smaccm_decls.h" />
+        <header path="smaccm_receiver2.h" />
+        <header path="smaccm_receiver.h" />
+        <header path="smaccm_sender.h" />
+        <header path="smaccm_test1_impl_types.h" />
+    </headers>
+    </module>*/
+    ... more c code
+
+- However the problem with this is interdependency using relative paths - for example, in the TI libraries, there are hundreds of header files & c files with include declarations of the form:
+
+    #include <stdbool.h>
+    #include <stdint.h>
+    #include "inc/hw_memmap.h"
+    #include "inc/hw_types.h"
+    #include "inc/hw_ints.h"
+    #include "driverlib/gpio.h"
+    #include "driverlib/pin_map.h"
+    #include "driverlib/rom.h"
+    #include "driverlib/rom_map.h"
+    #include "driverlib/sysctl.h"
+    #include "driverlib/interrupt.h"
+    ...
+
+- This means that, as prj moves every interdependent file to one directory before final compilation, these relative links break.
+
+Goals
+--------
+
+- Make it easier to include large sets of third-party libraries with prj, with declarations in systems i.e:
+
+    <system>
+     <include_paths>
+        <include_path>/etc/lib/stdlib_hook/src/include</include_path>
+        <include_path>/etc/lib/another_lib</include_path>
+        <include_path>some/relative/lib</include_path>
+     </include_paths>
+     <modules>
+        ...
+     </modules>
+    </system>
+
+Test Plan
+---------
+
+- Ensure that adding this functionality doesn't adversely affect other areas of prj.
+
+- Verify that include paths are correctly interpreted by gcc (or the chosen compiler), and fed through other preprocessing systems without error (i.e ARM vectable preprocessing)

@@ -1,0 +1,20 @@
+RTOS Task Review
+=======================
+
+Task name: fTNOYE-remove_python
+Version reviewed: b7ed940a81d3f0eec77ff08a83be207dc0bb19c9
+Reviewer: olivier
+Date: 2016-04-18
+Conclusion: Accepted/Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: filename:linenum
+Comment:
+
+Location: filename:linenum
+Comment:

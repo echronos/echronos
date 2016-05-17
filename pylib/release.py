@@ -432,7 +432,13 @@ def build_single_release(config, topdir):
         for file_name in os.listdir(prj_build_dir):
             # mark all files except the zipped prj 'binary' as executable because prj cannot be executed itself
             file_filter = functools.partial(_tar_info_filter, execute_permission=not file_name.endswith('prj'))
-            arcname = '{}/bin/{}'.format(basename, file_name)  # deliberately use '/' as the cross-platform delimiter
+            # The path in the following 'arcname' variable is the path stored inside the zip file.
+            # I.e., any tools that decompress the zip file need to handle that path.
+            # Non-windows tools generally do not handle a backslash character correctly as a path separator.
+            # However, forward-slash characters work as path separators on Windows and non-Windows platforms.
+            # Therefore, the following path deliberately uses '/' forward slashes as path separators.
+            # This ensures that prj zip files created on any platform work on any other platform.
+            arcname = '{}/bin/{}'.format(basename, file_name)
             tf.add(os.path.join(prj_build_dir, file_name), arcname=arcname, filter=file_filter)
 
         if config.top_level_license is not None:

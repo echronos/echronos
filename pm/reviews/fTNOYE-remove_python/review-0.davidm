@@ -20,6 +20,8 @@ Location: x.py:46
 Comment: Considering that we do not explicitly require Python 3.3 anymore,
          should these explicit mentions of Python 3.3 be replaced by Python 3?
 
+[stg: That is correct. Resolved as suggested.]
+
 Location: pylib/release.py:434
 Comment: "# mark all files except the zipped prj 'binary' as executable because prj cannot be executed itself
           filter = functools.partial(_tar_info_filter, execute_permission=not file_name.endswith('prj'))"

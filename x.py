@@ -43,7 +43,7 @@ One of the main tasks of `x.py` is to create the releasable artifacts (i.e.: thi
 
 prj will be distributed in source format for now as the customer likes it that way, and also because of the
 impracticality of embedding python3 into a distributable .exe .
-The enduser will need to install Python 3.3.
+The enduser will need to install Python 3.
 The tool can be embedded (not installed) into a project tree (i.e.: used inplace).
 
 ### Package release information

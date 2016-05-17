@@ -431,9 +431,9 @@ def build_single_release(config, topdir):
         prj_build_dir = 'prj_build'
         for file_name in os.listdir(prj_build_dir):
             # mark all files except the zipped prj 'binary' as executable because prj cannot be executed itself
-            filter = functools.partial(_tar_info_filter, execute_permission=not file_name.endswith('prj'))
+            file_filter = functools.partial(_tar_info_filter, execute_permission=not file_name.endswith('prj'))
             arcname = '{}/bin/{}'.format(basename, file_name)  # deliberately use '/' as the cross-platform delimiter
-            tf.add(os.path.join(prj_build_dir, file_name), arcname=arcname, filter=filter)
+            tf.add(os.path.join(prj_build_dir, file_name), arcname=arcname, filter=file_filter)
 
         if config.top_level_license is not None:
             _tar_add_data(tf, '{}/LICENSE'.format(basename),

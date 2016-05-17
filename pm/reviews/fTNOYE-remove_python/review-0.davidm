@@ -32,6 +32,8 @@ Comment: "# mark all files except the zipped prj 'binary' as executable because 
           or does not have a side-effect in Python, and I think it is a good
           habit to maintain. Feel free to ignore this comment.
 
+[stg: Agreed. Resolved as suggested]
+
 Location: pylib/release.py:435
 Comment: Why do we use '/' as a delimiter here? Would it be worth mentioning
          in the comment why we do it, rather than just mentioning that we do it?

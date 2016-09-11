@@ -5,16 +5,12 @@ Task name: prNZnk-posix_components_and_systems
 Version reviewed: a31d79658276896f55a704ae775a39f032668096
 Reviewer: benno
 Date: 2016-04-18
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
+I think that the change to the machine timer interfaces needs some work.
+The bouncing from 'application' => 'driver' => 'application' seem unnecessary.
+(i.e.: the tick_interrupt => machine_timer_tick_isr => application_tick_isr)
 
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+This either needs to be documented better with the rationale, or an alternative determined.

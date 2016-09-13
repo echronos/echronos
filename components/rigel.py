@@ -121,18 +121,16 @@ def assign_signal_vals(sig_sets):
     possible_vals = set(range(len(signals)))
 
     assigned = {}
-    # Sort the signals so that assign_signal_vals is deterministic based on
-    # input. Without sorting Python iterates the signals set in arbitrary
-    # order (that possibly changes on each Python invocation based on the hashing
-    # seed).
+    # Sort the signals so that assign_signal_vals is deterministic based on input.
+    # Without sorting Python iterates the signals set in arbitrary order.
+    # Note that possibly changes on each Python invocation based on the hashing seed.
     for sig in sorted(signals):
         used_vals = [{assigned.get(ss) for ss in sig_set} for sig_set in sig_sets if sig in sig_set]
         assigned[sig] = min(possible_vals.difference(*used_vals))
 
     assert all(len({assigned[x] for x in sig_set}) == len(sig_set) for sig_set in sig_sets)
 
-    # Returned dictionary should only be used for lookup, not iteration to ensure
-    # overall process in deterministic.
+    # Returned dictionary should only be used for lookup, not iteration to ensure overall process is deterministic.
     return assigned
 
 

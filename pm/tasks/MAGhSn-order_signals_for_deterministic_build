@@ -19,4 +19,6 @@ Test Plan
 ---------
 
 This should not change the behaviour of any existing tests.
-A test should be added to ensure that running template generation twice produces the same result.
+Creating a test for this behaviour is not easily done within the existing test framework.
+Verification of the improvement will be done through code review.
+

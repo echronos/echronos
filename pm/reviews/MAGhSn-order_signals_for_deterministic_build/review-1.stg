@@ -1,0 +1,20 @@
+RTOS Task Review
+=======================
+
+Task name: MAGhSn-order_signals_for_deterministic_build
+Version reviewed: e14b5b1c453e37621da501368895f4a9a96f511b
+Reviewer: stg
+Date: 2016-09-13
+Conclusion: Accepted/Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: filename:linenum
+Comment:
+
+Location: filename:linenum
+Comment:

@@ -5,7 +5,7 @@ Task name: MAGhSn-order_signals_for_deterministic_build
 Version reviewed: 0489aceedc72c4bb2365e98b0f8edf4a99796c77
 Reviewer: stg
 Date: 2016-09-13
-Conclusion: Accepted/Rework
+Conclusion: Rework
 
 Overall comments:
 
@@ -13,8 +13,11 @@ Overall comments:
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: componentsrigel.py:124 and following
+Comment 1: Rework
+Please ensure that comments have at most one sentence per line, as per convention tGT1n0.
+Please also note convention TZb0Uv setting the maximum line length at 118 characters.
 
-Location: filename:linenum
-Comment:
+Location: componentsrigel.py:135
+Comment 2: Rework
+Should the text read "process is deterministic" instead of "process in deterministic"?

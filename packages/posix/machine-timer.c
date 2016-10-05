@@ -41,15 +41,21 @@
 
 static void sigalrm_handler(int sig);
 
+static void (*application_isr)(void);
+
 static void
 sigalrm_handler(__attribute__((unused)) const int sig)
 {
-    machine_timer_tick_isr();
+    if (application_isr)
+    {
+        application_isr();
+    }
 }
 
 void
-machine_timer_start(void)
+machine_timer_start(void (*application_timer_isr)(void))
 {
+    application_isr = application_timer_isr;
     signal(SIGALRM, sigalrm_handler);
     ualarm(TICK_DURATION, TICK_DURATION);
 }

@@ -147,7 +147,7 @@ fn_c(void)
 int
 main(void)
 {
-    machine_timer_start();
+    machine_timer_start((void (*)(void))tick_irq);
 
     machine_fp_init();
 

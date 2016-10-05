@@ -285,7 +285,7 @@ int
 main(void)
 {
 {{#timeout_tests}}
-    machine_timer_start();
+    machine_timer_start((void (*)(void))tick_irq);
 {{/timeout_tests}}
 
     rtos_start();

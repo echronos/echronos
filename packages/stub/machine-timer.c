@@ -35,7 +35,7 @@
 #include "machine-timer.h"
 
 void
-machine_timer_start(void)
+machine_timer_start(__attribute__((unused)) void (*application_timer_isr)(void))
 {
 }
 

@@ -153,7 +153,7 @@ fn_b(void)
 int
 main(void)
 {
-    machine_timer_start();
+    machine_timer_start((void (*)(void))tick_irq);
 
     debug_println("Starting RTOS");
     rtos_start();

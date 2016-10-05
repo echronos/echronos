@@ -103,7 +103,7 @@ fn_b(void)
 int
 main(void)
 {
-    machine_timer_start();
+    machine_timer_start(tick_irq);
 
     rtos_start();
     for (;;) ;

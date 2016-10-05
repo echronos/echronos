@@ -27,8 +27,14 @@
 /**
  * Start a platform-specific timer (typically some hardware timer) that produces periodic timer ticks at about 100ms
  * intervals.
+ *
+ * @param application_timer_isr an application-defined function that implements the application-specific part of handling a
+ *  tick service routine.
+ *  This parameter is necessary because on some target platforms, the machine-timer implementation sets up the ISR
+ *  handler internally (as opposed to the application associating the handler with some well-known, timer-related
+ *  interrupt vector, for example).
  */
-void machine_timer_start(void);
+void machine_timer_start(void (*application_timer_isr)(void));
 
 /**
  * Stop platform-specific timers.

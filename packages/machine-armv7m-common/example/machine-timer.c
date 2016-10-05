@@ -44,7 +44,7 @@
 #define SYST_CVR_WRITE(x) (*((volatile uint32_t*)SYST_CVR_REG) = x)
 
 void
-machine_timer_start(void)
+machine_timer_start(__attribute__((unused)) void (*application_timer_isr)(void))
 {
     SYST_RVR_WRITE(0x0001ffff);
     SYST_CVR_WRITE(0);

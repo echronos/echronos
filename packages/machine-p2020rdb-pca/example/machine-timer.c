@@ -37,7 +37,7 @@
 static void decrementer_clear(void);
 
 void
-machine_timer_start(void)
+machine_timer_start(__attribute__((unused)) void (*application_timer_isr)(void))
 {
     /* U-Boot has the decrementer on, so we turn this off here */
     machine_timer_stop();

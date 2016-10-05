@@ -41,11 +41,7 @@ void
 tick_irq(void)
 {
     machine_timer_tick_isr();
-}
 
-void
-application_tick_isr(void)
-{
     rtos_interrupt_event_raise(0);
 }
 

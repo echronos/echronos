@@ -45,11 +45,6 @@ demo_sig_id[SIGNAL_DEMO_NUM_IDS] = {
 };
 
 void
-application_tick_isr(void)
-{
-}
-
-void
 fatal(const RtosErrorId error_id)
 {
     debug_print("FATAL ERROR: ");

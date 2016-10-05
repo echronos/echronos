@@ -50,11 +50,6 @@
 extern uint8_t rx_buf[BUF_CAPACITY];
 extern volatile unsigned int rx_count;
 
-void
-application_tick_isr(void)
-{
-}
-
 /* Fatal error function provided for debugging purposes. */
 void
 fatal(const RtosErrorId error_id)

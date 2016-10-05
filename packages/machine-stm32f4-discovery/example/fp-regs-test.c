@@ -53,13 +53,10 @@ bool
 tick_irq(void)
 {
     machine_timer_tick_isr();
-    return true;
-}
 
-void
-application_tick_isr(void)
-{
     rtos_timer_tick();
+
+    return true;
 }
 
 void

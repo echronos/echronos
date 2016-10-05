@@ -53,14 +53,9 @@ fatal(const RtosErrorId error_id)
 bool
 tick_irq(void)
 {
-    machine_timer_tick_isr();
-    return true;
-}
-
-void
-application_tick_isr(void)
-{
     static bool toggle;
+
+    machine_timer_tick_isr();
 
     if (toggle) {
         rtos_interrupt_event_raise(RTOS_INTERRUPT_EVENT_ID_SUBFP);
@@ -68,6 +63,8 @@ application_tick_isr(void)
         rtos_interrupt_event_raise(RTOS_INTERRUPT_EVENT_ID_ZERO);
     }
     toggle = !toggle;
+
+    return true;
 }
 
 /* This task, which *doesn't* use floating-point, is designed to interleave with the others to ensure floating-point

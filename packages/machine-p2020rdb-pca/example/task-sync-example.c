@@ -56,11 +56,6 @@ extern volatile unsigned int rx_count;
 uint8_t msg_buf[MSG_SIZE];
 unsigned int msg_len;
 
-void
-application_tick_isr(void)
-{
-}
-
 /* Fatal error function provided for debugging purposes. */
 void
 fatal(const RtosErrorId error_id)

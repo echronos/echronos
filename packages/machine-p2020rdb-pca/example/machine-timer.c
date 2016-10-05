@@ -103,5 +103,4 @@ machine_timer_tick_isr(void)
         "lis %%r3,0x400\n"
         "mttsr %%r3\n"
         ::: "r3");
-    application_tick_isr();
 }

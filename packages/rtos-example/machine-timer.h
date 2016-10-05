@@ -39,25 +39,17 @@ void machine_timer_start(void);
 void machine_timer_stop(void);
 
 /**
- * Handle a timer tick.
- * If the application implements the interrupt handler for the timer tick interrupt, it must call this function to
- * ensure that the timer continues to work as expected.
- * Therefore, this function must only be called in interrupt mode.
+ * Handle a timer tick inside the platform-specific timer implementation.
  *
- * Not all applications may need to implement the interrupt handler for the timer tick interrupt.
- * In that case, the system configuration may specify this function itself as the timer tick interrupt handler.
+ * This function ensures that for every timer tick, the timer implementation continues to work as expected and continues
+ * to deliver timer ticks.
+ * For some target platforms and timer implementations, this function might be empty.
+ * For others, per-tick platform-timer handling may be necessary.
  *
- * This function always calls the application interface function application_tick_isr() to notify the application that
- * a timer tick has occurred.
+ * The application must call this function from its timer tick ISR if it expects the timer implementation to work as
+ * expected.
+ * Note that this function must only be called in interrupt mode.
+ * Also note that this function only deals with the platform's timer implementation itself.
+ * That is to say that this function does not call rtos_timer_tick() or any other RTOS APIs.
  */
 void machine_timer_tick_isr(void);
-
-/**
- * An application interface function called by machine_timer_tick_isr() in interrupt mode to notify the application
- * that a timer tick has occurred.
- *
- * This function must be implemented by the application.
- * The application shall implement all its tick handling functionality in this function, even if it also implements
- * an interrupt handler for the timer tick interrupt.
- */
-void application_tick_isr(void);

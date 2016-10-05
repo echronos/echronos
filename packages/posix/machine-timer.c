@@ -63,5 +63,4 @@ machine_timer_stop(void)
 void
 machine_timer_tick_isr(void)
 {
-    application_tick_isr();
 }

@@ -42,13 +42,10 @@ bool
 tick_irq(void)
 {
     machine_timer_tick_isr();
-    return true;
-}
 
-void
-application_tick_isr(void)
-{
     rtos_interrupt_event_raise(RTOS_INTERRUPT_EVENT_ID_TICK);
+
+    return true;
 }
 
 void

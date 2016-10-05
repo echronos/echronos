@@ -41,11 +41,6 @@ void
 tick_irq(void)
 {
     machine_timer_tick_isr();
-}
-
-void
-application_tick_isr(void)
-{
     debug_println("irq tick");
     rtos_timer_tick();
 }

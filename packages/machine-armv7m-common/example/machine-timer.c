@@ -54,10 +54,11 @@ machine_timer_start(void)
 void
 machine_timer_stop(void)
 {
+    /* not implemented because unused */
 }
 
 void
 machine_timer_tick_isr(void)
 {
-    application_tick_isr();
+    /* not implemented because no per-tick hardware handling required */
 }

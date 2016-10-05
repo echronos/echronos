@@ -38,11 +38,6 @@
 {{/deadlock_test}}
 
 void
-application_tick_isr(void)
-{
-}
-
-void
 block(void)
 {
     rtos_signal_wait_set(RTOS_SIGNAL_SET_SIG_BLOCK);

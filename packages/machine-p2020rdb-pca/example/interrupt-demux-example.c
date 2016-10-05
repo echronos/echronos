@@ -137,11 +137,6 @@ void
 tick_interrupt(void)
 {
     machine_timer_tick_isr();
-}
-
-void
-application_tick_isr(void)
-{
     debug_println("tick_interrupt");
 }
 

@@ -57,6 +57,7 @@ machine_timer_start(void)
 void
 machine_timer_stop(void)
 {
+    /* not implemented because unused */
 }
 
 void
@@ -69,5 +70,4 @@ machine_timer_tick_isr(void)
         "lis %%r3,0x400\n"
         "mttsr %%r3\n"
         ::: "r3");
-    application_tick_isr();
 }

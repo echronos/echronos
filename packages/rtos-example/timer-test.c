@@ -54,14 +54,9 @@
 bool
 tick_irq(void)
 {
-    machine_timer_tick_isr();
-    return true;
-}
-
-void
-application_tick_isr(void)
-{
     static uint8_t count;
+
+    machine_timer_tick_isr();
 
     debug_print("tick_irq: ");
     debug_printhex32(count);
@@ -69,6 +64,8 @@ application_tick_isr(void)
     count++;
 
     rtos_timer_tick();
+
+    return true;
 }
 
 void

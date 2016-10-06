@@ -100,7 +100,7 @@ Build and run an example system for the RTOS variant *Kochab* on QEMU-emulated P
 
 The following tools are supplied with this repository in the [`tools`](tools) directory:
 
-* Python 3.3 for the Python scripts in the repository
+* Python 3 for the Python scripts in the repository
 * The `arm-none-eabi` GNU toolchain and `arm-none-eabi-gdb` for building and debugging the RTOS for ARMv7-M
 
 The included [`setenv`](setenv) script makes these tools the default ones by including them in the PATH environment variable.

@@ -32,9 +32,11 @@ import logging
 import inspect
 import tarfile
 import subprocess
+import functools
 from glob import glob
 from contextlib import contextmanager
 from .utils import chdir, tempdir, get_host_platform_name, BASE_TIME, top_path, base_to_top_paths, find_path, Git
+from .utils import walk
 from .components import build
 from .cmdline import subcmd, Arg
 from .docs import is_release_doc_file, is_nonrelease_doc_file
@@ -105,6 +107,10 @@ class _ReleasePackage:
 
     def get_path(self):
         return self._pkg.path
+
+    def get_files(self):
+        flt = lambda file_path: '__pycache__' in file_path.lower()
+        return walk(self.get_path(), flt)
 
     def get_archive_name(self):
         return '{}-{}'.format(self._pkg.name, self._rls_cfg.release_name)
@@ -331,12 +337,18 @@ class _LicenseOpener:
         return _tar_info_filter(tarinfo)
 
 
-def _tar_info_filter(tarinfo):
+def _tar_info_filter(tarinfo, execute_permission=False):
     tarinfo.uname = '_default_user_'
     tarinfo.gname = '_default_group_'
     tarinfo.mtime = BASE_TIME
     tarinfo.uid = 1000
     tarinfo.gid = 1000
+    # Directories automatically have the execute permission bit set which needs to be preserved.
+    # However, the default permission are to permissive for the group and other users, which needs to be reset.
+    if tarinfo.mode & 0o100 or execute_permission:
+        tarinfo.mode = 0o700
+    else:
+        tarinfo.mode = 0o600
     return tarinfo
 
 
@@ -356,9 +368,9 @@ def _tar_add_data(tf, arcname, data, ti_filter=None):
     tf.addfile(ti, io.BytesIO(data))
 
 
-def _tar_gz_with_license(output, tree, prefix, license, doc_license, allow_unknown_filetypes):
+def _tar_gz_with_license(output, dir_path, file_paths, prefix, license, doc_license, allow_unknown_filetypes):
 
-    """Create a tar.gz file named `output` from a specified directory tree.
+    """Create a tar.gz file named `output` from a list of file paths relative to a directory path.
 
     Any appropriate files have the specified license attached.
 
@@ -369,8 +381,10 @@ def _tar_gz_with_license(output, tree, prefix, license, doc_license, allow_unkno
     try:
         with tarfile.open(output, 'w:gz', format=tarfile.GNU_FORMAT) as tf:
             tarfile.bltn_open = lo.open
-            with chdir(tree):
-                for f in os.listdir('.'):
+            with chdir(dir_path):
+                for f in file_paths:
+                    if os.path.isabs(f):
+                        f = os.path.relpath(f, dir_path)
                     tf.add(f, arcname='{}/{}'.format(prefix, f), filter=lo.tar_info_filter)
     finally:
         tarfile.bltn_open = open
@@ -379,7 +393,7 @@ def _tar_gz_with_license(output, tree, prefix, license, doc_license, allow_unkno
 def _mk_partial(pkg, topdir, allow_unknown_filetypes):
     fn = top_path(topdir, 'release', 'partials', '{}.tar.gz'.format(pkg.get_archive_name()))
     src_prefix = 'share/packages/{}'.format(pkg.get_name())
-    _tar_gz_with_license(fn, pkg.get_path(), src_prefix, pkg.get_license(), pkg.get_doc_license(),
+    _tar_gz_with_license(fn, pkg.get_path(), pkg.get_files(), src_prefix, pkg.get_license(), pkg.get_doc_license(),
                          allow_unknown_filetypes)
 
 
@@ -413,9 +427,20 @@ def build_single_release(config, topdir):
                         m.name = '{}/{}-{}-{}-{}.pdf'.format(basename, config.product_name, config.release_name,
                                                              variant, config.version)
                     tf.addfile(m, m_f)
-        for plat in config.platforms:
-            arcname = '{}/{}/bin/prj'.format(basename, plat)
-            tf.add('prj_build_{}/prj'.format(plat), arcname=arcname, filter=_tar_info_filter)
+
+        prj_build_dir = 'prj_build'
+        for file_name in os.listdir(prj_build_dir):
+            # mark all files except the zipped prj 'binary' as executable because prj cannot be executed itself
+            file_filter = functools.partial(_tar_info_filter, execute_permission=not file_name.endswith('prj'))
+            # The path in the following 'arcname' variable is the path stored inside the zip file.
+            # I.e., any tools that decompress the zip file need to handle that path.
+            # Non-windows tools generally do not handle a backslash character correctly as a path separator.
+            # However, forward-slash characters work as path separators on Windows and non-Windows platforms.
+            # Therefore, the following path deliberately uses '/' forward slashes as path separators.
+            # This ensures that prj zip files created on any platform work on any other platform.
+            arcname = '{}/bin/{}'.format(basename, file_name)
+            tf.add(os.path.join(prj_build_dir, file_name), arcname=arcname, filter=file_filter)
+
         if config.top_level_license is not None:
             _tar_add_data(tf, '{}/LICENSE'.format(basename),
                           config.top_level_license.encode('utf8'),
@@ -478,7 +503,8 @@ def release_test_one(archive):
                 raise RuntimeError("Release archive does not extract into top directory with the same name as the "
                                    "base name of the archive ({})".format(release_dir))
             with chdir(release_dir):
-                cmd = "./{}/bin/prj".format(platform)
+                prj_path = os.path.join("bin", "prj.sh")
+                cmd = prj_path
                 try:
                     subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
                 except subprocess.CalledProcessError as e:
@@ -494,7 +520,7 @@ def release_test_one(archive):
                 with open('project.prj', 'w') as f:
                     f.write(project_prj_template.format(pkg_root))
                 for pkg, f in pkgs:
-                    cmd = "./{}/bin/prj build {}".format(platform, pkg)
+                    cmd = "{} build {}".format(prj_path, pkg)
                     try:
                         subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
                     except subprocess.CalledProcessError as e:

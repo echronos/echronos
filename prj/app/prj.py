@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.3
+#!/usr/bin/env python3
 #
 # eChronos Real-Time Operating System
 # Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
@@ -905,7 +905,7 @@ class Project:
             command = single_text_child(ss)
             if command.split()[0].endswith('.py'):
                 # prepend full path of python interpreter as .py files are not necessarily executable on Windows
-                # and the command 'python3.3' is likely not in PATH
+                # and the command 'python3' is likely not in PATH
                 command = '{} {}'.format(sys.executable, command)
             ret_code = os.system(command)
             if ret_code != 0:

@@ -1,0 +1,24 @@
+Task: MAGhSn-order_signals_for_deterministic_build
+==============================================================================
+
+Motivation
+----------
+
+When process of generating the RTOS from a template should be deterministic.
+That is, if the configuration doesn't change the template should not change.
+Currently this is not the case as the RTOS 'signals' are stored in a Python set.
+Iteration over a Python set can happen in abitrary order.
+
+Goals
+--------
+
+Change the template generation behaviour so that the signals set is iterated in sorted order.
+This change shall ensure that template generation is deterministic.
+
+Test Plan
+---------
+
+This should not change the behaviour of any existing tests.
+Creating a test for this behaviour is not easily done within the existing test framework.
+Verification of the improvement will be done through code review.
+

@@ -1,0 +1,24 @@
+RTOS Task Review
+=======================
+
+Task name: MAGhSn-order_signals_for_deterministic_build
+Version reviewed: 0489aceedc72c4bb2365e98b0f8edf4a99796c77
+Reviewer: davidm
+Date: 2016-09-13
+Conclusion: Accepted
+
+Overall comments: Looks good to me! Optional minor comments below.
+
+
+Specific comments
+=================
+
+Location: components/rigel.py:134f.
+Comment: I am not entirely sure how the comment about the process being
+         deterministic applies to returning 'assigned'? Is it advice for the
+         caller to not use it for iteration? If so, would it make more sense to
+         mention this in the docstring for assign_signal_vals together with the
+         documentation of the return value?
+
+Location: components/rigel.py:135
+Comment: Typo? s/process in deterministic/process is deterministic/

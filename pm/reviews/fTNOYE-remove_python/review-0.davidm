@@ -1,0 +1,44 @@
+RTOS Task Review
+=======================
+
+Task name: fTNOYE-remove_python
+Version reviewed: b7ed940a81d3f0eec77ff08a83be207dc0bb19c9
+Reviewer: davidm
+Date: 2016-05-10
+Conclusion: Rework
+
+Overall comments:
+Looks good to me! Not bundling Python removes a whole lot of complexity.
+
+
+Specific comments
+=================
+
+Location: x.py:46
+          README.md:103
+          prj/app/prj.py:908
+Comment: Considering that we do not explicitly require Python 3.3 anymore,
+         should these explicit mentions of Python 3.3 be replaced by Python 3?
+
+[stg: That is correct.
+Resolved as suggested.]
+
+Location: pylib/release.py:434
+Comment: "# mark all files except the zipped prj 'binary' as executable because prj cannot be executed itself
+          filter = functools.partial(_tar_info_filter, execute_permission=not file_name.endswith('prj'))"
+
+          Nitpick: Would it be better to not name the filter method 'filter'
+          as there already is a builtin method that does filtering as well?
+          I am not always confident at telling where replacing a built-in does
+          or does not have a side-effect in Python, and I think it is a good
+          habit to maintain. Feel free to ignore this comment.
+
+[stg: Agreed.
+Resolved as suggested]
+
+Location: pylib/release.py:435
+Comment: Why do we use '/' as a delimiter here? Would it be worth mentioning
+         in the comment why we do it, rather than just mentioning that we do it?
+
+[stg: Agreed.
+Extended the source-code comment to explain why a forward slash is required as a path separator.]

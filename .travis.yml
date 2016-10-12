@@ -10,7 +10,6 @@ install: true
 
 script:
 - ./x.py build packages
-- ./x.py build docs
 - ./x.py build prj
 - ./x.py build partials
 - ./x.py build release

@@ -1,0 +1,10 @@
+language: c
+
+install: true
+
+script:
+- py -3 x.py build packages
+- py -3 x.py build docs
+- py -3 x.py build prj
+- py -3 x.py build partials
+- py -3 x.py build release

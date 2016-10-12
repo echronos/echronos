@@ -249,8 +249,8 @@ provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|packag
             path = os.path.join(dirpath, file_name)
             rel_path = os.path.relpath(path, BASE_DIR)
             if not pattern.match(rel_path):
-                # Check setenv as a shell script and expect shell-style comment format for .pylintrc
-                if rel_path in ('setenv', '.pylintrc'):
+                # expect shell-style comment format for .pylintrc
+                if rel_path == '.pylintrc':
                     agpl_sentinel = _LicenseOpener._agpl_sentinel('.sh')
                 else:
                     ext = os.path.splitext(file_name)[1]

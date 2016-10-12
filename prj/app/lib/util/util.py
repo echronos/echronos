@@ -33,6 +33,8 @@ candidates for refactor at some time.
 
 """
 from operator import itemgetter
+import os
+import sys
 
 
 def do_nothing(*args, **kwargs):
@@ -208,3 +210,27 @@ def config_set(cfg, key, val):
         cfg, key = cfg[key[0]], key[1:]
 
     cfg[key[0]] = val
+
+
+def prepend_tool_binaries_to_path_environment_variable():
+    for tool_path in _get_tool_paths():
+        if os.path.exists(tool_path) and tool_path not in os.environ['PATH']:
+            os.environ['PATH'] += os.pathsep + tool_path
+
+
+def _get_tool_paths():
+    directories = [get_host_platform_name()]
+    if sys.platform == 'linux':
+        directories.append('gcc-4.8.2-Ee500v2-eabispe')
+    return [os.path.join(os.getcwd(), 'tools', directory, 'bin') for directory in directories]
+
+
+def get_host_platform_name():
+    if sys.platform == 'darwin':
+        return 'x86_64-apple-darwin'
+    elif sys.platform == 'linux':
+        return 'x86_64-unknown-linux-gnu'
+    elif sys.platform == 'win32':
+        return 'win32'
+    else:
+        raise RuntimeError('Unsupported platform {}'.format(sys.platform))

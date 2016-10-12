@@ -3,8 +3,8 @@ language: c
 install: true
 
 script:
-- py -3 x.py build packages
-- py -3 x.py build docs
-- py -3 x.py build prj
-- py -3 x.py build partials
-- py -3 x.py build release
+- ./x.py build packages
+- ./x.py build docs
+- ./x.py build prj
+- ./x.py build partials
+- ./x.py build release

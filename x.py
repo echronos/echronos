@@ -81,7 +81,7 @@ directory.
 import sys
 import os
 
-externals = ['pep8', 'nose', 'ice']
+externals = ['pep8', 'nose', 'ice', '']
 
 # Make pylib available
 sys.path.append(os.path.dirname(__file__))

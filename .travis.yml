@@ -1,9 +1,10 @@
-language: c
+language: c # makes gnu build utils available
+sudo: required # makes Ubuntu trusty available, required for Python >= 3.3
+dist: trusty # makes Ubuntu trusty available, required for Python >= 3.3
 
-addons:
-  apt:
-    packages:
-    - python3
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y python3 # make Python > 3.2 available
 
 install: true
 

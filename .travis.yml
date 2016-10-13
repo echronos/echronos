@@ -30,7 +30,7 @@ dist: trusty # makes Ubuntu trusty available, required for Python >= 3.3
 
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install -y python3 # make Python > 3.2 available
+  - sudo apt-get install -y python3 splint # make Python > 3.2 and splint (for static analysis) available
 
 install: true
 

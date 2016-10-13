@@ -35,7 +35,18 @@ before_install:
 install: true
 
 script:
+- ./x.py test licenses
+- ./x.py test provenance
+- ./x.py test style
+- ./x.py test x
+- ./x.py test pystache
+- ./x.py test prj
 - ./x.py build packages
+- . ./setenv && find packages/ -name '*.prx' -and -not -name '*config-only*.prx' -and -not -name gatria-system-simple.prx | sed -r 's/packages\///; s/.prx//; s/\//./g' | xargs -n 1 -i bash -c './prj/app/prj.py build {} || exit 255'
+- find packages/stub -name *.prx | sed -r 's/packages\///; s/.prx//; s/\//./g' | xargs -n 1 -i bash -c './prj/app/prj.py analyze {} || exit 255'
+- if grep 'CbC0b6-message_queue_unit_tests' pm/tasks/CbC0b6-message_queue_unit_tests > /dev/null; then ./x.py test units; fi
+- . ./setenv && ./x.py test systems
 - ./x.py build prj
 - ./x.py build partials
 - ./x.py build release
+- . ./setenv && ./x.py test release

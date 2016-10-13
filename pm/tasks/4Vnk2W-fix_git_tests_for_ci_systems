@@ -1,0 +1,27 @@
+Task: 4Vnk2W-fix_git_tests_for_ci_systems
+==============================================================================
+
+Motivation
+----------
+
+The regression tests `test_git_branch_hash()` and `test_git_branch_date()` in `x_test.py` currently fail or are not run on continuous integration test systems.
+They rely on the first revision on the `development` branch to be available in the git history.
+However, CI systems typically do not retrieve the entire git history for running tests.
+Therefore, the git revision the tests rely on to be available is not.
+
+Alternatively, the tests can dynamically use ony git revision for the test that they determine dynamically.
+
+
+Goals
+--------
+
+- ensure that the git tests run and pass on CI systems
+- change the git tests so that they use any available git revision that they determine dynamically
+
+
+Test Plan
+---------
+
+- review code changes
+- existing regression tests must pass
+- git tests must be executed and pass on CI system

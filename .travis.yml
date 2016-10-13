@@ -30,9 +30,17 @@ dist: trusty # makes Ubuntu trusty available, required for Python >= 3.3
 
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install -y python3 splint # make Python > 3.2 and splint (for static analysis) available
+  # python3 (>3.2): x.py
+  # splint: prj.py analyze
+  # gcc-powerpc-linux-gnu: prj.py build machine-qemu-ppce500.example.acamar-config-demo
+  # qemu-system-ppc: x.py test systems
+  # texinfo: required for installing gdb from source
+  - sudo apt-get install -y python3 splint gcc-powerpc-linux-gnu qemu-system-ppc texinfo
 
-install: true
+install:
+  # install GDB with PowerPC support from source; required by x.py test systems
+  # unpack gdb tar ball to home directory to prevent tests below from discovering and failing on unrelated files
+  - pushd $HOME && wget 'https://mirror.aarnet.edu.au/pub/gnu/gdb/gdb-7.12.tar.xz' && tar xaf gdb-7.12.tar.xz && pushd gdb-7.12 && ./configure --target=powerpc-linux --prefix=/usr && make -sj && sudo make -sj install && popd && popd
 
 script:
 - ./x.py test licenses

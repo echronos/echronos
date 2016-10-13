@@ -32,13 +32,7 @@ from nose.tools import assert_raises
 import itertools
 import os
 import tempfile
-
-# The constants refer to the base (initial) commit.
-# All branches should be dervied from this commit, so it
-# should always be available. This commit is used to test
-# some of the 'Git' class functionality.
-INITIAL_COMMIT = '052c07259121ae27a0736dfe92cd5b072ecc5745'
-INITIAL_TIME = 1364960632
+import subprocess
 
 
 def test_empty():
@@ -47,13 +41,23 @@ def test_empty():
 
 
 def test_git_branch_hash():
-    g = Git(local_repository=os.path.dirname(os.path.abspath(__file__)))
-    assert INITIAL_COMMIT == g.branch_hash(INITIAL_COMMIT)
+    repo_dir = os.path.dirname(os.path.abspath(__file__))
+    revid, _ = _get_git_revision_hash_and_time(repo_dir)
+    g = Git(local_repository=repo_dir)
+    assert revid == g.branch_hash(revid)
 
 
 def test_git_branch_date():
-    g = Git(local_repository=os.path.dirname(os.path.abspath(__file__)))
-    assert INITIAL_TIME == g.branch_date(INITIAL_COMMIT)
+    repo_dir = os.path.dirname(os.path.abspath(__file__))
+    revid, time = _get_git_revision_hash_and_time(repo_dir)
+    g = Git(local_repository=repo_dir)
+    assert time == g.branch_date(revid)
+
+
+def _get_git_revision_hash_and_time(repo_dir):
+    git_output = subprocess.check_output(('git', '-C', repo_dir, 'log', '-n', '1', '--pretty=%H %at'))
+    revid, time = git_output.decode().split()
+    return (revid, int(time))
 
 
 def test_sort_typedefs():

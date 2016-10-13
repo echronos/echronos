@@ -25,7 +25,6 @@
 # @TAG(NICTA_AGPL)
 #
 
-from pylib.xunittest import teamcityskip
 from pylib.utils import Git
 from pylib.components import _sort_typedefs, _sort_by_dependencies, _DependencyNode, _UnresolvableDependencyError
 from pylib.tasks import _Review, _Task, _InvalidTaskStateError
@@ -47,13 +46,11 @@ def test_empty():
     pass
 
 
-@teamcityskip
 def test_git_branch_hash():
     g = Git(local_repository=os.path.dirname(os.path.abspath(__file__)))
     assert INITIAL_COMMIT == g.branch_hash(INITIAL_COMMIT)
 
 
-@teamcityskip
 def test_git_branch_date():
     g = Git(local_repository=os.path.dirname(os.path.abspath(__file__)))
     assert INITIAL_TIME == g.branch_date(INITIAL_COMMIT)

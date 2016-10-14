@@ -25,7 +25,7 @@
 # @TAG(NICTA_AGPL)
 #
 
-from pylib.utils import Git
+from pylib.utils import Git, get_top_dir
 from pylib.components import _sort_typedefs, _sort_by_dependencies, _DependencyNode, _UnresolvableDependencyError
 from pylib.tasks import _Review, _Task, _InvalidTaskStateError
 from nose.tools import assert_raises
@@ -33,6 +33,7 @@ import itertools
 import os
 import tempfile
 import subprocess
+import unittest
 
 
 def test_empty():
@@ -41,15 +42,25 @@ def test_empty():
 
 
 def test_git_branch_hash():
-    repo_dir = os.path.dirname(os.path.abspath(__file__))
-    revid, _ = _get_git_revision_hash_and_time(repo_dir)
+    repo_dir = get_top_dir()
+
+    try:
+        revid, _ = _get_git_revision_hash_and_time(repo_dir)
+    except subprocess.CalledProcessError:
+        raise unittest.SkipTest('Test requires code to be managed in a local git repository')
+
     g = Git(local_repository=repo_dir)
     assert revid == g.branch_hash(revid)
 
 
 def test_git_branch_date():
-    repo_dir = os.path.dirname(os.path.abspath(__file__))
-    revid, time = _get_git_revision_hash_and_time(repo_dir)
+    repo_dir = get_top_dir()
+
+    try:
+        revid, time = _get_git_revision_hash_and_time(repo_dir)
+    except subprocess.CalledProcessError:
+        raise unittest.SkipTest('Test requires code to be managed in a local git repository')
+
     g = Git(local_repository=repo_dir)
     assert time == g.branch_date(revid)
 

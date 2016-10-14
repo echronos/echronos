@@ -35,7 +35,8 @@ before_install:
   # gcc-powerpc-linux-gnu: prj.py build machine-qemu-ppce500.example.acamar-config-demo
   # qemu-system-ppc: x.py test systems
   # texinfo: required for installing gdb from source
-  - sudo apt-get install -y python3 splint gcc-powerpc-linux-gnu qemu-system-ppc texinfo
+  # xvfb pandoc wkhtmltopdf: required for building documentation
+  - sudo apt-get install -y python3 splint gcc-powerpc-linux-gnu qemu-system-ppc texinfo xvfb pandoc wkhtmltopdf
 
 install:
   # install GDB with PowerPC support from source; required by x.py test systems
@@ -55,6 +56,7 @@ script:
 - if grep 'CbC0b6-message_queue_unit_tests' pm/tasks/CbC0b6-message_queue_unit_tests > /dev/null; then ./x.py test units; fi
 - . ./setenv && ./x.py test systems
 - ./x.py build prj
+- TMPDIR="/tmp" xvfb-run -a -s "-screen 0 640x480x16" ./x.py build docs
 - ./x.py build partials
 - ./x.py build release
 - . ./setenv && ./x.py test release

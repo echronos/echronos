@@ -56,7 +56,7 @@ script:
 - ./x.py build packages
 - . ./setenv && find packages/ -name '*.prx' -and -not -name '*config-only*.prx' -and -not -name gatria-system-simple.prx | sed -r 's/packages\///; s/.prx//; s/\//./g' | xargs -n 1 -i bash -c './prj/app/prj.py build {} || exit 255'
 - find packages/stub -name *.prx | sed -r 's/packages\///; s/.prx//; s/\//./g' | xargs -n 1 -i bash -c './prj/app/prj.py analyze {} || exit 255'
-- if grep 'CbC0b6-message_queue_unit_tests' pm/tasks/CbC0b6-message_queue_unit_tests > /dev/null; then ./x.py test units; fi
+- if test -e pm/tasks/CbC0b6-message_queue_unit_tests; then ./x.py test units; fi
 - . ./setenv && ./x.py test systems
 - ./x.py build prj
 - TMPDIR="/tmp" xvfb-run -a -s "-screen 0 640x480x16" ./x.py build docs

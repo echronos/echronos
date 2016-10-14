@@ -27,6 +27,9 @@
 language: c # makes gnu build utils available
 sudo: required # makes Ubuntu trusty available, required for Python >= 3.3
 dist: trusty # makes Ubuntu trusty available, required for Python >= 3.3
+cache:
+  directories:
+  - $HOME/local/bin
 
 before_install:
   - sudo apt-get -qq update
@@ -41,7 +44,7 @@ before_install:
 install:
   # install GDB with PowerPC support from source; required by x.py test systems
   # unpack gdb tar ball to home directory to prevent tests below from discovering and failing on unrelated files
-  - pushd $HOME && wget 'https://mirror.aarnet.edu.au/pub/gnu/gdb/gdb-7.12.tar.xz' && tar xaf gdb-7.12.tar.xz && pushd gdb-7.12 && ./configure --target=powerpc-linux --prefix=/usr && make -sj && sudo make -sj install && popd && popd
+  - if ! test -e $HOME/local/bin/powerpc-linux-gdb; then pushd $HOME && wget 'https://mirror.aarnet.edu.au/pub/gnu/gdb/gdb-7.12.tar.xz' && tar xaf gdb-7.12.tar.xz && pushd gdb-7.12 && ./configure --target=powerpc-linux --prefix=$HOME/local && make -sj && make -sj install && popd && popd; fi
 
 script:
 - ./x.py test licenses

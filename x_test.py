@@ -66,7 +66,7 @@ def test_git_branch_date():
 
 
 def _get_git_revision_hash_and_time(repo_dir):
-    git_output = subprocess.check_output(('git', '-C', repo_dir, 'log', '-n', '1', '--pretty=%H %at'))
+    git_output = subprocess.check_output(('git', 'log', '-n', '1', '--pretty=%H %at'), cwd=repo_dir)
     revid, time = git_output.decode().split()
     return (revid, int(time))
 

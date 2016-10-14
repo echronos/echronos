@@ -67,7 +67,7 @@ def test_git_branch_date():
 
 def _get_git_revision_hash_and_time(repo_dir):
     try:
-        subprocess.check_call(('git', '--version'))
+        subprocess.check_call(('git', '--version'), stdout=subprocess.DEVNULL)
     except FileNotFoundError:
         raise unittest.SkipTest('This test requires a "git" executable to be available in PATH. \
 On Windows, this is accomplished with a default installation of "git for Windows".')

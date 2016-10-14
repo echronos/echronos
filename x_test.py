@@ -66,6 +66,12 @@ def test_git_branch_date():
 
 
 def _get_git_revision_hash_and_time(repo_dir):
+    try:
+        subprocess.check_call(('git', '--version'))
+    except subprocess.CalledProcessError:
+        raise unittest.SkipTest('This test requires a "git" executable to be available in PATH. \
+On Windows, this is accomplished with a default installation of "git for Windows".')
+
     git_output = subprocess.check_output(('git', 'log', '-n', '1', '--pretty=%H %at'), cwd=repo_dir)
     revid, time = git_output.decode().split()
     return (revid, int(time))

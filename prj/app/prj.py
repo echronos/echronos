@@ -841,11 +841,12 @@ might not be available on the PATH search path for executables.")
                 try:
                     # define UINT macros because splint does not pick them up from system headers for unknown reason
                     # +charintliteral to allow code such as 'int value = ascii_character - '0';'
-                    subprocess.check_call(["splint", "-DUINT8_C(x)=(uint8_t)(x)", "-DUINT8_MAX=255",
-                                           "-DUINT32_C(x)=(uint32_t)(x)", "-DUINT32_MAX=0xFFFFFFFF", "+quiet",
-                                           "+charintliteral"] + include_path_options + [c_file])
+                    cmd = ["splint", "-DUINT8_C(x)=(uint8_t)(x)", "-DUINT8_MAX=255",
+                           "-DUINT32_C(x)=(uint32_t)(x)", "-DUINT32_MAX=0xFFFFFFFF", "+quiet",
+                           "+charintliteral"] + include_path_options + [c_file]
+                    subprocess.check_call(cmd)
                 except subprocess.CalledProcessError:
-                    print("Static analysis of '{}' with splint failed".format(c_file))
+                    print("Static analysis of '{}' with splint command {} failed".format(c_file, cmd))
                     return 2
 
     def _run_action(self, typ):

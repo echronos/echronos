@@ -833,9 +833,17 @@ class System:
 might not be available on the PATH search path for executables.")
             return 1
 
+        try:
+            default_include_paths = _get_gcc_default_include_paths()
+        except FileNotFoundError:
+            print("Static analysis of '{}' failed because gcc could not be found in PATH.\
+gcc needs to be available on PATH to determine the default search path for standard include files such as \
+`stdint.h`.".format(self.name))
+            return 1
+
         self.generate(copy_all_files=False)
 
-        include_path_options = ['-I{}'.format(include_path) for include_path in self.include_paths]
+        include_path_options = ['-I{}'.format(include_path) for include_path in default_include_paths + self.include_paths]
         for c_file in self.c_files:
             if os.path.basename(c_file).startswith('rtos-'):
                 try:
@@ -1063,6 +1071,38 @@ class Project:
             self.entities[entity_name] = self._parse_import(entity_name, path)
 
         return self.entities[entity_name]
+
+
+def _get_gcc_default_include_paths():
+    """Return the search paths for include files that the gcc preprocessor uses by default.
+
+    These paths can be expected to hold standard include files, such as `stdint.h`.
+    All returned paths are guaranteed to exist, and be absolute and normalized.
+
+    The return value is a list of strings.
+
+    If `gcc` is not available on the OS search path for executables (i.e., in the `PATH` environment variable), this
+    function raises a FileNotFoundError exception.
+
+    """
+    try:
+        output = subprocess.check_output("echo | gcc -E -Wp,-v -", shell=True, stderr=subprocess.STDOUT).decode()
+    except subprocess.CalledProcessError:
+        raise FileNotFoundError("Unable to find `gcc`")
+
+    paths = []
+    for line in output.splitlines():
+        if line[0] == " ":
+            try:
+                line = line.strip()
+                if line[0] == "/" and sys.platform == "win32":  # unix paths reported on windows means cygwin
+                    line = subprocess.check_output(("cygpath", "-wa", line)).decode()
+                path = os.path.abspath(os.path.normpath(line.strip()))
+                paths.append(path)
+            except:
+                pass
+
+    return paths
 
 
 def get_paths_from_dom(dom, element_name):

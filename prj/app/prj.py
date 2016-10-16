@@ -844,7 +844,7 @@ might not be available on the PATH search path for executables.")
                     subprocess.check_call(["splint", "-DUINT8_C(x)=(uint8_t)(x)", "-DUINT8_MAX=255",
                                            "-DUINT32_C(x)=(uint32_t)(x)", "-DUINT32_MAX=0xFFFFFFFF", "+quiet",
                                            "+charintliteral"] + include_path_options + [c_file])
-                except suprocess.CalledProcessError:
+                except subprocess.CalledProcessError:
                     print("Static analysis of '{}' with splint failed".format(c_file))
                     return 2
 

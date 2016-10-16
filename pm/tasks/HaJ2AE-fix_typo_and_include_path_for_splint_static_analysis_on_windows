@@ -1,0 +1,31 @@
+Task: HaJ2AE-fix_typo_and_include_path_for_splint_static_analysis_on_windows
+==============================================================================
+
+Motivation
+----------
+
+The command `py -3 prj/app/prj.py analyze <system>` statically analyzes the specified system for defects using the `splint` tool.
+On Windows, there are two issues that prevent this static analysis from working as expected:
+
+# `splint` does not use the standard include paths of the preprocessor used to build the system.
+  Therefore, `splint`'s own preprocessing fails because it cannot find standard header files, such as `stdint.h`.
+# When `splint` fails, an exception is raised, which is supposed to be handled to provide additional information about the failure.
+  However, there is a typo in the `except` clause that prevents the exception from being handled correctly.
+
+
+Goals
+--------
+
+The goal of this task is to resolve the two issues above so that `splint` successfully analyzes systems on Windows.
+
+
+Test Plan
+---------
+
+- code review
+- existing regression tests
+- check that the following commands succeed on Windows with splint and MinGW installed from a Windows command prompt:
+
+    py -3 x.py build packages
+    py -3 prj/app/prj.py build stub.acamar
+    py -3 prj/app/prj.py analyze stub.acamar

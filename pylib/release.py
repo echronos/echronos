@@ -246,7 +246,9 @@ class _LicenseOpener:
         elif ext in ['.md', '.markdown', '.html']:
             result = _LicenseOpener.AGPL_DOC_TAG + '\n  -->\n'
         elif ext in ['.css']:
-            result = _LicenseOpener.AGPL_DOC_TAG + '\n */\n'
+            return _LicenseOpener.AGPL_DOC_TAG + '\n */\n'
+        elif ext in ['.bat']:
+            return _LicenseOpener.AGPL_TAG + '\r\nREM\r\n'
         elif ext in _LicenseOpener.LICENSE_EXEMPTED_FILETYPES or ext in _LicenseOpener.BUILD_ARTIFACT_FILETYPES:
             result = None
         else:
@@ -280,6 +282,8 @@ class _LicenseOpener:
             lic = self._format_lic(self.doc_license, '<!---', '', '', '  -->')
         elif ext in ['.html']:
             lic = self._format_lic(self.doc_license, '<!--', '', '', '  -->')
+        elif ext in ['.bat']:
+            lic = self._format_lic(self.doc_license, 'REM', 'REM ', 'REM', 'REM')
         elif ext not in self.LICENSE_EXEMPTED_FILETYPES and not self.allow_unknown_filetypes:
             raise Exception('Unexpected ext: {}, for file {}'.format(ext, filename))
 

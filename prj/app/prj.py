@@ -61,6 +61,7 @@ def error_fn(*args, **kwargs):
     raise Exception("basicConfig called multiple times.")
 _logging.basicConfig = error_fn
 
+from distutils.spawn import find_executable
 from xml.parsers.expat import ExpatError
 import argparse
 import functools
@@ -833,17 +834,24 @@ class System:
 might not be available on the PATH search path for executables.")
             return 1
 
-        try:
-            default_include_paths = _get_gcc_default_include_paths()
-        except FileNotFoundError:
-            print("Static analysis of '{}' failed because gcc could not be found in PATH.\
-gcc needs to be available on PATH to determine the default search path for standard include files such as \
-`stdint.h`.".format(self.name))
-            return 1
-
         self.generate(copy_all_files=False)
 
-        include_path_options = ['-I{}'.format(include_path) for include_path in default_include_paths + self.include_paths]
+        # Using a non-cygwin splint and gcc on Windows requires some extra options:
+        if sys.platform == "win32" and not \
+                ("cygwin" in find_executable("splint") and "cygwin" in find_executable("gcc")):
+            # Make splint aware of default preprocessor macros.
+            # This is necessary for splint to successfully parse the compiler's standard headers.
+            default_macros = _get_gcc_default_macros()
+            extra_options = ["-D{}={}".format(name, value) for name, value in default_macros]
+            # Pass the compiler's/proprocessor's default search paths for header files to splint.
+            default_include_paths = _get_gcc_default_include_paths()
+            extra_options += ["-I{}".format(path) for path in default_include_paths]
+            # Make splint ignore the preprocessor directive #include_next
+            extra_options.append("-unrecogdirective")
+        else:
+            extra_options = []
+
+        include_path_options = ['-I{}'.format(include_path) for include_path in self.include_paths]
         for c_file in self.c_files:
             if os.path.basename(c_file).startswith('rtos-'):
                 try:
@@ -851,7 +859,7 @@ gcc needs to be available on PATH to determine the default search path for stand
                     # +charintliteral to allow code such as 'int value = ascii_character - '0';'
                     cmd = ["splint", "-DUINT8_C(x)=(uint8_t)(x)", "-DUINT8_MAX=255",
                            "-DUINT32_C(x)=(uint32_t)(x)", "-DUINT32_MAX=0xFFFFFFFF", "+quiet",
-                           "+charintliteral"] + include_path_options + [c_file]
+                           "+charintliteral"] + include_path_options + extra_options + [c_file]
                     subprocess.check_call(cmd)
                 except subprocess.CalledProcessError:
                     print("Static analysis of '{}' with splint command {} failed".format(c_file, cmd))
@@ -1085,12 +1093,13 @@ def _get_gcc_default_include_paths():
     function raises a FileNotFoundError exception.
 
     """
+    paths = []
+
     try:
         output = subprocess.check_output("echo | gcc -E -Wp,-v -", shell=True, stderr=subprocess.STDOUT).decode()
     except subprocess.CalledProcessError:
         raise FileNotFoundError("Unable to find `gcc`")
 
-    paths = []
     for line in output.splitlines():
         if line[0] == " ":
             try:
@@ -1103,6 +1112,36 @@ def _get_gcc_default_include_paths():
                 pass
 
     return paths
+
+
+def _get_gcc_default_macros():
+    """Return the macros that the gcc preprocessor uses by default.
+
+    The return value is a list of strings.
+
+    If `gcc` is not available on the OS search path for executables (i.e., in the `PATH` environment variable), this
+    function raises a FileNotFoundError exception.
+
+    """
+    macros = []
+
+    try:
+        output = subprocess.check_output("echo | gcc -dM -E -", shell=True, stderr=subprocess.STDOUT).decode()
+    except subprocess.CalledProcessError:
+        raise FileNotFoundError("Unable to find `gcc`")
+
+    for line in output.splitlines():
+        line = line.strip()
+        if line.startswith("#define"):
+            parts = line.split(" ", 2)
+            name = parts[1]
+            if len(parts) == 3:
+                value = parts[2]
+            else:
+                value = ""
+            macros.append((name, value))
+
+    return macros
 
 
 def get_paths_from_dom(dom, element_name):

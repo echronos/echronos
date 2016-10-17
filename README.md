@@ -127,8 +127,8 @@ To obtain, build, and install `powerpc-linux-gdb` for debugging PowerPC e500 sys
     tar xaf gdb-7.12.tar.xz
     cd gdb-7.12
     ./configure --target=powerpc-linux --prefix=/usr/
-    make -sj
-    sudo -sj make install
+    make -s
+    sudo make -s install
 
 To obtain `pandoc` and `wkhtmltopdf` needed for building user documentation on Ubuntu Linux systems:
 

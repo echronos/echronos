@@ -26,6 +26,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 [![Build Status](https://travis-ci.org/echronos/echronos.svg?branch=master)](https://travis-ci.org/echronos/echronos)
 
+[![Build status](https://ci.appveyor.com/api/projects/status/u0l9tcx3r8x9fwj0/branch/master?svg=true)](https://ci.appveyor.com/project/stefangotz/echronos/branch/master)
+
+
 # Yes, We Are Open for Business
 
 If you have any questions, send us an e-mail to echronos@trustworthy.systems or tweet at us @echronosrtos.

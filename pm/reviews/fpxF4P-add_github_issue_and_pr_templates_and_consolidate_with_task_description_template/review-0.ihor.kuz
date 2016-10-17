@@ -5,16 +5,13 @@ Task name: fpxF4P-add_github_issue_and_pr_templates_and_consolidate_with_task_de
 Version reviewed: c39385110e4f8e99d3300f22d16681e1f6394258
 Reviewer: ihor.kuz
 Date: 2016-10-07
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
 Overall comments:
-
+As a remark, this change results in a task description file that doesn't 
+contain the task identifier in it anymore.  This is OK, because the task
+identifier is in the filename.
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:

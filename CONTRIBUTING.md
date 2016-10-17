@@ -57,10 +57,7 @@ More on that below.
 
 ## Further Contributions
 
-You picked the red pill.
-Good on you!
-
-Currently, the project does not use github to handle changes.
+Currently, the project does not use github pull requests and reviews to handle changes.
 We have a purely git-based work flow in place that is supported by custom tools.
 It revolves around task branches (similar to branches and pull requests on github) that have the following, common-sense life cycle:
 

@@ -215,7 +215,7 @@ def config_set(cfg, key, val):
 def prepend_tool_binaries_to_path_environment_variable():
     for tool_path in _get_platform_tool_paths():
         if os.path.exists(tool_path) and tool_path not in os.environ['PATH']:
-            os.environ['PATH'] += os.pathsep + tool_path
+            os.environ['PATH'] = tool_path + os.pathsep + os.environ['PATH']
 
 
 def _get_platform_tool_paths():

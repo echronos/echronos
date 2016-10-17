@@ -213,24 +213,19 @@ def config_set(cfg, key, val):
 
 
 def prepend_tool_binaries_to_path_environment_variable():
-    for tool_path in _get_tool_paths():
+    for tool_path in _get_platform_tool_paths():
         if os.path.exists(tool_path) and tool_path not in os.environ['PATH']:
             os.environ['PATH'] += os.pathsep + tool_path
 
 
-def _get_tool_paths():
-    directories = [get_host_platform_name()]
-    if sys.platform == 'linux':
-        directories.append('gcc-4.8.2-Ee500v2-eabispe')
-    return [os.path.join(os.getcwd(), 'tools', directory, 'bin') for directory in directories]
-
-
-def get_host_platform_name():
-    if sys.platform == 'darwin':
-        return 'x86_64-apple-darwin'
-    elif sys.platform == 'linux':
-        return 'x86_64-unknown-linux-gnu'
-    elif sys.platform == 'win32':
-        return 'win32'
+def _get_platform_tool_paths():
+    TOOL_PATHS = {
+        "darwin": ("tools/x86_64-apple-darwin/bin",),
+        "linux": ("tools/x86_64-unknown-linux-gnu/bin", "tools/gcc-4.8.2-Ee500v2-eabispe/bin"),
+        "win32": ("tools/win32/bin",),
+    }
+    if sys.platform in TOOL_PATHS:
+        base_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", ".."))
+        return [os.path.join(base_dir, directory) for directory in TOOL_PATHS[sys.platform]]
     else:
         raise RuntimeError('Unsupported platform {}'.format(sys.platform))

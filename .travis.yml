@@ -29,37 +29,8 @@ sudo: required # makes Ubuntu trusty available, required for Python >= 3.3
 dist: trusty # makes Ubuntu trusty available, required for Python >= 3.3
 cache:
   directories:
-  - $HOME/local/bin
+  - ${HOME}/local/bin
 
-before_install:
-  - sudo apt-get -qq update
-  # python3 (>3.2): x.py
-  # splint: prj.py analyze
-  # gcc-powerpc-linux-gnu: prj.py build machine-qemu-ppce500.example.acamar-config-demo
-  # qemu-system-ppc: x.py test systems
-  # texinfo: required for installing gdb from source
-  # xvfb pandoc wkhtmltopdf: required for building documentation
-  - sudo apt-get install -y python3 splint gcc-powerpc-linux-gnu qemu-system-ppc texinfo xvfb pandoc wkhtmltopdf
+install: sh ./test_setup.sh
 
-install:
-  # install GDB with PowerPC support from source; required by x.py test systems
-  # unpack gdb tar ball to home directory to prevent tests below from discovering and failing on unrelated files
-  - if ! test -e $HOME/local/bin/powerpc-linux-gdb; then pushd $HOME && wget 'https://mirror.aarnet.edu.au/pub/gnu/gdb/gdb-7.12.tar.xz' && tar xaf gdb-7.12.tar.xz && pushd gdb-7.12 && ./configure --target=powerpc-linux --prefix=$HOME/local && make -sj && make -sj install && popd && popd; fi
-
-script:
-- ./x.py test licenses
-- ./x.py test provenance
-- ./x.py test style
-- ./x.py test x
-- ./x.py test pystache
-- ./x.py test prj
-- ./x.py build packages
-- . ./setenv && find packages/ -name '*.prx' -and -not -name '*config-only*.prx' -and -not -name gatria-system-simple.prx | sed -r 's/packages\///; s/.prx//; s/\//./g' | xargs -n 1 -i bash -c './prj/app/prj.py build {} || exit 255'
-- find packages/stub -name *.prx | sed -r 's/packages\///; s/.prx//; s/\//./g' | xargs -n 1 -i bash -c './prj/app/prj.py analyze {} || exit 255'
-- if test -e pm/tasks/CbC0b6-message_queue_unit_tests; then ./x.py test units; fi
-- . ./setenv && ./x.py test systems
-- ./x.py build prj
-- TMPDIR="/tmp" xvfb-run -a -s "-screen 0 640x480x16" ./x.py build docs
-- ./x.py build partials
-- ./x.py build release
-- . ./setenv && ./x.py test release
+script: sh ./test.sh

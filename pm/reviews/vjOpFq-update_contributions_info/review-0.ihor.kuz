@@ -1,0 +1,14 @@
+RTOS Task Review
+=======================
+
+Task name: vjOpFq-update_contributions_info
+Version reviewed: 0598bc411655cff2069ae5d7681bd426323e4912
+Reviewer: ihor.kuz
+Date: 2016-10-07
+Conclusion: Accepted
+
+Overall comments:
+
+I'm not a big fan of the new 'chatty' style of documentation. But it's 
+a matter of personal preference, so I won't reject or require changes.
+

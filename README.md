@@ -25,9 +25,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 @TAG(NICTA_DOC_AGPL)
   -->
 
-# Repository README
+# Yes, We Are Open for Business
 
-## Overview
+If you have any questions, send us an e-mail to echronos@trustworthy.systems or tweet at us @echronosrtos.
+
+If there is something in the project that you think is worth improving, please create a [github issue](https://github.com/echronos/echronos/issues).
+
+Of course, we are also keen on your changes and contributions if you have any - [here is a primer](CONTRIBUTING.md).
+
+
+# Overview
 
 The eChronos RTOS is a real-time operating system (RTOS) originally developed by NICTA and Breakaway Consulting Pty. Ltd.
 
@@ -42,7 +49,7 @@ To obtain the source code, use the following commands:
     cd echronos
 
 
-## Quick-start
+# Quick-start
 
 See the Prerequisites section for instructions on downloading and installing all prerequisites.
 The following assumes they have been set up.
@@ -96,7 +103,7 @@ Build and run an example system for the RTOS variant *Kochab* on QEMU-emulated P
     (gdb) quit
 
 
-## Prerequisites
+# Prerequisites
 
 The following tools are supplied with this repository in the [`tools`](tools) directory:
 
@@ -140,7 +147,7 @@ To obtain `pandoc` and `wkhtmltopdf` needed for building user documentation on U
     sudo apt-get install pandoc
     sudo apt-get install wkhtmltopdf
 
-## Documentation
+# Documentation
 
 Basic RTOS concepts and usage are documented in this README.
 
@@ -150,7 +157,7 @@ More detailed documentation for the `prj` tool can be found in [`prj/manual/prj-
 Pregenerated RTOS API manuals can be found on the [eChronos GitHub wiki](https://github.com/echronos/echronos/wiki).
 They can also be generated with the command `x.py build docs`.
 
-## Software model
+# Software model
 
 The software model and structure of the RTOS is governed by two stages of customization.
 
@@ -166,7 +173,7 @@ The application project is then only exposed to the second stage and the variant
 
 The following sections cover these concepts in more detail.
 
-### Variants and Components
+## Variants and Components
 
 The RTOS comes in a number of different *variants*, each offering a specific set of features for a particular platform.
 
@@ -190,7 +197,7 @@ Thus, the application product sees only what it needs without being needlessly e
 The variants and platforms contained in a release are defined by [`release_cfg.py`](release_cfg.py).
 
 
-### Systems, Modules and Packages
+## Systems, Modules and Packages
 
 An RTOS *system* encompasses the entirety of the OS and an application on top of it.
 It consists in particular of:
@@ -236,7 +243,7 @@ On the file system, modules are grouped into *packages*, allowing modules to be 
 For example, the PowerPC e500 RTOS variant modules are grouped together with the `build`, `default-linker`, `interrupts-util` and `vectable` modules in the [`ppce500`](packages/ppce500) package.
 As another example, platform-agnostic RTOS example code such as the `kochab-mutex-test` and `timer-test` modules are grouped together in the [`rtos-example`](packages/rtos-example) package.
 
-### Tool support
+## Tool support
 
 As described above, `x.py` provides the means to generate all the different RTOS variants and `prj` provides the means to combine an RTOS module with other modules to produce a system binary.
 
@@ -269,7 +276,7 @@ Please see `prj/manuals/prj-user-manual` for more information on the `prj` tool.
 
 
 
-## Repository contents
+# Repository contents
 
 The [`components`](components) directory contains the RTOS component source and documentation.
 
@@ -299,9 +306,9 @@ The [`docs`](docs) directory contains various release documentation-related cont
 The [`rtos`](rtos) directory contains a model of the RTOS schedulers implemented in Python for testing purposes.
 
 
-## Common Development Tasks
+# Common Development Tasks
 
-### Developing a RTOS variant
+## Developing a RTOS variant
 
 To generate the code for all available RTOS variants:
 
@@ -315,7 +322,7 @@ Adding a new RTOS variant means adding the appropriate list entries to `x.py`, a
 Please see the existing component code under [`components`](components) for examples on how to develop RTOS components.
 
 
-### Building user documentation
+## Building user documentation
 
 Manuals for all RTOS variants are built using:
 
@@ -328,7 +335,7 @@ Like the RTOS component code, the user manual content is componentized so that o
 See `components/*/docs.md` for examples of componentized user documentation.
 
 
-### Building the `prj` tool
+## Building the `prj` tool
 
 To build just the `prj` tool binary for stand-alone use:
 
@@ -336,7 +343,7 @@ To build just the `prj` tool binary for stand-alone use:
     ./x.py build prj
 
 
-### Configuring and building a system
+## Configuring and building a system
 
 To build a system, use the `prj build` sub-tool of `prj`, supplying the system name as argument.
 The name of the system is the basename of its `.prx` file, minus its `.prx` extension, appended to a dot-separated string indicating the sub-package location in which it can be found.
@@ -350,7 +357,7 @@ Alternatively, assuming the `prj` tool binary is on the PATH:
     prj build machine-qemu-ppce500.example.kochab-timer-demo
 
 
-### Building a product release
+## Building a product release
 
 To build all product releases, run:
 
@@ -373,7 +380,7 @@ Each product release contains:
 Note that any user manuals available for each RTOS variant in the release can be found at `share/packages/<platform>/rtos-<variant>/documentation.*` in HTML, Markdown and PDF.
 
 
-### Using a product release
+## Using a product release
 
 After unpacking the product release, create a `project.prj` file for your software project in order to be able to use the `prj` tool that comes packaged with the release.
 

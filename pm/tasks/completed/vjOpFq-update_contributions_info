@@ -1,0 +1,19 @@
+Task: vjOpFq-update_contributions_info
+==============================================================================
+
+Motivation
+----------
+
+The file CONTRIBUTING.md contains an outdated e-mail address for the project and gives new developers very little guidance on how to contribute to the project.
+
+Goals
+--------
+
+The goal of this task is to
+0. update the outdated project e-mail address to echronos@trustworthy.systems
+0. provide additional information for developers new to the project
+
+Test Plan
+---------
+
+- code review

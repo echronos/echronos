@@ -40,7 +40,7 @@ class TestCase(tests.GdbTestCase):
                                       '-kernel', self.executable_path))
 
     def _get_test_command(self):
-        return ('powerpc-linux-gnu-gdb', '--batch', self.executable_path, '-x', self.gdb_commands_path)
+        return ('powerpc-linux-gdb', '--batch', self.executable_path, '-x', self.gdb_commands_path)
 
     def tearDown(self):
         self.qemu.terminate()

@@ -1,0 +1,29 @@
+Task: Umwqbe-upgrade_system_tests_to_gdb_7.12
+==============================================================================
+
+Motivation
+----------
+
+Currently, the PowerPC-based system tests rely on GDB 7.9 with PowerPC support.
+That version of GDB is built from GNU binutils which by now no longer include GDB which has been moved to a separate package.
+This went hand in hand with a change in the name of the GDB executable.
+
+This raises the following issues:
+- the instructions in `README.md` are no longer up-to-date
+- with the latest version of GDB, the system tests fail
+
+
+Goals
+--------
+
+- resolve above issues
+- update the instructions in `README.md` to apply to a specific recent version of GDB
+- update the PowerPC system tests to work with that version of GDB
+
+
+Test Plan
+---------
+
+- review changes
+- existing regression tests
+- check in particular that PowerPC system tests are executed and pass

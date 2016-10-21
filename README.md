@@ -90,7 +90,7 @@ Build and run an example system for the RTOS variant *Kochab* on QEMU-emulated P
     # To connect and view debug output run gdb in another shell prompt
     # Note: The Kochab example will end with task b cycling forever between "blocked" and "unblocked"
 
-    powerpc-linux-gnu-gdb -ex "target remote :1234" -ex "b debug_print" out/machine-qemu-ppce500/example/kochab-system/system
+    powerpc-linux-gdb -ex "target remote :1234" -ex "b debug_print" out/machine-qemu-ppce500/example/kochab-system/system
     (gdb) c
     ...
     Breakpoint 1, debug_print (msg=0x33b4 "tick")
@@ -128,19 +128,14 @@ To obtain the `qemu-system-ppc` emulator for running the [`machine-qemu-ppce500`
 
     sudo apt-get install qemu-system-ppc
 
-To obtain, build, and install `powerpc-linux-gnu-gdb` for debugging PowerPC e500 systems, run:
+To obtain, build, and install `powerpc-linux-gdb` for debugging PowerPC e500 systems, run:
 
-    git clone git://sourceware.org/git/binutils-gdb.git
-    mkdir gdb-powerpc-linux-gnu
-    cd gdb-powerpc-linux-gnu
-    ../binutils-gdb/configure --target=powerpc-linux-gnu --with-expat=yes --with-libexpat-prefix=/usr/local
-    make
-    make install
-
-Note that building `powerpc-linux-gnu-gdb` requires the `expat` C library for parsing XML and you may need to install this first.
-On Ubuntu Linux systems this can be done by:
-
-    sudo apt-get install libexpat-dev
+    wget https://ftp.gnu.org/gnu/gdb/gdb-7.12.tar.xz
+    tar xaf gdb-7.12.tar.xz
+    cd gdb-7.12
+    ./configure --target=powerpc-linux --prefix=/usr/
+    make -s
+    sudo make -s install
 
 To obtain `pandoc` and `wkhtmltopdf` needed for building user documentation on Ubuntu Linux systems:
 

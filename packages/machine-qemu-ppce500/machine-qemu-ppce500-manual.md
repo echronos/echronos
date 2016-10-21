@@ -80,7 +80,7 @@ To obtain a PowerPC-compatible build of GDB:
 
 In a separate window, run GDB:
 
-    powerpc-linux-gnu-gdb path/to/system
+    powerpc-linux-gdb path/to/system
 
 To connect to QEMU, set a breakpoint at the debug_println stub, and start the system:
 

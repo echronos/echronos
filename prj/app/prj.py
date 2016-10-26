@@ -1102,14 +1102,12 @@ def _get_gcc_default_include_paths():
 
     for line in output.splitlines():
         if line[0] == " ":
-            try:
-                line = line.strip()
-                if line[0] == "/" and sys.platform == "win32":  # unix paths reported on windows means cygwin
-                    line = subprocess.check_output(("cygpath", "-wa", line)).decode()
-                path = os.path.abspath(os.path.normpath(line.strip()))
+            line = line.strip()
+            if line[0] == "/" and sys.platform == "win32":  # unix paths reported on windows means cygwin
+                line = subprocess.check_output(("cygpath", "-wa", line)).decode()
+            path = os.path.abspath(os.path.normpath(line.strip()))
+            if os.path.exists(path):
                 paths.append(path)
-            except:
-                pass
 
     return paths
 

@@ -13,6 +13,11 @@ of robustness and maintainability though. As in, can we expect the output of gcc
 to remain as it is and to be same across all platforms? I do not know of a better
 approach though so I am happy to have it the way it is.
 
+[stg: unfortunately, I am unaware of any better approach.
+To ensure that splint preprocesses the source code in the same manner as the compiler used to build a system, one does in fact need to query the compiler for its default options.
+gcc's output format has been stable for several major versions now, so I am not terribly concerned about regression in this area.
+Should regressions become an issue, our continuous integration tests would pick them up, anyway.]
+
 
 Specific comments
 =================
@@ -24,3 +29,7 @@ Comment: Which possible Exception(s) are we expecting here? Would it make sense
          right? In this case we can expect a very limited list to be returned so
          I can not picture it as a big issue, but I guess in general it is a good
          habit to avoid try-except blocks like this.
+
+[stg: good point.
+I have removed the try/except block entirely.
+Instead, the code now directly tests whether the path parsed from the gcc output exists or not and only returns existing paths.]

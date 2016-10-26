@@ -1,0 +1,20 @@
+RTOS Task Review
+=======================
+
+Task name: HaJ2AE-fix_typo_and_include_path_for_splint_static_analysis_on_windows
+Version reviewed: ec3285107cd80f159febff84968a65593701ab2f
+Reviewer: davidm
+Date: 2016-10-26
+Conclusion: Accepted/Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: filename:linenum
+Comment:
+
+Location: filename:linenum
+Comment:

@@ -4,17 +4,23 @@ RTOS Task Review
 Task name: HaJ2AE-fix_typo_and_include_path_for_splint_static_analysis_on_windows
 Version reviewed: 7164574fb2a5ebd0d1e016400f6a8fab52428517
 Reviewer: davidm
-Date: 2016-10-21
-Conclusion: Accepted/Rework
+Date: 2016-10-26
+Conclusion: Rework
 
 Overall comments:
+Looks good to me. I am somewhat unsure about parsing the output of gcc in terms
+of robustness and maintainability though. As in, can we expect the output of gcc
+to remain as it is and to be same across all platforms? I do not know of a better
+approach though so I am happy to have it the way it is.
 
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
+Location: prj/app/prj.py:1105-1112
+Comment: Which possible Exception(s) are we expecting here? Would it make sense
+         to catch these specifically rather than having a catch all try-except
+         block? Currently it would for example catch and ignore a KeyboardInterrupt,
+         right? In this case we can expect a very limited list to be returned so
+         I can not picture it as a big issue, but I guess in general it is a good
+         habit to avoid try-except blocks like this.

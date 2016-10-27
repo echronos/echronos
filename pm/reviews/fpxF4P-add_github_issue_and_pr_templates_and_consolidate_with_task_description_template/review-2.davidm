@@ -4,17 +4,36 @@ RTOS Task Review
 Task name: fpxF4P-add_github_issue_and_pr_templates_and_consolidate_with_task_description_template
 Version reviewed: 9df89a643995b4d05f5428770f2587be593ac05f
 Reviewer: davidm
-Date: 2016-10-21
-Conclusion: Accepted/Rework
+Date: 2016-10-27
+Conclusion: Accepted
 
 Overall comments:
+
+Looks good to me! I presume the pull request and issue templates are not yet
+visible on github as the templates are only in this task branch and not the mainline.
 
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: pylic/tasks:149
+Comment: The first time I tried creating a task it failed with not being able
+         to find this file. I have not been able to reproduce it though, so it
+         may have been a separate issue. The traceback is below for what it is
+         worth. The environment is Win7 with Cygwin.
 
-Location: filename:linenum
-Comment:
+    WIN-JAKHRRL7GSF:~/Dev/echronos-core$ py -3 x.py task create "just_testing_stuff"
+    Total 0 (delta 0), reused 0 (delta 0)
+    To git@github.com:echronos/echronos.git
+     * [new branch]      HxqACR-just_testing_stuff -> HxqACR-just_testing_stuff
+    Switched to branch 'HxqACR-just_testing_stuff'
+    Traceback (most recent call last):
+      File "x.py", line 280, in <module>
+        sys.exit(main())
+      File "x.py", line 276, in main
+        return args.execute(args)
+      File "C:\cygwin64\home\davidm\Dev\echronos-core\pylib\tasks.py", line 149, in create
+
+      File "C:\cygwin64\home\davidm\Dev\echronos-core\pylib\utils.py", line 157, in find_path
+        raise IOError("Unable to find the relative path '{}' in the repository hierarchy".format(path))
+    OSError: Unable to find the relative path '.github/PULL_REQUEST_TEMPLATE.md' in the repository hierarchy

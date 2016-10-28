@@ -1,0 +1,20 @@
+RTOS Task Review
+=======================
+
+Task name: xvVril-win32_batch_wrapper_for_prj_shall_invoke_python3
+Version reviewed: 0e5f2740082eea6df4d31f012dc73e7dd1edd133
+Reviewer: timl
+Date: 2016-10-28
+Conclusion: Accepted/Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: filename:linenum
+Comment:
+
+Location: filename:linenum
+Comment:

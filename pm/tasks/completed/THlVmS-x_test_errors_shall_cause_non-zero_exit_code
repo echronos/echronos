@@ -1,0 +1,23 @@
+Task: THlVmS-x_test_errors_shall_cause_non-zero_exit_code
+==============================================================================
+
+Motivation
+----------
+
+The command `./x.py test x` runs a range of regression tests for the `x` tool.
+When one of those tests fails due to an error, such as an exception, it results in a highly visible error message.
+However, the tool exits with an exit code of 0, which should only by the case when all tests pass.
+This is due to only checking for non-error test failures when determining the exit code.
+
+
+Goals
+--------
+
+- when a test executed by the command `./x.py test x` fails in any manner, the command shell exit with a non-zero exit code
+
+
+Test Plan
+---------
+
+- locally edit `x_test.py` and change the value of the `INITIAL_COMMIT` variable to an arbitrary value
+- check that the command `./x.py test x` exits with a non-zero exit code

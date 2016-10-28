@@ -127,9 +127,7 @@ def _run_module_tests(modules, directories, patterns=None, verbosity=0, print_on
     If the boolean 'print_only' is True, the discovered tests are printed on the console but not executed.
 
     Returns a process exit code suitable for passing to sys.exit().
-    The exit code represents the number of tests that failed (0 indicating all tests passed).
-    If more than 127 tests failed, then 127 will be returned.
-    127 is the largest, portable value that can be returned via sys.exit().
+    The return values is 0 if there are no test failures and non-zero if there were test failures.
 
     """
     result = 0
@@ -153,7 +151,10 @@ def _run_module_tests(modules, directories, patterns=None, verbosity=0, print_on
                 runner = unittest.TextTestRunner(resultclass=SimpleTestNameResult,
                                                  verbosity=BASE_VERBOSITY + verbosity)
                 run_result = runner.run(suite)
-                result = min(len(run_result.failures), 127)
+                if run_result.wasSuccessful():
+                    result = 0
+                else:
+                    result = 1
 
     return result
 

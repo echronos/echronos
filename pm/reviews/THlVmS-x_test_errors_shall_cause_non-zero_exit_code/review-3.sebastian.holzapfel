@@ -1,0 +1,20 @@
+RTOS Task Review
+=======================
+
+Task name: THlVmS-x_test_errors_shall_cause_non-zero_exit_code
+Version reviewed: 6779ecbd2f7e687fe1887bfd8e673ad4d1ca97d2
+Reviewer: sebastian.holzapfel
+Date: 2016-10-28
+Conclusion: Accepted/Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: filename:linenum
+Comment:
+
+Location: filename:linenum
+Comment:

@@ -30,9 +30,10 @@ import re
 import time
 import string
 import datetime
+import shutil
 import subprocess
 from random import choice
-from .utils import Git
+from .utils import Git, find_path
 from .cmdline import subcmd, Arg
 
 
@@ -123,23 +124,6 @@ def review(args):
     git.push(branch, branch)
 
 
-_task_template = """Task: {}
-==============================================================================
-
-Motivation
-----------
-
-
-Goals
---------
-
-
-Test Plan
----------
-
-"""
-
-
 @subcmd(cmd="task",
         args=(Arg('taskname', metavar='TASKNAME'),
               Arg('--no-fetch', dest='fetch', action='store_false', default='true')))
@@ -162,9 +146,9 @@ def create(args):
     git.push(fullname, fullname, set_upstream=True)
     git.checkout(fullname)
 
+    template_path = find_path('.github/PULL_REQUEST_TEMPLATE.md', args.topdir)
     task_fn = _task_dir(args.topdir, fullname)
-    with open(task_fn, 'w', newline='\n') as f:
-        f.write(_task_template.format(fullname))
+    shutil.copyfile(template_path, task_fn)
 
     print("Edit file: {} then add/commit/push.".format(task_fn))
     print('Suggest committing as: git commit -m "New task: {}"'.format(fullname))

@@ -92,7 +92,7 @@ def _prj_build(output_dir):
                 archive_file_path = os.path.normpath(archive_file_path)
                 zip_file.writestr(archive_file_path, file_content)
     with open(os.path.join(output_dir, 'prj.bat'), 'w', newline='\r\n') as f:
-        f.write('@ECHO OFF\npy -3 %~dp0\\prj\n')
+        f.write('@ECHO OFF\npy -3 %~dp0\\prj %*\n')
     sh_path = os.path.join(output_dir, 'prj.sh')
     with open(sh_path, 'w', newline='\n') as f:
         f.write('''#!/bin/sh

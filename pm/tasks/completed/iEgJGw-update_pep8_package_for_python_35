@@ -1,0 +1,18 @@
+Task: iEgJGw-update_pep8_package_for_python_35
+==============================================================================
+
+Motivation
+----------
+
+The command `x.py test style` fails with Python 3.5 because the pep8 Python package integrate into the repository is not compatible with Python 3.5.
+
+Goals
+--------
+
+- make `x.py test style` work with Python 3.5
+- upgrade the pep8 Python package in the repository
+
+Test Plan
+---------
+
+- existing regression tests, in particular the `x.py test style` test

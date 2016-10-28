@@ -27,7 +27,7 @@
 
 import os
 import sys
-import pep8
+import pycodestyle
 import logging
 import unittest
 import subprocess
@@ -174,7 +174,7 @@ def _python_path(*paths):
         del sys.path[:len(paths)]
 
 
-class _TeamcityReport(pep8.StandardReport):
+class _TeamcityReport(pycodestyle.StandardReport):
     """Collect results and print teamcity messages."""
 
     def __init__(self, options):
@@ -201,34 +201,34 @@ class _TeamcityReport(pep8.StandardReport):
             .replace("]", "|]").replace("\n", "|n").replace("\r", "|r")
 
 
-@subcmd(cmd="test", help='Run PEP8 on project Python files',
+@subcmd(cmd="test", help='Run code-style checks against project Python files',
         args=(Arg('--teamcity', action='store_true', help="Provide teamcity output for tests", default=False),
-              Arg('--excludes', nargs='*', help="Exclude directories from pep8 checks", default=[])))
+              Arg('--excludes', nargs='*', help="Exclude directories from code-style checks", default=[])))
 def style(args):
-    """Check for PEP8 compliance with the pep8 tool.
+    """Check for PEP8 compliance with the pycodestyle tool.
 
     This implements conventions lupHw1 and u1wSS9.
     The enforced maximum line length follows convention TZb0Uv.
 
-    When the pep8 tool finds all project Python files to be compliant, this function returns None.
+    When all project Python files are compliant, this function returns None.
     When a non-compliant file is found, details about the non-compliance are printed on the standard output stream and
     this function returns 1.
-    Runtime errors encountered by the pep8 tool are printed on the standard error stream and raised as the appropriate
-    exceptions.
+    Runtime errors encountered by the style checker are printed on the standard error stream and raised as the
+    appropriate exceptions.
 
     """
     excludes = ['external_tools', 'pystache', 'tools', 'ply'] + args.excludes
     exclude_patterns = ','.join(excludes)
     options = ['--exclude=' + exclude_patterns, '--max-line-length', '118', os.path.join(args.topdir, ".")]
 
-    logging.info('pep8 check: ' + ' '.join(options))
+    logging.info('code-style check: ' + ' '.join(options))
 
-    pep8style = pep8.StyleGuide(arglist=options)
+    style = pycodestyle.StyleGuide(arglist=options)
     if args.teamcity:
-        pep8style.init_report(_TeamcityReport)
-    report = pep8style.check_files()
+        style.init_report(_TeamcityReport)
+    report = style.check_files()
     if report.total_errors:
-        logging.error('pep8 check found non-compliant files')  # details on stdout
+        logging.error('Python code-style check found non-compliant files')  # details on stdout
         return 1
 
 

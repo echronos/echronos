@@ -1,0 +1,20 @@
+RTOS Task Review
+=======================
+
+Task name: fpxF4P-add_github_issue_and_pr_templates_and_consolidate_with_task_description_template
+Version reviewed: bf6916ad5ea3f91e8c908066d841089268190a5d
+Reviewer: timl
+Date: 2016-10-20
+Conclusion: Accepted/Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: filename:linenum
+Comment:
+
+Location: filename:linenum
+Comment:

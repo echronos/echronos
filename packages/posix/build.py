@@ -25,6 +25,7 @@
 # @TAG(NICTA_AGPL)
 #
 
+import sys
 from prj import execute, SystemBuildError
 
 
@@ -45,6 +46,11 @@ def system_build(system, configuration):
     if len(system.c_files) == 0:
         raise SystemBuildError("Zero C files in system definition")
 
-    shared_args = ['-shared', '-fPIC', '-std=c90'] if configuration['output_type'] == 'shared-library' else []
+    if configuration['output_type'] == 'shared-library':
+        shared_args = ['-shared']
+        if sys.platform != 'win32':
+            shared_args.append('-fPIC')
+    else:
+        shared_args = []
 
-    execute(['gcc', '-o', system.output_file, '-Wall', '-Werror'] + shared_args + inc_path_args + system.c_files)
+    execute(['gcc', '-o', system.output_file, '-Wall', '-Werror', '-std=c90'] + shared_args + inc_path_args + system.c_files)

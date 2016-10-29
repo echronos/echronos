@@ -705,6 +705,6 @@ class PowerPCe500Linux(Standard):
 
 
 class Posix(Standard):
-    packages = ['posix']
+    packages = ['posix', 'generic', 'rtos-example', 'unittest']
     platforms = ['x86_64-apple-darwin', 'x86_64-unknown-linux-gnu', 'win32']
     release_name = 'posix'

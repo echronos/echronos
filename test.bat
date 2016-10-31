@@ -116,6 +116,9 @@ ECHO %PATH% | FINDSTR msys64 > NUL || %PYTHON% x.py test systems
 %PYTHON% %COREDIR%\prj\app\prj.py analyze stub.rigel
 @IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
 
+%PYTHON% %COREDIR%\prj\app\prj.py build avr.acamar
+@IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+
 %PYTHON% x.py build partials
 @IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
 %PYTHON% x.py build docs

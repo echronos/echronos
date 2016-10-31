@@ -445,7 +445,7 @@ class SourceModule(NamedModule):
         self.schema = None  # schema defaults to none
 
         # Determine what type of Module this is.
-        extensions = ['.c', '.s']
+        extensions = ['.c', '.s', '.S']
         if any([filename.endswith(ext) for ext in extensions]):
             # This is a very non-perfect comment extractor
             state = "find_open"
@@ -476,7 +476,7 @@ class SourceModule(NamedModule):
                 if os.path.exists(possible_header):
                     self.headers.append(Header(possible_header, None, None))
 
-        elif filename.endswith('.s') or filename.endswith('.asm'):
+        elif os.path.splitext(filename)[1] in ('.s', '.S', '.asm'):
             self.module_type = 'default'
         else:
             raise SystemParseError("Module %s[%s] has invalid filename" % (name, filename))
@@ -656,6 +656,7 @@ class System:
         add_functions = {
             '.c': self.add_c_file,
             '.s': self.add_asm_file,
+            '.S': self.add_asm_file,
             '.asm': self.add_asm_file,
         }
         extension = os.path.splitext(path)[1]
@@ -965,7 +966,7 @@ class Project:
         logger.debug("searching %s", entity_name)
 
         # Search for a given entity name.
-        extensions = ['', '.prx', '.py', '.c', '.s', '.asm']
+        extensions = ['', '.prx', '.py', '.c', '.s', '.S', '.asm']
 
         # Find the first path that exists, we try and load that.  If a
         # path exists, but fails to load for some other reason that is
@@ -975,6 +976,7 @@ class Project:
                 path = '%s%s' % (base, ext)
                 logger.debug("trying %s", path)
                 if os.path.exists(path):
+                    path = _path_fix_case(path)
                     logger.debug("found %s @ %s", entity_name, path)
                     return path, ext
             return None, None
@@ -1038,7 +1040,7 @@ class Project:
             else:
                 raise EntityLoadError("Python entity '%s' from path %s doesn't match any interface" %
                                       (entity_name, path))
-        elif ext in ['.c', '.s', '.asm']:
+        elif ext in ['.c', '.s', '.S', '.asm']:
             return SourceModule(entity_name, path)
         else:
             raise EntityLoadError("Unhandled extension '{}'".format(ext))
@@ -1308,6 +1310,41 @@ def _start():
             except:  # pylint: disable=bare-except
                 pass
             sys.exit(1)
+
+
+def _path_fix_case(path):
+    """Convert the given path so that it correctly reflects the case of its file name.
+
+    On case-insensitive file systems, the path 'asm.s' can be used to access the file 'asm.S'.
+    However, using the true file name with the correct case can be relevant, e.g., when transferring a release package
+    from a case-insensitive file system to a case-sensitive file system.
+    For these cases, this function reconstructs the true file name.
+
+    This function raises a FileExistsError exception when it is invoked on a case-sensitive file system and a path
+    that would refer to different files on a case-insensitive file system.
+    For example, this would the case if there are the two files 'asm.s' and 'asm.S' on a case-sensitive file system
+    and this function is called with the argument 'asm.s'.
+
+    If path does not refer to an existing file system object, this function raises a FileNotFoundError exception.
+
+    Note that this function only changes the case of the last path component.
+    In the return value, the case of all parent directories is exactly the same as in the `path` argument, even if
+    those path components have different cases on the file system.
+
+    """
+    parent = os.path.dirname(path)
+    child = os.path.basename(path)
+    children = os.listdir(parent)
+    matches = [c for c in children if c.lower() == child.lower()]
+
+    if len(matches) == 1:
+        return os.path.join(parent, matches[0])
+    elif not matches:
+        return FileNotFoundError("Unable to find a directory entry with the name '{}' in the directory "
+                                 "'{}'".format(child, parent))
+    else:
+        raise FileExistsError("Unable to uniquely identify which directory entry the name '{}' in the directory '{}'"
+                              " refers to because there are multiple matches: {}".format(child, parent, matches))
 
 if __name__ == "__main__":
     _start()

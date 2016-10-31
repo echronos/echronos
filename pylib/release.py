@@ -221,7 +221,7 @@ class _LicenseOpener:
     @staticmethod
     def license_sentinel(ext):
         result = None
-        if ext in ['.c', '.h', '.ld', '.s']:
+        if ext in ['.c', '.h', '.ld', '.s', '.S']:
             result = _LicenseOpener.LICENSE_TAG + '\n */\n'
         elif ext in ['.py', '.gdb', '.sh', '.yml']:
             result = _LicenseOpener.LICENSE_TAG + '\n#\n'
@@ -255,7 +255,7 @@ class _LicenseOpener:
         ext = os.path.splitext(filename)[1]
         is_xml = False
 
-        if ext in ['.c', '.h', '.ld', '.s', '.css']:
+        if ext in ['.c', '.h', '.ld', '.s', '.S', '.css']:
             lic = self._format_lic(self.license, '/*', ' * ', ' *', ' */')
         elif ext in ['.py', '.gdb', '.yml']:
             lic = self._format_lic(self.license, '#', '# ', '#', '#')

@@ -361,6 +361,8 @@ not up-to-date with the remote repository.'.format(self.name))
         return 0
 
     def review(self, offline=False):
+        assert self.is_local
+
         if not self._git.is_clean_and_uptodate(verbose=True, offline=offline):
             return 1
         if not self._is_on_review():

@@ -341,8 +341,11 @@ not up-to-date with the remote repository.'.format(self.name))
         - push the commit to the remote
 
         """
-        assert self.is_local
-
+        try:
+            self._check_is_active_branch()
+        except _InvalidTaskStateError as e:
+            print(str(e))
+            return 1
         if not self._git.is_clean_and_uptodate(verbose=True, offline=offline):
             return 1
         if self._is_on_review():
@@ -361,8 +364,11 @@ not up-to-date with the remote repository.'.format(self.name))
         return 0
 
     def review(self, offline=False):
-        assert self.is_local
-
+        try:
+            self._check_is_active_branch()
+        except _InvalidTaskStateError as e:
+            print(str(e))
+            return 1
         if not self._git.is_clean_and_uptodate(verbose=True, offline=offline):
             return 1
         if not self._is_on_review():
@@ -399,6 +405,7 @@ Comment:
         if self._git.get_active_branch() != self.name:
             raise _TaskNotActiveBranchError('The task {} is not the active git branch (the active git branch is {})'.format(self.name, self._git.get_active_branch()))
         return os.path.exists(self._review_dir)
+
 
 
 @subcmd(cmd="task", help='Integrate a completed development task branch into the main upstream branch.',

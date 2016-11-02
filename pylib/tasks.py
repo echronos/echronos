@@ -345,8 +345,10 @@ not up-to-date with the remote repository.'.format(self.name))
 
         if not self._git.is_clean_and_uptodate(verbose=True, offline=offline):
             return 1
+        if self._is_on_review():
+            print('The task {} is already on review.'.format(self.name))
+            return 1
 
-        assert not os.path.exists(self._review_dir)
         os.makedirs(self._review_dir, exist_ok=False)
         open(self._review_placeholder_path, 'w').close()
 

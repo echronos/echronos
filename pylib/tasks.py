@@ -75,50 +75,11 @@ Comment:
 """
 
 
-@subcmd(cmd="task", args=(Arg('reviewers', metavar='REVIEWER', nargs='+'),))
-def review(args):
-    """Create a new review for the current branch."""
-    if not Git().is_clean_and_uptodate(verbose=True):
-        return 1
-
-    branch = subprocess.check_output(['git', 'symbolic-ref', 'HEAD'], cwd=args.topdir).decode().strip().split('/')[-1]
-    review_dir = _review_dir(args.topdir, branch)
-
-    sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=args.topdir).decode().strip()
-
-    if os.path.exists(review_dir):
-        review_number = sorted([int(re.match(r'review-([0-9]+)..*', f).group(1))
-                                for f in os.listdir(review_dir)])[-1] + 1
-    else:
-        review_number = 0
-
-    msg = "Creating review [%d] for branch [%s] with reviewers %s: (y/n) " % (review_number, branch, args.reviewers)
-    x = input(msg)
-    if x != 'y':
-        print("aborted")
-        return 1
-
-    date = datetime.datetime.now().strftime('%Y-%m-%d')
-    os.makedirs(review_dir, exist_ok=True)
-    params = {
-        'branch': branch,
-        'sha': sha,
-        'date': date
-    }
-    review_files = []
-    for reviewer in args.reviewers:
-        review_fn = os.path.join(review_dir, 'review-%d.%s' % (review_number, reviewer))
-        review_files.append(review_fn)
-        with open(review_fn, 'w', newline='\n') as f:
-            params['reviewer'] = reviewer
-            f.write(_review_template % params)
-
-    git = Git(local_repository=args.topdir)
-    # now, git add, git commit -m <msg> and git push.
-    msg = 'Review request {} for {}'.format(review_number, branch)
-    git.add(review_files)
-    git.commit(msg)
-    git.push(branch, branch)
+@subcmd(cmd="task", args=(Arg('-o', '--offline', action='store_true'),))
+def request_reviews(args):
+    """Request reviews for the current task branch by mark it as up for review."""
+    task = _Task.create()
+    return task.request_reviews(args.offline)
 
 
 @subcmd(cmd="task",
@@ -259,6 +220,7 @@ class _Task:
         self.is_remote = name in git.remote_branches
         self.is_archived_remote = 'archive/' + name in git.remote_branches
         self.is_pm = os.path.exists(_task_dir(top_directory, name))
+        self._review_dir = _review_dir(self.top_directory, self.name)
 
     def integrate(self, target_branch='development', archive_prefix='archive'):
         """
@@ -378,6 +340,32 @@ not up-to-date with the remote repository.'.format(self.name))
         self._git.push(archived_name)
         self._git.delete_remote_branch(self.name)
 
+
+    def request_reviews(self, offline=False):
+        """Mark the current branch as up for review.
+
+        - create the directory pm/reviews/<task_name>
+        - create the empty file pm/reviews/<task_name>/.placeholder_for_git_to_not_remove_this_otherwise_empty_dir
+        - commit the result
+        - push the commit to the remote
+
+        """
+        assert self.is_local
+
+        if not self._git.is_clean_and_uptodate(verbose=True, offline=offline):
+            return 1
+
+        assert not os.path.exists(self._review_dir)
+        os.makedirs(self._review_dir, exist_ok=False)
+        open(os.path.join(self._review_dir, '.placeholder_for_git_to_not_remove_this_otherwise_empty_dir'), 'w').close()
+
+        self._git.add(files=[self._review_dir])
+        self._git.commit('Review request for {}'.format(self.name), files=[self._review_dir])
+
+        if not offline:
+            self._git.push()
+
+        return 0
 
 
 @subcmd(cmd="task", help='Integrate a completed development task branch into the main upstream branch.',

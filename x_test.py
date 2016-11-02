@@ -53,30 +53,6 @@ def test_git_branch_hash():
     assert revid == g.branch_hash(revid)
 
 
-def test_git_branch_date():
-    repo_dir = get_top_dir()
-
-    try:
-        revid, time = _get_git_revision_hash_and_time(repo_dir)
-    except subprocess.CalledProcessError:
-        raise unittest.SkipTest('Test requires code to be managed in a local git repository')
-
-    g = Git(local_repository=repo_dir)
-    assert time == g.branch_date(revid)
-
-
-def _get_git_revision_hash_and_time(repo_dir):
-    try:
-        subprocess.check_call(('git', '--version'), stdout=subprocess.DEVNULL)
-    except FileNotFoundError:
-        raise unittest.SkipTest('This test requires a "git" executable to be available in PATH. \
-On Windows, this is accomplished with a default installation of "git for Windows".')
-
-    git_output = subprocess.check_output(('git', 'log', '-n', '1', '--pretty=%H %at'), cwd=repo_dir)
-    revid, time = git_output.decode().split()
-    return (revid, int(time))
-
-
 def test_sort_typedefs():
     typedefs = ['typedef uint8_t foo;',
                 'typedef foo bar;',

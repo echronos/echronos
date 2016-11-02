@@ -454,47 +454,6 @@ class Git:
         assert isinstance(branch, str)
         return self.push(dst=branch)
 
-    def ahead_list(self, branch, base_branch):
-        """Return a list of SHAs for the commits that are in branch, but not base_branch"""
-        return self._do(['log', '{}..{}'.format(base_branch, branch), '--pretty=format:%H'], as_lines=True)
-
-    def branch_contains(self, commits):
-        """Return a set of branches that contain any of the commits."""
-        contains = set()
-        for c in commits:
-            for b in self._do(['branch', '--contains', c], as_lines=True):
-                contains.add(b[2:])
-        return contains
-
-    def count_commits(self, since, until):
-        """Return the number of commit between two commits 'since' and 'until'.
-
-        See git log --help for more details.
-
-        """
-        return len(self._do(['log', '{}..{}'.format(since, until), '--pretty=oneline'], as_lines=True))
-
-    def ahead_behind(self, branch, base_branch):
-        """Return the a tuple for how many commits ahead/behind a branch is when compared
-        to a base_branch.
-
-        """
-        return self.count_commits(base_branch, branch), self.count_commits(branch, base_branch)
-
-    def ahead_behind_string(self, branch, base_branch):
-        """Format git_ahead_behind() as a string for presentation to the user.
-
-        """
-        ahead, behind = self.ahead_behind(branch, base_branch)
-        r = ''
-        if behind > 0:
-            r = '-{:<4} '.format(behind)
-        else:
-            r = '      '
-        if ahead > 0:
-            r += '+{:<4}'.format(ahead)
-        return r
-
     def _log_pretty(self, pretty_fmt, branch=None):
         """Return information from the latest commit with a specified `pretty` format.
 
@@ -515,14 +474,6 @@ class Git:
         cmd.append('-1')
         cmd.append('--pretty=format:{}'.format(pretty_fmt))
         return self._do(cmd).strip()
-
-    def branch_date(self, branch=None):
-        """Return the date of the latest commit on a given branch as a UNIX timestamp.
-
-        The branch may be ommitted, in which case it defaults to the current head.
-
-        """
-        return int(self._log_pretty('%at', branch=branch))
 
     def branch_hash(self, branch=None):
         """Return the hash of the latest commit on a given branch as a UNIX timestamp.

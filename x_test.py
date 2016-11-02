@@ -115,7 +115,7 @@ def test_resolve_cyclic_dependencies():
 class DummyGit:
     def __init__(self, task_name):
         self.branches = []
-        self.origin_branches = ["archive/%s" % task_name]
+        self.remote_branches = frozenset(["archive/%s" % task_name])
 
 
 # Helper for the pre-integration check tests

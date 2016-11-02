@@ -136,7 +136,7 @@ def create(args):
 
     fullname = tag(None) + '-' + args.taskname
     git.branch(fullname, branch_from, track=False)
-    git.push(fullname, fullname, set_upstream=True)
+    git.push(fullname, set_upstream=True)
     git.checkout(fullname)
 
     template_path = find_path('.github/PULL_REQUEST_TEMPLATE.md', args.topdir)
@@ -256,8 +256,8 @@ class _Task:
         self.top_directory = top_directory
         self._git = git
         self.is_local = name in git.branches
-        self.is_remote = name in git.origin_branches
-        self.is_archived_remote = 'archive/' + name in git.origin_branches
+        self.is_remote = name in git.remote_branches
+        self.is_archived_remote = 'archive/' + name in git.remote_branches
         self.is_pm = os.path.exists(_task_dir(top_directory, name))
 
     def integrate(self, target_branch='development', archive_prefix='archive'):
@@ -354,7 +354,7 @@ not up-to-date with the remote repository.'.format(self.name))
         self._git.checkout(target_branch)
         self._git.merge_into_active_branch(self.name)
         self._complete()
-        self._git.push(target_branch, target_branch)
+        self._git.push(target_branch)
 
     def _complete(self):
         """
@@ -375,7 +375,7 @@ not up-to-date with the remote repository.'.format(self.name))
         assert isinstance(archive_prefix, str)
         archived_name = archive_prefix + '/' + self.name
         self._git.rename_branch(self.name, archived_name)
-        self._git.push(archived_name, archived_name)
+        self._git.push(archived_name)
         self._git.delete_remote_branch(self.name)
 
 

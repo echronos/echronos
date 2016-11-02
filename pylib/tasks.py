@@ -33,7 +33,7 @@ import datetime
 import shutil
 import subprocess
 from random import choice
-from .utils import Git, find_path
+from .utils import Git, find_path, string_to_path
 from .cmdline import subcmd, Arg
 
 
@@ -52,34 +52,17 @@ def tag(_):
     return ''.join(choice(tag_chars) for _ in range(tag_length))
 
 
-_review_template = """RTOS Task Review
-=======================
-
-Task name: %(branch)s
-Version reviewed: %(sha)s
-Reviewer: %(reviewer)s
-Date: %(date)s
-Conclusion: Accepted/Rework
-
-Overall comments:
-
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:
-"""
-
-
 @subcmd(cmd="task", args=(Arg('-o', '--offline', action='store_true'),))
 def request_reviews(args):
     """Request reviews for the current task branch by mark it as up for review."""
     task = _Task.create()
     return task.request_reviews(args.offline)
+
+
+@subcmd(cmd="task")
+def review(args):
+    task = _Task.create()
+    return task.review()
 
 
 @subcmd(cmd="task",
@@ -163,6 +146,13 @@ class _Review:
         return self.conclusion != 'accepted/rework'
 
 
+class _TaskNotActiveBranchError(RuntimeError):
+    """
+    To be raised when a Task object does not represent the currently active branch in the local git repository.
+    """
+    pass
+
+
 class _InvalidTaskStateError(RuntimeError):
     """
     To be raised when a task state transition cannot be performed because the task is not in the appropriate source
@@ -221,6 +211,8 @@ class _Task:
         self.is_archived_remote = 'archive/' + name in git.remote_branches
         self.is_pm = os.path.exists(_task_dir(top_directory, name))
         self._review_dir = _review_dir(self.top_directory, self.name)
+        self._review_placeholder_path = os.path.join(self._review_dir,
+                                                     '.placeholder_for_git_to_not_remove_this_otherwise_empty_dir')
 
     def integrate(self, target_branch='development', archive_prefix='archive'):
         """
@@ -340,7 +332,6 @@ not up-to-date with the remote repository.'.format(self.name))
         self._git.push(archived_name)
         self._git.delete_remote_branch(self.name)
 
-
     def request_reviews(self, offline=False):
         """Mark the current branch as up for review.
 
@@ -357,7 +348,7 @@ not up-to-date with the remote repository.'.format(self.name))
 
         assert not os.path.exists(self._review_dir)
         os.makedirs(self._review_dir, exist_ok=False)
-        open(os.path.join(self._review_dir, '.placeholder_for_git_to_not_remove_this_otherwise_empty_dir'), 'w').close()
+        open(self._review_placeholder_path, 'w').close()
 
         self._git.add(files=[self._review_dir])
         self._git.commit('Review request for {}'.format(self.name), files=[self._review_dir])
@@ -366,6 +357,44 @@ not up-to-date with the remote repository.'.format(self.name))
             self._git.push()
 
         return 0
+
+    def review(self, offline=False):
+        if not self._git.is_clean_and_uptodate(verbose=True, offline=offline):
+            return 1
+        if not self._is_on_review():
+            print('The task {} is not on review.'.format(self.name))
+            return 1
+
+        reviewer = self._git.get_user_name()
+        review_path_template = os.path.join(self._review_dir, 'review-{{}}.{}.md'.format(string_to_path(reviewer)))
+        for review_round in range(1000):
+            review_path = review_path_template.format(review_round)
+            if not os.path.exists(review_path):
+                break
+        else:
+            raise FileNotFoundError('Unable to determine review round for task "{}" and reviewer "{}" ("{}")'.format(branch, reviewer, review_path_template))
+
+        review_contents = """Reviewer: {} ({})
+Conclusion: Accepted/Rework
+
+Location: filename:linenum
+Comment:
+""".format(reviewer, self._git.get_user_email())
+        open(review_path, 'wb').write(review_contents.encode('UTF-8'))
+        self._git.add([review_path])
+        if os.path.exists(self._review_placeholder_path):
+            self._git.rm([self._review_placeholder_path])
+
+        print('To complete the review, edit the file "{0}" and commit and push it with the commands\n\
+    git commit -a\n\
+    git push'.format(review_path))
+
+        return 0
+
+    def _is_on_review(self):
+        if self._git.get_active_branch() != self.name:
+            raise _TaskNotActiveBranchError('The task {} is not the active git branch (the active git branch is {})'.format(self.name, self._git.get_active_branch()))
+        return os.path.exists(self._review_dir)
 
 
 @subcmd(cmd="task", help='Integrate a completed development task branch into the main upstream branch.',

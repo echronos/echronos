@@ -380,9 +380,13 @@ class Git:
         assert isinstance(revid, str)
         return self._do(['merge', revid])
 
-    def fetch(self, remote='--all'):
+    def fetch(self, remote='--all', prune=False):
         """Fetch new revisions from the specificed remote."""
-        return self._do(['fetch', remote])
+        if prune:
+            prune_option = ['--prune']
+        else:
+            prune_option = []
+        return self._do(['fetch'] + prune_option + [remote])
 
     def push(self, src=None, force=False, set_upstream=False):
         """Push the local revision 'src' to a remote.
@@ -425,6 +429,14 @@ class Git:
     def add(self, files):
         """Add the list of files to the index in preparation of a future commit."""
         return self._do(['add'] + self.convert_paths(files))
+
+    def rm(self, paths, force=True, *args):
+        """Remove the specified paths from the index and, by default, from the file system."""
+        if force:
+            force_option = ['--force']
+        else:
+            force_option = []
+        return self._do(['rm'] + force_option + list(args) + self.convert_paths(paths))
 
     def commit(self, msg, files=None):
         """Commit the changes in the specified 'files' with the given 'message' to the currently active branch.
@@ -494,17 +506,10 @@ class Git:
                 print('The local repository "{}" contains changes staged for committing.'.format(self.local_repository))
             return False
 
-        if not offline:
-            self.fetch(self.get_branch_remote())
-            local_revid = self.branch_hash()
-            remote_ref = self.get_tracking_branch()
-            remote_revid = self.branch_hash(remote_ref)
-            if remote_revid != local_revid:
-                if verbose:
-                    print('The local branch is not up-to-date with upstream:\n\
-    Local branch  {} is at {}\n\
-    Remote branch {} is at {}'.format(self.get_active_branch(), local_revid, remote_ref, remote_revid))
-                return False
+        if not self.is_ref_uptodate_with_remote(offline=offline):
+            if verbose:
+                print('The local branch is not up-to-date with its remote tracking branch.')
+            return False
 
         return True
 
@@ -553,6 +558,31 @@ class Git:
             parts = line.split('\t')
             remotes.add(Remote(parts[0], parts[1]))
         return remotes
+
+    def get_user_name(self):
+        return self._get_config_value('user.name')
+
+    def get_user_email(self):
+        return self._get_config_value('user.email')
+
+    def _get_config_value(self, name):
+        return self._do(['config', '--get', name]).strip()
+
+    def is_ref_uptodate_with_remote(self, ref=None, offline=False):
+        if ref is None:
+            ref = self.get_active_branch()
+        if not offline:
+            self.fetch()
+        local_revid = self.branch_hash(ref)
+        remote_ref = self.get_tracking_branch(ref)
+        remote_revid = self.branch_hash(remote_ref)
+        return local_revid == remote_revid
+
+
+def string_to_path(string):
+    string = string.replace(' ', '_')
+    safe_path_characters = ('.', '-', '_')
+    return ''.join([c for c in string if c.isalnum() or c in safe_path_characters])
 
 Remote = namedtuple('Remote', ('name', 'url'))
 

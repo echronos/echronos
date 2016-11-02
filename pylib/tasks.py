@@ -78,10 +78,7 @@ Comment:
 @subcmd(cmd="task", args=(Arg('reviewers', metavar='REVIEWER', nargs='+'),))
 def review(args):
     """Create a new review for the current branch."""
-    # Check the directory is clean
-    status = subprocess.check_output(['git', 'status', '--porcelain'], cwd=args.topdir)
-    if status != b'':
-        print("Can't commit while directory is dirty. Aborting.")
+    if not Git().is_clean_and_uptodate(verbose=True):
         return 1
 
     branch = subprocess.check_output(['git', 'symbolic-ref', 'HEAD'], cwd=args.topdir).decode().strip().split('/')[-1]
@@ -132,14 +129,10 @@ def create(args):
     branch_from = remote + '/development'
 
     git = Git(local_repository=args.topdir)
-    if not git.working_dir_clean():
-        print("Working directory must be clean before creating a new task.")
+    if not git.is_clean_and_uptodate(verbose=True, offline=not args.fetch):
         return 1
 
-    if args.fetch:
-        # Ensure that we have the very last origin/development to branch
-        # from.
-        git.fetch()
+    # the rest of the function relies on git.is_clean_and_uptodate() having fetched the latest changes from the remote
 
     fullname = tag(None) + '-' + args.taskname
     git.branch(fullname, branch_from, track=False)
@@ -285,6 +278,7 @@ class _Task:
         """
         try:
             self._check_is_active_branch()
+            self._check_is_clean_and_uptodate()
             self._check_is_accepted()
         except _InvalidTaskStateError as e:
             raise _InvalidTaskStateError('Task {} is not ready for integration: {}'.format(self.name, e))
@@ -297,6 +291,14 @@ class _Task:
         if active_branch != self.name:
             raise _InvalidTaskStateError('Task {} is not the active checked-out branch ({}) in repository {}'.
                                          format(self.name, active_branch, self.top_directory))
+
+    def _check_is_clean_and_uptodate(self):
+        """
+        Check whether the local git repository contains local modifications and is up-to-date with the remote.
+        """
+        if not self._git.is_clean_and_uptodate():
+            raise _InvalidTaskStateError('The local git repository for task {} contains local modifications or is \
+not up-to-date with the remote repository.'.format(self.name))
 
     def _check_is_accepted(self):
         """

@@ -483,9 +483,50 @@ class Git:
         """
         return self._log_pretty('%H', branch=branch)
 
+    def is_clean_and_uptodate(self, verbose=False, offline=False):
+        if not self.working_dir_clean():
+            if verbose:
+                print('The local repository "{}" contains local modifications.'.format(self.local_repository))
+            return False
+
+        if self.get_staged_files():
+            if verbose:
+                print('The local repository "{}" contains changes staged for committing.'.format(self.local_repository))
+            return False
+
+        if not offline:
+            self.fetch()
+            local_revid = self.branch_hash()
+            remote_ref = self.get_tracking_branch()
+            remote_revid = self.branch_hash(remote_ref)
+            if remote_revid != local_revid:
+                if verbose:
+                    print('The local branch is not up-to-date with upstream:\n\
+    Local branch  {} is at {}\n\
+    Remote branch {} is at {}'.format(self.get_active_branch(), local_revid, remote_ref, remote_revid))
+                return False
+
+        return True
+
     def working_dir_clean(self):
         """Return True is the working directory is clean."""
         return self._do(['status', '--porcelain']) == ''
+
+
+    def get_staged_files(self):
+        return self._do(['diff', '--name-only', '--cached'], as_lines=True)
+
+    def get_branch_remote(self, branch=None):
+        if branch is None:
+            branch = self.get_active_branch()
+        return self.get_tracking_branch().split('/')[0]
+
+    def get_tracking_branch(self, ref=None):
+        if ref is None:
+            ref = self.get_active_branch()
+        output = self._do(['branch', '--list', '-vv', ref]).strip()
+        tracking_branch = output.split('[')[1].split(']')[0].split(':')[0]
+        return tracking_branch
 
 _top_dir = None
 

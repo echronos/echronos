@@ -1,0 +1,33 @@
+# Motivation
+
+The current task and review workflow has the following specific properties:
+- for several steps, developers and reviewers need to know how to mix git operations and task commands
+- the review process is split into several review rounds where in each round, a reviewer can provide exactly one review
+- per round, the list of reviewers is pre-determined by the task author
+
+This creates the following undesirable effects:
+- developers and reviewers need a thorough understanding of the intended task workflow and how it interacts with git
+- reviewers not anticipated in the review request cannot contribute a review
+- the strict lock-step between task author and reviewers in going through several rounds can slow down the process
+- each task accumulates a large number of review template files that remain unused
+- the process does not align well with other common review processes, especially those employed on github
+
+
+# Goals
+
+- avoid the effects described above
+- check for and automate git operations within task commands
+- change the review process:
+    - drop the concept of review rounds;
+      once a task is up for review, any reviewer may contribute a review at any time;
+    - do not create review templates as part of the review request;
+      instead, let a reviewer create a review template for their specific review
+    - simplify the review template;
+      remove information that most reviewers remove in most reviews;
+      remove meta-data that is captured in the version control information of the review commit;
+
+
+# Test Plan
+
+- evaluate the new task workflow by using it to review this task branch
+- existing regression tests must pass

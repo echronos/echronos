@@ -61,7 +61,8 @@ def request_reviews(args):
 
 @subcmd(cmd="task",
         args=(Arg('-o', '--offline', action='store_true',
-                  help='Skip all git commands that require an Internet connection'),))
+                  help='Skip all git commands that require an Internet connection'),),
+        help='Reviewers: create a stub for a new review of the current task branch.')
 def review(args):
     task = _Task.create()
     return task.review(offline=args.offline)

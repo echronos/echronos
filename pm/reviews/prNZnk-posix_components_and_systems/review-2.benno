@@ -1,0 +1,23 @@
+RTOS Task Review
+=======================
+
+Task name: prNZnk-posix_components_and_systems
+Version reviewed: a31d79658276896f55a704ae775a39f032668096
+Reviewer: benno
+Date: 2016-04-18
+Conclusion: Rework
+
+Overall comments:
+
+I think that the change to the machine timer interfaces needs some work.
+The bouncing from 'application' => 'driver' => 'application' seem unnecessary.
+(i.e.: the tick_interrupt => machine_timer_tick_isr => application_tick_isr)
+
+This either needs to be documented better with the rationale, or an alternative determined.
+
+[stg:
+This API was intended to support:
+- application ISRs calling machine_timer_tick_isr()
+- systems registering machine_timer_tick_isr() as the ISR itself while control could still return to the application via the application_tick_isr() call.
+However, the second use case does not exist in our current code base.
+Therefore, the machine timer API now no longer relies on application_tick_isr() and lets the application ISR itself perform all application-specific functionality.]

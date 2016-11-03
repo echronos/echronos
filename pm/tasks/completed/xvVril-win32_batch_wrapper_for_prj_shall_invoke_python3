@@ -1,0 +1,56 @@
+Task: xvVril-win32_batch_wrapper_for_prj_shall_invoke_python3
+==============================================================================
+
+Motivation
+----------
+
+Building the prj tool as a binary also creates a `.bat` batch file wrapper for Windows platforms.
+This allows invoking the prj command without expressly having to invoke the Python interpreter.
+
+Currently, the wrapper invokes the Python interpreter via the command name `python`.
+Depending on the execution environment, this does not necessarily invoke a Python 3 interpreter as is required for the correct execution of the prj tool.
+
+However, all modern Python installers install the `py` command which allows invoking a Python interpreter of a specific version, if installed.
+This command is a more suitable approach to running the prj tool with Python 3 if available.
+
+Furthermore, the wrapper does not pass command line parameters on to the prj tool.
+Therefore, the prj tool, when invoked via the wrapper, cannot be made to do anything except printing its help message.
+
+
+Goals
+--------
+
+- run the prj binary against Python 3 if available by modifying the `prj.bat` wrapper for Windows platforms to invoke the Python interpreter via the command `py -3` instead of `python`
+- make all prj functionality available when using the wrapper by passing the wrapper's command line parameters on to the prj tool
+
+
+Test Plan
+---------
+
+Check that the new `.bat` wrapper invokes a Python 3 interpreter even if the command `python` is available on the default search path.
+
+On Windows, execute the following commands:
+
+    echo echo FAIL > python.bat
+    python
+    py -3 x.py build prj
+    prj_build\prj build --help
+    del python.bat
+
+Check that they result in the following output:
+
+    >echo echo FAIL > python.bat
+    >python
+    >echo FAIL
+    FAIL
+    >py -3 x.py build prj
+    >prj_build\prj build --help
+    usage: prj build [-h] system
+
+    positional arguments:
+      system      system to build
+
+    optional arguments:
+      -h, --help  show this help message and exit
+
+    >del python.bat

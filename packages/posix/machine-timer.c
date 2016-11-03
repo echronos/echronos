@@ -9,7 +9,7 @@
  *
  *   No right, title or interest in or to any trade mark, service mark, logo
  *   or trade name of of National ICT Australia Limited, ABN 62 102 206 173
- *   "NICTA" or its licensors is granted. Modified versions of the Program
+ *   ("NICTA") or its licensors is granted. Modified versions of the Program
  *   must be plainly marked as such, and must not be distributed using
  *   "eChronos" as a trade mark or product name, or misrepresented as being
  *   the original Program.
@@ -25,6 +25,48 @@
  * @TAG(NICTA_AGPL)
  */
 
-#define machine_timer_clear()
-#define machine_timer_init()
-#define machine_timer_deinit()
+/*<module>
+    <code_gen>template</code_gen>
+    <headers>
+        <header path="../rtos-example/machine-timer.h" code_gen="template" />
+    </headers>
+</module>*/
+
+#include <signal.h>
+#include <unistd.h>
+#include "machine-timer.h"
+
+#define UALARM_MILLISECOND (1000U)
+#define TICK_DURATION (100U * UALARM_MILLISECOND)
+
+static void sigalrm_handler(int sig);
+
+static void (*application_isr)(void);
+
+static void
+sigalrm_handler(__attribute__((unused)) const int sig)
+{
+    if (application_isr)
+    {
+        application_isr();
+    }
+}
+
+void
+machine_timer_start(void (*application_timer_isr)(void))
+{
+    application_isr = application_timer_isr;
+    signal(SIGALRM, sigalrm_handler);
+    ualarm(TICK_DURATION, TICK_DURATION);
+}
+
+void
+machine_timer_stop(void)
+{
+    ualarm(0, 0);
+}
+
+void
+machine_timer_tick_isr(void)
+{
+}

@@ -64,6 +64,7 @@
 
     </module>
 
+    <module name="stub.machine-timer" />
     <module name="rtos-example.acrux-test" />
 
   </modules>

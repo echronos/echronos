@@ -1,0 +1,60 @@
+Breakpoint 1 at 0x40148f
+[New Thread 5196.0x1118]
+[New Thread 5196.0x1af8]
+[New Thread 5196.0xe90]
+
+Breakpoint 1, 0x0040148f in debug_println ()
+1: rtos_internal_current_task = 0
+task a -- lock
+
+Breakpoint 1, 0x0040148f in debug_println ()
+1: rtos_internal_current_task = 1
+task b -- try lock
+
+Breakpoint 1, 0x0040148f in debug_println ()
+1: rtos_internal_current_task = 0
+task a -- unlock
+
+Breakpoint 1, 0x0040148f in debug_println ()
+1: rtos_internal_current_task = 1
+task b -- got lock
+
+Breakpoint 1, 0x0040148f in debug_println ()
+1: rtos_internal_current_task = 1
+task b
+
+Breakpoint 1, 0x0040148f in debug_println ()
+1: rtos_internal_current_task = 1
+b blocking
+
+Breakpoint 1, 0x0040148f in debug_println ()
+1: rtos_internal_current_task = 0
+task a
+
+Breakpoint 1, 0x0040148f in debug_println ()
+1: rtos_internal_current_task = 0
+unblocking b
+
+Breakpoint 1, 0x0040148f in debug_println ()
+1: rtos_internal_current_task = 1
+task b
+
+Breakpoint 1, 0x0040148f in debug_println ()
+1: rtos_internal_current_task = 0
+task a
+
+Breakpoint 1, 0x0040148f in debug_println ()
+1: rtos_internal_current_task = 1
+task b
+
+Breakpoint 1, 0x0040148f in debug_println ()
+1: rtos_internal_current_task = 0
+task a
+
+Breakpoint 1, 0x0040148f in debug_println ()
+1: rtos_internal_current_task = 1
+A debugging session is active.
+
+	Inferior 1 [process 5196] will be killed.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]

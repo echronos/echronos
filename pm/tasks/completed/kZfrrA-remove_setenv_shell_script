@@ -1,0 +1,35 @@
+Task: rDzBUS-kZfrrA-remove_setenv_shell_script
+==============================================================================
+
+Motivation
+----------
+
+Currently, the repository contains the shell script `setenv`.
+It updates the `PATH` environment variable so as to include the platform-specific build tools from the `tools` directory.
+On UNIX-based platforms, users are supposed to _source_ this script in order for it to affect the environment variables of their shell session.
+On Windows-based platforms, this script is not used and the build tools are expected to be installed system wide and always available via `PATH`.
+
+This approach has two downsides:
+- it is a hassle and a hurdle for users to take the extra step of sourcing the `setenv` script and it is easy to forget
+- it is an inconsistent user experience across platforms
+
+The RTOS build system relies on the updated `PATH` variable only in the build modules invoked via the `prj` utility.
+The task of selecting, finding, and using the correct build tools could just as well be moved there.
+This would eliminate the need for the `setenv` script.
+
+
+Goals
+--------
+
+- remove `setenv` script along with documentation and tests that refer to it
+- determine an appropriate new home in `prj` tool or the build modules for `setenv`'s functionality of selecting and finding the correct platform-specific build tools
+- extend `prj` tool or build modules accordingly
+- configure CI server so that it does not use `setenv` script
+
+
+Test Plan
+---------
+
+- code review
+- existing regression tests
+- ensure that applications can be built successfully from RTOS releases

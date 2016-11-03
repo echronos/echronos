@@ -136,8 +136,7 @@ exti_interrupt(void)
 void
 tick_interrupt(void)
 {
-    machine_timer_clear();
-
+    machine_timer_tick_isr();
     debug_println("tick_interrupt");
 }
 
@@ -178,7 +177,7 @@ main(void)
     debug_println("Interrupt demux example");
 
     /* Set up a CPU-based timer interrupt source - these do not go through the PIC. */
-    machine_timer_init();
+    machine_timer_start(tick_interrupt);
 
     /* This code assumes the PIC init invocation has already been done by vectable.s, if it was needed.
      * Configure the PIC to deliver the DUART interrupt with the given priority and vector number. */

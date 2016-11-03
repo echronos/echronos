@@ -1,0 +1,142 @@
+Breakpoint 1 at 0x401607
+Breakpoint 2 at 0x401a27
+Breakpoint 3 at 0x401772
+[New Thread 6728.0xcfc]
+[New Thread 6728.0x4c4]
+[New Thread 6728.0x878]
+
+Breakpoint 2, 0x00401a27 in main ()
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task a: taking lock
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task a: got lock
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b: attempting lock
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task a: yielded
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task a: releasing lock
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b: got lock
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b: blocking
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task a
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task a: unblocking b
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b: unblocked
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task a
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task a
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task a
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b: blocking
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task a
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task a
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task a: unblocking b
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b: unblocked
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task a
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task a
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task a
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b: finished receiving signals.
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b: no signal available on peek
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b: Success: no signal available to poll after no-peek.
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task a
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b: no signal available on peek
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b: Success: no signal available to poll after no-peek.
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task a: finished sending signals
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task a: completed.
+
+Breakpoint 3, 0x00401772 in complete ()
+0x00000000
+Breakpoint 1, 0x00401607 in debug_println ()
+ completed
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b: signal available on peek
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b: Successful poll after peek.
+
+Breakpoint 1, 0x00401607 in debug_println ()
+task b: completed.
+
+Breakpoint 3, 0x00401772 in complete ()
+0x00000001
+Breakpoint 1, 0x00401607 in debug_println ()
+A debugging session is active.
+
+	Inferior 1 [process 6728] will be killed.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]

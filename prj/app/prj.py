@@ -47,6 +47,7 @@ else:
     # execution and most logic is placed in a separate modules.
     frozen = False
 
+from util.util import prepend_tool_binaries_to_path_environment_variable
 # Logging is set up first since this is critical to the rest of the application working correctly.
 # It is possible that other modules will perform logging during import, so make sure this is very early.
 import logging as _logging  # Avoid unintended using of 'logging'
@@ -1239,6 +1240,8 @@ def call_system_function(args, function, extra_args=None, sys_is_path=False):
 
     if args.output:
         system.output = args.output
+
+    prepend_tool_binaries_to_path_environment_variable()
 
     logger.info("Invoking '{}' on system '{}'".format(function.__name__, system.name))
     try:

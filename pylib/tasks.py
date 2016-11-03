@@ -36,6 +36,9 @@ from random import choice
 from .utils import Git, find_path, string_to_path
 from .cmdline import subcmd, Arg
 
+_offline_arg = Arg('-o', '--offline', action='store_true',
+                   help='Skip all git commands that require an Internet connection')
+
 
 def _task_dir(topdir, *args):
     return os.path.join(topdir, 'pm', 'tasks', *args)
@@ -52,7 +55,7 @@ def tag(_):
     return ''.join(choice(tag_chars) for _ in range(tag_length))
 
 
-@subcmd(cmd="task", args=(Arg('-o', '--offline', action='store_true'),))
+@subcmd(cmd="task", args=(_offline_arg,))
 def request_reviews(args):
     """Request reviews for the current task branch by mark it as up for review."""
     task = _Task.create()
@@ -60,9 +63,8 @@ def request_reviews(args):
 
 
 @subcmd(cmd="task",
-        args=(Arg('-o', '--offline', action='store_true',
-                  help='Skip all git commands that require an Internet connection'),),
-        help='Reviewers: create a stub for a new review of the current task branch.')
+        args=(_offline_arg,),
+        help='Reviewers: create a stub for a new review of the active task branch.')
 def review(args):
     task = _Task.create()
     return task.review(offline=args.offline)

@@ -5,9 +5,9 @@ Task name: kZfrrA-remove_setenv_shell_script
 Version reviewed: 1b3b12d82eba35db024b1c4b003ef66ea5d18aa2
 Reviewer: timl
 Date: 2016-10-28
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
-Overall comments:
+Overall comments: LGTM
 
 
 Specific comments

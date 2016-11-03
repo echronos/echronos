@@ -104,8 +104,8 @@ class _Review:
         assert os.path.isfile(file_path)
         self.file_path = file_path
         basename = os.path.basename(file_path)
-        round_author = basename[7:]
-        round, author = round_author.split('.', maxsplit=1)
+        author_and_round = os.path.splitext(basename)[0].split('-', maxsplit=1)[1]
+        author, round = author_and_round.split('.', maxsplit=1)
         self.round = int(round)
         self.author = author
         self._conclusion = None
@@ -259,23 +259,23 @@ not up-to-date with the remote repository.'.format(self.name))
         Check whether all authors of completed reviews arrive at the 'accepted' conclusion in their final reviews, and
         that at least two review authors have done so.
         """
-        done_reviews = self._get_concluded_reviews()
-        if done_reviews == []:
+        reviews = self._get_most_recent_reviews()
+        if not reviews:
             raise _InvalidTaskStateError('Task {} has not been reviewed'.format(self.name))
-        for review in done_reviews:
+        for review in reviews:
             if not review.is_accepted():
                 raise _InvalidTaskStateError('The conclusion of review {} for task {} is not "accepted"'.
                                              format(review.file_path, self.name))
-        if len(done_reviews) < 2:
+        if len(reviews) < 2:
             raise _InvalidTaskStateError('Task {} does not have enough reviews (minimum: 2)'.format(self.name))
 
-    def _get_concluded_reviews(self):
+    def _get_most_recent_reviews(self):
         """
         For any reviewer having reviewed this task, determine the most recent review and return all of them as a list
         of _Review instances.
         """
         reviews_by_author = {}
-        for review in [r for r in self._get_reviews() if r.is_done()]:
+        for review in self._get_reviews():
             if review.author in reviews_by_author:
                 if reviews_by_author[review.author].round < review.round:
                     reviews_by_author[review.author] = review
@@ -289,12 +289,11 @@ not up-to-date with the remote repository.'.format(self.name))
         ones.
         """
         reviews = []
-        review_directory = _review_dir(self.top_directory, self.name)
-        directory_contents = os.listdir(review_directory)
+        directory_contents = os.listdir(self._review_dir)
         directory_contents.sort()
         for relative_path in directory_contents:
-            absolute_path = os.path.join(review_directory, relative_path)
-            if os.path.isfile(absolute_path):
+            absolute_path = os.path.join(self._review_dir, relative_path)
+            if os.path.isfile(absolute_path) and relative_path.startswith('review'):
                 review = _Review(absolute_path)
                 reviews.append(review)
         return reviews
@@ -376,7 +375,7 @@ not up-to-date with the remote repository.'.format(self.name))
             return 1
 
         reviewer = self._git.get_user_name()
-        review_path_template = os.path.join(self._review_dir, 'review-{{}}.{}.md'.format(string_to_path(reviewer)))
+        review_path_template = os.path.join(self._review_dir, 'review-{}.{{}}.md'.format(string_to_path(reviewer)))
         for review_round in range(1000):
             review_path = review_path_template.format(review_round)
             if not os.path.exists(review_path):
@@ -405,7 +404,6 @@ Comment:
         if self._git.get_active_branch() != self.name:
             raise _TaskNotActiveBranchError('The task {} is not the active git branch (the active git branch is {})'.format(self.name, self._git.get_active_branch()))
         return os.path.exists(self._review_dir)
-
 
 
 @subcmd(cmd="task", help='Integrate a completed development task branch into the main upstream branch.',

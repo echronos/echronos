@@ -120,6 +120,7 @@
       </profiling>
     </module>
 
+    <module name="machine-armv7m-common.example.machine-timer"/>
     <module name="rtos-example.rigel-test" />
 
   </modules>

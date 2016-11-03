@@ -92,6 +92,7 @@
       </semaphores>
     </module>
 
+    <module name="stub.machine-timer" />
     <module name="rtos-example.kochab-test" />
 
   </modules>

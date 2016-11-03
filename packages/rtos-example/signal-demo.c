@@ -254,7 +254,7 @@ fn_b(void)
 int
 main(void)
 {
-    machine_timer_deinit();
+    machine_timer_stop();
 
     rtos_start();
     /* Should never reach here, but if we do, an infinite loop is

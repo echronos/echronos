@@ -1,0 +1,44 @@
+Breakpoint 1 at 0x40132b
+[New Thread 1884.0xfd0]
+[New Thread 1884.0x1bb8]
+[New Thread 1884.0x17fc]
+
+Breakpoint 1, 0x0040132b in debug_println ()
+1: rtos_internal_current_task = 0
+task a
+
+Breakpoint 1, 0x0040132b in debug_println ()
+1: rtos_internal_current_task = 1
+task b
+
+Breakpoint 1, 0x0040132b in debug_println ()
+1: rtos_internal_current_task = 0
+task a
+
+Breakpoint 1, 0x0040132b in debug_println ()
+1: rtos_internal_current_task = 1
+task b
+
+Breakpoint 1, 0x0040132b in debug_println ()
+1: rtos_internal_current_task = 0
+task a
+
+Breakpoint 1, 0x0040132b in debug_println ()
+1: rtos_internal_current_task = 1
+task b
+
+Breakpoint 1, 0x0040132b in debug_println ()
+1: rtos_internal_current_task = 0
+task a
+
+Breakpoint 1, 0x0040132b in debug_println ()
+1: rtos_internal_current_task = 1
+task b
+
+Breakpoint 1, 0x0040132b in debug_println ()
+1: rtos_internal_current_task = 0
+A debugging session is active.
+
+	Inferior 1 [process 1884] will be killed.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]

@@ -1,0 +1,23 @@
+RTOS Task Review
+=======================
+
+Task name: prNZnk-posix_components_and_systems
+Version reviewed: dc324880f061b316a40fb6620099fb6b5b578c90
+Reviewer: davidm
+Date: 2016-03-30
+Conclusion: Accepted
+
+Overall comments:
+I'm not familiar enough with echronos to comment much on the design.
+The code looks good to me though as far as I can tell.
+
+
+Specific comments
+=================
+
+Location: packages/posix/{acamar, acrux, gatria, kraz}.py:31
+Comment: What happens if we try to compile or run the tests on MinGW with these
+         changes? Does it break somewhere? Would it make sense to raise an
+         explicit exception stating that MinGW is not supported?
+
+[stg: added comments documenting this fact to x.py and the POSIX context-switch component]

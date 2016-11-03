@@ -44,7 +44,7 @@ fatal(const RtosErrorId error_id)
     debug_print("FATAL ERROR: ");
     debug_printhex32(error_id);
     debug_println("");
-    machine_timer_deinit();
+    machine_timer_stop();
     for (;;)
     {
     }
@@ -55,7 +55,7 @@ tick_irq(void)
 {
     static bool toggle;
 
-    machine_timer_clear();
+    machine_timer_tick_isr();
 
     if (toggle) {
         rtos_interrupt_event_raise(RTOS_INTERRUPT_EVENT_ID_SUBFP);
@@ -201,7 +201,7 @@ __eabi(void)
 int
 main(void)
 {
-    machine_timer_init();
+    machine_timer_start((void (*)(void))tick_irq);
 
     machine_fp_init();
 

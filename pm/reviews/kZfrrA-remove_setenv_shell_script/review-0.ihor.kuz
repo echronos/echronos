@@ -1,0 +1,27 @@
+RTOS Task Review
+=======================
+
+Task name: kZfrrA-remove_setenv_shell_script
+Version reviewed: 0c8362c0dafc1e74a2f5b9dd4e7c51c4dbbd4370
+Reviewer: ihor.kuz
+Date: 2016-10-13
+Conclusion: Rework
+
+Overall comments:
+
+I think the goal of removing the setenv script is great.  I've been 
+burned too many times by not running it.
+
+
+Specific comments
+=================
+
+Location: iprj/app/lib/util/util.py:221-236
+Comment:
+While the approach looks correct and should work, it's not immediately 
+clear from looking at the code what it does.  I think it would be clearer 
+to have specific lists of paths per platform (e.g. in a dict) and apply 
+those.  It would be an equivalent amount of hardcoding of paths, but more 
+obvious what is going on (and what the final result would be, so easier 
+to modify in the future, or debug in case something goes wrong).
+

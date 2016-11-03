@@ -40,7 +40,7 @@ void fn_b(void);
 void
 tick_irq(void)
 {
-    machine_timer_clear();
+    machine_timer_tick_isr();
 
     rtos_interrupt_event_raise(0);
 }
@@ -103,7 +103,7 @@ fn_b(void)
 int
 main(void)
 {
-    machine_timer_init();
+    machine_timer_start(tick_irq);
 
     rtos_start();
     for (;;) ;

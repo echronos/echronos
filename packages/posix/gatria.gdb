@@ -25,48 +25,23 @@
 # @TAG(NICTA_AGPL)
 #
 
-#
-# This shell script should be sourced to set up a shell environment for working on the RTOS.
-#
-# Usage:
-#
-# % . ./setenv
-#
-# Later 'unsetenv' can be used to restore the environment.
-#
-unsetenv () {
-    if test -n ""$OLD_PATH; then
-        export PATH=$OLD_PATH
-        unset OLD_PATH
-    else
-        # This shouldn't be possible, but just in case
-        echo "Environment not set"
-    fi;
-    # Remove unsetenv from the environment since it is no longer
-    # required.
-    unset -f unsetenv
-}
-
-setenv () {
-    if test -n ""$OLD_PATH; then
-        echo "Environment already set."
-    elif test ! -f setenv; then
-        echo "Don't appear to be source from the correct directory."
-    else
-        OLD_PATH=$PATH
-        if test $(uname) = Darwin; then
-            PATH=$(pwd)/tools/x86_64-apple-darwin/bin:$PATH
-        elif test $(uname) = Linux; then
-            PATH=$(pwd)/tools/x86_64-unknown-linux-gnu/bin:$PATH
-            PATH=$(pwd)/tools/gcc-4.8.2-Ee500v2-eabispe/bin:$PATH
-        else
-            echo "Unknown host operating system"
-        fi
-
-        export PATH=$PATH
-    fi;
-}
-
-setenv
-# No need to call setenv twice, so remove it form the environment.
-unset -f setenv
+# gdb --batch <SYSTEM_BINARY> -x <THIS_FILE>
+# Don't prompt for terminal input
+set height 0
+b debug_println
+display rtos_internal_current_task
+r
+c
+c
+c
+c
+c
+c
+c
+c
+c
+c
+c
+c
+quit
+y

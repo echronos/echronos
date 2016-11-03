@@ -127,9 +127,7 @@ def _run_module_tests(modules, directories, patterns=None, verbosity=0, print_on
     If the boolean 'print_only' is True, the discovered tests are printed on the console but not executed.
 
     Returns a process exit code suitable for passing to sys.exit().
-    The exit code represents the number of tests that failed (0 indicating all tests passed).
-    If more than 127 tests failed, then 127 will be returned.
-    127 is the largest, portable value that can be returned via sys.exit().
+    The return values is 0 if there are no test failures and non-zero if there were test failures.
 
     """
     result = 0
@@ -153,7 +151,10 @@ def _run_module_tests(modules, directories, patterns=None, verbosity=0, print_on
                 runner = unittest.TextTestRunner(resultclass=SimpleTestNameResult,
                                                  verbosity=BASE_VERBOSITY + verbosity)
                 run_result = runner.run(suite)
-                result = min(len(run_result.failures), 127)
+                if run_result.wasSuccessful():
+                    result = 0
+                else:
+                    result = 1
 
     return result
 
@@ -249,8 +250,8 @@ provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|packag
             path = os.path.join(dirpath, file_name)
             rel_path = os.path.relpath(path, BASE_DIR)
             if not pattern.match(rel_path):
-                # Check setenv as a shell script and expect shell-style comment format for .pylintrc
-                if rel_path in ('setenv', '.pylintrc'):
+                # expect shell-style comment format for .pylintrc
+                if rel_path == '.pylintrc':
                     agpl_sentinel = _LicenseOpener._agpl_sentinel('.sh')
                 else:
                     ext = os.path.splitext(file_name)[1]
@@ -395,6 +396,11 @@ class GdbTestCase(unittest.TestCase):
         test_output = self._get_test_output()
         reference_output = self._get_reference_output()
         if test_output != reference_output:
+            new_reference_path = os.path.splitext(self.prx_path)[0] + '.gdboutnew'
+            open(new_reference_path, 'wb').write(self.gdb_output)
+            sys.stdout.write('System test failed:\n\t{}\n\t{}\n\t{}\n'.format(self.gdb_commands_path,
+                                                                              self.executable_path,
+                                                                              new_reference_path))
             for line in difflib.unified_diff(reference_output.splitlines(), test_output.splitlines(),
                                              'reference', 'test'):
                 sys.stdout.write(line + '\n')
@@ -407,8 +413,10 @@ class GdbTestCase(unittest.TestCase):
 
     def _get_test_output(self):
         test_command = self._get_test_command()
-        gdb_output = subprocess.check_output(test_command)
-        return self._filter_gdb_output(gdb_output.decode())
+        self.gdb_output = subprocess.check_output(test_command)
+        # for an unknown reason, decode() handles Windows line breaks incorrectly so convert them to UNIX linebreaks
+        output_str = self.gdb_output.replace(b'\r\n', b'\n').decode()
+        return self._filter_gdb_output(output_str)
 
     def _get_test_command(self):
         return ('gdb', '--batch', self.executable_path, '-x', self.gdb_commands_path)
@@ -422,6 +430,8 @@ class GdbTestCase(unittest.TestCase):
         delete_patterns = (re.compile('^(\[New Thread .+)$'),)
         replace_patterns = (re.compile('Breakpoint [0-9]+ at (0x[0-9a-f]+): file (.+), line ([0-9]+)'),
                             re.compile('^Breakpoint .* at (.+)$'),
+                            re.compile('^Breakpoint [0-9]+, (0x[0-9a-f]+) in'),
+                            re.compile('( <__register_frame_info\+[0-9a-f]+>)'),
                             re.compile('=(0x[0-9a-f]+)'),
                             re.compile('Inferior( [0-9]+ )\[process( [0-9]+\]) will be killed'),
                             re.compile('^([0-9]+\t.+)$'),

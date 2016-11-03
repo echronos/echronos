@@ -25,6 +25,26 @@
  * @TAG(NICTA_AGPL)
  */
 
-#define machine_timer_clear()
-void machine_timer_init(void);
-#define machine_timer_deinit()
+/*<module>
+    <code_gen>template</code_gen>
+    <headers>
+        <header path="../rtos-example/machine-timer.h" code_gen="template" />
+    </headers>
+</module>*/
+
+#include "machine-timer.h"
+
+void
+machine_timer_start(__attribute__((unused)) void (*application_timer_isr)(void))
+{
+}
+
+void
+machine_timer_stop(void)
+{
+}
+
+void
+machine_timer_tick_isr(void)
+{
+}

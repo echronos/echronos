@@ -132,7 +132,7 @@ main(void)
     debug_println("Interrupt buffering example");
 
     /* We won't be using any CPU-based timer interrupt sources - disable any the bootloader may have set up. */
-    machine_timer_deinit();
+    machine_timer_stop();
 
     /* Invoke helpers to set up the buffering interrupt handler for DUART rx. */
     interrupt_buffering_example_init();

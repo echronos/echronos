@@ -56,7 +56,7 @@ tick_irq(void)
 {
     static uint8_t count;
 
-    machine_timer_clear();
+    machine_timer_tick_isr();
 
     debug_print("tick_irq: ");
     debug_printhex32(count);
@@ -153,7 +153,7 @@ fn_b(void)
 int
 main(void)
 {
-    machine_timer_init();
+    machine_timer_start((void (*)(void))tick_irq);
 
     debug_println("Starting RTOS");
     rtos_start();

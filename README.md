@@ -54,10 +54,6 @@ To obtain the source code, use the following commands:
 See the Prerequisites section for instructions on downloading and installing all prerequisites.
 The following assumes they have been set up.
 
-Set up the build environment:
-
-    . setenv
-
 Build and run an example system for the RTOS variant *Rigel* on QEMU-emulated ARMv7-M:
 
     prj/app/prj.py build machine-qemu-simple.example.rigel-system
@@ -109,8 +105,6 @@ The following tools are supplied with this repository in the [`tools`](tools) di
 
 * Python 3 for the Python scripts in the repository
 * The `arm-none-eabi` GNU toolchain and `arm-none-eabi-gdb` for building and debugging the RTOS for ARMv7-M
-
-The included [`setenv`](setenv) script makes these tools the default ones by including them in the PATH environment variable.
 
 To obtain and build `qemu-system-arm` with target `simple-armv7m` for testing the [`machine-qemu-simple`](packages/machine-qemu-simple) systems, run:
 
@@ -356,7 +350,6 @@ Alternatively, assuming the `prj` tool binary is on the PATH:
 
 To build all product releases, run:
 
-    . setenv
     ./x.py build prj
     ./x.py build docs
     ./x.py build partials

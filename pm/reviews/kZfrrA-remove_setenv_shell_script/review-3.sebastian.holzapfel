@@ -1,0 +1,20 @@
+RTOS Task Review
+=======================
+
+Task name: kZfrrA-remove_setenv_shell_script
+Version reviewed: 2024798fb32facbf6f22ea12bd81db4b569096b0
+Reviewer: sebastian.holzapfel
+Date: 2016-10-21
+Conclusion: Accepted/Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: filename:linenum
+Comment:
+
+Location: filename:linenum
+Comment:

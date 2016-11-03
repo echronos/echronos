@@ -55,7 +55,9 @@ def tag(_):
     return ''.join(choice(tag_chars) for _ in range(tag_length))
 
 
-@subcmd(cmd="task", args=(_offline_arg,))
+@subcmd(cmd="task",
+        args=(_offline_arg,),
+        help='Developers: request reviews for the active task branch.')
 def request_reviews(args):
     """Request reviews for the current task branch by mark it as up for review."""
     task = _Task.create()

@@ -214,10 +214,6 @@ class _Task:
         self.name = name
         self.top_directory = top_directory
         self._git = git
-        self.is_local = name in git.branches
-        self.is_remote = name in git.remote_branches
-        self.is_archived_remote = 'archive/' + name in git.remote_branches
-        self.is_pm = os.path.exists(_task_dir(top_directory, name))
         self._review_dir = _review_dir(self.top_directory, self.name)
         self._review_placeholder_path = os.path.join(self._review_dir,
                                                      '.placeholder_for_git_to_not_remove_this_otherwise_empty_dir')

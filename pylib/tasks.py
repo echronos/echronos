@@ -410,16 +410,12 @@ Comment:
         return os.path.exists(self._review_dir)
 
 
-@subcmd(cmd="task", help='Integrate a completed development task branch into the main upstream branch.',
-        args=(Arg('--repo', help='Path of git repository to operate in. Defaults to current working directory.'),
-              Arg('--name', help='Name of the task branch to integrate. Defaults to active branch in repository.'),
-              Arg('--target', help='Name of branch to integrate task branch into. Defaults to "development".',
-                  default='development'),
-              Arg('--archive', help='Prefix to add to task branch name when archiving it. Defaults to "archive".',
-                  default='archive')))
+@subcmd(cmd="task", help='Developers: integrate a completed development task branch into the main upstream branch.',
+        args=(Arg('--target', help='Name of branch to integrate task branch into. Defaults to "development".',
+                  default='development'),))
 def integrate(args):
     """
     Integrate a completed development task/branch into the main upstream branch.
     """
-    task = _Task.create(args.name, args.repo)
-    task.integrate(args.target, args.archive)
+    task = _Task.create()
+    task.integrate(args.target)

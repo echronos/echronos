@@ -64,6 +64,17 @@ def create(args):
     # the rest of the function relies on git.is_clean_and_uptodate() having fetched the latest changes from the remote
 
     fullname = tag(None) + '-' + args.taskname
+    if fullname in git.branches:
+        print('The task name "{}" is not unique as the git branch "{}" already exists.'
+              .format(fullname, fullname))
+        return 1
+
+    archived_name = _Task.ARCHIVE_PREFIX + '/' + fullname
+    if archived_name in git.remote_branches:
+        print('The task name "{}" is not unique as the archived git branch "{}" already exists.'
+              .format(fullname, archived_name))
+        return 1
+
     git.branch(fullname, 'origin/development', track=False)
     git.push(fullname, set_upstream=True)
     git.checkout(fullname)
@@ -128,6 +139,9 @@ class _Task:
     integration, and integrated).
     This class implements some aspects of task management and helps automating state transitions.
     """
+
+    ARCHIVE_PREFIX = 'archive'
+
     @staticmethod
     def create(name=None, top_directory=None):
         """
@@ -170,7 +184,7 @@ class _Task:
         self._review_placeholder_path = os.path.join(self._review_dir,
                                                      '.placeholder_for_git_to_not_remove_this_otherwise_empty_dir')
 
-    def integrate(self, target_branch='development', archive_prefix='archive'):
+    def integrate(self, target_branch='development', archive_prefix=ARCHIVE_PREFIX):
         """
         Integrate this branch into the upstream branch 'target_branch' and archive it.
         A branch can only be successfully integrated after it has been reviewed and all reviewers have arrived at the

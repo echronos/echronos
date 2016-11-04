@@ -294,7 +294,7 @@ not up-to-date with the remote repository.'.format(self.name))
         directory_contents.sort()
         for relative_path in directory_contents:
             absolute_path = os.path.join(self._review_dir, relative_path)
-            if os.path.isfile(absolute_path) and relative_path.startswith('review'):
+            if os.path.isfile(absolute_path) and not relative_path.startswith('.'):
                 review = _Review(absolute_path)
                 reviews.append(review)
         return reviews
@@ -376,7 +376,7 @@ not up-to-date with the remote repository.'.format(self.name))
             return 1
 
         reviewer = self._git.get_user_name()
-        review_path_template = os.path.join(self._review_dir, 'review-{}.{{}}.md'.format(string_to_path(reviewer)))
+        review_path_template = os.path.join(self._review_dir, '{}.{{}}.md'.format(string_to_path(reviewer)))
         for review_round in range(1000):
             review_path = review_path_template.format(review_round)
             if not os.path.exists(review_path):

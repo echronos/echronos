@@ -52,9 +52,6 @@ def tag(_):
               _offline_arg),
         help='Developers: create a new task to work on, including a template for the task description.')
 def create(args):
-    remote = 'origin'
-    branch_from = remote + '/development'
-
     git = Git(local_repository=args.topdir)
     if not git.is_clean_and_uptodate(verbose=True, offline=args.offline):
         return 1
@@ -62,7 +59,7 @@ def create(args):
     # the rest of the function relies on git.is_clean_and_uptodate() having fetched the latest changes from the remote
 
     fullname = tag(None) + '-' + args.taskname
-    git.branch(fullname, branch_from, track=False)
+    git.branch(fullname, 'origin/development', track=False)
     git.push(fullname, set_upstream=True)
     git.checkout(fullname)
 

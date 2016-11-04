@@ -150,9 +150,6 @@ class _Review:
     def is_rework(self):
         return self.conclusion == 'rework'
 
-    def is_done(self):
-        return self.conclusion != 'accepted/rework'
-
 
 class _TaskNotActiveBranchError(RuntimeError):
     """

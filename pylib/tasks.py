@@ -74,14 +74,14 @@ def review(args):
 
 @subcmd(cmd="task",
         args=(Arg('taskname', metavar='TASKNAME'),
-              Arg('--no-fetch', dest='fetch', action='store_false', default='true')),
+              _offline_arg),
         help='Developers: create a new task to work on, including a template for the task description.')
 def create(args):
     remote = 'origin'
     branch_from = remote + '/development'
 
     git = Git(local_repository=args.topdir)
-    if not git.is_clean_and_uptodate(verbose=True, offline=not args.fetch):
+    if not git.is_clean_and_uptodate(verbose=True, offline=args.offline):
         return 1
 
     # the rest of the function relies on git.is_clean_and_uptodate() having fetched the latest changes from the remote

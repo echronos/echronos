@@ -40,36 +40,11 @@ _offline_arg = Arg('-o', '--offline', action='store_true',
                    help='Skip all git commands that require an Internet connection')
 
 
-def _task_dir(topdir, *args):
-    return os.path.join(topdir, 'pm', 'tasks', *args)
-
-
-def _review_dir(topdir, *args):
-    return os.path.join(topdir, 'pm', 'reviews', *args)
-
-
 @subcmd(cmd="task", help='Generate a random 6-char alphanumeric string')
 def tag(_):
     tag_length = 6
     tag_chars = string.ascii_letters + string.digits
     return ''.join(choice(tag_chars) for _ in range(tag_length))
-
-
-@subcmd(cmd="task",
-        args=(_offline_arg,),
-        help='Developers: request reviews for the active task branch.')
-def request_reviews(args):
-    """Request reviews for the current task branch by mark it as up for review."""
-    task = _Task.create()
-    return task.request_reviews(args.offline)
-
-
-@subcmd(cmd="task",
-        args=(_offline_arg,),
-        help='Reviewers: create a stub for a new review of the active task branch.')
-def review(args):
-    task = _Task.create()
-    return task.review(offline=args.offline)
 
 
 @subcmd(cmd="task",
@@ -99,56 +74,32 @@ def create(args):
     print('Suggest committing as: git commit -m "New task: {}"'.format(fullname))
 
 
-class _Review:
+@subcmd(cmd="task",
+        args=(_offline_arg,),
+        help='Developers: request reviews for the active task branch.')
+def request_reviews(args):
+    """Request reviews for the current task branch by mark it as up for review."""
+    task = _Task.create()
+    return task.request_reviews(args.offline)
+
+
+@subcmd(cmd="task",
+        args=(_offline_arg,),
+        help='Reviewers: create a stub for a new review of the active task branch.')
+def review(args):
+    task = _Task.create()
+    return task.review(offline=args.offline)
+
+
+@subcmd(cmd="task", help='Developers: integrate a completed development task branch into the main upstream branch.',
+        args=(Arg('--target', help='Name of branch to integrate task branch into. Defaults to "development".',
+                  default='development'),))
+def integrate(args):
     """
-    Represents a review on a development task/branch.
+    Integrate a completed development task/branch into the main upstream branch.
     """
-    def __init__(self, file_path):
-        """
-        Create a _Review instance representing the review in the given 'file_path'.
-        This provides easy access to the review's review round, author, and conclusion.
-        """
-        assert isinstance(file_path, str)
-        assert os.path.isfile(file_path)
-        self.file_path = file_path
-        basename = os.path.basename(file_path)
-        author_and_round = os.path.splitext(basename)[0].split('-', maxsplit=1)[1]
-        author, round = author_and_round.split('.', maxsplit=1)
-        self.round = int(round)
-        self.author = author
-        self._conclusion = None
-
-    def _get_conclusion(self):
-        """
-        Determine the conclusion of this review.
-        The conclusion can be expected to be one of 'Accepted/Rework' (i.e., the review has not been completed),
-        'Accepted', or 'Rework'.
-        """
-        f = open(self.file_path)
-        for line in f:
-            if line.startswith('Conclusion: '):
-                conclusion = line.split(':')[1].strip()
-                f.close()
-                return conclusion.lower()
-        f.close()
-        assert False
-
-    @property
-    def conclusion(self):
-        """
-        Return the conclusion of this review.
-        The conclusion can be expected to be one of 'Accepted/Rework' (i.e., the review has not been completed),
-        'Accepted', or 'Rework'.
-        """
-        if self._conclusion is None:
-            self._conclusion = self._get_conclusion()
-        return self._conclusion
-
-    def is_accepted(self):
-        return self.conclusion in ('accept', 'accepted')
-
-    def is_rework(self):
-        return self.conclusion == 'rework'
+    task = _Task.create()
+    task.integrate(args.target)
 
 
 class _TaskNotActiveBranchError(RuntimeError):
@@ -407,12 +358,61 @@ Comment:
         return os.path.exists(self._review_dir)
 
 
-@subcmd(cmd="task", help='Developers: integrate a completed development task branch into the main upstream branch.',
-        args=(Arg('--target', help='Name of branch to integrate task branch into. Defaults to "development".',
-                  default='development'),))
-def integrate(args):
+class _Review:
     """
-    Integrate a completed development task/branch into the main upstream branch.
+    Represents a review on a development task/branch.
     """
-    task = _Task.create()
-    task.integrate(args.target)
+    def __init__(self, file_path):
+        """
+        Create a _Review instance representing the review in the given 'file_path'.
+        This provides easy access to the review's review round, author, and conclusion.
+        """
+        assert isinstance(file_path, str)
+        assert os.path.isfile(file_path)
+        self.file_path = file_path
+        basename = os.path.basename(file_path)
+        author_and_round = os.path.splitext(basename)[0].split('-', maxsplit=1)[1]
+        author, round = author_and_round.split('.', maxsplit=1)
+        self.round = int(round)
+        self.author = author
+        self._conclusion = None
+
+    def _get_conclusion(self):
+        """
+        Determine the conclusion of this review.
+        The conclusion can be expected to be one of 'Accepted/Rework' (i.e., the review has not been completed),
+        'Accepted', or 'Rework'.
+        """
+        f = open(self.file_path)
+        for line in f:
+            if line.startswith('Conclusion: '):
+                conclusion = line.split(':')[1].strip()
+                f.close()
+                return conclusion.lower()
+        f.close()
+        assert False
+
+    @property
+    def conclusion(self):
+        """
+        Return the conclusion of this review.
+        The conclusion can be expected to be one of 'Accepted/Rework' (i.e., the review has not been completed),
+        'Accepted', or 'Rework'.
+        """
+        if self._conclusion is None:
+            self._conclusion = self._get_conclusion()
+        return self._conclusion
+
+    def is_accepted(self):
+        return self.conclusion in ('accept', 'accepted')
+
+    def is_rework(self):
+        return self.conclusion == 'rework'
+
+
+def _task_dir(topdir, *args):
+    return os.path.join(topdir, 'pm', 'tasks', *args)
+
+
+def _review_dir(topdir, *args):
+    return os.path.join(topdir, 'pm', 'reviews', *args)

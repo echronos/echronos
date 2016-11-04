@@ -74,7 +74,8 @@ def review(args):
 
 @subcmd(cmd="task",
         args=(Arg('taskname', metavar='TASKNAME'),
-              Arg('--no-fetch', dest='fetch', action='store_false', default='true')))
+              Arg('--no-fetch', dest='fetch', action='store_false', default='true')),
+        help='Developers: create a new task to work on, including a template for the task description.')
 def create(args):
     remote = 'origin'
     branch_from = remote + '/development'

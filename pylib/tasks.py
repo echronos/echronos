@@ -139,14 +139,16 @@ class _Task:
         """
         if top_directory is None:
             top_directory = os.getcwd()
+
         # Note that '.git' can be a directory in case of a git repository or a file in case of a git submodule
         assert os.path.exists(os.path.join(os.getcwd(), '.git'))
+        git = Git(local_repository=top_directory)
+
         if name is None:
             # derive name from current git branch
-            name = Git(top_directory).get_active_branch()
+            name = git.get_active_branch()
         assert name
 
-        git = Git(local_repository=top_directory)
         task = _Task(name, top_directory, git)
         assert os.path.exists(_task_dir(task.top_directory, task.name))
 

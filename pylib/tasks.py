@@ -52,6 +52,11 @@ def tag(_):
               _offline_arg),
         help='Developers: create a new task to work on, including a template for the task description.')
 def create(args):
+    if not _Task._is_valid_name(args.taskname):
+        print('The task name "{}"" contains unsupported characters. '
+              'Only letters, digits, dashes, and underscores are supported.'.format(args.taskname))
+        return 1
+
     git = Git(local_repository=args.topdir)
     if not git.is_clean_and_uptodate(verbose=True, offline=args.offline):
         return 1
@@ -353,6 +358,10 @@ Comment:
         if self._git.get_active_branch() != self.name:
             raise _TaskNotActiveBranchError('The task {} is not the active git branch (the active git branch is {})'.format(self.name, self._git.get_active_branch()))
         return os.path.exists(self._review_dir)
+
+    @staticmethod
+    def _is_valid_name(name):
+        return all([c.isalnum() or c in ('-', '_') for c in name])
 
 
 class _Review:

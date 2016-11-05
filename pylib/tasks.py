@@ -97,11 +97,23 @@ def request_reviews(args):
 
 
 @subcmd(cmd="task",
-        args=(_offline_arg,),
+        args=(_offline_arg,
+              Arg('-a', '--accept', action='store_true',
+                  help='Create and complete the review with the conclusion "accepted", commit, and push it. '
+                       'This is an alias for the command "x.py task accept".')),
         help='Reviewers: create a stub for a new review of the active task branch.')
 def review(args):
     task = _Task.create()
-    return task.review(offline=args.offline)
+    return task.review(offline=args.offline, accept=args.accept)
+
+
+@subcmd(cmd="task",
+        args=(_offline_arg,),
+        help='Reviewers: create, commit, and push a new review for the active task branch with the conclusion '
+             '"Accepted". This is an alias for the command "x.py task review --accept".')
+def accept(args):
+    args.accept = True
+    return review(args)
 
 
 @subcmd(cmd="task", help='Developers: integrate a completed development task branch into the main upstream branch.',
@@ -332,7 +344,7 @@ not up-to-date with the remote repository.'.format(self.name))
 
         return 0
 
-    def review(self, offline=False):
+    def review(self, offline=False, accept=False):
         try:
             self._check_is_active_branch()
         except _InvalidTaskStateError as e:
@@ -353,20 +365,31 @@ not up-to-date with the remote repository.'.format(self.name))
         else:
             raise FileNotFoundError('Unable to determine review round for task "{}" and reviewer "{}" ("{}")'.format(branch, reviewer, review_path_template))
 
-        review_contents = """Reviewer: {} ({})
+        if not accept:
+            review_template = """Reviewer: {} ({})
 Conclusion: Accepted/Rework
 
 Location: filename:linenum
 Comment:
-""".format(reviewer, self._git.get_user_email())
+"""
+        else:
+            review_template = """Reviewer: {} ({})
+Conclusion: Accepted
+"""
+        review_contents = review_template.format(reviewer, self._git.get_user_email())
         open(review_path, 'wb').write(review_contents.encode('UTF-8'))
         self._git.add([review_path])
         if os.path.exists(self._review_placeholder_path):
             self._git.rm([self._review_placeholder_path])
 
-        print('To complete the review, edit the file "{0}" and commit and push it with the commands\n\
+        if not accept:
+            print('To complete the review, edit the file "{0}" and commit and push it with the commands\n\
     git commit -a\n\
     git push'.format(review_path))
+        else:
+            self._git.commit('Review task {}: accepted, 0 comments'.format(self.name))
+            if not offline:
+                self._git.push()
 
         return 0
 

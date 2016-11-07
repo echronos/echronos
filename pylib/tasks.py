@@ -38,6 +38,8 @@ from .cmdline import subcmd, Arg
 
 _offline_arg = Arg('-o', '--offline', action='store_true',
                    help='Skip all git commands that require an Internet connection')
+_taskname_arg = Arg('taskname', metavar='TASKNAME',
+                help='The name of the task to manage. Defaults to the active git branch.')
 
 
 @subcmd(cmd="task", help='Generate a random 6-char alphanumeric string')
@@ -48,8 +50,7 @@ def tag(_):
 
 
 @subcmd(cmd="task",
-        args=(Arg('taskname', metavar='TASKNAME'),
-              _offline_arg),
+        args=(_offline_arg, _taskname_arg),
         help='Developers: create a new task to work on, including a template for the task description.')
 def create(args):
     if not _Task._is_valid_name(args.taskname):
@@ -88,27 +89,27 @@ def create(args):
 
 
 @subcmd(cmd="task",
-        args=(_offline_arg,),
-        help='Developers: request reviews for the active task branch.')
+        args=(_offline_arg, _taskname_arg),
+        help='Developers: request reviews for a task.')
 def request_reviews(args):
-    """Request reviews for the current task branch by mark it as up for review."""
-    task = _Task.create()
+    """Request reviews for a task branch by mark it as up for review."""
+    task = _Task.create(name=args.taskname)
     return task.request_reviews(args.offline)
 
 
 @subcmd(cmd="task",
-        args=(_offline_arg,
+        args=(_offline_arg, _taskname_arg,
               Arg('-a', '--accept', action='store_true',
                   help='Create and complete the review with the conclusion "accepted", commit, and push it. '
                        'This is an alias for the command "x.py task accept".')),
         help='Reviewers: create a stub for a new review of the active task branch.')
 def review(args):
-    task = _Task.create()
+    task = _Task.create(name=args.taskname)
     return task.review(offline=args.offline, accept=args.accept)
 
 
 @subcmd(cmd="task",
-        args=(_offline_arg,),
+        args=(_offline_arg, _taskname_arg),
         help='Reviewers: create, commit, and push a new review for the active task branch with the conclusion '
              '"Accepted". This is an alias for the command "x.py task review --accept".')
 def accept(args):
@@ -116,14 +117,15 @@ def accept(args):
     return review(args)
 
 
-@subcmd(cmd="task", help='Developers: integrate a completed development task branch into the main upstream branch.',
-        args=(Arg('--target', help='Name of branch to integrate task branch into. Defaults to "development".',
-                  default='development'),))
+@subcmd(cmd="task", help='Developers: integrate a completed task branch into the main upstream branch.',
+        args=(_taskname_arg,
+              Arg('--target', help='Name of branch to integrate task branch into. Defaults to "development".',
+                  default='development')))
 def integrate(args):
     """
     Integrate a completed development task/branch into the main upstream branch.
     """
-    task = _Task.create()
+    task = _Task.create(name=args.taskname)
     task.integrate(args.target)
 
 
@@ -155,13 +157,15 @@ class _Task:
     ARCHIVE_PREFIX = 'archive'
 
     @staticmethod
-    def create(name=None, top_directory=None):
+    def create(name=None, top_directory=None, checkout=True):
         """
         Create and return a new _Task instance, falling back to defaults if the optional task name and repository
         directory are not specified.
+        If 'name' is not specified, it defaults to the name of the active branch in the task's top directory.
         If 'top_directory' is not specified, it defaults to the current working directory which must be a valid local
         git repository.
-        If 'name' is not specified, it defaults to the name of the active branch in the task's top directory.
+        If 'checkout' is true, this function checks out the git branch 'name' in the local git repository.
+        If 'checkout' is false, this function does not modify the active git branch in the local git repository.
         """
         if top_directory is None:
             top_directory = os.getcwd()
@@ -173,6 +177,9 @@ class _Task:
         if name is None:
             # derive name from current git branch
             name = git.get_active_branch()
+        else:
+            if checkout:
+                git.checkout(name)
         assert name
 
         task = _Task(name, top_directory, git)

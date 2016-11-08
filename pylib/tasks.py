@@ -52,45 +52,8 @@ def tag(_):
         args=(_offline_arg, Arg('taskname', help='The name of the task to manage.')),
         help='Developers: create a new task to work on, including a template for the task description.')
 def create(args):
-    if not _Task._is_valid_name(args.taskname):
-        print('The task name "{}"" contains unsupported characters. '
-              'Only letters, digits, dashes, and underscores are supported.'.format(args.taskname))
-        return 1
-
-    git = Git(local_repository=args.topdir)
-    if not git.is_clean():
-        print('The local git repository contains staged or unstaged changes.')
-        return 1
-
-    if not git.is_ref_uptodate_with_tracking_branch(offline=args.offline):
-        print('The active branch is not up-to-date with its remote tracking branch.')
-        return 1
-
-    fullname = tag(None) + '-' + args.taskname
-    if fullname in git.branches:
-        print('The task name "{}" is not unique as the git branch "{}" already exists.'
-              .format(fullname, fullname))
-        return 1
-
-    archived_name = _Task.ARCHIVE_PREFIX + '/' + fullname
-    if archived_name in git.remote_branches:
-        print('The task name "{}" is not unique as the archived git branch "{}" already exists.'
-              .format(fullname, archived_name))
-        return 1
-
-    git.branch(fullname, _REMOTE_MAINLINE, track=False)
-    git.checkout(fullname)
-    if not offline:
-        git.push(fullname, set_upstream=True)
-
-    template_path = find_path('.github/PULL_REQUEST_TEMPLATE.md', args.topdir)
-    task_fn = _task_dir(args.topdir, fullname)
-    shutil.copyfile(template_path, task_fn)
-    git.add(task_fn)
-
-    print('1. edit file "{}"\n'
-          '2. commit via #> git commit -a -m "New task: {}"\n'
-          '3. push task to remote repository via #> git push'.format(task_fn, fullname))
+    task = _Task.instantiate(name=args.taskname, checkout=False)
+    return task.create(offline=args.offline)
 
 
 @subcmd(cmd="task",
@@ -216,6 +179,33 @@ class _Task:
         self._review_dir = _review_dir(self.top_directory, self.name)
         self._review_placeholder_path = os.path.join(self._review_dir,
                                                      '.placeholder_for_git_to_not_remove_this_otherwise_empty_dir')
+
+    def create(self, offline=False):
+        self._check_and_prepare(check_active=False, check_mainline=False, offline=offline)
+
+        self.name = tag(None) + '-' + self.name
+        if self.name in self._git.branches:
+            raise _InvalidTaskNameError('The task name "{}" is not unique as the git branch "{}" already exists.'
+                                        .format(self.name, self.name))
+
+        archived_name = _Task.ARCHIVE_PREFIX + '/' + self.name
+        if archived_name in self._git.remote_branches:
+            raise _InvalidTaskNameError('The task name "{}" is not unique as the archived git branch "{}" already '
+                                        'exists.'.format(self.name, archived_name))
+
+        self._git.branch(self.name, _REMOTE_MAINLINE, track=False)
+        self._git.checkout(self.name)
+        if not offline:
+            self._git.push(self.name, set_upstream=True)
+
+        template_path = find_path('.github/PULL_REQUEST_TEMPLATE.md', self.top_directory)
+        task_fn = _task_dir(self.top_directory, self.name)
+        shutil.copyfile(template_path, task_fn)
+        self._git.add([task_fn])
+
+        print('1. edit file "{}"\n'
+              '2. commit via #> git commit -a -m "New task: {}"\n'
+              '3. push task to remote repository via #> git push'.format(task_fn, self.name))
 
     def integrate(self, target_branch=_LOCAL_MAINLINE, archive_prefix=ARCHIVE_PREFIX):
         """
@@ -389,11 +379,12 @@ Conclusion: Accepted
 
         return 0
 
-    def _check_and_prepare(self, check_mainline=True, offline=False):
-        active_branch = self._git.get_active_branch()
-        if active_branch != self.name:
-            raise _InvalidTaskStateError('Task {} is not the active checked-out branch ({}) in repository {}'.
-                                         format(self.name, active_branch, self.top_directory))
+    def _check_and_prepare(self, check_active=True, check_mainline=True, offline=False):
+        if check_active:
+            active_branch = self._git.get_active_branch()
+            if active_branch != self.name:
+                raise _InvalidTaskStateError('Task {} is not the active checked-out branch ({}) in repository {}'.
+                                             format(self.name, active_branch, self.top_directory))
 
         if not self._git.is_clean():
             raise _InvalidTaskStateError('The local git repository contains staged or unstaged changes.')

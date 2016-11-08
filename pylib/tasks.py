@@ -26,10 +26,7 @@
 #
 
 import os
-import re
-import time
 import string
-import datetime
 import shutil
 import subprocess
 from random import choice

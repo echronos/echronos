@@ -58,10 +58,13 @@ def create(args):
         return 1
 
     git = Git(local_repository=args.topdir)
-    if not git.is_clean_and_uptodate(verbose=True, offline=args.offline):
+    if not git.is_clean():
+        print('The local git repository contains staged or unstaged changes.')
         return 1
 
-    # the rest of the function relies on git.is_clean_and_uptodate() having fetched the latest changes from the remote
+    if not git.is_ref_uptodate_with_tracking_branch(offline=args.offline):
+        print('The active branch is not up-to-date with its remote tracking branch.')
+        return 1
 
     fullname = tag(None) + '-' + args.taskname
     if fullname in git.branches:
@@ -226,32 +229,8 @@ class _Task:
         self._archive(archive_prefix)
 
     def _pre_integration_check(self):
-        """
-        Check whether the current task is ready for integration.
-        """
-        try:
-            self._check_is_active_branch()
-            self._check_is_clean_and_uptodate()
-            self._check_is_accepted()
-        except _InvalidTaskStateError as e:
-            raise _InvalidTaskStateError('Task {} is not ready for integration: {}'.format(self.name, e))
-
-    def _check_is_active_branch(self):
-        """
-        Check whether this task is checked out as the active git branch in the task's repository.
-        """
-        active_branch = self._git.get_active_branch()
-        if active_branch != self.name:
-            raise _InvalidTaskStateError('Task {} is not the active checked-out branch ({}) in repository {}'.
-                                         format(self.name, active_branch, self.top_directory))
-
-    def _check_is_clean_and_uptodate(self):
-        """
-        Check whether the local git repository contains local modifications and is up-to-date with the remote.
-        """
-        if not self._git.is_clean_and_uptodate():
-            raise _InvalidTaskStateError('The local git repository for task {} contains local modifications or is \
-not up-to-date with the remote repository.'.format(self.name))
+        self._check_and_prepare(offline=False)
+        self._check_is_accepted()
 
     def _check_is_accepted(self):
         """
@@ -339,16 +318,9 @@ not up-to-date with the remote repository.'.format(self.name))
         - push the commit to the remote
 
         """
-        try:
-            self._check_is_active_branch()
-        except _InvalidTaskStateError as e:
-            print(str(e))
-            return 1
-        if not self._git.is_clean_and_uptodate(verbose=True, offline=offline):
-            return 1
+        self._check_and_prepare(offline=offline)
         if self._is_on_review():
-            print('The task {} is already on review.'.format(self.name))
-            return 1
+            raise _InvalidTaskStateError('The task {} is already on review.'.format(self.name))
 
         os.makedirs(self._review_dir, exist_ok=False)
         open(self._review_placeholder_path, 'w').close()
@@ -362,16 +334,9 @@ not up-to-date with the remote repository.'.format(self.name))
         return 0
 
     def review(self, offline=False, accept=False):
-        try:
-            self._check_is_active_branch()
-        except _InvalidTaskStateError as e:
-            print(str(e))
-            return 1
-        if not self._git.is_clean_and_uptodate(verbose=True, offline=offline):
-            return 1
+        self._check_and_prepare(offline=offline)
         if not self._is_on_review():
-            print('The task {} is not on review.'.format(self.name))
-            return 1
+            raise _InvalidTaskStateError('The task {} is not on review.'.format(self.name))
 
         reviewer = self._git.get_user_name()
         review_path_template = os.path.join(self._review_dir, '{}.{{}}.md'.format(string_to_path(reviewer)))
@@ -411,13 +376,7 @@ Conclusion: Accepted
         return 0
 
     def update(self, offline=False):
-        try:
-            self._check_is_active_branch()
-        except _InvalidTaskStateError as e:
-            print(str(e))
-            return 1
-        if not self._git.is_clean_and_uptodate(verbose=True, offline=offline):
-            return 1
+        self._check_and_prepare(offline=offline, check_mainline=False)
 
         mainline = 'origin/development'
         if self._is_on_review():
@@ -429,6 +388,25 @@ Conclusion: Accepted
             self._git.push(force=not self._is_on_review())
 
         return 0
+
+    def _check_and_prepare(self, check_mainline=True, offline=False):
+        active_branch = self._git.get_active_branch()
+        if active_branch != self.name:
+            raise _InvalidTaskStateError('Task {} is not the active checked-out branch ({}) in repository {}'.
+                                         format(self.name, active_branch, self.top_directory))
+
+        if not self._git.is_clean():
+            raise _InvalidTaskStateError('The local git repository contains staged or unstaged changes.')
+
+        if not self._git.is_ref_uptodate_with_tracking_branch(offline=offline):
+            try:
+                self._git.merge_into_active_branch(self._git.get_tracking_branch(), '--ff-only')
+            except subprocess.CalledProcessError:
+                raise _InvalidTaskStateError('The task branch is not up-to-date with its remote tracking branch.')
+
+        upstream = 'origin/development'
+        if check_mainline and not self.name in self._git.get_branches_that_contain_revid(upstream):
+            self.update(offline=offline)
 
     def _is_on_review(self):
         if self._git.get_active_branch() != self.name:

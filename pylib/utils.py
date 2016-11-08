@@ -495,23 +495,8 @@ class Git:
         """
         return self._log_pretty('%H', branch=branch)
 
-    def is_clean_and_uptodate(self, verbose=False, offline=False):
-        if not self.working_dir_clean():
-            if verbose:
-                print('The local repository "{}" contains local modifications.'.format(self.local_repository))
-            return False
-
-        if self.get_staged_files():
-            if verbose:
-                print('The local repository "{}" contains changes staged for committing.'.format(self.local_repository))
-            return False
-
-        if not self.is_ref_uptodate_with_remote(offline=offline):
-            if verbose:
-                print('The local branch is not up-to-date with its remote tracking branch.')
-            return False
-
-        return True
+    def is_clean(self):
+        return self.working_dir_clean() and not self.get_staged_files()
 
     def working_dir_clean(self):
         """Return True is the working directory is clean."""
@@ -568,7 +553,7 @@ class Git:
     def _get_config_value(self, name):
         return self._do(['config', '--get', name]).strip()
 
-    def is_ref_uptodate_with_remote(self, ref=None, offline=False):
+    def is_ref_uptodate_with_tracking_branch(self, ref=None, offline=False):
         if ref is None:
             ref = self.get_active_branch()
         if not offline:
@@ -580,6 +565,9 @@ class Git:
 
     def rebase(self, upstream, *options):
         return self._do(['rebase'] + list(options) + [upstream])
+
+    def get_branches_that_contain_revid(self, revid):
+        return [l.strip().replace('* ', '') for l in self._do(['branch', '--contains', revid], as_lines=True)]
 
 
 def string_to_path(string):

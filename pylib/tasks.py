@@ -100,7 +100,7 @@ def create(args):
              'If the task is on review, the mainline changes are merged into the task branch.'
              .format(_REMOTE_MAINLINE))
 def update(args):
-    task = _Task.create(name=args.taskname)
+    task = _Task.instantiate(name=args.taskname)
     return task.update(offline=args.offline)
 
 
@@ -109,7 +109,7 @@ def update(args):
         help='Developers: request reviews for a task.')
 def request_reviews(args):
     """Request reviews for a task branch by mark it as up for review."""
-    task = _Task.create(name=args.taskname)
+    task = _Task.instantiate(name=args.taskname)
     return task.request_reviews(args.offline)
 
 
@@ -120,7 +120,7 @@ def request_reviews(args):
                        'This is an alias for the command "x.py task accept".')),
         help='Reviewers: create a stub for a new review of the active task branch.')
 def review(args):
-    task = _Task.create(name=args.taskname)
+    task = _Task.instantiate(name=args.taskname)
     return task.review(offline=args.offline, accept=args.accept)
 
 
@@ -141,7 +141,7 @@ def integrate(args):
     """
     Integrate a completed development task/branch into the mainline branch.
     """
-    task = _Task.create(name=args.taskname)
+    task = _Task.instantiate(name=args.taskname)
     task.integrate(args.target)
 
 
@@ -173,7 +173,7 @@ class _Task:
     ARCHIVE_PREFIX = 'archive'
 
     @staticmethod
-    def create(name=None, checkout=True):
+    def instantiate(name=None, checkout=True):
         """
         Create and return a new _Task instance, falling back to defaults if the optional task name and repository
         directory are not specified.

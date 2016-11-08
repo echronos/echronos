@@ -38,8 +38,7 @@ from .cmdline import subcmd, Arg
 
 _offline_arg = Arg('-o', '--offline', action='store_true',
                    help='Skip all git commands that require an Internet connection')
-_taskname_arg = Arg('taskname', metavar='TASKNAME', nargs='?',
-                help='The name of the task to manage. Defaults to the active git branch.')
+_taskname_arg = Arg('taskname', nargs='?', help='The name of the task to manage. Defaults to the active git branch.')
 
 
 @subcmd(cmd="task", help='Generate a random 6-char alphanumeric string')
@@ -50,7 +49,7 @@ def tag(_):
 
 
 @subcmd(cmd="task",
-        args=(_offline_arg, _taskname_arg),
+        args=(_offline_arg, Arg('taskname', help='The name of the task to manage.')),
         help='Developers: create a new task to work on, including a template for the task description.')
 def create(args):
     if not _Task._is_valid_name(args.taskname):

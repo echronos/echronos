@@ -40,6 +40,9 @@ _offline_arg = Arg('-o', '--offline', action='store_true',
                    help='Skip all git commands that require an Internet connection')
 _taskname_arg = Arg('taskname', nargs='?', help='The name of the task to manage. Defaults to the active git branch.')
 
+_LOCAL_MAINLINE='development'
+_REMOTE_MAINLINE='origin/' + _LOCAL_MAINLINE
+
 
 @subcmd(cmd="task", help='Generate a random 6-char alphanumeric string')
 def tag(_):
@@ -78,7 +81,7 @@ def create(args):
               .format(fullname, archived_name))
         return 1
 
-    git.branch(fullname, 'origin/development', track=False)
+    git.branch(fullname, _REMOTE_MAINLINE, track=False)
     git.push(fullname, set_upstream=True)
     git.checkout(fullname)
 
@@ -92,10 +95,10 @@ def create(args):
 
 @subcmd(cmd="task",
         args=(_offline_arg, _taskname_arg),
-        help='Developers: bring a task up-to-date with the latest changes on the mainline branch '
-             '"origin/development". '
+        help='Developers: bring a task up-to-date with the latest changes on the mainline branch "{}". '
              'If the task is not yet on review, this rebases the task branch onto the mainline branch. '
-             'If the task is on review, the mainline changes are merged into the task branch.')
+             'If the task is on review, the mainline changes are merged into the task branch.'
+             .format(_REMOTE_MAINLINE))
 def update(args):
     task = _Task.create(name=args.taskname)
     return task.update(offline=args.offline)
@@ -132,8 +135,8 @@ def accept(args):
 
 @subcmd(cmd="task", help='Developers: integrate a completed task branch into the mainline branch.',
         args=(_taskname_arg,
-              Arg('--target', help='Name of branch to integrate task branch into. Defaults to "development".',
-                  default='development')))
+              Arg('--target', help='Name of branch to integrate task branch into. Defaults to "{}".'.
+                  format(_LOCAL_MAINLINE), default=_LOCAL_MAINLINE)))
 def integrate(args):
     """
     Integrate a completed development task/branch into the mainline branch.
@@ -216,7 +219,7 @@ class _Task:
         self._review_placeholder_path = os.path.join(self._review_dir,
                                                      '.placeholder_for_git_to_not_remove_this_otherwise_empty_dir')
 
-    def integrate(self, target_branch='development', archive_prefix=ARCHIVE_PREFIX):
+    def integrate(self, target_branch=_LOCAL_MAINLINE, archive_prefix=ARCHIVE_PREFIX):
         """
         Integrate this branch into the mainline branch 'target_branch' and archive it.
         A branch can only be successfully integrated after it has been reviewed and all reviewers have arrived at the
@@ -378,11 +381,10 @@ Conclusion: Accepted
     def update(self, offline=False):
         self._check_and_prepare(offline=offline, check_mainline=False)
 
-        mainline = 'origin/development'
         if self._is_on_review():
-            self._git.merge_into_active_branch(mainline, '--no-squash')
+            self._git.merge_into_active_branch(_REMOTE_MAINLINE, '--no-squash')
         else:
-            self._git.rebase(mainline)
+            self._git.rebase(_REMOTE_MAINLINE)
 
         if not offline:
             self._git.push(force=not self._is_on_review())
@@ -404,8 +406,7 @@ Conclusion: Accepted
             except subprocess.CalledProcessError:
                 raise _InvalidTaskStateError('The task branch is not up-to-date with its remote tracking branch.')
 
-        upstream = 'origin/development'
-        if check_mainline and not self.name in self._git.get_branches_that_contain_revid(upstream):
+        if check_mainline and not self.name in self._git.get_branches_that_contain_revid(_REMOTE_MAINLINE):
             self.update(offline=offline)
 
     def _is_on_review(self):

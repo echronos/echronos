@@ -82,15 +82,18 @@ def create(args):
         return 1
 
     git.branch(fullname, _REMOTE_MAINLINE, track=False)
-    git.push(fullname, set_upstream=True)
     git.checkout(fullname)
+    if not offline:
+        git.push(fullname, set_upstream=True)
 
     template_path = find_path('.github/PULL_REQUEST_TEMPLATE.md', args.topdir)
     task_fn = _task_dir(args.topdir, fullname)
     shutil.copyfile(template_path, task_fn)
+    git.add(task_fn)
 
-    print("Edit file: {} then add/commit/push.".format(task_fn))
-    print('Suggest committing as: git commit -m "New task: {}"'.format(fullname))
+    print('1. edit file "{}"\n'
+          '2. commit via #> git commit -a -m "New task: {}"\n'
+          '3. push task to remote repository via #> git push'.format(task_fn, fullname))
 
 
 @subcmd(cmd="task",

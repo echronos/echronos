@@ -38,7 +38,7 @@ from .cmdline import subcmd, Arg
 
 _offline_arg = Arg('-o', '--offline', action='store_true',
                    help='Skip all git commands that require an Internet connection')
-_taskname_arg = Arg('taskname', metavar='TASKNAME',
+_taskname_arg = Arg('taskname', metavar='TASKNAME', nargs='?',
                 help='The name of the task to manage. Defaults to the active git branch.')
 
 
@@ -90,6 +90,17 @@ def create(args):
 
 @subcmd(cmd="task",
         args=(_offline_arg, _taskname_arg),
+        help='Developers: bring a task up-to-date with the latest changes on the mainline branch '
+             '"origin/development". '
+             'If the task is not yet on review, this rebases the task branch onto the mainline branch. '
+             'If the task is on review, the mainline changes are merged into the task branch.')
+def update(args):
+    task = _Task.create(name=args.taskname)
+    return task.update(offline=args.offline)
+
+
+@subcmd(cmd="task",
+        args=(_offline_arg, _taskname_arg),
         help='Developers: request reviews for a task.')
 def request_reviews(args):
     """Request reviews for a task branch by mark it as up for review."""
@@ -117,13 +128,13 @@ def accept(args):
     return review(args)
 
 
-@subcmd(cmd="task", help='Developers: integrate a completed task branch into the main upstream branch.',
+@subcmd(cmd="task", help='Developers: integrate a completed task branch into the mainline branch.',
         args=(_taskname_arg,
               Arg('--target', help='Name of branch to integrate task branch into. Defaults to "development".',
                   default='development')))
 def integrate(args):
     """
-    Integrate a completed development task/branch into the main upstream branch.
+    Integrate a completed development task/branch into the mainline branch.
     """
     task = _Task.create(name=args.taskname)
     task.integrate(args.target)
@@ -205,7 +216,7 @@ class _Task:
 
     def integrate(self, target_branch='development', archive_prefix=ARCHIVE_PREFIX):
         """
-        Integrate this branch into the upstream branch 'target_branch' and archive it.
+        Integrate this branch into the mainline branch 'target_branch' and archive it.
         A branch can only be successfully integrated after it has been reviewed and all reviewers have arrived at the
         'accepted' conclusion.
         """
@@ -397,6 +408,26 @@ Conclusion: Accepted
             self._git.commit('Review task {}: accepted, 0 comments'.format(self.name))
             if not offline:
                 self._git.push()
+
+        return 0
+
+    def update(self, offline=False):
+        try:
+            self._check_is_active_branch()
+        except _InvalidTaskStateError as e:
+            print(str(e))
+            return 1
+        if not self._git.is_clean_and_uptodate(verbose=True, offline=offline):
+            return 1
+
+        mainline = 'origin/development'
+        if self._is_on_review():
+            self._git.merge_into_active_branch(mainline, '--no-squash')
+        else:
+            self._git.rebase(mainline)
+
+        if not offline:
+            self._git.push(force=not self._is_on_review())
 
         return 0
 

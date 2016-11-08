@@ -373,12 +373,12 @@ class Git:
         assert isinstance(revid, str)
         return self._do(['checkout', revid])
 
-    def merge_into_active_branch(self, revid):
+    def merge_into_active_branch(self, revid, *options):
         """
         Merge the specified revision ID into the currently active branch.
         """
         assert isinstance(revid, str)
-        return self._do(['merge', revid])
+        return self._do(['merge'] + list(options) + [revid])
 
     def fetch(self, remote='--all', prune=False):
         """Fetch new revisions from the specificed remote."""
@@ -577,6 +577,9 @@ class Git:
         remote_ref = self.get_tracking_branch(ref)
         remote_revid = self.branch_hash(remote_ref)
         return local_revid == remote_revid
+
+    def rebase(self, upstream, *options):
+        return self._do(['rebase'] + list(options) + [upstream])
 
 
 def string_to_path(string):

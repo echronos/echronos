@@ -160,6 +160,11 @@ class _InvalidTaskStateError(RuntimeError):
     pass
 
 
+class _InvalidTaskNameError(RuntimeError):
+    """To be raised when a task name is invalid."""
+    pass
+
+
 class _Task:
     """
     Represents a development task.
@@ -200,6 +205,11 @@ class _Task:
         assert isinstance(name, str)
         assert isinstance(top_directory, str)
         assert os.path.isdir(top_directory)
+
+        if not _Task._is_valid_name(name):
+            raise _InvalidTaskNameError('The task name "{}" contains unsupported characters. '
+                                        'Only letters, digits, dashes, and underscores are supported.'.format(name))
+
         self.name = name
         self.top_directory = top_directory
         self._git = git

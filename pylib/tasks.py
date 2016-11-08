@@ -173,22 +173,18 @@ class _Task:
     ARCHIVE_PREFIX = 'archive'
 
     @staticmethod
-    def create(name=None, top_directory=None, checkout=True):
+    def create(name=None, checkout=True):
         """
         Create and return a new _Task instance, falling back to defaults if the optional task name and repository
         directory are not specified.
         If 'name' is not specified, it defaults to the name of the active branch in the task's top directory.
-        If 'top_directory' is not specified, it defaults to the current working directory which must be a valid local
-        git repository.
         If 'checkout' is true, this function checks out the git branch 'name' in the local git repository.
         If 'checkout' is false, this function does not modify the active git branch in the local git repository.
         """
-        if top_directory is None:
-            top_directory = os.getcwd()
 
         # Note that '.git' can be a directory in case of a git repository or a file in case of a git submodule
         assert os.path.exists(os.path.join(os.getcwd(), '.git'))
-        git = Git(local_repository=top_directory)
+        git = Git()
 
         if name is None:
             # derive name from current git branch
@@ -198,7 +194,7 @@ class _Task:
                 git.checkout(name)
         assert name
 
-        task = _Task(name, top_directory, git)
+        task = _Task(name, os.getcwd(), git)
         assert os.path.exists(_task_dir(task.top_directory, task.name))
 
         return task

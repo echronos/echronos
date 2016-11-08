@@ -181,23 +181,15 @@ class _Task:
         If 'checkout' is true, this function checks out the git branch 'name' in the local git repository.
         If 'checkout' is false, this function does not modify the active git branch in the local git repository.
         """
-
-        # Note that '.git' can be a directory in case of a git repository or a file in case of a git submodule
-        assert os.path.exists(os.path.join(os.getcwd(), '.git'))
         git = Git()
 
         if name is None:
-            # derive name from current git branch
             name = git.get_active_branch()
         else:
             if checkout:
                 git.checkout(name)
-        assert name
 
-        task = _Task(name, os.getcwd(), git)
-        assert os.path.exists(_task_dir(task.top_directory, task.name))
-
-        return task
+        return _Task(name, os.getcwd(), git)
 
     def __init__(self, name, top_directory, git):
         """

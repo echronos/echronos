@@ -30,7 +30,7 @@ import string
 import shutil
 import subprocess
 from random import choice
-from .utils import Git, find_path, string_to_path
+from .utils import Git, find_path, string_to_path, TOP_DIR
 from .cmdline import subcmd, Arg
 
 _offline_arg = Arg('-o', '--offline', action='store_true',
@@ -139,7 +139,7 @@ class _Task:
         If 'checkout' is true, this function checks out the git branch 'name' in the local git repository.
         If 'checkout' is false, this function does not modify the active git branch in the local git repository.
         """
-        git = Git()
+        git = Git(local_repository=TOP_DIR)
 
         if name is None:
             name = git.get_active_branch()
@@ -147,7 +147,7 @@ class _Task:
             if checkout:
                 git.checkout(name)
 
-        return _Task(name, os.getcwd(), git)
+        return _Task(name, repo_dir=TOP_DIR, git)
 
     def __init__(self, name, repo_dir, git):
         """Create a task with the given 'name' in the repository rooted in 'repo_dir'.

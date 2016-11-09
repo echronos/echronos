@@ -96,16 +96,15 @@ def accept(args):
     return review(args)
 
 
-@subcmd(cmd="task", help='Developers: integrate a completed task branch into the mainline branch.',
-        args=(_taskname_arg,
-              Arg('--target', help='Name of branch to integrate task branch into. Defaults to "{}".'.
-                  format(_LOCAL_MAINLINE), default=_LOCAL_MAINLINE)))
+@subcmd(cmd="task",
+        help='Developers: integrate a completed task branch into the mainline branch {}.'.format(_REMOTE_MAINLINE),
+        args=(_taskname_arg,))
 def integrate(args):
     """
     Integrate a completed development task/branch into the mainline branch.
     """
     task = _Task.instantiate(name=args.taskname)
-    task.integrate(args.target)
+    task.integrate()
 
 
 class _TaskNotActiveBranchError(RuntimeError):
@@ -207,16 +206,15 @@ class _Task:
               '2. commit via #> git commit -a -m "New task: {}"\n'
               '3. push task to remote repository via #> git push'.format(task_fn, self.name))
 
-    def integrate(self, target_branch=_LOCAL_MAINLINE, archive_prefix=ARCHIVE_PREFIX):
+    def integrate(self, archive_prefix=ARCHIVE_PREFIX):
         """
-        Integrate this branch into the mainline branch 'target_branch' and archive it.
+        Integrate this branch into the mainline branch and archive it.
         A branch can only be successfully integrated after it has been reviewed and all reviewers have arrived at the
         'accepted' conclusion.
         """
-        assert isinstance(target_branch, str)
         assert isinstance(archive_prefix, str)
         self._pre_integration_check()
-        self._integrate(target_branch)
+        self._integrate()
         self._archive(archive_prefix)
 
     def _pre_integration_check(self):
@@ -267,16 +265,15 @@ class _Task:
                 reviews.append(review)
         return reviews
 
-    def _integrate(self, target_branch):
+    def _integrate(self):
         """
-        Integrate this task by merging it into the given git 'target_branch' and marking it as complete.
-        The resulting new state of 'target_branch' is pushed to the remote repository.
+        Integrate this task by merging it into the mainline branch and marking it as complete.
+        The resulting new state of the mainline branch is pushed to the remote repository.
         """
-        assert isinstance(target_branch, str)
-        self._git.checkout(target_branch)
+        self._git.checkout(_LOCAL_MAINLINE)
         self._git.merge_into_active_branch(self.name)
         self._complete()
-        self._git.push(target_branch)
+        self._git.push()
 
     def _complete(self):
         """

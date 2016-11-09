@@ -71,7 +71,6 @@ def update(args):
         args=(_offline_arg, _taskname_arg),
         help='Developers: request reviews for a task.')
 def request_reviews(args):
-    """Request reviews for a task branch by mark it as up for review."""
     task = _Task.instantiate(name=args.taskname)
     return task.request_reviews(args.offline)
 
@@ -100,36 +99,28 @@ def accept(args):
         help='Developers: integrate a completed task branch into the mainline branch {}.'.format(_REMOTE_MAINLINE),
         args=(_taskname_arg,))
 def integrate(args):
-    """
-    Integrate a completed development task/branch into the mainline branch.
-    """
     task = _Task.instantiate(name=args.taskname)
     task.integrate()
 
 
 class _TaskNotActiveBranchError(RuntimeError):
-    """
-    To be raised when a Task object does not represent the currently active branch in the local git repository.
-    """
+    """Indicates that a Task object does not represent the currently active branch in the local git repository."""
     pass
 
 
 class _InvalidTaskStateError(RuntimeError):
-    """
-    To be raised when a task state transition cannot be performed because the task is not in the appropriate source
-    state.
+    """Indicates that a task state transition cannot occur because the task is not in the appropriate source state.
     """
     pass
 
 
 class _InvalidTaskNameError(RuntimeError):
-    """To be raised when a task name is invalid."""
     pass
 
 
 class _Task:
-    """
-    Represents a development task.
+    """Represents a development task.
+
     Each task is associated with several task-related resources, such as the corresponding git branch, a description
     file, and reviews.
     Over its life time, a task traverses several states (such as ready for implementation, complete and ready for
@@ -141,9 +132,9 @@ class _Task:
 
     @staticmethod
     def instantiate(name=None, checkout=True):
-        """
-        Create and return a new _Task instance, falling back to defaults if the optional task name and repository
+        """Create and return a new _Task instance, falling back to defaults if the optional task name and repository
         directory are not specified.
+
         If 'name' is not specified, it defaults to the name of the active branch in the task's top directory.
         If 'checkout' is true, this function checks out the git branch 'name' in the local git repository.
         If 'checkout' is false, this function does not modify the active git branch in the local git repository.
@@ -159,8 +150,8 @@ class _Task:
         return _Task(name, os.getcwd(), git)
 
     def __init__(self, name, top_directory, git):
-        """
-        Create a task with the given 'name' in the repository rooted in 'top_directory'.
+        """Create a task with the given 'name' in the repository rooted in 'top_directory'.
+
         It is expected that the repository contains a git branch with same name as the task name and that there is a
         task description file in the pm/tasks directory, again, with the task name as file name.
         """
@@ -207,11 +198,6 @@ class _Task:
               '3. push task to remote repository via #> git push'.format(task_fn, self.name))
 
     def integrate(self, archive_prefix=ARCHIVE_PREFIX):
-        """
-        Integrate this branch into the mainline branch and archive it.
-        A branch can only be successfully integrated after it has been reviewed and all reviewers have arrived at the
-        'accepted' conclusion.
-        """
         assert isinstance(archive_prefix, str)
         self._pre_integration_check()
         self._integrate()
@@ -224,9 +210,8 @@ class _Task:
         self._check_is_accepted()
 
     def _check_is_accepted(self):
-        """
-        Check whether all authors of completed reviews arrive at the 'accepted' conclusion in their final reviews, and
-        that at least two review authors have done so.
+        """Check whether all authors of completed reviews arrive at the 'accepted' conclusion in their final reviews,
+        and that at least two review authors have done so.
         """
         reviews = self._get_most_recent_reviews()
         if not reviews:
@@ -239,9 +224,8 @@ class _Task:
             raise _InvalidTaskStateError('Task {} does not have enough reviews (minimum: 2)'.format(self.name))
 
     def _get_most_recent_reviews(self):
-        """
-        For any reviewer having reviewed this task, determine the most recent review and return all of them as a list
-        of _Review instances.
+        """For any reviewer having reviewed this task, determine the most recent review and return all of them as a
+        list of _Review instances.
         """
         reviews_by_author = {}
         for review in self._get_reviews():
@@ -253,8 +237,7 @@ class _Task:
         return reviews_by_author.values()
 
     def _get_reviews(self):
-        """
-        Retrieve and return a list of _Review instances that represents all reviews of this task, even uncompleted
+        """Retrieve and return a list of _Review instances that represents all reviews of this task, even uncompleted
         ones.
         """
         reviews = []
@@ -268,8 +251,8 @@ class _Task:
         return reviews
 
     def _integrate(self):
-        """
-        Integrate this task by merging it into the mainline branch and marking it as complete.
+        """Integrate this task by merging it into the mainline branch and marking it as complete.
+
         The resulting new state of the mainline branch is pushed to the remote repository.
         """
         self._git.checkout(_LOCAL_MAINLINE)
@@ -278,9 +261,8 @@ class _Task:
         self._git.push()
 
     def _complete(self):
-        """
-        Mark this task as complete in the currently active git branch by moving the task description file into the
-        'completed' sub-directory and committing the result.
+        """"Mark this task as complete in the currently active git branch by moving the task description file into
+        the 'completed' sub-directory and committing the result.
         """
         task_dir = _task_dir(self.top_directory)
         src = os.path.join(task_dir, self.name)
@@ -289,8 +271,7 @@ class _Task:
         self._git.commit(msg='Mark task {} as completed'.format(self.name), files=[task_dir])
 
     def _archive(self, archive_prefix):
-        """
-        Archive this task by renaming it with the given 'archive_prefix' in both the local and the remote
+        """Archive this task by renaming it with the given 'archive_prefix' in both the local and the remote
         repositories.
         """
         assert isinstance(archive_prefix, str)
@@ -306,7 +287,6 @@ class _Task:
         - create the empty file pm/reviews/<task_name>/.placeholder_for_git_to_not_remove_this_otherwise_empty_dir
         - commit the result
         - push the commit to the remote
-
         """
         self._check_and_prepare(offline=offline)
         if self._is_on_review():
@@ -408,12 +388,9 @@ Conclusion: Accepted
 
 
 class _Review:
-    """
-    Represents a review on a development task/branch.
-    """
     def __init__(self, file_path):
-        """
-        Create a _Review instance representing the review in the given 'file_path'.
+        """Create a _Review instance representing the review in the given 'file_path'.
+
         This provides easy access to the review's review round, author, and conclusion.
         """
         assert isinstance(file_path, str)
@@ -427,10 +404,10 @@ class _Review:
         self._conclusion = None
 
     def _get_conclusion(self):
-        """
-        Determine the conclusion of this review.
-        The conclusion can be expected to be one of 'Accepted/Rework' (i.e., the review has not been completed),
-        'Accepted', or 'Rework'.
+        """Determine the conclusion of this review.
+
+        The conclusion can be expected to be one of 'accepted/rework' (i.e., the review has not been completed),
+        'accepted', or 'rework'.
         """
         f = open(self.file_path)
         for line in f:
@@ -443,11 +420,6 @@ class _Review:
 
     @property
     def conclusion(self):
-        """
-        Return the conclusion of this review.
-        The conclusion can be expected to be one of 'Accepted/Rework' (i.e., the review has not been completed),
-        'Accepted', or 'Rework'.
-        """
         if self._conclusion is None:
             self._conclusion = self._get_conclusion()
         return self._conclusion

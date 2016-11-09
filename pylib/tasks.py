@@ -219,6 +219,8 @@ class _Task:
 
     def _pre_integration_check(self):
         self._check_and_prepare(offline=False)
+        if not self._is_on_review():
+            raise _InvalidTaskStateError('The task {} is not on review.'.format(self.name))
         self._check_is_accepted()
 
     def _check_is_accepted(self):

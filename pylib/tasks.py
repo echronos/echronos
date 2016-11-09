@@ -149,24 +149,24 @@ class _Task:
 
         return _Task(name, os.getcwd(), git)
 
-    def __init__(self, name, top_directory, git):
-        """Create a task with the given 'name' in the repository rooted in 'top_directory'.
+    def __init__(self, name, repo_dir, git):
+        """Create a task with the given 'name' in the repository rooted in 'repo_dir'.
 
         It is expected that the repository contains a git branch with same name as the task name and that there is a
         task description file in the pm/tasks directory, again, with the task name as file name.
         """
         assert isinstance(name, str)
-        assert isinstance(top_directory, str)
-        assert os.path.isdir(top_directory)
+        assert isinstance(repo_dir, str)
+        assert os.path.isdir(repo_dir)
 
         if not _Task._is_valid_name(name):
             raise _InvalidTaskNameError('The task name "{}" contains unsupported characters. '
                                         'Only letters, digits, dashes, and underscores are supported.'.format(name))
 
         self.name = name
-        self.top_directory = top_directory
+        self._repo_dir = repo_dir
         self._git = git
-        self._review_dir = _review_dir(self.top_directory, self.name)
+        self._review_dir = _review_dir(self._repo_dir, self.name)
         self._review_placeholder_path = os.path.join(self._review_dir,
                                                      '.placeholder_for_git_to_not_remove_this_otherwise_empty_dir')
 
@@ -188,8 +188,8 @@ class _Task:
         if not offline:
             self._git.push(self.name, set_upstream=True)
 
-        template_path = find_path('.github/PULL_REQUEST_TEMPLATE.md', self.top_directory)
-        task_fn = _task_dir(self.top_directory, self.name)
+        template_path = find_path('.github/PULL_REQUEST_TEMPLATE.md', self._repo_dir)
+        task_fn = _task_dir(self._repo_dir, self.name)
         shutil.copyfile(template_path, task_fn)
         self._git.add([task_fn])
 
@@ -264,7 +264,7 @@ class _Task:
         """"Mark this task as complete in the currently active git branch by moving the task description file into
         the 'completed' sub-directory and committing the result.
         """
-        task_dir = _task_dir(self.top_directory)
+        task_dir = _task_dir(self._repo_dir)
         src = os.path.join(task_dir, self.name)
         dst = os.path.join(task_dir, 'completed', self.name)
         self._git.move(src, dst)
@@ -363,7 +363,7 @@ Conclusion: Accepted
             active_branch = self._git.get_active_branch()
             if active_branch != self.name:
                 raise _InvalidTaskStateError('Task {} is not the active checked-out branch ({}) in repository {}'.
-                                             format(self.name, active_branch, self.top_directory))
+                                             format(self.name, active_branch, self._repo_dir))
 
         if not self._git.is_clean():
             raise _InvalidTaskStateError('The local git repository contains staged or unstaged changes.')

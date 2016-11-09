@@ -52,7 +52,7 @@ def tag(_):
         args=(_offline_arg, Arg('taskname', help='The name of the task to manage.')),
         help='Developers: create a new task to work on, including a template for the task description.')
 def create(args):
-    task = _Task.instantiate(name=args.taskname, checkout=False)
+    task = _Task(name=args.taskname, checkout=False)
     return task.create(offline=args.offline)
 
 
@@ -63,7 +63,7 @@ def create(args):
              'If the task is on review, the mainline changes are merged into the task branch.'
              .format(_REMOTE_MAINLINE))
 def update(args):
-    task = _Task.instantiate(name=args.taskname)
+    task = _Task(name=args.taskname)
     return task.update(offline=args.offline)
 
 
@@ -71,7 +71,7 @@ def update(args):
         args=(_offline_arg, _taskname_arg),
         help='Developers: request reviews for a task.')
 def request_reviews(args):
-    task = _Task.instantiate(name=args.taskname)
+    task = _Task(name=args.taskname)
     return task.request_reviews(args.offline)
 
 
@@ -82,7 +82,7 @@ def request_reviews(args):
                        'This is an alias for the command "x.py task accept".')),
         help='Reviewers: create a stub for a new review of the active task branch.')
 def review(args):
-    task = _Task.instantiate(name=args.taskname)
+    task = _Task(name=args.taskname)
     return task.review(offline=args.offline, accept=args.accept)
 
 
@@ -99,7 +99,7 @@ def accept(args):
         help='Developers: integrate a completed task branch into the mainline branch {}.'.format(_REMOTE_MAINLINE),
         args=(_taskname_arg,))
 def integrate(args):
-    task = _Task.instantiate(name=args.taskname)
+    task = _Task(name=args.taskname)
     task.integrate()
 
 
@@ -130,42 +130,38 @@ class _Task:
 
     ARCHIVE_PREFIX = 'archive'
 
-    @staticmethod
-    def instantiate(name=None, checkout=True):
-        """Create and return a new _Task instance, falling back to defaults if the optional task name and repository
-        directory are not specified.
+    def __init__(self, name=None, checkout=True):
+        """Instantiate a task object.
 
-        If 'name' is not specified, it defaults to the name of the active branch in the task's top directory.
-        If 'checkout' is true, this function checks out the git branch 'name' in the local git repository.
-        If 'checkout' is false, this function does not modify the active git branch in the local git repository.
+        The task lives in the `_repo_dir` directory which defaults to the TOP_DIR directory.
+        This means that all task-related files are relative to that directory.
+        (Note that TOP_DIR is not necessarily core repository directory.)
+
+        If `name` is None, it defaults to the name of active git branch in `_repo_dir`.
+
+        If `name` contains unsupported characters, this function raises an _InvalidTaskNameError exception.
+
+        `name` does not necessarily need to identify an existing task or git branch.
+        In that case, the task object at first only supports the `create()` function to create the task proper.
+
+        `checkout` controls whether this function checks out the task git branch to make it the active branch.
         """
-        git = Git(local_repository=TOP_DIR)
+        assert isinstance(name, (str, type(None)))
+
+        self._repo_dir = TOP_DIR
+        self._git = Git(self._repo_dir)
 
         if name is None:
-            name = git.get_active_branch()
+            self.name = self._git.get_active_branch()
         else:
+            if not _Task._is_valid_name(name):
+                raise _InvalidTaskNameError('The task name "{}" contains unsupported characters. '
+                                            'Only letters, digits, dashes, and underscores are supported.'
+                                            .format(name))
+            self.name = name
             if checkout:
-                git.checkout(name)
+                self._git.checkout(self.name)
 
-        return _Task(name, repo_dir=TOP_DIR, git)
-
-    def __init__(self, name, repo_dir, git):
-        """Create a task with the given 'name' in the repository rooted in 'repo_dir'.
-
-        It is expected that the repository contains a git branch with same name as the task name and that there is a
-        task description file in the pm/tasks directory, again, with the task name as file name.
-        """
-        assert isinstance(name, str)
-        assert isinstance(repo_dir, str)
-        assert os.path.isdir(repo_dir)
-
-        if not _Task._is_valid_name(name):
-            raise _InvalidTaskNameError('The task name "{}" contains unsupported characters. '
-                                        'Only letters, digits, dashes, and underscores are supported.'.format(name))
-
-        self.name = name
-        self._repo_dir = repo_dir
-        self._git = git
         self._review_dir = _review_dir(self._repo_dir, self.name)
         self._review_placeholder_path = os.path.join(self._review_dir,
                                                      '.placeholder_for_git_to_not_remove_this_otherwise_empty_dir')

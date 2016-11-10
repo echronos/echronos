@@ -183,7 +183,7 @@ class _Task:
             self._git.push(self.name, set_upstream=True)
 
         template_path = find_path('.github/PULL_REQUEST_TEMPLATE.md', self._repo_dir)
-        task_fn = _task_dir(self._repo_dir, self.name)
+        task_fn = self._get_tasks_path(self.name)
         shutil.copyfile(template_path, task_fn)
         self._git.add([task_fn])
 
@@ -258,7 +258,7 @@ class _Task:
         """"Mark this task as complete in the currently active git branch by moving the task description file into
         the 'completed' sub-directory and committing the result.
         """
-        task_dir = _task_dir(self._repo_dir)
+        task_dir = self._get_tasks_path()
         src = os.path.join(task_dir, self.name)
         dst = os.path.join(task_dir, 'completed', self.name)
         self._git.move(src, dst)
@@ -380,6 +380,9 @@ Conclusion: Accepted
     def _is_valid_name(name):
         return all([c.isalnum() or c in ('-', '_') for c in name])
 
+    def _get_tasks_path(self, *args):
+        return os.path.join(self._repo_dir, 'pm', 'tasks', *args)
+
 
 class _Review:
     def __init__(self, file_path):
@@ -423,7 +426,3 @@ class _Review:
 
     def is_rework(self):
         return self.conclusion == 'rework'
-
-
-def _task_dir(topdir, *args):
-    return os.path.join(topdir, 'pm', 'tasks', *args)

@@ -55,7 +55,7 @@ def create(args):
              .format(_REMOTE_MAINLINE))
 def update(args):
     task = _Task(name=args.taskname)
-    return task.update(offline=args.offline)
+    task.update(offline=args.offline)
 
 
 @subcmd(cmd="task",
@@ -119,7 +119,7 @@ class _Task:
     This class implements some aspects of task management and helps automating state transitions.
     """
 
-    ARCHIVE_PREFIX = 'archive'
+    COMPLETED_PREFIX = 'completed'
 
     def __init__(self, name=None, checkout=True):
         """Instantiate a task object.
@@ -154,7 +154,7 @@ class _Task:
         self._review_dir = os.path.join(self._repo_dir, 'pm', 'reviews', self.name)
         self._review_placeholder_path = os.path.join(self._review_dir,
                                                      '.placeholder_for_git_to_not_remove_this_otherwise_empty_dir')
-        self._archived_name = ARCHIVE_PREFIX + '/' + self.name
+        self._completed_name = _Task.COMPLETED_PREFIX + '/' + self.name
 
     def create(self, offline=False):
         self._check_and_prepare(check_active=False, check_mainline=False, offline=offline)
@@ -163,9 +163,9 @@ class _Task:
             raise _InvalidTaskNameError('The task name "{}" is not unique as the git branch "{}" already exists.'
                                         .format(self.name, self.name))
 
-        if self._archived_name in self._git.remote_branches:
-            raise _InvalidTaskNameError('The task name "{}" is not unique as the archived git branch "{}" already '
-                                        'exists.'.format(self.name, self._archived_name))
+        if self._completed_name in self._git.remote_branches:
+            raise _InvalidTaskNameError('The task name "{}" is not unique as the completed git branch "{}" already '
+                                        'exists.'.format(self.name, self._completed_name))
 
         self._git.branch(self.name, _REMOTE_MAINLINE, track=False)
         self._git.checkout(self.name)
@@ -184,7 +184,6 @@ class _Task:
     def integrate(self):
         self._pre_integration_check()
         self._integrate()
-        self._archive()
 
     def _pre_integration_check(self):
         self._check_and_prepare(offline=False)
@@ -234,30 +233,20 @@ class _Task:
         return reviews
 
     def _integrate(self):
-        """Integrate this task by merging it into the mainline branch and marking it as complete.
-
-        The resulting new state of the mainline branch is pushed to the remote repository.
-        """
-        self._git.checkout(_LOCAL_MAINLINE)
-        self._git.merge_into_active_branch(self.name)
         self._complete()
+        self._git.checkout(_LOCAL_MAINLINE)
+        self._git.merge_into_active_branch(self._completed_name)
         self._git.push()
 
     def _complete(self):
-        """"Mark this task as complete in the currently active git branch by moving the task description file into
-        the 'completed' sub-directory and committing the result.
-        """
-        task_dir = self._get_tasks_path()
-        src = os.path.join(task_dir, self.name)
-        dst = os.path.join(task_dir, 'completed', self.name)
+        tasks_dir = self._get_tasks_path()
+        src = os.path.join(tasks_dir, self.name)
+        dst = os.path.join(tasks_dir, _Task.COMPLETED_PREFIX, self.name)
         self._git.move(src, dst)
-        self._git.commit(msg='Mark task {} as completed'.format(self.name), files=[task_dir])
+        self._git.commit(msg='Mark task {} as completed'.format(self.name), files=[tasks_dir])
 
-    def _archive(self):
-        """Archive this task by renaming it with the archive prefix in both the local and the remote repositories.
-        """
-        self._git.rename_branch(self.name, self._archived_name)
-        self._git.push(self._archived_name)
+        self._git.rename_branch(self.name, self._completed_name)
+        self._git.push(self._completed_name)
         self._git.delete_remote_branch(self.name)
 
     def request_reviews(self, offline=False):

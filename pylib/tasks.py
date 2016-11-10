@@ -26,10 +26,8 @@
 #
 
 import os
-import string
 import shutil
 import subprocess
-from random import choice
 from .utils import Git, find_path, string_to_path, TOP_DIR
 from .cmdline import subcmd, Arg
 
@@ -39,13 +37,6 @@ _taskname_arg = Arg('taskname', nargs='?', help='The name of the task to manage.
 
 _LOCAL_MAINLINE='development'
 _REMOTE_MAINLINE='origin/' + _LOCAL_MAINLINE
-
-
-@subcmd(cmd="task", help='Generate a random 6-char alphanumeric string')
-def tag(_):
-    tag_length = 6
-    tag_chars = string.ascii_letters + string.digits
-    return ''.join(choice(tag_chars) for _ in range(tag_length))
 
 
 @subcmd(cmd="task",
@@ -167,7 +158,6 @@ class _Task:
     def create(self, offline=False):
         self._check_and_prepare(check_active=False, check_mainline=False, offline=offline)
 
-        self.name = tag(None) + '-' + self.name
         if self.name in self._git.branches:
             raise _InvalidTaskNameError('The task name "{}" is not unique as the git branch "{}" already exists.'
                                         .format(self.name, self.name))

@@ -44,7 +44,7 @@ _REMOTE_MAINLINE='origin/' + _LOCAL_MAINLINE
         help='Developers: create a new task to work on, including a template for the task description.')
 def create(args):
     task = _Task(name=args.taskname, checkout=False)
-    return task.create(offline=args.offline)
+    task.create(offline=args.offline)
 
 
 @subcmd(cmd="task",
@@ -63,7 +63,7 @@ def update(args):
         help='Developers: request reviews for a task.')
 def request_reviews(args):
     task = _Task(name=args.taskname)
-    return task.request_reviews(args.offline)
+    task.request_reviews(args.offline)
 
 
 @subcmd(cmd="task",
@@ -74,7 +74,7 @@ def request_reviews(args):
         help='Reviewers: create a stub for a new review of the active task branch.')
 def review(args):
     task = _Task(name=args.taskname)
-    return task.review(offline=args.offline, accept=args.accept)
+    task.review(offline=args.offline, accept=args.accept)
 
 
 @subcmd(cmd="task",
@@ -83,7 +83,7 @@ def review(args):
              '"Accepted". This is an alias for the command "x.py task review --accept".')
 def accept(args):
     args.accept = True
-    return review(args)
+    review(args)
 
 
 @subcmd(cmd="task",
@@ -270,8 +270,6 @@ class _Task:
         if not offline:
             self._git.push()
 
-        return 0
-
     def review(self, offline=False, accept=False):
         self._check_and_prepare(offline=offline)
         if not self._is_on_review():
@@ -312,8 +310,6 @@ Conclusion: Accepted
             if not offline:
                 self._git.push()
 
-        return 0
-
     def update(self, offline=False):
         self._check_and_prepare(offline=offline, check_mainline=False)
 
@@ -324,8 +320,6 @@ Conclusion: Accepted
 
         if not offline:
             self._git.push(force=not self._is_on_review())
-
-        return 0
 
     def _check_and_prepare(self, check_active=True, check_mainline=True, offline=False):
         if check_active:

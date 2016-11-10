@@ -28,7 +28,7 @@
 import os
 import shutil
 import subprocess
-from .utils import Git, find_path, string_to_path, TOP_DIR
+from .utils import Git, string_to_path, TOP_DIR, BASE_DIR
 from .cmdline import subcmd, Arg
 
 _offline_arg = Arg('-o', '--offline', action='store_true',
@@ -172,7 +172,7 @@ class _Task:
         if not offline:
             self._git.push(self.name, set_upstream=True)
 
-        template_path = find_path('.github/PULL_REQUEST_TEMPLATE.md', self._repo_dir)
+        template_path = os.path.join(BASE_DIR, '.github', 'PULL_REQUEST_TEMPLATE.md')
         task_fn = self._get_tasks_path(self.name)
         shutil.copyfile(template_path, task_fn)
         self._git.add([task_fn])

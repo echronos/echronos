@@ -160,7 +160,7 @@ class _Task:
             if checkout:
                 self._git.checkout(self.name)
 
-        self._review_dir = _review_dir(self._repo_dir, self.name)
+        self._review_dir = os.path.join(self._repo_dir, 'pm', 'reviews', self.name)
         self._review_placeholder_path = os.path.join(self._review_dir,
                                                      '.placeholder_for_git_to_not_remove_this_otherwise_empty_dir')
 
@@ -427,7 +427,3 @@ class _Review:
 
 def _task_dir(topdir, *args):
     return os.path.join(topdir, 'pm', 'tasks', *args)
-
-
-def _review_dir(topdir, *args):
-    return os.path.join(topdir, 'pm', 'reviews', *args)

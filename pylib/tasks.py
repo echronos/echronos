@@ -146,8 +146,6 @@ class _Task:
 
         `checkout` controls whether this function checks out the task git branch to make it the active branch.
         """
-        assert isinstance(name, (str, type(None)))
-
         self._repo_dir = TOP_DIR
         self._git = Git(self._repo_dir)
 

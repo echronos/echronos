@@ -154,6 +154,7 @@ class _Task:
         self._review_dir = os.path.join(self._repo_dir, 'pm', 'reviews', self.name)
         self._review_placeholder_path = os.path.join(self._review_dir,
                                                      '.placeholder_for_git_to_not_remove_this_otherwise_empty_dir')
+        self._archived_name = ARCHIVE_PREFIX + '/' + self.name
 
     def create(self, offline=False):
         self._check_and_prepare(check_active=False, check_mainline=False, offline=offline)
@@ -162,10 +163,9 @@ class _Task:
             raise _InvalidTaskNameError('The task name "{}" is not unique as the git branch "{}" already exists.'
                                         .format(self.name, self.name))
 
-        archived_name = _Task.ARCHIVE_PREFIX + '/' + self.name
-        if archived_name in self._git.remote_branches:
+        if self._archived_name in self._git.remote_branches:
             raise _InvalidTaskNameError('The task name "{}" is not unique as the archived git branch "{}" already '
-                                        'exists.'.format(self.name, archived_name))
+                                        'exists.'.format(self.name, self._archived_name))
 
         self._git.branch(self.name, _REMOTE_MAINLINE, track=False)
         self._git.checkout(self.name)
@@ -256,9 +256,8 @@ class _Task:
     def _archive(self):
         """Archive this task by renaming it with the archive prefix in both the local and the remote repositories.
         """
-        archived_name = ARCHIVE_PREFIX + '/' + self.name
-        self._git.rename_branch(self.name, archived_name)
-        self._git.push(archived_name)
+        self._git.rename_branch(self.name, self._archived_name)
+        self._git.push(self._archived_name)
         self._git.delete_remote_branch(self.name)
 
     def request_reviews(self, offline=False):

@@ -181,11 +181,10 @@ class _Task:
               '2. commit via #> git commit -a -m "New task: {}"\n'
               '3. push task to remote repository via #> git push'.format(task_fn, self.name))
 
-    def integrate(self, archive_prefix=ARCHIVE_PREFIX):
-        assert isinstance(archive_prefix, str)
+    def integrate(self):
         self._pre_integration_check()
         self._integrate()
-        self._archive(archive_prefix)
+        self._archive()
 
     def _pre_integration_check(self):
         self._check_and_prepare(offline=False)
@@ -254,12 +253,10 @@ class _Task:
         self._git.move(src, dst)
         self._git.commit(msg='Mark task {} as completed'.format(self.name), files=[task_dir])
 
-    def _archive(self, archive_prefix):
-        """Archive this task by renaming it with the given 'archive_prefix' in both the local and the remote
-        repositories.
+    def _archive(self):
+        """Archive this task by renaming it with the archive prefix in both the local and the remote repositories.
         """
-        assert isinstance(archive_prefix, str)
-        archived_name = archive_prefix + '/' + self.name
+        archived_name = ARCHIVE_PREFIX + '/' + self.name
         self._git.rename_branch(self.name, archived_name)
         self._git.push(archived_name)
         self._git.delete_remote_branch(self.name)

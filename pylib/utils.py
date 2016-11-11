@@ -516,19 +516,19 @@ class Git:
             tracking_branch = self.get_tracking_branch()
             remote = tracking_branch.split('/')[0]
         except:
-            remotes = list(self.get_remotes())
+            remotes = list(set([r.name for r in self.get_remotes()]))
             index = 0
 
             if len(remotes) > 1:
                 if interactive:
-                    indexed_remote_names = ['{}: {}'.format(idx, remote.name) for idx, remote in enumerate(remotes)]
+                    idx_names = ['{}: {}'.format(idx, remote) for idx, remote in enumerate(remotes)]
                     str_index = input("This repository has multiple git remotes registered. Enter the index of the \
-    appropriate one:\n    {}".format('\n    '.join(indexed_remote_names)))
+appropriate one:\n    {}\n".format('\n    '.join(idx_names)))
                     index = int(str_index)
                 else:
                     raise
 
-            remote = remotes[index].name
+            remote = remotes[index]
 
         return remote
 

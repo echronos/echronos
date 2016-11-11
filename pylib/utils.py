@@ -536,6 +536,7 @@ class Git:
         if ref is None:
             ref = self.get_active_branch()
         output = self._do(['branch', '--list', '-vv', ref]).strip()
+        assert '[' in output, 'Branch {} has no remote tracking branch'.format(ref)
         tracking_branch = output.split('[')[1].split(']')[0].split(':')[0]
         return tracking_branch
 

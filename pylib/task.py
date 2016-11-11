@@ -29,96 +29,14 @@ from collections import namedtuple
 import os
 import shutil
 import subprocess
-from .utils import Git, string_to_path, TOP_DIR, BASE_DIR
-from .cmdline import subcmd, Arg
+from .utils import Git, string_to_path
+
 
 TaskConfiguration = namedtuple('TaskConfiguration', ('repo_path', 'tasks_path', 'description_template_path',
                                'reviews_path', 'completed_path', 'completed_branch_prefix', 'mainline_branch'))
 
-task_cfg = TaskConfiguration(repo_path=TOP_DIR,
-                             tasks_path=os.path.join('pm', 'tasks'),
-                             description_template_path=os.path.join(BASE_DIR, '.github', 'PULL_REQUEST_TEMPLATE.md'),
-                             reviews_path=os.path.join('pm', 'reviews'),
-                             completed_path=os.path.join('pm', 'tasks', 'completed'),
-                             completed_branch_prefix='completed/',
-                             mainline_branch='development')
 
-_offline_arg = Arg('-o', '--offline', action='store_true',
-                   help='Skip all git commands that require an Internet connection')
-_taskname_arg = Arg('taskname', nargs='?', help='The name of the task to manage. Defaults to the active git branch.')
-
-@subcmd(cmd="task",
-        args=(_offline_arg, Arg('taskname', help='The name of the task to manage.')),
-        help='Developers: create a new task to work on, including a template for the task description.')
-def create(args):
-    task = _Task(task_cfg, name=args.taskname, checkout=False)
-    task.create(offline=args.offline)
-
-
-@subcmd(cmd="task",
-        args=(_offline_arg, _taskname_arg),
-        help='Developers: bring a task up-to-date with the latest changes on the mainline branch "{}". '
-             'If the task is not yet on review, this rebases the task branch onto the mainline branch. '
-             'If the task is on review, the mainline changes are merged into the task branch.'
-             .format(task_cfg.mainline_branch))
-def update(args):
-    task = _Task(task_cfg, name=args.taskname)
-    task.update(offline=args.offline)
-
-
-@subcmd(cmd="task",
-        args=(_offline_arg, _taskname_arg),
-        help='Developers: request reviews for a task.')
-def request_reviews(args):
-    task = _Task(task_cfg, name=args.taskname)
-    task.request_reviews(args.offline)
-
-
-@subcmd(cmd="task",
-        args=(_offline_arg, _taskname_arg,
-              Arg('-a', '--accept', action='store_true',
-                  help='Create and complete the review with the conclusion "accepted", commit, and push it. '
-                       'This is an alias for the command "x.py task accept".')),
-        help='Reviewers: create a stub for a new review of the active task branch.')
-def review(args):
-    task = _Task(task_cfg, name=args.taskname)
-    task.review(offline=args.offline, accept=args.accept)
-
-
-@subcmd(cmd="task",
-        args=(_offline_arg, _taskname_arg),
-        help='Reviewers: create, commit, and push a new review for the active task branch with the conclusion '
-             '"Accepted". This is an alias for the command "x.py task review --accept".')
-def accept(args):
-    args.accept = True
-    review(args)
-
-
-@subcmd(cmd="task",
-        help='Developers: integrate a completed task branch into the mainline branch {}.'
-             .format(task_cfg.mainline_branch),
-        args=(_taskname_arg,))
-def integrate(args):
-    task = _Task(`task_cfg`, name=args.taskname)
-    task.integrate()
-
-
-class _TaskNotActiveBranchError(RuntimeError):
-    """Indicates that a Task object does not represent the currently active branch in the local git repository."""
-    pass
-
-
-class _InvalidTaskStateError(RuntimeError):
-    """Indicates that a task state transition cannot occur because the task is not in the appropriate source state.
-    """
-    pass
-
-
-class _InvalidTaskNameError(RuntimeError):
-    pass
-
-
-class _Task:
+class Task:
     """Represents a development task.
 
     Each task is associated with several task-related resources, such as the corresponding git branch, a description
@@ -149,7 +67,7 @@ class _Task:
         if name is None:
             self.name = self._git.get_active_branch()
         else:
-            if not _Task._is_valid_name(name):
+            if not Task._is_valid_name(name):
                 raise _InvalidTaskNameError('The task name "{}" contains unsupported characters. '
                                             'Only letters, digits, dashes, and underscores are supported.'
                                             .format(name))
@@ -399,3 +317,18 @@ class _Review:
 
     def is_accepted(self):
         return self.conclusion in ('accept', 'accepted')
+
+
+class _TaskNotActiveBranchError(RuntimeError):
+    """Indicates that a Task object does not represent the currently active branch in the local git repository."""
+    pass
+
+
+class _InvalidTaskStateError(RuntimeError):
+    """Indicates that a task state transition cannot occur because the task is not in the appropriate source state.
+    """
+    pass
+
+
+class _InvalidTaskNameError(RuntimeError):
+    pass

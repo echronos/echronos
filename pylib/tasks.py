@@ -25,25 +25,33 @@
 # @TAG(NICTA_AGPL)
 #
 
+from collections import namedtuple
 import os
 import shutil
 import subprocess
 from .utils import Git, string_to_path, TOP_DIR, BASE_DIR
 from .cmdline import subcmd, Arg
 
+TaskConfiguration = namedtuple('TaskConfiguration', ('repo_path', 'tasks_path', 'description_template_path',
+                               'reviews_path', 'completed_path', 'completed_branch_prefix', 'mainline_branch'))
+
+task_cfg = TaskConfiguration(repo_path=TOP_DIR,
+                             tasks_path=os.path.join('pm', 'tasks'),
+                             description_template_path=os.path.join(BASE_DIR, '.github', 'PULL_REQUEST_TEMPLATE.md'),
+                             reviews_path=os.path.join('pm', 'reviews'),
+                             completed_path=os.path.join('pm', 'tasks', 'completed'),
+                             completed_branch_prefix='completed/',
+                             mainline_branch='development')
+
 _offline_arg = Arg('-o', '--offline', action='store_true',
                    help='Skip all git commands that require an Internet connection')
 _taskname_arg = Arg('taskname', nargs='?', help='The name of the task to manage. Defaults to the active git branch.')
-
-_LOCAL_MAINLINE='development'
-_REMOTE_MAINLINE='origin/' + _LOCAL_MAINLINE
-
 
 @subcmd(cmd="task",
         args=(_offline_arg, Arg('taskname', help='The name of the task to manage.')),
         help='Developers: create a new task to work on, including a template for the task description.')
 def create(args):
-    task = _Task(name=args.taskname, checkout=False)
+    task = _Task(task_cfg, name=args.taskname, checkout=False)
     task.create(offline=args.offline)
 
 
@@ -52,9 +60,9 @@ def create(args):
         help='Developers: bring a task up-to-date with the latest changes on the mainline branch "{}". '
              'If the task is not yet on review, this rebases the task branch onto the mainline branch. '
              'If the task is on review, the mainline changes are merged into the task branch.'
-             .format(_REMOTE_MAINLINE))
+             .format(task_cfg.mainline_branch))
 def update(args):
-    task = _Task(name=args.taskname)
+    task = _Task(task_cfg, name=args.taskname)
     task.update(offline=args.offline)
 
 
@@ -62,7 +70,7 @@ def update(args):
         args=(_offline_arg, _taskname_arg),
         help='Developers: request reviews for a task.')
 def request_reviews(args):
-    task = _Task(name=args.taskname)
+    task = _Task(task_cfg, name=args.taskname)
     task.request_reviews(args.offline)
 
 
@@ -73,7 +81,7 @@ def request_reviews(args):
                        'This is an alias for the command "x.py task accept".')),
         help='Reviewers: create a stub for a new review of the active task branch.')
 def review(args):
-    task = _Task(name=args.taskname)
+    task = _Task(task_cfg, name=args.taskname)
     task.review(offline=args.offline, accept=args.accept)
 
 
@@ -87,10 +95,11 @@ def accept(args):
 
 
 @subcmd(cmd="task",
-        help='Developers: integrate a completed task branch into the mainline branch {}.'.format(_REMOTE_MAINLINE),
+        help='Developers: integrate a completed task branch into the mainline branch {}.'
+             .format(task_cfg.mainline_branch),
         args=(_taskname_arg,))
 def integrate(args):
-    task = _Task(name=args.taskname)
+    task = _Task(`task_cfg`, name=args.taskname)
     task.integrate()
 
 
@@ -119,16 +128,13 @@ class _Task:
     This class implements some aspects of task management and helps automating state transitions.
     """
 
-    COMPLETED_PREFIX = 'completed'
+    def __init__(self, cfg, name=None, checkout=True):
+        """Instantiate a task object based on given configuration.
 
-    def __init__(self, name=None, checkout=True):
-        """Instantiate a task object.
+        The task lives in the repo_path directory.
+        This means that repo_path is a local git repository and that all task-related files are managed inside it.
 
-        The task lives in the `_repo_dir` directory which defaults to the TOP_DIR directory.
-        This means that all task-related files are relative to that directory.
-        (Note that TOP_DIR is not necessarily core repository directory.)
-
-        If `name` is None, it defaults to the name of active git branch in `_repo_dir`.
+        If `name` is None, it defaults to the name of active git branch in repo_path.
 
         If `name` contains unsupported characters, this function raises an _InvalidTaskNameError exception.
 
@@ -137,8 +143,8 @@ class _Task:
 
         `checkout` controls whether this function checks out the task git branch to make it the active branch.
         """
-        self._repo_dir = TOP_DIR
-        self._git = Git(self._repo_dir)
+        self.cfg = cfg
+        self._git = Git(self.cfg.repo_path)
 
         if name is None:
             self.name = self._git.get_active_branch()
@@ -151,13 +157,14 @@ class _Task:
             if checkout:
                 self._git.checkout(self.name)
 
-        self._review_dir = os.path.join(self._repo_dir, 'pm', 'reviews', self.name)
+        self._review_dir = os.path.join(self.cfg.reviews_path, self.name)
         self._review_placeholder_path = os.path.join(self._review_dir,
                                                      '.placeholder_for_git_to_not_remove_this_otherwise_empty_dir')
-        self._completed_name = _Task.COMPLETED_PREFIX + '/' + self.name
+        self._completed_name = self.cfg.completed_branch_prefix + self.name
+        self._mainline_tracking_branch = self._git.get_tracking_branch(self.cfg.mainline_branch)
 
     def create(self, offline=False):
-        self._check_and_prepare(check_active=False, check_mainline=False, offline=offline)
+        self._check_and_prepare(check_active=False, update=False, check_mainline=False, offline=offline)
 
         if self.name in self._git.branches:
             raise _InvalidTaskNameError('The task name "{}" is not unique as the git branch "{}" already exists.'
@@ -167,14 +174,13 @@ class _Task:
             raise _InvalidTaskNameError('The task name "{}" is not unique as the completed git branch "{}" already '
                                         'exists.'.format(self.name, self._completed_name))
 
-        self._git.branch(self.name, _REMOTE_MAINLINE, track=False)
+        self._git.branch(self.name, self._mainline_tracking_branch, track=False)
         self._git.checkout(self.name)
         if not offline:
             self._git.push(self.name, set_upstream=True)
 
-        template_path = os.path.join(BASE_DIR, '.github', 'PULL_REQUEST_TEMPLATE.md')
-        task_fn = self._get_tasks_path(self.name)
-        shutil.copyfile(template_path, task_fn)
+        task_fn = os.path.join(self.cfg.repo_path, self.cfg.tasks_path, self.name)
+        shutil.copyfile(self.cfg.description_template_path, task_fn)
         self._git.add([task_fn])
 
         print('1. edit file "{}"\n'
@@ -234,26 +240,30 @@ class _Task:
 
     def _integrate(self):
         self._complete()
-        self._git.checkout(_LOCAL_MAINLINE)
-        self._git.merge_into_active_branch(self._completed_name)
+        self._git.checkout(self.cfg.mainline_branch)
+        self._git.merge_into_active_branch(self._mainline_tracking_branch, '--ff-only', '--no-squash')
+        self._git.merge_into_active_branch(self._completed_name, '--no-squash')
         self._git.push()
 
     def _complete(self):
-        tasks_dir = self._get_tasks_path()
-        src = os.path.join(tasks_dir, self.name)
-        dst = os.path.join(tasks_dir, _Task.COMPLETED_PREFIX, self.name)
-        self._git.move(src, dst)
-        self._git.commit(msg='Mark task {} as completed'.format(self.name), files=[tasks_dir])
+        src = os.path.join(self.cfg.tasks_path, self.name)
+        dst = os.path.join(self.cfg.completed_path, self.name)
+        if src != dst:
+            self._git.move(src, dst)
+            self._git.commit(msg='Mark task {} as completed'.format(self.name), files=[self.cfg.tasks_path,
+                                                                                       self.cfg.completed_path])
+            self._git.push()
 
-        self._git.rename_branch(self.name, self._completed_name)
-        self._git.push(self._completed_name)
-        self._git.delete_remote_branch(self.name)
+        if self.name != self._completed_name:
+            self._git.rename_branch(self.name, self._completed_name)
+            self._git.push(self._completed_name)
+            self._git.delete_remote_branch(self.name)
 
     def request_reviews(self, offline=False):
         """Mark the current branch as up for review.
 
-        - create the directory pm/reviews/<task_name>
-        - create the empty file pm/reviews/<task_name>/.placeholder_for_git_to_not_remove_this_otherwise_empty_dir
+        - create the review directory
+        - create the empty file .placeholder_for_git_to_not_remove_this_otherwise_empty_dir in the review direcotry
         - commit the result
         - push the commit to the remote
         """
@@ -314,30 +324,30 @@ Conclusion: Accepted
         self._check_and_prepare(offline=offline, check_mainline=False)
 
         if self._is_on_review():
-            self._git.merge_into_active_branch(_REMOTE_MAINLINE, '--no-squash')
+            self._git.merge_into_active_branch(self._mainline_tracking_branch, '--no-squash')
+            self._git.push(force=False)
         else:
-            self._git.rebase(_REMOTE_MAINLINE)
+            self._git.rebase(self._mainline_tracking_branch)
+            self._git.push(force=True)
 
-        if not offline:
-            self._git.push(force=not self._is_on_review())
-
-    def _check_and_prepare(self, check_active=True, check_mainline=True, offline=False):
+    def _check_and_prepare(self, check_active=True, update=True, check_mainline=True, offline=False):
         if check_active:
             active_branch = self._git.get_active_branch()
             if active_branch != self.name:
                 raise _InvalidTaskStateError('Task {} is not the active checked-out branch ({}) in repository {}'.
-                                             format(self.name, active_branch, self._repo_dir))
+                                             format(self.name, active_branch, self.cfg.repo_path))
 
         if not self._git.is_clean():
             raise _InvalidTaskStateError('The local git repository contains staged or unstaged changes.')
 
-        if not self._git.is_ref_uptodate_with_tracking_branch(offline=offline):
+        if update and not self._git.is_ref_uptodate_with_tracking_branch(offline=offline):
             try:
                 self._git.merge_into_active_branch(self._git.get_tracking_branch(), '--ff-only')
             except subprocess.CalledProcessError:
                 raise _InvalidTaskStateError('The task branch is not up-to-date with its remote tracking branch.')
 
-        if check_mainline and not self.name in self._git.get_branches_that_contain_revid(_REMOTE_MAINLINE):
+        if check_mainline and \
+            not self.name in self._git.get_branches_that_contain_revid(self._mainline_tracking_branch):
             self.update(offline=offline)
 
     def _is_on_review(self):
@@ -348,9 +358,6 @@ Conclusion: Accepted
     @staticmethod
     def _is_valid_name(name):
         return all([c.isalnum() or c in ('-', '_') for c in name])
-
-    def _get_tasks_path(self, *args):
-        return os.path.join(self._repo_dir, 'pm', 'tasks', *args)
 
 
 class _Review:

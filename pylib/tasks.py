@@ -399,6 +399,3 @@ class _Review:
 
     def is_accepted(self):
         return self.conclusion in ('accept', 'accepted')
-
-    def is_rework(self):
-        return self.conclusion == 'rework'

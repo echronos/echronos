@@ -83,6 +83,8 @@ class Task:
 
     def create(self, offline=False):
         self._check_and_prepare(check_active=False, update=False, check_mainline=False, offline=offline)
+        if not offline:
+            self._git.fetch()
 
         if self.name in self._git.branches:
             raise _InvalidTaskNameError('The task name "{}" is not unique as the git branch "{}" already exists.'

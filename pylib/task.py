@@ -33,7 +33,7 @@ from .utils import Git, string_to_path
 
 
 TaskConfiguration = namedtuple('TaskConfiguration', ('repo_path', 'tasks_path', 'description_template_path',
-                               'reviews_path', 'completed_branch_prefix', 'mainline_branch'))
+                               'reviews_path', 'mainline_branch'))
 
 
 class Task:
@@ -78,7 +78,6 @@ class Task:
         self._review_dir = os.path.join(self.cfg.reviews_path, self.name)
         self._review_placeholder_path = os.path.join(self._review_dir,
                                                      '.placeholder_for_git_to_not_remove_this_otherwise_empty_dir')
-        self._completed_name = self.cfg.completed_branch_prefix + self.name
         self._mainline_tracking_branch = self._git.get_tracking_branch(self.cfg.mainline_branch)
 
     def create(self, offline=False):
@@ -89,10 +88,6 @@ class Task:
         if self.name in self._git.branches:
             raise _InvalidTaskNameError('The task name "{}" is not unique as the git branch "{}" already exists.'
                                         .format(self.name, self.name))
-
-        if self._completed_name in self._git.remote_branches:
-            raise _InvalidTaskNameError('The task name "{}" is not unique as the completed git branch "{}" already '
-                                        'exists.'.format(self.name, self._completed_name))
 
         self._git.branch(self.name, self._mainline_tracking_branch, track=False)
         self._git.checkout(self.name)
@@ -159,17 +154,10 @@ class Task:
         return reviews
 
     def _integrate(self):
-        self._complete()
         self._git.checkout(self.cfg.mainline_branch)
         self._git.merge_into_active_branch(self._mainline_tracking_branch, '--ff-only', '--no-squash')
-        self._git.merge_into_active_branch(self._completed_name, '--no-squash')
+        self._git.merge_into_active_branch(self.name, '--no-squash')
         self._git.push()
-
-    def _complete(self):
-        if self.name != self._completed_name:
-            self._git.rename_branch(self.name, self._completed_name)
-            self._git.push(self._completed_name)
-            self._git.delete_remote_branch(self.name)
 
     def request_reviews(self, offline=False):
         """Mark the current branch as up for review.

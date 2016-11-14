@@ -83,7 +83,7 @@ import os
 
 externals = ['nose', 'ice', '']
 
-# Make pylib available
+# Make pylib available for importing - this is necessary for x.py wrappers in client repositories to work
 sys.path.append(os.path.dirname(__file__))
 
 from pylib.utils import BASE_DIR

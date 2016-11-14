@@ -78,8 +78,10 @@ So, if `x.py` is building version 3 of a given release, it should ensure old rel
 directory.
 
 """
-import sys
+import argparse
+import logging
 import os
+import sys
 
 externals = ['nose', 'ice', '']
 
@@ -92,9 +94,6 @@ sys.path = [os.path.join(BASE_DIR, 'external_tools', e) for e in externals] + sy
 sys.path.insert(0, os.path.join(BASE_DIR, 'prj/app/pystache'))
 if __name__ == '__main__':
     sys.modules['x'] = sys.modules['__main__']
-
-import argparse
-import logging
 
 from pylib.components import Component
 from pylib import release, components, prj, tests, tasks, cmdline, docs

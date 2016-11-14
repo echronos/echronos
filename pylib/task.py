@@ -33,7 +33,7 @@ from .utils import Git, string_to_path
 
 
 TaskConfiguration = namedtuple('TaskConfiguration', ('repo_path', 'tasks_path', 'description_template_path',
-                               'reviews_path', 'completed_path', 'completed_branch_prefix', 'mainline_branch'))
+                               'reviews_path', 'completed_branch_prefix', 'mainline_branch'))
 
 
 class Task:
@@ -166,14 +166,6 @@ class Task:
         self._git.push()
 
     def _complete(self):
-        src = os.path.join(self.cfg.tasks_path, self.name)
-        dst = os.path.join(self.cfg.completed_path, self.name)
-        if src != dst:
-            self._git.move(src, dst)
-            self._git.commit(msg='Mark task {} as completed'.format(self.name), files=[self.cfg.tasks_path,
-                                                                                       self.cfg.completed_path])
-            self._git.push()
-
         if self.name != self._completed_name:
             self._git.rename_branch(self.name, self._completed_name)
             self._git.push(self._completed_name)

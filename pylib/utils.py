@@ -288,12 +288,12 @@ class Git:
         """
         Determine the path separator expected by the git command-line tool.
         """
-        output = self._do(['ls-tree', '-r', '--name-only', 'HEAD:pm/tasks'])
+        output = self._do(['ls-tree', '-r', '--name-only', 'HEAD:pm'])
         for line in output.splitlines():
-            if line.startswith('completed'):
-                line = line.replace('completed', '', 1)
+            if line.startswith('reviews'):
+                line = line.replace('reviews', '', 1)
                 return line[0]
-        raise LookupError('git ls-tree does not list any files in pm/tasks/completed as expected')
+        raise LookupError('git ls-tree does not list any files in pm/reviews as expected')
 
     @property
     def branches(self):

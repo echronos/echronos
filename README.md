@@ -288,7 +288,7 @@ See [`external_tools/LICENSE.txt`](external_tools/LICENSE.txt) and [`tools/LICEN
 
 The [`pm`](pm) directory contains project management related meta-data.
 This meta-data is crucial for documenting that our internal development processes are correctly followed, as well as providing a record for external audit.
-The feature documentation for completed development tasks resides in [`pm/tasks/completed`](pm/tasks/completed), and their reviews can be found under [`pm/reviews`](pm/reviews).
+The feature documentation for development tasks resides in [`pm/tasks`](pm/tasks), and their reviews can be found under [`pm/reviews`](pm/reviews).
 
 The [`docs`](docs) directory contains various release documentation-related content, including templates for auto-generated manuals and top-level README files for product releases.
 

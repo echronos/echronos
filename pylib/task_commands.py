@@ -33,7 +33,6 @@ task_cfg = TaskConfiguration(repo_path=TOP_DIR,
                              tasks_path=os.path.join('pm', 'tasks'),
                              description_template_path=os.path.join(BASE_DIR, '.github', 'PULL_REQUEST_TEMPLATE.md'),
                              reviews_path=os.path.join('pm', 'reviews'),
-                             completed_path=os.path.join('pm', 'tasks', 'completed'),
                              completed_branch_prefix='completed/',
                              mainline_branch='development')
 

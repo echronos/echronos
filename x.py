@@ -95,7 +95,7 @@ if __name__ == '__main__':
     sys.modules['x'] = sys.modules['__main__']
 
 from pylib.components import Component
-from pylib import release, components, prj, tests, tasks, cmdline, docs
+from pylib import release, components, prj, tests, tasks, docs
 from pylib.cmdline import add_cmds_in_globals_to_parser
 
 # Set up a specific logger with our desired output level

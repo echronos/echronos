@@ -96,7 +96,7 @@ if __name__ == '__main__':
 
 from pylib.components import Component
 from pylib import release, components, prj, tests, task_commands, docs
-from pylib.cmdline import add_cmds_in_globals_to_parser
+from pylib.cmdline import add_subcommands_to_parser
 
 # Set up a specific logger with our desired output level
 logger = logging.getLogger()
@@ -252,7 +252,7 @@ configurations = CORE_CONFIGURATIONS.copy()
 def main():
     """Application main entry point. Parse arguments, and call specified sub-command."""
     parser = argparse.ArgumentParser(prog='x.py')
-    add_cmds_in_globals_to_parser(globals(), parser)
+    add_subcommands_to_parser(globals(), parser)
 
     # parse arbitrary nose options for the 'test systems' command
     # argparse does not seem to provide a better mechanism for this case

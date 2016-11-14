@@ -89,7 +89,6 @@ externals = ['nose', 'ice', '']
 sys.path.append(os.path.dirname(__file__))
 
 from pylib.utils import BASE_DIR
-
 sys.path = [os.path.join(BASE_DIR, 'external_tools', e) for e in externals] + sys.path
 sys.path.insert(0, os.path.join(BASE_DIR, 'prj/app/pystache'))
 if __name__ == '__main__':

@@ -44,5 +44,6 @@
         </module>
         <module name="avr.context_switch"/>
         <module name="avr.acamar_arduino_defaults"/>
+        <module name="avr.arduino_defaults"/>
     </modules>
 </system>

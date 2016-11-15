@@ -9,25 +9,45 @@
  *
  * @TAG(CSIRO_BSD_MIT)
  */
-#include "rtos-acamar.h"
-
-#pragma weak loop_a
+#pragma weak setup
 void
-loop_a(void)
+setup(void)
 {
-    rtos_yield_to(RTOS_TASK_ID_B);
+    rtos_start();
 }
 
-#pragma weak loop_b
+#pragma weak loop
 void
-loop_b(void)
+loop(void)
 {
-    rtos_yield_to(RTOS_TASK_ID_C);
 }
 
-#pragma weak loop_c
+#pragma weak task_a
 void
-loop_c(void)
+task_a(void)
 {
-    rtos_yield_to(RTOS_TASK_ID_A);
+    for (;;)
+    {
+        loop_a();
+    }
+}
+
+#pragma weak task_b
+void
+task_b(void)
+{
+    for (;;)
+    {
+        loop_b();
+    }
+}
+
+#pragma weak task_c
+void
+task_c(void)
+{
+    for (;;)
+    {
+        loop_c();
+    }
 }

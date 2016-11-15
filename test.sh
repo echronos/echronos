@@ -44,9 +44,6 @@ shift `expr ${OPTIND} - 1`
 TEST_PACKAGES="$(find "${CORE_DIR}/packages" -name '*.prx' -and -not -name '*config-only*.prx' -and -not -name gatria-system-simple.prx | sed -r 's/.*packages\///; s/.prx//; s/\//./g')"
 
 export PATH="${PATH}:${HOME}/local/bin"
-set +eu
-. ./setenv
-set -eu
 
 for PY_VER in ${PY_VERSIONS}
 do

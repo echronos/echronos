@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+     eChronos Real-Time Operating System
+     Copyright (c) 2018, Commonwealth Scientific and Industrial Research
+     Organisation (CSIRO) ABN 41 687 119 230.
+
+     All rights reserved. CSIRO is willing to grant you a licence to the eChronos
+     real-time operating system under the terms of the CSIRO_BSD_MIT license. See
+     the file "LICENSE_CSIRO_BSD_MIT.txt" for details.
+
+     @TAG(CSIRO_BSD_MIT)
+-->
+
+<system>
+    <modules>
+        <module name="avr.build">
+            <!-- this system can be customized with several options; defaults for Arduino UNO below
+            <verbose>False</verbose>
+            <mmcu>atmega328p</mmcu>
+            <cpu_frequency>16000000</cpu_frequency>
+            <baud>9600</baud>
+            <arduino_library></arduino_library -->
+        </module>
+        <module name="avr.debug_puts"/>
+        <module name="generic.debug"/>
+        <module name="avr.rtos-acrux">
+            <prefix>rtos</prefix>
+            <taskid_size>8</taskid_size>
+            <tasks>
+                <task>
+                    <name>a</name>
+                    <function>fn_a</function>
+                    <stack_size>64</stack_size>
+                </task>
+                <task>
+                    <name>b</name>
+                    <function>fn_b</function>
+                    <stack_size>64</stack_size>
+                </task>
+            </tasks>
+            <interrupt_events>
+                <interrupt_event>
+                    <name>triggered_by_machine_timer</name>
+                </interrupt_event>
+            </interrupt_events>
+            <mutexes>
+                <mutex>
+                    <name>dummy</name>
+                </mutex>
+            </mutexes>
+        </module>
+        <module name="avr.context_switch"/>
+        <module name="avr.machine-timer"/>
+        <module name="rtos-example.acrux-test"/>
+    </modules>
+</system>

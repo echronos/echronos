@@ -1,0 +1,22 @@
+# Motivation
+
+The RTOS currently does not support the Atmel AVR target platform that is popular in Arduino devices.
+For those devices, the Arduino IDE defaults to a very simple application structure with only a `setup()` function run once and a `loop()` function run as a central event loop.
+With support from the RTOS, this structure could be intuitively expanded to multiple pseudo-parallel loops in the form of tasks.
+
+
+# Goals
+
+- support the rigel RTOS variant (and all smaller variants) on AVR microcontrollers
+    - support in particular building systems, context switching, interrupt events, and timers on the AVR platform
+- provide sample systems and build output that plugs easily into the Arduino IDE
+
+
+# Release Impact: Minor
+
+
+# Test Plan
+
+- review code
+- existing regression tests must pass
+- system tests for all supported variants on AVR must have been added and must pass

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+     eChronos Real-Time Operating System
+     Copyright (c) 2018, Commonwealth Scientific and Industrial Research
+     Organisation (CSIRO) ABN 41 687 119 230.
+
+     All rights reserved. CSIRO is willing to grant you a licence to the eChronos
+     real-time operating system under the terms of the CSIRO_BSD_MIT license. See
+     the file "LICENSE_CSIRO_BSD_MIT.txt" for details.
+
+     @TAG(CSIRO_BSD_MIT)
+-->
+
+<system>
+    <modules>
+        <module name="avr.build">
+            <!-- this system can be customized with several options; defaults for Arduino UNO below
+            <verbose>False</verbose>
+            <mmcu>atmega328p</mmcu>
+            <cpu_frequency>16000000</cpu_frequency>
+            <baud>9600</baud>
+            <arduino_library></arduino_library -->
+        </module>
+        <module name="avr.debug_puts"/>
+        <module name="generic.debug"/>
+        <module name="avr.rtos-rigel">
+            <prefix>rtos</prefix>
+            <signalset_size>8</signalset_size>
+            <api_asserts>true</api_asserts>
+            <internal_asserts>true</internal_asserts>
+            <fatal_error>fatal</fatal_error>
+            <tasks>
+                <task>
+                    <name>a</name>
+                    <function>fn_a</function>
+                    <stack_size>64</stack_size>
+                    <start>true</start>
+                </task>
+                <task>
+                    <name>b</name>
+                    <function>fn_b</function>
+                    <stack_size>64</stack_size>
+                </task>
+            </tasks>
+            <signal_labels>
+                <signal_label>
+                    <name>test</name>
+                    <global>true</global>
+                </signal_label>
+                <signal_label>
+                    <name>timer</name>
+                    <tasks>
+                        <task>a</task>
+                        <task>b</task>
+                    </tasks>
+                </signal_label>
+            </signal_labels>
+            <timers>
+                <timer>
+                    <name>test</name>
+                    <enabled>true</enabled>
+                    <reload>10</reload>
+                    <task>a</task>
+                    <sig_set>timer</sig_set>
+                </timer>
+                <timer>
+                    <name>supervisor</name>
+                    <enabled>false</enabled>
+                    <reload>10</reload>
+                    <error>2</error>
+                </timer>
+            </timers>
+            <interrupt_events>
+                <interrupt_event>
+                    <name>tick</name>
+                    <task>a</task>
+                    <sig_set>test</sig_set>
+                </interrupt_event>
+            </interrupt_events>
+            <mutexes>
+                <mutex>
+                    <name>test</name>
+                </mutex>
+            </mutexes>
+            <mutex>
+                <stats>true</stats>
+            </mutex>
+            <profiling>
+                <task_uptime>true</task_uptime>
+            </profiling>
+            <message_queues>
+                <message_queue>
+                    <name>test</name>
+                    <message_size>2</message_size>
+                    <queue_length>2</queue_length>
+                </message_queue>
+            </message_queues>
+        </module>
+        <module name="avr.context_switch"/>
+        <module name="avr.machine-timer"/>
+        <module name="rtos-example.rigel-test"/>
+    </modules>
+</system>

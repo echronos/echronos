@@ -5,7 +5,7 @@
 /*| object_like_macros |*/
 {{#timers.length}}
 #define TIMER_ID_ZERO (({{prefix_type}}TimerId) UINT8_C(0))
-#define TIMER_ID_MAX (({{prefix_type}}TimerId) UINT8_C({{timers.length}} - 1U))
+#define TIMER_ID_MAX (({{prefix_type}}TimerId) UINT8_C({{timers.length}} - 1))
 {{/timers.length}}
 
 /*| types |*/

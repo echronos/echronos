@@ -18,7 +18,9 @@
             <verbose>False</verbose>
             <mmcu>atmega328p</mmcu>
             <cpu_frequency>16000000</cpu_frequency>
-            <baud>9600</baud -->
+            <baud>9600</baud>
+            <arduino_library></arduino_library -->
+            <debug>True</debug>
         </module>
         <module name="avr.debug_puts"/>
         <module name="generic.debug" />

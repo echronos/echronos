@@ -22,7 +22,8 @@ schema = {
                    {'type': 'string', 'name': 'mmcu', 'default': 'atmega328p'},
                    {'type': 'int', 'name': 'cpu_frequency', 'default': '16000000'},
                    {'type': 'int', 'name': 'baud', 'default': '9600'},
-                   {'type': 'string', 'name': 'arduino_library', 'default': ''}], [])
+                   {'type': 'string', 'name': 'arduino_library', 'default': ''},
+                   {'type': 'bool', 'name': 'debug', 'default': 'False'}], [])
 }
 
 
@@ -35,6 +36,8 @@ def run(system, configuration=None):
 def system_build(system, configuration):
     inc_path_args = ['-I%s' % i for i in system.include_paths]
     common_flags = ['-mmcu=' + configuration['mmcu']]
+    if configuration['debug']:
+        common_flags += ['-g']
     a_flags = common_flags + ['-x', 'assembler-with-cpp', '-c']
     c_flags = common_flags + ['-c', '-Wall', '-Werror', '-Os', '-DF_CPU={}UL'.format(configuration['cpu_frequency']),
                               '-DBAUD={}'.format(configuration['baud'])]

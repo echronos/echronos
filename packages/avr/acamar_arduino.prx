@@ -18,7 +18,8 @@
             <verbose>False</verbose>
             <mmcu>atmega328p</mmcu>
             <cpu_frequency>16000000</cpu_frequency>
-            <baud>9600</baud -->
+            <baud>9600</baud>
+            <debug>False</debug -->
             <arduino_library>rtos-acamar</arduino_library>
         </module>
         <module name="avr.rtos-acamar">

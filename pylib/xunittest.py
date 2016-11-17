@@ -88,20 +88,6 @@ import functools
 from nose.plugins.skip import SkipTest
 
 
-IN_TEAMCITY = 'TEAMCITY_PROJECT_NAME' in os.environ
-
-
-def teamcityskip(test):
-    """Use this decorator to skip a test when executing on TeamCity."""
-    @functools.wraps(test)
-    def wrapper():
-        if IN_TEAMCITY:
-            raise SkipTest
-        return test()
-
-    return wrapper
-
-
 def ispackage(object):
     """Return true if the object is a package."""
     return inspect.ismodule(object) and hasattr(object, '__path__')

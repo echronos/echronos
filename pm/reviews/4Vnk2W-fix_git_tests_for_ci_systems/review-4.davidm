@@ -1,0 +1,14 @@
+RTOS Task Review
+=======================
+
+Task name: 4Vnk2W-fix_git_tests_for_ci_systems
+Version reviewed: 1c1183ad7a241890ffa0f9e9cc86ff28862b6e25
+Reviewer: davidm
+Date: 2016-11-03
+Conclusion: Accepted
+
+Overall comments:
+Looks good to me! On a general note at least for TeamCity integration it would
+be good to have individual tests printed during builds. This may require some
+changes on the unittest or nose module though, and it is certainly out of
+scope for this task.

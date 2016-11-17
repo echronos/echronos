@@ -31,6 +31,7 @@ import shutil
 import tempfile
 import calendar
 import subprocess
+import traceback
 from contextlib import contextmanager
 
 
@@ -534,3 +535,48 @@ class Git:
     def working_dir_clean(self):
         """Return True is the working directory is clean."""
         return self._do(['status', '--porcelain']) == ''
+
+_top_dir = None
+
+
+def get_top_dir():
+    """Return the absolute path of the directory in which the x tool or wrapper was invoked.
+
+    Take, for example, the following arrangement of a client and a core repository:
+    /client-repo/
+    /client-repo/x.py (wrapper for x.py in core submodule)
+    /client-repo/core/ (git submodule containing the RTOS repository)
+    /client-repo/core/x.py (x.py from RTOS repository)
+    /foo/ => /client-repo/ (a symlink called /foo that refers to /client-repo)
+    When executing /client-repo/x.py, this function returns '/client-repo'.
+    When executing /foo/x.py, this function returns '/client-repo'.
+    When executing /client-repo/core/x.py, this function returns '/client-repo/core'.
+    When executing ../x.py from the current working directory /client-repo/core/, this function returns '/client-repo'
+
+    """
+    global _top_dir
+    if _top_dir is None:
+        stack_frames = traceback.extract_stack()
+        top_stack_frame = stack_frames[0]
+        relative_file_path = top_stack_frame[0]
+        absolute_file_path = _sanitize_path(relative_file_path)
+        _top_dir = os.path.dirname(absolute_file_path)
+    return _top_dir
+
+
+def _sanitize_path(path):
+    """Converts an arbitrary valid path to an normalized, absolute path free of symbolic link indirections.
+
+    For example, take the following file system layout:
+    /foo/
+    /foolink => /foo/
+    /foo/bar
+    /foo/barlink => /foolink/bar
+
+    If the current working directory is '/foolink':
+    - _sanitize_path('bar') => '/foo/bar'
+    - _sanitize_path('barlink') => '/foo/bar'
+    - _sanitize_path('.//../foo//barlink') => '/foo/bar'
+
+    """
+    return os.path.normpath(follow_link(os.path.abspath(path)))

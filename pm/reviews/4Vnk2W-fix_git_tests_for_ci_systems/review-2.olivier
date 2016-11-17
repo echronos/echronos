@@ -1,0 +1,20 @@
+RTOS Task Review
+=======================
+
+Task name: 4Vnk2W-fix_git_tests_for_ci_systems
+Version reviewed: c5312f2b1a503f59c7a1477eddd0ed0b90b92fb8
+Reviewer: olivier
+Date: 2016-10-21
+Conclusion: Accepted/Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: filename:linenum
+Comment:
+
+Location: filename:linenum
+Comment:

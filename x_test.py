@@ -25,21 +25,15 @@
 # @TAG(NICTA_AGPL)
 #
 
-from pylib.xunittest import teamcityskip
-from pylib.utils import Git
+from pylib.utils import Git, get_top_dir
 from pylib.components import _sort_typedefs, _sort_by_dependencies, _DependencyNode, _UnresolvableDependencyError
 from pylib.tasks import _Review, _Task, _InvalidTaskStateError
 from nose.tools import assert_raises
 import itertools
 import os
 import tempfile
-
-# The constants refer to the base (initial) commit.
-# All branches should be dervied from this commit, so it
-# should always be available. This commit is used to test
-# some of the 'Git' class functionality.
-INITIAL_COMMIT = '052c07259121ae27a0736dfe92cd5b072ecc5745'
-INITIAL_TIME = 1364960632
+import subprocess
+import unittest
 
 
 def test_empty():
@@ -47,16 +41,40 @@ def test_empty():
     pass
 
 
-@teamcityskip
 def test_git_branch_hash():
-    g = Git(local_repository=os.path.dirname(os.path.abspath(__file__)))
-    assert INITIAL_COMMIT == g.branch_hash(INITIAL_COMMIT)
+    repo_dir = get_top_dir()
+
+    try:
+        revid, _ = _get_git_revision_hash_and_time(repo_dir)
+    except subprocess.CalledProcessError:
+        raise unittest.SkipTest('Test requires code to be managed in a local git repository')
+
+    g = Git(local_repository=repo_dir)
+    assert revid == g.branch_hash(revid)
 
 
-@teamcityskip
 def test_git_branch_date():
-    g = Git(local_repository=os.path.dirname(os.path.abspath(__file__)))
-    assert INITIAL_TIME == g.branch_date(INITIAL_COMMIT)
+    repo_dir = get_top_dir()
+
+    try:
+        revid, time = _get_git_revision_hash_and_time(repo_dir)
+    except subprocess.CalledProcessError:
+        raise unittest.SkipTest('Test requires code to be managed in a local git repository')
+
+    g = Git(local_repository=repo_dir)
+    assert time == g.branch_date(revid)
+
+
+def _get_git_revision_hash_and_time(repo_dir):
+    try:
+        subprocess.check_call(('git', '--version'), stdout=subprocess.DEVNULL)
+    except FileNotFoundError:
+        raise unittest.SkipTest('This test requires a "git" executable to be available in PATH. \
+On Windows, this is accomplished with a default installation of "git for Windows".')
+
+    git_output = subprocess.check_output(('git', 'log', '-n', '1', '--pretty=%H %at'), cwd=repo_dir)
+    revid, time = git_output.decode().split()
+    return (revid, int(time))
 
 
 def test_sort_typedefs():

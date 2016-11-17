@@ -1,0 +1,47 @@
+0x00000000 in __vectors ()
+Loading section .text, size 0x352 lma 0x0
+Loading section .data, size 0x10 lma 0x352
+Start address 0x0, load size 866
+Transfer rate: 24 KB/sec, 30 bytes/write.
+Breakpoint 1 at 0x318: file out\avr\acamar\generic\debug.c, line 53.
+
+Breakpoint 1, debug_println (msg=0x800107 "task a")
+    at out\avr\acamar\generic\debug.c:53
+53	{
+1: rtos_internal_current_task = 0 '\0'
+
+Breakpoint 1, debug_println (msg=0x800100 "task b")
+    at out\avr\acamar\generic\debug.c:53
+53	{
+1: rtos_internal_current_task = 1 '\001'
+
+Breakpoint 1, debug_println (msg=0x800107 "task a")
+    at out\avr\acamar\generic\debug.c:53
+53	{
+1: rtos_internal_current_task = 0 '\0'
+
+Breakpoint 1, debug_println (msg=0x800100 "task b")
+    at out\avr\acamar\generic\debug.c:53
+53	{
+1: rtos_internal_current_task = 1 '\001'
+
+Breakpoint 1, debug_println (msg=0x800107 "task a")
+    at out\avr\acamar\generic\debug.c:53
+53	{
+1: rtos_internal_current_task = 0 '\0'
+
+Breakpoint 1, debug_println (msg=0x800100 "task b")
+    at out\avr\acamar\generic\debug.c:53
+53	{
+1: rtos_internal_current_task = 1 '\001'
+
+Breakpoint 1, debug_println (msg=0x800107 "task a")
+    at out\avr\acamar\generic\debug.c:53
+53	{
+1: rtos_internal_current_task = 0 '\0'
+
+Breakpoint 1, debug_println (msg=0x800100 "task b")
+    at out\avr\acamar\generic\debug.c:53
+53	{
+1: rtos_internal_current_task = 1 '\001'
+The program is running.  Exit anyway? (y or n) [answered Y; input not from terminal]

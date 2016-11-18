@@ -43,7 +43,7 @@ shift `expr ${OPTIND} - 1`
 
 TEST_PACKAGES="$(find "${CORE_DIR}/packages" -name '*.prx' -and -not -name '*config-only*.prx' -and -not -name gatria-system-simple.prx | sed -r 's/.*packages\///; s/.prx//; s/\//./g')"
 
-export PATH="${PATH}:${HOME}/local/bin"
+export PATH="${PATH}:${HOME}/local/bin:${PWD}/tools/x86_64-unknown-linux-gnu/bin"
 
 gcc --version
 gdb --version

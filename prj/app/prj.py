@@ -1231,7 +1231,7 @@ def call_system_function(args, function, extra_args=None, sys_is_path=False):
 
     logger.info("Invoking '{}' on system '{}'".format(function.__name__, system.name))
     try:
-        function(system, **extra_args)
+        return function(system, **extra_args)
     except UserError as e:
         logger.error(str(e))
         return 1

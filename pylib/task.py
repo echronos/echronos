@@ -265,8 +265,8 @@ class _Review:
         assert os.path.isfile(file_path)
         self.file_path = file_path
         basename = os.path.basename(file_path)
-        author_and_round = os.path.splitext(basename)[0].split('-', maxsplit=1)[1]
-        author, round = author_and_round.split('.', maxsplit=1)
+        author_dot_round = os.path.splitext(basename)[0]
+        author, round = author_dot_round.split('.', maxsplit=1)
         self.round = int(round)
         self.author = author
         self._conclusion = None

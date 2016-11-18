@@ -45,11 +45,11 @@ shift `expr ${OPTIND} - 1`
 # python3 (>3.2): x.py
 # splint: prj.py analyze
 # gcc-powerpc-linux-gnu: prj.py build machine-qemu-ppce500.example.acamar-config-demo
-# qemu-system-ppc: x.py test systems
+# gcc, gdb, qemu-system-ppc: x.py test systems
 # texinfo: required for installing gdb from source
 # xvfb pandoc wkhtmltopdf: required for building documentation
 sudo apt-get -qq update
-sudo apt-get -qq install -y python3 splint gcc-powerpc-linux-gnu qemu-system-ppc texinfo xvfb pandoc wkhtmltopdf
+sudo apt-get -qq install -y python3 splint gcc gdb gcc-powerpc-linux-gnu qemu-system-ppc texinfo xvfb pandoc wkhtmltopdf
 
 # install GDB with PowerPC support from source; required by x.py test systems
 # unpack gdb tar ball to home directory to prevent tests below from discovering and failing on unrelated files

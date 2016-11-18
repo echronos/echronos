@@ -45,6 +45,9 @@ TEST_PACKAGES="$(find "${CORE_DIR}/packages" -name '*.prx' -and -not -name '*con
 
 export PATH="${PATH}:${HOME}/local/bin"
 
+gcc --version
+gdb --version
+
 for PY_VER in ${PY_VERSIONS}
 do
     set -x

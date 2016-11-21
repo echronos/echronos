@@ -1,0 +1,30 @@
+# Motivation
+
+By convention, RTOS APIs check the validity of application-supplied arguments via API assertions.
+The `timer_signal_set()` API in the _timer_ component has three arguments, `timer_id`, `task_id`, and `signal_set`.
+The argument `signal_set` is not checked with an API assertion.
+
+Only when an application passes a non-zero `signal_set` to `timer_signal_set()` does the _timer_ component behave in a manner that is practically relevant and useful to applications.
+When `signal_set` is the empty set and the timer expires
+- the timer is always marked as overflowed and
+- no signal set is sent to the configured task.
+There is no apparent use case for this behavior.
+Therefore, `timer_signal_set()` shall check via an API assertion that `signal_set` is not empty.
+
+Alternatively, `signal_set` may be an arbitrary, non-zero signal set that is not defined by the system configuration.
+The RTOS currently has no mechanism to check for undefined signals.
+
+Therefore, the `timer_signal_set()` API should implement API assertions to check that argument.
+This will help detect incorrect invocations by applications.
+
+
+# Goals
+
+- add API assertion to `timer_signal_set()` that asserts that `signal_set` is not the empty set
+- update documentation with this restriction on the argument values
+
+
+# Test Plan
+
+- existing regression tests must pass
+- code review

@@ -1,0 +1,20 @@
+RTOS Task Review
+=======================
+
+Task name: 5DtbKc-check_for_valid_task_id_in_timer_signal_set_api
+Version reviewed: 7d2bba699c5e16f9a76f58bb2ccc8b3af4dc4246
+Reviewer: ihor.kuz
+Date: 2016-11-21
+Conclusion: Accepted/Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: filename:linenum
+Comment:
+
+Location: filename:linenum
+Comment:

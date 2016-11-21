@@ -1,0 +1,23 @@
+# Motivation
+
+By convention, RTOS APIs check the validity of application-supplied arguments via API assertions.
+The `timer_signal_set()` API in the _timer_ component has three arguments, `timer_id`, `task_id`, and `signal_set`.
+Of these arguments, only `timer_id` is checked with an API assertion.
+
+At the moment, applications can pass an invalid `task_id` to `timer_signal_set()`.
+This makes the RTOS write to the internal `signal_tasks.tasks` array at an out-of-bounds index when the timer expires.
+This likely overwrites RTOS or application data structures and is therefore detrimental to system correctness.
+Therefore, `timer_signal_set()` shall check via an API assertion that the `task_id` argument contains a valid value.
+This will help detect incorrect invocations by applications.
+
+
+# Goals
+
+- check for `task_id` argument values of the `timer_signal_set()` API that may impact system correctness
+- add API assertions that assert that `task_id` is a valid task ID
+
+
+# Test Plan
+
+- existing regression tests must pass
+- code review

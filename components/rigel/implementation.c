@@ -73,6 +73,7 @@ unblock(const {{prefix_type}}TaskId task)
 static void
 entry_{{name}}(void)
 {
+    {{#start}}{{prefix_func}}yield();{{/start}}
     {{^start}}{{prefix_func}}signal_wait({{prefix_const}}SIGNAL_ID__RTOS_UTIL);{{/start}}
     {{function}}();
 

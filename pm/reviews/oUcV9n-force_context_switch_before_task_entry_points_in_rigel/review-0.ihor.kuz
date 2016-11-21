@@ -1,0 +1,20 @@
+RTOS Task Review
+=======================
+
+Task name: oUcV9n-force_context_switch_before_task_entry_points_in_rigel
+Version reviewed: 6414bd2eaf039eef81fcdb9bdbf2ed0440efc27e
+Reviewer: ihor.kuz
+Date: 2016-11-21
+Conclusion: Accepted/Rework
+
+Overall comments:
+
+
+Specific comments
+=================
+
+Location: filename:linenum
+Comment:
+
+Location: filename:linenum
+Comment:

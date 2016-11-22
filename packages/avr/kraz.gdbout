@@ -1,0 +1,189 @@
+0x00000000 in __vectors ()
+Loading section .text, size 0x5d4 lma 0x0
+Loading section .data, size 0x24a lma 0x5d4
+Start address 0x0, load size 2078
+Transfer rate: 26 KB/sec, 31 bytes/write.
+Breakpoint 1 at 0x41e: file out\avr\kraz\generic\debug.c, line 53.
+Breakpoint 2 at 0x42c: file T:\rtos-clr\core\packages\rtos-example\kraz-test.c, line 160.
+Breakpoint 3 at 0x432: file T:\rtos-clr\core\packages\rtos-example\kraz-test.c, line 42.
+
+Breakpoint 2, main ()
+    at T:\rtos-clr\core\packages\rtos-example\kraz-test.c:160
+160	    rtos_start();
+
+Breakpoint 1, debug_println (msg=0x80028d "task a: taking lock")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8002a1 "task a: got lock")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x80010d "task b: attempting lock")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8002b2 "task a: yielded")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8002e3 "task a: releasing lock")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x800125 "task b: got lock")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x800136 "task b")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x80013d "task b: blocking")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8002fa "task a")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x800301 "task a: unblocking b")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x80014e "task b: unblocked")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x800136 "task b")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8002fa "task a")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x800136 "task b")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8002fa "task a")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x800136 "task b")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8002fa "task a")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x800136 "task b")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x80013d "task b: blocking")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8002fa "task a")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8002fa "task a")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x800301 "task a: unblocking b")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x80014e "task b: unblocked")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x800136 "task b")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8002fa "task a")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x800136 "task b")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8002fa "task a")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x800136 "task b")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8002fa "task a")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (
+    msg=0x800160 "task b: finished receiving signals.")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (
+    msg=0x8001f3 "task b: no signal available on peek")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (
+    msg=0x80023e "task b: Success: no signal available to poll after no-peek.") at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8002fa "task a")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (
+    msg=0x8001f3 "task b: no signal available on peek")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (
+    msg=0x80023e "task b: Success: no signal available to poll after no-peek.") at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x800316 "task a: finished sending signals")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x800337 "task a: completed.")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 3, complete (task=0 '\0')
+    at T:\rtos-clr\core\packages\rtos-example\kraz-test.c:42
+42	    debug_printhex32(task);
+
+Breakpoint 1, debug_println (msg=0x800102 " completed")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x800184 "task b: signal available on peek")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (
+    msg=0x8001cf "task b: Successful poll after peek.")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x80027a "task b: completed.")
+    at out\avr\kraz\generic\debug.c:53
+53	{
+
+Breakpoint 3, complete (task=1 '\001')
+    at T:\rtos-clr\core\packages\rtos-example\kraz-test.c:42
+42	    debug_printhex32(task);
+The program is running.  Exit anyway? (y or n) [answered Y; input not from terminal]

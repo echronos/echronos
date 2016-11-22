@@ -19,3 +19,7 @@ class Acamar(tests.AvrTestCase):
 
 class Gatria(tests.AvrTestCase):
     prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'gatria.prx')
+
+
+class Kraz(tests.AvrTestCase):
+    prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'kraz.prx')

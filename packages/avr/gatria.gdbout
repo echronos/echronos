@@ -1,0 +1,67 @@
+0x00000000 in __vectors ()
+Loading section .text, size 0x4bc lma 0x0
+Loading section .data, size 0x8c lma 0x4bc
+Start address 0x0, load size 1352
+Transfer rate: 26 KB/sec, 31 bytes/write.
+Breakpoint 1 at 0x3c8: file out\avr\gatria\generic\debug.c, line 53.
+
+Breakpoint 1, debug_println (msg=0x80013a "task a -- lock")
+    at out\avr\gatria\generic\debug.c:53
+53	{
+1: rtos_internal_current_task = 0 '\0'
+
+Breakpoint 1, debug_println (msg=0x800102 "task b -- try lock")
+    at out\avr\gatria\generic\debug.c:53
+53	{
+1: rtos_internal_current_task = 1 '\001'
+
+Breakpoint 1, debug_println (msg=0x800166 "task a -- unlock")
+    at out\avr\gatria\generic\debug.c:53
+53	{
+1: rtos_internal_current_task = 0 '\0'
+
+Breakpoint 1, debug_println (msg=0x800115 "task b -- got lock")
+    at out\avr\gatria\generic\debug.c:53
+53	{
+1: rtos_internal_current_task = 1 '\001'
+
+Breakpoint 1, debug_println (msg=0x800128 "task b")
+    at out\avr\gatria\generic\debug.c:53
+53	{
+1: rtos_internal_current_task = 1 '\001'
+
+Breakpoint 1, debug_println (msg=0x80012f "b blocking")
+    at out\avr\gatria\generic\debug.c:53
+53	{
+1: rtos_internal_current_task = 1 '\001'
+
+Breakpoint 1, debug_println (msg=0x800177 "task a")
+    at out\avr\gatria\generic\debug.c:53
+53	{
+1: rtos_internal_current_task = 0 '\0'
+
+Breakpoint 1, debug_println (msg=0x80017e "unblocking b")
+    at out\avr\gatria\generic\debug.c:53
+53	{
+1: rtos_internal_current_task = 0 '\0'
+
+Breakpoint 1, debug_println (msg=0x800128 "task b")
+    at out\avr\gatria\generic\debug.c:53
+53	{
+1: rtos_internal_current_task = 1 '\001'
+
+Breakpoint 1, debug_println (msg=0x800177 "task a")
+    at out\avr\gatria\generic\debug.c:53
+53	{
+1: rtos_internal_current_task = 0 '\0'
+
+Breakpoint 1, debug_println (msg=0x800128 "task b")
+    at out\avr\gatria\generic\debug.c:53
+53	{
+1: rtos_internal_current_task = 1 '\001'
+
+Breakpoint 1, debug_println (msg=0x800177 "task a")
+    at out\avr\gatria\generic\debug.c:53
+53	{
+1: rtos_internal_current_task = 0 '\0'
+The program is running.  Exit anyway? (y or n) [answered Y; input not from terminal]

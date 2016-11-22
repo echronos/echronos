@@ -9,13 +9,25 @@
 #
 # @TAG(CSIRO_BSD_MIT)
 #
-import os.path
-from pylib import tests
 
-
-class Acamar(tests.AvrTestCase):
-    prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'acamar.prx')
-
-
-class Gatria(tests.AvrTestCase):
-    prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'gatria.prx')
+# gdb --batch <SYSTEM_BINARY> -x <THIS_FILE>
+# Don't prompt for terminal input
+set height 0
+target remote localhost:1212
+load
+b debug_println
+display rtos_internal_current_task
+c
+c
+c
+c
+c
+c
+c
+c
+c
+c
+c
+c
+quit
+y

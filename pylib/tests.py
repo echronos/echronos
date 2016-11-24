@@ -451,13 +451,21 @@ class GdbTestCase(unittest.TestCase):
                               ['build', self.system_name])
 
     def _get_test_output(self):
+        self._start_helpers()
         test_command = self._get_test_command()
         # A timeout is necessary to make the test fail if the test target hangs.
         # A 30 second timeout is sufficient for all current test systems.
         self.gdb_output = subprocess.check_output(test_command, timeout=30)
         # for an unknown reason, decode() handles Windows line breaks incorrectly so convert them to UNIX linebreaks
         output_str = self.gdb_output.replace(b'\r\n', b'\n').decode()
-        return self._filter_gdb_output(output_str)
+        self._stop_helpers()
+        return self._filter_gdb_output(self._join_gdb_output_lines(output_str))
+
+    def _start_helpers(self):
+        pass
+
+    def _stop_helpers(self):
+        pass
 
     def _get_test_command(self):
         return ('gdb', '--batch', self.executable_path, '-x', self.gdb_commands_path)
@@ -466,12 +474,19 @@ class GdbTestCase(unittest.TestCase):
         reference_path = os.path.splitext(self.prx_path)[0] + '.gdbout'
         with open(reference_path) as file_obj:
             reference_output = file_obj.read()
-        return self._filter_gdb_output(reference_output)
+        return self._filter_gdb_output(self._join_gdb_output_lines(reference_output))
 
     @staticmethod
     def _filter_gdb_output(gdb_output):
         # pylint: disable=anomalous-backslash-in-string
-        delete_patterns = (re.compile('^(\[New Thread .+)$'),)
+        delete_patterns = (re.compile('^(\[New Thread .+)$'),
+                           re.compile('^The program is running.  Exit anyway'),
+                           re.compile('^A debugging session is active'),
+                           re.compile('^\t+Inferior 1 \[Remote target\] will be killed'),
+                           re.compile('^Quit anyway'),
+                           re.compile('^$'),
+                           re.compile('^Transfer rate'),
+                           re.compile('Switching to Thread'))
         replace_patterns = (re.compile('Breakpoint [0-9]+ at (0x[0-9a-f]+): file (.+), line ([0-9]+)'),
                             re.compile('^Breakpoint .* at (.+)$'),
                             re.compile('Breakpoint [0-9]+, (0x[0-9a-f]+) in'),
@@ -482,7 +497,12 @@ class GdbTestCase(unittest.TestCase):
                             re.compile('^([0-9]+\t.+)$'),
                             re.compile('^entry \(\) at (.+)$'),
                             re.compile('^(Thread [0-9]+ "[^"]+" hit )'),
-                            re.compile('^(Thread [0-9]+ hit )Breakpoint '))
+                            re.compile('^(Thread [0-9]+ hit )Breakpoint '),
+                            re.compile('^Loading section [^,]+, size (0x[0-9a-f]+) lma (0x[0-9a-f]+)'),
+                            re.compile('^Start address (0x[0-9a-f]+), load size ([0-9]+)'),
+                            re.compile("0(0+)'"),
+                            re.compile("(\[New Thread [0-9]+\])"),
+                            re.compile("(A debugging session is active\.)"))
         filtered_result = io.StringIO()
         for line in gdb_output.splitlines(True):
             match = None
@@ -502,6 +522,26 @@ class GdbTestCase(unittest.TestCase):
                         break
             filtered_result.write(line)
         return filtered_result.getvalue()
+
+    @staticmethod
+    def _join_gdb_output_lines(gdb_output):
+        lines = []
+
+        for line in gdb_output.splitlines():
+            join = False
+
+            if lines:
+                if lines[-1].startswith('Breakpoint') and line.startswith('    '):
+                    join = True
+                    if line.startswith('    at '):
+                        lines[-1] += ' '
+
+            if join:
+                lines[-1] += line.lstrip()
+            else:
+                lines.append(line)
+
+        return '\n'.join(lines)
 
 
 class PpcQemuTestCase(GdbTestCase):
@@ -544,3 +584,35 @@ class Armv7mQemuTestCase(GdbTestCase):
         self.qemu.terminate()
         self.qemu.wait()
         self.fnull.close()
+
+
+class AvrTestCase(GdbTestCase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._simulavr_output_file = None
+        self._simulavr_popen = None
+
+    def _get_executable_name(self):
+        return 'system'
+
+    def _get_test_command(self):
+        return ('avr-gdb', '--batch', '-x', self.gdb_commands_path, self.executable_path)
+
+    def _start_helpers(self):
+        self._simulavr_output_file = open(self.executable_path + '_simulavr_output.txt', 'w')
+        self._simulavr_popen = subprocess.Popen(('simulavr', '--device', 'atmega128', '--gdbserver'),
+                                                stdout=self._simulavr_output_file, stderr=self._simulavr_output_file)
+
+    def _stop_helpers(self):
+        if sys.platform == 'win32':
+            # On Windows, terminating the simulavr process itself is insufficient.
+            # It spawns a child process and killing the parent process does not terminate the child process.
+            # Therefore, determine the child processes and terminate them explicitly.
+            import psutil  # import here so that all other x.py functionality can be used without psutil
+            parent_process = psutil.Process(self._simulavr_popen.pid)
+            child_processes = parent_process.children(recursive=True)
+            for child_process in child_processes:
+                child_process.kill()
+
+        self._simulavr_popen.kill()
+        self._simulavr_output_file.close()

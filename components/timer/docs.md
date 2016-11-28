@@ -206,7 +206,7 @@ The `reload` value is used to initialize the timer when it is enabled (or when i
 
 This API configures the timer so that on expiry it sends the set of signals `sigset` to the specified task.
 
-- The `timer` ID is typically one of the [`TIMER_ID_<name>`] constants, as it must refer to a valid message queue as defined in the system configuration.
+- The `timer` ID is typically one of the [`TIMER_ID_<name>`] constants, as it must refer to a valid timer as defined in the system configuration.
 
 - The `task` ID is typically one of the [`TASK_ID_<name>`] constants and must refer to a valid task as defined in the system configuration.
 

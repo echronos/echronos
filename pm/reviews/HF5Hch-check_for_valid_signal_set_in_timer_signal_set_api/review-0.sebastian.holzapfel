@@ -16,3 +16,6 @@ Specific comments
 Location: components/timer/docs.md:209
 Comment:
 I think 'message queue' should be 'timer'
+
+[stg: Indeed, thanks for spotting this.
+Resolved as suggested.]

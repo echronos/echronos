@@ -1,0 +1,18 @@
+# Motivation
+
+Currently, the rigel variant optionally makes tasks wait for a startup signal before executing their application-defined entry points.
+For tasks that use this mechanism, they always yield before executing their entry point.
+For tasks that do not use this mechanism, they execute their entry point without a task switch occurring beforehand.
+This asymmetry is undesirable in some customer scenarios where context switching also drives other system features.
+
+
+# Goals
+
+The goal of this task is to ensure that all task application code executes only after having performed a context switch.
+The approach is to make tasks that do not wait for a start-up signal yield at the start of the wrappers for their task entry functions.
+
+
+# Test Plan
+
+- code review
+- existing regression tests must pass

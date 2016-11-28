@@ -264,6 +264,7 @@ void
 {{prefix_func}}timer_signal_set(const {{prefix_type}}TimerId timer_id, const {{prefix_type}}TaskId task_id, const {{prefix_type}}SignalSet signal_set)
 {
     assert_timer_valid(timer_id);
+    assert_task_valid(task_id);
     api_assert(signal_set != {{prefix_const}}SIGNAL_SET_EMPTY, ERROR_ID_TIMER_SIGNAL_SET_IS_EMPTY);
 
     preempt_disable();

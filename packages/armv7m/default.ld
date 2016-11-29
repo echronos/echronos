@@ -64,7 +64,7 @@ SECTIONS
         } > sram_region AT > flash_region
 
         /* Check that bitband variables don't overflow */
-        dummy = ASSERT(SIZEOF(.data.bitband) < {{bitband_size}}, "bitband variables too large");
+        dummy = ASSERT(SIZEOF(.data.bitband) <= {{bitband_size}}, "bitband variables too large");
 
         .data :
         {

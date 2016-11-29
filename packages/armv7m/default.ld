@@ -64,7 +64,7 @@ SECTIONS
         } > sram_region AT > flash_region
 
         /* Check that bitband variables don't overflow */
-        dummy = ASSERT(. <= {{data_addr}} + {{bitband_size}}, "bitband variables too large");
+        dummy = ASSERT(SIZEOF(.data.bitband) < {{bitband_size}}, "bitband variables too large");
 
         .data :
         {
@@ -74,7 +74,7 @@ SECTIONS
 
         data_load_addr = LOADADDR(.data.bitband);
         data_virt_addr = ADDR(.data.bitband);
-        data_size = . - ADDR(.data.bitband);
+        data_size = SIZEOF(.data.bitband) + SIZEOF(.data);
 
         /* Check addresses are correct */
         dummy = ASSERT(data_load_addr % 4 == 0, "data_load_addr not word aligned");

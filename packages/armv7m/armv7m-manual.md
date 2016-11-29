@@ -162,8 +162,10 @@ The correct values for these items generally require consultation with the chip 
 The following values are configurable (defaults appear in parentheses):
 
 * flash_load_addr (0x0)
+* flash_size (0x100.0000)
 * code_addr (0x0)
 * data_addr (0x2000.0000)
+* sram_size (0x100.0000)
 * bitband_base (0x2000.0000)
 * bitband_size (0x100.0000)
 * bitband_alias (0x2200.0000)

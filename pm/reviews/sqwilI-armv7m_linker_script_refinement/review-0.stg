@@ -4,17 +4,23 @@ RTOS Task Review
 Task name: sqwilI-armv7m_linker_script_refinement
 Version reviewed: 40b0d5d68c77c263f0c61fa0e8659bafff540701
 Reviewer: stg
-Date: 2016-11-29
-Conclusion: Accepted/Rework
+Date: 2016-11-30
+Conclusion: Accepted
 
 Overall comments:
+
+I accept the changes in the current form, but I am unable to test the changes since I do not have the hardware.
+Please make sure that a second reviewer follows the test plan.
 
 
 Specific comments
 =================
 
-Location: filename:linenum
-Comment:
+Location: all modified files
+Comment 1: Accepted
+Would it make sense to rename to `data_addr` to `sram_addr` for consistency with `sram_size`?
 
-Location: filename:linenum
-Comment:
+Location: most modified files
+Comment 2: Accepted
+Would it make sense to remove the defaults from the configuration options to force system developers to choose appropriate values for their specific boards?
+As pointed out by yourself, this would constitute an API change.

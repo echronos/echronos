@@ -20,7 +20,13 @@ Location: all modified files
 Comment 1: Accepted
 Would it make sense to rename to `data_addr` to `sram_addr` for consistency with `sram_size`?
 
+[sebastian.holzapfel: I agree.
+Was aiming for minimal changes but this improves readability - resolved as suggested.]
+
 Location: most modified files
 Comment 2: Accepted
 Would it make sense to remove the defaults from the configuration options to force system developers to choose appropriate values for their specific boards?
 As pointed out by yourself, this would constitute an API change.
+
+[sebastian.holzapfel: Also agree, I was attempting to avoid an API change.
+Still, removing the default makes the feature more useful. resolved as suggested]

@@ -41,7 +41,7 @@ class EntryModule(Module):
     <entry name="flash_load_addr" type="int" default="0" />
     <entry name="flash_size" type="int" default="0x1000000" />
     <entry name="code_addr" type="int" default="0" />
-    <entry name="data_addr" type="int" default="0x20000000" />
+    <entry name="sram_addr" type="int" default="0x20000000" />
     <entry name="sram_size" type="int" default="0x1000000" />
     <entry name="stack_size" type="int" default="0x1000" />
     <entry name="bitband_base" type="int" default="0x20000000" />

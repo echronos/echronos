@@ -32,7 +32,7 @@ ENTRY(vector_table)
 MEMORY
 {
         flash_region(rx) : ORIGIN = {{flash_load_addr}}, LENGTH = {{flash_size}}
-        sram_region(rw) : ORIGIN = {{data_addr}}, LENGTH = {{sram_size}}
+        sram_region(rw) : ORIGIN = {{sram_addr}}, LENGTH = {{sram_size}}
 }
 
 SECTIONS

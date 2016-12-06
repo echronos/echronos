@@ -65,8 +65,7 @@ def request_reviews(args):
 
 @cmd(args=(_offline_arg, _taskname_arg,
      Arg('-a', '--accept', action='store_true',
-         help='Create and complete the review with the conclusion "accepted", commit, and push it. '
-              'This is an alias for the command "x.py task accept".')),
+         help='Create and complete the review with the conclusion "accepted", commit, and push it.')),
      help='Reviewers: create a stub for a new review of the active task branch.')
 def review(args):
     task = Task(task_cfg, name=args.taskname)

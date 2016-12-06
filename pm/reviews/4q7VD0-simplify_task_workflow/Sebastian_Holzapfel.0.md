@@ -48,6 +48,8 @@ pylib/task_commands.py:69, 78
 - I think an 'alias' has to have an obvious 'target'.
 - Both commands are listed as aliases of each other - perhaps it makes more sense to remove the 'alias' statement from  the first command to correctly indicate that the control flow from the accept alias falls through to the review command, but not the other way around.
 
+[stg: resolved by removing 'alias' documentation from the '--accept' option.]
+
 pylib/task.py:80
 - This filename seems excessively long. Maybe '.keep'? Obviously a matter of preference though.
 

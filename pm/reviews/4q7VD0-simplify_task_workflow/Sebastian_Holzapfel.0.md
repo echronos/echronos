@@ -33,6 +33,9 @@ Resolved by moving task descriptions from `pm/tasks/completed/` to `pm/tasks/`.]
 
 - It may be worth documenting the task naming restrictions, including our convention of using underscores rather than hyphens to separate words in task branches.
 
+[stg: resolved by documenting it in `internal-docs/task_management.md`;
+it is also "documented" in the user-visible error raised when an invalid name is encountered.]
+
 Specific comments:
 ==================
 

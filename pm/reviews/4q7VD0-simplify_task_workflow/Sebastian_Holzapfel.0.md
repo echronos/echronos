@@ -19,6 +19,9 @@ General comments:
 
 - Not all of the completed task descriptions have been moved out of the "pm/tasks/completed" folder - not sure why this is.
 
+[stg: caused by me having merged completed tasks from the development branch after having moved all other task descriptions.
+Resolved by moving task descriptions from `pm/tasks/completed/` to `pm/tasks/`.]
+
 - It may be worth documenting more clearly that one's .gitconfig name determines review increments, and not their github account or email.
     - On some of my machines for example, I have 'Seb Holzapfel' instead of 'Sebastian Holzapfel' as my commit name.
     - Easy to fix (on my machines), but this was not an issue before due to the fixed review templates.

@@ -25,6 +25,7 @@ This creates the following undesirable effects:
     - simplify the review template;
       remove information that most reviewers remove in most reviews;
       remove meta-data that is captured in the version control information of the review commit;
+- where necessary or reasonable, refactor or clean up related code and functionality
 
 
 # Test Plan

@@ -15,6 +15,8 @@ General comments:
     - This is great, and definitely related to the task, but perhaps the task description should be updated to better encompass the general cleanup and such.
     - Examples of this: commit dc09f0, f9ea, d1720, bd951..
 
+[stg: added general, but related clean-up to the goals of this task]
+
 - Not all of the completed task descriptions have been moved out of the "pm/tasks/completed" folder - not sure why this is.
 
 - It may be worth documenting more clearly that one's .gitconfig name determines review increments, and not their github account or email.

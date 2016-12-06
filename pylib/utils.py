@@ -384,7 +384,7 @@ class Git:
         return self._do(['merge'] + list(options) + [revid])
 
     def fetch(self, remote='--all', prune=False):
-        """Fetch new revisions from the specificed remote."""
+        """Fetch new revisions from the specified remote."""
         if prune:
             prune_option = ['--prune']
         else:

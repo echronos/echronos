@@ -26,10 +26,11 @@
 #
 
 from collections import namedtuple
+import difflib
 import os
 import shutil
 import subprocess
-from .utils import Git, string_to_path
+from .utils import Git, string_to_path, walk
 
 
 TaskConfiguration = namedtuple('TaskConfiguration', ('repo_path', 'tasks_path', 'description_template_path',
@@ -181,7 +182,8 @@ class Task:
             raise _InvalidTaskStateError('The task {} is not on review.'.format(self.name))
 
         reviewer = self._git.get_user_name()
-        review_path_template = os.path.join(self._review_dir, '{}.{{}}.md'.format(string_to_path(reviewer)))
+        reviewer_name_as_path = self._get_reviewer_name_as_path(reviewer)
+        review_path_template = os.path.join(self._review_dir, '{}.{{}}.md'.format(reviewer_name_as_path))
         for review_round in range(1000):
             review_path = review_path_template.format(review_round)
             if not os.path.exists(review_path):
@@ -214,6 +216,32 @@ Conclusion: Accepted
             self._git.commit('Review task {}: accepted, 0 comments'.format(self.name))
             if not offline:
                 self._git.push()
+
+    def _get_reviewer_name_as_path(self, name):
+        name_as_path = string_to_path(name)
+        other_names_as_paths = self._get_reviewer_names_from_paths()
+        if name_as_path not in other_names_as_paths:
+            close_matches = difflib.get_close_matches(name_as_path, other_names_as_paths)
+            if close_matches:
+                answer = input('Your review goes into a file like "{}.*.md". \
+There already are reviews with very similar prefixes:\n\
+    {}.\n\
+Might you have used any of those in the past? (Y/n)'.format(name_as_path, close_matches))
+                if not answer or answer.lower() == 'y':
+                    raise _InconsistentUSerNameError(
+'It seems that you wrote previous reviews under a different git user name. \
+To keep things consistent, please use "git config --global user.name" to update your git user name. \
+Your git user name should be consistent across all your repositories and match that of previous reviews. \
+This is necessary for our review system to work as expected.')
+
+        return name_as_path
+
+    def _get_reviewer_names_from_paths(self):
+        # collect all reviews in the repo
+        review_paths = walk(self.cfg.reviews_path, lambda p: not p.endswith('.md'))
+        # rsplit() helps to account for user names containing '.'
+        reviewer_names = [os.path.basename(p).rsplit('.', 2)[0] for p in review_paths]
+        return frozenset(reviewer_names)
 
     def update(self, offline=False):
         self._check_and_prepare(offline=offline, check_mainline=False)
@@ -308,4 +336,8 @@ class _InvalidTaskStateError(RuntimeError):
 
 
 class _InvalidTaskNameError(RuntimeError):
+    pass
+
+
+class _InconsistentUSerNameError(RuntimeError):
     pass

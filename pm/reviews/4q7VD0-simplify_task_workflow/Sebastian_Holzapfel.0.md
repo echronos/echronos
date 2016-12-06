@@ -29,6 +29,8 @@ Resolved by moving task descriptions from `pm/tasks/completed/` to `pm/tasks/`.]
         - This would introduce too much complexity in my opinion, requiring calls to the github API to fetch all associated emails to an account.
         - So emphasizing the name dependency in the documentation is probably sufficient
 
+[stg: resolved by checking for similar reviewer names and double checking with the user as part of the `task.py review` command]
+
 - It may be worth documenting the task naming restrictions, including our convention of using underscores rather than hyphens to separate words in task branches.
 
 Specific comments:

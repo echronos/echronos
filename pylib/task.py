@@ -100,8 +100,8 @@ class Task:
         self._git.add([task_fn])
 
         print('1. edit file "{}"\n'
-              '2. commit via #> git commit -a -m "New task: {}"\n'
-              '3. push task to remote repository via #> git push'.format(task_fn, self.name))
+              '2. commit via #> git commit -m "New task: {}" {}\n'
+              '3. push task to remote repository via #> git push'.format(task_fn, self.name, task_fn))
 
     def integrate(self):
         self._check_and_prepare(offline=False)
@@ -204,14 +204,17 @@ Conclusion: Accepted
 """
         review_contents = review_template.format(reviewer, self._git.get_user_email())
         open(review_path, 'wb').write(review_contents.encode('UTF-8'))
+        files_to_commit = []
         self._git.add([review_path])
+        files_to_commit.append(review_path)
         if os.path.exists(self._review_placeholder_path):
             self._git.rm([self._review_placeholder_path])
+            files_to_commit.append(self._review_placeholder_path)
 
         if not accept:
             print('To complete the review, edit the file "{0}" and commit and push it with the commands\n\
-    git commit -a\n\
-    git push'.format(review_path))
+    git commit {}\n\
+    git push'.format(review_path, ' '.join(files_to_commit)))
         else:
             self._git.commit('Review task {}: accepted, 0 comments'.format(self.name))
             if not offline:

@@ -58,3 +58,5 @@ Unless other reviewers also prefer a shorter name, I leave it as is.]
 
 pylib/task.py:102, 211
 - `git commit -a` scares me a little as it discourages checking for unintentionally committing an unrelated modification, but this is probably fine and unlikely to happen if someone is performing a review.
+
+[stg: resolved by making the instructions more specific and limiting the commits to the files that can be expected to have changed.]

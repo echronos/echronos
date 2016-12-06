@@ -53,5 +53,8 @@ pylib/task_commands.py:69, 78
 pylib/task.py:80
 - This filename seems excessively long. Maybe '.keep'? Obviously a matter of preference though.
 
+[stg: I do prefer the long, but self-explanatory file name.
+Unless other reviewers also prefer a shorter name, I leave it as is.]
+
 pylib/task.py:102, 211
 - `git commit -a` scares me a little as it discourages checking for unintentionally committing an unrelated modification, but this is probably fine and unlikely to happen if someone is performing a review.

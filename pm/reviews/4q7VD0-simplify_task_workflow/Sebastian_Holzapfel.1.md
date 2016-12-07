@@ -25,3 +25,5 @@ Possible fix:
 Location: pylib/task.py:234,345
 Comment:
 `InconsistentUSerName` should be `InconsistentUserName`
+
+[stg: resolved as suggested]

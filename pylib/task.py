@@ -231,7 +231,7 @@ There already are reviews with very similar prefixes:\n\
     {}.\n\
 Might you have used any of those in the past? (Y/n)'.format(name_as_path, close_matches))
                 if not answer or answer.lower() == 'y':
-                    raise _InconsistentUSerNameError(
+                    raise _InconsistentUserNameError(
 'It seems that you wrote previous reviews under a different git user name. \
 To keep things consistent, please use "git config --global user.name" to update your git user name. \
 Your git user name should be consistent across all your repositories and match that of previous reviews. \
@@ -342,5 +342,5 @@ class _InvalidTaskNameError(RuntimeError):
     pass
 
 
-class _InconsistentUSerNameError(RuntimeError):
+class _InconsistentUserNameError(RuntimeError):
     pass

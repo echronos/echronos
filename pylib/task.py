@@ -212,7 +212,7 @@ Conclusion: Accepted
             files_to_commit.append(self._review_placeholder_path)
 
         if not accept:
-            print('To complete the review, edit the file "{0}" and commit and push it with the commands\n\
+            print('To complete the review, edit the file "{}" and commit and push it with the commands\n\
     git commit {}\n\
     git push'.format(review_path, ' '.join(files_to_commit)))
         else:

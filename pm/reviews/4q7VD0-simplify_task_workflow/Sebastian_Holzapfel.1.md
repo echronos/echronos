@@ -20,6 +20,8 @@ Possible fix:
 +            print('To complete the review, edit the file "{}" and commit and push it with the commands\n\
 ```
 
+[stg: resolved as suggested]
+
 Location: pylib/task.py:234,345
 Comment:
 `InconsistentUSerName` should be `InconsistentUserName`

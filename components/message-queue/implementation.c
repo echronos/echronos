@@ -296,7 +296,7 @@ bool
     while ((message_queues[message_queue].available == message_queues[message_queue].queue_length) &&
             (absolute_timeout > {{prefix_func}}timer_current_ticks))
     {
-        message_queue_wait_timeout(message_queue, absolute_timeout - {{prefix_func}}timer_current_ticks);
+        message_queue_wait_timeout(message_queue, ({{prefix_type}}TicksRelative)(absolute_timeout - {{prefix_func}}timer_current_ticks));
     }
 
     return {{prefix_func}}message_queue_try_put(message_queue, message);
@@ -363,7 +363,7 @@ bool
     while ((message_queues[message_queue].available == 0) &&
             (absolute_timeout > {{prefix_func}}timer_current_ticks))
     {
-        message_queue_wait_timeout(message_queue, absolute_timeout - {{prefix_func}}timer_current_ticks);
+        message_queue_wait_timeout(message_queue, ({{prefix_type}}TicksRelative)(absolute_timeout - {{prefix_func}}timer_current_ticks));
     }
 
     return {{prefix_func}}message_queue_try_get(message_queue, message);

@@ -65,12 +65,8 @@ def prj(args):
 
 
 @subcmd(cmd="test", args=_STD_SUBCMD_ARGS)
-def x(args):  # pylint: disable=invalid-name
-    """Run x-related tests."""
-    modules = ['x']
-    directories = ['.']
-
-    return _run_module_tests_with_args(modules, directories, args)
+def x(_):  # pylint: disable=invalid-name
+    return unittest.main(module="x_test", argv=[''])
 
 
 @subcmd(cmd="test")

@@ -1,0 +1,19 @@
+# Motivation
+
+The Python nose testing framework is currently used for system, unit, and other tests.
+It is directly embedded into the repository.
+However, most of its features remain unused and provides barely any benefit over the standard library `unittest` package.
+Furthermore, the nose framework is obsolete and in maintenance mode.
+It therefore constitutes a maintenance burden without providing much benefit.
+
+
+# Goals
+
+- remove nose framework from repository
+- replace its functionality with functionality from `unittest` package
+
+
+# Test Plan
+
+- code review
+- existing regression tests must pass

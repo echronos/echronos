@@ -252,7 +252,7 @@ def main():
     parser = argparse.ArgumentParser(prog='x.py')
     add_subcommands_to_parser(globals(), parser)
 
-    # parse arbitrary nose options for the 'test systems' command
+    # parse arbitrary options for the 'test systems' command
     # argparse does not seem to provide a better mechanism for this case
 
     args, unknown_args = parser.parse_known_args()

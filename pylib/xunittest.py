@@ -85,7 +85,6 @@ import inspect
 import unittest
 import importlib
 import functools
-from nose.plugins.skip import SkipTest
 
 
 def ispackage(object):

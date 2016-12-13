@@ -83,13 +83,11 @@ import logging
 import os
 import sys
 
-externals = ['nose', '']
-
 # Make pylib available for importing - this is necessary for x.py wrappers in client repositories to work
 sys.path.append(os.path.dirname(__file__))
 
 from pylib.utils import BASE_DIR
-sys.path = [os.path.join(BASE_DIR, 'external_tools', e) for e in externals] + sys.path
+sys.path = [os.path.join(BASE_DIR, 'external_tools')] + sys.path
 sys.path.insert(0, os.path.join(BASE_DIR, 'prj/app/pystache'))
 if __name__ == '__main__':
     sys.modules['x'] = sys.modules['__main__']

@@ -112,37 +112,35 @@ class TestCase(unittest.TestCase):
         dom = xml_parse_string('<x></x>')
         assert single_text_child(dom) == ''
 
-    def test_xml2dict(self):
-        tests = [
-            ("Simple List",
-             """<list>
+    def test_xml2dict_simple_list(self):
+        xml = """<list>
                <li>foo</li>
                <li>bar</li>
                <li>baz</li>
-              </list>""",
-             ['foo', 'bar', 'baz']),
-            ("Simple Dict",
-             """<dict>
-               <a>foo</a>
-               <b>bar</b>
-               <c>baz</c>
-              </dict>""",
-             {'a': 'foo', 'b': 'bar', 'c': 'baz'}),
-            ("Single item list",
-             """<list>
-               <a>foo</a>
-              </list>""",
-             ['foo']),
-            ("Empty node",
-             """<list></list>""",
-             ''),
-        ]
+              </list>"""
+        expected = ['foo', 'bar', 'baz']
+        self.assertEqual(xml2dict(xml_parse_string(xml)), expected)
 
-        def check(xml, result):
-            assert xml2dict(xml_parse_string(xml)) == result
+    def test_xml2dict_simple_dict(self):
+        xml = """<dict>
+          <a>foo</a>
+          <b>bar</b>
+          <c>baz</c>
+         </dict>"""
+        expected = {'a': 'foo', 'b': 'bar', 'c': 'baz'}
+        self.assertEqual(xml2dict(xml_parse_string(xml)), expected)
 
-        for name, xml, result in tests:
-            yield name, check, xml, result
+    def test_xml2dict_single_item_list(self):
+        xml = """<list>
+          <a>foo</a>
+         </list>"""
+        expected = ['foo']
+        self.assertEqual(xml2dict(xml_parse_string(xml)), expected)
+
+    def test_xml2dict_empty_node(self):
+        xml = """<list></list>"""
+        expected = ''
+        self.assertEqual(xml2dict(xml_parse_string(xml)), expected)
 
     def test_schema_default_none(self):
         test_xml = "<foo></foo>"

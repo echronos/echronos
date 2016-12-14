@@ -41,14 +41,14 @@ class TestCase(unittest.TestCase):
                 (b'0a', 0x641D),
                 (b'123456789', 0x29B1),
                 (b'foo_bar', 0x37DF)]:
-            yield inp.decode('ascii'), is_expected, inp, expected
+            self.assertEqual(crc16ccitt(inp), expected)
 
     def test_multi(self):
         for inp, expected in [
                 ((b'0', b'a'), 0x641D),
                 ((b'1234', b'56789'), 0x29B1),
                 ((b'foo_', b'bar'), 0x37DF)]:
-            yield ''.join([i.decode('ascii') for i in inp]), is_expected_multi, inp, expected
+            self.assertEqual(crc16ccitt(*inp), expected)
 
     def test_reuse(self):
         c = Crc16Ccitt()
@@ -70,11 +70,3 @@ class TestCase(unittest.TestCase):
         for b in b'bar':
             c.add(b)
         assert c.result() == 0x5F59
-
-
-def is_expected(inp, expected):
-    assert crc16ccitt(inp) == expected
-
-
-def is_expected_multi(inp, expected):
-    assert crc16ccitt(*inp) == expected

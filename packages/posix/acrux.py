@@ -29,4 +29,7 @@ import sys
 import os
 
 if sys.platform != "win32" or 'cygdrive' in os.environ.get('ORIGINAL_PATH', ''):
-    from pylib.tests import GdbTestCase
+    from pylib import tests
+
+    class TestCase(tests.GdbTestCase):
+        system_name = "posix.acrux"

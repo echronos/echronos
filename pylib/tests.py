@@ -35,7 +35,6 @@ from contextlib import contextmanager
 import difflib
 import io
 import re
-import nose
 import inspect
 
 from .xunittest import discover_tests, TestSuite, SimpleTestNameResult, testcase_matches, testsuite_list
@@ -341,7 +340,7 @@ def provenance(args):
 
 
 @subcmd(cmd="test", help='Run system tests, i.e., tests that check the behavior of full RTOS systems. \
-This command supports the same options as the Python nose test framework.')
+This command supports the same options as the Python unittest framework.')
 def systems(args):
     def find_gdb_test_py_files(path):
         for parent, dirs, files in os.walk(path):
@@ -355,9 +354,7 @@ def systems(args):
         for packages_dir in base_to_top_paths(args.topdir, 'packages'):
             tests.extend(find_gdb_test_py_files(packages_dir))
 
-    all_tests_passed = nose.core.run(argv=[''] + args.unknown_args + tests)
-
-    if all_tests_passed:
+    if unittest.main(module=None, argv=[''] + args.unknown_args + tests).wasSuccessful():
         return 0
     else:
         return 1
@@ -367,8 +364,7 @@ class GdbTestCase(unittest.TestCase):
     """A Pythonic interface to running an RTOS system executable against a GDB command file and checking whether the
     output produced matches a given reference output.
 
-    The external interface of this class is that of unittest.TestCase to be accessed by the unittest or nose
-    frameworks.
+    The external interface of this class is that of unittest.TestCase to be accessed by the unittest frameworks.
 
     To use this class for new tests, import this class in a Python file under the packages/ directory.
     That Python file needs to have the same file name as the .prx file containing the system configuration of the

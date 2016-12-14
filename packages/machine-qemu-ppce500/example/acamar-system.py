@@ -25,4 +25,8 @@
 # @TAG(NICTA_AGPL)
 #
 
-from .testcase import TestCase
+from . import testcase
+
+
+class Acamar(testcase.TestCase):
+    pass

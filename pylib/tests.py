@@ -57,8 +57,7 @@ def prj(args):
     """Run tests associated with prj modules."""
     modules = ['prj', 'util']
     directories = [find_path(os.path.join('prj'), args.topdir),
-                   find_path(os.path.join('prj', 'pystache'), args.topdir),
-                   find_path(os.path.join('prj', 'lib'), args.topdir)]
+                   find_path(os.path.join('prj', 'pystache'), args.topdir)]
 
     return _run_module_tests_with_args(modules, directories, args)
 

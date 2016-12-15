@@ -25,7 +25,7 @@
 # @TAG(NICTA_AGPL)
 #
 
-from util.util import Singleton, check_unique, remove_multi, add_index, \
+from util import Singleton, check_unique, remove_multi, add_index, \
     LengthMixin, LengthList, config_traverse, config_set, list_search
 from nose.tools import assert_raises, raises
 

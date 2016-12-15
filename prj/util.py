@@ -209,7 +209,15 @@ def _get_platform_tool_paths():
         "win32": ("tools/win32/bin",),
     }
     if sys.platform in TOOL_PATHS:
-        base_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", ".."))
-        return [os.path.join(base_dir, directory) for directory in TOOL_PATHS[sys.platform]]
+        cur_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+        prev_dir = None
+        while cur_dir != prev_dir:
+            prev_dir = cur_dir
+            check_dir = os.path.join(cur_dir, TOOL_PATHS[sys.platform][0])
+            if os.path.exists(check_dir):
+                return [os.path.join(cur_dir, directory) for directory in TOOL_PATHS[sys.platform]]
+            else:
+                cur_dir = os.path.dirname(cur_dir)
+        return []
     else:
         raise RuntimeError('Unsupported platform {}'.format(sys.platform))

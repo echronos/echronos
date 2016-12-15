@@ -25,4 +25,4 @@
 # @TAG(NICTA_AGPL)
 #
 
-__all__ = ['util', 'crc16']
+__all__ = ['util']

@@ -1,0 +1,19 @@
+# Motivation
+
+The prj package is split into a range of directories, module files, and tests that serve different purposes.
+The downsides of this structure include:
+- it does not reflect best practices for organizing Python packages in general
+- it makes test discovery unnecessarily complicated
+These downsides could be mitigated by restructuring the prj package.
+
+
+# Goals
+
+- restructure prj package to address above shortcomings
+- in particular, ensure that the Python library path does not need to be modified and that prj can be run as a package
+
+
+# Test Plan
+
+- existing regression tests must pass
+- code review

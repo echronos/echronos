@@ -56,12 +56,19 @@ _STD_SUBCMD_ARGS = (
 @subcmd(cmd="test", args=_STD_SUBCMD_ARGS)
 def prj(args):
     """Run tests associated with prj modules."""
-    modules = ['prj', 'util']
-    directories = [find_path(os.path.join('prj', 'app'), args.topdir),
-                   find_path(os.path.join('prj', 'app', 'pystache'), args.topdir),
-                   find_path(os.path.join('prj', 'app', 'lib'), args.topdir)]
+    with _python_path(os.path.join(BASE_DIR, 'prj', 'app', 'lib')):
+        rel_dirs = (os.path.join('prj', 'app', 'pystache'),
+                    os.path.join('prj', 'app'),
+                    os.path.join('prj', 'app', 'lib'))
 
-    return _run_module_tests_with_args(modules, directories, args)
+        for rel_dir in rel_dirs:
+            for dir_path in base_to_top_paths(args.topdir, rel_dir):
+                tests = unittest.TestLoader().discover(dir_path)
+                result = unittest.TextTestRunner().run(tests)
+                if not result.wasSuccessful():
+                    return 2
+
+    return 0
 
 
 @subcmd(cmd="test", args=_STD_SUBCMD_ARGS)

@@ -68,7 +68,7 @@ import signal
 import subprocess
 import sys
 import traceback
-from util.xml import UserError, NOTHING, xml_parse_file, single_text_child, maybe_single_named_child,\
+from xml_util import UserError, NOTHING, xml_parse_file, single_text_child, maybe_single_named_child,\
     xml_parse_file_with_includes, xml_parse_string, get_attribute, single_named_child, xml2schema,\
     xml2dict, SystemParseError, xml_error_str, maybe_get_element_list, check_schema_is_valid, SchemaInvalidError
 

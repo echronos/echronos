@@ -33,7 +33,7 @@ import xml.dom.minidom
 import xml.dom.expatbuilder
 from xml.parsers.expat import ExpatError
 
-from . import util
+from util import util
 
 NOTHING = util.Singleton('nothing')
 

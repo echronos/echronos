@@ -73,15 +73,6 @@ class Singleton:
         return "<Singleton: {}>".format(self.name)
 
 
-# Python doesn't have fixed size integers, so bit-manipulation
-# can be a bit hairy. s16l provides a simple wrapper that reduces
-# error prone shift-and-mask code repeated everywhere.
-
-def s16l(value, n):
-    """Shift an unsigned 16-bit value left by n-bits."""
-    return (value << n) & 0xffff
-
-
 def check_unique(lst):
     """Raise exception if the items in the list are not unique."""
     uniq = list(set(lst))

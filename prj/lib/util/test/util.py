@@ -25,7 +25,7 @@
 # @TAG(NICTA_AGPL)
 #
 
-from util.util import Singleton, s16l, check_unique, remove_multi, add_index, \
+from util.util import Singleton, check_unique, remove_multi, add_index, \
     LengthMixin, LengthList, config_traverse, config_set, list_search
 from nose.tools import assert_raises, raises
 
@@ -44,20 +44,6 @@ def test_singleton():
 
     assert str(x) == '<Singleton: x>'
     assert str(y) == '<Singleton: y>'
-
-
-def check_s16l(value, n, expected):
-    assert s16l(value, n) == expected
-
-
-def test_s16l_zero():
-    for n in range(16):
-        yield 'n={}'.format(n), check_s16l, 0, n, 0
-
-
-def test_s16l_ffff():
-    for n, expected in [(1, 0xfffe), (8, 0xff00), (15, 0x8000), (16, 0)]:
-        yield 'n={}'.format(n), check_s16l, 0xffff, n, expected
 
 
 def test_check_unique_no_dups():

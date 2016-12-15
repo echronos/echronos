@@ -36,7 +36,7 @@ from pylib.utils import get_executable_extension
 class testRrSched:
     @classmethod
     def setUpClass(cls):
-        r = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.sched-rr")
+        r = os.system(sys.executable + " ./prj/prj.py build posix.unittest.sched-rr")
         system = "out/posix/unittest/sched-rr/system" + get_executable_extension()
         assert r == 0
         cls.impl = ctypes.CDLL(system)
@@ -56,7 +56,7 @@ class testRrSched:
 class testPrioSched:
     @classmethod
     def setUpClass(cls):
-        r = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.sched-prio")
+        r = os.system(sys.executable + " ./prj/prj.py build posix.unittest.sched-prio")
         system = "out/posix/unittest/sched-prio/system" + get_executable_extension()
         assert r == 0
         cls.impl = ctypes.CDLL(system)
@@ -78,7 +78,7 @@ class testPrioInheritSched:
 
     @classmethod
     def setUpClass(cls):
-        r = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.sched-prio-inherit")
+        r = os.system(sys.executable + " ./prj/prj.py build posix.unittest.sched-prio-inherit")
         system = "out/posix/unittest/sched-prio-inherit/system" + get_executable_extension()
         assert r == 0
         cls.impl = ctypes.CDLL(system)

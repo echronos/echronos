@@ -36,7 +36,7 @@ from pylib.utils import get_executable_extension
 class testSimpleMutex:
     @classmethod
     def setUpClass(cls):
-        r = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.simple-mutex")
+        r = os.system(sys.executable + " ./prj/prj.py build posix.unittest.simple-mutex")
         system = "out/posix/unittest/simple-mutex/system" + get_executable_extension()
         assert r == 0
         cls.impl = ctypes.CDLL(system)

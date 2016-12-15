@@ -57,7 +57,7 @@ The following assumes they have been set up.
 
 Build and run an example system for the RTOS variant *Rigel* on QEMU-emulated ARMv7-M:
 
-    prj/app/prj.py build machine-qemu-simple.example.rigel-system
+    prj/prj.py build machine-qemu-simple.example.rigel-system
 
     # Run the generated system in qemu (press `ctrl-c` to close QEMU after it is finished)
     qemu-system-arm -M simple-armv7m -S -s -nographic -semihosting -kernel out/machine-qemu-simple/example/rigel-system/system
@@ -79,7 +79,7 @@ Build and run an example system for the RTOS variant *Rigel* on QEMU-emulated AR
 
 Build and run an example system for the RTOS variant *Kochab* on QEMU-emulated PowerPC e500:
 
-    prj/app/prj.py build machine-qemu-ppce500.example.kochab-system
+    prj/prj.py build machine-qemu-ppce500.example.kochab-system
 
     # Run the generated system in qemu (press `ctrl-a` then 'x' to close QEMU after you are finished)
     qemu-system-ppc -M ppce500 -S -s -nographic -kernel out/machine-qemu-ppce500/example/kochab-system/system
@@ -252,7 +252,7 @@ Please look at the documentation inside `x.py` for more information on the tool.
 
 Step 2: Build a system.
 
-     prj/app/prj.py build <system name>
+     prj/prj.py build <system name>
 
 This finds the appropriate `.prx` file, combines the required modules and generates a system binary.
 `prj` can be further configured using the top level [`project.prj`](project.prj) file, which specifies tasks that are automatically performed when `prj` is run as well as the locations to look for modules and `.prx` configuration files.
@@ -340,7 +340,7 @@ The name of the system is the basename of its `.prx` file, minus its `.prx` exte
 
 For example, to build the system whose `.prx` file is located at [`packages/machine-qemu-ppce500/example/kochab-timer-demo.prx`](packages/machine-qemu-ppce500/example/kochab-timer-demo.prx), from the top level of the repository:
 
-    prj/app/prj.py build machine-qemu-ppce500.example.kochab-timer-demo
+    prj/prj.py build machine-qemu-ppce500.example.kochab-timer-demo
 
 Alternatively, assuming the `prj` tool binary is on the PATH:
 

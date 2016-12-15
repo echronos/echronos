@@ -56,9 +56,9 @@ _std_subcmd_args = (
 def prj(args):
     """Run tests associated with prj modules."""
     modules = ['prj', 'util']
-    directories = [find_path(os.path.join('prj', 'app'), args.topdir),
-                   find_path(os.path.join('prj', 'app', 'pystache'), args.topdir),
-                   find_path(os.path.join('prj', 'app', 'lib'), args.topdir)]
+    directories = [find_path(os.path.join('prj'), args.topdir),
+                   find_path(os.path.join('prj', 'pystache'), args.topdir),
+                   find_path(os.path.join('prj', 'lib'), args.topdir)]
 
     return _run_module_tests_with_args(modules, directories, args)
 
@@ -76,7 +76,7 @@ def x(args):
 def pystache(args):
     """Run tests assocaited with pystache modules."""
     return subprocess.call([sys.executable,
-                            find_path(os.path.join('prj', 'app', 'pystache', 'test_pystache.py'), args.topdir)])
+                            find_path(os.path.join('prj', 'pystache', 'test_pystache.py'), args.topdir)])
 
 
 @subcmd(cmd="test", args=_std_subcmd_args)
@@ -244,7 +244,7 @@ def licenses(args):
     sep = os.path.sep
     if sep == '\\':
         sep = '\\\\'
-    pattern = re.compile('\.git|components{0}.*\.(c|h|xml|md)$|external_tools{0}|pm{0}|prj{0}app{0}(ply|pystache){0}|\
+    pattern = re.compile('\.git|components{0}.*\.(c|h|xml|md)$|external_tools{0}|pm{0}|prj{0}(ply|pystache){0}|\
 provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|packages{0}[^{0}]+{0}rtos-|\
 .*__pycache__'.format(sep))
     for dirpath, subdirs, files in os.walk(BASE_DIR):
@@ -418,7 +418,7 @@ class GdbTestCase(unittest.TestCase):
         assert test_output == reference_output
 
     def _build(self):
-        subprocess.check_call([sys.executable, os.path.join(BASE_DIR, 'prj', 'app', 'prj.py')] +
+        subprocess.check_call([sys.executable, os.path.join(BASE_DIR, 'prj', 'prj.py')] +
                               ['--search-path={}'.format(sp) for sp in self.search_paths] +
                               ['build', self.system_name])
 

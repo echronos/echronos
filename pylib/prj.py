@@ -51,7 +51,7 @@ def _prj_build(output_dir):
 
     """
     with zipfile.ZipFile(os.path.join(output_dir, 'prj'), mode='w', compression=zipfile.ZIP_DEFLATED) as zip_file:
-        top = os.path.abspath(base_path('prj', 'app'))
+        top = os.path.abspath(base_path('prj'))
         for dir_path, _, file_names in os.walk(top):
             # Exclude temporary files created by the Python interpreter on the fly
             if '__pycache__' in dir_path.lower():

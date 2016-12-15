@@ -38,7 +38,7 @@ from pylib.utils import get_executable_extension
 class testSimple:
     @classmethod
     def setUpClass(cls):
-        r = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.simple")
+        r = os.system(sys.executable + " ./prj/prj.py build posix.unittest.simple")
         system = "out/posix/unittest/simple/system" + get_executable_extension()
         assert r == 0
         cls.simple = ctypes.CDLL(system)

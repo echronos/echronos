@@ -47,7 +47,7 @@ class MutexStruct(ctypes.Structure):
 class testBlockingMutex:
     @classmethod
     def setUpClass(cls):
-        r = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.blocking-mutex")
+        r = os.system(sys.executable + " ./prj/prj.py build posix.unittest.blocking-mutex")
         system = "out/posix/unittest/blocking-mutex/system" + get_executable_extension()
         assert r == 0
         cls.impl = ctypes.CDLL(system)

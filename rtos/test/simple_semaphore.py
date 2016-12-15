@@ -53,7 +53,7 @@ class SemaphoreStruct(ctypes.Structure):
 class SemaphoreTest:
     @classmethod
     def setUpClass(cls):
-        r = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.simple-semaphore")
+        r = os.system(sys.executable + " ./prj/prj.py build posix.unittest.simple-semaphore")
         system = "out/posix/unittest/simple-semaphore/system" + get_executable_extension()
         assert r == 0
         cls.impl = ctypes.CDLL(system)

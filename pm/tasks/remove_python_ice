@@ -1,0 +1,15 @@
+# Motivation
+
+The python package _ice_ in the `external_tools` directory is not used in the project.
+
+
+# Goals
+
+- remove the Python package _ice_ from the `external_tools` directory
+- remove code from the prj utility that was originally necessary for prj builds 'frozen' via _ice_
+
+
+# Test Plan
+
+- existing regression tests must pass
+- code review

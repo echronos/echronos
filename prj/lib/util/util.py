@@ -37,13 +37,6 @@ import os
 import sys
 
 
-def do_nothing(*args, **kwargs):
-    """do_nothing may be used as a generic callback
-    or handler function that does exactly nothing.
-
-    """
-
-
 class Singleton:
     """The Singleton class is designed to be used for creating
     unique 'marker' style values. This generally replaces cases

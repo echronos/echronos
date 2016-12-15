@@ -25,21 +25,9 @@
 # @TAG(NICTA_AGPL)
 #
 
-from util.util import do_nothing, Singleton, s16l, check_unique, remove_multi, add_index, \
+from util.util import Singleton, s16l, check_unique, remove_multi, add_index, \
     LengthMixin, LengthList, config_traverse, config_set, list_search
 from nose.tools import assert_raises, raises
-
-
-def test_do_nothing_no_args():
-    do_nothing()
-
-
-def test_do_nothing_some_args():
-    do_nothing(1, 2, 3)
-
-
-def test_do_nothing_kw_args():
-    do_nothing(x=1, b=2, c=3)
 
 
 def test_singleton():

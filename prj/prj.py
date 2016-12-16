@@ -35,7 +35,7 @@ if __name__ == "__main__":
     import sys
     import os
 
-    for pth in ['pystache', 'ply']:
+    for pth in ['pystache']:
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), pth))
 
 from util import prepend_tool_binaries_to_path_environment_variable

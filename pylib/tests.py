@@ -217,7 +217,7 @@ def style(args):
     appropriate exceptions.
 
     """
-    excludes = ['external_tools', 'pystache', 'tools', 'ply'] + args.excludes
+    excludes = ['external_tools', 'pystache', 'tools', 'ply', 'ply_files'] + args.excludes
     exclude_patterns = ','.join(excludes)
     options = ['--exclude=' + exclude_patterns, '--max-line-length', '118', os.path.join(args.topdir, ".")]
 
@@ -243,7 +243,8 @@ def licenses(args):
     sep = os.path.sep
     if sep == '\\':
         sep = '\\\\'
-    pattern = re.compile('\.git|components{0}.*\.(c|h|xml|md)$|external_tools{0}|pm{0}|prj{0}(ply|pystache){0}|\
+    pattern = re.compile('\.git|components{0}.*\.(c|h|xml|md)$|external_tools{0}|pm{0}|\
+prj{0}(ply|ply_files|pystache){0}|\
 provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|packages{0}[^{0}]+{0}rtos-|\
 .*__pycache__'.format(sep))
     for dirpath, subdirs, files in os.walk(BASE_DIR):

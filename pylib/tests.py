@@ -74,8 +74,9 @@ def x(args):
 @subcmd(cmd="test")
 def pystache(args):
     """Run tests assocaited with pystache modules."""
-    return subprocess.call([sys.executable,
-                            find_path(os.path.join('prj', 'pystache', 'test_pystache.py'), args.topdir)])
+    pystache_path = find_path(os.path.join('prj', 'pystache'), args.topdir)
+    tests_path = os.path.join(pystache_path, 'pystache', 'tests')
+    unittest.main(module=None, argv=['', 'discover', '-s', tests_path, '-t', pystache_path])
 
 
 @subcmd(cmd="test", args=_std_subcmd_args)
@@ -217,7 +218,7 @@ def style(args):
     appropriate exceptions.
 
     """
-    excludes = ['external_tools', 'pystache', 'tools', 'ply', 'ply_files'] + args.excludes
+    excludes = ['external_tools', 'pystache', 'pystache_files', 'tools', 'ply', 'ply_files'] + args.excludes
     exclude_patterns = ','.join(excludes)
     options = ['--exclude=' + exclude_patterns, '--max-line-length', '118', os.path.join(args.topdir, ".")]
 
@@ -244,7 +245,7 @@ def licenses(args):
     if sep == '\\':
         sep = '\\\\'
     pattern = re.compile('\.git|components{0}.*\.(c|h|xml|md)$|external_tools{0}|pm{0}|\
-prj{0}(ply|ply_files|pystache){0}|\
+prj{0}(ply|ply_files|pystache|pystache_files){0}|\
 provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|packages{0}[^{0}]+{0}rtos-|\
 .*__pycache__'.format(sep))
     for dirpath, subdirs, files in os.walk(BASE_DIR):

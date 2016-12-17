@@ -28,7 +28,6 @@
 import os
 import shutil
 from collections import namedtuple
-import pystache
 import xml.etree.ElementTree
 from .utils import BASE_DIR, base_path, base_to_top_paths
 from .cmdline import subcmd
@@ -169,6 +168,11 @@ def _sort_typedefs(typedef_lines):
 
 def _render_data(in_data, name, config):
     """Render input data (`in_data`) using a given `config`. The result is returned."""
+    # Due to some quirks of the test discovery in xunittests.py, importing pystache at the top level makes the
+    # command `x.py test prj` fail.
+    # To work around that issue, the most straightforward approach is to not import pystache at the module level.
+    # This work-around can be removed once the task "simplify_test_discovery" has been integrated.
+    from prj import pystache
     pystache.defaults.MISSING_TAGS = 'strict'
     pystache.defaults.DELIMITERS = ('[[', ']]')
     pystache.defaults.TAG_ESCAPE = lambda u: u

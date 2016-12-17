@@ -74,9 +74,9 @@ def x(args):
 @subcmd(cmd="test")
 def pystache(args):
     """Run tests assocaited with pystache modules."""
-    pystache_path = find_path(os.path.join('prj', 'pystache'), args.topdir)
-    tests_path = os.path.join(pystache_path, 'pystache', 'tests')
-    unittest.main(module=None, argv=['', 'discover', '-s', tests_path, '-t', pystache_path])
+    prj_path = find_path(os.path.join('prj'), args.topdir)
+    tests_path = os.path.join(prj_path, 'pystache', 'tests')
+    unittest.main(module=None, argv=['', 'discover', '-s', tests_path, '-t', prj_path])
 
 
 @subcmd(cmd="test", args=_std_subcmd_args)

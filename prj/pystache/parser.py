@@ -8,9 +8,9 @@ Exposes a parse() function to parse template strings.
 import bisect
 import re
 
-from pystache import defaults
-from pystache.common import FormatterNotFoundError, ParsingError
-from pystache.parsed import ParsedTemplate
+from . import defaults
+from .common import FormatterNotFoundError, ParsingError
+from .parsed import ParsedTemplate
 
 
 END_OF_LINE_CHARACTERS = ['\r', '\n']

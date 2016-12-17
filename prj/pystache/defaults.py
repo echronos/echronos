@@ -12,7 +12,7 @@ from html import escape
 import os
 import sys
 
-from pystache.common import MissingTags
+from .common import MissingTags
 
 
 # How to handle encoding errors when decoding bytes to str.

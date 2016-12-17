@@ -9,7 +9,7 @@ import os
 import re
 import sys
 
-from pystache import defaults
+from . import defaults
 
 class LocatorNotFoundError(Exception):
     def __init__(self, file_name, search_dirs):

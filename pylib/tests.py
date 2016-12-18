@@ -56,8 +56,7 @@ _std_subcmd_args = (
 def prj(args):
     """Run tests associated with prj modules."""
     modules = ['prj', 'util']
-    directories = [find_path(os.path.join('prj'), args.topdir),
-                   find_path(os.path.join('prj', 'pystache'), args.topdir)]
+    directories = [find_path(os.path.join('prj'), args.topdir)]
 
     return _run_module_tests_with_args(modules, directories, args)
 

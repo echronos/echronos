@@ -26,7 +26,7 @@
 #
 
 import os.path
-from prj import execute, SystemBuildError
+from prj.application import execute, SystemBuildError
 
 
 schema = {

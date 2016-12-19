@@ -26,7 +26,7 @@
 #
 
 import os.path
-from prj import SystemParseError, Module
+from prj.application import SystemParseError, Module
 
 
 class RigelModule(Module):

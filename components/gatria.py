@@ -26,7 +26,7 @@
 #
 
 import os.path
-from prj import Module
+from prj.application import Module
 
 
 class GatriaModule(Module):

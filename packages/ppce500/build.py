@@ -25,7 +25,7 @@
 # @TAG(NICTA_AGPL)
 #
 
-from prj import execute, commonpath, commonprefix
+from prj.application import execute, commonpath, commonprefix
 import os
 
 

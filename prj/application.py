@@ -66,13 +66,6 @@ from .xml_util import UserError, NOTHING, xml_parse_file, single_text_child, may
 # Configure the pystache module
 pystache.defaults.MISSING_TAGS = 'strict'
 
-# Place this module in to the modules namespace as 'prj' which enables
-# any plug-in modules to "import prj". This may be done differently
-# in the future as some of this script is split in to different
-# files.
-sys.modules['prj'] = sys.modules[__name__]
-
-
 SIG_NAMES = dict((k, v) for v, k in signal.__dict__.items() if v.startswith('SIG'))
 
 

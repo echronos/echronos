@@ -25,7 +25,7 @@
 # @TAG(NICTA_AGPL)
 #
 
-from prj import execute, SystemBuildError
+from prj.application import execute, SystemBuildError
 
 
 schema = {

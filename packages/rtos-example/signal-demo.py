@@ -25,7 +25,7 @@
 # @TAG(NICTA_AGPL)
 #
 
-from prj import Module
+from prj.application import Module
 
 
 class SignalDemoModule(Module):

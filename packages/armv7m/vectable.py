@@ -25,7 +25,7 @@
 # @TAG(NICTA_AGPL)
 #
 
-from prj import SystemBuildError, Module, ModuleInstance, pystache_render, xml2dict, xml2schema, xml_parse_string
+from prj.application import SystemBuildError, Module, ModuleInstance, pystache_render, xml2dict, xml2schema, xml_parse_string
 import logging
 import os
 import ply.cpp

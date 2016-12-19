@@ -28,7 +28,7 @@
 from prj.application import SystemBuildError, Module, ModuleInstance, pystache_render, xml2dict, xml2schema, xml_parse_string
 import logging
 import os
-import ply.cpp
+from prj.ply import cpp
 import shutil
 logger = logging.getLogger()
 
@@ -102,14 +102,14 @@ class EntryModule(Module):
                     expanded_args[1][0].type == 'CPP_ID':
                 config['bit_aliases'].append(expanded_args[1][0].value)
 
-        p = ply.cpp.Preprocessor(include_paths=system.include_paths,
+        p = cpp.Preprocessor(include_paths=system.include_paths,
                                  macro_callback=cb)
 
         for c_file in system.c_files:
             with open(c_file) as f:
                 try:
                     p.parse(f.read(), c_file)
-                except ply.cpp.CppError as e:
+                except cpp.CppError as e:
                     raise SystemBuildError(str(e))
 
         super().post_prepare(system, config)

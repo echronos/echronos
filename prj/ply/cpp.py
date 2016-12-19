@@ -22,8 +22,8 @@ import re
 import copy
 import time
 import os.path
-import ply.lex as lex
-from ply.lex import token
+from . import lex
+from .lex import token
 
 literals = "+-*/%|&~^<>=!?()[]{}.,;:\\\'\""
 

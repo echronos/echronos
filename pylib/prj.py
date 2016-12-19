@@ -27,7 +27,7 @@
 
 import os
 import zipfile
-from .utils import top_path, base_path
+from .utils import top_path, base_path, BASE_DIR
 from .release import _LicenseOpener
 from .cmdline import subcmd
 
@@ -47,17 +47,14 @@ def build(args):
 
 
 def _prj_build(output_dir):
-    """Create a distributable version of prj.py.
-
-    """
+    """Create a distributable version of prj."""
     with zipfile.ZipFile(os.path.join(output_dir, 'prj'), mode='w', compression=zipfile.ZIP_DEFLATED) as zip_file:
-        top = os.path.abspath(base_path('prj'))
-        for dir_path, _, file_names in os.walk(top):
+        for dir_path, _, file_names in os.walk(os.path.abspath(base_path('prj'))):
             # Exclude temporary files created by the Python interpreter on the fly
             if '__pycache__' in dir_path.lower():
                 continue
 
-            archive_dir_path = os.path.relpath(dir_path, top)
+            archive_dir_path = os.path.relpath(dir_path, BASE_DIR)
             for file_name in file_names:
                 # Exclude temporary files created by the Python interpreter on the fly
                 if file_name.lower().endswith('.pyc'):
@@ -80,12 +77,7 @@ def _prj_build(output_dir):
 
                     file_content = f.read()
 
-                if dir_path == top and file_name == 'prj.py':
-                    # The python interpreter expects to be informed about the main file in the zip file by naming it
-                    # __main__.py
-                    archive_file_path = os.path.join(archive_dir_path, '__main__.py')
-                else:
-                    archive_file_path = os.path.join(archive_dir_path, file_name)
+                archive_file_path = os.path.join(archive_dir_path, file_name)
                 # Normalize the path to drop unnecessary elements.
                 # For example, when the file path starts with "./", this prefix is included in the zip manifest as
                 # part of the file name.
@@ -93,6 +85,14 @@ def _prj_build(output_dir):
                 # Windows and the Python interpreter do not see any files with such a prefix inside a zip file.
                 archive_file_path = os.path.normpath(archive_file_path)
                 zip_file.writestr(archive_file_path, file_content)
+
+        # add __main__.py file to top level of zip file to make it executable by the Python interpreter
+        file_content = '''from prj.application import _start
+
+if __name__ == "__main__":
+    _start()
+'''
+        zip_file.writestr('__main__.py', file_content)
     with open(os.path.join(output_dir, 'prj.bat'), 'w', newline='\r\n') as f:
         f.write('@ECHO OFF\npy -3 %~dp0\\prj %*\n')
     sh_path = os.path.join(output_dir, 'prj.sh')

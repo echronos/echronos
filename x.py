@@ -41,9 +41,7 @@ One of the main tasks of `x.py` is to create the releasable artifacts (i.e.: thi
 
 ### `prj` release information
 
-prj will be distributed in source format for now as the customer likes it that way, and also because of the
-impracticality of embedding python3 into a distributable .exe .
-The enduser will need to install Python 3.
+prj is distributed as a package that needs to be executed via a Python interpreter.
 The tool can be embedded (not installed) into a project tree (i.e.: used inplace).
 
 ### Package release information
@@ -66,7 +64,7 @@ These include:
 
 The following output files will be produced by `x.py`.
 
-* release/prj-<version>.zip
+* release/bin/prj
 * release/<rtos-foo>-<version>.zip
 * release/<build-name>-<version>.zip
 

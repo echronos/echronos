@@ -30,7 +30,7 @@ import os
 import sys
 
 from rtos import sched
-from pylib.utils import get_executable_extension
+from pylib.utils import get_executable_extension, top_path
 
 NUM_MUTEXES = 10
 
@@ -47,7 +47,8 @@ class MutexStruct(ctypes.Structure):
 class testBlockingMutex:
     @classmethod
     def setUpClass(cls):
-        r = os.system(sys.executable + " ./prj/prj.py build posix.unittest.blocking-mutex")
+        r = os.system("{} {} build posix.unittest.blocking-mutex".format(sys.executable,
+                                                                         top_path('prj_build', 'prj')))
         system = "out/posix/unittest/blocking-mutex/system" + get_executable_extension()
         assert r == 0
         cls.impl = ctypes.CDLL(system)

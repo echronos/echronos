@@ -40,7 +40,7 @@ import inspect
 
 from .xunittest import discover_tests, TestSuite, SimpleTestNameResult, testcase_matches, testsuite_list
 from .release import _LicenseOpener
-from .utils import get_executable_extension, BASE_DIR, find_path, base_to_top_paths
+from .utils import get_executable_extension, BASE_DIR, find_path, base_to_top_paths, top_path
 from .cmdline import subcmd, Arg
 
 
@@ -418,7 +418,7 @@ class GdbTestCase(unittest.TestCase):
         assert test_output == reference_output
 
     def _build(self):
-        subprocess.check_call([sys.executable, os.path.join(BASE_DIR, 'prj', 'prj.py')] +
+        subprocess.check_call([sys.executable, top_path('prj_build', 'prj')] +
                               ['--search-path={}'.format(sp) for sp in self.search_paths] +
                               ['build', self.system_name])
 

@@ -32,13 +32,13 @@ import os
 import random
 import sys
 
-from pylib.utils import get_executable_extension
+from pylib.utils import get_executable_extension, top_path
 
 
 class testSimple:
     @classmethod
     def setUpClass(cls):
-        r = os.system(sys.executable + " ./prj/prj.py build posix.unittest.simple")
+        r = os.system("{} {} build posix.unittest.simple".format(sys.executable, top_path('prj_build', 'prj')))
         system = "out/posix/unittest/simple/system" + get_executable_extension()
         assert r == 0
         cls.simple = ctypes.CDLL(system)

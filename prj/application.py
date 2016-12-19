@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 #
 # eChronos Real-Time Operating System
 # Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
@@ -31,7 +30,7 @@
 Main entry point.
 
 """
-from util import prepend_tool_binaries_to_path_environment_variable
+from .util import prepend_tool_binaries_to_path_environment_variable
 # Logging is set up first since this is critical to the rest of the application working correctly.
 # It is possible that other modules will perform logging during import, so make sure this is very early.
 import logging as _logging  # Avoid unintended using of 'logging'
@@ -54,14 +53,13 @@ import imp
 import inspect
 import os
 import pdb
-import pystache.parser
-import pystache.renderer
 import shutil
 import signal
 import subprocess
 import sys
 import traceback
-from xml_util import UserError, NOTHING, xml_parse_file, single_text_child, maybe_single_named_child,\
+from . import pystache
+from .xml_util import UserError, NOTHING, xml_parse_file, single_text_child, maybe_single_named_child,\
     xml_parse_file_with_includes, xml_parse_string, get_attribute, single_named_child, xml2schema,\
     xml2dict, SystemParseError, xml_error_str, maybe_get_element_list, check_schema_is_valid, SchemaInvalidError
 

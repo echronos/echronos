@@ -1,0 +1,20 @@
+# Motivation
+
+The command `x.py test systems` runs several system-level regression tests.
+Currently, the command exits with the exit code 0 when one or more tests fail.
+This makes it unnecessarily difficult and error prone to check for test failures on regression test systems.
+
+
+# Goals
+
+- the command `x.py test systems` shall exit with a non-zero exit code when one or more tests fail
+
+
+# Test Plan
+
+- code review
+- existing regression tests shall pass
+- check efficacy of change:
+    - locally modify a system test so that it fails
+    - run `x.py test systems`
+    - verify that it exits with a non-zero exit code

@@ -1,0 +1,18 @@
+# Motivation
+
+The command `x.py test style` is used in regression testing and currently uses the pycodestyle Python package to check the Python code in the project for code style violations.
+However, its tests are relatively limited compared to the pylint package.
+This package would allow the project to ensure higher Python code quality than the current regression tests do.
+
+
+# Goals
+
+- integrate the pylint Python package
+- run pylint on the project Python code as part of the `x.py test style` command
+- update the project Python code where necessary to pass the pylint checks
+
+
+# Test Plan
+
+- review changes
+- verify that existing regression tests pass

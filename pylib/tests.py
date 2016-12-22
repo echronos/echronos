@@ -218,13 +218,8 @@ def style(args):
     appropriate exceptions.
 
     """
-    excludes = ['external_tools', 'pystache', 'tools', 'ply'] + args.excludes
-    exclude_patterns = ','.join(excludes)
-    options = ['--exclude=' + exclude_patterns, '--max-line-length', '118', os.path.join(args.topdir, ".")]
-
-    logging.info('code-style check: ' + ' '.join(options))
-
-    style = pycodestyle.StyleGuide(arglist=options)
+    style = pycodestyle.StyleGuide(max_line_length=118, paths=[args.topdir],
+                                   exclude=['external_tools', 'pystache', 'tools', 'ply'] + args.excludes)
     if args.teamcity:
         style.init_report(_TeamcityReport)
     report = style.check_files()

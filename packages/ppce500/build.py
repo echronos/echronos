@@ -44,7 +44,8 @@ def system_build(system):
     common_parent_path = commonpath(all_input_files)
 
     # Compile all C files.
-    c_obj_files = [os.path.join(system.output, os.path.relpath(os.path.abspath(c.replace('.c', '.o')), common_parent_path)) for c in system.c_files]
+    c_obj_files = [os.path.join(system.output, os.path.relpath(os.path.abspath(c.replace('.c', '.o')),
+                                                               common_parent_path)) for c in system.c_files]
 
     for c, o in zip(system.c_files, c_obj_files):
         os.makedirs(os.path.dirname(o), exist_ok=True)
@@ -54,7 +55,8 @@ def system_build(system):
                 c_flags + inc_path_args)
 
     # Assemble all asm files.
-    asm_obj_files = [os.path.join(system.output, os.path.relpath(os.path.abspath(s.replace('.s', '.o')), common_parent_path)) for s in system.asm_files]
+    asm_obj_files = [os.path.join(system.output, os.path.relpath(os.path.abspath(s.replace('.s', '.o')),
+                                                                 common_parent_path)) for s in system.asm_files]
     for s, o in zip(system.asm_files, asm_obj_files):
         os.makedirs(os.path.dirname(o), exist_ok=True)
         execute(['powerpc-linux-gnu-as', '-me500', '-o', o, s] + a_flags + inc_path_args)

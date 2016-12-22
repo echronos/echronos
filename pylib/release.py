@@ -109,7 +109,8 @@ class _ReleasePackage:
         return self._pkg.path
 
     def get_files(self):
-        flt = lambda file_path: '__pycache__' in file_path.lower()
+        def flt(file_path):
+            return '__pycache__' in file_path.lower()
         return walk(self.get_path(), flt)
 
     def get_archive_name(self):

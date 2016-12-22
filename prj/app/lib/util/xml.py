@@ -364,7 +364,7 @@ def maybe_get_element_list(el, list_name, list_item_name):
 def dict_has_keys(d, *keys):
     """Return True if the dictionary has all keys."""
     for k in keys:
-        if not k in d:
+        if k not in d:
             return False
     return True
 
@@ -775,9 +775,11 @@ def asdict(lst, key=None, attr=None):
         raise Exception("Only key or attr should be set (not both)")
 
     if attr is not None:
-        lookup = lambda x: getattr(x, attr)
+        def lookup(x):
+            return getattr(x, attr)
     elif key is not None:
-        lookup = lambda x: x[key]
+        def lookup(x):
+            return x[key]
     else:
         raise Exception("Key or attr should be set")
 

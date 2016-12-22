@@ -1317,7 +1317,8 @@ def commonprefix(m):
     if hasattr(os.path, 'commonprefix'):
         return os.path.commonprefix(m)
     else:
-        if not m: return ''
+        if not m:
+            return ''
         # Some people pass in a list of pathname parts to operate in an OS-agnostic
         # fashion; don't try to translate in that case as that's an abuse of the
         # API and they are already doing what they need to be OS-agnostic and so

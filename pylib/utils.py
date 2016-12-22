@@ -268,8 +268,12 @@ class Git:
 
         """
         assert isinstance(paths, (str, list))
-        make_relative = lambda path: os.path.relpath(path, self.local_repository) if os.path.isabs(path) else path
-        convert = lambda path: make_relative(path).replace(os.sep, self.sep)
+
+        def convert(path):
+            if os.path.isabs(path):
+                path = os.path.relpath(path, self.local_repository)
+            return path.replace(os.sep, self.sep)
+
         if isinstance(paths, str):
             return convert(paths)
         else:
@@ -350,10 +354,10 @@ class Git:
 
         """
         params = ['branch']
-        if not track is None:
+        if track is not None:
             params.append('--track' if track else '--no-track')
         params.append(name)
-        if not start_point is None:
+        if start_point is not None:
             params.append(start_point)
         return self._do(params)
 
@@ -504,7 +508,6 @@ class Git:
     def working_dir_clean(self):
         """Return True is the working directory is clean."""
         return self._do(['status', '--porcelain']) == ''
-
 
     def get_staged_files(self):
         return self._do(['diff', '--name-only', '--cached'], as_lines=True)

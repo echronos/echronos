@@ -189,7 +189,8 @@ class Task:
             if not os.path.exists(review_path):
                 break
         else:
-            raise FileNotFoundError('Unable to determine review round for task "{}" and reviewer "{}" ("{}")'.format(branch, reviewer, review_path_template))
+            raise FileNotFoundError('Unable to determine review round for task "{}" and reviewer "{}" ("{}")'
+                                    .format(branch, reviewer, review_path_template))
 
         if not accept:
             review_template = """Reviewer: {} ({})
@@ -231,8 +232,8 @@ There already are reviews with very similar prefixes:\n\
     {}.\n\
 Might you have used any of those in the past? (Y/n)'.format(name_as_path, close_matches))
                 if not answer or answer.lower() == 'y':
-                    raise _InconsistentUserNameError(
-'It seems that you wrote previous reviews under a different git user name. \
+                    raise _InconsistentUserNameError('\
+It seems that you wrote previous reviews under a different git user name. \
 To keep things consistent, please use "git config --global user.name" to update your git user name. \
 Your git user name should be consistent across all your repositories and match that of previous reviews. \
 This is necessary for our review system to work as expected.')
@@ -273,12 +274,13 @@ This is necessary for our review system to work as expected.')
                 raise _InvalidTaskStateError('The task branch is not up-to-date with its remote tracking branch.')
 
         if check_mainline and \
-            not self.name in self._git.get_branches_that_contain_revid(self._mainline_tracking_branch):
+                self.name not in self._git.get_branches_that_contain_revid(self._mainline_tracking_branch):
             self.update(offline=offline)
 
     def _is_on_review(self):
         if self._git.get_active_branch() != self.name:
-            raise _TaskNotActiveBranchError('The task {} is not the active git branch (the active git branch is {})'.format(self.name, self._git.get_active_branch()))
+            raise _TaskNotActiveBranchError('The task {} is not the active git branch (the active git branch is {})'
+                                            .format(self.name, self._git.get_active_branch()))
         return os.path.exists(self._review_dir)
 
     @staticmethod

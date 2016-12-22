@@ -166,8 +166,8 @@ def test_schema_default_value():
         'type': 'dict',
         'name': 'foo',
         'dict_type': ([{'type': 'string',
-                       'name': 'bar',
-                       'default': 'FOO'}], [])
+                        'name': 'bar',
+                        'default': 'FOO'}], [])
     }
     assert xml2dict(xml_parse_string("<foo></foo>"), schema) == {'bar': 'FOO'}
     assert xml2dict(xml_parse_string("<foo><bar>BAZ</bar></foo>"), schema) == {'bar': 'BAZ'}

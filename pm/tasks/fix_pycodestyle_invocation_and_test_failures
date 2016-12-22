@@ -1,0 +1,19 @@
+# Motivation
+
+The command `x.py test style` is used in regression testing and currently uses the pycodestyle Python package to check the Python code in the project for code style violations.
+However, the command does not pick up code style violations.
+This is caused by an incorrect invocation of the pycodestyle package.
+
+
+# Goals
+
+- ensure that the pycodestyle package is correctly invoked
+- ensure it picks up poor code style
+- resolve code style issues in the current code base
+
+
+# Test Plan
+
+- review changes
+- verify that existing regression tests pass
+- introduce a code style issue into the code base, such as an overly long line, and verify that the command `x.py test style` reports it

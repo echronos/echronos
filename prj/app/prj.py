@@ -1153,7 +1153,7 @@ def call_system_function(args, function, extra_args=None, sys_is_path=False):
             logger.info("Loading system: {}".format(system_name))
             system = project.find(system_name)
     except EntityLoadError as e:
-        logger.error("Unable to load system [{}]: {}".format(system_name, e))
+        logger.error("Unable to load system [{}]: {}, {}".format(system_name, e, e.detail))
         return 1
     except EntityNotFoundError:
         logger.error("Unable to find system [{}].".format(system_name))

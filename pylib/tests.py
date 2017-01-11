@@ -37,10 +37,12 @@ import io
 import re
 import nose
 import inspect
+from collections import namedtuple
+import multiprocessing
 
 from .xunittest import discover_tests, TestSuite, SimpleTestNameResult, testcase_matches, testsuite_list
 from .release import _LicenseOpener
-from .utils import get_executable_extension, BASE_DIR, find_path, base_to_top_paths
+from .utils import get_executable_extension, BASE_DIR, find_path, base_to_top_paths, walk, base_path, get_top_dir
 from .cmdline import subcmd, Arg
 
 
@@ -206,7 +208,7 @@ class _TeamcityReport(pycodestyle.StandardReport):
         args=(Arg('--teamcity', action='store_true', help="Provide teamcity output for tests", default=False),
               Arg('--excludes', nargs='*', help="Exclude directories from code-style checks", default=[])))
 def style(args):
-    """Check for PEP8 compliance with the pycodestyle tool.
+    """Check for PEP8 compliance with the pycodestyle tool and for common coding style conventions via pylint.
 
     This implements conventions lupHw1 and u1wSS9.
     The enforced maximum line length follows convention TZb0Uv.
@@ -218,18 +220,116 @@ def style(args):
     appropriate exceptions.
 
     """
+    result = 0
+    excludes = ['external_tools', 'pystache', 'tools', 'ply'] + args.excludes
     # ignored warnings and errors:
     # E402 module level import not at top of file
     style = pycodestyle.StyleGuide(max_line_length=118, paths=[args.topdir], ignore=['E402'],
-                                   exclude=['external_tools', 'pystache', 'tools', 'ply'] + args.excludes)
+                                   exclude=excludes)
     if args.teamcity:
         style.init_report(_TeamcityReport)
     report = style.check_files()
     if report.total_errors:
         logging.error('Python code-style check found non-compliant files')  # details on stdout
-        return 1
+        result = 1
+    print('Analyzed {} files with pycodestyle'.format(report.counters['files']))
+    if report.counters['files'] < 10:
+        logging.error('Analyzed less than 10 files')
+        result = 1
+
+    try:
+        pylint_result = _run_pylint(excludes)
+    except ImportError as err:
+        logging.warning('WARNING: Skipping pylint checks due to ImportError "%s". '
+                        'Most likely, the "pylint" Python package is not available. '
+                        'Usually, it can be installed with the command "py/python -m pip install pylint"', err)
+        pylint_result = 0
+
+    if result == 0:
+        result = pylint_result
+
+    return result
+
+
+def _run_pylint(excludes):
+    result = 0
+
+    PylintRun = namedtuple('PylintRun', ('search_paths', 'library_paths'))
+
+    pylint_runs = (PylintRun(search_paths=(('', False),
+                                           ('pylib', True),
+                                           ('rtos', True)),
+                             library_paths=tuple()),
+                   PylintRun(search_paths=(('components', True),
+                                           ('packages', True),
+                                           (os.path.join('prj', 'app'), True)),
+                             library_paths=(os.path.join('prj', 'app'),
+                                            os.path.join('prj', 'app', 'lib'),
+                                            os.path.join('prj', 'app', 'ply'))))
+
+    analyzed_files = 0
+    for pylint_run in pylint_runs:
+        file_paths = list(_discover_pylint_file_paths(pylint_run.search_paths, excludes))
+        analyzed_files += len(file_paths)
+        library_paths = [base_path(library_path) for library_path in pylint_run.library_paths]
+        pylint_result = _run_pylint_on_paths(file_paths, library_paths)
+        if result == 0:
+            result = pylint_result
+
+    print('Analyzed {} files with pylint'.format(analyzed_files))
+    if analyzed_files < 10:
+        print('Analyzed less than 10 files')
+        result = 1
+
+    return result
+
+
+def _discover_pylint_file_paths(search_paths, excludes):
+    def shall_pylint_ignore_path(path):
+        return os.path.splitext(path)[1] != '.py' or any([True for exclude in excludes if exclude in path])
+
+    for repo_dir, recurse in search_paths:
+        for abs_dir in base_to_top_paths(get_top_dir(), repo_dir):
+            if recurse:
+                yield from walk(abs_dir, shall_pylint_ignore_path)
+            else:
+                for name in os.listdir(abs_dir):
+                    if not shall_pylint_ignore_path(name):
+                        yield os.path.join(abs_dir, name)
+
+
+def _run_pylint_on_paths(file_paths, library_paths):
+    # Import pylint here instead of the top of the file so that the rest of the x.py functionality can be used without
+    # having to install pylint.
+    from pylint.lint import Run
+    from pylint.__pkginfo__ import numversion, version
+
+    if numversion[:2] != (1, 7):
+        print('WARNING: '
+              'The supported version of pylint is 1.7. '
+              'The locally installed version of pylint is ' + version + '. '
+              'It may report unexpected style violations.')
+
+    if not isinstance(file_paths, list):
+        file_paths = list(file_paths)
+
+    with _python_path(*library_paths):
+        runner = Run(['--rcfile=' + base_path('.pylintrc'), '-j', str(_get_number_of_cpus())] + file_paths,
+                     exit=False)
+
+    return runner.linter.msg_status
+
+
+def _get_number_of_cpus():
+    if hasattr(os, 'sched_getaffinity'):
+        # pylint: disable=no-member
+        cpu_count = len(os.sched_getaffinity(0))
     else:
-        return 0
+        try:
+            cpu_count = multiprocessing.cpu_count()
+        except NotImplementedError:
+            cpu_count = 1
+    return cpu_count
 
 
 @subcmd(cmd="test", help='Check that all files have the appropriate license header',

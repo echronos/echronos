@@ -64,18 +64,22 @@ class SemaphoreTest:
         cls.block_func_ptr = None
         cls.get_current_task_ptr = None
 
+    # pylint: disable=no-self-argument
     def show_state(cls):
         print("WAITERS: {}".format([cls.impl_waiters[i] for i in ALL_TASKS]))
         print("SEMVALUES: {}".format([cls.impl_sem[i].value for i in ALL_SEMAPHORES]))
 
+    # pylint: disable=no-self-argument
     def set_unblock_func(cls, fn):
         cls.unblock_func_ptr = UnblockFuncPtr(fn)
         cls.impl.pub_set_unblock_ptr(cls.unblock_func_ptr)
 
+    # pylint: disable=no-self-argument
     def set_block_func(cls, fn):
         cls.block_func_ptr = BlockFuncPtr(fn)
         cls.impl.pub_set_block_ptr(cls.block_func_ptr)
 
+    # pylint: disable=no-self-argument
     def set_get_current_task_func(cls, fn):
         cls.get_current_task_ptr = GetCurrentTaskPtr(fn)
         cls.impl.pub_set_get_current_task_ptr(cls.get_current_task_ptr)

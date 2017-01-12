@@ -53,14 +53,17 @@ class testBlockingMutex:
         cls.impl = ctypes.CDLL(system)
         cls.impl_mutex = (ctypes.POINTER(MutexStruct * NUM_MUTEXES)).in_dll(cls.impl, 'pub_mutexes')[0]
 
+    # pylint: disable=no-self-argument
     def set_unblock_func(cls, fn):
         cls.unblock_func_ptr = UnblockFuncPtr(fn)
         cls.impl.pub_set_unblock_ptr(cls.unblock_func_ptr)
 
+    # pylint: disable=no-self-argument
     def set_block_on_func(cls, fn):
         cls.block_on_func_ptr = BlockOnFuncPtr(fn)
         cls.impl.pub_set_block_on_ptr(cls.block_on_func_ptr)
 
+    # pylint: disable=no-self-argument
     def set_get_current_task_func(cls, fn):
         cls.get_current_task_ptr = GetCurrentTaskPtr(fn)
         cls.impl.pub_set_get_current_task_ptr(cls.get_current_task_ptr)

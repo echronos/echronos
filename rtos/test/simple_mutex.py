@@ -43,8 +43,6 @@ class testSimpleMutex:
         cls.impl_mutex = ctypes.POINTER(sched.get_rr_sched_struct(10)).in_dll(cls.impl, 'pub_mutexes')[0]
 
     def test_simple(self):
-        import sys
-
         # Try lock all the mutex, should all pass
         for i in range(10):
             assert self.impl.rtos_mutex_try_lock(i) == 1

@@ -25,6 +25,7 @@
 # @TAG(NICTA_AGPL)
 #
 
+# pylint: disable=too-many-public-methods
 import os
 import sys
 import shutil
@@ -328,7 +329,7 @@ class Git:
         Execute the git command line tool with the given command-line parameters and return the console output as a
         string.
         """
-        assert type(parameters) == list
+        assert isinstance(parameters, list)
         raw_data = subprocess.check_output(['git'] + parameters, cwd=self.local_repository).decode()
         if as_lines:
             return raw_data.splitlines()
@@ -427,7 +428,7 @@ class Git:
         """
         assert isinstance(src, (str, list))
         assert isinstance(dst, str)
-        if type(src) == str:
+        if isinstance(src, str):
             src_list = [src]
         else:
             src_list = src

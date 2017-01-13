@@ -124,9 +124,9 @@ def _get_decorators(global_attributes, decorator_type):
         if isinstance(attribute, ModuleType):
             yield from [func.decorator for func in vars(attribute).values()
                         if isinstance(func, FunctionType) and hasattr(func, 'decorator') and
-                        type(func.decorator) == decorator_type]
+                        isinstance(func.decorator, decorator_type)]
         elif isinstance(attribute, FunctionType) and hasattr(attribute, 'decorator') \
-                and type(attribute.decorator) == decorator_type:
+                and isinstance(attribute.decorator, decorator_type):
             yield attribute
 
 

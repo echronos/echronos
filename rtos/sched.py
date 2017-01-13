@@ -154,6 +154,7 @@ class BaseSchedModel:
     def runnable_str(self):
         return ''.join(['X' if r else ' ' for r in self.runnable])
 
+    # pylint: disable=no-self-use
     def get_next(self):
         """Based on the scheduling algorithm return the next task to run.
 

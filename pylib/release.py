@@ -80,7 +80,7 @@ class Package:
             for pkg_name in pkg_names:
                 pkg_path = os.path.join(pkg_parent_dir, pkg_name)
                 if pkg_name in pkgs:
-                    logging.warn('Overriding package {} with package {}'.format(pkgs[pkg_name].path, pkg_path))
+                    logging.warning('Overriding package {} with package {}'.format(pkgs[pkg_name].path, pkg_path))
                 pkgs[pkg_name] = Package(pkg_path)
         return pkgs
 

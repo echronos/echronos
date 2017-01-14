@@ -202,7 +202,7 @@ class ProjectStartupError(Exception):
 def valid_entity_name(name):
     """Return true if the name is a valid entity name.
 
-    Entity names can not contain / or \ characters.
+    Entity names can not contain forward slash or backslash characters.
 
     """
     return not any([bad_char in name for bad_char in '/\\'])

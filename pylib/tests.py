@@ -341,6 +341,7 @@ def licenses(args):
     sep = os.path.sep
     if sep == '\\':
         sep = '\\\\'
+    # pylint: disable=anomalous-backslash-in-string
     pattern = re.compile('\.git|components{0}.*\.(c|h|xml|md)$|external_tools{0}|pm{0}|prj{0}app{0}(ply|pystache){0}|\
 provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|packages{0}[^{0}]+{0}rtos-|\
 .*__pycache__|x_test_data{0}.*\.md|x_test_data{0}tasks{0}.*'.format(sep))
@@ -535,6 +536,7 @@ class GdbTestCase(unittest.TestCase):
 
     @staticmethod
     def _filter_gdb_output(gdb_output):
+        # pylint: disable=anomalous-backslash-in-string
         delete_patterns = (re.compile('^(\[New Thread .+)$'),)
         replace_patterns = (re.compile('Breakpoint [0-9]+ at (0x[0-9a-f]+): file (.+), line ([0-9]+)'),
                             re.compile('^Breakpoint .* at (.+)$'),

@@ -234,22 +234,25 @@ class _LicenseOpener:
 
     @staticmethod
     def _agpl_sentinel(ext):
+        result = None
         if ext in ['.c', '.h', '.ld', '.s']:
-            return _LicenseOpener.AGPL_TAG + '\n */\n'
+            result = _LicenseOpener.AGPL_TAG + '\n */\n'
         elif ext in ['.py', '.gdb', '.sh', '.yml']:
-            return _LicenseOpener.AGPL_TAG + '\n#\n'
+            result = _LicenseOpener.AGPL_TAG + '\n#\n'
         elif ext in ['.prx', '.xml', '.prj']:
-            return _LicenseOpener.AGPL_TAG + '\n  -->\n'
+            result = _LicenseOpener.AGPL_TAG + '\n  -->\n'
         elif ext in ['.asm']:
-            return _LicenseOpener.AGPL_TAG + '\n;\n'
+            result = _LicenseOpener.AGPL_TAG + '\n;\n'
         elif ext in ['.md', '.markdown', '.html']:
-            return _LicenseOpener.AGPL_DOC_TAG + '\n  -->\n'
+            result = _LicenseOpener.AGPL_DOC_TAG + '\n  -->\n'
         elif ext in ['.css']:
-            return _LicenseOpener.AGPL_DOC_TAG + '\n */\n'
+            result = _LicenseOpener.AGPL_DOC_TAG + '\n */\n'
         elif ext in _LicenseOpener.LICENSE_EXEMPTED_FILETYPES or ext in _LicenseOpener.BUILD_ARTIFACT_FILETYPES:
-            return None
+            result = None
         else:
             raise _LicenseOpener.UnknownFiletypeException('Unexpected ext: {}'.format(ext))
+
+        return result
 
     @staticmethod
     def _format_lic(lic, start, perline, emptyline, end):

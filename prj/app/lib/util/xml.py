@@ -692,71 +692,94 @@ def xml2dict(el, schema=None):
         """Return a Python object value for the given element."""
         assert schema is not None or el is not None
 
-        _type = get_type(el, schema)
-
         if schema is not None and el is not None:
             if el.tagName != schema['name']:
                 raise SystemParseError(
                     xml_error_str(el, "Expected tagName: {}, not {}".format(schema['name'], el.tagName)))
 
+        _type = get_type(el, schema)
+
+        return get_el_val_from_type(el, _type, schema, parent)
+
+    def get_el_val_from_type(el, _type, schema, parent):
+        compound_types = set(('dict', 'list'))
+        base_types = set(('string', 'bool', 'int', 'c_ident', 'ident', 'object'))
+
+        if _type in compound_types:
+            return get_el_val_from_compound_type(el, _type, schema, parent)
+        elif _type in base_types:
+            return get_el_val_from_base_type(el, _type, schema, parent)
+        else:
+            raise SystemParseError(
+                xml_error_str(el, "The element type '{}' is not among the supported types: {}"
+                                  .format(_type, compound_types + base_types)))
+
+    def get_el_val_from_compound_type(el, _type, schema, parent):
+        result = None
+
         if _type == 'dict':
             if el is not None:
-                return get_dict_val(el, schema['dict_type'] if schema else None)
+                result = get_dict_val(el, schema['dict_type'] if schema else None)
             else:
-                return {}
+                result = {}
         elif _type == 'list':
             if el is not None:
                 r = [get_el_val(c, schema['list_type'] if schema else None, el) for c in element_children(el)]
+                auto_index_field = schema.get('auto_index_field') if schema is not None else None
+                if auto_index_field is not None:
+                    try:
+                        util.add_index(r, auto_index_field)
+                    except ValueError as e:
+                        raise SystemParseError(xml_error_str(el, str(e)))
+                result = util.LengthList(r)
             else:
                 if schema.get('default') is not None:
-                    return schema['default']
+                    result = schema['default']
                 elif schema.get('optional', False):
-                    return None
+                    result = None
                 else:
                     msg = xml_error_str(parent, "Required config field '{}' missing.".format(schema['name']))
                     raise SystemParseError(msg)
+        else:
+            assert False
 
-            auto_index_field = schema.get('auto_index_field') if schema is not None else None
-            if auto_index_field is not None:
-                try:
-                    util.add_index(r, auto_index_field)
-                except ValueError as e:
-                    raise SystemParseError(xml_error_str(el, str(e)))
-            return util.LengthList(r)
+        return result
 
-        # If it isn't a compound type, get the value
+    def get_el_val_from_base_type(el, _type, schema, parent):
+        result = None
+
         val = get_text_value(el, schema, parent)
 
         # Optional values may be None; return immediately.
         if val is None:
-            return val
-
-        # and then do type checking an coercion
-        if _type == 'string':
-            return val
+            result = None
+        elif _type == 'string':
+            result = val
         elif _type == 'bool':
             try:
-                return {'true': True, 'false': False}[val.lower()]
+                result = {'true': True, 'false': False}[val.lower()]
             except KeyError:
                 raise SystemParseError(xml_error_str(el, "Error converting '{}' to boolean.".format(val)))
         elif _type == 'int':
             try:
-                return int(val, base=0)
+                result = int(val, base=0)
             except ValueError as e:
                 raise SystemParseError(xml_error_str(el, "Error converting '{}' to integer: {}".format(val, e)))
         elif _type == 'c_ident':
             # Check this is really a C identifier
-            return val
+            result = val
         elif _type == 'ident':
             try:
                 check_ident(val)
             except ValueError as e:
                 raise SystemParseError(xml_error_str(el, "Error parsing ident '{}'. {}".format(val, e)))
-            return val
+            result = val
         elif _type == 'object':
-            return ObjectProxy(val, schema['object_group'], el)
+            result = ObjectProxy(val, schema['object_group'], el)
         else:
             assert False
+
+        return result
 
     dct = get_el_val(el, schema, None)
     resolve_proxies(dct)

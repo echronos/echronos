@@ -238,8 +238,7 @@ def get_executable_extension():
     if _executable_extension is None:
         _executable_extension = {'darwin': '',
                                  'linux': '',
-                                 'win32': '.exe',
-                                 }[sys.platform]
+                                 'win32': '.exe'}[sys.platform]
     return _executable_extension
 
 

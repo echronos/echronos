@@ -154,7 +154,7 @@ def test_schema_default_none():
         'type': 'dict',
         'name': 'foo',
         'dict_type': ([{'type': 'string',
-                       'name': 'foo'}], [])
+                        'name': 'foo'}], [])
     }
     with assert_raises(SystemParseError):
         xml2dict(xml_parse_string(test_xml), schema)

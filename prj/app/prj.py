@@ -329,8 +329,8 @@ class Module:
         self.name = None
 
         if len(set([self.schema, self.xml_schema, self.xml_schema_path])) > 2:
-            raise Exception("Class '{}' in {} has multiple schema sources set.".format(self.__class__.__name__,
-                            os.path.abspath(inspect.getfile(self.__class__))))
+            raise Exception("Class '{}' in {} has multiple schema sources set."
+                            .format(self.__class__.__name__, os.path.abspath(inspect.getfile(self.__class__))))
 
         if self.schema is NOTHING:
             if self.xml_schema_path is not NOTHING:

@@ -41,8 +41,7 @@ _REQUIRED_H_SECTIONS = ['public_headers',
                         'public_object_like_macros',
                         'public_function_like_macros',
                         'public_state',
-                        'public_function_declarations',
-                        ]
+                        'public_function_declarations']
 
 _REQUIRED_C_SECTIONS = ['headers',
                         'object_like_macros',

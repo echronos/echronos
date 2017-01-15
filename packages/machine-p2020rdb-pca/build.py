@@ -23,8 +23,7 @@ from prj import execute, commonpath
 import os
 
 schema = {'type': 'dict', 'name': 'module', 'dict_type':
-          ([{'type': 'bool', 'name': 'double_precision_fp', 'optional': 'true', 'default': 'false'}], [])
-          }
+          ([{'type': 'bool', 'name': 'double_precision_fp', 'optional': 'true', 'default': 'false'}], [])}
 
 
 def run(system, prx_config={}):
@@ -52,7 +51,7 @@ def system_build(system, prx_config={}):
     for c, o in zip(system.c_files, c_obj_files):
         os.makedirs(os.path.dirname(o), exist_ok=True)
         execute(['powerpc-eabispe-gcc', '-mcpu=8548', c_float_gprs_flag, '-meabi', '-mno-sdata', '-G', '0',
-                '-mabi=spe', '-mspe', '-ffreestanding', '-c', c, '-o', o, '-Wall', '-Werror'] +
+                 '-mabi=spe', '-mspe', '-ffreestanding', '-c', c, '-o', o, '-Wall', '-Werror'] +
                 c_flags + inc_path_args)
 
     # Assemble all asm files.

@@ -51,7 +51,7 @@ def create(args):
      help='Developers: bring a task up-to-date with the latest changes on the mainline branch "{}". '
           'If the task is not yet on review, this rebases the task branch onto the mainline branch. '
           'If the task is on review, the mainline changes are merged into the task branch.'
-          .format(task_cfg.mainline_branch))
+     .format(task_cfg.mainline_branch))
 def update(args):
     task = Task(task_cfg, name=args.taskname)
     task.update(offline=args.offline)
@@ -65,8 +65,8 @@ def request_reviews(args):
 
 
 @cmd(args=(_offline_arg, _taskname_arg,
-     Arg('-a', '--accept', action='store_true',
-         help='Create and complete the review with the conclusion "accepted", commit, and push it.')),
+           Arg('-a', '--accept', action='store_true',
+               help='Create and complete the review with the conclusion "accepted", commit, and push it.')),
      help='Reviewers: create a stub for a new review of the active task branch.')
 def review(args):
     task = Task(task_cfg, name=args.taskname)
@@ -82,7 +82,7 @@ def accept(args):
 
 
 @cmd(help='Developers: integrate a completed task branch into the mainline branch {}.'
-          .format(task_cfg.mainline_branch),
+     .format(task_cfg.mainline_branch),
      args=(_taskname_arg,))
 def integrate(args):
     task = Task(task_cfg, name=args.taskname)

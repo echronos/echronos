@@ -34,7 +34,7 @@ from .utils import Git, string_to_path, walk
 
 
 TaskConfiguration = namedtuple('TaskConfiguration', ('repo_path', 'tasks_path', 'description_template_path',
-                               'reviews_path', 'mainline_branch'))
+                                                     'reviews_path', 'mainline_branch'))
 
 
 class Task:

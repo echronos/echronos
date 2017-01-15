@@ -311,7 +311,7 @@ def _generate(rtos_name, components, pkg_name, search_paths):
             if os.path.isdir(input_dir):
                 # recursively copy contents of input_dir into output_dir
                 # shutil.copytree() cannot be used because it requires the destination to not yet exist
-                for parent, dirs, files in os.walk(input_dir):
+                for parent, _, files in os.walk(input_dir):
                     for file in files:
                         src = os.path.join(parent, file)
                         dst = os.path.join(output_dir, os.path.relpath(src, input_dir))

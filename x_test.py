@@ -77,7 +77,7 @@ def test_resolve_unresolvable_dependencies():
     b = N(('b',), ('c',))
     nodes = (a, b)
     try:
-        output = list(_sort_by_dependencies(nodes))
+        _ = list(_sort_by_dependencies(nodes))
         assert False
     except _UnresolvableDependencyError:
         pass

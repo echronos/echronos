@@ -35,7 +35,7 @@ import subprocess
 import functools
 from glob import glob
 from contextlib import contextmanager
-from .utils import chdir, tempdir, get_host_platform_name, BASE_TIME, top_path, base_to_top_paths, find_path, Git
+from .utils import chdir, tempdir, BASE_TIME, top_path, base_to_top_paths, find_path, Git
 from .utils import walk
 from .cmdline import subcmd, Arg
 from .docs import is_release_doc_file, is_nonrelease_doc_file
@@ -498,8 +498,6 @@ def release_test_one(archive):
                 raise Exception("m.uid != 1000 {} -- {}".format(m.uid, m.name))
             if m.mtime != BASE_TIME:
                 raise Exception("m.gid != BASE_TIME({}) {} -- {}".format(m.mtime, BASE_TIME, m.name))
-
-    platform = get_host_platform_name()
 
     with tempdir() as td:
         with chdir(td):

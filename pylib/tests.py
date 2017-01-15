@@ -345,7 +345,7 @@ def licenses(args):
     pattern = re.compile('\.git|components{0}.*\.(c|h|xml|md)$|external_tools{0}|pm{0}|prj{0}app{0}(ply|pystache){0}|\
 provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|packages{0}[^{0}]+{0}rtos-|\
 .*__pycache__|x_test_data{0}.*\.md|x_test_data{0}tasks{0}.*'.format(sep))
-    for dirpath, subdirs, files in os.walk(BASE_DIR):
+    for dirpath, _, files in os.walk(BASE_DIR):
         for file_name in files:
             path = os.path.join(dirpath, file_name)
             rel_path = os.path.relpath(path, BASE_DIR)
@@ -363,7 +363,7 @@ provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|packag
 
                 if agpl_sentinel is not None:
                     f = open(path, 'rb')
-                    old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
+                    _, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
                     if not sentinel_found:
                         files_without_license.append(path)
                     f.close()
@@ -445,7 +445,7 @@ def provenance(args):
 This command supports the same options as the Python nose test framework.')
 def systems(args):
     def find_gdb_test_py_files(path):
-        for parent, dirs, files in os.walk(path):
+        for parent, _, files in os.walk(path):
             for file in files:
                 if file.endswith('.py') and os.path.splitext(file)[0] + '.gdb' in files:
                     yield os.path.join(parent, file)

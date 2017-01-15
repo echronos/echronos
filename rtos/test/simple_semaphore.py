@@ -214,14 +214,12 @@ class testSimpleSemaphore(SemaphoreTest):
     def test_counting(self):
         self.impl.pub_sem_init()
 
-        counter = 200
-
         assert self.impl.rtos_sem_try_wait(0) == 0
 
-        for i in range(200):
+        for _ in range(200):
             self.impl.rtos_sem_post(0)
 
-        for i in range(200):
+        for _ in range(200):
             assert self.impl.rtos_sem_try_wait(0) == 1
 
         assert self.impl.rtos_sem_try_wait(0) == 0

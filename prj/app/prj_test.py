@@ -188,7 +188,7 @@ def test_xml2dict_autoindex():
                       'name': 'x',
                       'dict_type': ([{'name': 'name', 'type': 'string'}], [])}
     }
-    x = xml2dict(xml_parse_string(test_xml), schema)
+    xml2dict(xml_parse_string(test_xml), schema)
 
 
 def test_xml2dict_bool():
@@ -237,7 +237,7 @@ def test_xml2dict_ident_error():
     test_xml = "<foo>_bad</foo>"
     schema = {'type': 'ident', 'name': 'foo'}
     with assert_raises(SystemParseError) as e:
-        x = xml2dict(xml_parse_string(test_xml), schema)
+        xml2dict(xml_parse_string(test_xml), schema)
     assert '<string>:1.0' in str(e.exception)
 
 
@@ -282,7 +282,7 @@ def test_xml2dict_object():
 </bazs>
 </foo>
 """
-    with assert_raises(SystemParseError) as e:
+    with assert_raises(SystemParseError):
         parsed = xml2dict(xml_parse_string(bad_xml), schema)
 
 
@@ -380,7 +380,6 @@ def test_project_find():
     eg_system = p.find('example')
     assert isinstance(eg_system, System)
 
-    qux = os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar', 'baz', 'qux.prx')
     p = Project(None, search_paths=[
         os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar', 'baz'),
     ])
@@ -429,7 +428,6 @@ def test_xml_parse_file_with_includes():
   </modules>
 </system>"""
     prx_with_include_xml = prx_template.format('<include file="{}" />')
-    prx_without_include_xml = prx_template.format('')
 
     result = check_xml_parse_file_with_includes_with_xml(prx_with_include_xml, included_xml)
 

@@ -564,7 +564,7 @@ class SourceModule(NamedModule):
                     logger.info("Preparing: template %s -> %s (%s)", header.path, path, config)
                     pystache_render(header.path, path, config)
                 system.add_include_path(os.path.dirname(path))
-            except FileNotFoundError as e:
+            except FileNotFoundError:
                 s = xml_error_str(header.xml_element, "Resource not found: {}".format(header.path))
                 raise ResourceNotFoundError(s)
 
@@ -586,7 +586,7 @@ class Action(NamedModule):
             self._py_module.run(system, config)
         except (SystemBuildError, ):
             raise
-        except Exception as e:
+        except Exception:
             file_name = '{}.errors.log'.format(self.name)
             with open(file_name, "w") as f:
                 traceback.print_exception(*sys.exc_info(), file=f)
@@ -721,11 +721,11 @@ class System:
             if isinstance(module, Module):
                 try:
                     config_data = module.configure(m_el)
-                except SystemParseError as e:
+                except SystemParseError:
                     # The module's configure module is allowed to raise a SystemParseError
                     # we just re-raise it.
                     raise
-                except Exception as e:
+                except Exception:
                     exc_type, exc_value, tb = sys.exc_info()
                     tb_str = ''.join(traceback.format_exception(exc_type, exc_value, tb.tb_next, chain=False))
                     msg = "Error running module '{}' configure method.".format(name)

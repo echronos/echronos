@@ -71,7 +71,7 @@ def _get_package_dirs(required_files=None):
     if required_files is None:
         required_files = set()
 
-    for root, dirs, files in os.walk(os.path.join(BASE_DIR, 'packages')):
+    for root, _, files in os.walk(os.path.join(BASE_DIR, 'packages')):
         if required_files.issubset(files):
             yield root
 

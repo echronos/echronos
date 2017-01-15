@@ -323,7 +323,7 @@ class _LicenseOpener:
             else:
                 # Infer the location of the original file in the 'packages' directory, from its destination path under
                 # 'share/packages' in the release archive.
-                assert(tarinfo.name.startswith('share/packages'))
+                assert tarinfo.name.startswith('share/packages')
                 filename = find_path(tarinfo.name.replace('share/packages', 'packages', 1), self.top_dir)
 
             lic, old_xml_prologue_len, old_license_len = self._get_lic(filename)

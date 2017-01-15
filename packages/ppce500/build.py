@@ -29,7 +29,7 @@ from prj import execute, commonpath
 import os
 
 
-def run(system, configuration=None):
+def run(system, _=None):
     return system_build(system)
 
 

@@ -37,7 +37,7 @@ import os
 import sys
 
 
-def do_nothing(*args, **kwargs):
+def do_nothing(*_, **__):
     """do_nothing may be used as a generic callback
     or handler function that does exactly nothing.
 

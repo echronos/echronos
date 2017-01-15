@@ -85,7 +85,7 @@ def _get_doc_vars(markdown_file):
     return doc_vars
 
 
-def _build_doc(pkg_dir, top_dir, verbose=False):
+def _build_doc(pkg_dir, verbose=False):
     markdown_file = os.path.join(pkg_dir, 'docs.md')
     pdf_file = os.path.join(pkg_dir, 'docs.pdf')
     html_file = os.path.join(pkg_dir, 'docs.html')
@@ -143,7 +143,7 @@ The generated documentation files are called "docs.pdf" and can be found in each
 def build(args):
     components.build(args)
     for pkg_dir in _get_package_dirs(set(('docs.md',))):
-        _build_doc(pkg_dir, args.topdir, args.verbose)
+        _build_doc(pkg_dir, args.verbose)
     return 0
 
 

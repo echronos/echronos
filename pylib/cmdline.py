@@ -62,7 +62,7 @@ class Arg:
 class cmd:
     """The @cmd() function decorator marks a function as the implementation of a command-line command of an
     executable."""
-    def __init__(self, name=None, cmd=None, help=None, args=()):  # pylint: disable=redefined-builtin
+    def __init__(self, name=None, help=None, args=()):  # pylint: disable=redefined-builtin
         """Create a function decorator and wrapper for a function implementing a command-line command.
 
         For example, the command-line executable 'foo' may wish to implement a command-line command 'bar' with the

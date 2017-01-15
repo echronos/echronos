@@ -49,7 +49,7 @@ _logging.basicConfig()
 
 
 # Ensure that basicConfig is only called once.
-def error_fn(*args, **kwargs):
+def error_fn(*_, **__):
     raise Exception("basicConfig called multiple times.")
 _logging.basicConfig = error_fn
 
@@ -411,7 +411,7 @@ xml_schema_path) set as a class member.".format(self.__class__.__name__,
             else:
                 raise Exception("Unexpected type '{}' for file '{}'".format(_type, f['input']))
 
-    def prepare(self, system, config, **kwargs):
+    def prepare(self, system, config, **_):
         """Prepare the `system` for building based on a specific module `config`.
 
         This method should be implemented in a sub-class. It should update the system object

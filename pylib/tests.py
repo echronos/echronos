@@ -334,7 +334,7 @@ def _get_number_of_cpus():
 
 @subcmd(cmd="test", help='Check that all files have the appropriate license header',
         args=(Arg('--excludes', nargs='*', help="Exclude directories from license header checks", default=[]),))
-def licenses(args):
+def licenses(_):
     files_without_license = []
     files_unknown_type = []
 

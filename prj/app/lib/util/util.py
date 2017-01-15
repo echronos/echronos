@@ -163,23 +163,21 @@ def list_search(lst, key, value):
         raise KeyError()
 
 
-"""A `configuration` is a normal Python dictionary used for storing configuration data.
-
-The values may be any Python value, however any list or dictionary values are treated as holding traversable
-configuration data.
-
-A configuration may be accessed via a configuration key, which is a tuple containing a path to a configuration item.
-
-The utility module defines two functions that operate on configurations.
-
-`config_traverse` is a generator that products key, value pairs for all non-container data in the configuration.
-
-`config_set` sets a particular value in the configuration (as indexed by a configuration key).
-
-Future work may investigate encapsulating this functionality within a class, however the current approach allows
-for interoperability with existing Python modules that operate on dictionaries.
-
-"""
+# A `configuration` is a normal Python dictionary used for storing configuration data.
+#
+# The values may be any Python value, however any list or dictionary values are treated as holding traversable
+# configuration data.
+#
+# A configuration may be accessed via a configuration key, which is a tuple containing a path to a configuration item.
+#
+# The utility module defines two functions that operate on configurations.
+#
+# `config_traverse` is a generator that products key, value pairs for all non-container data in the configuration.
+#
+# `config_set` sets a particular value in the configuration (as indexed by a configuration key).
+#
+# Future work may investigate encapsulating this functionality within a class, however the current approach allows
+# for interoperability with existing Python modules that operate on dictionaries.
 
 
 def config_traverse(cfg):

@@ -52,9 +52,9 @@ def follow_link(l):
     return follow_link(os.path.join(os.path.dirname(l), p))
 
 
-"""Directory containing the core repository."""
+# Directory containing the core repository
 BASE_DIR = os.path.normpath(os.path.join(os.path.dirname(follow_link(__file__)), ".."))
-"""Top directory from which x.py (or a wrapper in the case of a client repository) was invoked."""
+# Top directory from which x.py (or a wrapper in the case of a client repository) was invoked
 TOP_DIR = os.path.dirname(os.path.normpath(follow_link(os.path.abspath(traceback.extract_stack()[0][0]))))
 BASE_TIME = calendar.timegm((2013, 1, 1, 0, 0, 0, 0, 0, 0))
 

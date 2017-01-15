@@ -26,11 +26,15 @@ schema = {'type': 'dict', 'name': 'module', 'dict_type':
           ([{'type': 'bool', 'name': 'double_precision_fp', 'optional': 'true', 'default': 'false'}], [])}
 
 
-def run(system, prx_config={}):
+def run(system, prx_config=None):
+    if prx_config is None:
+        prx_config = {}
     return system_build(system, prx_config)
 
 
-def system_build(system, prx_config={}):
+def system_build(system, prx_config=None):
+    if prx_config is None:
+        prx_config = {}
     inc_path_args = ['-I%s' % i for i in system.include_paths]
     common_flags = ['-g3']
     a_flags = common_flags

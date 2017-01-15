@@ -224,7 +224,9 @@ _BoundComponent = namedtuple("_BoundComponent", ['path', 'config'])
 
 
 class Component(namedtuple('Component', ['name', 'configuration', 'pkg_component'])):
-    def __new__(cls, name, configuration={}, pkg_component=False):
+    def __new__(cls, name, configuration=None, pkg_component=False):
+        if configuration is None:
+            configuration = {}
         return super(Component, cls).__new__(cls, name, configuration, pkg_component)
 
 

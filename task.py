@@ -32,7 +32,7 @@ import sys
 # Make pylib available for importing - this is necessary for x.py wrappers in client repositories to work
 sys.path.append(os.path.dirname(__file__))
 
-from pylib import task_commands
+from pylib import task_commands  # pylint: disable=unused-import
 from pylib.cmdline import add_commands_to_parser
 
 

@@ -25,7 +25,7 @@
 # @TAG(NICTA_AGPL)
 #
 
-from pylib.utils import Git, get_top_dir, BASE_DIR
+from pylib.utils import BASE_DIR
 from pylib.components import _sort_typedefs, _sort_by_dependencies, _DependencyNode, _UnresolvableDependencyError
 from pylib.task import _Review, Task, _InvalidTaskStateError, TaskConfiguration
 from pylib.task_commands import task_cfg
@@ -33,7 +33,6 @@ from nose.tools import assert_raises
 import itertools
 import os
 import tempfile
-import subprocess
 import unittest
 
 

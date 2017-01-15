@@ -27,7 +27,7 @@
 
 from util.util import do_nothing, Singleton, s16l, check_unique, remove_multi, add_index, \
     LengthMixin, LengthList, config_traverse, config_set, list_search
-from nose.tools import assert_raises, raises
+from nose.tools import assert_raises
 
 
 def test_do_nothing_no_args():

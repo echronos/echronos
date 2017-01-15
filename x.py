@@ -95,7 +95,7 @@ if __name__ == '__main__':
     sys.modules['x'] = sys.modules['__main__']
 
 from pylib.components import Component
-from pylib import release, components, prj, tests, docs
+from pylib import release, components, prj, tests, docs  # pylint: disable=unused-import
 from pylib.cmdline import add_subcommands_to_parser
 
 # Set up a specific logger with our desired output level

@@ -26,7 +26,6 @@
 #
 
 import os
-import subprocess
 import sys
 import tempfile
 from xml.parsers.expat import ExpatError

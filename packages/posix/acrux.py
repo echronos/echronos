@@ -29,4 +29,4 @@ import sys
 import os
 
 if sys.platform != "win32" or 'cygdrive' in os.environ.get('ORIGINAL_PATH', ''):
-    from pylib.tests import GdbTestCase
+    from pylib.tests import GdbTestCase  # pylint: disable=unused-import

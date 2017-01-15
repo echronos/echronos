@@ -25,7 +25,7 @@
 # @TAG(NICTA_AGPL)
 #
 
-from prj import execute, SystemBuildError, commonpath, commonprefix
+from prj import execute, commonpath
 import os
 
 

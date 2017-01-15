@@ -19,7 +19,7 @@
 # @TAG(NICTA_AGPL)
 #
 
-from prj import execute, commonpath, commonprefix
+from prj import execute, commonpath
 import os
 
 schema = {'type': 'dict', 'name': 'module', 'dict_type':

@@ -78,14 +78,12 @@
 # matching.
 #
 
-import os
 import re
 import sys
 import inspect
 import unittest
 import importlib
 import functools
-from nose.plugins.skip import SkipTest
 
 
 def ispackage(object):

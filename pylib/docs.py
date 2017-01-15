@@ -30,7 +30,7 @@ import shutil
 import subprocess
 import sys
 
-from .utils import BASE_DIR, base_path, get_host_platform_name, get_executable_extension, find_path
+from .utils import BASE_DIR, get_host_platform_name, get_executable_extension
 from . import components
 from .cmdline import subcmd, Arg
 

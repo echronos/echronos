@@ -25,4 +25,4 @@
 # @TAG(NICTA_AGPL)
 #
 
-from .testcase import TestCase
+from .testcase import TestCase  # pylint: disable=unused-import

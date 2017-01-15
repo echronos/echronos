@@ -30,7 +30,6 @@ import itertools
 import os
 import sys
 
-from rtos import sched
 from pylib.utils import get_executable_extension
 
 NUM_SEMAPHORES = 10

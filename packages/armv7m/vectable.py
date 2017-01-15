@@ -25,11 +25,9 @@
 # @TAG(NICTA_AGPL)
 #
 
-from prj import SystemBuildError, Module, ModuleInstance, pystache_render, xml2dict, xml2schema, xml_parse_string
+from prj import SystemBuildError, Module
 import logging
-import os
 import ply.cpp
-import shutil
 logger = logging.getLogger()
 
 

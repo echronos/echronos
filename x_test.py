@@ -51,14 +51,14 @@ def test_sort_typedefs():
 
 
 def test_full_stop_in_reviewer_name():
-    with tempfile.TemporaryDirectory() as dir:
-        round = 0
+    with tempfile.TemporaryDirectory() as temp_dir:
+        round_ = 0
         author = 'john.doe'
-        review_file_path = os.path.join(dir, '{}.{}.md'.format(author, round))
+        review_file_path = os.path.join(temp_dir, '{}.{}.md'.format(author, round_))
         open(review_file_path, 'w').close()
         review = _Review(review_file_path)
         assert review.author == author
-        assert review.round == round
+        assert review.round == round_
 
 
 def test_resolve_dependencies():

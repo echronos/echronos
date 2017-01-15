@@ -497,8 +497,8 @@ def check_xml_parse_file_with_includes__absolute_relative(absolute):
         assert result_dom.toxml() == expected_dom.toxml()
 
     finally:
-        for dir in [included_dir, main_dir]:
-            dir.cleanup()
+        for include_dir in [included_dir, main_dir]:
+            include_dir.cleanup()
 
 
 def test_xml_parse_file_with_includes__include_paths():
@@ -536,8 +536,8 @@ def test_xml_parse_file_with_includes__include_paths():
         assert result_dom.toxml() == expected_dom.toxml()
 
     finally:
-        for dir in include_dirs:
-            dir.cleanup()
+        for include_dir in include_dirs:
+            include_dir.cleanup()
 
 
 def test_xml_parse_file_with_includes__nested():

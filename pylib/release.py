@@ -181,7 +181,7 @@ class _FileWithLicense:
     def __enter__(self):
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, typ, value, traceback):
         self.close()
 
 
@@ -202,8 +202,8 @@ class _LicenseOpener:
     class UnknownFiletypeException(Exception):
         """Raised when the given file type is unknown."""
 
-    def __init__(self, license, doc_license, top_dir, allow_unknown_filetypes=False, filename=None):
-        self.license = license
+    def __init__(self, lic, doc_license, top_dir, allow_unknown_filetypes=False, filename=None):
+        self.license = lic
         self.doc_license = doc_license
         self.top_dir = top_dir
         self.allow_unknown_filetypes = allow_unknown_filetypes
@@ -371,7 +371,7 @@ def _tar_add_data(tf, arcname, data, ti_filter=None):
     tf.addfile(ti, io.BytesIO(data))
 
 
-def _tar_gz_with_license(output, dir_path, file_paths, prefix, license, doc_license, allow_unknown_filetypes):
+def _tar_gz_with_license(output, dir_path, file_paths, prefix, lic, doc_license, allow_unknown_filetypes):
 
     """Create a tar.gz file named `output` from a list of file paths relative to a directory path.
 
@@ -380,7 +380,7 @@ def _tar_gz_with_license(output, dir_path, file_paths, prefix, license, doc_lice
     When creating the tar.gz a standard set of meta-data will be used to help ensure things are consistent.
 
     """
-    lo = _LicenseOpener(license, doc_license, os.getcwd(), allow_unknown_filetypes)
+    lo = _LicenseOpener(lic, doc_license, os.getcwd(), allow_unknown_filetypes)
     try:
         with tarfile.open(output, 'w:gz', format=tarfile.GNU_FORMAT) as tf:
             tarfile.bltn_open = lo.open

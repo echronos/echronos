@@ -86,9 +86,9 @@ import importlib
 import functools
 
 
-def ispackage(object):
+def ispackage(obj):
     """Return true if the object is a package."""
-    return inspect.ismodule(object) and hasattr(object, '__path__')
+    return inspect.ismodule(obj) and hasattr(obj, '__path__')
 
 
 def testcase_matches(testcase, test_desc):

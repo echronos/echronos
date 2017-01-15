@@ -90,7 +90,7 @@ def xml_parse_file(filename):
     return dom.documentElement
 
 
-def xml_parse_string(string, name='<string>', start_line=0):
+def xml_parse_string(string_to_parse, name='<string>', start_line=0):
     """Parse an XML string.
 
     Optionally a name can be provided that will be used when providing diagnosics.
@@ -102,7 +102,7 @@ def xml_parse_string(string, name='<string>', start_line=0):
 
     """
     try:
-        dom = xml.dom.minidom.parseString(string)
+        dom = xml.dom.minidom.parseString(string_to_parse)
     except ExpatError as e:
         e.path = name
         e.lineno += start_line

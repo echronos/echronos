@@ -224,11 +224,10 @@ def style(args):
     excludes = ['external_tools', 'pystache', 'tools', 'ply'] + args.excludes
     # ignored warnings and errors:
     # E402 module level import not at top of file
-    style = pycodestyle.StyleGuide(max_line_length=118, paths=[args.topdir], ignore=['E402'],
-                                   exclude=excludes)
+    codestyle = pycodestyle.StyleGuide(max_line_length=118, paths=[args.topdir], ignore=['E402'], exclude=excludes)
     if args.teamcity:
-        style.init_report(_TeamcityReport)
-    report = style.check_files()
+        codestyle.init_report(_TeamcityReport)
+    report = codestyle.check_files()
     if report.total_errors:
         logging.error('Python code-style check found non-compliant files')  # details on stdout
         result = 1

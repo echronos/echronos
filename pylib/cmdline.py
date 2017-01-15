@@ -133,16 +133,17 @@ def _get_decorators(global_attributes, decorator_type):
 def _add_cmds_to_parser(cmds, parser, dest='command', title='commands'):
     """Configure an argparse.ArgumentParser based on cmd objects."""
     cmds_parsers = parser.add_subparsers(title=title, dest=dest)
-    for cmd in cmds:
-        cmd_parser = cmds_parsers.add_parser(cmd.name, help=cmd.help)
-        for arg in cmd.args:
+    for command in cmds:
+        cmd_parser = cmds_parsers.add_parser(command.name, help=command.help)
+        for arg in command.args:
             cmd_parser.add_argument(*arg.args, **arg.kwargs)
-        cmd_parser.set_defaults(execute=cmd.execute)
+        cmd_parser.set_defaults(execute=command.execute)
 
 
 class subcmd(cmd):
     """The @subcmd() function decorator marks a function as the implementation of an x.py command-line sub-command."""
-    def __init__(self, name=None, cmd=None, help=None, args=()):  # pylint: disable=redefined-builtin
+    # pylint: disable=redefined-builtin,redefined-outer-name
+    def __init__(self, name=None, cmd=None, help=None, args=()):
         self.cmd = cmd
         super(subcmd, self).__init__(name=name, help=help, args=args)
 
@@ -167,16 +168,16 @@ def _get_cmd_tree(subcmds):
     """Convert flat list of subcmd objects into hierarchical dictionary
     {'command name': {'subcommand name 1': subcmd1, 'subcommand name 2': subcmd2}}"""
     cmds = {}
-    for subcmd in subcmds:
-        cmd_dict = cmds.setdefault(subcmd.cmd, {})
-        cmd_dict[subcmd.name] = subcmd
+    for sub_cmd in subcmds:
+        cmd_dict = cmds.setdefault(sub_cmd.cmd, {})
+        cmd_dict[sub_cmd.name] = sub_cmd
     return cmds
 
 
 def _add_cmd_tree_to_parser(cmd_tree, parser):
     """Create command-line parser from hierarchical subcmd objects."""
     cmds_parsers = parser.add_subparsers(title='commands', dest='command')
-    for cmd in sorted(cmd_tree.keys()):
-        cmd_parser = cmds_parsers.add_parser(cmd)
-        subcmds = sorted(cmd_tree[cmd].values(), key=lambda cmd: cmd.name)
+    for command in sorted(cmd_tree.keys()):
+        cmd_parser = cmds_parsers.add_parser(command)
+        subcmds = sorted(cmd_tree[command].values(), key=lambda tmp: tmp.name)
         _add_cmds_to_parser(subcmds, cmd_parser, dest="subcommand", title=None)

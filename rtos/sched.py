@@ -177,9 +177,9 @@ class RrSchedModel(BaseSchedModel):
         return '<RrSched cur={} runnable=[{}]>'.format(self.cur, self.runnable_str)
 
     def get_next(self):
-        next_ = head(idx for idx, runnable in rotate(self.indexed, incmod(self.cur, self.size)) if runnable)
-        self.cur = self.size - 1 if next_ is None else next_
-        return next_
+        next_index = head(idx for idx, runnable in rotate(self.indexed, incmod(self.cur, self.size)) if runnable)
+        self.cur = self.size - 1 if next_index is None else next_index
+        return next_index
 
     @classmethod
     def states(cls, n, assume_runnable=False):

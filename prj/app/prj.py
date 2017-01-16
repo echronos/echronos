@@ -218,7 +218,7 @@ def execute(args, **kwargs):
 
     """
     cmd_line = ' '.join(args)
-    logger.info('Executing: %s' % cmd_line)
+    logger.info('Executing: %s', cmd_line)
     try:
         code = subprocess.call(args, **kwargs)
     except FileNotFoundError as exc:
@@ -1285,10 +1285,10 @@ def main():
     except (EntityLoadError, EntityNotFoundError, ProjectStartupError) as e:
         return report_error(e)
     except FileNotFoundError as e:
-        logger.error("Unable to initialise project from file [%s]. Exception: %s" % (args.project, e))
+        logger.error("Unable to initialise project from file [%s]. Exception: %s", args.project, e)
         return 1
     except ExpatError as e:
-        logger.error("Parsing %s:%s ExpatError %s" % (e.path, e.lineno, e))
+        logger.error("Parsing %s:%s ExpatError %s", e.path, e.lineno, e)
         return 1
 
     try:
@@ -1310,7 +1310,7 @@ def _start():
         if developer_mode:
             pdb.post_mortem()
         else:
-            logger.error("An unhandled exception occurred: %s" % e)
+            logger.error("An unhandled exception occurred: %s", e)
             try:
                 with open("prj.errors", "w") as f:
                     traceback.print_exception(*sys.exc_info(), file=f)

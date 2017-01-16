@@ -377,7 +377,7 @@ xml_schema_path) set as a class member.".format(self.__class__.__name__,
         # Input file names are related to the module's path.
         module_path = sys.modules[self.__class__.__module__].__path__
 
-        for f in self.files:
+        for f in self.files:  # pylint: disable=not-an-iterable
             if f.get('stage', 'prepare') != stage:
                 continue
 

@@ -518,7 +518,7 @@ class Git:
         try:
             tracking_branch = self.get_tracking_branch()
             remote = tracking_branch.split('/')[0]
-        except:
+        except AssertionError:
             remotes = list(set([r.name for r in self.get_remotes()]))
             index = 0
 

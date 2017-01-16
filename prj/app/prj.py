@@ -1315,7 +1315,7 @@ def _start():
                 with open("prj.errors", "w") as f:
                     traceback.print_exception(*sys.exc_info(), file=f)
                 logger.error("Please include the 'prj.errors' file when submitting a bug report")
-            except:
+            except:  # pylint: disable=bare-except
                 pass
             sys.exit(1)
 

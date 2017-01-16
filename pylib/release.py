@@ -233,7 +233,7 @@ class _LicenseOpener:
         return xml_prologue_len
 
     @staticmethod
-    def _agpl_sentinel(ext):
+    def agpl_sentinel(ext):
         result = None
         if ext in ['.c', '.h', '.ld', '.s']:
             result = _LicenseOpener.AGPL_TAG + '\n */\n'
@@ -293,7 +293,7 @@ class _LicenseOpener:
                     lic = self.XML_PROLOGUE + os.linesep + lic
 
                 # If the AGPL license is present in the original source file, count its length for deletion
-                agpl_sentinel = self._agpl_sentinel(ext)
+                agpl_sentinel = self.agpl_sentinel(ext)
                 assert agpl_sentinel is not None
                 old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
                 if sentinel_found:

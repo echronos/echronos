@@ -253,20 +253,20 @@ class ModuleInstance:
 
         """
         self._config = config
-        self._module = module
+        self.module = module
         self._system = system
 
     def __repr__(self):
-        return '<{} {} of module {}>'.format(self.__class__.__name__, id(self), repr(self._module))
+        return '<{} {} of module {}>'.format(self.__class__.__name__, id(self), repr(self.module))
 
     def __getattr__(self, name):
         """ModuleInstances do not have methods, however they provide shortcuts to the underlying Module's methods.
 
-        `instance.<foo>()` is a short-cut for `instance._module.<foo>(instance._system, instance._config)`
+        `instance.<foo>()` is a short-cut for `instance.module.<foo>(instance._system, instance._config)`
 
         """
         try:
-            func = getattr(self._module, name)
+            func = getattr(self.module, name)
         except AttributeError:
             raise AttributeError("ModuleInstance '{}' has no attribute '{}'".format(self, name))
 
@@ -879,7 +879,7 @@ module\'s functionality cannot be invoked.'.format(self, typ.__name__))
         return instances[0]
 
     def _get_instances_by_type(self, typ):
-        return [i for i in self._instances if isinstance(i._module, typ)]
+        return [i for i in self._instances if isinstance(i.module, typ)]
 
     def get_output_path_for_file(self, file_path, entity_name):
         """Derive (but do not create) a unique path in this system's output directory for the given input file."""
@@ -1004,7 +1004,7 @@ class Project:
 
         return path
 
-    def _parse_import(self, entity_name, path):
+    def parse_import(self, entity_name, path):
         """Parse an entity decribed in the specified path.
 
         Return the approriate object as determined by the file extension.
@@ -1059,7 +1059,7 @@ class Project:
         if entity_name not in self.entities:
             # Try and find the entity name
             path = self.entity_name_to_path(entity_name)
-            self.entities[entity_name] = self._parse_import(entity_name, path)
+            self.entities[entity_name] = self.parse_import(entity_name, path)
 
         return self.entities[entity_name]
 
@@ -1144,7 +1144,7 @@ def call_system_function(args, function, extra_args=None, sys_is_path=False):
             system_path = system_name
             system_name = os.path.splitext(os.path.basename(system_name))[0]
             logger.info("Loading system: {}".format(system_name))
-            system = project._parse_import(system_name, system_path)
+            system = project.parse_import(system_name, system_path)
             system.output = os.path.curdir
         else:
             if not valid_entity_name(system_name):

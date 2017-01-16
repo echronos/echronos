@@ -24,7 +24,7 @@
 #
 # @TAG(NICTA_AGPL)
 #
-
+# pylint: disable=protected-access
 from pylib.utils import BASE_DIR
 from pylib.components import _sort_typedefs, _sort_by_dependencies, _DependencyNode, _UnresolvableDependencyError
 from pylib.task import _Review, Task, _InvalidTaskStateError, TaskConfiguration

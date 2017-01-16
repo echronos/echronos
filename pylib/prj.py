@@ -68,7 +68,7 @@ def _prj_build(output_dir):
                 with open(file_path, 'rb') as f:
                     ext = os.path.splitext(file_path)[1]
                     try:
-                        agpl_sentinel = _LicenseOpener._agpl_sentinel(ext)
+                        agpl_sentinel = _LicenseOpener.agpl_sentinel(ext)
                     except _LicenseOpener.UnknownFiletypeException:
                         agpl_sentinel = None
 

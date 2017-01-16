@@ -351,11 +351,11 @@ provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|packag
             if not pattern.match(rel_path):
                 # expect shell-style comment format for .pylintrc
                 if rel_path == '.pylintrc':
-                    agpl_sentinel = _LicenseOpener._agpl_sentinel('.sh')
+                    agpl_sentinel = _LicenseOpener.agpl_sentinel('.sh')
                 else:
                     ext = os.path.splitext(file_name)[1]
                     try:
-                        agpl_sentinel = _LicenseOpener._agpl_sentinel(ext)
+                        agpl_sentinel = _LicenseOpener.agpl_sentinel(ext)
                     except _LicenseOpener.UnknownFiletypeException:
                         files_unknown_type.append(path)
                         continue

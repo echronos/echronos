@@ -686,10 +686,10 @@ def test_xml_include_paths():
 </project>''')
 
         p = Project(project_file_path)
-        assert p._prx_include_paths == ['1', '2']
+        assert p._prx_include_paths == ['1', '2']  # pylint: disable=protected-access
 
         p = Project(project_file_path, None, args.prx_inc_path)
-        assert p._prx_include_paths == ['1', '2', 'a', 'b']
+        assert p._prx_include_paths == ['1', '2', 'a', 'b']  # pylint: disable=protected-access
 
 
 def test_check_ident():

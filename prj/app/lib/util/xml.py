@@ -41,14 +41,14 @@ NOTHING = util.Singleton('nothing')
 def monkey_start_element_handler(self, name, attributes):
     """This function is monkey-patched over the standard start_element_handle method.
 
-    It adds the _line and _col attributes to the element node so that later error-checking can produce useful,
-    targeted error messages.
+    It adds the line_for_error_message and column_for_error_message attributes to the element node so that later
+    error-checking can produce useful, targeted error messages.
 
     """
     real_start_element_handler(self, name, attributes)
     node = self.curNode
-    node._line = self.getParser().CurrentLineNumber
-    node._col = self.getParser().CurrentColumnNumber
+    node.line_for_error_message = self.getParser().CurrentLineNumber
+    node.column_for_error_message = self.getParser().CurrentColumnNumber
 real_start_element_handler = xml.dom.expatbuilder.ExpatBuilderNS.start_element_handler
 xml.dom.expatbuilder.ExpatBuilderNS.start_element_handler = monkey_start_element_handler
 
@@ -65,7 +65,8 @@ def xml_error_str(el, msg):
 
     This is used for error reporting.
     """
-    return "%s:%s.%s %s" % (el.ownerDocument.path, el.ownerDocument.start_line + el._line, el._col, msg)
+    return "%s:%s.%s %s" % (el.ownerDocument.path, el.ownerDocument.start_line + el.line_for_error_message,
+                            el.column_for_error_message, msg)
 
 
 def xml_parse_file(filename):

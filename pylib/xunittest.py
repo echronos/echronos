@@ -177,10 +177,12 @@ def discover_tests_class(cls):
                     for gen_name, *test in gen():
                         f = functools.partial(*test)
                         testcase = MethodTestCase(f, cls)
+                        # pylint: disable=attribute-defined-outside-init
                         testcase._testcase_name = "{}.{}.{}".format(cls.__module__, cls.__name__, gen_name)
                         yield testcase
                 else:
                     testcase = MethodTestCase(getattr(cls(), name), cls)
+                    # pylint: disable=attribute-defined-outside-init
                     testcase._testcase_name = "{}.{}.{}".format(cls.__module__, cls.__name__, name)
                     yield testcase
 

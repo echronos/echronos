@@ -48,6 +48,7 @@ class Crc16Ccitt(object):
 
     """
     def __init__(self):
+        self.state = None
         self.reset()
 
     def reset(self):

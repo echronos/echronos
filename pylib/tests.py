@@ -482,6 +482,10 @@ class GdbTestCase(unittest.TestCase):
     """
     system_name = None
 
+    def __init__(self, *args, **kwargs):
+        self.gdb_output = None
+        super().__init__(*args, **kwargs)
+
     def setUp(self):
         topdir = os.path.abspath('.')
         self.search_paths = list(base_to_top_paths(topdir, 'packages'))

@@ -65,6 +65,10 @@ def get_rr_sched_struct(num_tasks):
         _fields_ = [("cur", ctypes.c_uint8),
                     ("tasks", RrSchedTaskStruct * num_tasks)]
 
+        def __init__(self, *rargs, **kwargs):
+            self.cur = None
+            super().__init__(*rargs, **kwargs)
+
         def __str__(self):
             run_state = ''.join(['X' if x.runnable else ' ' for x in self.tasks])
             return "<RrSchedImpl cur={} runnable=[{}]".format(self.cur, run_state)

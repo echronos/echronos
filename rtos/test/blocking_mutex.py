@@ -54,16 +54,19 @@ class testBlockingMutex:
 
     # pylint: disable=no-self-argument
     def set_unblock_func(cls, fn):
+        # pylint: disable=attribute-defined-outside-init
         cls.unblock_func_ptr = UnblockFuncPtr(fn)
         cls.impl.pub_set_unblock_ptr(cls.unblock_func_ptr)
 
     # pylint: disable=no-self-argument
     def set_block_on_func(cls, fn):
+        # pylint: disable=attribute-defined-outside-init
         cls.block_on_func_ptr = BlockOnFuncPtr(fn)
         cls.impl.pub_set_block_on_ptr(cls.block_on_func_ptr)
 
     # pylint: disable=no-self-argument
     def set_get_current_task_func(cls, fn):
+        # pylint: disable=attribute-defined-outside-init
         cls.get_current_task_ptr = GetCurrentTaskPtr(fn)
         cls.impl.pub_set_get_current_task_ptr(cls.get_current_task_ptr)
 

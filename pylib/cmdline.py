@@ -87,6 +87,7 @@ class cmd:
         self.name = name
         self.help = help
         self.args = args
+        self.execute = None
 
     def __call__(self, f):
         """Implementation of Python magic for wrapping functions."""

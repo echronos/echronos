@@ -220,6 +220,7 @@ class PrioInheritSchedModel(BaseSchedModel):
     """A model of the strict priority with inheritance scheduler."""
 
     def __init__(self, blocked_on):
+        super().__init__(runnable=[])
         self.blocked_on = blocked_on
 
     @property

@@ -429,6 +429,7 @@ xml_schema_path) set as a class member.".format(self.__class__.__name__,
 
 
 class NamedModule(Module):
+    # pylint: disable=super-init-not-called
     def __init__(self, name):
         self.name = name
 

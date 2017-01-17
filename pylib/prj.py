@@ -46,6 +46,7 @@ def build(args):
     return 0
 
 
+# pylint: disable=too-many-locals
 def _prj_build(output_dir):
     """Create a distributable version of prj.py.
 

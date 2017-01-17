@@ -250,6 +250,7 @@ def _bind_components(components, pkg_name, search_paths):
     return bound_components
 
 
+# pylint: disable=too-many-locals
 def _generate(rtos_name, components, pkg_name, search_paths):
     """Generate the RTOS module to disk, so it is available as a compile and link unit to projects.
 

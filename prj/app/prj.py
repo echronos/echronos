@@ -693,6 +693,7 @@ class System:
             self.__instances = self._get_instances()
         return self.__instances
 
+    # pylint: disable=too-many-locals
     def _get_instances(self):
         """Instantiate all modules referenced in the system definition file of this system and validate them.
         This is a prerequisite to invoking such operations as build or load on a system.
@@ -898,6 +899,7 @@ module\'s functionality cannot be invoked.'.format(self, typ.__name__))
 class Project:
     """The Project is a container for other objects in the system."""
 
+    # pylint: disable=too-many-locals
     def __init__(self, filename, search_paths=None, prx_include_paths=None):
         """Parses the project definition file `filename` and any imported system and module definition files.
 

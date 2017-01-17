@@ -1316,7 +1316,7 @@ def _start():
     except KeyboardInterrupt:
         # Ignore Ctrl-C
         pass
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-except
         # Any uncaught errors are something we should send to an error dump,
         # if we are in developer mode though, we should enter the debugger.
         if developer_mode:

@@ -608,6 +608,7 @@ class Loader(Action):
     pass
 
 
+# pylint: disable=too-many-instance-attributes
 class System:
     def __init__(self, name, dom, project):
         """Create a new System named `name`. The system definition will be parsed from

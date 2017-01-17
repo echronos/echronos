@@ -37,6 +37,7 @@ import re
 import inspect
 from collections import namedtuple
 import multiprocessing
+import nose
 import pycodestyle
 
 import nose

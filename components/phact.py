@@ -26,8 +26,8 @@
 #
 
 import os.path
-from prj import Module
 from operator import itemgetter
+from prj import Module
 
 
 class PhactModule(Module):

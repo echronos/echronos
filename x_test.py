@@ -25,15 +25,15 @@
 # @TAG(NICTA_AGPL)
 #
 # pylint: disable=protected-access
+import itertools
+import os
+import tempfile
+import unittest
 from pylib.utils import BASE_DIR
 from pylib.components import _sort_typedefs, _sort_by_dependencies, _DependencyNode, _UnresolvableDependencyError
 from pylib.task import _Review, Task, _InvalidTaskStateError, TaskConfiguration
 from pylib.task_commands import TASK_CFG
 from nose.tools import assert_raises
-import itertools
-import os
-import tempfile
-import unittest
 
 
 def test_empty():

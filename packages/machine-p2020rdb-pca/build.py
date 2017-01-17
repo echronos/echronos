@@ -19,8 +19,8 @@
 # @TAG(NICTA_AGPL)
 #
 
-from prj import execute, commonpath
 import os
+from prj import execute, commonpath
 
 # pylint: disable=invalid-name
 schema = {'type': 'dict', 'name': 'module', 'dict_type':

@@ -25,8 +25,8 @@
 # @TAG(NICTA_AGPL)
 #
 
-from prj import execute, commonpath
 import os
+from prj import execute, commonpath
 
 
 def run(system, _=None):

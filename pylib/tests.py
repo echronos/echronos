@@ -27,7 +27,6 @@
 
 import os
 import sys
-import pycodestyle
 import logging
 import unittest
 import subprocess
@@ -35,10 +34,12 @@ from contextlib import contextmanager
 import difflib
 import io
 import re
-import nose
 import inspect
 from collections import namedtuple
 import multiprocessing
+import pycodestyle
+
+import nose
 
 from .xunittest import discover_tests, TestSuite, SimpleTestNameResult, testcase_matches, testsuite_list
 from .release import _LicenseOpener

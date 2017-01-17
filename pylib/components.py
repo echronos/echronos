@@ -28,8 +28,8 @@
 import os
 import shutil
 from collections import namedtuple
-import pystache
 import xml.etree.ElementTree
+import pystache
 from .utils import BASE_DIR, base_path, base_to_top_paths
 from .cmdline import subcmd
 

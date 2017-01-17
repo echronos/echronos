@@ -388,12 +388,12 @@ provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|packag
     if len(files_without_license):
         logging.error('License check found files without a license header:')
         for file_path in files_without_license:
-            logging.error('    {}'.format(file_path))
+            logging.error('    %s', file_path)
 
     if len(files_unknown_type):
         logging.error('License check found files of unknown type:')
         for file_path in files_unknown_type:
-            logging.error('    {}'.format(file_path))
+            logging.error('    %s', file_path)
         return 1
 
     if len(files_without_license):
@@ -445,12 +445,12 @@ def provenance(args):
     if len(files_nonexistent):
         logging.error('Provenance check found files listed that don\'t exist:')
         for file_path, list_path in files_nonexistent:
-            logging.error('    {} (listed in {})'.format(file_path, list_path))
+            logging.error('    %s (listed in %s)', file_path, list_path)
 
     if len(files_not_listed):
         logging.error('Provenance check found files without provenance information:')
         for file_path in files_not_listed:
-            logging.error('    {}'.format(file_path))
+            logging.error('    %s', file_path)
         return 1
 
     if len(files_nonexistent):

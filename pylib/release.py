@@ -80,7 +80,7 @@ class Package:
             for pkg_name in pkg_names:
                 pkg_path = os.path.join(pkg_parent_dir, pkg_name)
                 if pkg_name in pkgs:
-                    logging.warning('Overriding package {} with package {}'.format(pkgs[pkg_name].path, pkg_path))
+                    logging.warning('Overriding package %s with package %s', pkgs[pkg_name].path, pkg_path)
                 pkgs[pkg_name] = Package(pkg_path)
         return pkgs
 
@@ -418,7 +418,7 @@ def build_single_release(config, topdir):
     # for an unknown reason, tarfile.bltn_open is not reliably reset to the open() function in the extra files loop
     tarfile.bltn_open = open
     basename = '{}-{}-{}'.format(config.product_name, config.release_name, config.version)
-    logging.info("Building {}".format(basename))
+    logging.info("Building %s", basename)
     tarfilename = top_path(topdir, 'release', '{}.tar.gz'.format(basename))
     with _tarfile_open(tarfilename, 'w:gz', format=tarfile.GNU_FORMAT) as tarfile_obj:
         for pkg in config.packages:
@@ -586,7 +586,7 @@ def build(args):
         try:
             build_single_release(config, args.topdir)
         except FileNotFoundError as exc:
-            logging.warning("Unable to build '{}'. File not found: '{}'".format(config, exc.filename))
+            logging.warning("Unable to build '%s'. File not found: '%s'", config, exc.filename)
             result = 1
 
     return result

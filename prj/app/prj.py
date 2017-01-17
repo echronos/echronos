@@ -1155,20 +1155,20 @@ def call_system_function(args, function, extra_args=None, sys_is_path=False):
         if sys_is_path:
             system_path = system_name
             system_name = os.path.splitext(os.path.basename(system_name))[0]
-            logger.info("Loading system: {}".format(system_name))
+            logger.info("Loading system: %s", system_name)
             system = project.parse_import(system_name, system_path)
             system.output = os.path.curdir
         else:
             if not valid_entity_name(system_name):
-                logger.error("System name '{}' is invalid.".format(system_name))
+                logger.error("System name '%s' is invalid.", system_name)
                 return 1
-            logger.info("Loading system: {}".format(system_name))
+            logger.info("Loading system: %s", system_name)
             system = project.find(system_name)
     except EntityLoadError as exc:
-        logger.error("Unable to load system [{}]: {}".format(system_name, exc))
+        logger.error("Unable to load system [%s]: %s", system_name, exc)
         return 1
     except EntityNotFoundError:
-        logger.error("Unable to find system [{}].".format(system_name))
+        logger.error("Unable to find system [%s].", system_name)
         return 1
 
     if args.output:
@@ -1176,7 +1176,7 @@ def call_system_function(args, function, extra_args=None, sys_is_path=False):
 
     prepend_tool_binaries_to_path_environment_variable()
 
-    logger.info("Invoking '{}' on system '{}'".format(function.__name__, system.name))
+    logger.info("Invoking '%s' on system '%s'", function.__name__, system.name)
     try:
         return function(system, **extra_args)
     except UserError as exc:

@@ -294,16 +294,16 @@ def test_asdict_key():
 
 def test_asdict_attr():
     class Simple(object):
-        def __init__(self, foo):
-            self.foo = foo
+        def __init__(self, test):
+            self.test = test
 
         def __repr__(self):
-            return "<Simple: {}>".format(self.foo)
+            return "<Simple: {}>".format(self.test)
 
     simple_a = Simple(1)
     simple_b = Simple(2)
 
-    assert asdict([simple_a, simple_b], attr='foo') == {1: simple_a, 2: simple_b}
+    assert asdict([simple_a, simple_b], attr='test') == {1: simple_a, 2: simple_b}
 
 
 def test_get_attribute_normal():

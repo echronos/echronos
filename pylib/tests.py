@@ -40,8 +40,6 @@ import multiprocessing
 import nose
 import pycodestyle
 
-import nose
-
 from .xunittest import discover_tests, TestSuite, SimpleTestNameResult, testcase_matches, testsuite_list
 from .release import _LicenseOpener
 from .utils import get_executable_extension, BASE_DIR, find_path, base_to_top_paths, walk, base_path, get_top_dir

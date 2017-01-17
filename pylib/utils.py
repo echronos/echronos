@@ -234,7 +234,7 @@ _EXECUTABLE_EXTENSION = None
 
 
 def get_executable_extension():
-    global _EXECUTABLE_EXTENSION
+    global _EXECUTABLE_EXTENSION  # pylint: disable=global-statement
     if _EXECUTABLE_EXTENSION is None:
         _EXECUTABLE_EXTENSION = {'darwin': '',
                                  'linux': '',
@@ -603,7 +603,7 @@ def get_top_dir():
     When executing ../x.py from the current working directory /client-repo/core/, this function returns '/client-repo'
 
     """
-    global _TOP_DIR
+    global _TOP_DIR  # pylint: disable=global-statement
     if _TOP_DIR is None:
         stack_frames = traceback.extract_stack()
         top_stack_frame = stack_frames[0]

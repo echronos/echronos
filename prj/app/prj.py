@@ -38,6 +38,7 @@ if __name__ == "__main__":
     for pth in ['pystache', 'ply', 'lib']:
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), pth))
 
+# pylint: disable=wrong-import-position
 from util.util import prepend_tool_binaries_to_path_environment_variable
 # Logging is set up first since this is critical to the rest of the application working correctly.
 # It is possible that other modules will perform logging during import, so make sure this is very early.

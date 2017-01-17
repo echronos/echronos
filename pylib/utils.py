@@ -37,19 +37,19 @@ from collections import namedtuple
 from contextlib import contextmanager
 
 
-def follow_link(l):
+def follow_link(link):
     """Return the underlying file from a symbolic link.
 
     This will (recursively) follow links until a non-symbolic link is found.
     No cycle checks are performed by this function.
 
     """
-    if not os.path.islink(l):
-        return l
-    p = os.readlink(l)
-    if os.path.isabs(p):
-        return p
-    return follow_link(os.path.join(os.path.dirname(l), p))
+    if not os.path.islink(link):
+        return link
+    path = os.readlink(link)
+    if os.path.isabs(path):
+        return path
+    return follow_link(os.path.join(os.path.dirname(link), path))
 
 
 # Directory containing the core repository
@@ -230,16 +230,16 @@ def get_host_platform_name():
         raise RuntimeError('Unsupported platform {}'.format(sys.platform))
 
 
-_executable_extension = None
+_EXECUTABLE_EXTENSION = None
 
 
 def get_executable_extension():
-    global _executable_extension
-    if _executable_extension is None:
-        _executable_extension = {'darwin': '',
+    global _EXECUTABLE_EXTENSION
+    if _EXECUTABLE_EXTENSION is None:
+        _EXECUTABLE_EXTENSION = {'darwin': '',
                                  'linux': '',
                                  'win32': '.exe'}[sys.platform]
-    return _executable_extension
+    return _EXECUTABLE_EXTENSION
 
 
 class Git:
@@ -437,7 +437,7 @@ class Git:
         """Add the list of files to the index in preparation of a future commit."""
         return self._do(['add'] + self.convert_paths(files))
 
-    def rm(self, paths, force=True, *args):
+    def rm(self, paths, force=True, *args):  # pylint: disable=invalid-name
         """Remove the specified paths from the index and, by default, from the file system."""
         if force:
             force_option = ['--force']
@@ -584,7 +584,7 @@ def string_to_path(string):
 
 Remote = namedtuple('Remote', ('name', 'url'))
 
-_top_dir = None
+_TOP_DIR = None
 
 
 def get_top_dir():
@@ -602,14 +602,14 @@ def get_top_dir():
     When executing ../x.py from the current working directory /client-repo/core/, this function returns '/client-repo'
 
     """
-    global _top_dir
-    if _top_dir is None:
+    global _TOP_DIR
+    if _TOP_DIR is None:
         stack_frames = traceback.extract_stack()
         top_stack_frame = stack_frames[0]
         relative_file_path = top_stack_frame[0]
         absolute_file_path = _sanitize_path(relative_file_path)
-        _top_dir = os.path.dirname(absolute_file_path)
-    return _top_dir
+        _TOP_DIR = os.path.dirname(absolute_file_path)
+    return _TOP_DIR
 
 
 def _sanitize_path(path):

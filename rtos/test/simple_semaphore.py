@@ -40,10 +40,6 @@ SEM_VALUE_ZERO = 0
 NUM_TASKS = 10
 ALL_TASKS = list(range(NUM_TASKS))
 
-BlockFuncPtr = ctypes.CFUNCTYPE(None)
-UnblockFuncPtr = ctypes.CFUNCTYPE(None, ctypes.c_ubyte)
-GetCurrentTaskPtr = ctypes.CFUNCTYPE(ctypes.c_ubyte)
-
 
 class SemaphoreStruct(ctypes.Structure):
     _fields_ = [("value", ctypes.c_ubyte)]
@@ -51,10 +47,10 @@ class SemaphoreStruct(ctypes.Structure):
 
 class SemaphoreTest:
     @classmethod
-    def setUpClass(cls):
-        r = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.simple-semaphore")
+    def setUpClass(cls):  # pylint: disable=invalid-name
+        result = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.simple-semaphore")
         system = "out/posix/unittest/simple-semaphore/system" + get_executable_extension()
-        assert r == 0
+        assert result == 0
         cls.impl = ctypes.CDLL(system)
         cls.impl_sem = ctypes.POINTER(SemaphoreStruct).in_dll(cls.impl, 'pub_semaphores')
         cls.impl_waiters = ctypes.POINTER(ctypes.c_ubyte).in_dll(cls.impl, 'pub_waiters')
@@ -69,22 +65,22 @@ class SemaphoreTest:
         print("SEMVALUES: {}".format([cls.impl_sem[i].value for i in ALL_SEMAPHORES]))
 
     # pylint: disable=no-self-argument
-    def set_unblock_func(cls, fn):
-        cls.unblock_func_ptr = UnblockFuncPtr(fn)
+    def set_unblock_func(cls, function):
+        cls.unblock_func_ptr = ctypes.CFUNCTYPE(None, ctypes.c_ubyte)(function)
         cls.impl.pub_set_unblock_ptr(cls.unblock_func_ptr)
 
     # pylint: disable=no-self-argument
-    def set_block_func(cls, fn):
-        cls.block_func_ptr = BlockFuncPtr(fn)
+    def set_block_func(cls, function):
+        cls.block_func_ptr = ctypes.CFUNCTYPE(None)(function)
         cls.impl.pub_set_block_ptr(cls.block_func_ptr)
 
     # pylint: disable=no-self-argument
-    def set_get_current_task_func(cls, fn):
-        cls.get_current_task_ptr = GetCurrentTaskPtr(fn)
+    def set_get_current_task_func(cls, function):
+        cls.get_current_task_ptr = ctypes.CFUNCTYPE(ctypes.c_ubyte)(function)
         cls.impl.pub_set_get_current_task_ptr(cls.get_current_task_ptr)
 
 
-class testSimpleSemaphore(SemaphoreTest):
+class testSimpleSemaphore(SemaphoreTest):  # pylint: disable=invalid-name
     # Semaphore tests (white-box)
     def test_count(self):
         self.impl.pub_sem_init()

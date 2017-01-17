@@ -60,22 +60,22 @@ def test_multi():
 
 
 def test_reuse():
-    c = Crc16Ccitt()
+    crc = Crc16Ccitt()
 
-    for b in b'foo':
-        c.add(b)
-    assert c.result(reset=False) == 0x630A
+    for byte in b'foo':
+        crc.add(byte)
+    assert crc.result(reset=False) == 0x630A
 
-    for b in b'bar':
-        c.add(b)
-    assert c.result(reset=False) == 0xBE35
+    for byte in b'bar':
+        crc.add(byte)
+    assert crc.result(reset=False) == 0xBE35
 
-    c.reset()
+    crc.reset()
 
-    for b in b'foo':
-        c.add(b)
-    assert c.result() == 0x630A
+    for byte in b'foo':
+        crc.add(byte)
+    assert crc.result() == 0x630A
 
-    for b in b'bar':
-        c.add(b)
-    assert c.result() == 0x5F59
+    for byte in b'bar':
+        crc.add(byte)
+    assert crc.result() == 0x5F59

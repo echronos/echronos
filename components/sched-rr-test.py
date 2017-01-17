@@ -45,4 +45,4 @@ class SchedRrTestModule(Module):
 
         return config
 
-module = SchedRrTestModule()
+module = SchedRrTestModule()  # pylint: disable=invalid-name

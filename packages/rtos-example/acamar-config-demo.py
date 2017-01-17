@@ -35,4 +35,4 @@ class AcamarConfigDemoModule(Module):
         {'input': 'acamar-config-demo.c', 'render': True, 'type': 'c'},
     ]
 
-module = AcamarConfigDemoModule()
+module = AcamarConfigDemoModule()  # pylint: disable=invalid-name

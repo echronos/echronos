@@ -102,11 +102,11 @@ def testcase_matches(testcase, test_desc):
     """
     name = testcase_name(testcase)
 
-    r = False
-    r = r or name == test_desc
-    r = r or test_desc[-1] in '.:' and name.startswith(test_desc)
-    r = r or re.match(test_desc + '$', name)
-    return r
+    result = False
+    result = result or name == test_desc
+    result = result or test_desc[-1] in '.:' and name.startswith(test_desc)
+    result = result or re.match(test_desc + '$', name)
+    return result
 
 
 def testcase_name(testcase):
@@ -175,8 +175,8 @@ def discover_tests_class(cls):
                 if inspect.isgeneratorfunction(method):
                     gen = getattr(cls(), name)
                     for gen_name, *test in gen():
-                        f = functools.partial(*test)
-                        testcase = MethodTestCase(f, cls)
+                        function = functools.partial(*test)
+                        testcase = MethodTestCase(function, cls)
                         # pylint: disable=attribute-defined-outside-init
                         testcase.testcase_name = "{}.{}.{}".format(cls.__module__, cls.__name__, gen_name)
                         yield testcase
@@ -195,8 +195,8 @@ def discover_tests_module(module):
         elif callable(obj) and re.match('test_.*', name):
             if inspect.isgeneratorfunction(obj):
                 for gen_name, *test in obj():
-                    f = functools.partial(*test)
-                    testcase = unittest.FunctionTestCase(f)
+                    function = functools.partial(*test)
+                    testcase = unittest.FunctionTestCase(function)
                     testcase.testcase_name = "{}.{}:{}".format(obj.__module__, obj.__name__, gen_name)
                     yield testcase
             else:

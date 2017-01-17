@@ -54,29 +54,29 @@ class PhactModule(Module):
         # get merged task and mutex lists to figure out priorities
         tasks = config['tasks']
         tasks.sort(key=itemgetter('priority'), reverse=True)
-        for idx, t in enumerate(tasks):
-            t['idx'] = idx
+        for idx, task in enumerate(tasks):
+            task['idx'] = idx
             # Create a timer for each task
-            timer = {'name': '_task_' + t['name'],
+            timer = {'name': '_task_' + task['name'],
                      'error': 0,
                      'reload': 0,
-                     'task': t,
+                     'task': task,
                      'idx': len(config['timers']),
                      'enabled': False,
                      'sig_set': '_task_timer'}
-            t['timer'] = timer
+            task['timer'] = timer
             config['timers'].append(timer)
 
         mutexes = config['mutexes']
         mutexes.sort(key=itemgetter('priority'), reverse=True)
-        for idx, m in enumerate(mutexes):
-            m['idx'] = idx
+        for idx, mutex in enumerate(mutexes):
+            mutex['idx'] = idx
         mutex_tasks = tasks + mutexes
 
         config['mutex_tasks_length'] = len(mutex_tasks)
         mutex_tasks.sort(key=itemgetter('priority'), reverse=True)
-        for idx, mt in enumerate(mutex_tasks):
-            mt['sched_idx'] = idx
+        for idx, mutex_task in enumerate(mutex_tasks):
+            mutex_task['sched_idx'] = idx
         config['mutex_tasks'] = mutex_tasks
 
         # determine scheduling queue index type size
@@ -89,4 +89,4 @@ class PhactModule(Module):
 
         return config
 
-module = PhactModule()
+module = PhactModule()  # pylint: disable=invalid-name

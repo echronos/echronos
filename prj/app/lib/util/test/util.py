@@ -43,33 +43,33 @@ def test_do_nothing_kw_args():
 
 
 def test_singleton():
-    x = Singleton('x')
-    x1 = x
-    y = Singleton('y')
-    y1 = y
+    singleton_x = Singleton('x')
+    singleton_x1 = singleton_x
+    singleton_y = Singleton('y')
+    singleton_y1 = singleton_y
 
-    assert x1 is x
-    assert x1 == x
-    assert y1 is y
-    assert y1 == y
-    assert x is not y
+    assert singleton_x1 is singleton_x
+    assert singleton_x1 == singleton_x
+    assert singleton_y1 is singleton_y
+    assert singleton_y1 == singleton_y
+    assert singleton_x is not singleton_y
 
-    assert str(x) == '<Singleton: x>'
-    assert str(y) == '<Singleton: y>'
+    assert str(singleton_x) == '<Singleton: x>'
+    assert str(singleton_y) == '<Singleton: y>'
 
 
-def check_s16l(value, n, expected):
-    assert s16l(value, n) == expected
+def check_s16l(value, num, expected):
+    assert s16l(value, num) == expected
 
 
 def test_s16l_zero():
-    for n in range(16):
-        yield 'n={}'.format(n), check_s16l, 0, n, 0
+    for num in range(16):
+        yield 'n={}'.format(num), check_s16l, 0, num, 0
 
 
 def test_s16l_ffff():
-    for n, expected in [(1, 0xfffe), (8, 0xff00), (15, 0x8000), (16, 0)]:
-        yield 'n={}'.format(n), check_s16l, 0xffff, n, expected
+    for num, expected in [(1, 0xfffe), (8, 0xff00), (15, 0x8000), (16, 0)]:
+        yield 'n={}'.format(num), check_s16l, 0xffff, num, expected
 
 
 def test_check_unique_no_dups():
@@ -78,22 +78,22 @@ def test_check_unique_no_dups():
 
 def test_check_unique_dups():
     lst = list(range(40)) + [39]
-    with assert_raises(ValueError) as cm:
+    with assert_raises(ValueError) as context:
         check_unique(lst)
-    assert str(cm.exception) == "Duplicates found in list: [(39, 2)]"
+    assert str(context.exception) == "Duplicates found in list: [(39, 2)]"
 
 
 def test_remove_multi():
-    x = list(range(3))
-    remove_multi(x)
-    assert x == list(range(3))
+    test_list = list(range(3))
+    remove_multi(test_list)
+    assert test_list == list(range(3))
 
-    remove_multi(x, 0, 2)
-    assert x == [1]
+    remove_multi(test_list, 0, 2)
+    assert test_list == [1]
 
-    x = list(range(3))
-    remove_multi(x, *list(range(3)))
-    assert x == []
+    test_list = list(range(3))
+    remove_multi(test_list, *list(range(3)))
+    assert test_list == []
 
 
 def add_index_setup():
@@ -119,8 +119,8 @@ def test_add_index_no_exist():
 
 def test_add_index_idx_is_none():
     lst = add_index_setup()
-    for d in lst:
-        d['idx'] = None
+    for test_dict in lst:
+        test_dict['idx'] = None
 
     add_index(lst, 'idx')
 
@@ -149,9 +149,9 @@ def test_add_index_idx_out_of_range():
     lst = add_index_setup()
     lst[0]['idx'] = 4
 
-    with assert_raises(ValueError) as cm:
+    with assert_raises(ValueError) as context:
         add_index(lst, 'idx')
-    assert str(cm.exception) == "Some index value are out-of-range: [4]"
+    assert str(context.exception) == "Some index value are out-of-range: [4]"
 
 
 def test_add_index_idx_duplicate():
@@ -159,9 +159,9 @@ def test_add_index_idx_duplicate():
     lst[0]['idx'] = 1
     lst[1]['idx'] = 1
 
-    with assert_raises(ValueError) as cm:
+    with assert_raises(ValueError) as context:
         add_index(lst, 'idx')
-    assert str(cm.exception) == "Duplicates found in list: [(1, 2)]"
+    assert str(context.exception) == "Duplicates found in list: [(1, 2)]"
 
 
 def test_length_mixin():
@@ -172,9 +172,9 @@ def test_length_mixin():
     class LengthFoo(LengthMixin, Foo):
         pass
 
-    lf = LengthFoo()
+    test_length = LengthFoo()
 
-    assert lf.length == 123
+    assert test_length.length == 123
 
 
 def test_length_list():

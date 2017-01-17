@@ -40,4 +40,4 @@ class P2020UtilModule(Module):
         {'input': 'p2020-util.c', 'render': True, 'type': 'c'},
     ]
 
-module = P2020UtilModule()
+module = P2020UtilModule()  # pylint: disable=invalid-name

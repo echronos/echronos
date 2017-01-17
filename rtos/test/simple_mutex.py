@@ -33,12 +33,12 @@ from rtos import sched
 from pylib.utils import get_executable_extension
 
 
-class testSimpleMutex:
+class testSimpleMutex:  # pylint: disable=invalid-name
     @classmethod
-    def setUpClass(cls):
-        r = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.simple-mutex")
+    def setUpClass(cls):  # pylint: disable=invalid-name
+        result = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.simple-mutex")
         system = "out/posix/unittest/simple-mutex/system" + get_executable_extension()
-        assert r == 0
+        assert result == 0
         cls.impl = ctypes.CDLL(system)
         cls.impl_mutex = ctypes.POINTER(sched.get_rr_sched_struct(10)).in_dll(cls.impl, 'pub_mutexes')[0]
 
@@ -79,8 +79,7 @@ class testSimpleMutex:
             if yield_calls == expected_yields:
                 self.impl.rtos_mutex_unlock(0)
 
-        yield_func = YieldFuncPtr(yield_func)
-        self.impl.pub_set_yield_ptr(yield_func)
+        self.impl.pub_set_yield_ptr(YieldFuncPtr(yield_func))
 
         self.impl.rtos_mutex_lock(0)
         assert yield_calls == expected_yields

@@ -83,7 +83,7 @@ import logging
 import os
 import sys
 
-externals = ['nose', '']
+externals = ['nose', '']  # pylint: disable=invalid-name
 
 # Make pylib available for importing - this is necessary for x.py wrappers in client repositories to work
 sys.path.append(os.path.dirname(__file__))
@@ -99,7 +99,7 @@ from pylib import release, components, prj, tests, docs  # pylint: disable=unuse
 from pylib.cmdline import add_subcommands_to_parser
 
 # Set up a specific logger with our desired output level
-logger = logging.getLogger()
+logger = logging.getLogger()  # pylint: disable=invalid-name
 logger.setLevel(logging.INFO)
 
 
@@ -109,7 +109,7 @@ logger.setLevel(logging.INFO)
 # If the user directly invokes x tool of the RTOS core, topdir is the directory of this file.
 # topdir defaults to the core directory.
 # It may be modified by an appropriate invocation of main().
-topdir = os.path.normpath(os.path.dirname(__file__))
+topdir = os.path.normpath(os.path.dirname(__file__))  # pylint: disable=invalid-name
 
 
 # The POSIX context switch component depends on ucontext.h which is supported on real POSIX platforms,
@@ -232,8 +232,8 @@ CORE_SKELETONS = {
 }
 
 # client repositories may extend or override the following variables to control which configurations are available
-skeletons = CORE_SKELETONS.copy()
-configurations = CORE_CONFIGURATIONS.copy()
+skeletons = CORE_SKELETONS.copy()  # pylint: disable=invalid-name
+configurations = CORE_CONFIGURATIONS.copy()  # pylint: disable=invalid-name
 
 
 def main():
@@ -265,12 +265,12 @@ def main():
 
 
 if __name__ == "__main__":
-    result = main()
+    RESULT = main()
     # sys.exit(None) makes the process exit with exit code 0, which indicates successful completion.
     # In the past, e.g. test functions have returned None, even when there were test errors.
     # To prevent this, require the functions called by main() to consistently return an integer value.
-    if isinstance(result, int):
-        sys.exit(result)
+    if isinstance(RESULT, int):
+        sys.exit(RESULT)
     else:
         raise TypeError('The main() function shall return an integer, but returned a value of type {} instead.'
-                        .format(type(result)))
+                        .format(type(RESULT)))

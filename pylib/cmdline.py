@@ -59,7 +59,7 @@ class Arg:
         self.kwargs = kwargs
 
 
-class cmd:
+class cmd:  # pylint: disable=invalid-name
     """The @cmd() function decorator marks a function as the implementation of a command-line command of an
     executable."""
     def __init__(self, name=None, help=None, args=()):  # pylint: disable=redefined-builtin
@@ -89,17 +89,17 @@ class cmd:
         self.args = args
         self.execute = None
 
-    def __call__(self, f):
+    def __call__(self, wrapped_function):
         """Implementation of Python magic for wrapping functions."""
         # See functools.wraps() documentation
-        @wraps(f)
+        @wraps(wrapped_function)
         def wrapper(*args, **kwds):
-            return f(*args, **kwds)
+            return wrapped_function(*args, **kwds)
         # Let command name default to name of wrapped function
         if self.name is None:
-            self.name = f.__name__
+            self.name = wrapped_function.__name__
         # Set function wrapper as handler for command
-        self.execute = f
+        self.execute = wrapped_function
         # Make decorator object and its properties accessible as an attribute of the function wrapper
         wrapper.decorator = self
         return wrapper
@@ -141,17 +141,17 @@ def _add_cmds_to_parser(cmds, parser, dest='command', title='commands'):
         cmd_parser.set_defaults(execute=command.execute)
 
 
-class subcmd(cmd):
+class subcmd(cmd):  # pylint: disable=invalid-name
     """The @subcmd() function decorator marks a function as the implementation of an x.py command-line sub-command."""
     # pylint: disable=redefined-builtin,redefined-outer-name
     def __init__(self, name=None, cmd=None, help=None, args=()):
         self.cmd = cmd
         super(subcmd, self).__init__(name=name, help=help, args=args)
 
-    def __call__(self, f):
+    def __call__(self, wrapped_function):
         if self.cmd is None:
-            self.cmd = f.__module__.split('.')[-1]
-        return super(subcmd, self).__call__(f)
+            self.cmd = wrapped_function.__module__.split('.')[-1]
+        return super(subcmd, self).__call__(wrapped_function)
 
 
 def add_subcommands_to_parser(global_attributes, parser):

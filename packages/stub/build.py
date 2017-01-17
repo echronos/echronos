@@ -30,6 +30,7 @@ import sys
 from prj import execute, SystemBuildError
 
 
+# pylint: disable=invalid-name
 schema = {
     'type': 'dict',
     'name': 'module',

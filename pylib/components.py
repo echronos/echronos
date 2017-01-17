@@ -65,24 +65,24 @@ class _SchemaFormatError(RuntimeError):
     pass
 
 
-def _merge_schema_entries(a, b, path=''):
+def _merge_schema_entries(left, right, path=''):
     """Recursively merge the entries of two XML component schemas.
 
-    'a' and 'b' (instances of xml.etree.ElementTree.Element) are the two schema entries to merge.
-    All entries from 'b' are merged into 'a'.
-    If 'a' contains an entry a* with the same name as an entry b* in 'b', they can only be merged if both a* and b*
-    have child entries themselves.
-    If either a* or b* does not have at least one child entry, this function raises a _SchemaFormatError.
+    'left' and 'right' (instances of xml.etree.ElementTree.Element) are the two schema entries to merge.
+    All entries from 'right' are merged into 'left'.
+    If 'left' contains an entry left* with the same name as an entry right* in 'right', they can only be merged if
+    both left* and right* have child entries themselves.
+    If either left* or right* does not have at least one child entry, this function raises a _SchemaFormatError.
 
-    Within each of 'a' and 'b', the names of their entries must be unique.
-    In other words, no two entries in 'a' may have the same name.
-    The same applies to 'b'.
+    Within each of 'left' and 'right', the names of their entries must be unique.
+    In other words, no two entries in 'left' may have the same name.
+    The same applies to 'right'.
 
-    When the function returns, 'a' contains all entries from 'b' and 'b' is unmodified.
+    When the function returns, 'left' contains all entries from 'right' and 'right' is unmodified.
 
     """
-    a_children = {child.attrib['name']: child for child in a}
-    for b_child in b:
+    a_children = {child.attrib['name']: child for child in left}
+    for b_child in right:
         try:
             name = b_child.attrib['name']
         except KeyError:
@@ -99,11 +99,11 @@ To merge two schemas, corresponding entries both need need to either have child 
             if len(b_child) and len(a_child):
                 _merge_schema_entries(a_child, b_child, '{}.{}'.format(path, name))
             else:
-                # replace existing entry in a with the entry from b, allowing to override entries
-                a.remove(a_child)
-                a.append(b_child)
+                # replace existing entry in left with the entry from right, allowing to override entries
+                left.remove(a_child)
+                left.append(b_child)
         else:
-            a.append(b_child)
+            left.append(b_child)
 
 
 def _merge_schema_files(xml_files):
@@ -131,12 +131,12 @@ def _sort_typedefs(typedef_lines):
     """
 
     typedefs = []
-    for l in typedef_lines.split('\n'):
-        if l == '':
+    for line in typedef_lines.split('\n'):
+        if line == '':
             continue
-        if not l.endswith(';'):
-            raise Exception("Expect a typedef line to end with ';' ({})".format(l))
-        parts = l[:-1].split()
+        if not line.endswith(';'):
+            raise Exception("Expect a typedef line to end with ';' ({})".format(line))
+        parts = line[:-1].split()
         if not parts[0] == 'typedef':
             raise Exception("Expect typedef line to startwith 'typedef'")
         new_type = parts[-1]
@@ -144,26 +144,26 @@ def _sort_typedefs(typedef_lines):
         typedefs.append((new_type, old_type))
 
     new_types = [new for (new, _) in typedefs]
-    r = []
+    result = []
 
     # First put in any types that don't cross reference.
     #  we assume they are defined in other headers.
     for (new, old) in typedefs[:]:
         if old not in new_types:
-            r.append((new, old))
+            result.append((new, old))
             typedefs.remove((new, old))
 
     # Now, for each new type
     i = 0
-    while i < len(r):
-        check_type = r[i][0]
+    while i < len(result):
+        check_type = result[i][0]
         i += 1
         for (new, old) in typedefs[:]:
             if old == check_type:
-                r.append((new, old))
+                result.append((new, old))
                 typedefs.remove((new, old))
 
-    return '\n'.join(['typedef {} {};'.format(old, new) for (new, old) in r])
+    return '\n'.join(['typedef {} {};'.format(old, new) for (new, old) in result])
 
 
 def _render_data(in_data, name, config):
@@ -174,7 +174,7 @@ def _render_data(in_data, name, config):
     return pystache.render(in_data, config, name=name)
 
 
-def _parse_sectioned_file(fn, config, required_sections):
+def _parse_sectioned_file(function, config, required_sections):
     """Given a sectioned C-like file, returns a dictionary of { section: content }
 
     For example an input of:
@@ -188,14 +188,14 @@ def _parse_sectioned_file(fn, config, required_sections):
 
     { 'foo' : "foo data....", 'bar' : "bar data...." }
     """
-    if not os.path.exists(fn):
+    if not os.path.exists(function):
         # Skip non-existent files
         return None
 
-    with open(fn) as f:
+    with open(function) as file_object:
         sections = {}
         current_lines = None
-        for line in f.readlines():
+        for line in file_object.readlines():
             line = line.rstrip()
 
             if line.startswith('/*|') and line.endswith('|*/'):
@@ -206,18 +206,19 @@ def _parse_sectioned_file(fn, config, required_sections):
                 current_lines.append(line)
 
     for key, value in sections.items():
-        sections[key] = _render_data('\n'.join(value).rstrip(), "{}: Section {}".format(fn, key), config)
+        sections[key] = _render_data('\n'.join(value).rstrip(), "{}: Section {}".format(function, key), config)
 
-    for s in required_sections:
-        if s not in sections:
-            raise Exception("Couldn't find expected section '{}' in file: '{}'".format(s, fn))
+    for section in required_sections:
+        if section not in sections:
+            raise Exception("Couldn't find expected section '{}' in file: '{}'".format(section, function))
 
     return sections
 
 
 def _get_sections(bound_components, filename, sections):
-    return [_parse_sectioned_file(os.path.join(bc.path, filename), bc.config, sections) for bc in bound_components
-            if os.path.exists(os.path.join(bc.path, filename))]
+    return [_parse_sectioned_file(os.path.join(bound_component.path, filename), bound_component.config, sections)
+            for bound_component in bound_components
+            if os.path.exists(os.path.join(bound_component.path, filename))]
 
 
 _BoundComponent = namedtuple("_BoundComponent", ['path', 'config'])
@@ -269,28 +270,28 @@ def _generate(rtos_name, components, pkg_name, search_paths):
     # Generate .c file
     all_c_sections = _get_sections(bound_components, "implementation.c", _REQUIRED_C_SECTIONS)
     source_output = os.path.join(module_dir, module_name + '.c')
-    with open(source_output, 'w') as f:
-        for ss in _REQUIRED_C_SECTIONS:
-            data = "\n".join(c_sections[ss] for c_sections in all_c_sections)
-            if ss == 'types':
+    with open(source_output, 'w') as file_object:
+        for section in _REQUIRED_C_SECTIONS:
+            data = "\n".join(c_sections[section] for c_sections in all_c_sections)
+            if section == 'types':
                 data = _sort_typedefs(data)
-            f.write(data)
-            f.write('\n')
+            file_object.write(data)
+            file_object.write('\n')
 
     # Generate .h file
     all_h_sections = _get_sections(bound_components, "header.h", _REQUIRED_H_SECTIONS)
     header_output = os.path.join(module_dir, module_name + '.h')
-    with open(header_output, 'w') as f:
+    with open(header_output, 'w') as file_object:
         mod_name = module_name.upper().replace('-', '_')
-        f.write("#ifndef {}_H\n".format(mod_name))
-        f.write("#define {}_H\n".format(mod_name))
-        for ss in _REQUIRED_H_SECTIONS:
-            if ss == 'public_function_declarations':
-                f.write("#ifdef __cplusplus\nextern \"C\" {\n#endif\n")
-            f.write("\n".join(h_sections[ss] for h_sections in all_h_sections) + "\n")
-            if ss == 'public_function_declarations':
-                f.write("#ifdef __cplusplus\n}\n#endif\n")
-        f.write("\n#endif /* {}_H */".format(mod_name))
+        file_object.write("#ifndef {}_H\n".format(mod_name))
+        file_object.write("#define {}_H\n".format(mod_name))
+        for section in _REQUIRED_H_SECTIONS:
+            if section == 'public_function_declarations':
+                file_object.write("#ifdef __cplusplus\nextern \"C\" {\n#endif\n")
+            file_object.write("\n".join(h_sections[section] for h_sections in all_h_sections) + "\n")
+            if section == 'public_function_declarations':
+                file_object.write("#ifdef __cplusplus\n}\n#endif\n")
+        file_object.write("\n#endif /* {}_H */".format(mod_name))
 
     # Generate docs
     if os.path.exists(os.path.join(BASE_DIR, 'components', rtos_name, 'docs.md')):
@@ -298,18 +299,19 @@ def _generate(rtos_name, components, pkg_name, search_paths):
         all_doc_sections = _sort_sections_by_dependencies(bound_components, all_doc_sections)
 
         doc_output = os.path.join(module_dir, 'docs.md')
-        with open(doc_output, 'w') as f:
-            for ss in _REQUIRED_DOC_SECTIONS:
-                data = "\n\n".join(doc_sections[ss] for doc_sections in all_doc_sections if doc_sections is not None)
-                f.write('\n')
-                f.write(data)
-                f.write('\n')
+        with open(doc_output, 'w') as file_object:
+            for section in _REQUIRED_DOC_SECTIONS:
+                strings = [doc_sections[section] for doc_sections in all_doc_sections if doc_sections is not None]
+                data = "\n\n".join(strings)
+                file_object.write('\n')
+                file_object.write(data)
+                file_object.write('\n')
 
         output_dir = os.path.join(module_dir, 'docs')
         if os.path.exists(output_dir):
             shutil.rmtree(output_dir, ignore_errors=True)
-        for bc in bound_components:
-            input_dir = os.path.join(bc.path, 'docs')
+        for bound_component in bound_components:
+            input_dir = os.path.join(bound_component.path, 'docs')
             if os.path.isdir(input_dir):
                 # recursively copy contents of input_dir into output_dir
                 # shutil.copytree() cannot be used because it requires the destination to not yet exist
@@ -325,11 +327,11 @@ component'.format(src, dst))
 
     # Generate .xml file
     config_output = os.path.join(module_dir, 'schema.xml')
-    with open(config_output, 'w') as f:
-        f.write('<?xml version="1.0" encoding="UTF-8" ?>\n')
-        xml_files = [os.path.join(bc.path, "schema.xml") for bc in bound_components]
+    with open(config_output, 'w') as file_object:
+        file_object.write('<?xml version="1.0" encoding="UTF-8" ?>\n')
+        xml_files = [os.path.join(bound_component.path, "schema.xml") for bound_component in bound_components]
         schema = _merge_schema_files(xml_files)
-        f.write(schema)
+        file_object.write(schema)
 
     # Generate .py file
     python_output = os.path.join(module_dir, 'entity.py')
@@ -377,8 +379,8 @@ def _sort_by_dependencies(nodes, ignore_cyclic_dependencies=False):
         for idx, node in enumerate(todo):
             if set(node.requires).issubset(provided):
                 del todo[idx]
-                for p in node.provides:
-                    provided.add(p)
+                for provide in node.provides:
+                    provided.add(provide)
                 yield node
                 break
         else:

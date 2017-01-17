@@ -26,9 +26,7 @@
 #
 
 from prj import SystemBuildError, Module
-import logging
 import ply.cpp
-logger = logging.getLogger()
 
 
 class EntryModule(Module):
@@ -92,7 +90,7 @@ class EntryModule(Module):
 
     def post_prepare(self, system, config):
         # Now find all the BITBAND variables in all the c_files.
-        def cb(macro_name, expanded_args):
+        def callback(macro_name, expanded_args):
             bitband_macros = ('BITBAND_VAR', 'BITBAND_VAR_ARRAY',
                               'VOLATILE_BITBAND_VAR', 'VOLATILE_BITBAND_VAR_ARRAY')
             if macro_name in bitband_macros and \
@@ -100,17 +98,17 @@ class EntryModule(Module):
                     expanded_args[1][0].type == 'CPP_ID':
                 config['bit_aliases'].append(expanded_args[1][0].value)
 
-        p = ply.cpp.Preprocessor(include_paths=system.include_paths,
-                                 macro_callback=cb)
+        pre_processor = ply.cpp.Preprocessor(include_paths=system.include_paths,
+                                             macro_callback=callback)
 
         for c_file in system.c_files:
-            with open(c_file) as f:
+            with open(c_file) as file_obj:
                 try:
-                    p.parse(f.read(), c_file)
-                except ply.cpp.CppError as e:
-                    raise SystemBuildError(str(e))
+                    pre_processor.parse(file_obj.read(), c_file)
+                except ply.cpp.CppError as exc:
+                    raise SystemBuildError(str(exc))
 
         super().post_prepare(system, config)
 
 
-module = EntryModule()
+module = EntryModule()  # pylint: disable=invalid-name

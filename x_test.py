@@ -28,7 +28,7 @@
 from pylib.utils import BASE_DIR
 from pylib.components import _sort_typedefs, _sort_by_dependencies, _DependencyNode, _UnresolvableDependencyError
 from pylib.task import _Review, Task, _InvalidTaskStateError, TaskConfiguration
-from pylib.task_commands import task_cfg
+from pylib.task_commands import TASK_CFG
 from nose.tools import assert_raises
 import itertools
 import os
@@ -46,8 +46,8 @@ def test_sort_typedefs():
                 'typedef foo bar;',
                 'typedef bar baz;']
     expected = '\n'.join(typedefs)
-    for x in itertools.permutations(typedefs):
-        assert _sort_typedefs('\n'.join(x)) == expected
+    for permutation in itertools.permutations(typedefs):
+        assert _sort_typedefs('\n'.join(permutation)) == expected
 
 
 def test_full_stop_in_reviewer_name():
@@ -62,20 +62,18 @@ def test_full_stop_in_reviewer_name():
 
 
 def test_resolve_dependencies():
-    N = _DependencyNode
-    a = N(('a',), ('b', 'c'))
-    b = N(('b',), ('c',))
-    c = N(('c',), ())
-    nodes = (a, b, c)
+    node_a = _DependencyNode(('a',), ('b', 'c'))
+    node_b = _DependencyNode(('b',), ('c',))
+    node_c = _DependencyNode(('c',), ())
+    nodes = (node_a, node_b, node_c)
     output = list(_sort_by_dependencies(nodes))
-    assert output == [c, b, a]
+    assert output == [node_c, node_b, node_a]
 
 
 def test_resolve_unresolvable_dependencies():
-    N = _DependencyNode
-    a = N(('a',), ('b',))
-    b = N(('b',), ('c',))
-    nodes = (a, b)
+    node_a = _DependencyNode(('a',), ('b',))
+    node_b = _DependencyNode(('b',), ('c',))
+    nodes = (node_a, node_b)
     try:
         _ = list(_sort_by_dependencies(nodes))
         assert False
@@ -84,12 +82,11 @@ def test_resolve_unresolvable_dependencies():
 
 
 def test_resolve_cyclic_dependencies():
-    N = _DependencyNode
-    a = N(('a',), ())
-    b = N(('b',), ('a',))
-    c = N(('c',), ('b', 'd'))
-    d = N(('d',), ('c',))
-    nodes = (a, b, c, d)
+    node_a = _DependencyNode(('a',), ())
+    node_b = _DependencyNode(('b',), ('a',))
+    node_c = _DependencyNode(('c',), ('b', 'd'))
+    node_d = _DependencyNode(('d',), ('c',))
+    nodes = (node_a, node_b, node_c, node_d)
     try:
         output = list(_sort_by_dependencies(nodes))
         assert False
@@ -110,9 +107,9 @@ class DummyGit:
 def task_dummy_create(task_name):
     cfg = TaskConfiguration(repo_path=BASE_DIR,
                             tasks_path=os.path.join('x_test_data', 'tasks'),
-                            description_template_path=task_cfg.description_template_path,
+                            description_template_path=TASK_CFG.description_template_path,
                             reviews_path=os.path.join('x_test_data', 'reviews'),
-                            mainline_branch=task_cfg.mainline_branch)
+                            mainline_branch=TASK_CFG.mainline_branch)
     return Task(cfg, task_name, checkout=False)
 
 

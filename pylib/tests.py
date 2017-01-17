@@ -46,7 +46,7 @@ from .utils import get_executable_extension, BASE_DIR, find_path, base_to_top_pa
 from .cmdline import subcmd, Arg
 
 
-_std_subcmd_args = (
+_STD_SUBCMD_ARGS = (
     Arg('tests', metavar='TEST', nargs='*', default=[]),
     Arg('--list', action='store_true', help="List tests (don't execute)", default=False),
     Arg('--verbose', action='store_true', default=False),
@@ -54,7 +54,7 @@ _std_subcmd_args = (
 )
 
 
-@subcmd(cmd="test", args=_std_subcmd_args)
+@subcmd(cmd="test", args=_STD_SUBCMD_ARGS)
 def prj(args):
     """Run tests associated with prj modules."""
     modules = ['prj', 'util']
@@ -65,8 +65,8 @@ def prj(args):
     return _run_module_tests_with_args(modules, directories, args)
 
 
-@subcmd(cmd="test", args=_std_subcmd_args)
-def x(args):
+@subcmd(cmd="test", args=_STD_SUBCMD_ARGS)
+def x(args):  # pylint: disable=invalid-name
     """Run x-related tests."""
     modules = ['x']
     directories = ['.']
@@ -81,7 +81,7 @@ def pystache(args):
                             find_path(os.path.join('prj', 'app', 'pystache', 'test_pystache.py'), args.topdir)])
 
 
-@subcmd(cmd="test", args=_std_subcmd_args)
+@subcmd(cmd="test", args=_STD_SUBCMD_ARGS)
 def units(args):
     """Run rtos unit tests."""
     modules = ['rtos']
@@ -149,9 +149,9 @@ def _run_module_tests(modules, directories, patterns=None, verbosity=0, print_on
             if print_only:
                 testsuite_list(suite)
             else:
-                BASE_VERBOSITY = 1
+                base_verbosity = 1
                 runner = unittest.TextTestRunner(resultclass=SimpleTestNameResult,
-                                                 verbosity=BASE_VERBOSITY + verbosity)
+                                                 verbosity=base_verbosity + verbosity)
                 run_result = runner.run(suite)
                 if run_result.wasSuccessful():
                     result = 0
@@ -254,7 +254,7 @@ def style(args):
 def _run_pylint(excludes, print_file_paths=False):
     result = 0
 
-    PylintRun = namedtuple('PylintRun', ('search_paths', 'library_paths'))
+    PylintRun = namedtuple('PylintRun', ('search_paths', 'library_paths'))  # pylint: disable=invalid-name
 
     pylint_runs = (PylintRun(search_paths=(('', False),
                                            ('pylib', True),
@@ -378,11 +378,11 @@ provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|packag
                         continue
 
                 if agpl_sentinel is not None:
-                    f = open(path, 'rb')
-                    _, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
+                    file_obj = open(path, 'rb')
+                    _, sentinel_found, _ = file_obj.peek().decode('utf8').partition(agpl_sentinel)
                     if not sentinel_found:
                         files_without_license.append(path)
-                    f.close()
+                    file_obj.close()
 
     if len(files_without_license):
         logging.error('License check found files without a license header:')
@@ -413,7 +413,7 @@ def provenance(args):
     # Check that all files in provenance FILES listings exist.
     for provenance_path in base_to_top_paths(args.topdir, 'provenance'):
         for dirpath, subdirs, files in os.walk(provenance_path):
-            for list_path in [os.path.join(dirpath, f) for f in files if f == 'FILES']:
+            for list_path in [os.path.join(dirpath, file_name) for file_name in files if file_name == 'FILES']:
                 for file_path in [line.strip() for line in open(list_path)]:
                     file_abs_path = os.path.normpath(os.path.join(os.path.dirname(provenance_path), file_path))
                     if os.path.exists(file_abs_path):
@@ -435,7 +435,7 @@ def provenance(args):
             if dirpath == os.path.abspath(os.path.join(BASE_DIR, 'tools', 'share')) and 'xyz' in subdirs:
                 subdirs.remove('xyz')
 
-            for file_path in [os.path.normpath(os.path.join(dirpath, f)) for f in files]:
+            for file_path in [os.path.normpath(os.path.join(dirpath, file_name)) for file_name in files]:
                 if file_path not in files_listed + exemptions:
                     files_not_listed.append(file_path)
 

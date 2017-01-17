@@ -310,13 +310,13 @@ class _Review:
         The conclusion can be expected to be one of 'accepted/rework' (i.e., the review has not been completed),
         'accepted', or 'rework'.
         """
-        f = open(self.file_path)
-        for line in f:
+        file_obj = open(self.file_path)
+        for line in file_obj:
             if line.startswith('Conclusion: '):
                 conclusion = line.split(':')[1].strip()
-                f.close()
+                file_obj.close()
                 return conclusion.lower()
-        f.close()
+        file_obj.close()
         assert False
 
     @property

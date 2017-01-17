@@ -45,4 +45,4 @@ class SchedPrioTestModule(Module):
 
         return config
 
-module = SchedPrioTestModule()
+module = SchedPrioTestModule()  # pylint: disable=invalid-name

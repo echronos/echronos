@@ -45,4 +45,4 @@ class AcamarModule(Module):
 
         return config
 
-module = AcamarModule()
+module = AcamarModule()  # pylint: disable=invalid-name

@@ -35,14 +35,14 @@ from util.xml import SystemParseError, xml_parse_file_with_includes, xml_parse_s
     asdict, check_ident, get_attribute, ensure_unique_tag_names, element_children, ensure_all_children_named
 from nose.tools import assert_raises, raises
 
-base_dir = os.path.dirname(__file__)
+_PRJ_APP_DIR = os.path.dirname(__file__)
 
 
 def test_dict_has_keys():
-    d = {'foo': 37, 'bar': 25}
-    assert dict_has_keys(d, 'foo')
-    assert not dict_has_keys(d, 'baz')
-    assert dict_has_keys(d, 'foo', 'bar')
+    test_dict = {'foo': 37, 'bar': 25}
+    assert dict_has_keys(test_dict, 'foo')
+    assert not dict_has_keys(test_dict, 'baz')
+    assert dict_has_keys(test_dict, 'foo', 'bar')
 
 
 def test_schema_is_valid():
@@ -174,8 +174,8 @@ def test_schema_default_value():
 
 def test_xml2dict_length_prop():
     test_xml = "<list><li>foo</li><li>bar</li><li>baz</li></list>"
-    x = xml2dict(xml_parse_string(test_xml))
-    assert x.length == 3
+    test_dict = xml2dict(xml_parse_string(test_xml))
+    assert test_dict.length == 3
 
 
 def test_xml2dict_autoindex():
@@ -219,26 +219,26 @@ def test_xml2dict_optional():
     }
 
     test_xml = "<x><b>true</b></x>"
-    x = xml2dict(xml_parse_string(test_xml), schema)
-    assert x['b']
+    test_dict = xml2dict(xml_parse_string(test_xml), schema)
+    assert test_dict['b']
 
     test_xml = "<x></x>"
     with assert_raises(SystemParseError):
-        x = xml2dict(xml_parse_string(test_xml), schema)
+        test_dict = xml2dict(xml_parse_string(test_xml), schema)
 
     # Make the child element optional instead.
     schema['dict_type'][0][0]['optional'] = True
-    x = xml2dict(xml_parse_string(test_xml), schema)
-    assert x['b'] is None
+    test_dict = xml2dict(xml_parse_string(test_xml), schema)
+    assert test_dict['b'] is None
 
 
 def test_xml2dict_ident_error():
     """Ensure that exceptions raised while parsing bad idents include location information."""
     test_xml = "<foo>_bad</foo>"
     schema = {'type': 'ident', 'name': 'foo'}
-    with assert_raises(SystemParseError) as e:
+    with assert_raises(SystemParseError) as exc:
         xml2dict(xml_parse_string(test_xml), schema)
-    assert '<string>:1.0' in str(e.exception)
+    assert '<string>:1.0' in str(exc.exception)
 
 
 def test_xml2dict_object():
@@ -287,9 +287,9 @@ def test_xml2dict_object():
 
 
 def test_asdict_key():
-    x = {'foo': 1}
-    y = {'foo': 2}
-    assert asdict([x, y], key='foo') == {1: x, 2: y}
+    dict_a = {'foo': 1}
+    dict_b = {'foo': 2}
+    assert asdict([dict_a, dict_b], key='foo') == {1: dict_a, 2: dict_b}
 
 
 def test_asdict_attr():
@@ -300,10 +300,10 @@ def test_asdict_attr():
         def __repr__(self):
             return "<Simple: {}>".format(self.foo)
 
-    x = Simple(1)
-    y = Simple(2)
+    simple_a = Simple(1)
+    simple_b = Simple(2)
 
-    assert asdict([x, y], attr='foo') == {1: x, 2: y}
+    assert asdict([simple_a, simple_b], attr='foo') == {1: simple_a, 2: simple_b}
 
 
 def test_get_attribute_normal():
@@ -328,9 +328,9 @@ def test_xml_parse_string_error():
     try:
         xml_parse_string("malformed", 'mal', start_line=4)
         assert False
-    except ExpatError as e:
-        assert e.path == 'mal'
-        assert e.lineno == 5
+    except ExpatError as exc:
+        assert exc.path == 'mal'
+        assert exc.lineno == 5
 
 
 def test_xml_parse_string():
@@ -376,24 +376,24 @@ def test_valid_entity_name():
 
 
 def test_project_find():
-    p = Project(None, search_paths=[os.path.join(base_dir, 'test_data', 'path1')])
-    eg_system = p.find('example')
+    project = Project(None, search_paths=[os.path.join(_PRJ_APP_DIR, 'test_data', 'path1')])
+    eg_system = project.find('example')
     assert isinstance(eg_system, System)
 
-    p = Project(None, search_paths=[
-        os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar', 'baz'),
+    project = Project(None, search_paths=[
+        os.path.join(_PRJ_APP_DIR, 'test_data', 'path1', 'foo', 'bar', 'baz'),
     ])
-    assert isinstance(p.find('qux'), System)
+    assert isinstance(project.find('qux'), System)
 
-    p = Project(None, search_paths=[
-        os.path.join(base_dir, 'test_data', 'path1', 'foo', 'bar'),
+    project = Project(None, search_paths=[
+        os.path.join(_PRJ_APP_DIR, 'test_data', 'path1', 'foo', 'bar'),
     ])
-    assert isinstance(p.find('baz.qux'), System)
+    assert isinstance(project.find('baz.qux'), System)
 
-    p = Project(None, search_paths=[
-        os.path.join(base_dir, 'test_data', 'path1', 'foo'),
+    project = Project(None, search_paths=[
+        os.path.join(_PRJ_APP_DIR, 'test_data', 'path1', 'foo'),
     ])
-    assert isinstance(p.find('bar.baz.qux'), System)
+    assert isinstance(project.find('bar.baz.qux'), System)
 
 
 def test_xml_parse_file_with_includes_without_include():
@@ -528,7 +528,7 @@ def test_xml_parse_file_with_includes__include_paths():
         main_file.write(main_xml)
         main_file.close()
 
-        result_dom = xml_parse_file_with_includes(main_file.name, [d.name for d in include_dirs])
+        result_dom = xml_parse_file_with_includes(main_file.name, [dir_path.name for dir_path in include_dirs])
         expected_dom = xml_parse_string(expected_xml)
 
         assert result_dom.toxml() == expected_dom.toxml()
@@ -678,18 +678,18 @@ def test_xml_include_paths():
 
     with tempfile.TemporaryDirectory() as temp_dir:
         project_file_path = os.path.join(temp_dir, 'project.prj')
-        with open(project_file_path, 'w') as f:
-            f.write('''<?xml version="1.0" encoding="UTF-8" ?>
+        with open(project_file_path, 'w') as file_obj:
+            file_obj.write('''<?xml version="1.0" encoding="UTF-8" ?>
 <project>
   <prx-include-path>1</prx-include-path>
   <prx-include-path>2</prx-include-path>
 </project>''')
 
-        p = Project(project_file_path)
-        assert p._prx_include_paths == ['1', '2']  # pylint: disable=protected-access
+        project = Project(project_file_path)
+        assert project._prx_include_paths == ['1', '2']  # pylint: disable=protected-access
 
-        p = Project(project_file_path, None, args.prx_inc_path)
-        assert p._prx_include_paths == ['1', '2', 'a', 'b']  # pylint: disable=protected-access
+        project = Project(project_file_path, None, args.prx_inc_path)
+        assert project._prx_include_paths == ['1', '2', 'a', 'b']  # pylint: disable=protected-access
 
 
 def test_check_ident():

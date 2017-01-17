@@ -65,7 +65,7 @@ def _prj_build(output_dir):
 
                 file_path = os.path.join(dir_path, file_name)
 
-                with open(file_path, 'rb') as f:
+                with open(file_path, 'rb') as file_obj:
                     ext = os.path.splitext(file_path)[1]
                     try:
                         agpl_sentinel = _LicenseOpener.agpl_sentinel(ext)
@@ -73,12 +73,12 @@ def _prj_build(output_dir):
                         agpl_sentinel = None
 
                     if agpl_sentinel is not None:
-                        old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
+                        old_lic_str, sentinel_found, _ = file_obj.peek().decode('utf8').partition(agpl_sentinel)
                         if sentinel_found:
                             old_license_len = len(old_lic_str + sentinel_found)
-                            f.read(old_license_len)
+                            file_obj.read(old_license_len)
 
-                    file_content = f.read()
+                    file_content = file_obj.read()
 
                 if dir_path == top and file_name == 'prj.py':
                     # The python interpreter expects to be informed about the main file in the zip file by naming it
@@ -93,11 +93,11 @@ def _prj_build(output_dir):
                 # Windows and the Python interpreter do not see any files with such a prefix inside a zip file.
                 archive_file_path = os.path.normpath(archive_file_path)
                 zip_file.writestr(archive_file_path, file_content)
-    with open(os.path.join(output_dir, 'prj.bat'), 'w', newline='\r\n') as f:
-        f.write('@ECHO OFF\npy -3 %~dp0\\prj %*\n')
+    with open(os.path.join(output_dir, 'prj.bat'), 'w', newline='\r\n') as file_obj:
+        file_obj.write('@ECHO OFF\npy -3 %~dp0\\prj %*\n')
     sh_path = os.path.join(output_dir, 'prj.sh')
-    with open(sh_path, 'w', newline='\n') as f:
-        f.write('''#!/bin/sh
+    with open(sh_path, 'w', newline='\n') as file_obj:
+        file_obj.write('''#!/bin/sh
 DIR="$(dirname "${0}")"
 python3 "${DIR}"/prj "$@"
 ''')

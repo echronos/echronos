@@ -49,4 +49,4 @@ class KrazModule(Module):
 
         return config
 
-module = KrazModule()
+module = KrazModule()  # pylint: disable=invalid-name

@@ -202,6 +202,7 @@ class _LicenseOpener:
     class UnknownFiletypeException(Exception):
         """Raised when the given file type is unknown."""
 
+    # pylint: disable=too-many-arguments
     def __init__(self, lic, doc_license, top_dir, allow_unknown_filetypes=False, filename=None):
         self.license = lic
         self.doc_license = doc_license
@@ -371,6 +372,7 @@ def _tar_add_data(tarfile_obj, arcname, data, ti_filter=None):
     tarfile_obj.addfile(tar_info, io.BytesIO(data))
 
 
+# pylint: disable=too-many-arguments
 def _tar_gz_with_license(output, dir_path, file_paths, prefix, lic, doc_license, allow_unknown_filetypes):
 
     """Create a tar.gz file named `output` from a list of file paths relative to a directory path.

@@ -109,6 +109,7 @@ def _run_module_tests_with_args(modules, directories, args):
     return _run_module_tests(modules, directories, patterns, verbosity, print_only, topdir)
 
 
+# pylint: disable=too-many-arguments
 def _run_module_tests(modules, directories, patterns=None, verbosity=0, print_only=False, topdir=""):
     """Discover and run the tests associated with the given modules and located in the given directories.
 

@@ -476,6 +476,7 @@ def build_single_release(config, topdir):
 
 
 # pylint: disable=too-many-locals
+# pylint: disable=too-many-branches
 def release_test_one(archive):
     """Test a single archive
 

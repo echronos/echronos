@@ -391,6 +391,7 @@ def check_constraint_is_valid(constraint):
         raise SchemaInvalidError("Constraint type {} is not valid.".format(constraint['type']))
 
 
+# pylint: disable=too-many-branches
 def check_schema_is_valid(schema, key_path=None):
     """Raise SchemaInvalidError exception if the schema is not valid.
 

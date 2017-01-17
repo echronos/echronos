@@ -348,6 +348,7 @@ def _get_number_of_cpus():
     return cpu_count
 
 
+# pylint: disable=too-many-branches
 @subcmd(cmd="test", help='Check that all files have the appropriate license header',
         args=(Arg('--excludes', nargs='*', help="Exclude directories from license header checks", default=[]),))
 def licenses(_):
@@ -401,6 +402,7 @@ provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|packag
     return 0
 
 
+# pylint: disable=too-many-branches
 @subcmd(cmd="test", help='Check that all files belonging to external tools map 1-1 with provenance listings')
 def provenance(args):
     target_dirs = base_to_top_paths(args.topdir, ('tools', 'external_tools'))

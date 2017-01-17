@@ -387,15 +387,7 @@ xml_schema_path) set as a class member.".format(self.__class__.__name__,
             else:
                 output_path = system.get_output_path_for_file(file_obj['input'], self.name)
 
-            logger.info("Preparing: template %s -> %s", input_path, output_path)
-            try:
-                if file_obj.get('render', False):
-                    pystache_render(input_path, output_path, config)
-                else:
-                    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-                    shutil.copyfile(input_path, output_path)
-            except FileNotFoundError as exc:
-                raise SystemBuildError("File not found error during template preparation '{}'.".format(exc.filename))
+            _prepare_template(input_path, output_path, file_obj.get('render', False), config)
 
             _type = file_obj.get('type')
             if _type is None:
@@ -428,6 +420,18 @@ xml_schema_path) set as a class member.".format(self.__class__.__name__,
         return '<{}>'.format(cls_name(self.__class__))
 
 
+def _prepare_template(input_path, output_path, render, config):
+    logger.info("Preparing: template %s -> %s", input_path, output_path)
+    try:
+        if render:
+            pystache_render(input_path, output_path, config)
+        else:
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            shutil.copyfile(input_path, output_path)
+    except FileNotFoundError as exc:
+        raise SystemBuildError("File not found error during template preparation '{}'.".format(exc.filename))
+
+
 class NamedModule(Module):
     # pylint: disable=super-init-not-called
     def __init__(self, name):
@@ -438,6 +442,7 @@ class NamedModule(Module):
 
 
 class SourceModule(NamedModule):
+    # pylint: disable=too-many-branches
     """A Module contains the implementation of some aspect of the system.
 
     See the user manual for more details.
@@ -694,6 +699,7 @@ class System:
         return self.__instances
 
     # pylint: disable=too-many-locals
+    # pylint: disable=too-many-branches
     def _get_instances(self):
         """Instantiate all modules referenced in the system definition file of this system and validate them.
         This is a prerequisite to invoking such operations as build or load on a system.
@@ -900,6 +906,7 @@ class Project:
     """The Project is a container for other objects in the system."""
 
     # pylint: disable=too-many-locals
+    # pylint: disable=too-many-branches
     def __init__(self, filename, search_paths=None, prx_include_paths=None):
         """Parses the project definition file `filename` and any imported system and module definition files.
 

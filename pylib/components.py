@@ -34,7 +34,6 @@ from .utils import BASE_DIR, base_path, base_to_top_paths
 from .cmdline import subcmd
 
 
-# FIXME: Use correct declaration vs definition.
 _REQUIRED_H_SECTIONS = ['public_headers',
                         'public_types',
                         'public_structures',

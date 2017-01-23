@@ -549,7 +549,7 @@ class SourceModule(NamedModule):
         elif self.code_gen == 'template':
             # Create implementation file.
             ext = os.path.splitext(self.filename)[1]
-            path = os.path.join(system.output, '{}{}'.format(os.path.basename(self.name), ext))
+            path = os.path.join(system.output, os.path.basename(self.filename))
             logger.info("Preparing: template %s -> %s (%s)", self.filename, path, config)
             pystache_render(self.filename, path, config)
             system.add_file(path)

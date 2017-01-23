@@ -1,0 +1,29 @@
+# Motivation
+
+Currently, the RTOS build system supports rendering template C files with pystache markup to plain C files and include them in the build process of an application system.
+It creates the rendered files in the build output directory.
+
+This creates the risk for file name collisions when two template files in different source directories share the same name, e.g., `src/foo/baz.c` and `src/bar/baz.c`.
+To prevent both template files to be rendered into the plain C file `out/baz.c`, the build system mangles the name of the generated file.
+It uses the module name in dot notation: `out/src.foo.baz.c` and `out/src.bar.baz.c`.
+
+Unfortunately, some compilers and linkers do not fully support input files with multiple dots in their names.
+When they derive the module name of a C file from the file name, they unfortunately do not only strip the `.c` extension of the file, but drop all characters after the first dot.
+This results in both object files `out/src.foo.baz.o` and `out/src.bar.baz.o` to have the module name `src`.
+This then can lead to a module name collision in the linking stage.
+
+To avoid this issue, the RTOS build system shall not use the full module name as the basis for the rendered output file.
+Instead, it shall allow the file name conflict to occur, just as it already does today with non-template files.
+
+
+# Goals
+
+- the RTOS build system shall render template files such that the names of the generated output files do not contain more dots than those of the input files
+- the RTOS build system shall use the base name of a template input file (`baz.c` in the example above) as the output file name when rendering the template
+
+
+# Test Plan
+
+- code review
+- existing system tests must pass
+- run `x.py build posix.rigel` and verify in the output that the template input file `machine-timer.c` is rendered to the output file name `out/posix/rigel/machine-timer.c` (and not `out\posix\rigel\posix.machine-timer.c` as it was previously)

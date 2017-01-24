@@ -31,7 +31,7 @@
 
     <module name="posix.build" />
     <module name="posix.debug" />
-    <module name="generic.debug" />
+    <module name="generic.debug_print" />
 
     <module name="posix.rtos-acamar">
       <prefix>rtos</prefix>

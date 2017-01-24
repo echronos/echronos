@@ -46,7 +46,7 @@
       </external_input>
     </module>
     <module name="ppce500.section-init" />
-    <module name="generic.debug" />
+    <module name="generic.debug_print" />
 
     <module name="ppce500.rtos-kochab">
       <internal_asserts>true</internal_asserts>

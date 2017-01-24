@@ -24,7 +24,7 @@
 #include "rtos-{{variant}}.h"
 #include "machine-timer.h"
 #include "machine-fp.h"
-#include "debug.h"
+#include "debug_print.h"
 
 #define LARGEST_FLOAT_INT 16777216
 #define ARBITRARY_DOUBLE_MAX 30000000

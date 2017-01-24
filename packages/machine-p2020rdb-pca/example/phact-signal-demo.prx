@@ -35,7 +35,7 @@
       <preemption>true</preemption>
     </module>
     <module name="ppce500.section-init" />
-    <module name="generic.debug" />
+    <module name="generic.debug_print" />
 
     <module name="ppce500.rtos-phact">
       <internal_asserts>true</internal_asserts>

@@ -27,7 +27,7 @@
 
 #include <p2020-util.h>
 #include "p2020-pic.h"
-#include "debug.h"
+#include "debug_print.h"
 
 #define PIC_REGISTER_WIDTH_BITS 32
 #define PIC_REGISTER_BASE (CCSRBAR + 0x40000)

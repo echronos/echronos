@@ -28,7 +28,7 @@
 #include "rtos-kochab.h"
 #include "machine-timer.h"
 #include "machine-fp.h"
-#include "debug.h"
+#include "debug_print.h"
 
 #define DEMO_ERROR_ID_TEST_FAIL 0xff
 

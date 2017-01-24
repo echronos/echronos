@@ -29,7 +29,7 @@
 <system>
   <modules>
     <module name="stub.build" />
-    <module name="generic.debug" />
+    <module name="generic.debug_print" />
     <module name="stub.debug" />
 
     <module name="stub.rtos-kraz">

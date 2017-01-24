@@ -31,7 +31,7 @@
 
 #include "rtos-kochab.h"
 #include "machine-timer.h"
-#include "debug.h"
+#include "debug_print.h"
 
 bool tick_irq(void);
 void fatal(RtosErrorId error_id);

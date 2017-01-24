@@ -28,7 +28,7 @@
 /*<module>
   <code_gen>template</code_gen>
   <headers>
-      <header path="debug.h" code_gen="template" />
+      <header path="debug_print.h" code_gen="template" />
   </headers>
   <schema>
    <entry name="prefix" type="c_ident" default="" />
@@ -37,7 +37,7 @@
 </module>*/
 
 #include <stdint.h>
-#include "debug.h"
+#include "debug_print.h"
 
 extern void {{ll_debug}}debug_putc(char);
 

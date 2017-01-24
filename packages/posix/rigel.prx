@@ -30,7 +30,7 @@
     <modules>
         <module name="posix.build"/>
         <module name="posix.debug"/>
-        <module name="generic.debug"/>
+        <module name="generic.debug_print"/>
         <module name="posix.rtos-rigel">
             <prefix>rtos</prefix>
             <signalset_size>8</signalset_size>

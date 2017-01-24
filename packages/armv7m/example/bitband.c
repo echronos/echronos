@@ -26,7 +26,7 @@
  */
 
 #include <stdint.h>
-#include "debug.h"
+#include "debug_print.h"
 #include "bitband.h"
 
 #define BAR bar

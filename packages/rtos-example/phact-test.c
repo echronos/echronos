@@ -26,7 +26,7 @@
  */
 
 #include "rtos-phact.h"
-#include "debug.h"
+#include "debug_print.h"
 
 void fatal(RtosErrorId error_id);
 void t0(void);

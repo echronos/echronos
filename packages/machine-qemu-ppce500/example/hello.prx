@@ -32,7 +32,7 @@
     <module name="ppce500.default-linker" />
     <module name="ppce500.vectable" />
     <module name="ppce500.debug" />
-    <module name="generic.debug" />
+    <module name="generic.debug_print" />
     <module name="generic.hello">
         <phrase>Hello, PowerPC!</phrase>
     </module>

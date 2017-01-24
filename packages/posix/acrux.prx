@@ -30,7 +30,7 @@
     <modules>
         <module name="posix.build"/>
         <module name="posix.debug"/>
-        <module name="generic.debug"/>
+        <module name="generic.debug_print"/>
         <module name="posix.rtos-acrux">
             <prefix>rtos</prefix>
             <taskid_size>8</taskid_size>

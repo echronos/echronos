@@ -27,7 +27,7 @@
 
 #include "rtos-phact.h"
 #include "machine-timer.h"
-#include "debug.h"
+#include "debug_print.h"
 
 #define PART_4_SLEEP 3
 #define PART_5_SLEEP 3

@@ -616,6 +616,7 @@ class System:
         self._include_paths = []
         self._output = None
         self.__instances = None
+        self._output_names = {}
 
     @property
     def linker_script(self):
@@ -655,9 +656,11 @@ class System:
         return os.path.join(self.output, 'system')
 
     def add_asm_file(self, asm_file):
+        self._check_file_name_conflict(asm_file)
         self._asm_files.append(asm_file)
 
     def add_c_file(self, c_file):
+        self._check_file_name_conflict(c_file)
         self._c_files.append(c_file)
 
     def add_file(self, path):
@@ -670,6 +673,18 @@ class System:
         }
         extension = os.path.splitext(path)[1]
         add_functions[extension](path)
+
+    def _check_file_name_conflict(self, path):
+        output_name = os.path.splitext(os.path.basename(path))[0]
+        if output_name not in self._output_names:
+            self._output_names[output_name] = path
+        else:
+            raise SystemConsistencyError('The system "{}" is configured with multiple modules, including the files '
+                                         '"{}" and "{}", that have the same output name "{}". '
+                                         'This is not supported. '
+                                         'All modules need to have unique output names. '
+                                         'This is best ensured by giving all source files distinct base names.'
+                                         .format(self.name, path, self._output_names[output_name], output_name))
 
     def add_include_path(self, path):
         self._include_paths.append(path)

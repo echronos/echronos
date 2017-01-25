@@ -404,9 +404,9 @@ xml_schema_path) set as a class member.".format(self.__class__.__name__,
             if _type is None:
                 pass
             elif _type == 'c':
-                system.add_c_file(output_path)
+                system.add_c_file(output_path, input_path)
             elif _type == 'asm':
-                system.add_asm_file(output_path)
+                system.add_asm_file(output_path, input_path)
             elif _type == 'linker_script':
                 system.linker_script = output_path
             else:
@@ -542,7 +542,7 @@ class SourceModule(NamedModule):
                 path = os.path.join(system.output, os.path.basename(self.filename))
                 shutil.copyfile(self.filename, path)
                 logger.info("Preparing: copy %s -> %s", self.filename, path)
-                system.add_file(path)
+                system.add_file(path, self.filename)
             else:
                 system.add_file(self.filename)
 
@@ -552,7 +552,7 @@ class SourceModule(NamedModule):
             path = os.path.join(system.output, os.path.basename(self.filename))
             logger.info("Preparing: template %s -> %s (%s)", self.filename, path, config)
             pystache_render(self.filename, path, config)
-            system.add_file(path)
+            system.add_file(path, self.filename)
 
         # Copy any headers across. This should use templating if that is configured.
         for header in self.headers:
@@ -655,15 +655,15 @@ class System:
     def output_file(self):
         return os.path.join(self.output, 'system')
 
-    def add_asm_file(self, asm_file):
-        self._check_file_name_conflict(asm_file)
+    def add_asm_file(self, asm_file, input_path=None):
+        self._check_file_name_conflict(asm_file, input_path)
         self._asm_files.append(asm_file)
 
-    def add_c_file(self, c_file):
-        self._check_file_name_conflict(c_file)
+    def add_c_file(self, c_file, input_path=None):
+        self._check_file_name_conflict(c_file, input_path)
         self._c_files.append(c_file)
 
-    def add_file(self, path):
+    def add_file(self, path, input_path=None):
         """Depending on its type, add a file to a system as one of the
         system properties, such as c_files or asm_files."""
         add_functions = {
@@ -672,19 +672,28 @@ class System:
             '.asm': self.add_asm_file,
         }
         extension = os.path.splitext(path)[1]
-        add_functions[extension](path)
+        add_functions[extension](path, input_path)
 
-    def _check_file_name_conflict(self, path):
+    def _check_file_name_conflict(self, path, input_path=None):
         output_name = os.path.splitext(os.path.basename(path))[0]
         if output_name not in self._output_names:
-            self._output_names[output_name] = path
+            self._output_names[output_name] = (path, input_path)
         else:
+            these_paths = '"{}"'.format(path)
+            if input_path:
+                these_paths += ' (generated from "{}")'.format(input_path)
+
+            other_output_path, other_input_path = self._output_names[output_name]
+            other_paths = '"{}"'.format(other_output_path)
+            if other_input_path:
+                other_paths += ' (generated from "{}")'.format(other_input_path)
+
             raise SystemConsistencyError('The system "{}" is configured with multiple modules, including the files '
-                                         '"{}" and "{}", that have the same output name "{}". '
+                                         '{} and {}, that have the same output name "{}". '
                                          'This is not supported. '
                                          'All modules need to have unique output names. '
                                          'This is best ensured by giving all source files distinct base names.'
-                                         .format(self.name, path, self._output_names[output_name], output_name))
+                                         .format(self.name, these_paths, other_paths, output_name))
 
     def add_include_path(self, path):
         self._include_paths.append(path)

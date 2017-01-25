@@ -335,6 +335,8 @@ class Module:
         If the xml_schema is set, initialisation will set the schema based on the xml_schema.
 
         """
+        self.name = None
+
         if len(set([self.schema, self.xml_schema, self.xml_schema_path])) > 2:
             raise Exception("Class '{}' in {} has multiple schema sources set.".format(self.__class__.__name__,
                             os.path.abspath(inspect.getfile(self.__class__))))
@@ -1080,7 +1082,9 @@ class Project:
             elif hasattr(py_module, 'system_load'):
                 return Loader(entity_name, py_module)
             elif hasattr(py_module, 'module'):
-                return py_module.module
+                module = py_module.module
+                module.name = entity_name
+                return module
             else:
                 raise EntityLoadError("Python entity '%s' from path %s doesn't match any interface" %
                                       (entity_name, path))

@@ -391,13 +391,17 @@ xml_schema_path) set as a class member.".format(self.__class__.__name__,
                 continue
 
             input_path = os.path.join(module_path, f['input'])
-            output_path = os.path.join(system.output, f.get('output', f['input']))
+            if 'output' in f:
+                output_path = os.path.join(system.output, f['output'])
+            else:
+                output_path = system.get_output_path_for_file(f['input'], self.name)
 
             logger.info("Preparing: template %s -> %s", input_path, output_path)
             try:
                 if f.get('render', False):
                     pystache_render(input_path, output_path, config)
                 else:
+                    os.makedirs(os.path.dirname(output_path), exist_ok=True)
                     shutil.copyfile(input_path, output_path)
             except FileNotFoundError as e:
                 raise SystemBuildError("File not found error during template preparation '{}'.".format(e.filename))
@@ -541,7 +545,8 @@ class SourceModule(NamedModule):
         """
         if self.code_gen is None:
             if copy_all_files:
-                path = os.path.join(system.output, os.path.basename(self.filename))
+                path = system.get_output_path_for_file(self.filename, self.name)
+                os.makedirs(os.path.dirname(path), exist_ok=True)
                 shutil.copyfile(self.filename, path)
                 logger.info("Preparing: copy %s -> %s", self.filename, path)
                 system.add_file(path, self.filename)
@@ -550,15 +555,15 @@ class SourceModule(NamedModule):
 
         elif self.code_gen == 'template':
             # Create implementation file.
-            ext = os.path.splitext(self.filename)[1]
-            path = os.path.join(system.output, os.path.basename(self.filename))
+            path = system.get_output_path_for_file(self.filename, self.name)
             logger.info("Preparing: template %s -> %s (%s)", self.filename, path, config)
             pystache_render(self.filename, path, config)
             system.add_file(path, self.filename)
 
         # Copy any headers across. This should use templating if that is configured.
         for header in self.headers:
-            path = os.path.join(system.output, os.path.basename(header.path))
+            path = system.get_output_path_for_file(header.path, self.name)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
             try:
                 if header.code_gen is None:
                     shutil.copyfile(header.path, path)
@@ -908,6 +913,14 @@ module\'s functionality cannot be invoked.'.format(self, typ.__name__))
 
     def _get_instances_by_type(self, typ):
         return [i for i in self._instances if isinstance(i._module, typ)]
+
+    def get_output_path_for_file(self, file_path, entity_name):
+        """Derive (but do not create) a unique path in this system's output directory for the given input file."""
+        return os.path.join(self.get_output_path_for_entity(entity_name), os.path.basename(file_path))
+
+    def get_output_path_for_entity(self, entity_name):
+        """Derive (but do not create) a path in this system's output directory corresponding to the given entity."""
+        return os.path.join(self.output, *entity_name.split('.')[:-1])
 
     def __str__(self):
         return "System: %s" % self.name

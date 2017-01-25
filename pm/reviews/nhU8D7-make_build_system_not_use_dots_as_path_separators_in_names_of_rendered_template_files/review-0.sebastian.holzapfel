@@ -19,3 +19,5 @@ I feel as if the paths indicated to the user should be the paths of the offendin
 
 Location: pm/tasks/fnhU8D7-make_build_system_not_use_dots_as_path_separators_in_names_of_rendered_template_files:29
 Comment: `x.py` should be `prj/app/prj.py` in the test plan.
+
+[stg: resolved as suggested]

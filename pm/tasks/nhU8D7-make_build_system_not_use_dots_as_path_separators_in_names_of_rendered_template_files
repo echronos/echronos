@@ -26,4 +26,4 @@ Instead, it shall allow the file name conflict to occur, just as it already does
 
 - code review
 - existing system tests must pass
-- run `x.py build posix.rigel` and verify in the output that the template input file `machine-timer.c` is rendered to the output file name `out/posix/rigel/machine-timer.c` (and not `out\posix\rigel\posix.machine-timer.c` as it was previously)
+- run `prj/app/prj.py build posix.rigel` and verify in the output that the template input file `machine-timer.c` is rendered to the output file name `out/posix/rigel/machine-timer.c` (and not `out\posix\rigel\posix.machine-timer.c` as it was previously)

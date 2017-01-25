@@ -134,3 +134,16 @@ When these conditions are met, the command `task.py integrate` merges the task i
 
 To abandon a task that is no longer being developed, manually add the prefix `abandoned/` to its name and delete the original branch in the remote repository.
 This can be accomplished with a command similar to `git push origin TASKNAME:abandoned/TASKNAME :TASKNAME`
+
+
+## Checking Integration Status
+
+There are several ways to check whether a task has been integrated into the mainline branch.
+
+1. Run the command `git merge-base --is-ancestor TASKNAME development`.
+   If the task branch `TASKNAME` has been integrated into the mainline branch, this command exits with exit code 0.
+   If the task branch is not yet integrated, the command exits with a non-zero exit code.
+2. Run the command `git log --grep TASKNAME development`.
+   If the task is integrated, this command typically lists a few changes.
+   If the task branch is not yet integrated, the command usually lists no changes.
+   This approach depends on the task name being very different from any other part of unrelated commit messages.

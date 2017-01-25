@@ -27,3 +27,5 @@ Location: commit c6c983d3ee
 Comment:
 commit c6c983d3ee simplify task handling by not moving task description files from pm/tasks/ into pm/tasks/completed/ it says that "to check whether a branch has been completed, one can simply check whether it has been integrated into the mainline branch".
 Please include this information and instructions for how to do this check in the documentation.
+
+[stg: I added this information to the 'Integrate' section of the documentation.]

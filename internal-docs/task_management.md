@@ -53,8 +53,11 @@ Therefore, managing a task effectively means managing a branch.
 
 The command `task.py create TASKNAME` creates a new task with the given name.
 This also creates the corresponding branch.
+
 The name is a brief summary of the purpose or goal of the branch.
 By convention, the name must only contain characters, digits, hyphens, and underscores.
+Also, task names need to be unique.
+`task.py` checks for this and fails if the task to create has the same name as another task.
 
 From that point on, the developer of a task commits their changes to that branch.
 

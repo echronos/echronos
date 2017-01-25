@@ -20,6 +20,9 @@ Comment:
 commit 7956dffa removes the code to add a randomized 6-digit prefix because "it is not necessary to make task names unique", however, task branches do have to be unique, and there is code that checks that when creating a task.
 This uniqueness requirement for task names should be stated in the documentation.
 
+[stg: Very true.
+I updated the documentation accordingly.]
+
 Location: commit c6c983d3ee
 Comment:
 commit c6c983d3ee simplify task handling by not moving task description files from pm/tasks/ into pm/tasks/completed/ it says that "to check whether a branch has been completed, one can simply check whether it has been integrated into the mainline branch".

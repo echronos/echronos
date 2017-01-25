@@ -30,6 +30,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 This document explains the work flows of creating, reviewing, integrating, and abandoning tasks.
 A task encapsulates the development and adoption of a feature into the project.
 
+The lifecycle of a task knows the following actions and states, which are described in more detail below.
+
+1. *create*: create a task branch for working on a specific change or improvement without impacting the mainline branch
+2. *update*: while work is ongoing in a task, keep it up-to-date with any changes in the mainline branch
+3. *review*: signal that work in a task is complete and ready for review and integration
+4. *integrate*: once reviewed and accepted, integrate a task into the mainline branch
+5. *abandon*: when work on a task ceases without it having been integrated, abandon it to keep it accessible but not clutter the list of active tasks
+
 
 ## Tasks
 

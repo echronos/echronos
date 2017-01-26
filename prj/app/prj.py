@@ -408,7 +408,9 @@ xml_schema_path) set as a class member.".format(self.__class__.__name__,
 
             _type = f.get('type')
             if _type is None:
-                pass
+                # make headers discoverable by the compiler
+                if os.path.splitext(f['input'])[1].lower() == '.h':
+                    system.add_include_path(os.path.dirname(output_path))
             elif _type == 'c':
                 system.add_c_file(output_path, input_path)
             elif _type == 'asm':
@@ -570,6 +572,7 @@ class SourceModule(NamedModule):
                 elif header.code_gen == 'template':
                     logger.info("Preparing: template %s -> %s (%s)", header.path, path, config)
                     pystache_render(header.path, path, config)
+                system.add_include_path(os.path.dirname(path))
             except FileNotFoundError as e:
                 s = xml_error_str(header.xml_element, "Resource not found: {}".format(header.path))
                 raise ResourceNotFoundError(s)

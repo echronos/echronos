@@ -35,7 +35,7 @@
       <preemption>true</preemption>
     </module>
     <module name="ppce500.debug" />
-    <module name="generic.debug_print" />
+    <module name="generic.debug" />
 
     <module name="ppce500.rtos-kochab">
       <internal_asserts>true</internal_asserts>

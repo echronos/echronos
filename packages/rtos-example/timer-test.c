@@ -29,7 +29,7 @@
 
 #include "rtos-{{variant}}.h"
 #include "machine-timer.h"
-#include "debug_print.h"
+#include "debug.h"
 
 #define DEMO_ERROR_ID_WATCHDOG_A 0xfa
 #define DEMO_ERROR_ID_WATCHDOG_B 0xfb

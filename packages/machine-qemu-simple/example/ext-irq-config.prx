@@ -58,7 +58,7 @@
       </external_irqs>
     </module>
     <module name="armv7m.semihost-debug" />
-    <module name="generic.debug_print" />
+    <module name="generic.debug" />
     <module name="generic.hello" />
 
     <module name="machine-qemu-simple.example.ext-irq-handler" />

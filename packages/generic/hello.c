@@ -33,7 +33,7 @@
 </module>*/
 
 #include <stdint.h>
-#include "debug_print.h"
+#include "debug.h"
 
 int
 main(void)

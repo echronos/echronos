@@ -29,7 +29,7 @@
 #include <stdint.h>
 
 #include "rtos-rigel.h"
-#include "debug_print.h"
+#include "debug.h"
 #include "machine-timer.h"
 
 void tick_irq(void);

@@ -46,7 +46,7 @@
       </external_input>
     </module>
     <module name="ppce500.section-init" />
-    <module name="generic.debug_print" />
+    <module name="generic.debug" />
 
     <module name="ppce500.rtos-phact">
       <internal_asserts>true</internal_asserts>

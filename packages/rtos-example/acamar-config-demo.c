@@ -26,9 +26,9 @@
  */
 
 #include <stdint.h>
+#include <debug.h>
 
 #include "rtos-acamar.h"
-#include "debug_print.h"
 
 {{#rtos.tasks}}
 void

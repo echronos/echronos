@@ -27,7 +27,7 @@
 
 #include "rtos-kochab.h"
 #include "machine-timer.h"
-#include "debug_print.h"
+#include "debug.h"
 
 #define PART_6_SLEEP 3
 #define PART_7_SLEEP 3

@@ -34,7 +34,7 @@
 #include "p2020-pic.h"
 
 #include "rtos-{{variant}}.h"
-#include "debug_print.h"
+#include "debug.h"
 
 /* This file defines the interrupt handlers and task code for the `interrupt-demux-example` system.
  * The main purpose of this code is to demonstrate the demultiplexing of external interrupts on the P2020, and the

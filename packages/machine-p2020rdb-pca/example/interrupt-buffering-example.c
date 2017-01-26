@@ -35,7 +35,7 @@
 
 #include "rtos-{{variant}}.h"
 #include "interrupt-buffering-example.h"
-#include "debug_print.h"
+#include "debug.h"
 
 /* This file defines the interrupt handler for the `interrupt-buffering-example` and `task-sync-example` systems.
  * The main purpose of this code is to demonstrate one possible way to buffer data from an interrupt handler to a task.

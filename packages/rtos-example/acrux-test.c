@@ -31,7 +31,7 @@
 
 #include "rtos-acrux.h"
 #include "machine-timer.h"
-#include "debug_print.h"
+#include "debug.h"
 
 void tick_irq(void);
 void fn_a(void);

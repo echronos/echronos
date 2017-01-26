@@ -29,7 +29,7 @@
 {{#timeout_tests}}
 #include "machine-timer.h"
 {{/timeout_tests}}
-#include "debug_print.h"
+#include "debug.h"
 
 #define DEMO_PRODUCTION_LIMIT 10
 {{#timeout_tests}}

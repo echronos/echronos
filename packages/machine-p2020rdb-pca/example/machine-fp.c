@@ -20,7 +20,7 @@
  */
 
 #include <stdint.h>
-#include "debug_print.h"
+#include <debug.h>
 
 #define PPCE500_MSR_SPE_BIT 0x2000000
 

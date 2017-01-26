@@ -46,7 +46,7 @@
             </tasks>
         </module>
         <module name="rtos-example.acamar-test"/>
-        <module name="generic.debug_print"/>
+        <module name="generic.debug"/>
         <module name="posix.debug"/>
     </modules>
 </system>

@@ -30,7 +30,7 @@
   <modules>
     <module name="stub.build" />
     <module name="stub.debug" />
-    <module name="generic.debug_print" />
+    <module name="generic.debug" />
 
     <module name="stub.rtos-kochab">
       <internal_asserts>true</internal_asserts>

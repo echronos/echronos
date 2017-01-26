@@ -38,7 +38,7 @@
       <eis_spe_auto_enable>true</eis_spe_auto_enable>
     </module>
     <module name="ppce500.section-init" />
-    <module name="generic.debug_print" />
+    <module name="generic.debug" />
 
     <module name="ppce500.rtos-kochab">
       <spe_64bit_support>true</spe_64bit_support>

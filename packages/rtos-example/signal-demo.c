@@ -27,7 +27,7 @@
 
 #include "rtos-{{variant}}.h"
 #include "machine-timer.h"
-#include "debug_print.h"
+#include "debug.h"
 
 #define SIGNAL_DEMO_NUM_IDS 8
 #define SIGNAL_DEMO_SET_ALL ((1u << SIGNAL_DEMO_NUM_IDS) - 1)

@@ -31,7 +31,7 @@
     <module name="armv7m.build" />
     <module name="armv7m.vectable" />
     <module name="armv7m.semihost-debug" />
-    <module name="generic.debug_print" />
+    <module name="generic.debug" />
     <module name="generic.hello" />
   </modules>
 </system>

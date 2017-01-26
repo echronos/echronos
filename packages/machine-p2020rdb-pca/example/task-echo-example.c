@@ -35,7 +35,7 @@
 
 #include "rtos-{{variant}}.h"
 #include "interrupt-buffering-example.h"
-#include "debug_print.h"
+#include "debug.h"
 
 /* This file defines a simple echo task for the `interrupt-buffering-example` system.
  * The main purpose of this code is to demonstrate one way of synchronizing access to data buffered by an interrupt

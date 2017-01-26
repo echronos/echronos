@@ -27,7 +27,7 @@
 
 #include "rtos-{{variant}}.h"
 #include "machine-timer.h"
-#include "debug_print.h"
+#include "debug.h"
 
 /*
  * Priority inheritance will deadlock if the deadlock test is turned on.

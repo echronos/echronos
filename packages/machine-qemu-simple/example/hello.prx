@@ -29,7 +29,10 @@
 <system>
   <modules>
     <module name="armv7m.build" />
-    <module name="armv7m.vectable" />
+    <module name="armv7m.vectable">
+      <flash_size>0x100000</flash_size>
+      <sram_size>0x100000</sram_size>
+    </module>
     <module name="armv7m.semihost-debug" />
     <module name="generic.debug" />
     <module name="generic.hello" />

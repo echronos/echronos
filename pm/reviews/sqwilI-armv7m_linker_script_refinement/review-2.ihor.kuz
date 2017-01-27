@@ -1,0 +1,8 @@
+RTOS Task Review
+=======================
+
+Task name: sqwilI-armv7m_linker_script_refinement
+Version reviewed: 3323fda98f41f1ad422d9efceb302a645f3ffd07
+Reviewer: ihor.kuz
+Date: 2017-01-27
+Conclusion: Accepted

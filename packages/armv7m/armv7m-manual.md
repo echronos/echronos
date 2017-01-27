@@ -161,9 +161,12 @@ The other options available for the `armv7m.vectable` module control the memory 
 The correct values for these items generally require consultation with the chip reference manual.
 The following values are configurable (defaults appear in parentheses):
 
-* flash_load_addr (0x0)
+* flash_addr (0x0)
+* flash_size (no default)
+* flash_load_addr (defaults to flash_addr)
 * code_addr (0x0)
-* data_addr (0x2000.0000)
+* sram_addr (0x2000.0000)
+* sram_size (no default)
 * bitband_base (0x2000.0000)
 * bitband_size (0x100.0000)
 * bitband_alias (0x2200.0000)

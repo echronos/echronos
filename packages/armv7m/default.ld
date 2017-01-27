@@ -28,39 +28,62 @@
 OUTPUT_FORMAT("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 ENTRY(vector_table)
+
+MEMORY
+{
+        /* Bounds of physical flash on the device */
+        flash_region(rx) : ORIGIN = {{flash_addr}}, LENGTH = {{flash_size}}
+
+        /* Area of flash we are actually able to put our code in (i.e. excluding bootloaders
+         * or similar that might exist at the start of our physical flash region) */
+        flash_load_region(rx) :
+            ORIGIN = {{flash_load_addr}},
+            LENGTH = {{flash_size}} - ({{flash_load_addr}} - {{flash_addr}})
+
+        /* Bounds of physical SRAM on the device */
+        sram_region(rw) : ORIGIN = {{sram_addr}}, LENGTH = {{sram_size}}
+}
+
 SECTIONS
 {
         . = {{code_addr}};
-        ro_start = .;
-        .vectors : AT ({{flash_load_addr}})
-        { *(.vectors) }
 
-        .text : AT (LOADADDR(.vectors) + SIZEOF(.vectors))
-        { *(.text.startup) *(.text) }
-
-        .rodata : AT (LOADADDR (.text) + SIZEOF(.text))
-        { *(.rodata*) }
-
-        ro_end = ALIGN(4);
-
-        . = {{data_addr}};
-        .data.bitband : AT ({{flash_load_addr}} + (ro_end - ro_start))
+        .vectors :
         {
-              *(.data.bitband)
-        }
+            *(.vectors)
+        } AT > flash_load_region
+
+        .text :
+        {
+            *(.text.startup)
+            *(.text)
+            . = ALIGN(4);
+        } AT > flash_load_region
+
+        .rodata :
+        {
+            *(.rodata*)
+            . = ALIGN(4);
+        } AT > flash_load_region
+
+        .data.bitband :
+        {
+            *(.data.bitband)
+            . = ALIGN(4);
+        } > sram_region AT > flash_load_region
 
         /* Check that bitband variables don't overflow */
-        dummy = ASSERT(. <= {{data_addr}} + {{bitband_size}}, "bitband variables too large");
+        dummy = ASSERT(SIZEOF(.data.bitband) <= {{bitband_size}}, "bitband variables too large");
 
-        .data : AT (LOADADDR(.data.bitband) + SIZEOF(.data.bitband))
+        .data :
         {
-              *(.data)
-              . = ALIGN(4);
-        }
+            *(.data)
+            . = ALIGN(4);
+        } > sram_region AT > flash_load_region
 
         data_load_addr = LOADADDR(.data.bitband);
         data_virt_addr = ADDR(.data.bitband);
-        data_size = . - ADDR(.data.bitband);
+        data_size = SIZEOF(.data.bitband) + SIZEOF(.data);
 
         /* Check addresses are correct */
         dummy = ASSERT(data_load_addr % 4 == 0, "data_load_addr not word aligned");
@@ -69,18 +92,18 @@ SECTIONS
 
         .bss :
         {
-             *(.bss)
-             *(COMMON)
-             . = ALIGN(4);
-        }
+            *(.bss)
+            *(COMMON)
+            . = ALIGN(4);
+        } > sram_region
 
         bss_virt_addr = ADDR(.bss);
         bss_size = SIZEOF(.bss);
 
         .stack : {
-               . = . + {{stack_size}};
-               stack = .;
-        }
+            . = . + {{stack_size}};
+            stack = .;
+        } > sram_region
 
         /* Aliases for all the bitband variables */
         {{#bit_aliases}}

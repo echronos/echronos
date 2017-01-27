@@ -1,0 +1,28 @@
+RTOS Task Review
+=======================
+
+Task name: sqwilI-armv7m_linker_script_refinement
+Version reviewed: 37642ed9e1f823db5424fd8bcb4cdd624a5795e9
+Reviewer: ihor.kuz
+Date: 2016-12-01
+Conclusion: Rework
+
+Note: I have not tested this on hardware yet.
+
+Specific comments
+=================
+
+Location: packages/armv7m/default.ld:34
+Comment:
+I'm not sure that flash_load_addr should be used to specify the start of flash.
+There are situations where you want to load your code at a specified address in flash, but the actual flash starts at a different address (e.g. a bootloader lives at the beginning of the flash memory).
+
+[sebastian.holzapfel]: Agreed, using a bootloader is a bit hacky this way.
+Added another memory region that encompasses the 'usable' flash region, in addition to the existing physical flash region.
+The 'usable' flash region defaults to the entire flash region as we discussed.
+
+Location: release_cfg.py:35
+Comment:
+the 1.0.2 version number is probably wrong.  In any case the .2 should be .0.
+
+[sebastian.holzapfel]: Resolved as suggested.

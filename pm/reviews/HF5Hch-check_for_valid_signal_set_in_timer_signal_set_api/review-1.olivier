@@ -1,0 +1,10 @@
+RTOS Task Review
+=======================
+
+Task name: HF5Hch-check_for_valid_signal_set_in_timer_signal_set_api
+Version reviewed: 41db710d03c1357f50dbfbec16184b4e1cd1415a
+Reviewer: olivier
+Date: 2016-12-12
+Conclusion: Accepted
+
+Overall comments: Changes looks good to me.

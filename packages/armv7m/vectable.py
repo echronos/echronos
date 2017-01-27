@@ -38,7 +38,8 @@ class EntryModule(Module):
     # They are not available for config (attempts will raise an assembler error) if preemption support is enabled.
     xml_schema = """
 <schema>
-    <entry name="flash_load_addr" type="int" default="0" />
+    <entry name="flash_addr" type="int" default="0" />
+    <entry name="flash_load_addr" type="int" optional="true"/>
     <entry name="flash_size" type="int" />
     <entry name="code_addr" type="int" default="0" />
     <entry name="sram_addr" type="int" default="0x20000000" />
@@ -84,6 +85,10 @@ class EntryModule(Module):
         for xirq in config['external_irqs']:
             xirqs[xirq['number']] = xirq
         config['external_irqs'] = xirqs
+
+        # flash_load_addr defaults to flash_addr if we don't set it
+        if config['flash_load_addr'] == None:
+            config['flash_load_addr'] = config['flash_addr']
 
         return config
 

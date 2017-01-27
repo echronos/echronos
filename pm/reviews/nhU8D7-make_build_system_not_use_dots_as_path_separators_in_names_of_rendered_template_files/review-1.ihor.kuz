@@ -5,16 +5,5 @@ Task name: nhU8D7-make_build_system_not_use_dots_as_path_separators_in_names_of_
 Version reviewed: e88b787b2a6825582a99346a267a0d7380385c5f
 Reviewer: ihor.kuz
 Date: 2017-01-26
-Conclusion: Accepted/Rework
+Conclusion: Accepted
 
-Overall comments:
-
-
-Specific comments
-=================
-
-Location: filename:linenum
-Comment:
-
-Location: filename:linenum
-Comment:

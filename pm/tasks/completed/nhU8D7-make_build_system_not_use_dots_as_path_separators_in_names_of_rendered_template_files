@@ -1,0 +1,34 @@
+# Motivation
+
+Currently, the RTOS build system supports rendering template C files with pystache markup to plain C files and include them in the build process of an application system.
+It creates the rendered files in the build output directory.
+
+This creates the risk for file name collisions when two template files in different source directories share the same name, e.g., `src/foo/baz.c` and `src/bar/baz.c`.
+To prevent both template files to be rendered into the plain C file `out/baz.c`, the build system mangles the name of the generated file.
+It uses the module name in dot notation: `out/src.foo.baz.c` and `out/src.bar.baz.c`.
+
+Unfortunately, some compilers and linkers do not fully support input files with multiple dots in their names.
+When they derive the module name of a C file from the file name, they unfortunately do not only strip the `.c` extension of the file, but drop all characters after the first dot.
+This results in both object files `out/src.foo.baz.o` and `out/src.bar.baz.o` to have the module name `src`.
+This then can lead to a module name collision in the linking stage.
+
+To avoid this issue, the RTOS build system shall not render the template into an output file with a mangled name.
+Instead, the output file name shall be the same as the input file name.
+Furthermore, the build system shall prevent path name collisions between multiple template files with the same base name.
+
+
+# Goals
+
+- To avoid name mangling, the RTOS build system shall render template files into output files that have the same base names as the input files.
+- To avoid path name collisions, the RTOS build system shall place the output file into a directory hierarchy that reflects the directory hierarchy of the input file.
+  For example, `src/foo/baz.c` shall be rendered into `out/foo/baz.c`, while `src/bar/baz.c` shall be rendered into `out/bar/baz.c`.
+- To determine the directory hierarchy of the output file, this hierarchy shall be derived from the name of the input module.
+  For example, if the system configuration refers to the template modules `foo.baz` and `bar.baz`, the rendered output files shall go into the directories `out/foo` and `out/bar`.
+  This ensures that the output paths are unique given the fact that the input paths are unique.
+
+
+# Test Plan
+
+- code review
+- existing system tests must pass
+- run `prj/app/prj.py build posix.rigel` and verify in the output that the template input file `machine-timer.c` is rendered to the output file name `out\posix\rigel\posix\machine-timer.c` (and not `out\posix\rigel\posix.machine-timer.c` as it was previously)

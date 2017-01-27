@@ -1,0 +1,12 @@
+RTOS Task Review
+=======================
+
+Task name: nhU8D7-make_build_system_not_use_dots_as_path_separators_in_names_of_rendered_template_files
+Version reviewed: e88b787b2a6825582a99346a267a0d7380385c5f
+Reviewer: sebastian.holzapfel
+Date: 2017-01-26
+Conclusion: Accepted
+
+Overall comments:
+More general solution to handling conflicts has obsoleted my previous comments.
+Changes look good, have tested by building a few random projects as well as the suggested one.

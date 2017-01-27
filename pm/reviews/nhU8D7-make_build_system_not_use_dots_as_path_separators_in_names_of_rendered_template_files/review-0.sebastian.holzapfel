@@ -1,0 +1,27 @@
+RTOS Task Review
+=======================
+
+Task name: nhU8D7-make_build_system_not_use_dots_as_path_separators_in_names_of_rendered_template_files
+Version reviewed: 5e6c5fe0ce3cf7d6d6c5e4e24271f3762eaa4153
+Reviewer: sebastian.holzapfel
+Date: 2017-01-24
+Conclusion: Rework
+
+Specific comments
+=================
+
+Location: prj/app/prj.py:682
+Comment: If I create another module called 'machine-timer' in a subdirectory with the same filename, I get an error message (as we should):
+
+    ERROR:prj:The system "posix.rigel" is configured with multiple modules, including the files "out/posix/rigel/machine-timer.c" and "out/posix/rigel/machine-timer.c", that have the same output name "machine-timer". This is not supported. All modules need to have unique output names. This is best ensured by giving all source files distinct base names.
+
+I feel as if the paths indicated to the user should be the paths of the offending input files, not the output files - as they will always be the same.
+
+[stg: This error message is indeed not as helpful as it could be.
+I have updated it so that for rendered template files, the message includes the paths of both the input template file and the rendered output file.
+This makes it easy to identify which modules in the system configuration are problematic.]
+
+Location: pm/tasks/fnhU8D7-make_build_system_not_use_dots_as_path_separators_in_names_of_rendered_template_files:29
+Comment: `x.py` should be `prj/app/prj.py` in the test plan.
+
+[stg: resolved as suggested]

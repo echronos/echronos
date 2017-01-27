@@ -335,6 +335,8 @@ class Module:
         If the xml_schema is set, initialisation will set the schema based on the xml_schema.
 
         """
+        self.name = None
+
         if len(set([self.schema, self.xml_schema, self.xml_schema_path])) > 2:
             raise Exception("Class '{}' in {} has multiple schema sources set.".format(self.__class__.__name__,
                             os.path.abspath(inspect.getfile(self.__class__))))
@@ -389,20 +391,26 @@ xml_schema_path) set as a class member.".format(self.__class__.__name__,
                 continue
 
             input_path = os.path.join(module_path, f['input'])
-            output_path = os.path.join(system.output, f.get('output', f['input']))
+            if 'output' in f:
+                output_path = os.path.join(system.output, f['output'])
+            else:
+                output_path = system.get_output_path_for_file(f['input'], self.name)
 
             logger.info("Preparing: template %s -> %s", input_path, output_path)
             try:
                 if f.get('render', False):
                     pystache_render(input_path, output_path, config)
                 else:
+                    os.makedirs(os.path.dirname(output_path), exist_ok=True)
                     shutil.copyfile(input_path, output_path)
             except FileNotFoundError as e:
                 raise SystemBuildError("File not found error during template preparation '{}'.".format(e.filename))
 
             _type = f.get('type')
             if _type is None:
-                pass
+                # make headers discoverable by the compiler
+                if os.path.splitext(f['input'])[1].lower() == '.h':
+                    system.add_include_path(os.path.dirname(output_path))
             elif _type == 'c':
                 system.add_c_file(output_path)
             elif _type == 'asm':
@@ -539,7 +547,8 @@ class SourceModule(NamedModule):
         """
         if self.code_gen is None:
             if copy_all_files:
-                path = os.path.join(system.output, os.path.basename(self.filename))
+                path = system.get_output_path_for_file(self.filename, self.name)
+                os.makedirs(os.path.dirname(path), exist_ok=True)
                 shutil.copyfile(self.filename, path)
                 logger.info("Preparing: copy %s -> %s", self.filename, path)
                 system.add_file(path)
@@ -548,21 +557,22 @@ class SourceModule(NamedModule):
 
         elif self.code_gen == 'template':
             # Create implementation file.
-            ext = os.path.splitext(self.filename)[1]
-            path = os.path.join(system.output, '{}{}'.format(os.path.basename(self.name), ext))
+            path = system.get_output_path_for_file(self.filename, self.name)
             logger.info("Preparing: template %s -> %s (%s)", self.filename, path, config)
             pystache_render(self.filename, path, config)
             system.add_file(path)
 
         # Copy any headers across. This should use templating if that is configured.
         for header in self.headers:
-            path = os.path.join(system.output, os.path.basename(header.path))
+            path = system.get_output_path_for_file(header.path, self.name)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
             try:
                 if header.code_gen is None:
                     shutil.copyfile(header.path, path)
                 elif header.code_gen == 'template':
                     logger.info("Preparing: template %s -> %s (%s)", header.path, path, config)
                     pystache_render(header.path, path, config)
+                system.add_include_path(os.path.dirname(path))
             except FileNotFoundError as e:
                 s = xml_error_str(header.xml_element, "Resource not found: {}".format(header.path))
                 raise ResourceNotFoundError(s)
@@ -616,6 +626,7 @@ class System:
         self._include_paths = []
         self._output = None
         self.__instances = None
+        self._output_names = {}
 
     @property
     def linker_script(self):
@@ -883,6 +894,14 @@ module\'s functionality cannot be invoked.'.format(self, typ.__name__))
     def _get_instances_by_type(self, typ):
         return [i for i in self._instances if isinstance(i._module, typ)]
 
+    def get_output_path_for_file(self, file_path, entity_name):
+        """Derive (but do not create) a unique path in this system's output directory for the given input file."""
+        return os.path.join(self.get_output_path_for_entity(entity_name), os.path.basename(file_path))
+
+    def get_output_path_for_entity(self, entity_name):
+        """Derive (but do not create) a path in this system's output directory corresponding to the given entity."""
+        return os.path.join(self.output, *entity_name.split('.')[:-1])
+
     def __str__(self):
         return "System: %s" % self.name
 
@@ -1056,7 +1075,9 @@ class Project:
             elif hasattr(py_module, 'system_load'):
                 return Loader(entity_name, py_module)
             elif hasattr(py_module, 'module'):
-                return py_module.module
+                module = py_module.module
+                module.name = entity_name
+                return module
             else:
                 raise EntityLoadError("Python entity '%s' from path %s doesn't match any interface" %
                                       (entity_name, path))
@@ -1316,6 +1337,34 @@ def report_error(exception):
     if hasattr(exception, 'detail') and exception.detail is not None:
         logger.error(exception.detail)
     return 1
+
+
+def commonpath(paths):
+    if hasattr(os.path, 'commonpath'):
+        return os.path.commonpath(paths)
+    else:
+        prefix = commonprefix(paths)
+        if not os.path.exists(prefix):
+            return os.path.dirname(prefix)
+
+
+def commonprefix(m):
+    if hasattr(os.path, 'commonprefix'):
+        return os.path.commonprefix(m)
+    else:
+        if not m: return ''
+        # Some people pass in a list of pathname parts to operate in an OS-agnostic
+        # fashion; don't try to translate in that case as that's an abuse of the
+        # API and they are already doing what they need to be OS-agnostic and so
+        # they most likely won't be using an os.PathLike object in the sublists.
+        if not isinstance(m[0], (list, tuple)):
+            m = tuple(map(os.fspath, m))
+        s1 = min(m)
+        s2 = max(m)
+        for i, c in enumerate(s1):
+            if c != s2[i]:
+                return s1[:i]
+        return s1
 
 
 def main():

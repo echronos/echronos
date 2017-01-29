@@ -190,7 +190,7 @@ class Task:
                 break
         else:
             raise FileNotFoundError('Unable to determine review round for task "{}" and reviewer "{}" ("{}")'
-                                    .format(branch, reviewer, review_path_template))
+                                    .format(self.name, reviewer, review_path_template))
 
         if not accept:
             review_template = """Reviewer: {} ({})

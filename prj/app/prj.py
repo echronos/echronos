@@ -1241,9 +1241,10 @@ def report_error(exception):
 
 def commonpath(paths):
     if hasattr(os.path, 'commonpath'):
-        return os.path.commonpath(paths)
+        commonpath_func = getattr(os.path, 'commonpath')
+        return commonpath_func(paths)
     else:
-        prefix = commonprefix(paths)
+        prefix = os.path.commonprefix(paths)
         if not os.path.exists(prefix):
             return os.path.dirname(prefix)
 
@@ -1259,7 +1260,7 @@ def commonprefix(m):
         # API and they are already doing what they need to be OS-agnostic and so
         # they most likely won't be using an os.PathLike object in the sublists.
         if not isinstance(m[0], (list, tuple)):
-            m = tuple(map(os.fspath, m))
+            raise ValueError("m[0] has unsupported type {}".format(type(m[0])))
         s1 = min(m)
         s2 = max(m)
         for i, c in enumerate(s1):

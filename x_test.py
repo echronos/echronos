@@ -25,9 +25,10 @@
 # @TAG(NICTA_AGPL)
 #
 
-from pylib.utils import Git, get_top_dir
+from pylib.utils import Git, get_top_dir, BASE_DIR
 from pylib.components import _sort_typedefs, _sort_by_dependencies, _DependencyNode, _UnresolvableDependencyError
-from pylib.tasks import _Review, _Task, _InvalidTaskStateError
+from pylib.task import _Review, Task, _InvalidTaskStateError, TaskConfiguration
+from pylib.task_commands import task_cfg
 from nose.tools import assert_raises
 import itertools
 import os
@@ -39,18 +40,6 @@ import unittest
 def test_empty():
     """Test whether an empty test can be run at all given the test setup in x.py."""
     pass
-
-
-def test_git_branch_hash():
-    repo_dir = get_top_dir()
-
-    try:
-        revid, _ = _get_git_revision_hash_and_time(repo_dir)
-    except subprocess.CalledProcessError:
-        raise unittest.SkipTest('Test requires code to be managed in a local git repository')
-
-    g = Git(local_repository=repo_dir)
-    assert revid == g.branch_hash(revid)
 
 
 def test_sort_typedefs():
@@ -66,7 +55,7 @@ def test_full_stop_in_reviewer_name():
     with tempfile.TemporaryDirectory() as dir:
         round = 0
         author = 'john.doe'
-        review_file_path = os.path.join(dir, 'review-{}.{}'.format(round, author))
+        review_file_path = os.path.join(dir, '{}.{}.md'.format(author, round))
         open(review_file_path, 'w').close()
         review = _Review(review_file_path)
         assert review.author == author
@@ -120,24 +109,33 @@ class DummyGit:
 
 # Helper for the pre-integration check tests
 def task_dummy_create(task_name):
-    return _Task(task_name, os.path.dirname(os.path.abspath(__file__)), DummyGit(task_name))
+    cfg = TaskConfiguration(repo_path=BASE_DIR,
+                            tasks_path=os.path.join('x_test_data', 'tasks'),
+                            description_template_path=task_cfg.description_template_path,
+                            reviews_path=os.path.join('x_test_data', 'reviews'),
+                            mainline_branch=task_cfg.mainline_branch)
+    return Task(cfg, task_name, checkout=False)
 
 
+@unittest.skipUnless(os.path.isdir(os.path.join(BASE_DIR, '.git')), 'Test depends on valid git repo')
 def test_task_accepted():
     # This task was accepted without any rework reviews
-    task_dummy_create("eeZMmO-cpp-friendly-headers")._check_is_accepted()
+    task_dummy_create("test_task_accepted")._check_is_accepted()
 
 
+@unittest.skipUnless(os.path.isdir(os.path.join(BASE_DIR, '.git')), 'Test depends on valid git repo')
 def test_rework_is_accepted():
     # This task had a rework review that was later accepted by its review author
-    task_dummy_create("ogb1UE-kochab-documentation-base")._check_is_accepted()
+    task_dummy_create("test_rework_is_accepted")._check_is_accepted()
 
 
+@unittest.skipUnless(os.path.isdir(os.path.join(BASE_DIR, '.git')), 'Test depends on valid git repo')
 def test_rework_not_accepted():
     # This task was erroneously integrated with a rework review not later accepted by its review author
-    assert_raises(_InvalidTaskStateError, task_dummy_create("g256JD-kochab-mutex-timeout")._check_is_accepted)
+    assert_raises(_InvalidTaskStateError, task_dummy_create("test_rework_not_accepted")._check_is_accepted)
 
 
+@unittest.skipUnless(os.path.isdir(os.path.join(BASE_DIR, '.git')), 'Test depends on valid git repo')
 def test_not_enough_accepted():
     # This task was integrated after being accepted by only one reviewer, before we placed a hard minimum in the check
-    assert_raises(_InvalidTaskStateError, task_dummy_create("65N0RS-fix-x-test-regression")._check_is_accepted)
+    assert_raises(_InvalidTaskStateError, task_dummy_create("test_not_enough_accepted")._check_is_accepted)

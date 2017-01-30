@@ -231,6 +231,8 @@ def style(args):
     if report.total_errors:
         logging.error('Python code-style check found non-compliant files')  # details on stdout
         return 1
+    else:
+        return 0
 
 
 @subcmd(cmd="test", help='Check that all files have the appropriate license header',
@@ -281,6 +283,8 @@ provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|packag
 
     if len(files_without_license):
         return 1
+
+    return 0
 
 
 @subcmd(cmd="test", help='Check that all files belonging to external tools map 1-1 with provenance listings')
@@ -335,6 +339,8 @@ def provenance(args):
 
     if len(files_nonexistent):
         return 1
+
+    return 0
 
 
 @subcmd(cmd="test", help='Run system tests, i.e., tests that check the behavior of full RTOS systems. \

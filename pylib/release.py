@@ -406,6 +406,7 @@ def build_partials(args):
         for config in get_release_configs():
             release_package = _ReleasePackage(pkg, config)
             _mk_partial(release_package, args.topdir, args.allow_unknown_filetypes)
+    return 0
 
 
 def build_single_release(config, topdir):
@@ -549,6 +550,7 @@ def test(args):
     """
     for rel in glob(top_path(args.topdir, 'release', '*.tar.gz')):
         release_test_one(rel)
+    return 0
 
 
 def get_release_configs():
@@ -569,8 +571,13 @@ def build(args):
     Additionally, it takes the binary 'prj' files and adds it to the appropriate place in the release tar file.
 
     """
+    result = 0
+
     for config in get_release_configs():
         try:
             build_single_release(config, args.topdir)
         except FileNotFoundError as e:
             logging.warning("Unable to build '{}'. File not found: '{}'".format(config, e.filename))
+            result = 1
+
+    return result

@@ -43,6 +43,8 @@ def build(args):
 
     _prj_build(prj_build_path)
 
+    return 0
+
 
 def _prj_build(output_dir):
     """Create a distributable version of prj.py.

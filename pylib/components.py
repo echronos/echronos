@@ -358,6 +358,7 @@ def build(args):
     for pkg_name, rtos_names in args.configurations.items():
         for rtos_name in rtos_names:
             _generate(rtos_name, args.skeletons[rtos_name], pkg_name, search_paths)
+    return 0
 
 
 _DependencyNode = namedtuple("_DependencyNode", ('provides', 'requires'))

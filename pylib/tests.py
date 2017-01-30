@@ -352,7 +352,12 @@ def systems(args):
         for packages_dir in base_to_top_paths(args.topdir, 'packages'):
             tests.extend(find_gdb_test_py_files(packages_dir))
 
-    nose.core.run(argv=[''] + args.unknown_args + tests)
+    all_tests_passed = nose.core.run(argv=[''] + args.unknown_args + tests)
+
+    if all_tests_passed:
+        return 0
+    else:
+        return 1
 
 
 class GdbTestCase(unittest.TestCase):

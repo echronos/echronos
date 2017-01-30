@@ -844,7 +844,9 @@ might not be available on the PATH search path for executables.")
 
         if sys.platform == "win32" and "cygwin" not in find_executable("splint"):
             options += ["-nolib", "-booltype", "bool", "+charint"]
-            include_paths += [os.path.join("packages", "stub", "include")]
+            prx_path = self.project.entity_name_to_path(self.name)
+            prx_dir = os.path.dirname(prx_path)
+            include_paths += [os.path.join(prx_dir, "include")]
         else:
             options += ["-DUINT8_C(x)=(uint8_t)(x)", "-DUINT8_MAX=255",
                         "-DUINT32_C(x)=(uint32_t)(x)", "-DUINT32_MAX=0xFFFFFFFF"]

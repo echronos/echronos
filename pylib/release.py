@@ -450,9 +450,10 @@ def build_single_release(config, topdir):
         # Run license replacer on all extra files released
         dummy_pkg = _ReleasePackage(None, config)
         for arcname, filename in config.extra_files:
-            lo = _LicenseOpener(dummy_pkg.get_license(), dummy_pkg.get_doc_license(), os.getcwd(), filename=filename)
+            file_path = find_path(filename, topdir)
+            lo = _LicenseOpener(dummy_pkg.get_license(), dummy_pkg.get_doc_license(), topdir, filename=file_path)
             tarfile.bltn_open = lo.open
-            tf.add(filename, arcname='{}/{}'.format(basename, arcname), filter=lo.tar_info_filter)
+            tf.add(file_path, arcname='{}/{}'.format(basename, arcname), filter=lo.tar_info_filter)
             tarfile.bltn_open = open
 
         if 'TEAMCITY_VERSION' in os.environ:

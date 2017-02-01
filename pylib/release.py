@@ -442,6 +442,12 @@ def build_single_release(config, topdir):
             # This ensures that prj zip files created on any platform work on any other platform.
             arcname = '{}/bin/{}'.format(basename, file_name)
             tf.add(os.path.join(prj_build_dir, file_name), arcname=arcname, filter=file_filter)
+        for prj_release_files_path in base_to_top_paths(topdir, os.path.join('prj', 'release_files')):
+            for file_name in os.listdir(prj_release_files_path):
+                if file_name != 'README.md':
+                    file_path = os.path.join(prj_release_files_path, file_name)
+                    archive_path = '{}/{}'.format(basename, file_name)
+                    tf.add(file_path, arcname=archive_path, filter=_tar_info_filter)
 
         if config.top_level_license is not None:
             _tar_add_data(tf, '{}/LICENSE'.format(basename),

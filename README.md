@@ -36,7 +36,7 @@ Client repository:
 
 # Yes, We Are Open for Business
 
-If you have any questions, send us an e-mail to echronos@trustworthy.systems or tweet at us @echronosrtos.
+If you have any questions, send us an e-mail to echronos@trustworthy.systems or tweet at us [@echronosrtos](https://twitter.com/echronosrtos).
 
 If there is something in the project that you think is worth improving, please create a [github issue](https://github.com/echronos/echronos/issues).
 
@@ -53,12 +53,117 @@ To this end, the RTOS code base is designed to be highly modular and configurabl
 Available implementations currently target ARM Cortex-M4 and PowerPC e500.
 The RTOS also runs on POSIX platforms (e.g., Linux, MacOS-X, Windows with cygwin or MinGW) for rapid prototyping.
 
+
+# Quick-start
+
+This section covers how to build and run a simple application on top of the RTOS.
+
+## POSIX
+
+This section gets a simple RTOS application up and running as a regular Linux or Windows process.
+It can give you a first impression of how the RTOS is being used without delving into the details of any embedded hardware platform.
+
+### Download
+
+Download the [latest _posix_ release](https://github.com/echronos/echronos/releases) and unpack it in a directory of your choice.
+
+The project makes frequent releases, based on improvements flowing into the master branch of the code repository.
+You'll notice that releases are not just snapshots of the code repository.
+Rather, they provide just the bits and pieces needed for individual target platforms, with some of the code and tools already pre-built.
+
+The _posix_ release is aimed at running the RTOS on top of any POSIX host operating system, such as Linux or Windows (with Cygwin or MinGW).
+
+### Prerequisites
+
+You need the following tools installed and ready to go:
+
+- Python 3
+- GCC compiler + GNU binutils
+
+On Linux, use your package manager to install these tools.
+On Windows, obtain and install Python 3 from [python.org](https://www.python.org) and install either [Cygwin](https://cygwin.com) or [MinGW](http://mingw.org) including the GCC compiler.
+
+### Build
+
+The following commands build a simple version of the eChronos RTOS together with a small example application:
+
+    cd eChronos-posix-VERSION
+    ./prj/prj.sh build posix.acamar
+
+On Windows, run `prj\prj` instead of `./prj/prj.sh`.
+This produces the binary `out/posix/acamar/system` (`system.exe` on Windows).
+
+### Run
+
+Run the sample system with the command `./out/posix/acamar/system`.
+It prints `task a` and `task b` to the screen until you stop it by pressing `ctrl-c`.
+
+If you have GDB installed, you can also run this RTOS system in a debugger.
+Start GDB with `gdb out/posix/acamar/system` and
+
+- set a break point with `b debug_print`
+- start the system with `run`
+- gdb now stops the system just before it prints `task a` or `task b`, allowing you to inspect the system state or to continue with `continue`
+
+### Under the Hood
+
+#### The `prj` Tool
+
+To give you an idea of what goes on when building an running an RTOS system as above, here is a quick overview of what happens under the hood.
+
+The `prj` tool is the build tool of the RTOS.
+Its primary purpose is to
+1. find and load the system configuration,
+1. generate RTOS code specifically for the system configuration,
+1. and build the RTOS and application code into a single system binary.
+
+The command `./prj/prj.sh build posix.acamar` makes `prj` first search for a system configuration file with a `.prx` file name extension.
+Think of PRX files as make files.
+`prj` finds that system configuration file at [`share/packages/posix/acamar.prx`](packages/posix/acamar.prx), based on the search paths set up in [`project.prj`](prj/release_files/project.prj).
+
+[`acamar.prx`](packages/posix/acamar.prx) lists all the files that go into building this system plus some configuration information.
+For example, this system is configured with two tasks, _a_ and _b_, that have given entry point functions and stack sizes:
+
+    <task>
+        <name>a</name>
+        <function>fn_a</function>
+        <stack_size>8192</stack_size>
+    </task>
+    <task>
+        <name>b</name>
+        <function>fn_b</function>
+        <stack_size>8192</stack_size>
+    </task>
+
+In the second step, `prj` uses this configuration information to generate a custom copy of the RTOS source code.
+This makes the RTOS itself as small as possible to leave more resources for the application.
+
+The third step is to invoke the compiler and linker to build all the source code files listed in the system configuration into a binary.
+`prj` invokes the POSIX-specific [build module](packages/posix/build.py) to achieve that.
+
+#### The Sample Application
+
+The file [`share/packages/rtos-example/acamar-test.c`](packages/rtos-example/acamar-test.c) contains the main application code of the example system (the PRX file refers to it as `rtos-example.acamar-test`).
+This file implements two tasks that perpetually print their name and yield to each other.
+
+You will notice that this file also contains the standard `main()` function found in all C programs.
+If necessary, it could, for example, initialize some hardware before starting the RTOS, which in turn starts the two tasks.
+
+#### What is _Acamar_?
+
+The eChronos project is not a single RTOS, but provides a family of RTOS variants with different feature sets.
+Acamar is the name of the smallest one, but the POSIX release comes with a number of other, more powerful variants.
+Those provide "proper" RTOS features, such as mutexes, interrupts, and timers.
+The [Variants and Components](#variants-and-components) section has more information on this topic.
+
+#### Where to from here?
+
+The rest of this README covers ARM and PowerPC quick-starts as well as all basic RTOS concepts and how to make use of them.
+It makes use of the full [source code repository](https://github.com/echronos/echronos/), not just a release as the [Quick-start Guide](#quick-start) did above.
 To obtain the source code, use the following commands:
 
     git clone --depth=1 https://github.com/echronos/echronos.git
 
-
-# Quick-start
 
 ## Prerequisites (ARMv7m)
 

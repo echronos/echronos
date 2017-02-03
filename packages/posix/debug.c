@@ -34,13 +34,13 @@ for now a work-around is provided. */
 #endif
 
 #include <unistd.h>
+#include <string.h>
 
 void
-debug_putc(const char c)
+debug_puts(const char *s)
 {
-    ssize_t r;
-    r = write(STDOUT_FILENO, &c, sizeof c);
-    if (r != 1)
+    ssize_t l = strlen(s);
+    if (write(STDOUT_FILENO, s, l) != l)
     {
         _exit(1);
     }

@@ -11,5 +11,5 @@
 
 # Test Plan
 
-- Only ARM and POSIX platforms implement the generic debugging interface, so test systems on these platforms.
+- All platforms implement the generic debugging interface, so test systems on these platforms.
 - All existing regression tests must pass.

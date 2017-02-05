@@ -1,0 +1,10 @@
+# Motivation
+
+The `prj` tool implements a poor build system.
+Build aspects could better be implemented by a proper, third-party build system.
+
+# Goals
+
+- Remove build support from prj to learn how feasible it is to have it taken over by an external build system
+
+# Test Plan

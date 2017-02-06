@@ -24,13 +24,43 @@
 #
 # @TAG(NICTA_AGPL)
 #
-language: c # makes gnu build utils available
-sudo: required # makes Ubuntu trusty available, required for Python >= 3.3
-dist: trusty # makes Ubuntu trusty available, required for Python >= 3.3
+
+# make gnu build utils available
+language: c
+# make Ubuntu trusty available, required for Python >= 3.3
+sudo: required
+# make Ubuntu trusty available, required for Python >= 3.3
+dist: trusty
+# cache GDB builds
 cache:
   directories:
-  - ${HOME}/local/bin
+  - "${HOME}/local/bin"
 
+# install and set up all third-party software necessary to run tests and builds
 install: sh ./test_setup.sh
 
+# run tests and builds
 script: sh ./test.sh
+
+# deploy certain build outputs to an external service
+deploy:
+  # specifically deploy as a GitHub release
+  provider: releases
+  # authorize Travis CI to upload files to the echronos GitHub release page
+  # note that this is a security risk
+  # since the key is now public, it gives anyone in the world the authority to create GitHub releases in the echronos repository
+  api_key:
+    secure: kRdvz5OptKG7Lm6YKbUhq9CZldkjsk0PexDIqn+GpzTfLn7gXTRwwaS8lWOU042Gku5B3VZ/e5PX8TaEb8GCTWk7lpAkBhQCrhpqTebtpexJlnQBi37M/YbW2Wtyf44UnWWrVOqqqEa5I3OO4WOWOpeIIW8NtlMudm908cuV0l30ULXKmUIKxONeqp3CtoEI/JroyZH/bDvnpqOkTtjy9AHBmCeiabx0rOZ6HpYhOc5GCKSUlNqAThn2uoeZUDiTFKVFREAAgR9KUOu4j7fqJuFWmRWUuY3E4P1mBCWuANKKeTMCj1V3SNiij4B4Jqb3OxlQQXs8f/jYHD+ToKZGWtFB7s2DH72/wo1GHHTJVHvaHi7Sc0dL6bhIdKWvEZnN7lvteN2R4aEaNWpfQYTxFE9tYj7iyt/K9AxAuSw49vNObXwITTvkX0h782nf2T+Tkw5fqJzf5NvuMrctZ5kSqWjTHaTuyxsJyY7+H6u4GfceK75nco/Kks0d6b6rjT8ZFBhF2178R8xsZUd6vvYMmnl1fQ5KF3tTyoPti2VMxkpfqTHXmB8hzS1xA0dwdhl3UZs0RUEVGG0P2vzpQQyDCi4QCW8a3eLcRKYAcSd7wWxwS5H6EjqVh/9xGIgK0jw5GBgvTrooaSCFO6FV7TsN0BzJ67nSXrXOTXhPLgzGJcM=
+  # do not clean up build outputs so that they can be deployed
+  skip_cleanup: true
+  # specifically enable glob patterns (or wildcards) for file name matching in the 'file' option
+  file_glob: true
+  # deploy all eChronos release archives that were built
+  file: release/eChronos-*.tar.gz
+  # restrict which Travis CI test and build runs result in a deployment / release
+  on:
+    # only deploy if sources are from the echronos repository
+    repo: echronos/echronos
+    # only deploy if this test/build was run against a git tag (as opposed to some/any branch)
+    # this effectively forces the project to create a git tag in order to create a release
+    tags: true

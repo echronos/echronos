@@ -20,7 +20,10 @@ if __name__ == "__main__":
     # - all file discovery should probably be taken care of by build system
     # - prj should only render templates
     # - the schema and configuration files might be a bit overkill for producing a relatively simple Python data structure with configuration information
-    # - the Python configuration data structure is made more complex than necessary by the XML serialization
+    # - the Python configuration data structure could be converted to named tuples to appear a little less free-form
+    #   a hierarchy of named tuples could not quite replace the xml schemas because they specify the pre-Python schemas, not the final pystache-level schemas
+    #   It would be nice to have a strongly-typed configuration language for this; it would preserve the strict type checking, but otherwise simplify this a fair bit
+
 
     template_path, schema_path, configuration_path, configurator_path, output_path = canonical_paths(sys.argv[1:])
     assert os.path.isfile(template_path)

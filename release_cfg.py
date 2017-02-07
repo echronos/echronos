@@ -694,21 +694,6 @@ copy of the Program in return for a fee.
 """
 
 
-class StandardDarwin(Standard):
-    platforms = ['x86_64-apple-darwin']
-    release_name = 'std_darwin'
-    enabled = True
-
-
-class StandardLinux(Standard):
-    platforms = ['x86_64-unknown-linux-gnu']
-    release_name = 'std_linux'
-    enabled = True
-    extra_files = [
-        ('README.md', 'docs/armv7m_kochab_readme.md'),
-    ]
-
-
 class PowerPCe500Linux(Standard):
     packages = ['ppce500', 'generic', 'rtos-example', 'machine-qemu-ppce500']
     platforms = ['x86_64-unknown-linux-gnu']

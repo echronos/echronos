@@ -1,0 +1,17 @@
+# Motivation
+
+The command `x.py build release` currently creates, among others, the release archives `eChronos-std_darwin-1.0.0.tar.gz`, `eChronos-std_linux-1.0.0.tar.gz`, and `eChronos-std-1.0.0.tar.gz`.
+These three archives have effectively the same contents.
+Therefore, there is no benefit in having all three.
+
+
+# Goals
+
+- The command `x.py build release` shall no longer generate the archives `eChronos-std_darwin-1.0.0.tar.gz` and `eChronos-std_linux-1.0.0.tar.gz`.
+
+
+# Test Plan
+
+- Verify that all existing regression tests pass.
+- Review the code changes.
+- Verify that the command `x.py build release` no longer generates the archives `eChronos-std_darwin-1.0.0.tar.gz` and `eChronos-std_linux-1.0.0.tar.gz`.

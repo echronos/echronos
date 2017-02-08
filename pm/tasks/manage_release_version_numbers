@@ -1,0 +1,45 @@
+# Motivation
+
+Currently, the project applies [semantic versioning](http://semver.org/) to releases by convention.
+Since each change to the mainline branch is effectively considered a release, this applies to every update of the mainline branch.
+In practice, the release version numbers have not been updated as rigorously as they should have been.
+
+This could lead to multiple different releases having the same version number.
+Therefore, releases with different contents have not been uniquely identifiable.
+
+Ideally, release version numbers could be managed in a more automated manner that helps prevent version conflicts between different releases.
+There are two main requirements for achieving this goal:
+1. Depending on the nature of a task, the release version number must change according to the semantic versioning rules.
+   Reviewers shall be able to see which version change is introduced by a task and to assess whether it is correct given the other changes in the task.
+2. Updating the release version number in each task directly is problematic.
+   With multiple tasks in progress or under review, merging down changes from the mainline branch would lead to either a conflict in the version number (if they are different on the mainline and task branches) or to change disappearing from the task branch if it happens to be identical to that on the mainline branch.
+   Therefore, a task shall document which version change it requires not by directly changing the release version number itself, but by recording this information through another mechanism.
+   That mechanism shall make it easy to review the version number change and avoid conflicts when merging the mainline branch.
+
+
+# Goals
+
+- The overall goal of this task is to make it less likely that the release version number accidentally remains unmodified on the mainline branch when integrating a new task branch.
+- An initial review round shall solicit feedback on the solution proposed below before an implementation is put together.
+
+## Proposed Solution
+
+1. The version change required by a task shall be documented in the task's task description file under `pm/tasks/`.
+   To do so, the new section 'API Impact' shall be introduced.
+   Its heading shall read as exactly one of the three options `# API Impact: Major', `# API Impact: Minor', or `# API Impact: Patch'.
+   These impact levels are directly equivalent to [semantic versioning](http://semver.org/).
+   Note that the version does not only apply to the RTOS C API, but also to build tools or code, such as the prj utility and its location in release archives.
+   This shall help application developers in determining whether a version upgrade can impact their build infrastructure and/or application code.
+2. Reviewers shall generally verify that the proposed version change is consistent with the semantic versioning rules and the other changes in the task.
+   The file `internal-docs/task_management.md` shall be updated accordingly to document this.
+3. The command `task.py integrate` shall update the actual release version number stored in `release_cfg.py` based on the _API Impact_ section in the task description.
+
+
+# API Impact: Patch
+
+
+# Test Plan
+
+- Verify that all existing regression tests pass.
+- Verify that the changes meet the task goals and follow project conventions.
+- Given the changes of this task, verify that the API impact documented above is consistent with the principles of [semantic versioning](http://semver.org/).

@@ -1,0 +1,17 @@
+# Motivation
+
+Currently, release archives do not contain a file that indicates the version number of the release.
+This makes it unnecessarily difficult for users to identify which RTOS release the extracted release archive contents correspond to.
+
+
+# Goals
+
+- Make it easily identifiable which release a set of release archive contents corresponds to.
+- Release archives shall contain a file called `version_info` (similar to the existing `build_info` file) that contains the version number of the release.
+
+
+# Test Plan
+
+- Verify that all existing regression tests pass.
+- Verify that the changes achieve the task goals and meet project conventions.
+- Verify that a release archive created from this task contains the file `version_info` with the correct version number.

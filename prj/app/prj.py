@@ -35,17 +35,8 @@ if __name__ == "__main__":
     import sys
     import os
 
-    # When prj is frozen, there is no need to play games with the path.
-    frozen = __file__ == "<frozen>"
-    if not frozen:
-        for pth in ['pystache', 'ply', 'lib']:
-            sys.path.insert(0, os.path.join(os.path.dirname(__file__), pth))
-else:
-    # The prj module is only imported as a module for testing purposes.
-    # In this case it definitely isn't frozen.
-    # FIXME: It likely makes sense to refactor prj.py so that this top level file is purely focused on script
-    # execution and most logic is placed in a separate modules.
-    frozen = False
+    for pth in ['pystache', 'ply', 'lib']:
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), pth))
 
 from util.util import prepend_tool_binaries_to_path_environment_variable
 # Logging is set up first since this is critical to the rest of the application working correctly.
@@ -957,32 +948,6 @@ class Project:
             user_search_paths = [self.project_dir]
 
         built_in_search_paths = []
-        if frozen:
-            base_file = sys.executable if frozen else __file__
-            base_file = follow_link(base_file)
-
-            base_dir = canonical_path(os.path.dirname(base_file))
-
-            def find_share(cur):
-                cur = canonical_path(cur)
-                maybe_share_path = os.path.join(cur, 'share')
-                if os.path.exists(maybe_share_path):
-                    return maybe_share_path
-                else:
-                    up = canonical_path(os.path.join(cur, os.path.pardir))
-                    if up == cur:
-                        return None
-                    return find_share(up)
-            share_dir = find_share(base_dir)
-            if share_dir is None or not os.path.isdir(share_dir):
-                logger.warning("Unable to find 'share' directory.")
-            else:
-                packages_dir = os.path.join(share_dir, 'packages')
-                if not os.path.exists(packages_dir) or not os.path.isdir(packages_dir):
-                    logger.warning("Can't find 'packages' directory in '{}'".format(share_dir))
-                else:
-                    built_in_search_paths.append(packages_dir)
-
         self.search_paths = user_search_paths + built_in_search_paths
 
         logger.debug("search_paths %s", self.search_paths)

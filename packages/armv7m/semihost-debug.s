@@ -28,14 +28,14 @@
 .syntax unified
 .section .text
 
-.global debug_putc
-.type debug_putc,#function
+.global debug_puts
+.type debug_puts,#function
 
-debug_putc:
+debug_puts:
+        mov r1, r0
         push {r0, lr}
-        mov r0, #3
-        mov r1, sp
+        mov r0, #4
         bkpt 0xab
         pop {r0, pc}
 
-.size debug_putc, .-debug_putc
+.size debug_puts, .-debug_puts

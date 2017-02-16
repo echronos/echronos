@@ -76,3 +76,13 @@ debug_putc(const char c)
         duart_putc(c);
     }
 }
+
+void
+debug_puts(const char *s)
+{
+    while (*s != '\x00')
+    {
+        debug_putc(*s);
+        s++;
+    }
+}

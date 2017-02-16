@@ -26,6 +26,6 @@
  */
 
 void
-debug_putc(const char c)
+debug_puts(const char *s)
 {
 }

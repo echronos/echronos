@@ -268,6 +268,7 @@ def main():
         # argparse does not support required subparsers so it does not itself reject a command line that lacks a
         # command or subcommand
         parser.print_help()
+        return 1
     else:
         args.topdir = topdir
         args.configurations = configurations

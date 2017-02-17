@@ -22,6 +22,8 @@ Comment: This line should return an integer value as well.
          >     .format(type(result)))
          > TypeError: The main() function shall return an integer, but returned a value of type <class 'NoneType'> instead.
 
+[stg: resolved as suggested]
+
          Should all possible calls return an int or should we only check for
          calls to 'test systems'?
 

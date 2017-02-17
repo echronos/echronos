@@ -36,3 +36,6 @@ This task certainly attempts to achieve that, so please feel free to double-chec
          print the output of 'x.py build --help'. This applies to the other commands
          as well. It is unrelated to the current task though, so feel free to
          ignore.
+
+[stg: unfortunately, the argparse API does not support that directly.
+Since such a change would therefore require significant refactoring, I will leave the current behavior as is.]

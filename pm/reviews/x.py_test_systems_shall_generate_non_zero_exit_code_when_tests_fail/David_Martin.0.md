@@ -27,6 +27,9 @@ Comment: This line should return an integer value as well.
          Should all possible calls return an int or should we only check for
          calls to 'test systems'?
 
+[stg: Since this task introduces the generic check for integers in the __main__ context of x.py, it makes sense to ensure that all code paths return integers.
+This task certainly attempts to achieve that, so please feel free to double-check this.]
+
          Note also that calling 'x.py build' prints the help dialog for 'x.py'
          rather than 'x.py build' which would be more appropriate and actually
          convey information on what the correct build command would be. It should

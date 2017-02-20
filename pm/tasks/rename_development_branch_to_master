@@ -1,0 +1,19 @@
+# Motivation
+
+The main branch against which development happens is called `development` although the default name in git repositories is `master`.
+In the project history so far, there was no need for or benefit in deviating from this default.
+It is an unnecessary hurdle for new developers, in particular since it leads to a misleading git error message when cloning the repository.
+
+
+# Goals
+
+- update all references to the `development` branch in the repository (in code and documentation) to `master`
+- once the task has been approved of and integrated:
+    - rename `development` branch itself to `master`
+    - update all CI systems accordingly
+
+
+# Test Plan
+
+- code reviews
+- existing regression tests must pass

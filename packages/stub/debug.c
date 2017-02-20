@@ -25,9 +25,9 @@
  * @TAG(NICTA_AGPL)
  */
 
-void debug_putc(__attribute__((unused)) char c);
+void debug_puts(__attribute__((unused)) char *s);
 
 void
-debug_putc(/*@unused@*/ __attribute__((unused)) char c)
+debug_puts(/*@unused@*/ __attribute__((unused)) char *s)
 {
 }

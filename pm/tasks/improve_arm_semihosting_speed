@@ -1,0 +1,15 @@
+# Motivation
+
+- The armv7m package uses semihosting to display debugging information.
+- The current implementation causes a debugger trap for every character sent.
+- On some platforms this is extremely slow, in the order of 1 character / sec.
+
+# Goals
+
+- Speed up the semihosting debug output by allowing the debug code to transmit strings in a single trap.
+- Modify the existing generic debug code to support sending strings in a single message
+
+# Test Plan
+
+- All platforms implement the generic debugging interface, so test systems on these platforms.
+- All existing regression tests must pass.

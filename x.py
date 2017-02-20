@@ -83,7 +83,7 @@ import logging
 import os
 import sys
 
-externals = ['nose', 'ice', '']
+externals = ['nose', '']
 
 # Make pylib available for importing - this is necessary for x.py wrappers in client repositories to work
 sys.path.append(os.path.dirname(__file__))
@@ -268,6 +268,7 @@ def main():
         # argparse does not support required subparsers so it does not itself reject a command line that lacks a
         # command or subcommand
         parser.print_help()
+        return 1
     else:
         args.topdir = topdir
         args.configurations = configurations
@@ -277,4 +278,12 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    result = main()
+    # sys.exit(None) makes the process exit with exit code 0, which indicates successful completion.
+    # In the past, e.g. test functions have returned None, even when there were test errors.
+    # To prevent this, require the functions called by main() to consistently return an integer value.
+    if isinstance(result, int):
+        sys.exit(result)
+    else:
+        raise TypeError('The main() function shall return an integer, but returned a value of type {} instead.'
+                        .format(type(result)))

@@ -144,6 +144,7 @@ def build(args):
     components.build(args)
     for pkg_dir in _get_package_dirs(set(('docs.md',))):
         _build_doc(pkg_dir, args.topdir, args.verbose)
+    return 0
 
 
 def is_release_doc_file(filename):

@@ -29,7 +29,7 @@
 set -eu
 
 CORE_DIR="$(dirname "${0}")"
-PY_VERSIONS="$(for V in 3.3 3.4 3.5 3.6 3.7 3.8 3.9; do ! python${V} --version > /dev/null 2>&1 || echo -n "${V} "; done)"
+PY_VERSIONS="$(for V in 3.3 3.4 3.5 3.6 3.7 3.8 3.9; do ! python${V} --version > /dev/null 2>&1 || printf "${V} "; done)"
 
 while getopts c:p: OPT
 do

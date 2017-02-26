@@ -7,6 +7,8 @@ Location: test.sh:32
 Comment: 'echo -n' is not available everywhere. Plain sh for example does not
          have it. printf would be better here I think.
 
+[stg: resolved as suggested]
+
 Location: Travis test output: https://travis-ci.org/echronos/echronos#L2530
 Comment: It fails with a "Python Exception <type 'exceptions.ImportError'>
          No module named gdb". Something went wrong here, and it does not seem

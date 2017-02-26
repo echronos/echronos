@@ -31,6 +31,8 @@ set -e
 set -x
 
 GDB_VER=7.12
+USAGE="Set up the prerequisites and dependencies of running regression tests via test.sh on a Ubuntu Linux host.\
+-g GDB_VER: specify the version of GDB to install from source with PowerPC support; defaults to ${GDB_VER}"
 TMPDIR="${TMPDIR:-/tmp}"
 
 while getopts g: OPT

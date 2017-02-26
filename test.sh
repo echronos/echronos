@@ -28,6 +28,9 @@
 
 set -eu
 
+USAGE="Run all regression tests available in the repository. \
+-c CORE_DIR: the directory containing the repository contents; defaults to the parent directory of this script. \
+-p PYTHON_VERSIONS: list of versions of Python the script shall test; version numbers are separated by blanks (e.g., '3.3 3.4'); defaults to all Python versions >= 3.3."
 CORE_DIR="$(dirname "${0}")"
 PY_VERSIONS="$(for V in 3.3 3.4 3.5 3.6 3.7 3.8 3.9; do ! python${V} --version > /dev/null 2>&1 || printf "${V} "; done)"
 

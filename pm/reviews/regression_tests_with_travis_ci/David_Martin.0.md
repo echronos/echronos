@@ -18,6 +18,8 @@ Location: test.sh:39
           test_setup.sh:40
 Comment: The definition for $USAGE is missing, right?
 
+[stg: indeed; defined the USAGE variable in both files]
+
 Location: test.sh:44
 Comment: "sed -r 's/.*packages\///; s/.prx//; s/\//./g'"
          Is OS X supported as a platform? Not officially, right? In any case,

@@ -54,7 +54,7 @@ shift `expr ${OPTIND} - 1`
 sudo add-apt-repository -y ppa:jonathonf/python-3.6
 sudo apt-get -qq update
 sudo apt-get -qq install -y python3 splint gcc gdb gcc-powerpc-linux-gnu qemu-system-ppc texinfo xvfb pandoc wkhtmltopdf
-which python3.6 || sudo apt-get install -y python3.6
+which python${PY_VER} || sudo apt-get install -y python${PY_VER}
 
 # install GDB with PowerPC support from source; required by x.py test systems
 # unpack gdb tar ball to home directory to prevent tests below from discovering and failing on unrelated files

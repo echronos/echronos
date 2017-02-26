@@ -35,12 +35,18 @@ dist: trusty
 cache:
   directories:
   - "${HOME}/local"
+# build matrix across multiple Python version to parallelize builds with different Python versions
+env:
+  - PY_VER=3.3
+  - PY_VER=3.4
+  - PY_VER=3.5
+  - PY_VER=3.6
 
 # install and set up all third-party software necessary to run tests and builds
 install: sh ./test_setup.sh
 
 # run tests and builds
-script: sh ./test.sh
+script: sh ./test.sh -p ${PY_VER}
 
 # deploy certain build outputs to an external service
 deploy:

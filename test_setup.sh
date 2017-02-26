@@ -50,8 +50,11 @@ shift `expr ${OPTIND} - 1`
 # gcc, gdb, qemu-system-ppc: x.py test systems
 # texinfo: required for installing gdb from source
 # xvfb pandoc wkhtmltopdf: required for building documentation
+# python3.6: currently not available in default Travis CI environment
+sudo add-apt-repository -y ppa:jonathonf/python-3.6
 sudo apt-get -qq update
 sudo apt-get -qq install -y python3 splint gcc gdb gcc-powerpc-linux-gnu qemu-system-ppc texinfo xvfb pandoc wkhtmltopdf
+which python3.6 || sudo apt-get install -y python3.6
 
 # install GDB with PowerPC support from source; required by x.py test systems
 # unpack gdb tar ball to home directory to prevent tests below from discovering and failing on unrelated files

@@ -26,3 +26,5 @@ Comment: "sed -r 's/.*packages\///; s/.prx//; s/\//./g'"
          there the '-r' option for sed does not exist (it is -E instead).
          We are not using an extended regex, so would it be worth simply not
          using the option here?
+
+[stg: resolved as suggested]

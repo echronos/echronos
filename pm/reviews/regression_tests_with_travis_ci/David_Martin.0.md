@@ -14,6 +14,12 @@ Comment: It fails with a "Python Exception <type 'exceptions.ImportError'>
          No module named gdb". Something went wrong here, and it does not seem
          to pick it up as a failure unfortunately.
 
+[stg: the system tests do not actually fail in this case.
+However, the message still indicates an issue in the GDB setup.
+.travis.yml instructs Travis CI to cache the GDB build because building GDB from source takes a long time.
+It was incorrectly set up to only cache the contents of $HOME/local/bin, but the GDB installation puts files in several other directories in $HOME/local that are necessary for GDB to execute without warnings.
+This issue is resolved by caching the complete $HOME/local directory.]
+
 Location: test.sh:39
           test_setup.sh:40
 Comment: The definition for $USAGE is missing, right?

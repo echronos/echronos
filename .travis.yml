@@ -34,7 +34,7 @@ dist: trusty
 # cache GDB builds
 cache:
   directories:
-  - "${HOME}/local/bin"
+  - "${HOME}/local"
 
 # install and set up all third-party software necessary to run tests and builds
 install: sh ./test_setup.sh

@@ -66,6 +66,14 @@ sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdbser
 sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdb.1.gz --rename /usr/share/man/man1/gdb.1.gz
 sudo apt-get -qq install -y gdb-arm-none-eabi
 
+# Install pylint Python package to be able to run "x.py test style"
+# On Travis CI's Python 3.6, pylint causes Python to hang.
+# Therefore, do not install it on that configuration.
+if [ "${PY_VER}" != "3.6" ]
+then
+    python${PY_VER} -m pip install --user pylint
+fi
+
 # install GDB with PowerPC support from source; required by x.py test systems
 # unpack gdb tar ball to home directory to prevent tests below from discovering and failing on unrelated files
 if ! test -e "${HOME}/local/bin/powerpc-linux-gdb"

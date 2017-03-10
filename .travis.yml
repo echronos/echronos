@@ -70,3 +70,8 @@ deploy:
     # only deploy if this test/build was run against a git tag (as opposed to some/any branch)
     # this effectively forces the project to create a git tag in order to create a release
     tags: true
+    # Only deploy if tests were run with Python 3.6.
+    # This prevents the parallel builds in the matrix of the different Python versions from all trying to deploy concurrently, which can cause failures.
+    # Limiting the deployment to a specific case in the build matrix (i.e., to a specific Python version) ensures that only one set of build outputs is deployed.
+    # Any Python version is fine and 3.6 is simply the most recent one.
+    condition: $PY_VER = 3.6

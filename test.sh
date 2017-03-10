@@ -76,21 +76,29 @@ run_test () {
 }
 
 test_build_test_systems () {
+    local PASSES FAILS PKG
+    PASSES=0
+    FAILS=0
     for PKG in ${TEST_PACKAGES}
     do
-        python${PY_VER} "${CORE_DIR}/prj/app/prj.py" build ${PKG}
+        python${PY_VER} "${CORE_DIR}/prj/app/prj.py" build ${PKG} && PASSES=$((${PASSES}+1)) || FAILS=$((${FAILS}+1))
     done
+    [ ${PASSES} -gt 0 ] && [ ${FAILS} -eq 0 ]
 }
 
 test_analyze_test_systems () {
+    local PASSES FAILS PKG
+    PASSES=0
+    FAILS=0
     for PKG in ${TEST_PACKAGES}
     do
         PREFIX="${PKG%%.*}"
         if test "${PREFIX}" = "stub"
         then
-            python${PY_VER} "${CORE_DIR}/prj/app/prj.py" analyze ${PKG}
+            python${PY_VER} "${CORE_DIR}/prj/app/prj.py" analyze ${PKG} && PASSES=$((${PASSES}+1)) || FAILS=$((${FAILS}+1))
         fi
     done
+    [ ${PASSES} -gt 0 ] && [ ${FAILS} -eq 0 ]
 }
 
 for PY_VER in ${PY_VERSIONS}

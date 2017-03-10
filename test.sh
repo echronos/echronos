@@ -51,20 +51,38 @@ export PATH="${PATH}:${HOME}/local/bin:${PWD}/tools/x86_64-unknown-linux-gnu/bin
 gcc --version
 gdb --version
 
-for PY_VER in ${PY_VERSIONS}
-do
-    set -x
-    python${PY_VER} x.py test licenses
-    python${PY_VER} x.py test provenance
-    python${PY_VER} x.py test style
-    python${PY_VER} x.py test x
-    python${PY_VER} x.py test pystache
-    python${PY_VER} x.py test prj
-    python${PY_VER} x.py build packages
+FAILED_TESTS=0
+
+run_test () {
+    #
+    # Execute all function parameters (${@}) as a single command and print messages to make test output easily understandable
+    #
+    echo ""
+    echo "#################### ${@} ####################"
+
+    # do not cause this script to exit with an error if the test command fails
+    set +e
+    ${@}
+    EC=${?}
+    set -e
+    if [ ${EC} -eq 0 ]
+    then
+        echo "-------------------- PASS --------------------"
+    else
+        echo "!!!!!!!!!!!!!!!!!!!! FAIL: ${@} -> ${EC} !!!!!!!!!!!!!!!!!!!!"
+        FAILED_TESTS=$((${FAILED_TESTS} + 1))
+    fi
+    echo ""
+}
+
+test_build_test_systems () {
     for PKG in ${TEST_PACKAGES}
     do
         python${PY_VER} "${CORE_DIR}/prj/app/prj.py" build ${PKG}
     done
+}
+
+test_analyze_test_systems () {
     for PKG in ${TEST_PACKAGES}
     do
         PREFIX="${PKG%%.*}"
@@ -73,12 +91,33 @@ do
             python${PY_VER} "${CORE_DIR}/prj/app/prj.py" analyze ${PKG}
         fi
     done
-    if test -e pm/tasks/CbC0b6-message_queue_unit_tests; then python${PY_VER} x.py test units; fi
-    python${PY_VER} x.py test systems
-    python${PY_VER} x.py build prj
-    TMPDIR="/tmp" xvfb-run -a -s "-screen 0 640x480x16" python${PY_VER} x.py build docs
-    python${PY_VER} x.py build partials
-    python${PY_VER} x.py build release
-    python${PY_VER} x.py test release
-    set +x
+}
+
+for PY_VER in ${PY_VERSIONS}
+do
+    run_test python${PY_VER} x.py test licenses
+    run_test python${PY_VER} x.py test provenance
+    run_test python${PY_VER} x.py test style
+    run_test python${PY_VER} x.py test x
+    run_test python${PY_VER} x.py test pystache
+    run_test python${PY_VER} x.py test prj
+    run_test python${PY_VER} x.py build packages
+    run_test test_build_test_systems
+    run_test test_analyze_test_systems
+    if test -e pm/tasks/CbC0b6-message_queue_unit_tests; then run_test python${PY_VER} x.py test units; fi
+    run_test python${PY_VER} x.py test systems
+    run_test python${PY_VER} x.py build prj
+    run_test eval "TMPDIR=/tmp xvfb-run -a -s '-screen 0 640x480x16' python${PY_VER} x.py build docs"
+    run_test python${PY_VER} x.py build partials
+    run_test python${PY_VER} x.py build release
+    run_test python${PY_VER} x.py test release
 done
+
+# make the script exit with a non-zero exit code (indicating a test failure) if the number of failed tests is greater than 0
+echo ""
+if [ ${FAILED_TESTS} -eq 0 ]; then
+    echo "SUMMARY: all tests passed"
+else
+    echo "SUMMARY: ${FAILED_TESTS} test categories failed"
+    exit 1
+fi

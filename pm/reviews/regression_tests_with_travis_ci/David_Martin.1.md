@@ -14,3 +14,6 @@ Comment: I feel like every command run as part of the test suite should report
 
          Even if it is just a simple print that says 'OK' or 'FAIL' it would
          already help in my opinion.
+
+[stg: This is a very valid point.
+I have updated the test script to print the test outcome for each test as well as a summary.]

@@ -236,7 +236,7 @@ class _LicenseOpener:
     def _agpl_sentinel(ext):
         if ext in ['.c', '.h', '.ld', '.s']:
             return _LicenseOpener.AGPL_TAG + '\n */\n'
-        elif ext in ['.py', '.gdb', '.sh']:
+        elif ext in ['.py', '.gdb', '.sh', '.yml']:
             return _LicenseOpener.AGPL_TAG + '\n#\n'
         elif ext in ['.prx', '.xml', '.prj']:
             return _LicenseOpener.AGPL_TAG + '\n  -->\n'
@@ -266,7 +266,7 @@ class _LicenseOpener:
 
         if ext in ['.c', '.h', '.ld', '.s', '.css']:
             lic = self._format_lic(self.license, '/*', ' * ', ' *', ' */')
-        elif ext in ['.py', '.gdb']:
+        elif ext in ['.py', '.gdb', '.yml']:
             lic = self._format_lic(self.license, '#', '# ', '#', '#')
         elif ext in ['.prx', '.xml', '.prj']:
             lic = self._format_lic(self.license, '<!--', '', '', '  -->')

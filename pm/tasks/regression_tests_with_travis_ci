@@ -1,0 +1,27 @@
+Task: nh7dSJ-regression_tests_with_travis_ci
+==============================================================================
+
+Motivation
+----------
+
+RTOS regression tests are currently run on the internal TeamCity CI server.
+Therefore, they are not accessible to the general public.
+Also, this obscures the build, test, and overall development process for new developers.
+
+The typical approach taken by many projects on github to tackle these issues is to use Travis CI (travis-ci.org).
+The eChronos RTOS project would benefit from following the same approach to standardize the build and test process and make it more familiar to external contributors.
+
+
+Goals
+--------
+
+- make build and regression test process more open, transparent, and accessible
+- set up and configure Travis CI to run regression tests and build example systems and releases
+
+
+Test Plan
+---------
+
+- review code changes
+- existing regression tests
+- check that the tests run on Travis CI are equivalent to those run on the internal TeamCity server

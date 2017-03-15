@@ -43,7 +43,12 @@ env:
   - PY_VER=3.6
 
 # install and set up all third-party software necessary to run tests and builds
-install: sh ./test_setup.sh
+# also, fetch master and create a local branch for it because 'x.py test x' depends on it
+install:
+  - sh ./test_setup.sh
+  - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+  - git fetch --depth=1 origin master
+  - git branch --track master origin/master
 
 # run tests and builds
 script: sh ./test.sh -p ${PY_VER}

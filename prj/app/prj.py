@@ -1336,6 +1336,12 @@ def main():
     """Application main entry point. Parse arguments, and call specified sub-command."""
     args = get_command_line_arguments()
 
+    logger.setLevel(_logging.WARNING)
+    if args.verbose:
+        logger.setLevel(_logging.INFO)
+    elif args.quiet:
+        logger.setLevel(_logging.ERROR)
+
     # Initialise project
     try:
         args.project = Project(args.project, args.search_path, args.prx_inc_path)

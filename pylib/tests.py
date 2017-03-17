@@ -218,6 +218,8 @@ def style(args):
     appropriate exceptions.
 
     """
+    # ignored warnings and errors:
+    # E402 module level import not at top of file
     style = pycodestyle.StyleGuide(max_line_length=118, paths=[args.topdir], ignore=['E402'],
                                    exclude=['external_tools', 'pystache', 'tools', 'ply'] + args.excludes)
     if args.teamcity:

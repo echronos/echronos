@@ -211,7 +211,7 @@ def style(args):
     This implements conventions lupHw1 and u1wSS9.
     The enforced maximum line length follows convention TZb0Uv.
 
-    When all project Python files are compliant, this function returns None.
+    When all project Python files are compliant, this function returns 0.
     When a non-compliant file is found, details about the non-compliance are printed on the standard output stream and
     this function returns 1.
     Runtime errors encountered by the style checker are printed on the standard error stream and raised as the

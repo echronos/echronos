@@ -1,0 +1,27 @@
+# Motivation
+
+Travis CI is configured to deploy the build output from certain revisions to GitHub as RTOS releases.
+It is also configured to run the tests with different Python versions in parallel.
+Unfortunately, each parallel test run attempts to deploy the build output.
+Since this can lead to concurrency conflicts, one or more deploy steps may fail, causing the whole build to be considered as failed.
+
+
+# Goals
+
+- The overall goal of this task is to ensure that release deployments from Travis CI to GitHub succeed when they can be reasonably expected to do so.
+- Specifically, only one set of build outputs from all parallel builds shall be deployed to GitHub to avoid concurrency issues.
+- As a minor cleanup, the Travis CI build badge in README.md shall refer to the master branch instead of the outdated development branch.
+
+
+# Test Plan
+
+- Verify that all existing regression tests pass.
+- Verify that the changes meet the task goals and follow project conventions.
+- Create a test tag: `git tag test_tag origin/travis_ci_shall_not_deploy_releases_in_parallel`
+- Push tag to GitHub: `git push origin test_tag`
+- Wait for Travis CI to build test tag
+- Verify that across the parallel builds, only one resulted in a deployment
+- Verify that the deployment resulted in a release on GitHub
+- Delete test tag: `git tag -d test_tag`
+- Delete test tag from GitHub: `git push origin :test_tag`
+- Delete test release on GitHub

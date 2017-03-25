@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 @TAG(NICTA_DOC_AGPL)
   -->
-[![Build Status](https://travis-ci.org/echronos/echronos.svg?branch=development)](https://travis-ci.org/echronos/echronos)
+[![Build Status](https://travis-ci.org/echronos/echronos.svg?branch=master)](https://travis-ci.org/echronos/echronos)
 
 # Yes, We Are Open for Business
 

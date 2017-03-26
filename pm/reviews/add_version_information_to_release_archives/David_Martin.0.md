@@ -1,5 +1,5 @@
 Reviewer: David Martin (davidm@brkawy.com)
-Conclusion: Rework
+Conclusion: Accepted
 
 Location: release\_cfg.py:35
 Comment: The version number needs to be bumped again as we have since
@@ -10,3 +10,7 @@ Otherwise, every single task on review needs to have their version numbers updat
 It is then the responsibility of the integrator to update the version number when integrating a completed task.
 Is that acceptable?
 Note that the task manage_release_version_numbers will address this whole topic more strategically.]
+
+[davidm: Agreed, that is much more sensible! The reason I brought it up is that
+the version was explicitly increased in one of the changes before the review
+and then lost with one of the merges.]

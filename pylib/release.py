@@ -466,6 +466,8 @@ def build_single_release(config, topdir):
         build_info += '\n'
         _tar_add_data(tf, '{}/build_info'.format(basename), build_info.encode('utf8'), _tar_info_filter)
 
+        _tar_add_data(tf, '{}/version_info'.format(basename), config.version.encode('utf8'), _tar_info_filter)
+
 
 def release_test_one(archive):
     """Test a single archive

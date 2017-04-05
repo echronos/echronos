@@ -95,13 +95,13 @@ class Task:
         if not offline:
             self._git.push(self.name, set_upstream=True)
 
-        task_fn = os.path.join(self.cfg.repo_path, self.cfg.tasks_path, self.name)
-        shutil.copyfile(self.cfg.description_template_path, task_fn)
-        self._git.add([task_fn])
+        shutil.copyfile(self.cfg.description_template_path, self._description_path)
+        self._git.add([self._description_path])
 
         print('1. edit file "{}"\n'
               '2. commit via #> git commit -m "New task: {}" {}\n'
-              '3. push task to remote repository via #> git push'.format(task_fn, self.name, task_fn))
+              '3. push task to remote repository via #> git push'.format(self._description_path, self.name,
+                                                                         self._description_path))
 
     def integrate(self):
         self._check_and_prepare(offline=False)
@@ -286,6 +286,10 @@ This is necessary for our review system to work as expected.')
     @staticmethod
     def _is_valid_name(name):
         return all([c.isalnum() or c in ('-', '_') for c in name])
+
+    @property
+    def _description_path(self):
+        return os.path.join(self.cfg.repo_path, self.cfg.tasks_path, self.name)
 
 
 class _Review:

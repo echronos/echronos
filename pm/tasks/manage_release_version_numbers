@@ -20,7 +20,6 @@ There are two main requirements for achieving this goal:
 # Goals
 
 - The overall goal of this task is to make it less likely that the release version number accidentally remains unmodified on the mainline branch when integrating a new task branch.
-- An initial review round shall solicit feedback on the solution proposed below before an implementation is put together.
 
 ## Proposed Solution
 

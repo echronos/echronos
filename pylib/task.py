@@ -30,7 +30,7 @@ import difflib
 import os
 import shutil
 import subprocess
-from .utils import Git, string_to_path, walk
+from .utils import Git, string_to_path, walk, LineFilter, update_file
 
 
 TaskConfiguration = namedtuple('TaskConfiguration', ('repo_path', 'tasks_path', 'description_template_path',
@@ -109,6 +109,7 @@ class Task:
             raise _InvalidTaskStateError('The task {} is not on review.'.format(self.name))
         self._check_is_accepted()
 
+        self._update_release_version()
         self._git.checkout(self.cfg.mainline_branch)
         self._git.merge_into_active_branch(self._mainline_tracking_branch, '--ff-only', '--no-squash')
         self._git.merge_into_active_branch(self.name, '--no-squash')
@@ -175,6 +176,49 @@ class Task:
 
         if not offline:
             self._git.push()
+
+    def _update_release_version(self, offline=False):
+        release_cfg_path = self._update_release_version_file()
+        self._git.add(files=[release_cfg_path])
+        self._git.commit('{}\nUpdate {} number of release version .'.format(self.name, self._get_release_impact()),
+                         files=[release_cfg_path])
+        if not offline:
+            self._git.push()
+
+    def _update_release_version_file(self):
+        prefix = '    version = '
+        release_impact = self._get_release_impact()
+
+        def matches(_, line, __, ___):
+            return line.startswith(prefix)
+
+        def replace(_, line, line_no, path):
+            try:
+                current_version_str = line.split(prefix)[1].strip().strip("'")
+                major, minor, patch = (int(part) for part in current_version_str.split('.'))
+            except (IndexError, ValueError):
+                raise _InvalidVersionError('Unable to parse release version in line {} ("{}") of the release '
+                                           'configuration file "{}"'.format(line_no, line, path))
+            if release_impact == 'major':
+                major += 1
+                minor = 0
+                patch = 0
+            elif release_impact == 'minor':
+                minor += 1
+                patch = 0
+            elif release_impact == 'patch':
+                patch += 1
+            return "{}'{}.{}.{}'\n".format(prefix, major, minor, patch)
+
+        def handle_no_matches(_, path):
+            raise _InvalidVersionError('Unable to find release version number based on prefix "{}" in release '
+                                       'configuration file "{}"'.format(prefix, path))
+
+        release_cfg_path = os.path.join(self.cfg.repo_path, 'release_cfg.py')
+        version_line_filter = LineFilter(matches, replace, handle_no_matches)
+        update_file(release_cfg_path, (version_line_filter,), only_if_all_matched=True)
+
+        return release_cfg_path
 
     def review(self, offline=False, accept=False):
         self._check_and_prepare(offline=offline)
@@ -379,4 +423,8 @@ class _InconsistentUserNameError(RuntimeError):
 
 
 class _InvalidReleaseImpactError(Exception):
+    pass
+
+
+class _InvalidVersionError(Exception):
     pass

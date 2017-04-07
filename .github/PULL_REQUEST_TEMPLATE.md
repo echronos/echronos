@@ -35,6 +35,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 - _What is the intended outcome?_
 - _Is the solution and approach to it clear cut or do they need to be identified first as part of this?_
 
+# Release Impact: _One of Major, Minor, or Patch (see http://semver.org/ and take all changes visible in release archives into account, including changes to the RTOS API, the build system, the file layout, and the directory hierarchy)_
+
 # Test Plan
 
 _(This section is optional for issues, mandatory for task descriptions and pull requests once a task goes into review)_

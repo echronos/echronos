@@ -29,7 +29,7 @@ import itertools
 import os
 import tempfile
 import unittest
-from pylib.utils import BASE_DIR
+from pylib.utils import BASE_DIR, LineFilter, update_file
 from pylib.components import _sort_typedefs, _sort_by_dependencies, _DependencyNode, _UnresolvableDependencyError
 from pylib.task import _Review, Task, _InvalidTaskStateError, TaskConfiguration
 from pylib.task_commands import TASK_CFG
@@ -112,6 +112,51 @@ class TestCase(unittest.TestCase):
         # before we placed a hard minimum in the check
         task = task_dummy_create("test_not_enough_accepted")
         self.assertRaises(_InvalidTaskStateError, task._check_is_accepted)
+
+    def test_update_file(self):
+        # Ensure the following properties of update_file()
+        # - performs the expected line manipulation
+        # - leaves a file 100% unmodified when the line filters are set up to have no effect
+        # - leaves lines unaffected by line filters 100% unmodified
+        # - gracefully handles complex unicode characters
+        # - gracefully handles different line endings
+        line1 = u'line one: 繁\n'
+        line2 = u'line two: ℕ\n'
+
+        for newline in ('\n', '\r', '\r\n'):
+            tf_obj = tempfile.NamedTemporaryFile(delete=False)
+            tf_obj.write('{}{}'.format(line1.replace('\n', newline), line2.replace('\n', newline)).encode('utf8'))
+            tf_obj.close()
+            self._test_update_file_on_path(tf_obj.name, line1, line2)
+            os.remove(tf_obj.name)
+
+    def _test_update_file_on_path(self, file_path, line1, line2):
+        with open(file_path, 'rb') as file_obj:
+            original_file_contents = file_obj.read()
+
+        def matches(_, line, __, ___):
+            return line.startswith('line two')
+
+        def replace_none(_, line, __, ___):
+            return line.replace('line two', 'line two')
+
+        def handle_no_matches(_, __):
+            pass
+
+        update_file(file_path, [LineFilter(matches, replace_none, handle_no_matches)])
+        with open(file_path, 'rb') as file_obj:
+            updated_file_contents = file_obj.read()
+        self.assertEqual(original_file_contents, updated_file_contents)
+
+        def replace_number(_, line, __, ___):
+            return line.replace('line two', 'line 2')
+
+        update_file(file_path, [LineFilter(matches, replace_number, handle_no_matches)])
+        with open(file_path, 'r', encoding='utf8') as file_obj:
+            line = file_obj.readline()
+            self.assertEqual(line, line1)
+            line = file_obj.readline()
+            self.assertEqual(line, line2.replace('line two', 'line 2'))
 
 
 # Helper for the pre-integration check tests

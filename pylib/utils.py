@@ -26,6 +26,7 @@
 #
 
 # pylint: disable=too-many-public-methods
+import io
 import os
 import sys
 import shutil
@@ -626,3 +627,42 @@ def _sanitize_path(path):
 
     """
     return os.path.normpath(follow_link(os.path.abspath(path)))
+
+
+def update_file(path, line_filters, only_if_all_matched=False):
+    """Modify a file by matching and replacing individual lines.
+
+    `path` is a string identifying the path of the file to modify.
+    `line_filters` is an iterable container of LineFilter objects.
+    For each line in the file, each filter is applied in order.
+    `only_if_all_matched` is a boolean controlling when the file is rewritten.
+    When `only_if_all_matched` is False, the file is always rewritten, regardless whether any line matched any filter.
+    When it is True, the file is only rewritten if each filter matched at least one line in the file.
+
+    The function returns whether the file was rewritten or not.
+    """
+    sio_obj = io.StringIO()
+    updated = {flt: False for flt in line_filters}
+    newlines = None
+    with open(path, encoding='utf8') as file_obj:
+        for line_no, line in enumerate(file_obj, 1):
+            if newlines is None:
+                newlines = file_obj.newlines
+            for line_filter in line_filters:
+                if line_filter.matches(line_filter, line, line_no, path):
+                    line = line_filter.replace(line_filter, line, line_no, path)
+                    updated[line_filter] = True
+            sio_obj.write(line)
+    for line_filter, is_updated in updated.items():
+        if not is_updated:
+            line_filter.handle_no_matches(line_filter, path)
+
+    if not only_if_all_matched or all(updated.values()):
+        assert isinstance(newlines, str)
+        with open(path, 'w', encoding='utf8', newline=newlines) as file_obj:
+            file_obj.write(sio_obj.getvalue())
+        return True
+    return False
+
+
+LineFilter = namedtuple('LineFilter', ('matches', 'replace', 'handle_no_matches'))

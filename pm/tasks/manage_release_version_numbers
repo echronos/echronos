@@ -24,21 +24,21 @@ There are two main requirements for achieving this goal:
 ## Proposed Solution
 
 1. The version change required by a task shall be documented in the task's task description file under `pm/tasks/`.
-   To do so, the new section 'API Impact' shall be introduced.
-   Its heading shall read as exactly one of the three options `# API Impact: Major', `# API Impact: Minor', or `# API Impact: Patch'.
+   To do so, the new section 'Release Impact' shall be introduced.
+   Its heading shall read as exactly one of the three options `# Release Impact: Major', `# Release Impact: Minor', or `# Release Impact: Patch'.
    These impact levels are directly equivalent to [semantic versioning](http://semver.org/).
    Note that the version does not only apply to the RTOS C API, but also to build tools or code, such as the prj utility and its location in release archives.
    This shall help application developers in determining whether a version upgrade can impact their build infrastructure and/or application code.
 2. Reviewers shall generally verify that the proposed version change is consistent with the semantic versioning rules and the other changes in the task.
    The file `internal-docs/task_management.md` shall be updated accordingly to document this.
-3. The command `task.py integrate` shall update the actual release version number stored in `release_cfg.py` based on the _API Impact_ section in the task description.
+3. The command `task.py integrate` shall update the actual release version number stored in `release_cfg.py` based on the _Release Impact_ section in the task description.
 
 
-# API Impact: Patch
+# Release Impact: Patch
 
 
 # Test Plan
 
 - Verify that all existing regression tests pass.
 - Verify that the changes meet the task goals and follow project conventions.
-- Given the changes of this task, verify that the API impact documented above is consistent with the principles of [semantic versioning](http://semver.org/).
+- Given the changes of this task, verify that the release impact documented above is consistent with the principles of [semantic versioning](http://semver.org/).

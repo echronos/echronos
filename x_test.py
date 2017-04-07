@@ -52,7 +52,7 @@ class TestCase(unittest.TestCase):
         with tempfile.TemporaryDirectory() as dir:
             round = 0
             author = 'john.doe'
-            review_file_path = os.path.join(dir, 'review-{}.{}'.format(round, author))
+            review_file_path = os.path.join(dir, '{}.{}.md'.format(author, round))
             open(review_file_path, 'w').close()
             review = _Review(review_file_path)
             assert review.author == author

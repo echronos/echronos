@@ -232,5 +232,6 @@ def discover_tests(*mut_names):
             try:
                 test_module = importlib.import_module('{}_test'.format(mut_name))
                 yield from discover_tests_module(test_module)
-            except ImportError:
-                pass
+            except ImportError as err:
+                print('While attempting to discover tests in module "{}_test.py", the following import error occurred'
+                      ': {}'.format(mut_name, err))

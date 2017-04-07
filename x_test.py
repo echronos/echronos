@@ -27,7 +27,8 @@
 
 from pylib.utils import BASE_DIR, Git, get_top_dir
 from pylib.components import _sort_typedefs, _sort_by_dependencies, _DependencyNode, _UnresolvableDependencyError
-from pylib.task import _Review, Task, _InvalidTaskStateError
+from pylib.task import _Review, Task, _InvalidTaskStateError, TaskConfiguration
+from pylib.task_commands import task_cfg
 import itertools
 import os
 import tempfile
@@ -126,9 +127,14 @@ class TestCase(unittest.TestCase):
 class DummyGit:
     def __init__(self, task_name):
         self.branches = []
-        self.origin_branches = ["archive/%s" % task_name]
+        self.remote_branches = frozenset(["archive/%s" % task_name])
 
 
 # Helper for the pre-integration check tests
 def task_dummy_create(task_name):
-    return Task(task_name, os.path.dirname(os.path.abspath(__file__)), DummyGit(task_name))
+    cfg = TaskConfiguration(repo_path=BASE_DIR,
+                            tasks_path=os.path.join('x_test_data', 'tasks'),
+                            description_template_path=task_cfg.description_template_path,
+                            reviews_path=os.path.join('x_test_data', 'reviews'),
+                            mainline_branch=task_cfg.mainline_branch)
+    return Task(cfg, task_name, checkout=False)

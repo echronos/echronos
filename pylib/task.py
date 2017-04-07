@@ -287,6 +287,32 @@ This is necessary for our review system to work as expected.')
     def _is_valid_name(name):
         return all([c.isalnum() or c in ('-', '_') for c in name])
 
+    def _get_release_impact(self):
+        """Return the release impact of the current task as documented in the task's description.
+
+        This function either returns one of 'major', 'minor', or 'patch' or it raises an _InvalidReleaseImpactError.
+        """
+        prefix = '# Release Impact:'
+        valid_values = frozenset(('major', 'minor', 'patch'))
+        with open(self._description_path) as file_obj:
+            for line_no, line in enumerate(file_obj, 1):
+                if line.startswith(prefix):
+                    try:
+                        release_impact = line.split(prefix)[1].strip().lower()
+                    except IndexError:
+                        raise _InvalidReleaseImpactError('Unable to parse level of release impact from line {} ("{}")'
+                                                         ' in task description file "{}"'
+                                                         .format(line_no, line, self._description_path))
+                    if release_impact not in valid_values:
+                        raise _InvalidReleaseImpactError('The release impact value "{}" on line {} ("{}") in task '
+                                                         'description file "{}" is not among the acceptable values '
+                                                         '"{}"'.format(release_impact, line_no, line,
+                                                                       self._description_path, valid_values))
+                    return release_impact
+
+        raise _InvalidReleaseImpactError('Unable to find section "{}" in task description file "{}"'
+                                         .format(prefix, self._description_path))
+
     @property
     def _description_path(self):
         return os.path.join(self.cfg.repo_path, self.cfg.tasks_path, self.name)
@@ -349,4 +375,8 @@ class _InvalidTaskNameError(RuntimeError):
 
 
 class _InconsistentUserNameError(RuntimeError):
+    pass
+
+
+class _InvalidReleaseImpactError(Exception):
     pass

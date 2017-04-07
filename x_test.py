@@ -27,7 +27,7 @@
 
 from pylib.utils import Git, get_top_dir
 from pylib.components import _sort_typedefs, _sort_by_dependencies, _DependencyNode, _UnresolvableDependencyError
-from pylib.tasks import _Review, _Task, _InvalidTaskStateError
+from pylib.task import _Review, Task, _InvalidTaskStateError
 import itertools
 import os
 import tempfile
@@ -162,4 +162,4 @@ On Windows, this is accomplished with a default installation of "git for Windows
 
 # Helper for the pre-integration check tests
 def task_dummy_create(task_name):
-    return _Task(task_name, os.path.dirname(os.path.abspath(__file__)), DummyGit(task_name))
+    return Task(task_name, os.path.dirname(os.path.abspath(__file__)), DummyGit(task_name))

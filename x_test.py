@@ -31,7 +31,6 @@ from pylib.task import _Review, Task, _InvalidTaskStateError
 import itertools
 import os
 import tempfile
-import subprocess
 import unittest
 
 
@@ -39,28 +38,6 @@ class TestCase(unittest.TestCase):
     def test_empty(self):
         """Test whether an empty test can be run at all given the test setup in x.py."""
         pass
-
-    def test_git_branch_hash(self):
-        repo_dir = get_top_dir()
-
-        try:
-            revid, _ = _get_git_revision_hash_and_time(repo_dir)
-        except subprocess.CalledProcessError:
-            raise unittest.SkipTest('Test requires code to be managed in a local git repository')
-
-        g = Git(local_repository=repo_dir)
-        assert revid == g.branch_hash(revid)
-
-    def test_git_branch_date(self):
-        repo_dir = get_top_dir()
-
-        try:
-            revid, time = _get_git_revision_hash_and_time(repo_dir)
-        except subprocess.CalledProcessError:
-            raise unittest.SkipTest('Test requires code to be managed in a local git repository')
-
-        g = Git(local_repository=repo_dir)
-        assert time == g.branch_date(revid)
 
     def test_sort_typedefs(self):
         typedefs = ['typedef uint8_t foo;',
@@ -150,18 +127,6 @@ class DummyGit:
     def __init__(self, task_name):
         self.branches = []
         self.origin_branches = ["archive/%s" % task_name]
-
-
-def _get_git_revision_hash_and_time(repo_dir):
-    try:
-        subprocess.check_call(('git', '--version'), stdout=subprocess.DEVNULL)
-    except FileNotFoundError:
-        raise unittest.SkipTest('This test requires a "git" executable to be available in PATH. \
-On Windows, this is accomplished with a default installation of "git for Windows".')
-
-    git_output = subprocess.check_output(('git', 'log', '-n', '1', '--pretty=%H %at'), cwd=repo_dir)
-    revid, time = git_output.decode().split()
-    return (revid, int(time))
 
 
 # Helper for the pre-integration check tests

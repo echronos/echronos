@@ -29,8 +29,9 @@ import itertools
 import os
 import tempfile
 import unittest
-from pylib.utils import BASE_DIR, LineFilter, update_file
+from pylib.utils import BASE_DIR, LineFilter, update_file, get_release_version, find_path, TOP_DIR
 from pylib.components import _sort_typedefs, _sort_by_dependencies, _DependencyNode, _UnresolvableDependencyError
+from pylib.release import get_release_configs
 from pylib.task import _Review, Task, _InvalidTaskStateError, TaskConfiguration
 from pylib.task_commands import TASK_CFG
 
@@ -167,6 +168,12 @@ class TestCase(unittest.TestCase):
                                 mainline_branch='master')
         task = Task(cfg, 'manage_release_version_numbers', checkout=False)
         self.assertEqual(task._get_release_impact(), 'patch')
+
+    def test_get_release_version(self):
+        imported_version_str = get_release_configs()[0].version
+        rls_cfg_path = find_path('release_cfg.py', TOP_DIR)
+        parsed_version_str = '.'.join(str(nmbr) for nmbr in get_release_version(rls_cfg_path))
+        self.assertEqual(parsed_version_str, imported_version_str)
 
 
 # Helper for the pre-integration check tests

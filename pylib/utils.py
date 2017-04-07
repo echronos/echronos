@@ -666,3 +666,10 @@ def update_file(path, line_filters, only_if_all_matched=False):
 
 
 LineFilter = namedtuple('LineFilter', ('matches', 'replace', 'handle_no_matches'))
+
+
+def get_release_version(release_cfg_path):
+    with open(release_cfg_path, encoding='utf8') as file_obj:
+        for line in file_obj:
+            if line.startswith('    version = '):
+                return tuple(int(part) for part in line.split(' = ')[1].strip().strip("'").split('.'))

@@ -150,7 +150,7 @@ def _run_module_tests(modules, directories, patterns=None, verbosity=0, print_on
                 runner = unittest.TextTestRunner(resultclass=SimpleTestNameResult,
                                                  verbosity=BASE_VERBOSITY + verbosity)
                 run_result = runner.run(suite)
-                if run_result.wasSuccessful():
+                if run_result.wasSuccessful() and run_result.testsRun > 0:
                     result = 0
                 else:
                     result = 1

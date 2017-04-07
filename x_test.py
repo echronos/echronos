@@ -158,6 +158,16 @@ class TestCase(unittest.TestCase):
             line = file_obj.readline()
             self.assertEqual(line, line2.replace('line two', 'line 2'))
 
+    @unittest.skipUnless(os.path.isdir(os.path.join(BASE_DIR, '.git')), 'Test depends on valid git repo')
+    def test_get_release_impact(self):
+        cfg = TaskConfiguration(repo_path=BASE_DIR,
+                                tasks_path=os.path.join('pm', 'tasks'),
+                                description_template_path=None,
+                                reviews_path=os.path.join('pm', 'reviews'),
+                                mainline_branch='master')
+        task = Task(cfg, 'manage_release_version_numbers', checkout=False)
+        self.assertEqual(task._get_release_impact(), 'patch')
+
 
 # Helper for the pre-integration check tests
 def task_dummy_create(task_name):

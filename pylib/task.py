@@ -299,7 +299,7 @@ class _Review:
         self.file_path = file_path
         basename = os.path.basename(file_path)
         author_dot_round = os.path.splitext(basename)[0]
-        author, round = author_dot_round.split('.', maxsplit=1)
+        author, round = author_dot_round.rsplit('.', maxsplit=1)
         self.round = int(round)
         self.author = author
         self._conclusion = None

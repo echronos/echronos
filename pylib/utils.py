@@ -575,6 +575,9 @@ appropriate one:\n    {}\n".format('\n    '.join(idx_names)))
     def get_branches_that_contain_revid(self, revid):
         return [l.strip().replace('* ', '') for l in self._do(['branch', '--contains', revid], as_lines=True)]
 
+    def tag(self, tag_name, rev_spec):
+        self._do(['tag', tag_name, rev_spec])
+
 
 def string_to_path(string):
     string = string.replace(' ', '_')

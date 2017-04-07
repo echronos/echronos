@@ -103,17 +103,18 @@ class Task:
               '3. push task to remote repository via #> git push'.format(self._description_path, self.name,
                                                                          self._description_path))
 
-    def integrate(self):
-        self._check_and_prepare(offline=False)
+    def integrate(self, offline=False):
+        self._check_and_prepare(offline=offline)
         if not self._is_on_review():
             raise _InvalidTaskStateError('The task {} is not on review.'.format(self.name))
         self._check_is_accepted()
 
-        self._update_release_version()
+        self._update_release_version(offline=offline)
         self._git.checkout(self.cfg.mainline_branch)
         self._git.merge_into_active_branch(self._mainline_tracking_branch, '--ff-only', '--no-squash')
         self._git.merge_into_active_branch(self.name, '--no-squash')
-        self._git.push()
+        if not offline:
+            self._git.push()
 
     def _check_is_accepted(self):
         """Check whether all authors of completed reviews arrive at the 'accepted' conclusion in their final reviews,

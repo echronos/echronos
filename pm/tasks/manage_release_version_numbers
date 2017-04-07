@@ -15,6 +15,9 @@ There are two main requirements for achieving this goal:
    With multiple tasks in progress or under review, merging down changes from the mainline branch would lead to either a conflict in the version number (if they are different on the mainline and task branches) or to change disappearing from the task branch if it happens to be identical to that on the mainline branch.
    Therefore, a task shall document which version change it requires not by directly changing the release version number itself, but by recording this information through another mechanism.
    That mechanism shall make it easy to review the version number change and avoid conflicts when merging the mainline branch.
+3. With such improvements in place, release automation can be further improved.
+   The `task.py integrate` command can implicitly create a new git tag of the pattern `v{version}` pointing to the updated HEAD revision of the master branch.
+   This can help trigger the continuous integration service to create a new release.
 
 
 # Goals
@@ -32,6 +35,7 @@ There are two main requirements for achieving this goal:
 2. Reviewers shall generally verify that the proposed version change is consistent with the semantic versioning rules and the other changes in the task.
    The file `internal-docs/task_management.md` shall be updated accordingly to document this.
 3. The command `task.py integrate` shall update the actual release version number stored in `release_cfg.py` based on the _Release Impact_ section in the task description.
+4. The command `task.py integrate` shall create a git tag `v{version}` for the updated master branch to trigger the creation of a new release.
 
 
 # Release Impact: Patch
@@ -45,6 +49,8 @@ There are two main requirements for achieving this goal:
 - Run `task.py integrate --offline` to integrate this task into the master branch without affecting the remote repository.
   Verify that this task was merged into the master branch.
   Verify that the master and task branches contain a commit that updated the patch number of the release version in the file `release_cfg.py`.
+  Run `git tag --list` and verify that there is a new tag that is called `v{version}` for the updated release version and that points to the updated master branch.
   Run `git reset --hard origin/master` to revert the integration of this task into the master branch.
   Run `git checkout manage_release_version_numbers` to switch back to this task.
   Run `git reset --hard HEAD~1` to revert the update of the release version.
+  Run `git tag --delete v{version}` replacing {version} with the updated version number to delete the created git tag.

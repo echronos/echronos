@@ -42,3 +42,9 @@ There are two main requirements for achieving this goal:
 - Verify that all existing regression tests pass.
 - Verify that the changes meet the task goals and follow project conventions.
 - Given the changes of this task, verify that the release impact documented above is consistent with the principles of [semantic versioning](http://semver.org/).
+- Run `task.py integrate --offline` to integrate this task into the master branch without affecting the remote repository.
+  Verify that this task was merged into the master branch.
+  Verify that the master and task branches contain a commit that updated the patch number of the release version in the file `release_cfg.py`.
+  Run `git reset --hard origin/master` to revert the integration of this task into the master branch.
+  Run `git checkout manage_release_version_numbers` to switch back to this task.
+  Run `git reset --hard HEAD~1` to revert the update of the release version.

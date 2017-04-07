@@ -25,7 +25,7 @@
 # @TAG(NICTA_AGPL)
 #
 
-from pylib.utils import Git, get_top_dir
+from pylib.utils import BASE_DIR, Git, get_top_dir
 from pylib.components import _sort_typedefs, _sort_by_dependencies, _DependencyNode, _UnresolvableDependencyError
 from pylib.task import _Review, Task, _InvalidTaskStateError
 import itertools
@@ -115,14 +115,17 @@ class TestCase(unittest.TestCase):
         output = list(_sort_by_dependencies(nodes, ignore_cyclic_dependencies=True))
         assert sorted(output) == sorted(nodes)
 
+    @unittest.skipUnless(os.path.isdir(os.path.join(BASE_DIR, '.git')), 'Test depends on valid git repo')
     def test_task_accepted(self):
         # This task was accepted without any rework reviews
         task_dummy_create("eeZMmO-cpp-friendly-headers")._check_is_accepted()
 
+    @unittest.skipUnless(os.path.isdir(os.path.join(BASE_DIR, '.git')), 'Test depends on valid git repo')
     def test_rework_is_accepted(self):
         # This task had a rework review that was later accepted by its review author
         task_dummy_create("ogb1UE-kochab-documentation-base")._check_is_accepted()
 
+    @unittest.skipUnless(os.path.isdir(os.path.join(BASE_DIR, '.git')), 'Test depends on valid git repo')
     def test_rework_not_accepted(self):
         # This task was erroneously integrated with a rework review not later accepted by its review author
         try:
@@ -131,6 +134,7 @@ class TestCase(unittest.TestCase):
         except _InvalidTaskStateError:
             pass
 
+    @unittest.skipUnless(os.path.isdir(os.path.join(BASE_DIR, '.git')), 'Test depends on valid git repo')
     def test_not_enough_accepted(self):
         # This task was integrated after being accepted by only one reviewer
         # before we placed a hard minimum in the check

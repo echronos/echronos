@@ -260,11 +260,10 @@ provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|packag
                         continue
 
                 if agpl_sentinel is not None:
-                    f = open(path, 'rb')
-                    old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
-                    if not sentinel_found:
-                        files_without_license.append(path)
-                    f.close()
+                    with open(path, 'rb') as f:
+                        old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
+                        if not sentinel_found:
+                            files_without_license.append(path)
 
     if len(files_without_license):
         logging.error('License check found files without a license header:')
@@ -296,12 +295,14 @@ def provenance(args):
     for provenance_path in base_to_top_paths(args.topdir, 'provenance'):
         for dirpath, subdirs, files in os.walk(provenance_path):
             for list_path in [os.path.join(dirpath, f) for f in files if f == 'FILES']:
-                for file_path in [line.strip() for line in open(list_path)]:
-                    file_abs_path = os.path.normpath(os.path.join(os.path.dirname(provenance_path), file_path))
-                    if os.path.exists(file_abs_path):
-                        files_listed.append(file_abs_path)
-                    else:
-                        files_nonexistent.append((file_path, list_path))
+                with open(list_path) as file_obj:
+                    for line in file_obj:
+                        file_path = line.strip()
+                        file_abs_path = os.path.normpath(os.path.join(os.path.dirname(provenance_path), file_path))
+                        if os.path.exists(file_abs_path):
+                            files_listed.append(file_abs_path)
+                        else:
+                            files_nonexistent.append((file_path, list_path))
 
     # Check that all files in 'external_tools' and 'tools' are listed in a provenance FILES listing.
     for target_dir in target_dirs:
@@ -401,7 +402,8 @@ class GdbTestCase(unittest.TestCase):
         reference_output = self._get_reference_output()
         if test_output != reference_output:
             new_reference_path = os.path.splitext(self.prx_path)[0] + '.gdboutnew'
-            open(new_reference_path, 'wb').write(self.gdb_output)
+            with open(new_reference_path, 'wb') as file_obj:
+                file_obj.write(self.gdb_output)
             sys.stdout.write('System test failed:\n\t{}\n\t{}\n\t{}\n'.format(self.gdb_commands_path,
                                                                               self.executable_path,
                                                                               new_reference_path))
@@ -427,7 +429,9 @@ class GdbTestCase(unittest.TestCase):
 
     def _get_reference_output(self):
         reference_path = os.path.splitext(self.prx_path)[0] + '.gdbout'
-        return self._filter_gdb_output(open(reference_path).read())
+        with open(reference_path) as file_obj:
+            reference_output = file_obj.read()
+        return self._filter_gdb_output(reference_output)
 
     @staticmethod
     def _filter_gdb_output(gdb_output):

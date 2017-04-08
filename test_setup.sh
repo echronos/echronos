@@ -82,3 +82,15 @@ then
     make -s > make.log 2>&1 || { cat make.log; false; }
     make -s install > make.log 2>&1 || { cat make.log; false; }
 fi
+
+# The x tests depend on the master branch to exist in the git repository.
+# Travis clones the git repository in such a way that the master branch is not available.
+# Make it available:
+cd "${TRAVIS_BUILD_DIR}"
+if ! grep -e "fetch.*master" .git/config && ! grep -e "heads/\*" .git/config
+then
+    git config --add remote.origin.fetch "+refs/heads/master:refs/remotes/origin/master"
+    git fetch --depth=1
+    git branch --track master origin/master
+fi
+cd -

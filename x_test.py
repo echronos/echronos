@@ -96,18 +96,18 @@ class TestCase(unittest.TestCase):
     @unittest.skipUnless(os.path.isdir(os.path.join(BASE_DIR, '.git')), 'Test depends on valid git repo')
     def test_task_accepted(self):
         # This task was accepted without any rework reviews
-        task_dummy_create("eeZMmO-cpp-friendly-headers")._check_is_accepted()
+        task_dummy_create("test_task_accepted")._check_is_accepted()
 
     @unittest.skipUnless(os.path.isdir(os.path.join(BASE_DIR, '.git')), 'Test depends on valid git repo')
     def test_rework_is_accepted(self):
         # This task had a rework review that was later accepted by its review author
-        task_dummy_create("ogb1UE-kochab-documentation-base")._check_is_accepted()
+        task_dummy_create("test_rework_is_accepted")._check_is_accepted()
 
     @unittest.skipUnless(os.path.isdir(os.path.join(BASE_DIR, '.git')), 'Test depends on valid git repo')
     def test_rework_not_accepted(self):
         # This task was erroneously integrated with a rework review not later accepted by its review author
         try:
-            task_dummy_create("g256JD-kochab-mutex-timeout")._check_is_accepted()
+            task_dummy_create("test_rework_not_accepted")._check_is_accepted()
             assert False
         except _InvalidTaskStateError:
             pass
@@ -117,7 +117,7 @@ class TestCase(unittest.TestCase):
         # This task was integrated after being accepted by only one reviewer
         # before we placed a hard minimum in the check
         try:
-            task_dummy_create("65N0RS-fix-x-test-regression")._check_is_accepted()
+            task_dummy_create("test_not_enough_accepted")._check_is_accepted()
             assert False
         except _InvalidTaskStateError:
             pass

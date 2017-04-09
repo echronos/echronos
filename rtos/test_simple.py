@@ -46,13 +46,10 @@ class TestSimple(unittest.TestCase):
         assert self.simple.foo() == 37
 
     def test_bar(self):
-        def check_add(sum_x, sum_y):
-            assert sum_x + sum_y == self.simple.add(sum_x, sum_y)
-
         rand = random.Random()
         rand.seed(37)
 
-        for idx in range(20):
+        for _ in range(20):
             int_x = rand.randint(0, 5000)
             int_y = rand.randint(0, 5000)
-            yield "test_bar{}".format(idx), check_add, int_x, int_y
+            self.assertEqual(int_x + int_y, self.simple.add(int_x, int_y))

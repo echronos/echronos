@@ -84,12 +84,12 @@ def pystache(args):
 
 
 @subcmd(cmd="test", args=_STD_SUBCMD_ARGS)
-def units(args):
+def units(_):
     """Run rtos unit tests."""
-    modules = ['rtos']
-    directories = ['.']
-
-    return _run_module_tests_with_args(modules, directories, args)
+    result = unittest.main(module=None, argv=['', 'discover', '-s', 'rtos']).result
+    if result.testsRun > 0 and result.wasSuccessful():
+        return 0
+    return 1
 
 
 def _run_module_tests_with_args(modules, directories, args):

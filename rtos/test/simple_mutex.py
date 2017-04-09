@@ -28,12 +28,13 @@
 import ctypes
 import os
 import sys
+import unittest
 
 from rtos import sched
 from pylib.utils import get_executable_extension
 
 
-class testSimpleMutex:  # pylint: disable=invalid-name
+class TestSimpleMutex(unittest.TestCase):
     @classmethod
     def setUpClass(cls):  # pylint: disable=invalid-name
         result = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.simple-mutex")
@@ -70,7 +71,7 @@ class testSimpleMutex:  # pylint: disable=invalid-name
         expected_yields = 20
         self.impl.rtos_mutex_lock(0)
 
-        YieldFuncPtr = ctypes.CFUNCTYPE(None)
+        yield_func_ptr = ctypes.CFUNCTYPE(None)
         yield_calls = 0
 
         def yield_func():
@@ -79,7 +80,7 @@ class testSimpleMutex:  # pylint: disable=invalid-name
             if yield_calls == expected_yields:
                 self.impl.rtos_mutex_unlock(0)
 
-        self.impl.pub_set_yield_ptr(YieldFuncPtr(yield_func))
+        self.impl.pub_set_yield_ptr(yield_func_ptr(yield_func))
 
         self.impl.rtos_mutex_lock(0)
         assert yield_calls == expected_yields

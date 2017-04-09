@@ -29,6 +29,7 @@ import ctypes
 import itertools
 import os
 import sys
+import unittest
 
 from pylib.utils import get_executable_extension
 
@@ -45,7 +46,7 @@ class SemaphoreStruct(ctypes.Structure):
     _fields_ = [("value", ctypes.c_ubyte)]
 
 
-class SemaphoreTest:
+class SemaphoreTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):  # pylint: disable=invalid-name
         result = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.simple-semaphore")

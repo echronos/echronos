@@ -39,7 +39,6 @@ from collections import namedtuple
 import multiprocessing
 import pycodestyle
 
-from .xunittest import discover_tests, TestSuite, SimpleTestNameResult, testcase_matches, testsuite_list
 from .release import _LicenseOpener
 from .utils import get_executable_extension, BASE_DIR, find_path, base_to_top_paths, walk, base_path, get_top_dir
 from .cmdline import subcmd, Arg
@@ -90,78 +89,6 @@ def units(_):
     if result.testsRun > 0 and result.wasSuccessful():
         return 0
     return 1
-
-
-def _run_module_tests_with_args(modules, directories, args):
-    """Call a fixed set of modules in specific directories, deriving all input for a call to _run_module_tests() from
-    the given command line arguments.
-
-    See `run_modules_tests` for more information.
-
-    """
-    patterns = args.tests
-    verbosity = 0
-    if args.verbose:
-        verbosity = 1
-    if args.quiet:
-        verbosity = -1
-    print_only = args.list
-    topdir = args.topdir
-
-    return _run_module_tests(modules, directories, patterns, verbosity, print_only, topdir)
-
-
-# pylint: disable=too-many-arguments
-def _run_module_tests(modules, directories, patterns=None, verbosity=0, print_only=False, topdir=""):
-    """Discover and run the tests associated with the given modules and located in the given directories.
-
-    'modules' is list of module names as a sequence of strings.
-    Only tests related to these modules are to be discovered.
-
-    'directories' is a list of relative directory names as a sequence of strings.
-    Only tests located in these directories are to be discovered.
-
-    'patterns' is a list of test name patterns as a sequence of strings.
-    If 'patterns' is not empty, only the tests whose names match one of the patterns are honored and all other
-    discovered tests are ignored.
-    If 'patterns' is empty, all discovered tests are honored.
-
-    The integer 'verbosity' controls the amount of generated console output when executing the tests.
-    A value of 0 selects the default verbosity level, positive values increase it, negative values reduce it.
-
-    If the boolean 'print_only' is True, the discovered tests are printed on the console but not executed.
-
-    Returns a process exit code suitable for passing to sys.exit().
-    The return values is 0 if there are no test failures and non-zero if there were test failures.
-
-    """
-    result = 0
-
-    paths = [os.path.join(topdir, dir) for dir in directories]
-    if all([os.path.exists(p) for p in paths]):
-        with _python_path(*paths):
-            all_tests = discover_tests(*modules)
-
-            if patterns:
-                tests = (t for t in all_tests if any(testcase_matches(t, p) for p in patterns))
-            else:
-                tests = all_tests
-
-            suite = TestSuite(tests)
-
-            if print_only:
-                testsuite_list(suite)
-            else:
-                base_verbosity = 1
-                runner = unittest.TextTestRunner(resultclass=SimpleTestNameResult,
-                                                 verbosity=base_verbosity + verbosity)
-                run_result = runner.run(suite)
-                if run_result.wasSuccessful() and run_result.testsRun > 0:
-                    result = 0
-                else:
-                    result = 1
-
-    return result
 
 
 @contextmanager

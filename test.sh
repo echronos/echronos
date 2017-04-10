@@ -112,7 +112,7 @@ do
     run_test python${PY_VER} x.py build packages
     run_test test_build_test_systems
     run_test test_analyze_test_systems
-    if test -e pm/tasks/CbC0b6-message_queue_unit_tests; then run_test python${PY_VER} x.py test units; fi
+    run_test python${PY_VER} x.py test units
     run_test python${PY_VER} x.py test systems
     run_test python${PY_VER} x.py build prj
     run_test eval "TMPDIR=/tmp xvfb-run -a -s '-screen 0 640x480x16' python${PY_VER} x.py build docs"

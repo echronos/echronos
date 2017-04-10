@@ -31,13 +31,14 @@ import sys
 import unittest
 
 from rtos import sched
-from pylib.utils import get_executable_extension
+from pylib.utils import get_executable_extension, base_path
 
 
 class TestRrSched(unittest.TestCase):
     @classmethod
     def setUpClass(cls):  # pylint: disable=invalid-name
-        result = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.sched-rr")
+        result = os.system("{} {} build posix.unittest.sched-rr"
+                           .format(sys.executable, base_path('prj', 'app', 'prj.py')))
         system = "out/posix/unittest/sched-rr/system" + get_executable_extension()
         assert result == 0
         cls.impl = ctypes.CDLL(system)
@@ -57,7 +58,8 @@ class TestRrSched(unittest.TestCase):
 class TestPrioSched(unittest.TestCase):
     @classmethod
     def setUpClass(cls):  # pylint: disable=invalid-name
-        result = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.sched-prio")
+        result = os.system("{} {} build posix.unittest.sched-prio"
+                           .format(sys.executable, base_path('prj', 'app', 'prj.py')))
         system = "out/posix/unittest/sched-prio/system" + get_executable_extension()
         assert result == 0
         cls.impl = ctypes.CDLL(system)
@@ -79,7 +81,8 @@ class TestPrioInheritSched(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):  # pylint: disable=invalid-name
-        result = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.sched-prio-inherit")
+        result = os.system("{} {} build posix.unittest.sched-prio-inherit"
+                           .format(sys.executable, base_path('prj', 'app', 'prj.py')))
         system = "out/posix/unittest/sched-prio-inherit/system" + get_executable_extension()
         assert result == 0
         cls.impl = ctypes.CDLL(system)

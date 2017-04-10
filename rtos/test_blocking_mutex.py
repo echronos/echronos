@@ -30,7 +30,7 @@ import os
 import sys
 import unittest
 
-from pylib.utils import get_executable_extension
+from pylib.utils import get_executable_extension, base_path
 
 NUM_MUTEXES = 10
 
@@ -42,7 +42,8 @@ class MutexStruct(ctypes.Structure):
 class TestBlockingMutex(unittest.TestCase):
     @classmethod
     def setUpClass(cls):  # pylint: disable=invalid-name
-        result = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.blocking-mutex")
+        result = os.system("{} {} build posix.unittest.blocking-mutex".format(sys.executable,
+                                                                              base_path('prj', 'app', 'prj.py')))
         system = "out/posix/unittest/blocking-mutex/system" + get_executable_extension()
         assert result == 0
         cls.impl = ctypes.CDLL(system)

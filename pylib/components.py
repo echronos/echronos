@@ -40,7 +40,8 @@ _REQUIRED_H_SECTIONS = ['public_headers',
                         'public_object_like_macros',
                         'public_function_like_macros',
                         'public_state',
-                        'public_function_declarations']
+                        'public_function_declarations',
+                        'public_privileged_function_declarations']
 
 _REQUIRED_C_SECTIONS = ['headers',
                         'object_like_macros',
@@ -51,7 +52,8 @@ _REQUIRED_C_SECTIONS = ['headers',
                         'state',
                         'function_like_macros',
                         'functions',
-                        'public_functions']
+                        'public_functions',
+                        'public_privileged_functions']
 
 _REQUIRED_DEP_SECTIONS = ['provides', 'requires']
 

@@ -46,6 +46,9 @@ MEMORY
 
 SECTIONS
 {
+        dummy = ASSERT({{flash_size}} == (1 << LOG2CEIL({{flash_size}})),
+            "Flash region has size that is not power-of-2.");
+
         . = {{code_addr}};
 
         .vectors :
@@ -75,15 +78,87 @@ SECTIONS
         /* Check that bitband variables don't overflow */
         dummy = ASSERT(SIZEOF(.data.bitband) <= {{bitband_size}}, "bitband variables too large");
 
+        {{#rtos.memory_protection}}
+        /* Sections that encapsulate protection domains.
+         *
+         * SYMBOL DOMAINS:
+         * This includes symbols that would normally occupy the .bss or .data
+         * segment. They are combined into one section as separating the two
+         * would give us half as many simultaneous protection domains. We
+         * accept the flash usage tradeoff here as memory is cheaper than MPU
+         * regions on this architecture. (normally .bss symbols do not use up
+         * any flash as they are zeroed on initialization)
+         *
+         * We must align to the power-of-2 domain size at the beginning
+         * and at the end of each domain to ensure that the MPU region we set up
+         * encompasses the entire protection region, and nothing else.
+         *
+         * One can include symbols by specifying either a c identifier or
+         * an object file. In practice, it should be very difficult to get
+         * these confused as an object file is an invalid c identifier, and
+         * a c identifier is much more narrow-grained then an object file.
+         *
+         * ADDRESS DOMAINS:
+         * These simply use a base address and size to declare a domain. */
+        {{#rtos.protection_domains}}
+
+        dummy = ASSERT({{domain_size}} == (1 << LOG2CEIL({{domain_size}})),
+            "Protection domain {{name}} has size that is not power-of-2.");
+
+        {{#base_address}}
+        /* Address domain */
+        dummy = ASSERT({{base_address}} % {{domain_size}} == 0,
+            "Address protection domain {{name}} has base address not aligned to its size");
+
+        linker_domain_{{name}}_start = {{base_address}};
+        linker_domain_{{name}}_size = {{domain_size}};
+        {{/base_address}}
+
+        {{^base_address}}
+        /* Symbol domain */
+        .domain_{{name}} :
+        {
+            . = ALIGN({{domain_size}});
+            linker_domain_{{name}}_start = .;
+            {{#symbols}}
+            *(.data.{{.}} .bss.{{.}}) /* C identifier? put here */
+            *{{.}} (.data* .bss*)     /* Object file? put here */
+            {{/symbols}}
+            BYTE(0xEE)                /* Only way to reliably force section contents
+                                         to appear in the output ELF. TODO: Fix */
+            . = ALIGN({{domain_size}});
+        } > sram_region AT > flash_load_region
+
+        linker_domain_{{name}}_size = . - linker_domain_{{name}}_start;
+
+        dummy = ASSERT(linker_domain_{{name}}_size > 0,
+            "No symbols (or only unused symbols) in protection domain: {{name}}");
+        dummy = ASSERT(linker_domain_{{name}}_size == {{domain_size}},
+            "Failed to fit symbols in protection domain: {{name}}");
+        {{/base_address}}
+
+        {{/rtos.protection_domains}}
+        {{/rtos.memory_protection}}
+
         .data :
         {
-            *(.data)
+            *(.data*)
             . = ALIGN(4);
         } > sram_region AT > flash_load_region
 
         data_load_addr = LOADADDR(.data.bitband);
         data_virt_addr = ADDR(.data.bitband);
-        data_size = SIZEOF(.data.bitband) + SIZEOF(.data);
+        data_size = SIZEOF(.data.bitband) + SIZEOF(.data)
+            {{#rtos.memory_protection}}
+            /* We must increase the .data size by our symbol protection domain sizes
+             * so that they are appropriately initialized when the RTOS starts */
+            {{#rtos.protection_domains}}
+            {{^base_address}}
+            + SIZEOF(.domain_{{name}})
+            {{/base_address}}
+            {{/rtos.protection_domains}}
+            {{/rtos.memory_protection}}
+            ;
 
         /* Check addresses are correct */
         dummy = ASSERT(data_load_addr % 4 == 0, "data_load_addr not word aligned");
@@ -92,7 +167,14 @@ SECTIONS
 
         .bss :
         {
-            *(.bss)
+            {{#rtos.memory_protection}}
+            {{#rtos.tasks}}
+            dummy = ASSERT({{stack_size}} == (1 << LOG2CEIL({{stack_size}})),
+                           "Stack size for task: {{name}} is not a power-of-2.");
+            *(.bss.stack.task_{{idx}})
+            {{/rtos.tasks}}
+            {{/rtos.memory_protection}}
+            *(.bss*)
             *(COMMON)
             . = ALIGN(4);
         } > sram_region
@@ -109,6 +191,14 @@ SECTIONS
         {{#bit_aliases}}
         {{.}}_bitband = {{bitband_alias}} + (({{.}} - {{bitband_base}}) * 32);
         {{/bit_aliases}}
+
+        {{#rtos.memory_protection}}
+        /* Constants used by the MPU for run-time assertions. Necessary here
+         * because these are properties of the vectable module, not the RTOS */
+        linker_flash_start = {{flash_load_addr}};
+        linker_flash_size = {{flash_size}};
+        linker_sram_size = {{sram_size}};
+        {{/rtos.memory_protection}}
 
         /* Debug sections */
 

@@ -1,0 +1,21 @@
+# Motivation
+
+- The RTOS currently does not support hardware memory protection, a feature that is becoming more common in modern microcontrollers.
+- Without memory protection, a system is left more vulnerable to implementation errors that may be present in a system's codebase - i.e stack overflows, unintended writing to code or internal kernel data, and many other issues related to memory accesses.
+- The ARM Cortex-M3/4 (armv7m architecture) series are arguably the most common commodity MCUs that contain Memory Protection Units (and are supported by the RTOS), so this task will aim to implement support on this platform.
+
+# Goals
+
+- Implement a generic (where possible) way of handling systems that utilize memory protection
+- Implement a privileged/unprivileged execution model
+- Implement a driver for armv7m that allows the MPU to be used
+- Implement support into some existing RTOS variant(s)
+- Provide sample systems that demonstrate the functionality
+- This first task will provide only basic RTOS variant support
+    - Future tasks will add support for preemptive RTOS variants and more platforms
+
+# Test Plan
+
+- Review code
+- Test sample MPU systems on ARM hardware
+- Existing regression tests must pass

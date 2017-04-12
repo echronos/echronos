@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+     eChronos Real-Time Operating System
+     Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+
+     This program is free software: you can redistribute it and/or modify
+     it under the terms of the GNU Affero General Public License as published by
+     the Free Software Foundation, version 3, provided that these additional
+     terms apply under section 7:
+
+       No right, title or interest in or to any trade mark, service mark, logo
+       or trade name of of National ICT Australia Limited, ABN 62 102 206 173
+       ("NICTA") or its licensors is granted. Modified versions of the Program
+       must be plainly marked as such, and must not be distributed using
+       "eChronos" as a trade mark or product name, or misrepresented as being
+       the original Program.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU Affero General Public License for more details.
+
+     You should have received a copy of the GNU Affero General Public License
+     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+     @TAG(NICTA_AGPL)
+  -->
+
+<system>
+  <modules>
+    <module name="armv7m.build-mpu" />
+    <module name="armv7m.ctxt-switch" />
+    <module name="armv7m.vectable">
+      <flash_addr>0x8000000</flash_addr>
+      <flash_size>0x100000</flash_size>
+      <sram_size>0x20000</sram_size>
+      <nmi>nmi</nmi>
+      <hardfault>hardfault</hardfault>
+      <usagefault>usagefault</usagefault>
+      <busfault>busfault</busfault>
+    </module>
+    <module name="armv7m.semihost-debug" />
+    <module name="generic.debug" />
+
+    <module name="armv7m.rtos-acamar">
+      <memory_protection>true</memory_protection>
+      <verbose_protection_faults>true</verbose_protection_faults>
+      <skip_faulting_instructions>true</skip_faulting_instructions>
+      <protection_domains>
+          <protection_domain>
+              <name>dom1</name>
+              <domain_size>256</domain_size>
+              <symbols>
+                  <symbol>dom1_variable</symbol>
+                  <symbol>dom1_stack_variable_addr</symbol>
+              </symbols>
+          </protection_domain>
+          <protection_domain>
+              <name>dom2</name>
+              <domain_size>256</domain_size>
+              <symbols>
+                  <symbol>dom2_variable</symbol>
+              </symbols>
+          </protection_domain>
+      </protection_domains>
+
+
+      <prefix>rtos</prefix>
+      <fatal_error>fatal</fatal_error>
+      <internal_asserts>true</internal_asserts>
+      <api_asserts>true</api_asserts>
+      <taskid_size>8</taskid_size>
+      <tasks>
+
+        <task>
+          <name>a</name>
+          <function>fn_a</function>
+          <stack_size>256</stack_size>
+          <associated_domains>
+              <domain>
+                  <name>dom1</name>
+                  <writeable>true</writeable>
+              </domain>
+              <domain>
+                  <name>dom2</name>
+              </domain>
+          </associated_domains>
+        </task>
+
+        <task>
+          <name>b</name>
+          <function>fn_b</function>
+          <stack_size>256</stack_size>
+          <associated_domains>
+              <domain>
+                  <name>dom1</name>
+              </domain>
+              <domain>
+                  <name>dom2</name>
+                  <writeable>true</writeable>
+              </domain>
+          </associated_domains>
+        </task>
+
+      </tasks>
+    </module>
+
+    <module name="rtos-example.acamar-mpu-test" />
+
+  </modules>
+</system>

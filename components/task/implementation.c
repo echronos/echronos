@@ -64,5 +64,10 @@ get_current_task_check(void)
 {{prefix_type}}TaskId
 {{prefix_func}}task_current(void)
 {
-    return get_current_task();
+    rtos_internal_api_begin();
+    {{prefix_type}}TaskId t = get_current_task();
+    rtos_internal_api_end();
+    return t;
 }
+
+/*| public_privileged_functions |*/

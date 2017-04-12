@@ -370,3 +370,5 @@ bool
 }
 
 {{/message_queues.length}}
+
+/*| public_privileged_functions |*/

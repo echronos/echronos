@@ -42,3 +42,5 @@ void {{prefix_func}}timer_error_set({{prefix_type}}TimerId timer_id, {{prefix_ty
 /*@unused@*/
 void {{prefix_func}}timer_signal_set({{prefix_type}}TimerId timer_id, {{prefix_type}}TaskId task_id, {{prefix_type}}SignalSet signal_set);
 {{/timers.length}}
+
+/*| public_privileged_function_declarations |*/

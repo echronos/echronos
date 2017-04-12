@@ -46,6 +46,7 @@ void
     sched_set_runnable(task);
 }
 
+/*| public_privileged_functions |*/
 void
 {{prefix_func}}start(void)
 {

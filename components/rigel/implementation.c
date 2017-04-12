@@ -97,6 +97,7 @@ void
     yield_to(to);
 }
 
+/*| public_privileged_functions |*/
 void
 {{prefix_func}}start(void)
 {

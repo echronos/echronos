@@ -97,6 +97,8 @@ unblock(const {{prefix_type}}TaskId task)
 }
 
 /*| public_functions |*/
+
+/*| public_privileged_functions |*/
 void
 {{prefix_func}}start(void)
 {

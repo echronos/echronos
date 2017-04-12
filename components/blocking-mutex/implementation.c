@@ -214,7 +214,8 @@ bool
 }
 
 {{#mutex.stats}}
-void {{prefix_func}}mutex_stats_clear(void)
+void
+{{prefix_func}}mutex_stats_clear(void)
 {
     /* memset would be preferable, but string.h is not available on all platforms */
     uint8_t mutex_index;
@@ -227,3 +228,5 @@ void {{prefix_func}}mutex_stats_clear(void)
 }
 {{/mutex.stats}}
 {{/mutexes.length}}
+
+/*| public_privileged_functions |*/

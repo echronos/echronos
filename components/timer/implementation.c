@@ -284,3 +284,5 @@ void
     timers[timer_id].error_id = error_id;
 }
 {{/timers.length}}
+
+/*| public_privileged_functions |*/

@@ -13,8 +13,10 @@
 /*| public_state |*/
 
 /*| public_function_declarations |*/
-void {{prefix_func}}start(void);
 /*@unused@*/
 void {{prefix_func}}yield(void) {{prefix_const}}REENTRANT;
 /*@unused@*/
 void {{prefix_func}}task_start({{prefix_type}}TaskId task);
+
+/*| public_privileged_function_declarations |*/
+void {{prefix_func}}start(void);

@@ -4,5 +4,13 @@
         <entry name="function" type="c_ident" />
         <entry name="name" type="ident" />
         <entry name="stack_size" type="int" />
+        <entry name="associated_domains" type="list" default="[]" auto_index_field="domx">
+            <entry name="domain" type="dict">
+                <entry name="name" />
+                <entry name="readable" type="bool" default="true"/>
+                <entry name="writeable" type="bool" default="false"/>
+                <entry name="executable" type="bool" default="false"/>
+            </entry>
+        </entry>
     </entry>
 </entry>

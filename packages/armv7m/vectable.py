@@ -49,7 +49,7 @@ class EntryModule(Module):
 
     <entry name="nmi" type="c_ident" default="reset" />
     <entry name="hardfault" type="c_ident" default="reset" />
-    <entry name="memmanage" type="c_ident" default="reset" />
+    <entry name="memmanage" type="c_ident" optional="true" />
     <entry name="busfault" type="c_ident" default="reset" />
     <entry name="usagefault" type="c_ident" default="reset" />
     <entry name="svcall" type="c_ident" optional="true" />

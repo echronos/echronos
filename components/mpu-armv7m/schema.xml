@@ -1,0 +1,17 @@
+<entry name="memory_protection" type="bool" default="false"/>
+<entry name="verbose_protection_faults" type="bool" default="false"/>
+<entry name="skip_faulting_instructions" type="bool" default="false"/>
+<entry name="protection_domains" type="list" default="[]" auto_index_field="idx">
+    <entry name="protection_domain" type="dict">
+        <entry name="name" type="ident" />
+        <entry name="domain_size" type="int" optional="false" />
+        <entry name="symbols" type="list" optional="true">
+            <entry name="symbol" type="c_ident" />
+        </entry>
+        <entry name="base_address" type="int" optional="true" />
+        <constraint name="constraint0" type="one_of">
+            <entry name="symbols">symbols</entry>
+            <entry name="base_address">base_address</entry>
+        </constraint>
+    </entry>
+</entry>

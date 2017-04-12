@@ -29,3 +29,5 @@ context_switch(context_t *from, context_t *to)
 }
 
 /*| public_functions |*/
+
+/*| public_privileged_functions |*/

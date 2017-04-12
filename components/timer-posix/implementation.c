@@ -49,3 +49,5 @@ void
         timer_ticks_pending += 1;
     }
 }
+
+/*| public_privileged_functions |*/

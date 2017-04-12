@@ -16,3 +16,5 @@
 void {{prefix_func}}interrupt_event_task_set({{prefix_type}}InterruptEventId interrupt_event_id, {{prefix_type}}TaskId task_id);
 {{/interrupt_events.length}}
 [[/task_set]]
+
+/*| public_privileged_function_declarations |*/

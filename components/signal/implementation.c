@@ -153,3 +153,5 @@ void
 
     preempt_enable();
 }
+
+/*| public_privileged_functions |*/

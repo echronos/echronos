@@ -106,3 +106,5 @@ void
     interrupt_event |= (1U << interrupt_event_id);
 }
 {{/interrupt_events.length}}
+
+/*| public_privileged_functions |*/

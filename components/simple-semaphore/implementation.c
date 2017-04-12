@@ -161,3 +161,5 @@ void
     semaphores[s].max = max;
 }
 {{/semaphore_enable_max}}
+
+/*| public_privileged_functions |*/

@@ -67,6 +67,8 @@ interrupt_event_wait(void)
 }
 
 /*| public_functions |*/
+
+/*| public_privileged_functions |*/
 {{#interrupt_events.length}}
 void
 {{prefix_func}}interrupt_event_raise(const {{prefix_type}}InterruptEventId interrupt_event_id)

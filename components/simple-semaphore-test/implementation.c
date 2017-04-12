@@ -87,3 +87,5 @@ void pub_sem_init(void)
     unblock_ptr = NULL;
     get_current_task_ptr = NULL;
 }
+
+/*| public_privileged_functions |*/

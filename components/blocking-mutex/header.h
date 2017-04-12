@@ -45,3 +45,5 @@ bool {{prefix_func}}mutex_holder_is_current({{prefix_type}}MutexId);
 void {{prefix_func}}mutex_stats_clear(void);
 {{/mutex.stats}}
 {{/mutexes.length}}
+
+/*| public_privileged_function_declarations |*/

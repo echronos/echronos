@@ -37,3 +37,5 @@ void {{prefix_func}}yield(void) {{prefix_const}}REENTRANT
         yield_ptr();
     }
 }
+
+/*| public_privileged_functions |*/

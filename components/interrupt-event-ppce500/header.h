@@ -14,3 +14,5 @@
 {{#interrupt_events.length}}
 void {{prefix_func}}interrupt_event_raise({{prefix_type}}InterruptEventId event);
 {{/interrupt_events.length}}
+
+/*| public_privileged_function_declarations |*/

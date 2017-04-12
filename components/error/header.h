@@ -14,3 +14,5 @@ typedef uint8_t {{prefix_type}}ErrorId;
 
 /*| public_function_declarations |*/
 
+
+/*| public_privileged_function_declarations |*/

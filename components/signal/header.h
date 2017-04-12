@@ -42,3 +42,5 @@ typedef {{prefix_type}}SignalSet {{prefix_type}}SignalId;
 {{prefix_type}}SignalSet {{prefix_func}}signal_peek_set({{prefix_type}}SignalSet requested_signals);
 /*@unused@*/
 void {{prefix_func}}signal_send_set({{prefix_type}}TaskId task_id, {{prefix_type}}SignalSet signals);
+
+/*| public_privileged_function_declarations |*/

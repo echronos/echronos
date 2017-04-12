@@ -39,3 +39,5 @@ bool {{prefix_func}}message_queue_get_timeout({{prefix_type}}MessageQueueId mess
 
 {{/message_queues.length}}
 
+
+/*| public_privileged_function_declarations |*/

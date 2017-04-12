@@ -16,3 +16,5 @@
 void {{prefix_func}}profiling_record_sample(void);
 
 {{/profiling}}
+
+/*| public_privileged_function_declarations |*/

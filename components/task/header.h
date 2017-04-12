@@ -22,3 +22,5 @@ typedef uint{{taskid_size}}_t {{prefix_type}}TaskId;
 /*| public_function_declarations |*/
 /*@unused@*/
 {{prefix_type}}TaskId {{prefix_func}}task_current(void);
+
+/*| public_privileged_function_declarations |*/

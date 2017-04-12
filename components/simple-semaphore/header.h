@@ -37,3 +37,5 @@ bool {{prefix_func}}sem_wait_timeout({{prefix_type}}SemId, {{prefix_type}}TicksR
 {{#semaphore_enable_max}}
 void {{prefix_func}}sem_max_init({{prefix_type}}SemId s, {{prefix_type}}SemValue max);
 {{/semaphore_enable_max}}
+
+/*| public_privileged_function_declarations |*/

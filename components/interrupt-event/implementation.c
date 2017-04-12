@@ -53,3 +53,5 @@ rtos_internal_interrupt_event_get_next(void)
 }
 
 /*| public_functions |*/
+
+/*| public_privileged_functions |*/

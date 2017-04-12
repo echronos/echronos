@@ -79,3 +79,5 @@ found:
 }
 
 /*| public_functions |*/
+
+/*| public_privileged_functions |*/

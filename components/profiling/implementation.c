@@ -52,3 +52,5 @@ void
 }
 
 {{/profiling}}
+
+/*| public_privileged_functions |*/

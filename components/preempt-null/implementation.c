@@ -22,3 +22,5 @@
 /*| functions |*/
 
 /*| public_functions |*/
+
+/*| public_privileged_functions |*/

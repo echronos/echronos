@@ -29,3 +29,5 @@ void {{prefix_func}}mutex_lock({{prefix_type}}MutexId) {{prefix_const}}REENTRANT
 bool {{prefix_func}}mutex_try_lock({{prefix_type}}MutexId);
 void {{prefix_func}}mutex_unlock({{prefix_type}}MutexId);
 {{/mutexes.length}}
+
+/*| public_privileged_function_declarations |*/

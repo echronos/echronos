@@ -21,3 +21,5 @@ static uint8_t stack_{{idx}}[{{stack_size}}];
 /*| functions |*/
 
 /*| public_functions |*/
+
+/*| public_privileged_functions |*/

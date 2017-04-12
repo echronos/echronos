@@ -12,3 +12,5 @@
 
 /*| public_function_declarations |*/
 void {{prefix_func}}timer_tick(void);
+
+/*| public_privileged_function_declarations |*/

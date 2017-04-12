@@ -58,3 +58,5 @@ void
 
     context_switch_first(get_task_context({{prefix_const}}TASK_ID_ZERO));
 }
+
+/*| public_privileged_functions |*/

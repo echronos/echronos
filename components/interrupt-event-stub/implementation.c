@@ -28,3 +28,5 @@ interrupt_event_process(void)
 }
 
 /*| public_functions |*/
+
+/*| public_privileged_functions |*/

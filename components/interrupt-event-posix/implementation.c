@@ -106,3 +106,5 @@ void
     (void)sigprocmask(SIG_UNBLOCK, &set, NULL);
 }
 {{/interrupt_events.length}}
+
+/*| public_privileged_functions |*/

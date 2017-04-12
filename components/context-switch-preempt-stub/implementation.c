@@ -33,3 +33,5 @@ void (*entry_point_ptr)(void);
 /*| functions |*/
 
 /*| public_functions |*/
+
+/*| public_privileged_functions |*/

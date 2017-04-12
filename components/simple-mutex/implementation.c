@@ -83,3 +83,5 @@ bool
     return r;
 }
 {{/mutexes.length}}
+
+/*| public_privileged_functions |*/

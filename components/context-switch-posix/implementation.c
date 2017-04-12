@@ -34,3 +34,5 @@ context_init(context_t *const ctx, void (*const fn)(void), uint8_t *const stack_
 }
 
 /*| public_functions |*/
+
+/*| public_privileged_functions |*/

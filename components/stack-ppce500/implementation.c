@@ -25,3 +25,5 @@ static uint32_t stack_{{idx}}[{{stack_size}}] __attribute__((aligned(8)));
 /*| functions |*/
 
 /*| public_functions |*/
+
+/*| public_privileged_functions |*/

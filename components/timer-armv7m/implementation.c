@@ -32,6 +32,8 @@ timer_pending_ticks_get_and_clear_atomically(void)
 }
 
 /*| public_functions |*/
+
+/*| public_privileged_functions |*/
 void
 {{prefix_func}}timer_tick(void)
 {

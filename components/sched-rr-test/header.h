@@ -14,3 +14,5 @@
 
 /*| public_function_declarations |*/
 
+
+/*| public_privileged_function_declarations |*/

@@ -144,3 +144,5 @@ sched_get_next(void)
 }
 
 /*| public_functions |*/
+
+/*| public_privileged_functions |*/

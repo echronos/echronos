@@ -13,3 +13,5 @@
 /*| public_function_declarations |*/
 void {{prefix_func}}yield(void) {{prefix_const}}REENTRANT;
 
+
+/*| public_privileged_function_declarations |*/

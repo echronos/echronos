@@ -60,3 +60,5 @@ void
 }
 {{/interrupt_events.length}}
 [[/task_set]]
+
+/*| public_privileged_functions |*/

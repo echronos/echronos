@@ -44,3 +44,5 @@ pub_sched_get_next(void)
 }
 
 struct sched * pub_sched_tasks = &sched_tasks;
+
+/*| public_privileged_functions |*/

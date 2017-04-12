@@ -20,3 +20,5 @@ typedef uint{{interrupteventid_size}}_t {{prefix_type}}InterruptEventId;
 /*| public_state |*/
 
 /*| public_function_declarations |*/
+
+/*| public_privileged_function_declarations |*/

@@ -35,6 +35,15 @@
 #define ERROR_ID_SCHED_PRIO_CEILING_TASK_LOCKING_LOWER_PRIORITY_MUTEX (({{prefix_type}}ErrorId) UINT8_C(30))
 #define ERROR_ID_SCHED_PRIO_CEILING_MUTEX_ALREADY_LOCKED (({{prefix_type}}ErrorId) UINT8_C(31))
 #define ERROR_ID_TIMER_SIGNAL_SET_IS_EMPTY (({{prefix_type}}ErrorId) UINT8_C(32))
+#define ERROR_ID_MPU_INTERNAL_MISALIGNED_ADDR (({{prefix_type}}ErrorId) UINT8_C(33))
+#define ERROR_ID_MPU_INTERNAL_INVALID_PTR (({{prefix_type}}ErrorId) UINT8_C(34))
+#define ERROR_ID_MPU_VIOLATION (({{prefix_type}}ErrorId) UINT8_C(35))
+#define ERROR_ID_MPU_ALREADY_ENABLED (({{prefix_type}}ErrorId) UINT8_C(36))
+#define ERROR_ID_MPU_ALREADY_DISABLED (({{prefix_type}}ErrorId) UINT8_C(37))
+#define ERROR_ID_MPU_INVALID_REGION_SIZE (({{prefix_type}}ErrorId) UINT8_C(38))
+#define ERROR_ID_MPU_NON_STANDARD (({{prefix_type}}ErrorId) UINT8_C(39))
+#define ERROR_ID_MPU_SANITATION_FAILURE (({{prefix_type}}ErrorId) UINT8_C(40))
+#define ERROR_ID_MPU_INTERNAL_INVALID_REGION_INDEX (({{prefix_type}}ErrorId) UINT8_C(41))
 
 /*| types |*/
 
@@ -77,3 +86,5 @@ extern /*@noreturn@*/ void {{fatal_error}}({{prefix_type}}ErrorId error_id);
 /*| functions |*/
 
 /*| public_functions |*/
+
+/*| public_privileged_functions |*/

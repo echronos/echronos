@@ -87,7 +87,7 @@ def units(args):
     """Run rtos unit tests."""
     tests_run = 0
     was_successful = True
-    for path in base_to_top_paths(args.topdir, 'rtos'):
+    for path in base_to_top_paths(args.topdir, 'unit_tests'):
         result = unittest.main(module=None, argv=['', 'discover', '-s', path]).result
         tests_run += result.testsRun
         was_successful = was_successful and result.wasSuccessful()

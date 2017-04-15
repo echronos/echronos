@@ -1,0 +1,29 @@
+# Motivation
+
+Currently, the 3rd-party Python packages `pystache` and `ply` are located under the directory `prj/app`.
+This is inconsistent with the convention of managing 3rd party packages in the `external_tools` directory.
+
+Furthermore, the two tools `x.py` and `prj.py` both use the pystache Python package.
+Therefore, the `x.py` tool needs to specifically manipulate the Python search path for packages to be able to import it.
+
+
+# Goals
+
+- The `pystache` and `ply` packages may be updated to the most recent version.
+- To improve the consistency of how 3rd party Python packages are managed, the `pystache` and `ply` packages shall be moved out of the `prj` directory into the `external_tools` directory.
+- As far as possible, they shall be set up with the standard `pip` installation commands or otherwise resemble the standard directory layout created by it to maximize adoption of standard practices.
+- The `x.py` and `prj.py` shall be updated to be able to import the packages from their new locations.
+- The build process for the `prj` utility shall be updated so that it continues to include the packages in the `prj` executable.
+
+
+# Test Plan
+
+- Verify that all existing regression tests pass.
+- Verify that the changes meet the task goals and follow project conventions.
+- To build the `prj` executable and test its functionality, run the following commands:
+
+    ./x.py build prj
+    ./prj_build/prj build posix.acamar
+
+- Verify that both commands complete successfully.
+  This verifies that the `prj` executable correctly includes and uses the 3rd party packages.

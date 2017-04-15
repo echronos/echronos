@@ -46,7 +46,7 @@ import sys
 import traceback
 
 if __name__ == "__main__":
-    for pth in ['pystache', 'ply', 'lib']:
+    for pth in ['../../external_tools', 'ply', 'lib']:
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), pth))
 
 # Logging is set up first since this is critical to the rest of the application working correctly.

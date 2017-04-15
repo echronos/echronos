@@ -1,6 +1,6 @@
 #
 # eChronos Real-Time Operating System
-# Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+# Copyright (C) 2017  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -24,12 +24,21 @@
 #
 # @TAG(NICTA_AGPL)
 #
+import os.path
+from pylib import tests  # importing GdbTestCase would make the unittest framework to pick it up as a test case
 
-import sys
-import os
 
-if sys.platform != "win32" or 'cygdrive' in os.environ.get('ORIGINAL_PATH', ''):
-    from pylib import tests
+class Acamar(tests.GdbTestCase):
+    prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'acamar.prx')
 
-    class TestCase(tests.GdbTestCase):
-        system_name = "posix.gatria"
+
+class Acrux(tests.GdbTestCase):
+    prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'acrux.prx')
+
+
+class Gatria(tests.GdbTestCase):
+    prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'gatria.prx')
+
+
+class Kraz(tests.GdbTestCase):
+    prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'kraz.prx')

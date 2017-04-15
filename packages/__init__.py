@@ -1,6 +1,6 @@
 #
 # eChronos Real-Time Operating System
-# Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+# Copyright (C) 2017  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -25,11 +25,4 @@
 # @TAG(NICTA_AGPL)
 #
 
-import sys
-import os
-
-if sys.platform != "win32" or 'cygdrive' in os.environ.get('ORIGINAL_PATH', ''):
-    from pylib import tests
-
-    class TestCase(tests.GdbTestCase):
-        system_name = "posix.acrux"
+# The presence of this file is necessary for the unittest package to be able to discover tests

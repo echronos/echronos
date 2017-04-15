@@ -34,7 +34,6 @@ from contextlib import contextmanager
 import difflib
 import io
 import re
-import inspect
 from collections import namedtuple
 import multiprocessing
 import pycodestyle
@@ -422,37 +421,34 @@ class GdbTestCase(unittest.TestCase):
 
     The external interface of this class is that of unittest.TestCase to be accessed by the unittest frameworks.
 
-    To use this class for new tests, import this class in a Python file under the packages/ directory.
-    That Python file needs to have the same file name as the .prx file containing the system configuration of the
-    system to build and test, the .gdb file containing the GDB commands to execute against the system executable, and
-    the .gdbout file containing the expected GDB output.
-    The default implementation of this class then picks up these files and runs the test.
-
-    If building or running or testing a system requires additional logic beyond this default implementation, create a
-    subclass of this class and extend it accordingly.
-
+    To use this class for new tests, subclass this class in a Python file under the packages/ directory and set the
+    prx_path attribute.
     """
-    system_name = None
+    prx_path = None
 
     def __init__(self, *args, **kwargs):
         self.gdb_output = None
         super().__init__(*args, **kwargs)
 
     def setUp(self):
-        topdir = os.path.abspath('.')
-        self.search_paths = list(base_to_top_paths(topdir, 'packages'))
-        if self.system_name is None:
-            py_path = inspect.getfile(self.__class__)
-            self.prx_path = os.path.splitext(py_path)[0] + '.prx'
-            rel_py_path = os.path.relpath(py_path, os.path.abspath(self.search_paths[0]))
-            self.system_name = os.path.splitext(rel_py_path)[0].replace(os.sep, '.')
-        else:
-            rel_prx_path = os.path.join('packages', self.system_name.replace('.', os.sep) + '.prx')
-            self.prx_path = list(base_to_top_paths(topdir, rel_prx_path))[0]
-        self.executable_path = os.path.abspath(os.path.join('out', self.system_name.replace('.', os.sep),
-                                                            'system' + get_executable_extension()))
+        assert os.path.exists(self.prx_path), self.prx_path
+        assert os.path.isabs(self.prx_path), self.prx_path
+
         self.gdb_commands_path = os.path.splitext(self.prx_path)[0] + '.gdb'
+
+        parent_packages_path = os.path.join(self.prx_path.rpartition(os.sep + 'packages' + os.sep)[0], 'packages')
+        self.search_paths = [parent_packages_path]
+
+        rel_prx_path = os.path.relpath(self.prx_path, parent_packages_path)
+        self.system_name = os.path.splitext(rel_prx_path)[0].replace(os.sep, '.')
+
+        rel_executable_path = os.path.join('out', self.system_name.replace('.', os.sep), self._get_executable_name())
+        self.executable_path = os.path.abspath(rel_executable_path)
+
         self._build()
+
+    def _get_executable_name(self):  # pylint: disable=no-self-use
+        return 'system' + get_executable_extension()
 
     def test(self):
         assert os.path.exists(self.executable_path)

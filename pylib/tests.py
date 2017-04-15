@@ -56,7 +56,7 @@ _STD_SUBCMD_ARGS = (
 def prj(args):
     """Run tests associated with prj modules."""
     with _python_path(os.path.join(BASE_DIR, 'prj', 'app', 'lib')):
-        rel_dirs = (os.path.join('prj', 'app', 'pystache'),
+        rel_dirs = (os.path.join('external_tools', 'pystache'),
                     os.path.join('prj', 'app'),
                     os.path.join('prj', 'app', 'lib'))
 

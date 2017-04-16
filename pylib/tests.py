@@ -519,3 +519,19 @@ class GdbTestCase(unittest.TestCase):
                         break
             filtered_result.write(line)
         return filtered_result.getvalue()
+
+
+class PpcQemuTestCase(GdbTestCase):
+    @unittest.skipIf(os.name == 'nt', "not supported on this operating system because cross-platform toolchain is not\
+ available")
+    def setUp(self):
+        super().setUp()
+        self.qemu = subprocess.Popen(('qemu-system-ppc', '-S', '-nographic', '-gdb', 'tcp::18181', '-M', 'ppce500',
+                                      '-kernel', self.executable_path))
+
+    def _get_test_command(self):
+        return ('powerpc-linux-gdb', '--batch', self.executable_path, '-x', self.gdb_commands_path)
+
+    def tearDown(self):
+        self.qemu.terminate()
+        self.qemu.wait()

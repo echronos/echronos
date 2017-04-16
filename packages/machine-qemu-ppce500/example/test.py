@@ -1,6 +1,6 @@
 #
 # eChronos Real-Time Operating System
-# Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+# Copyright (C) 2017  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -24,9 +24,21 @@
 #
 # @TAG(NICTA_AGPL)
 #
+import os.path
+from pylib import tests  # importing PpcQemuTestCase would make the unittest framework to pick it up as a test case
 
-from . import testcase
+
+class Acamar(tests.PpcQemuTestCase):
+    prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'acamar-system.prx')
 
 
-class Hello(testcase.TestCase):
-    pass
+class Gatria(tests.PpcQemuTestCase):
+    prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'gatria-system.prx')
+
+
+class Hello(tests.PpcQemuTestCase):
+    prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'hello.prx')
+
+
+class Kraz(tests.PpcQemuTestCase):
+    prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'kraz-system.prx')

@@ -386,18 +386,18 @@ provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|packag
                         files_without_license.append(path)
                     file_obj.close()
 
-    if len(files_without_license):
+    if files_without_license:
         logging.error('License check found files without a license header:')
         for file_path in files_without_license:
             logging.error('    %s', file_path)
 
-    if len(files_unknown_type):
+    if files_unknown_type:
         logging.error('License check found files of unknown type:')
         for file_path in files_unknown_type:
             logging.error('    %s', file_path)
         return 1
 
-    if len(files_without_license):
+    if files_without_license:
         return 1
 
     return 0
@@ -443,18 +443,18 @@ def provenance(args):
                     files_not_listed.append(file_path)
 
     # Log all results and return 1 if there were any problematic cases
-    if len(files_nonexistent):
+    if files_nonexistent:
         logging.error('Provenance check found files listed that don\'t exist:')
         for file_path, list_path in files_nonexistent:
             logging.error('    %s (listed in %s)', file_path, list_path)
 
-    if len(files_not_listed):
+    if files_not_listed:
         logging.error('Provenance check found files without provenance information:')
         for file_path in files_not_listed:
             logging.error('    %s', file_path)
         return 1
 
-    if len(files_nonexistent):
+    if files_nonexistent:
         return 1
 
     return 0

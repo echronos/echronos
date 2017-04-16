@@ -45,7 +45,7 @@ def run(system, configuration=None):
 def system_build(system, configuration):
     inc_path_args = ['-I%s' % i for i in system.include_paths + [os.path.dirname(os.path.abspath(__file__))]]
 
-    if len(system.c_files) == 0:
+    if not system.c_files:
         raise SystemBuildError("Zero C files in system definition")
 
     if configuration['output_type'] == 'shared-library':

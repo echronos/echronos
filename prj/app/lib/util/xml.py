@@ -171,7 +171,7 @@ is not supported. include elements may only appear below the root element.'))
         must not be accessed or used in the context of the calling function.
 
         """
-        if len(element_children(element)) != 0:
+        if element_children(element):
             raise SystemParseError(xml_error_str(element, 'Expected no child elements in include element. \
 Correct format is <include file="FILENAME" />'))
 
@@ -222,7 +222,7 @@ def single_text_child(element):
     An exception is raised if these assumption are not true.
 
     """
-    if len(element.childNodes) == 0:
+    if not element.childNodes:
         return ''
 
     if len(element.childNodes) != 1 or element.childNodes[0].nodeType != element.TEXT_NODE:
@@ -403,7 +403,7 @@ def check_schema_is_valid(schema, key_path=None):
     name = None
 
     def error(msg):
-        if name is None and len(key_path) == 0:
+        if name is None and not key_path:
             key_name = None
         elif name is None:
             key_name = '.'.join(key_path)
@@ -547,7 +547,7 @@ def check_ident(ident):
     The first character should be a lower-case ascii. [a-z]
 
     """
-    if len(ident) == 0:
+    if not ident:
         raise ValueError("Ident string must not be empty.")
 
     if ident[0] not in string.ascii_lowercase:
@@ -655,7 +655,7 @@ def xml2dict(element, schema=None):
             if name in els:
                 del els[name]
 
-        if len(els):
+        if els:
             fst = next(iter(els.values()))
             raise SystemParseError(xml_error_str(fst, "Unexpected configuration entry '{}'".format(fst.tagName)))
 

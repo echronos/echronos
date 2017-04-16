@@ -951,7 +951,7 @@ class Project:
         param_search_paths = search_paths if search_paths is not None else []
         project_search_paths = list(get_paths_from_dom(self.dom, 'search-path'))
         user_search_paths = param_search_paths + project_search_paths
-        if len(user_search_paths) == 0:
+        if not user_search_paths:
             user_search_paths = [self.project_dir]
 
         built_in_search_paths = []

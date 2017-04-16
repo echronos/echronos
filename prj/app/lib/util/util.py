@@ -118,7 +118,7 @@ def add_index(lst, key):
     """
     indexes = [dct[key] for dct in lst if dct.get(key) is not None]
     out_of_range = [idx for idx in indexes if idx >= len(lst) or idx < 0]
-    if len(out_of_range) > 0:
+    if out_of_range:
         raise ValueError("Some index value are out-of-range: {}".format(out_of_range))
     check_unique(indexes)
 
@@ -202,7 +202,7 @@ def config_set(cfg, key, val):
     """
     # Note: This could be implemented pretty nicely as a recursive algortihm, but
     # I've avoided this since there is no tail-call optimisation available.
-    assert len(key) > 0
+    assert key
 
     while len(key) > 1:
         cfg, key = cfg[key[0]], key[1:]

@@ -157,7 +157,7 @@ class _FileWithLicense:
         if old_license_len:
             file_obj.read(old_license_len)
 
-        if len(lic) > 0:
+        if lic:
             self._read_license = False
             self._license_io = io.BytesIO(lic)
 

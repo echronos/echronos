@@ -96,25 +96,7 @@ def _prj_build(output_dir):
                 zip_file.writestr(archive_file_path, file_content)
 
         for third_party_package in ('pystache', 'ply'):
-            for dir_path, _, file_names in os.walk(base_path('external_tools', third_party_package)):
-                # Exclude temporary files created by the Python interpreter on the fly
-                if '__pycache__' in dir_path.lower() or 'tests' in dir_path:
-                    continue
-
-                archive_dir_path = os.path.relpath(dir_path, base_path('external_tools'))
-                for file_name in file_names:
-                    # Exclude temporary files created by the Python interpreter on the fly
-                    if file_name.lower().endswith('.pyc'):
-                        continue
-
-                    file_path = os.path.join(dir_path, file_name)
-
-                    with open(file_path, 'rb') as file_obj:
-                        file_content = file_obj.read()
-
-                    archive_file_path = os.path.join(archive_dir_path, file_name)
-                    archive_file_path = os.path.normpath(archive_file_path)
-                    zip_file.writestr(archive_file_path, file_content)
+            _add_3rd_party_package_to_zip(third_party_package, zip_file)
 
     with open(os.path.join(output_dir, 'prj.bat'), 'w', newline='\r\n') as file_obj:
         file_obj.write('@ECHO OFF\npy -3 %~dp0\\prj %*\n')
@@ -124,3 +106,24 @@ def _prj_build(output_dir):
 DIR="$(dirname "${0}")"
 python3 "${DIR}"/prj "$@"
 ''')
+
+
+def _add_3rd_party_package_to_zip(third_party_package, zip_file):
+    third_party_dir_path = base_path('external_tools')
+    for dir_path, _, file_names in os.walk(os.path.join(third_party_dir_path, third_party_package)):
+        # Exclude temporary files created by the Python interpreter and test files
+        if '__pycache__' in dir_path.lower() or 'tests' in dir_path:
+            continue
+
+        archive_dir_path = os.path.relpath(dir_path, third_party_dir_path)
+        for file_name in file_names:
+            # Exclude temporary files created by the Python interpreter on the fly
+            if file_name.lower().endswith('.pyc'):
+                continue
+
+            with open(os.path.join(dir_path, file_name), 'rb') as file_obj:
+                file_content = file_obj.read()
+
+            archive_file_path = os.path.join(archive_dir_path, file_name)
+            archive_file_path = os.path.normpath(archive_file_path)
+            zip_file.writestr(archive_file_path, file_content)

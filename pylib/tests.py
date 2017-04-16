@@ -157,7 +157,7 @@ def style(args):
 
     """
     result = 0
-    excludes = ['external_tools', 'pystache', 'tools', 'ply'] + args.excludes
+    excludes = ['external_tools', 'tools'] + args.excludes
     # ignored warnings and errors:
     # E402 module level import not at top of file
     codestyle = pycodestyle.StyleGuide(max_line_length=118, paths=[args.topdir], ignore=['E402'], exclude=excludes)
@@ -295,7 +295,7 @@ def licenses(_):
     if sep == '\\':
         sep = '\\\\'
     # pylint: disable=anomalous-backslash-in-string
-    pattern = re.compile('\.git|components{0}.*\.(c|h|xml|md)$|external_tools{0}|pm{0}|prj{0}app{0}(ply|pystache){0}|\
+    pattern = re.compile('\.git|components{0}.*\.(c|h|xml|md)$|external_tools{0}|pm{0}|\
 provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|packages{0}[^{0}]+{0}rtos-|\
 .*__pycache__|x_test_data{0}.*\.md|x_test_data{0}tasks{0}.*'.format(sep))
     for dirpath, _, files in os.walk(BASE_DIR):

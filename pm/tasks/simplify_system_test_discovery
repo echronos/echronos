@@ -1,0 +1,15 @@
+# Motivation
+
+The command `x.py test systems` currently discovers system tests by searching for Python files that are accompanied by `gdb` files.
+Compared to standard test discovery as per the unittest Python package, this limits system tests to `gdb` based tests and makes it difficult to sub-class the GdbTestCase class.
+
+
+# Goals
+
+- The `x.py` tool shall discover system tests via the standard test discovery implemented by the unittest Python package.
+
+
+# Test Plan
+
+- Verify that all existing regression tests pass.
+- Verify that the changes meet the task goals and follow project conventions.

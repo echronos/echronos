@@ -397,20 +397,13 @@ def provenance(args):
 @subcmd(cmd="test", help='Run system tests, i.e., tests that check the behavior of full RTOS systems. \
 This command supports the same options as the Python unittest framework.')
 def systems(args):
-    def find_gdb_test_py_files(path):
-        for parent, _, files in os.walk(path):
-            for file in files:
-                if file.endswith('.py') and os.path.splitext(file)[0] + '.gdb' in files:
-                    yield os.path.join(parent, file)
-
-    tests = []
-    uargs = args.unknown_args
-    if not uargs or not isinstance(uargs[-1], str) or not uargs[-1].endswith('.py'):
-        for packages_dir in base_to_top_paths(args.topdir, 'packages'):
-            tests.extend(find_gdb_test_py_files(packages_dir))
-
-    result = unittest.main(module=None, argv=[''] + args.unknown_args + tests).result
-    if result.testsRun > 0 and result.wasSuccessful():
+    tests_run = 0
+    was_successful = True
+    for path in base_to_top_paths(args.topdir, 'packages'):
+        result = unittest.main(module=None, argv=['', 'discover', '-s', path, '-t', os.path.dirname(path)]).result
+        tests_run += result.testsRun
+        was_successful = was_successful and result.wasSuccessful()
+    if tests_run > 0 and was_successful:
         return 0
     return 1
 

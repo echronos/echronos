@@ -315,7 +315,8 @@ def test_get_attribute_normal():
 def test_get_attribute_default():
     dom = xml_parse_string('<foo/>')
     assert get_attribute(dom, 'x', None) is None
-    assert get_attribute(dom, 'x', '5') is '5'
+    expected_value = '5'
+    assert get_attribute(dom, 'x', expected_value) is expected_value
 
 
 @raises(SystemParseError)

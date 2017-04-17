@@ -34,6 +34,8 @@ This can be used for testing purposes to ensure implementation matches the model
 from itertools import product
 import ctypes
 
+_RTOS_TASK_ID_NONE = 0xFF
+
 
 def head(iter_):
     """Return the first item in an iterator, or None if the iterator is empty."""
@@ -123,14 +125,14 @@ def get_prio_inherit_sched_struct(num_tasks):
         _fields_ = [("tasks", PrioInheritTaskStruct * num_tasks)]
 
         def __str__(self):
-            blocked_on = ''.join(['{:d}'.format(x.blocked_on) if x.blocked_on is not 0xff else '.'
+            blocked_on = ''.join(['{:d}'.format(x.blocked_on) if x.blocked_on is not _RTOS_TASK_ID_NONE else '.'
                                   for x in self.tasks])
             return "<PrioInheritSchedImpl blocked_on=[{}]".format(blocked_on)
 
         def __eq__(self, model):
             for idx, result in enumerate(model.blocked_on):
                 if result is None:
-                    result = 0xff
+                    result = _RTOS_TASK_ID_NONE
                 if self.tasks[idx].blocked_on != result:
                     return False
             return True
@@ -138,7 +140,7 @@ def get_prio_inherit_sched_struct(num_tasks):
         def set(self, model):
             for idx, blocked_on in enumerate(model.blocked_on):
                 if blocked_on is None:
-                    blocked_on = 0xff
+                    blocked_on = _RTOS_TASK_ID_NONE
                 self.tasks[idx].blocked_on = blocked_on
             assert self == model
     return PrioInheritSchedStruct

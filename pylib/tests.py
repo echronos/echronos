@@ -181,9 +181,6 @@ def _python_path(*paths):
 class _TeamcityReport(pycodestyle.StandardReport):
     """Collect results and print teamcity messages."""
 
-    def __init__(self, options):
-        super(_TeamcityReport, self).__init__(options)
-
     def get_file_results(self):
         ret = super(_TeamcityReport, self).get_file_results()
         if self.file_errors:

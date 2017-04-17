@@ -124,8 +124,7 @@ class _ReleasePackage:
     def get_doc_license(self):
         if hasattr(self._rls_cfg, 'doc_license'):
             return self._rls_cfg.doc_license
-        else:
-            return self._rls_cfg.license
+        return self._rls_cfg.license
 
 
 @contextmanager

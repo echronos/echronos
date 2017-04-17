@@ -170,8 +170,7 @@ def un_base_path(path):
     """
     if BASE_DIR == '':
         return path
-    else:
-        return path[len(BASE_DIR) + 1:]
+    return path[len(BASE_DIR) + 1:]
 
 
 @contextmanager
@@ -277,8 +276,7 @@ class Git:
 
         if isinstance(paths, str):
             return convert(paths)
-        else:
-            return [convert(path) for path in paths]
+        return [convert(path) for path in paths]
 
     @property
     def sep(self):
@@ -333,8 +331,7 @@ class Git:
         raw_data = subprocess.check_output(['git'] + parameters, cwd=self.local_repository).decode()
         if as_lines:
             return raw_data.splitlines()
-        else:
-            return raw_data
+        return raw_data
 
     def get_active_branch(self):
         """

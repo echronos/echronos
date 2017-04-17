@@ -257,12 +257,12 @@ def main():
         # command or subcommand
         parser.print_help()
         return 1
-    else:
-        args.topdir = topdir
-        args.configurations = configurations
-        args.skeletons = skeletons
 
-        return args.execute(args)
+    args.topdir = topdir
+    args.configurations = configurations
+    args.skeletons = skeletons
+
+    return args.execute(args)
 
 
 if __name__ == "__main__":

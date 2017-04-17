@@ -112,8 +112,7 @@ def show_exit(exit_code):
     exit_status = exit_code >> 8
     if sig_num == 0:
         return "exit: {}".format(exit_status)
-    else:
-        return "signal: {}".format(SIG_NAMES.get(sig_num, 'Unknown signal {}'.format(sig_num)))
+    return "signal: {}".format(SIG_NAMES.get(sig_num, 'Unknown signal {}'.format(sig_num)))
 
 
 def cls_name(cls):
@@ -353,8 +352,7 @@ xml_schema_path) set as a class member.".format(self.__class__.__name__,
         """
         if self.schema is NOTHING:
             return None
-        else:
-            return xml2dict(xml_config, self.schema)
+        return xml2dict(xml_config, self.schema)
 
     def validate(self, system, config):
         """Validate that the `config` is correct within the context of the given `system`.
@@ -518,8 +516,7 @@ class SourceModule(NamedModule):
         def fix_path(hdr):
             if os.path.isabs(hdr):
                 return hdr
-            else:
-                return os.path.join(os.path.dirname(self.filename), hdr)
+            return os.path.join(os.path.dirname(self.filename), hdr)
 
         for hdr_el in hdr_els:
             code_gen = hdr_el.getAttributeNode('code_gen')

@@ -674,14 +674,11 @@ def xml2dict(element, schema=None):
     def get_type(element, schema):
         if schema:
             return schema['type']
-        else:
-            if any_element_children(element):
-                if list_all_equal([child.tagName for child in element_children(element)]):
-                    return 'list'
-                else:
-                    return 'dict'
-            else:
-                return 'string'
+        if any_element_children(element):
+            if list_all_equal([child.tagName for child in element_children(element)]):
+                return 'list'
+            return 'dict'
+        return 'string'
 
     def get_text_value(element, schema, parent):
         if element is not None:

@@ -133,7 +133,7 @@ class SimpleTestNameResult(unittest.TextTestResult):
     See also: testcase_name
 
     """
-    def getDescription(self, testcase):
+    def getDescription(self, testcase):  # pylint: disable=arguments-differ
         return testcase_name(testcase)
 
 

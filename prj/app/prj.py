@@ -528,7 +528,7 @@ class SourceModule(NamedModule):
         schema = maybe_single_named_child(dom, 'schema')
         self.schema = xml2schema(schema) if schema else None
 
-    def prepare(self, system, config, *, copy_all_files=False):
+    def prepare(self, system, config, *, copy_all_files=False):  # pylint: disable=arguments-differ
         """prepare the `system` for building based on the specific config.
 
         This includes copying any header files to the correct locations, and running any templating.

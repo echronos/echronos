@@ -520,7 +520,7 @@ def release_test_one(archive):
                     subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
                 except subprocess.CalledProcessError as exc:
                     if exc.returncode != 1:
-                        raise exc
+                        raise
                 pkgs = []
                 pkg_root = './share/packages/'
                 for root, _, files in os.walk(pkg_root):
@@ -543,12 +543,12 @@ def release_test_one(archive):
                                 break
                         if err_str is None:
                             print(exc.output)
-                            raise exc
+                            raise
                         elif 'missing or contains multiple Builder modules' in err_str:
                             pass
                         else:
                             print("Unexpected error:", err_str)
-                            raise exc
+                            raise
 
 
 @subcmd(name='release', cmd='test')

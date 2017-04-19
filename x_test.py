@@ -33,7 +33,6 @@ from pylib.utils import BASE_DIR, LineFilter, update_file, get_release_version, 
 from pylib.components import _sort_typedefs, _sort_by_dependencies, _DependencyNode, _UnresolvableDependencyError
 from pylib.release import get_release_configs
 from pylib.task import _Review, Task, _InvalidTaskStateError, TaskConfiguration
-from pylib.task_commands import TASK_CFG
 
 
 class TestCase(unittest.TestCase):
@@ -180,7 +179,7 @@ class TestCase(unittest.TestCase):
 def task_dummy_create(task_name):
     cfg = TaskConfiguration(repo_path=BASE_DIR,
                             tasks_path=os.path.join('x_test_data', 'tasks'),
-                            description_template_path=TASK_CFG.description_template_path,
+                            description_template_path=None,
                             reviews_path=os.path.join('x_test_data', 'reviews'),
-                            mainline_branch=TASK_CFG.mainline_branch)
+                            mainline_branch='master')
     return Task(cfg, task_name, checkout=False)

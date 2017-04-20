@@ -1,0 +1,16 @@
+# Motivation
+
+- Currently, a set of `arm-none-eabi-` toolchains is distributed with the RTOS, which are becoming dated.
+- We have some pending features that require more recent toolchain versions and cannot be integrated because of this.
+- Most linux distributions include more up-to-date toolchains in their package repositories.
+
+# Goals
+
+- Remove the arm toolchains that are distributed with the RTOS (for Linux & Mac).
+- Add regression tests that evaluate replacement toolchains present in debian-derivative package repositories.
+    - (Note: no regression test will be created for Mac as it is not regression tested at this time)
+
+# Test Plan
+
+- Code review
+- Regression tests must pass

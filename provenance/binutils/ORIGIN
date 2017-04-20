@@ -1,8 +1,0 @@
-Built using xyz.py: https://github.com/BreakawayConsulting/xyz
-
-By running: `./xyz.py arm-toolchain`
-
-Using source from: https://github.com/BreakawayConsulting/binutils
-commit: 3f65b21676eaa3758a32f3a38141444d4ea270b3
-
-For more detailed information, please see tools/share/xyz/arm-toolchain-*.

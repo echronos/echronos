@@ -1,8 +1,0 @@
-Built using xyz.py: https://github.com/BreakawayConsulting/xyz
-
-Running: `./xyz.py arm-toolchain`
-
-Using source from: https://github.com/BreakawayConsulting/gcc
-commit: e983d033ab85c082a88e1964de385caea4ba683d
-
-For more detailed information, please see tools/share/xyz/arm-toolchain-*.

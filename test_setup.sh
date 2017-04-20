@@ -47,13 +47,14 @@ shift `expr ${OPTIND} - 1`
 # python3 (>3.2): x.py
 # splint: prj.py analyze
 # gcc-powerpc-linux-gnu: prj.py build machine-qemu-ppce500.example.acamar-config-demo
+# gcc-arm-none-eabi, gdb-arm-none-eabi: required for building/testing ARM systems
 # gcc, gdb, qemu-system-ppc: x.py test systems
 # texinfo: required for installing gdb from source
 # xvfb pandoc wkhtmltopdf: required for building documentation
 # python3.6: currently not available in default Travis CI environment
 sudo add-apt-repository -y ppa:jonathonf/python-3.6
 sudo apt-get -qq update
-sudo apt-get -qq install -y python3 splint gcc gdb gcc-powerpc-linux-gnu qemu-system-ppc texinfo xvfb pandoc wkhtmltopdf
+sudo apt-get -qq install -y python3 splint gcc gdb gcc-arm-none-eabi gdb-arm-none-eabi gcc-powerpc-linux-gnu qemu-system-ppc texinfo xvfb pandoc wkhtmltopdf
 which python${PY_VER} || sudo apt-get install -y python${PY_VER}
 
 # install GDB with PowerPC support from source; required by x.py test systems

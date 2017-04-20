@@ -1,0 +1,18 @@
+# Motivation
+
+The instructions in the current quick-start guide in README.md are out of date and do not allow creating a system runnable in QEMU.
+See GitHub issue #47 at https://github.com/echronos/echronos/issues/47
+
+
+# Goals
+
+- Update README.md so that the quick-start guide can be followed successfully.
+- document the `--disable-gtk` option for building QEMU
+- document or implement the need to not return -1 from the ROM loader in QEMU
+
+
+# Test Plan
+
+- Verify that all existing regression tests pass.
+- Verify that the changes meet the task goals and follow project conventions.
+- Follow the instructions of the quick-start guide on a Linux system and verify that they result in a working system runnable in QEMU.

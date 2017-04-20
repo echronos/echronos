@@ -102,16 +102,39 @@ Build and run an example system for the RTOS variant *Kochab* on QEMU-emulated P
 
 # Prerequisites
 
-The following tools are supplied with this repository in the [`tools`](tools) directory:
+To obtain the `arm-none-eabi` GNU toolchain and `arm-none-eabi-gdb` for building and debugging the RTOS for ARMv7-M, run:
 
-* Python 3 for the Python scripts in the repository
-* The `arm-none-eabi` GNU toolchain and `arm-none-eabi-gdb` for building and debugging the RTOS for ARMv7-M
+    sudo apt-get install gcc-arm-none-eabi gdb-arm-none-eabi
 
-To obtain and build `qemu-system-arm` with target `simple-armv7m` for testing the [`machine-qemu-simple`](packages/machine-qemu-simple) systems, run:
+Note: Older versions of Ubuntu have a known bug with ARM gdb package installation (see [here](https://bugs.launchpad.net/ubuntu/+source/gdb-arm-none-eabi/+bug/1267680)). If you are unable to install it due to a conflict, try adding a dpkg diversion for the gdb man pages first:
+
+    sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdbserver.1.gz --rename /usr/share/man/man1/gdbserver.1.gz
+    sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdb.1.gz --rename /usr/share/man/man1/gdb.1.gz
+
+And then retry the above installation command for `gdb-arm-none-eabi`.
+
+To obtain `qemu-system-arm` with target `simple-armv7m` for testing the [`machine-qemu-simple`](packages/machine-qemu-simple) systems, run:
 
     git clone https://github.com/BreakawayConsulting/QEMU.git
     cd QEMU
-    ./configure --target-list=arm-softmmu --disable-cocoa --disable-curses --disable-vnc --disable-tools --without-pixman --disable-console --disable-default-devices --disable-slirp --disable-curl --disable-guest-base --disable-guest-agent --disable-blobs --audio-drv-list= --audio-card-list= --disable-usb --disable-ide --disable-pie --enable-debug --disable-sdl --disable-fdt --disable-spice --disable-xen --disable-werror
+
+Fix a known 'rom: requested regions overlap' error in QEMU (See [here](https://bugs.launchpad.net/qemu/+bug/1429841))
+
+    --- a/hw/loader.c
+    +++ b/hw/loader.c
+    @@ -721,7 +721,7 @@ int rom_load_all(void)
+                         "(rom %s. free=0x" TARGET_FMT_plx
+                         ", addr=0x" TARGET_FMT_plx ")\n",
+                         rom->name, addr, rom->addr);
+    -            return -1;
+    +            //return -1;
+             }
+             addr  = rom->addr;
+             addr += rom->romsize;
+
+To build and install it:
+
+    ./configure --target-list=arm-softmmu --disable-cocoa --disable-curses --disable-vnc --disable-tools --without-pixman --disable-console --disable-default-devices --disable-slirp --disable-curl --disable-guest-base --disable-guest-agent --disable-blobs --audio-drv-list= --audio-card-list= --disable-usb --disable-ide --disable-pie --enable-debug --disable-sdl --disable-fdt --disable-spice --disable-xen --disable-werror --disable-gtk
     make
     export PATH=`pwd`/arm-softmmu:$PATH
 

@@ -9,6 +9,7 @@
 - Remove the arm toolchains that are distributed with the RTOS (for Linux & Mac).
 - Add regression tests that evaluate replacement toolchains present in debian-derivative package repositories.
     - (Note: no regression test will be created for Mac as it is not regression tested at this time)
+- Modify readme to indicate the changes, ensuring that the example ARM systems will build and run using the readme instructions.
 
 # Test Plan
 

@@ -220,8 +220,8 @@ def prepend_tool_binaries_to_path_environment_variable():
 
 def _get_platform_tool_paths():
     TOOL_PATHS = {
-        "darwin": ("tools/x86_64-apple-darwin/bin",),
-        "linux": ("tools/x86_64-unknown-linux-gnu/bin", "tools/gcc-4.8.2-Ee500v2-eabispe/bin"),
+        "darwin": (),
+        "linux": ("tools/gcc-4.8.2-Ee500v2-eabispe/bin",),
         "win32": ("tools/win32/bin",),
     }
     if sys.platform in TOOL_PATHS:

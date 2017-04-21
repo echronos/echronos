@@ -106,7 +106,8 @@ To obtain the `arm-none-eabi` GNU toolchain and `arm-none-eabi-gdb` for building
 
     sudo apt-get install gcc-arm-none-eabi gdb-arm-none-eabi
 
-Note: Older versions of Ubuntu have a known bug with ARM gdb package installation (see [here](https://bugs.launchpad.net/ubuntu/+source/gdb-arm-none-eabi/+bug/1267680)). If you are unable to install it due to a conflict, try adding a dpkg diversion for the gdb man pages first:
+Note: Older versions of Ubuntu have a known bug with ARM gdb package installation (see [here](https://bugs.launchpad.net/ubuntu/+source/gdb-arm-none-eabi/+bug/1267680)).
+If you are unable to install it due to a conflict, try adding a dpkg diversion for the gdb man pages first:
 
     sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdbserver.1.gz --rename /usr/share/man/man1/gdbserver.1.gz
     sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdb.1.gz --rename /usr/share/man/man1/gdb.1.gz

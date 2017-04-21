@@ -55,27 +55,32 @@ To obtain the source code, use the following commands:
 See the Prerequisites section for instructions on downloading and installing all prerequisites.
 The following assumes they have been set up.
 
-Build and run an example system for the RTOS variant *Rigel* on QEMU-emulated ARMv7-M:
+Build and run an example system for the RTOS variant *Gatria* on QEMU-emulated ARMv7-M (STM32):
 
-    prj/app/prj.py build machine-qemu-simple.example.rigel-system
+    prj/app/prj.py build machine-stm32f4-discovery.example.gatria-system
 
     # Run the generated system in qemu (press `ctrl-c` to close QEMU after it is finished)
-    qemu-system-arm -M simple-armv7m -S -s -nographic -semihosting -kernel out/machine-qemu-simple/example/rigel-system/system
+    echronos-qemu-system-arm -mcu STM32F407VG -semihosting -S -s --kernel out/machine-stm32f4-discovery/example/gatria-system/system
 
     # To connect and view debug output run gdb in another shell prompt
-    # Note: The Rigel example will end by deliberately triggering a fatal error
-    arm-none-eabi-gdb -ex "target remote :1234" -ex "b fatal" out/machine-qemu-simple/example/rigel-system/system
+    arm-none-eabi-gdb -ex "target remote :1234" out/machine-stm32f4-discovery/example/gatria-system/system
+    (gdb) b fn_a
+    Breakpoint 1 at 0x800065c: file packages/rtos-example/gatria-test.c, line 41.
     (gdb) c
-    ...
-    task a: start delay
-    irq tick
-    irq tick
-    irq tick
-    irq tick
-    task a: complete delay
+    Continuing.
 
-    Breakpoint 1, fatal (error_id=error_id@entry=1 '\001')
-    (gdb) quit
+    Breakpoint 1, fn_a () at packages/rtos-example/gatria-test.c:41
+    41	{
+    (gdb) n
+    43	    rtos_unblock(0);
+    (gdb) n
+    44	    rtos_unblock(1);
+    (gdb) c
+    Continuing.
+    task a -- lock
+    task b -- try lock
+    task a -- unlock
+    ...
 
 Build and run an example system for the RTOS variant *Kochab* on QEMU-emulated PowerPC e500:
 
@@ -114,30 +119,7 @@ If you are unable to install it due to a conflict, try adding a dpkg diversion f
 
 And then retry the above installation command for `gdb-arm-none-eabi`.
 
-To obtain `qemu-system-arm` with target `simple-armv7m` for testing the [`machine-qemu-simple`](packages/machine-qemu-simple) systems, run:
-
-    git clone https://github.com/BreakawayConsulting/QEMU.git
-    cd QEMU
-
-Fix a known 'rom: requested regions overlap' error in QEMU (See [here](https://bugs.launchpad.net/qemu/+bug/1429841))
-
-    --- a/hw/loader.c
-    +++ b/hw/loader.c
-    @@ -721,7 +721,7 @@ int rom_load_all(void)
-                         "(rom %s. free=0x" TARGET_FMT_plx
-                         ", addr=0x" TARGET_FMT_plx ")\n",
-                         rom->name, addr, rom->addr);
-    -            return -1;
-    +            //return -1;
-             }
-             addr  = rom->addr;
-             addr += rom->romsize;
-
-To build and install it:
-
-    ./configure --target-list=arm-softmmu --disable-cocoa --disable-curses --disable-vnc --disable-tools --without-pixman --disable-console --disable-default-devices --disable-slirp --disable-curl --disable-guest-base --disable-guest-agent --disable-blobs --audio-drv-list= --audio-card-list= --disable-usb --disable-ide --disable-pie --enable-debug --disable-sdl --disable-fdt --disable-spice --disable-xen --disable-werror --disable-gtk
-    make
-    export PATH=`pwd`/arm-softmmu:$PATH
+To obtain `echronos-qemu-system-arm` for emulating ARM systems, read the README.md for [our QEMU fork](https://github.com/echronos/qemu/) (make sure to use the `echronos-qemu` branch).
 
 To obtain the `powerpc-linux-gnu` GNU toolchain for building the RTOS for PowerPC e500 on Ubuntu Linux systems, run:
 

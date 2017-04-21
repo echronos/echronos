@@ -7,9 +7,9 @@ See GitHub issue #47 at https://github.com/echronos/echronos/issues/47
 # Goals
 
 - Update README.md so that the quick-start guide can be followed successfully.
-- document the `--disable-gtk` option for building QEMU
-- document or implement the need to not return -1 from the ROM loader in QEMU
-
+- Move QEMU build instructions outside the README and into the QEMU repository so that future build changes only manifest in one place.
+- Attempt to update the version of QEMU usable by our test systems.
+    - (Note: if we can successfully emulate a 'real' ARM system with upstream QEMU we may not need the qemu-simple package any more, but removal of this should be another task)
 
 # Test Plan
 

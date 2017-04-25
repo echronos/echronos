@@ -60,7 +60,7 @@ Build and run an example system for the RTOS variant *Gatria* on QEMU-emulated A
     prj/app/prj.py build machine-stm32f4-discovery.example.gatria-system
 
     # Run the generated system in qemu (press `ctrl-c` to close QEMU after it is finished)
-    echronos-qemu-system-arm -mcu STM32F407VG -semihosting -S -s --kernel out/machine-stm32f4-discovery/example/gatria-system/system
+    echronos-qemu-system-arm -mcu STM32F407VG -semihosting -S -s --kernel `pwd`/out/machine-stm32f4-discovery/example/gatria-system/system
 
     # To connect and view debug output run gdb in another shell prompt
     arm-none-eabi-gdb -ex "target remote :1234" out/machine-stm32f4-discovery/example/gatria-system/system

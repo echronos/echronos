@@ -42,7 +42,8 @@ TASK_CFG = TaskConfiguration(repo_path=TOP_DIR,
                              tasks_path=os.path.join('pm', 'tasks'),
                              description_template_path=os.path.join(BASE_DIR, '.github', 'PULL_REQUEST_TEMPLATE.md'),
                              reviews_path=os.path.join('pm', 'reviews'),
-                             mainline_branch='master')
+                             mainline_branch='master',
+                             manage_release_version=True)
 
 
 def main(task_cfg=TASK_CFG):

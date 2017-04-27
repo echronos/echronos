@@ -164,7 +164,8 @@ class TestCase(unittest.TestCase):
                                 tasks_path=os.path.join('pm', 'tasks'),
                                 description_template_path=None,
                                 reviews_path=os.path.join('pm', 'reviews'),
-                                mainline_branch='master')
+                                mainline_branch='master',
+                                manage_release_version=False)
         task = Task(cfg, 'manage_release_version_numbers', checkout=False)
         self.assertEqual(task._get_release_impact(), 'patch')
 
@@ -181,5 +182,6 @@ def task_dummy_create(task_name):
                             tasks_path=os.path.join('x_test_data', 'tasks'),
                             description_template_path=None,
                             reviews_path=os.path.join('x_test_data', 'reviews'),
-                            mainline_branch='master')
+                            mainline_branch='master',
+                            manage_release_version=False)
     return Task(cfg, task_name, checkout=False)

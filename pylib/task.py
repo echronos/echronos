@@ -34,7 +34,7 @@ from .utils import Git, string_to_path, walk, LineFilter, update_file, get_relea
 
 
 TaskConfiguration = namedtuple('TaskConfiguration', ('repo_path', 'tasks_path', 'description_template_path',
-                                                     'reviews_path', 'mainline_branch'))
+                                                     'reviews_path', 'mainline_branch', 'manage_release_version'))
 
 
 class Task:
@@ -109,15 +109,18 @@ class Task:
             raise _InvalidTaskStateError('The task {} is not on review.'.format(self.name))
         self._check_is_accepted()
 
-        release_cfg_path = self._update_release_version(offline=offline)
+        if self.cfg.manage_release_version:
+            release_cfg_path = self._update_release_version(offline=offline)
         self._git.checkout(self.cfg.mainline_branch)
         self._git.merge_into_active_branch(self._mainline_tracking_branch, '--ff-only', '--no-squash')
         self._git.merge_into_active_branch(self.name, '--no-squash')
-        tag_name = 'v' + '.'.join(str(part) for part in get_release_version(release_cfg_path))
-        self._git.tag(tag_name, 'master')
+        if self.cfg.manage_release_version:
+            tag_name = 'v' + '.'.join(str(part) for part in get_release_version(release_cfg_path))
+            self._git.tag(tag_name, 'master')
         if not offline:
             self._git.push()
-            self._git.push(tag_name)
+            if self.cfg.manage_release_version:
+                self._git.push(tag_name)
 
     def _check_is_accepted(self):
         """Check whether all authors of completed reviews arrive at the 'accepted' conclusion in their final reviews,

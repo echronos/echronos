@@ -842,7 +842,7 @@ might not be available on the PATH search path for executables.")
         options = ["+quiet"]
         include_paths = self.include_paths
 
-        if sys.platform == "win32" and "cygwin" not in find_executable("splint"):
+        if sys.platform in ("win32", "cygwin") and "cygwin" not in find_executable("splint"):
             options += ["-nolib", "-booltype", "bool", "+charint"]
             prx_path = self.project.entity_name_to_path(self.name)
             prx_dir = os.path.dirname(prx_path)

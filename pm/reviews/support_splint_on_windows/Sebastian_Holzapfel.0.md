@@ -28,3 +28,5 @@ Looks like `sys.platform` is returning a string that doesn't have a tool path ma
 
 [stg: I had indeed tested this in Cygwin with only a native Windows Python interpreter that does not raise this issue.
 I resolved this issue by adding Cygwin to the list of supported platforms by returning the Windows tool path for Cygwin, too.]
+
+[stg: Another platform check needed to be extended in the same manner to support a Cygwin Python interpreter together with a native splint executable.]

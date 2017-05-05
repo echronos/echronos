@@ -46,7 +46,7 @@ Available implementations currently target ARM Cortex-M4, and (as of writing, on
 
 To obtain the source code, use the following commands:
 
-    git clone https://github.com/echronos/echronos.git
+    git clone --depth=1 https://github.com/echronos/echronos.git
     cd echronos
 
 

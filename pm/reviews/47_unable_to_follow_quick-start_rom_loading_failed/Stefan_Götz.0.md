@@ -6,6 +6,8 @@ Comment 1: Accepted
 Cloning the full repository takes fairly long and is not necessary for non-developers.
 How about adding the option `--depth=1` so that git only retrieves the latest revision of the master branch?
 
+[sebastian.holzapfel: Good point, done.]
+
 Location: README.md:55
 Comment 2: Accepted
 The _prerequisites_ section itself and it being referenced from the Quick-Start guide is somewhat confusing.

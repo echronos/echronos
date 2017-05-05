@@ -99,6 +99,8 @@ Build and run an example system for the RTOS variant *Gatria* on QEMU-emulated A
     task a -- unlock
     ...
 
+Note that preemptive RTOS variants are unsupported by the ARMv7m QEMU fork at this time, they must be tested on real hardware.
+
 ## Prerequisites (PowerPC e500)
 
 To obtain the `powerpc-linux-gnu` GNU toolchain for building the RTOS for PowerPC e500 on Ubuntu Linux systems, run:

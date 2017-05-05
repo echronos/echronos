@@ -42,3 +42,12 @@ Comment 5: Rework
 When I ran the Kochab system, the GDB output look quite different from what is documented in the README.
 It seems that the Kochab test system behaves quite differently than what is documented at the moment.
 Can you reproduce that?
+
+[sebastian.holzapfel: As we discussed, PPC QEMU behaviour is out of scope for this task.
+However, testing Kochab on ARM QEMU did surface a probable bug in QEMU's implementation of the ARM NVIC.
+I have spent a few hours trying to iron out this bug to no avail.
+For now, I have documented that preemptive RTOS variants are unsupported in ARM QEMU in README.md.
+I believe this is okay because:
+    - Preemptive RTOS variants were not working on ARM QEMU before this patch.
+    - Fixing this bug will mostly involve changes in the QEMU repository (with a minor README update here)
+So, support for preemptive RTOS variants will be added in a future patch.]

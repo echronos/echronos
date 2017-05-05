@@ -23,6 +23,10 @@ Comment 3: Rework
 At least on Ubuntu 17.04, the package is called `gdb-arm-none-eabi` instead of `arm-none-eabi-gdb`.
 If older versions use the other name, it's worth mentioning.
 
+[sebastian.holzapfel: Good catch.
+I have fixed the wrong package name and added a sentence about the package naming.
+I have not altered the package name in the dpkg redirection as it needs to remain-as is for the diversion to work]
+
 Location: README.md:63
 Comment 4: Rework
 This fails on systems without a GUI, e.g., on default Ubuntu server installations.

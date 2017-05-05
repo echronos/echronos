@@ -54,9 +54,11 @@ To obtain the source code, use the following commands:
 
 ## Prerequisites (ARMv7m)
 
-To obtain the `arm-none-eabi` GNU toolchain and `arm-none-eabi-gdb` for building and debugging the RTOS for ARMv7-M, run:
+To obtain the `arm-none-eabi` GNU toolchain and `gdb-arm-none-eabi` for building and debugging the RTOS for ARMv7-M, run:
 
     sudo apt-get install gcc-arm-none-eabi gdb-arm-none-eabi
+
+The packages will have slightly different names across different linux distributions and versions.
 
 Note: Older versions of Ubuntu have a known bug with ARM gdb package installation (see [here](https://bugs.launchpad.net/ubuntu/+source/gdb-arm-none-eabi/+bug/1267680)).
 If you are unable to install it due to a conflict, try adding a dpkg diversion for the gdb man pages first:

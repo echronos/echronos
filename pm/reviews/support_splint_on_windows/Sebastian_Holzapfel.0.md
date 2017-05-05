@@ -25,3 +25,6 @@ Everything works fine on linux & windows (native), but I have issues when runnin
     RuntimeError: Unsupported platform cygwin
 
 Looks like `sys.platform` is returning a string that doesn't have a tool path mapping.
+
+[stg: I had indeed tested this in Cygwin with only a native Windows Python interpreter that does not raise this issue.
+I resolved this issue by adding Cygwin to the list of supported platforms by returning the Windows tool path for Cygwin, too.]

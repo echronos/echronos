@@ -32,6 +32,11 @@ Comment 4: Rework
 This fails on systems without a GUI, e.g., on default Ubuntu server installations.
 I think it is worth either documenting that dependency or removing it.
 
+[sebastian.holzapfel: This is a good point, however it will unfortunately be nontrivial to remove the dependency.
+Qemu does have a `--no-sdl` flag, however this cortex-M4 fork has lots of additional SDL code that isn't contained in configuration #ifdefs for visual board emulation.
+I will work toward making this dependency a compiler flag, and update the QEMU fork with instructions in due course.
+For this task I have documented the dependency in the QEMU fork readme, _prerequisites_ section.]
+
 Location: README.md:95
 Comment 5: Rework
 When I ran the Kochab system, the GDB output look quite different from what is documented in the README.

@@ -26,3 +26,8 @@ Then there are a bunch of deprecation warnings that result in the build failing:
        ^~~~~~~
     cc1: all warnings being treated as errors
     ....
+
+[stg: I have replaced `_BSD_SOURCE` with `_DEFAULT_SOURCE` and tested this successfully with
+- gcc version 6.3.0 20170415 (Debian 6.3.0-14) on Debian stretch amd64
+- gcc version 4.9.2 (Debian 4.9.2-10) on Debian jessie amd64
+- gcc version 5.4.0 (GCC) on Cygwin on Windows 10 64-bit]

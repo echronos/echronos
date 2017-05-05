@@ -53,5 +53,5 @@ def system_build(system, configuration):
     else:
         shared_args = []
 
-    execute(['gcc', '-o', system.output_file, '-Wall', '-Werror', '-std=c90', '-D_DEFAULT_SOURCE', '-D_POSIX_C_SOURCE'] +
-            shared_args + inc_path_args + system.c_files)
+    execute(['gcc', '-o', system.output_file, '-Wall', '-Werror', '-std=c90', '-D_DEFAULT_SOURCE',
+             '-D_POSIX_C_SOURCE'] + shared_args + inc_path_args + system.c_files)

@@ -52,8 +52,23 @@ To obtain the source code, use the following commands:
 
 # Quick-start
 
-See the Prerequisites section for instructions on downloading and installing all prerequisites.
-The following assumes they have been set up.
+## Prerequisites (ARMv7m)
+
+To obtain the `arm-none-eabi` GNU toolchain and `arm-none-eabi-gdb` for building and debugging the RTOS for ARMv7-M, run:
+
+    sudo apt-get install gcc-arm-none-eabi gdb-arm-none-eabi
+
+Note: Older versions of Ubuntu have a known bug with ARM gdb package installation (see [here](https://bugs.launchpad.net/ubuntu/+source/gdb-arm-none-eabi/+bug/1267680)).
+If you are unable to install it due to a conflict, try adding a dpkg diversion for the gdb man pages first:
+
+    sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdbserver.1.gz --rename /usr/share/man/man1/gdbserver.1.gz
+    sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdb.1.gz --rename /usr/share/man/man1/gdb.1.gz
+
+And then retry the above installation command for `gdb-arm-none-eabi`.
+
+To obtain `echronos-qemu-system-arm` for emulating ARM systems, read the README.md for [our QEMU fork](https://github.com/echronos/qemu/) (make sure to use the `echronos-qemu` branch).
+
+## Running an example system (ARMv7m)
 
 Build and run an example system for the RTOS variant *Gatria* on QEMU-emulated ARMv7-M (STM32):
 
@@ -82,6 +97,27 @@ Build and run an example system for the RTOS variant *Gatria* on QEMU-emulated A
     task a -- unlock
     ...
 
+## Prerequisites (PowerPC e500)
+
+To obtain the `powerpc-linux-gnu` GNU toolchain for building the RTOS for PowerPC e500 on Ubuntu Linux systems, run:
+
+    sudo apt-get install gcc-powerpc-linux-gnu
+
+To obtain the `qemu-system-ppc` emulator for running the [`machine-qemu-ppce500`](packages/machine-qemu-ppce500) systems on Ubuntu Linux systems, run:
+
+    sudo apt-get install qemu-system-ppc
+
+To obtain, build, and install `powerpc-linux-gdb` for debugging PowerPC e500 systems, run:
+
+    wget https://ftp.gnu.org/gnu/gdb/gdb-7.12.tar.xz
+    tar xaf gdb-7.12.tar.xz
+    cd gdb-7.12
+    ./configure --target=powerpc-linux --prefix=/usr/
+    make -s
+    sudo make -s install
+
+## Running an example system (PowerPC e500)
+
 Build and run an example system for the RTOS variant *Kochab* on QEMU-emulated PowerPC e500:
 
     prj/app/prj.py build machine-qemu-ppce500.example.kochab-system
@@ -104,45 +140,6 @@ Build and run an example system for the RTOS variant *Kochab* on QEMU-emulated P
     Breakpoint 1, debug_print (msg=0x33f8 "task b unblocked")
     (gdb) quit
 
-
-# Prerequisites
-
-To obtain the `arm-none-eabi` GNU toolchain and `arm-none-eabi-gdb` for building and debugging the RTOS for ARMv7-M, run:
-
-    sudo apt-get install gcc-arm-none-eabi gdb-arm-none-eabi
-
-Note: Older versions of Ubuntu have a known bug with ARM gdb package installation (see [here](https://bugs.launchpad.net/ubuntu/+source/gdb-arm-none-eabi/+bug/1267680)).
-If you are unable to install it due to a conflict, try adding a dpkg diversion for the gdb man pages first:
-
-    sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdbserver.1.gz --rename /usr/share/man/man1/gdbserver.1.gz
-    sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdb.1.gz --rename /usr/share/man/man1/gdb.1.gz
-
-And then retry the above installation command for `gdb-arm-none-eabi`.
-
-To obtain `echronos-qemu-system-arm` for emulating ARM systems, read the README.md for [our QEMU fork](https://github.com/echronos/qemu/) (make sure to use the `echronos-qemu` branch).
-
-To obtain the `powerpc-linux-gnu` GNU toolchain for building the RTOS for PowerPC e500 on Ubuntu Linux systems, run:
-
-    sudo apt-get install gcc-powerpc-linux-gnu
-
-To obtain the `qemu-system-ppc` emulator for running the [`machine-qemu-ppce500`](packages/machine-qemu-ppce500) systems on Ubuntu Linux systems, run:
-
-    sudo apt-get install qemu-system-ppc
-
-To obtain, build, and install `powerpc-linux-gdb` for debugging PowerPC e500 systems, run:
-
-    wget https://ftp.gnu.org/gnu/gdb/gdb-7.12.tar.xz
-    tar xaf gdb-7.12.tar.xz
-    cd gdb-7.12
-    ./configure --target=powerpc-linux --prefix=/usr/
-    make -s
-    sudo make -s install
-
-To obtain `pandoc` and `wkhtmltopdf` needed for building user documentation on Ubuntu Linux systems:
-
-    sudo apt-get install pandoc
-    sudo apt-get install wkhtmltopdf
-
 # Documentation
 
 Basic RTOS concepts and usage are documented in this README.
@@ -151,7 +148,15 @@ More detailed documentation for the `x.py` tool can be found inside [`x.py`](x.p
 More detailed documentation for the `prj` tool can be found in [`prj/manual/prj-user-manual`](prj/manual/prj-user-manual).
 
 Pregenerated RTOS API manuals can be found on the [eChronos GitHub wiki](https://github.com/echronos/echronos/wiki).
-They can also be generated with the command `x.py build docs`.
+
+## Building documentation
+
+To obtain `pandoc` and `wkhtmltopdf` needed for building user documentation on Ubuntu Linux systems:
+
+    sudo apt-get install pandoc
+    sudo apt-get install wkhtmltopdf
+
+Documentation can then be  generated with the command `x.py build docs`.
 
 # Software model
 

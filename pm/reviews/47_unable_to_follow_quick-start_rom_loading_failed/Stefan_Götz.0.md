@@ -14,6 +14,10 @@ The _prerequisites_ section itself and it being referenced from the Quick-Start 
 In particular, it is unclear which prerequisites are required for what.
 Although this is unrelated to your task, would it make sense to just merge the two sections and drop pandoc and wkhtmltopdf as a prerequisites?
 
+[sebastian.holzapfel: I agree.
+I've moved the _prerequisites_ sections into subsections closer to their examples and labelled which are required to run which examples.
+Also updated the task description and moved the documentation building prerequisites into the _documentation_ section. ]
+
 Location: README.md:110 & 118
 Comment 3: Rework
 At least on Ubuntu 17.04, the package is called `gdb-arm-none-eabi` instead of `arm-none-eabi-gdb`.

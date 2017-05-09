@@ -47,7 +47,6 @@ Available implementations currently target ARM Cortex-M4, and (as of writing, on
 To obtain the source code, use the following commands:
 
     git clone --depth=1 https://github.com/echronos/echronos.git
-    cd echronos
 
 
 # Quick-start
@@ -74,6 +73,7 @@ To obtain `echronos-qemu-system-arm` for emulating ARM systems, read the README.
 
 Build and run an example system for the RTOS variant *Gatria* on QEMU-emulated ARMv7-M (STM32):
 
+    cd echronos
     prj/app/prj.py build machine-stm32f4-discovery.example.gatria-system
 
     # Run the generated system in qemu (press `ctrl-c` to close QEMU after it is finished)
@@ -124,6 +124,7 @@ To obtain, build, and install `powerpc-linux-gdb` for debugging PowerPC e500 sys
 
 Build and run an example system for the RTOS variant *Kochab* on QEMU-emulated PowerPC e500:
 
+    cd echronos
     prj/app/prj.py build machine-qemu-ppce500.example.kochab-system
 
     # Run the generated system in qemu (press `ctrl-a` then 'x' to close QEMU after you are finished)

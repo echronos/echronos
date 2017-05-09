@@ -12,3 +12,5 @@ Location: README.md:71
 Comment 2: Accept
 Just for clarity, how about mentioning whether or not is necessary to build QEMU?
 Or more generally, which parts of that README to follow exactly?
+
+[sebastian.holzapfel: Modified readme to indicate which parts of the QEMU readme to follow]

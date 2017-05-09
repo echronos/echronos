@@ -69,6 +69,8 @@ And then retry the above installation command for `gdb-arm-none-eabi`.
 
 To obtain `echronos-qemu-system-arm` for emulating ARM systems, read the README.md for [our QEMU fork](https://github.com/echronos/qemu/) (make sure to use the `echronos-qemu` branch).
 
+On most linux distributions, it will be simplest to use the binaries included in the QEMU fork repository - see 'Using the binaries' section of the QEMU README.md.
+
 ## Running an example system (ARMv7m)
 
 Build and run an example system for the RTOS variant *Gatria* on QEMU-emulated ARMv7-M (STM32):

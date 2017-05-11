@@ -34,6 +34,7 @@
       <flash_addr>0x8000000</flash_addr>
       <flash_size>0x100000</flash_size>
       <sram_size>0x20000</sram_size>
+      <memory_protection>true</memory_protection>
       <nmi>nmi</nmi>
       <hardfault>hardfault</hardfault>
       <usagefault>usagefault</usagefault>

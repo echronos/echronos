@@ -156,6 +156,7 @@ CORE_SKELETONS = {
                Component('simple-mutex'),
                Component('error'),
                Component('task'),
+               Component('api-conditions'),
                Component('gatria')],
     'kraz': [Component('reentrant'),
              Component('stack', pkg_component=True),
@@ -166,6 +167,7 @@ CORE_SKELETONS = {
              Component('simple-mutex'),
              Component('error'),
              Component('task'),
+             Component('api-conditions'),
              Component('kraz')],
     'acrux': [Component('reentrant'),
               Component('stack', pkg_component=True),
@@ -177,6 +179,7 @@ CORE_SKELETONS = {
               Component('simple-mutex'),
               Component('error'),
               Component('task'),
+              Component('api-conditions'),
               Component('acrux')],
     'rigel': [Component('docs'),
               Component('reentrant'),
@@ -197,6 +200,7 @@ CORE_SKELETONS = {
               # Please note that the task_start_api pystache tag is used solely to block out a rigel-specific section
               # of the Task Configuration chapter.
               Component('task', {'task_start_api': True}),
+              Component('api-conditions'),
               Component('rigel')],
     'kochab': [Component('docs'),
                Component('reentrant'),
@@ -213,6 +217,7 @@ CORE_SKELETONS = {
                Component('simple-semaphore', {'timeouts': True, 'preemptive': True}),
                Component('error'),
                Component('task', {'task_start_api': False}),
+               Component('api-conditions'),
                Component('kochab')],
     'phact': [Component('docs'),
               Component('reentrant'),
@@ -229,6 +234,7 @@ CORE_SKELETONS = {
               Component('simple-semaphore', {'timeouts': True, 'preemptive': True}),
               Component('error'),
               Component('task', {'task_start_api': False}),
+              Component('api-conditions'),
               Component('phact')],
 }
 

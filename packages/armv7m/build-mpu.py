@@ -38,7 +38,10 @@ def system_build(system):
     common_flags = ['-mthumb', '-march=armv7-m', '-g']
     a_flags = common_flags
     c_flags = common_flags + ['-O0', '-fdata-sections', '-fno-common', '-fno-zero-initialized-in-bss']
-    ld_flags = ['--print-memory-usage']
+
+    # '--print-memory-usage' is a very useful flag here if you are
+    # memory-constrained, but only works with recent versions of ld
+    ld_flags = []
 
     # Compile all C files.
     c_obj_files = [os.path.join(system.output, os.path.basename(c.replace('.c', '.o'))) for c in system.c_files]

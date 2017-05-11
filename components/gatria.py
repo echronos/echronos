@@ -39,6 +39,9 @@ class GatriaModule(Module):
     def configure(self, xml_config):
         config = super().configure(xml_config)
 
+        # This variant does not support memory protection at this time
+        config['memory_protection'] = False
+
         config['prefix_func'] = config['prefix'] + '_' if config['prefix'] is not None else ''
         config['prefix_type'] = config['prefix'].capitalize() if config['prefix'] is not None else ''
         config['prefix_const'] = config['prefix'].upper() + '_' if config['prefix'] is not None else ''

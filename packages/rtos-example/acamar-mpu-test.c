@@ -63,7 +63,8 @@ fatal(const RtosErrorId error_id)
 }
 
 void
-iteration() {
+iteration()
+{
     debug_print("current task (API): ");
     debug_printhex32(rtos_task_current());
     debug_println("");

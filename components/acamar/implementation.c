@@ -21,8 +21,9 @@
 void
 {{prefix_func}}yield_to(const {{prefix_type}}TaskId to) {{prefix_const}}REENTRANT
 {
+    {{prefix_type}}TaskId from;
     rtos_internal_api_begin();
-    const {{prefix_type}}TaskId from = get_current_task();
+    from = get_current_task();
     current_task = to;
     context_switch(get_task_context(from), get_task_context(to));
     rtos_internal_api_end();

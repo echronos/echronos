@@ -38,13 +38,13 @@ vector_table:
         .word entry
         .word {{nmi}}
         .word {{hardfault}}
-{{#rtos.memory_protection}}{{#memmanage}}.error "The memmanage vector is not available when memory protection is enabled"{{/memmanage}}
+{{#memory_protection}}{{#memmanage}}.error "The memmanage vector is not available when memory protection is enabled"{{/memmanage}}
         .word rtos_internal_memmanage_handler
-{{/rtos.memory_protection}}
-{{^rtos.memory_protection}}
+{{/memory_protection}}
+{{^memory_protection}}
         {{#memmanage}}.word {{memmanage}}{{/memmanage}}
         {{^memmanage}}.word reset{{/memmanage}}
-{{/rtos.memory_protection}}
+{{/memory_protection}}
         .word {{busfault}}
         .word {{usagefault}}
         .word reset
@@ -61,12 +61,12 @@ vector_table:
 {{#svcall}}
         .word {{svcall}}
 {{/svcall}}
-{{#rtos.memory_protection}}
+{{#memory_protection}}
         .word rtos_internal_svc_handler
-{{/rtos.memory_protection}}
-{{^svcall}}{{^rtos.memory_protection}}
+{{/memory_protection}}
+{{^svcall}}{{^memory_protection}}
         .word reset
-{{/rtos.memory_protection}}{{/svcall}}
+{{/memory_protection}}{{/svcall}}
 {{/preemption}}
 
         .word {{debug_monitor}}

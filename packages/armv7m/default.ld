@@ -78,7 +78,7 @@ SECTIONS
         /* Check that bitband variables don't overflow */
         dummy = ASSERT(SIZEOF(.data.bitband) <= {{bitband_size}}, "bitband variables too large");
 
-        {{#rtos.memory_protection}}
+        {{#memory_protection}}
         /* Sections that encapsulate protection domains.
          *
          * SYMBOL DOMAINS:
@@ -138,7 +138,7 @@ SECTIONS
         {{/base_address}}
 
         {{/rtos.protection_domains}}
-        {{/rtos.memory_protection}}
+        {{/memory_protection}}
 
         .data :
         {
@@ -149,7 +149,7 @@ SECTIONS
         data_load_addr = LOADADDR(.data.bitband);
         data_virt_addr = ADDR(.data.bitband);
         data_size = SIZEOF(.data.bitband) + SIZEOF(.data)
-            {{#rtos.memory_protection}}
+            {{#memory_protection}}
             /* We must increase the .data size by our symbol protection domain sizes
              * so that they are appropriately initialized when the RTOS starts */
             {{#rtos.protection_domains}}
@@ -157,7 +157,7 @@ SECTIONS
             + SIZEOF(.domain_{{name}})
             {{/base_address}}
             {{/rtos.protection_domains}}
-            {{/rtos.memory_protection}}
+            {{/memory_protection}}
             ;
 
         /* Check addresses are correct */
@@ -167,13 +167,13 @@ SECTIONS
 
         .bss :
         {
-            {{#rtos.memory_protection}}
+            {{#memory_protection}}
             {{#rtos.tasks}}
             dummy = ASSERT({{stack_size}} == (1 << LOG2CEIL({{stack_size}})),
                            "Stack size for task: {{name}} is not a power-of-2.");
             *(.bss.stack.task_{{idx}})
             {{/rtos.tasks}}
-            {{/rtos.memory_protection}}
+            {{/memory_protection}}
             *(.bss*)
             *(COMMON)
             . = ALIGN(4);
@@ -192,13 +192,13 @@ SECTIONS
         {{.}}_bitband = {{bitband_alias}} + (({{.}} - {{bitband_base}}) * 32);
         {{/bit_aliases}}
 
-        {{#rtos.memory_protection}}
+        {{#memory_protection}}
         /* Constants used by the MPU for run-time assertions. Necessary here
          * because these are properties of the vectable module, not the RTOS */
         linker_flash_start = {{flash_load_addr}};
         linker_flash_size = {{flash_size}};
         linker_sram_size = {{sram_size}};
-        {{/rtos.memory_protection}}
+        {{/memory_protection}}
 
         /* Debug sections */
 

@@ -1,0 +1,14 @@
+# Motivation
+
+- The RTOS does not currently have any regression tests for its ARMv7m support.
+
+# Goals
+
+- Create system tests for all variants supported on ARMv7m.
+- Add these tests to CI, where required updating the test setup scripts with prerequisites.
+
+# Test Plan
+
+- Code review
+- Existing regression tests must pass
+- System tests for all supported variants on ARMv7m must have been added and must pass

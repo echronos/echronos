@@ -50,4 +50,5 @@ For now, I have documented that preemptive RTOS variants are unsupported in ARM 
 I believe this is okay because:
     - Preemptive RTOS variants were not working on ARM QEMU before this patch.
     - Fixing this bug will mostly involve changes in the QEMU repository (with a minor README update here)
-So, support for preemptive RTOS variants will be added in a future patch.]
+So, support for preemptive RTOS variants will be added in a future patch.
+UPDATE: The bug was found. Section stating preemptive variants are unsupported has been removed from the README.]

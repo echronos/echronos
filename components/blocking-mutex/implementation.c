@@ -78,7 +78,7 @@ mutex_stats_update(const {{prefix_type}}MutexId m, const bool contended, const {
     if ({{prefix_func}}mutex_stats_enabled) {
         mutex_stats[m].mutex_lock_counter += 1;
         if (contended) {
-            {{prefix_type}}TicksRelative wait_time = {{prefix_func}}timer_current_ticks - wait_start_ticks;
+            {{prefix_type}}TicksRelative wait_time = ({{prefix_type}}TicksRelative)({{prefix_func}}timer_current_ticks - wait_start_ticks);
 
             mutex_stats[m].mutex_lock_contended_counter += 1;
             if (wait_time > mutex_stats[m].mutex_lock_max_wait_time)
@@ -146,7 +146,7 @@ bool
 {{/mutex.stats}}
     while (!ret && absolute_timeout > {{prefix_func}}timer_current_ticks) {
         mutex_waiters[get_current_task()] = m;
-        mutex_core_block_on_timeout(mutexes[m].holder, absolute_timeout - {{prefix_func}}timer_current_ticks);
+        mutex_core_block_on_timeout(mutexes[m].holder, ({{prefix_type}}TicksRelative)(absolute_timeout - {{prefix_func}}timer_current_ticks));
         ret = mutex_try_lock(m);
     }
 

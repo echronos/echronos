@@ -92,7 +92,7 @@ bool
 
     while (!(ret = internal_sem_try_wait(s)) && absolute_timeout > {{prefix_func}}timer_current_ticks) {
         sem_waiters[get_current_task()] = s;
-        sem_core_block_timeout(absolute_timeout - {{prefix_func}}timer_current_ticks);
+        sem_core_block_timeout(({{prefix_type}}TicksRelative)(absolute_timeout - {{prefix_func}}timer_current_ticks));
     }
 
     preempt_enable();

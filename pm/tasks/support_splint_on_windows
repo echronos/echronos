@@ -1,0 +1,24 @@
+# Motivation
+
+The changes introduced by HaJ2AE-fix_typo_and_include_path_for_splint_static_analysis_on_windows were not effective for native splint on Windows.
+Instead of passing preprocessor macro definitions and include paths to splint, the easier approach is to use custom implementations of the system headers.
+
+
+# Goals
+
+The goal of this task is to make static analysis with splint work on Linux and Windows, both with cygwin and native splint.
+The approach is to implement minimal versions of the system headers for splint to include.
+
+
+# Test Plan
+
+- code review
+- existing regression tests must pass
+- the following commands mast pass for Linux, cygwin, and native Windows splint:
+    - prj/app/prj.py analyze stub.acamar
+    - prj/app/prj.py analyze stub.acrux
+    - prj/app/prj.py analyze stub.gatria
+    - prj/app/prj.py analyze stub.kochab
+    - prj/app/prj.py analyze stub.kraz
+    - prj/app/prj.py analyze stub.phact
+    - prj/app/prj.py analyze stub.rigel

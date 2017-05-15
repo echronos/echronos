@@ -223,6 +223,7 @@ def _get_platform_tool_paths():
         "darwin": (),
         "linux": ("tools/gcc-4.8.2-Ee500v2-eabispe/bin",),
         "win32": ("tools/win32/bin",),
+        "cygwin": ("tools/win32/bin",),
     }
     if sys.platform in TOOL_PATHS:
         base_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", ".."))

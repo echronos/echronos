@@ -839,30 +839,26 @@ might not be available on the PATH search path for executables.")
 
         self.generate(copy_all_files=False)
 
-        # Using a non-cygwin splint and gcc on Windows requires some extra options:
-        if sys.platform == "win32" and not \
-                ("cygwin" in find_executable("splint") and "cygwin" in find_executable("gcc")):
-            # Make splint aware of default preprocessor macros.
-            # This is necessary for splint to successfully parse the compiler's standard headers.
-            default_macros = _get_gcc_default_macros()
-            extra_options = ["-D{}={}".format(name, value) for name, value in default_macros]
-            # Pass the compiler's/proprocessor's default search paths for header files to splint.
-            default_include_paths = _get_gcc_default_include_paths()
-            extra_options += ["-I{}".format(path) for path in default_include_paths]
-            # Make splint ignore the preprocessor directive #include_next
-            extra_options.append("-unrecogdirective")
-        else:
-            extra_options = []
+        options = ["+quiet"]
+        include_paths = self.include_paths
 
-        include_path_options = ['-I{}'.format(include_path) for include_path in self.include_paths]
+        if sys.platform in ("win32", "cygwin") and "cygwin" not in find_executable("splint"):
+            options += ["-nolib", "-booltype", "bool", "+charint"]
+            prx_path = self.project.entity_name_to_path(self.name)
+            prx_dir = os.path.dirname(prx_path)
+            include_paths += [os.path.join(prx_dir, "include")]
+        else:
+            options += ["-DUINT8_C(x)=(uint8_t)(x)", "-DUINT8_MAX=255",
+                        "-DUINT32_C(x)=(uint32_t)(x)", "-DUINT32_MAX=0xFFFFFFFF"]
+
+        options += ['-I{}'.format(include_path) for include_path in include_paths]
+
         for c_file in self.c_files:
             if os.path.basename(c_file).startswith('rtos-'):
                 try:
                     # define UINT macros because splint does not pick them up from system headers for unknown reason
                     # +charintliteral to allow code such as 'int value = ascii_character - '0';'
-                    cmd = ["splint", "-DUINT8_C(x)=(uint8_t)(x)", "-DUINT8_MAX=255",
-                           "-DUINT32_C(x)=(uint32_t)(x)", "-DUINT32_MAX=0xFFFFFFFF", "+quiet",
-                           "+charintliteral"] + include_path_options + extra_options + [c_file]
+                    cmd = ["splint"] + options + [c_file]
                     subprocess.check_call(cmd)
                 except subprocess.CalledProcessError:
                     print("Static analysis of '{}' with splint command {} failed".format(c_file, cmd))
@@ -1068,67 +1064,6 @@ class Project:
         return self.entities[entity_name]
 
 
-def _get_gcc_default_include_paths():
-    """Return the search paths for include files that the gcc preprocessor uses by default.
-
-    These paths can be expected to hold standard include files, such as `stdint.h`.
-    All returned paths are guaranteed to exist, and be absolute and normalized.
-
-    The return value is a list of strings.
-
-    If `gcc` is not available on the OS search path for executables (i.e., in the `PATH` environment variable), this
-    function raises a FileNotFoundError exception.
-
-    """
-    paths = []
-
-    try:
-        output = subprocess.check_output("echo | gcc -E -Wp,-v -", shell=True, stderr=subprocess.STDOUT).decode()
-    except subprocess.CalledProcessError:
-        raise FileNotFoundError("Unable to find `gcc`")
-
-    for line in output.splitlines():
-        if line[0] == " ":
-            line = line.strip()
-            if line[0] == "/" and sys.platform == "win32":  # unix paths reported on windows means cygwin
-                line = subprocess.check_output(("cygpath", "-wa", line)).decode()
-            path = os.path.abspath(os.path.normpath(line.strip()))
-            if os.path.exists(path):
-                paths.append(path)
-
-    return paths
-
-
-def _get_gcc_default_macros():
-    """Return the macros that the gcc preprocessor uses by default.
-
-    The return value is a list of strings.
-
-    If `gcc` is not available on the OS search path for executables (i.e., in the `PATH` environment variable), this
-    function raises a FileNotFoundError exception.
-
-    """
-    macros = []
-
-    try:
-        output = subprocess.check_output("echo | gcc -dM -E -", shell=True, stderr=subprocess.STDOUT).decode()
-    except subprocess.CalledProcessError:
-        raise FileNotFoundError("Unable to find `gcc`")
-
-    for line in output.splitlines():
-        line = line.strip()
-        if line.startswith("#define"):
-            parts = line.split(" ", 2)
-            name = parts[1]
-            if len(parts) == 3:
-                value = parts[2]
-            else:
-                value = ""
-            macros.append((name, value))
-
-    return macros
-
-
 def get_paths_from_dom(dom, element_name):
     """Return the contents of all elements with a given name as a list of paths.
 
@@ -1231,7 +1166,7 @@ def call_system_function(args, function, extra_args=None, sys_is_path=False):
 
     logger.info("Invoking '{}' on system '{}'".format(function.__name__, system.name))
     try:
-        function(system, **extra_args)
+        return function(system, **extra_args)
     except UserError as e:
         logger.error(str(e))
         return 1

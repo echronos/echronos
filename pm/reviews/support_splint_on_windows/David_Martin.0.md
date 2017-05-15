@@ -6,3 +6,6 @@ complexity from the toolbox!
 
 Location:  packages/stub/include/*.h:3
 Comment: The copyright notices mention 2016. Is this intended?
+
+[stg: This was not intended.
+I have updated the year in the copyright notices to 2017.]

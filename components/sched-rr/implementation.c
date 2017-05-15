@@ -28,7 +28,7 @@ static struct sched sched_tasks;
 
 /*| function_like_macros |*/
 #define sched_runnable(task_id) (SCHED_OBJ(task_id).runnable)
-#define sched_next_index(cur) (((cur) == sched_max_index()) ? 0 : ((cur) + 1))
+#define sched_next_index(cur) (((cur) == sched_max_index()) ? (SchedIndex)0 : (SchedIndex)((cur) + 1))
 #define sched_get_cur_index() (sched_tasks.cur)
 #define sched_set_cur_index(idx) sched_tasks.cur = (idx)
 #define sched_max_index() (SchedIndex)({{tasks.length}} - 1U)

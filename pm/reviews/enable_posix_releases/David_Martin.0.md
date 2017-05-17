@@ -18,6 +18,7 @@ Comment: I remember this coming up before and that we are purposefully not using
 Location:  pm/tasks/enable_posix_releases:30
 Comment: 'prj/prj.sh build posix.acamar' should be 'bin/prj.sh build posix.acamar'
 
+[stg: resolved as suggested]
 
 Location:  pm/tasks/enable_posix_releases:30
 Comment: I'm getting a bunch of build errors on OSX. I know it is not officially

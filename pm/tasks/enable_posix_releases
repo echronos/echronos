@@ -27,5 +27,5 @@ Therefore, new developers would benefit from the availability of POSIX releases.
     ./x.py build release
 
 - Extract the release archive contents with the command `tar xaf release/eChronos-posix-1.0.0.tar.gz` and verify that they contain the prj tool, the API manual, and the example systems.
-- In the extracted release directory, run `prj/prj.sh build posix.acamar` and verify that it completes successfully.
+- In the extracted release directory, run `bin/prj.sh build posix.acamar` and verify that it completes successfully.
 - Then run `./out/posix/acamar/system` and verify that it alternatingly prints `task a` and `task b` until stopped via `ctrl-c`.

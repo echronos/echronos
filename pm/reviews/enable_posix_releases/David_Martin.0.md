@@ -13,6 +13,7 @@ Comment: I remember this coming up before and that we are purposefully not using
 
          Feel free to ignore this if it is out of scope.
 
+[stg: resolved by adding a dedicated function for constructing archive paths]
 
 Location:  pm/tasks/enable_posix_releases:30
 Comment: 'prj/prj.sh build posix.acamar' should be 'bin/prj.sh build posix.acamar'

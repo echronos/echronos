@@ -1,0 +1,84 @@
+# Motivation
+
+Currently, the development process is based on project-specific notions and representations of tasks and reviews.
+It is supported by the project-specific `task.py` script that helps to create tasks, request and supply reviews, and integrate completed tasks.
+
+The primary motivation for this approach is to create an audit trail of the development process.
+In particular, reviews are documented and embedded directly into the project repository, providing proof that all changes were reviewed by at least two reviewers.
+
+The main downside of the current approach is that some details and the `task.py` tool are project specific, unfamiliar to new contributors, and lacking in usability.
+However, the overall process is common practice in other projects as well and a number of standard tools support it, in particular github pull requests and reviews.
+
+It is desirable to integrate these github tools into our development process.
+This would make it easier for developers, especially newcomers, to contribute to the project.
+
+
+# Goals
+
+- The overall goal of this task is to make the eChronos RTOS project more accessible to current and new contributors by simplifying the development process.
+  In particular, developers shall be able to use the as much as possible of the standard github development process and the related github features when contributing to the eChronos RTOS project.
+- The core requirements of the current development process must be retained across the changes introduced by this task:
+    - The development process must meet the requirements of the Quality Management System of Breakaway Consulting Pty. Ltd., as documented in the _Breakaway Consulting Pty. Ltd. Quality Manual_.
+    - The repository shall contain an audit trail for all changes in the project.
+    - For each task, the motivation for the task's changes as well as review feedback and responses accumulated up until the integration of the task into the mainline branch shall be included as file content in the git repository.
+    - This audit trail shall in particular be able to show that each task received at least two positive reviews and had no remaining rework to be addressed before being integrated into the mainline branch.
+- Client repositories shall continue to be able to use the existing workflows and tools.
+  The current workflow with the `task.py` script shall continue to work, ideally without any changes visible to developers.
+- This task shall allow developers to contribute to the project as follows:
+    - Task branches no longer need to be created in the eChronos RTOS github repository.
+      Instead, a developer may prepare a set of changes in any branch in any github repository they choose and then submit a pull request against the main eChronos RTOS github repository.
+      The pull request description shall contain the same information as task description do today.
+    - Reviews no longer need to be requested or provided via the `task.py` script in review files.
+      Instead, developers may use the github features for commenting on and reviewing a pull request to provide reviews and review responses.
+      The github repository shall be configured such that a pull request cannot be integrated into the mainline branch unless it has received two positive reviews.
+    - Tasks shall continue to be integrated into the mainline branch via a script.
+      They shall not be merged via github.
+      The script shall establish the audit trail in git before integrating the task.
+      It shall store the description of the pull request as a task description file just like the `task.py create` command does.
+      It shall store all comments and reviews from the pull request in a `github.md` file.
+      This file shall in particular show that the changes received two positive reviews.
+      Ideally, this could be achieved through a github integration that is cloud-hosted and integrated into github's merge actian, but a script is for now easier to implement and maintain.
+      Based on the prototype of such a script, this `github.md` could have roughly the following contents:
+
+# [This is the name of the pull request](https://github.com/stgstgstg/testrepo/pull/2)
+
+This is the description of the pull request which would be our task description.
+
+_By [Stefan Götz](mailto:stg@brkawy.com)_  
+_Base: revision [14ac1a0e3dbae3fa49c97d54be27403dcbed181b](https://github.com/stgstgstg/testrepo/pull/2/commits/14ac1a0e3dbae3fa49c97d54be27403dcbed181b) in [stgstgstg:master](https://github.com/stgstgstg/testrepo/tree/master)_  
+_Head: revision [77b8b61637955739d01da17e8c00be0ed1e64aac](https://github.com/stgstgstg/testrepo/pull/2/commits/77b8b61637955739d01da17e8c00be0ed1e64aac) in [stefangotz:testbranch](https://github.com/stefangotz/testrepo/tree/testbranch)_  
+
+# Reviews
+
+**[CHANGES_REQUESTED](https://github.com/stgstgstg/testrepo/pull/2#pullrequestreview-38580489)**  
+_Author: [Alter Ego](mailto:github.nooneelse@spamgourmet.com)_  
+_Revision: 81fe0cde0adf6dc1e9768afc4d29138c21056d14_  
+_Date: 2017-05-17 06:38:39_  
+> Rework these changes so that they say 'foo bar'
+
+---
+
+**[APPROVED](https://github.com/stgstgstg/testrepo/pull/2#pullrequestreview-38580730)**  
+_Author: [Alter Ego](mailto:github.nooneelse@spamgourmet.com)_  
+_Revision: 77b8b61637955739d01da17e8c00be0ed1e64aac_  
+_Date: 2017-05-17 06:40:27_  
+> That looks better
+
+---
+
+
+# Comments
+
+_Author: [Alter Ego](mailto:github.nooneelse@spamgourmet.com)_  
+_Date: 2017-05-17 08:13:47_  
+_Link: https://github.com/stgstgstg/testrepo/pull/2#issuecomment-302018822_  
+> Some general comment on the PR
+
+---
+
+
+# Test Plan
+
+- Verify that all existing regression tests pass.
+- Verify that the changes meet the task goals and follow project conventions.
+- TBD

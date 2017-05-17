@@ -76,3 +76,7 @@ out/posix/acamar/posix/rtos-acamar.c:135:5: note: 'getcontext' declared here
     ^
 10 errors generated.
 ERROR:prj:Command gcc -o out/posix/acamar/system -Wall -Werror -std=c90 -D_DEFAULT_SOURCE -D_POSIX_C_SOURCE -Iout/posix/acamar -Iout/posix/acamar/posix -Iout/posix/acamar/generic out/posix/acamar/posix/rtos-acamar.c share/packages/rtos-example/acamar-test.c out/posix/acamar/generic/debug.c share/packages/posix/debug.c returned non-zero error code: 1
+
+[stg: As communicated privately, resolving the OSX issues is beyond the scope of this task.
+Even after resolving the build issues, the resulting binary exits with a segmentation fault.
+It makes more sense to look into this in a separate task than in this task.]

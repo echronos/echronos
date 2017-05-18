@@ -32,7 +32,7 @@ class Standard(Release):
     packages = ['armv7m', 'generic', 'rtos-example', 'machine-qemu-simple', 'machine-stm32f4-discovery',
                 'machine-armv7m-common']
     platforms = ['x86_64-apple-darwin', 'x86_64-unknown-linux-gnu']
-    version = '1.2.0'
+    version = '1.3.0'
     product_name = 'eChronos'
     release_name = 'std'
     enabled = True
@@ -702,3 +702,9 @@ class PowerPCe500Linux(Standard):
     extra_files = [
         ('README.md', 'docs/ppce500_kochab_readme.md'),
     ]
+
+
+class Posix(Standard):
+    packages = ['posix', 'generic', 'rtos-example', 'unittest']
+    platforms = ['x86_64-apple-darwin', 'x86_64-unknown-linux-gnu', 'win32']
+    release_name = 'posix'

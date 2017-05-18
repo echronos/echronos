@@ -125,8 +125,8 @@ def xml_parse_file_with_includes(filename, include_paths=None, output_file_path=
     """
     dom = XmlIncludeParser(include_paths).parse(filename)
     if output_file_path is not None:
-        with open(output_file_path, 'w') as f:
-            f.write(dom.toprettyxml())
+        with open(output_file_path, 'wb') as f:
+            f.write(dom.toprettyxml(encoding="UTF-8"))
     return dom
 
 

@@ -1,0 +1,19 @@
+# Motivation
+
+The instructions in the current quick-start guide in README.md are out of date and do not allow creating a system runnable in QEMU.
+See GitHub issue #47 at https://github.com/echronos/echronos/issues/47
+
+
+# Goals
+
+- Update README.md so that the quick-start guide can be followed successfully.
+    - Also perform cleanup where required
+- Move QEMU build instructions outside the README and into the QEMU repository so that future build changes only manifest in one place.
+- Attempt to update the version of QEMU usable by our test systems.
+    - (Note: if we can successfully emulate a 'real' ARM system with upstream QEMU we may not need the qemu-simple package any more, but removal of this should be another task)
+
+# Test Plan
+
+- Verify that all existing regression tests pass.
+- Verify that the changes meet the task goals and follow project conventions.
+- Follow the instructions of the quick-start guide on a Linux system and verify that they result in a working system runnable in QEMU.

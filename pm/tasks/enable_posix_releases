@@ -1,0 +1,31 @@
+# Motivation
+
+The RTOS currently only generates releases for ARM and PowerPC target platforms, even though it also supports POSIX as a target platform.
+For developers wanting to evaluate the RTOS for their own purposes, it can be cumbersome and difficult to come by the components required to build and test the RTOS on ARM or PowerPC.
+This is illustrated by the length of the "Getting Started" guide in `README.md`.
+
+However, building and running the RTOS on a POSIX platform makes it much easier to evaluate and familiarize oneself with the RTOS.
+This is particularly true, when using a release instead of the complete source tree.
+Therefore, new developers would benefit from the availability of POSIX releases.
+
+
+# Goals
+
+- The overall goal of this task is to make it possible to build easy-to-use RTOS releases for POSIX as the target platform.
+- Developers shall be able to build and run example systems for all non-preemptive variants on Linux and Windows with Cygwin or MinGW from such releases.
+
+
+# Test Plan
+
+- Review the changes.
+- Verify that all existing regression tests pass.
+- Create a release via the following commands and verify that they complete successfully:
+
+    ./x.py build docs
+    ./x.py build partials
+    ./x.py build prj
+    ./x.py build release
+
+- Extract the release archive contents with the command `tar xaf release/eChronos-posix-1.0.0.tar.gz` and verify that they contain the prj tool, the API manual, and the example systems.
+- In the extracted release directory, run `bin/prj.sh build posix.acamar` and verify that it completes successfully.
+- Then run `./out/posix/acamar/system` and verify that it alternatingly prints `task a` and `task b` until stopped via `ctrl-c`.

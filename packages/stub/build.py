@@ -26,6 +26,7 @@
 #
 
 import os.path
+import sys
 from prj import execute, SystemBuildError
 
 
@@ -46,7 +47,12 @@ def system_build(system, configuration):
     if len(system.c_files) == 0:
         raise SystemBuildError("Zero C files in system definition")
 
-    shared_args = ['-shared', '-fPIC'] if configuration['output_type'] == 'shared-library' else []
+    if configuration['output_type'] == 'shared-library':
+        shared_args = ['-shared']
+        if sys.platform != 'win32':
+            shared_args.append('-fPIC')
+    else:
+        shared_args = []
 
     execute('gcc -std=c90 -Werror -Wall --all-warnings -Wpedantic -pedantic -Wextra -O -Winit-self -Wswitch-default \
 -Wswitch-enum -fstrict-aliasing -fstrict-overflow -Wstrict-overflow=5 -Wundef -Wbad-function-cast -Wcast-qual \

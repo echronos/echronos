@@ -147,8 +147,8 @@ def pystache_render(file_in, file_out, config):
 
     os.makedirs(os.path.dirname(file_out), exist_ok=True)
 
-    with open(file_out, 'w') as outp:
-        outp.write(data)
+    with open(file_out, 'wb') as outp:
+        outp.write(data.encode())
 
 
 # We don't want byte-code written to disk for any of the plug-ins that we load,

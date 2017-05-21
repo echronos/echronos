@@ -386,7 +386,7 @@ def _tar_gz_with_license(output, dir_path, file_paths, prefix, license, doc_lice
                 for f in file_paths:
                     if os.path.isabs(f):
                         f = os.path.relpath(f, dir_path)
-                    tf.add(f, arcname='{}/{}'.format(prefix, f), filter=lo.tar_info_filter)
+                    tf.add(f, _arc_path_join(prefix, f), filter=lo.tar_info_filter)
     finally:
         tarfile.bltn_open = open
 
@@ -434,17 +434,17 @@ def build_single_release(config, topdir):
         for file_name in os.listdir(prj_build_dir):
             # mark all files except the zipped prj 'binary' as executable because prj cannot be executed itself
             file_filter = functools.partial(_tar_info_filter, execute_permission=not file_name.endswith('prj'))
-            # The path in the following 'arcname' variable is the path stored inside the zip file.
-            # I.e., any tools that decompress the zip file need to handle that path.
-            # Non-windows tools generally do not handle a backslash character correctly as a path separator.
-            # However, forward-slash characters work as path separators on Windows and non-Windows platforms.
-            # Therefore, the following path deliberately uses '/' forward slashes as path separators.
-            # This ensures that prj zip files created on any platform work on any other platform.
-            arcname = '{}/bin/{}'.format(basename, file_name)
+            arcname = _arc_path_join(basename, 'bin', file_name)
             tf.add(os.path.join(prj_build_dir, file_name), arcname=arcname, filter=file_filter)
+        for prj_release_files_path in base_to_top_paths(topdir, os.path.join('prj', 'release_files')):
+            for file_name in os.listdir(prj_release_files_path):
+                if file_name != 'README.md':
+                    file_path = os.path.join(prj_release_files_path, file_name)
+                    archive_path = _arc_path_join(basename, file_name)
+                    tf.add(file_path, arcname=archive_path, filter=_tar_info_filter)
 
         if config.top_level_license is not None:
-            _tar_add_data(tf, '{}/LICENSE'.format(basename),
+            _tar_add_data(tf, _arc_path_join(basename, 'LICENSE'),
                           config.top_level_license.encode('utf8'),
                           _tar_info_filter)
 
@@ -454,7 +454,7 @@ def build_single_release(config, topdir):
             file_path = find_path(filename, topdir)
             lo = _LicenseOpener(dummy_pkg.get_license(), dummy_pkg.get_doc_license(), topdir, filename=file_path)
             tarfile.bltn_open = lo.open
-            tf.add(file_path, arcname='{}/{}'.format(basename, arcname), filter=lo.tar_info_filter)
+            tf.add(file_path, arcname=_arc_path_join(basename, arcname), filter=lo.tar_info_filter)
             tarfile.bltn_open = open
 
         if 'TEAMCITY_VERSION' in os.environ:
@@ -465,9 +465,9 @@ def build_single_release(config, topdir):
             if not g.working_dir_clean():
                 build_info += "-unclean"
         build_info += '\n'
-        _tar_add_data(tf, '{}/build_info'.format(basename), build_info.encode('utf8'), _tar_info_filter)
+        _tar_add_data(tf, _arc_path_join(basename, 'build_info'), build_info.encode('utf8'), _tar_info_filter)
 
-        _tar_add_data(tf, '{}/version_info'.format(basename), config.version.encode('utf8'), _tar_info_filter)
+        _tar_add_data(tf, _arc_path_join(basename, 'version_info'), config.version.encode('utf8'), _tar_info_filter)
 
 
 def release_test_one(archive):
@@ -585,3 +585,15 @@ def build(args):
             result = 1
 
     return result
+
+
+def _arc_path_join(*elements):
+    """Join path elements with '/' separators to construct a path string that works in release archives.
+    Any tools that decompress release archive files need to handle such paths.
+    Non-Windows tools generally do not handle a backslash character correctly as a path separator.
+    However, forward-slash characters work as path separators on Windows and non-Windows platforms.
+    Therefore, this function deliberately uses '/' forward slashes as path separators.
+    This ensures that prj zip files created on any platform work on any other platform."""
+    path = '/'.join(elements)
+    path = path.replace('\\', '/')
+    return path

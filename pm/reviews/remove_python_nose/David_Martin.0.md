@@ -12,5 +12,8 @@ Comment: Instead of using expressions like 'assert x == y' or 'assert x is y'
          when the assertions fail, such as for example the actual observed
          values that caused the assertion to fail.
 
+[stg: That is a good point.
+I have addressed this issue as suggested.]
+
 Location: x_test.py:115
 Comment: I did not know about the skipUnless decorator before. I like it!

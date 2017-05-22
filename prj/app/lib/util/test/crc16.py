@@ -31,7 +31,7 @@ from util.crc16 import Crc16Ccitt, crc16ccitt
 
 class TestCase(unittest.TestCase):
     def test_empty(self):
-        assert crc16ccitt() == 0xffff
+        self.assertEqual(crc16ccitt(), 0xffff)
 
     def test_expected(self):
         # Test values determined from:
@@ -55,18 +55,18 @@ class TestCase(unittest.TestCase):
 
         for b in b'foo':
             c.add(b)
-        assert c.result(reset=False) == 0x630A
+        self.assertEqual(c.result(reset=False), 0x630A)
 
         for b in b'bar':
             c.add(b)
-        assert c.result(reset=False) == 0xBE35
+        self.assertEqual(c.result(reset=False), 0xBE35)
 
         c.reset()
 
         for b in b'foo':
             c.add(b)
-        assert c.result() == 0x630A
+        self.assertEqual(c.result(), 0x630A)
 
         for b in b'bar':
             c.add(b)
-        assert c.result() == 0x5F59
+        self.assertEqual(c.result(), 0x5F59)

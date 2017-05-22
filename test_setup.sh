@@ -44,6 +44,14 @@ do
 done
 shift `expr ${OPTIND} - 1`
 
+# if there is no local master branch, create it because some tests depend on it
+if [ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]
+then
+    git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+    git fetch --depth=1 origin master
+    git branch --track master origin/master
+fi
+
 # python3 (>3.2): x.py
 # splint: prj.py analyze
 # gcc-powerpc-linux-gnu: prj.py build machine-qemu-ppce500.example.acamar-config-demo

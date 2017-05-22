@@ -47,39 +47,85 @@ The RTOS also runs on POSIX platforms (e.g., Linux, MacOS-X, Windows with cygwin
 
 To obtain the source code, use the following commands:
 
-    git clone https://github.com/echronos/echronos.git
-    cd echronos
+    git clone --depth=1 https://github.com/echronos/echronos.git
 
 
 # Quick-start
 
-See the Prerequisites section for instructions on downloading and installing all prerequisites.
-The following assumes they have been set up.
+## Prerequisites (ARMv7m)
 
-Build and run an example system for the RTOS variant *Rigel* on QEMU-emulated ARMv7-M:
+To obtain the `arm-none-eabi` GNU toolchain and `gdb-arm-none-eabi` for building and debugging the RTOS for ARMv7-M, run:
 
-    prj/app/prj.py build machine-qemu-simple.example.rigel-system
+    sudo apt-get install gcc-arm-none-eabi gdb-arm-none-eabi
+
+The packages will have slightly different names across different linux distributions and versions.
+
+Note: Older versions of Ubuntu have a known bug with ARM gdb package installation (see [here](https://bugs.launchpad.net/ubuntu/+source/gdb-arm-none-eabi/+bug/1267680)).
+If you are unable to install it due to a conflict, try adding a dpkg diversion for the gdb man pages first:
+
+    sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdbserver.1.gz --rename /usr/share/man/man1/gdbserver.1.gz
+    sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdb.1.gz --rename /usr/share/man/man1/gdb.1.gz
+
+And then retry the above installation command for `gdb-arm-none-eabi`.
+
+To obtain `echronos-qemu-system-arm` for emulating ARM systems, read the README.md for [our QEMU fork](https://github.com/echronos/qemu/) (make sure to use the `echronos-qemu` branch).
+
+On most linux distributions, it will be simplest to use the binaries included in the QEMU fork repository - see 'Using the binaries' section of the QEMU README.md.
+
+## Running an example system (ARMv7m)
+
+Build and run an example system for the RTOS variant *Gatria* on QEMU-emulated ARMv7-M (STM32):
+
+    cd echronos
+    prj/app/prj.py build machine-stm32f4-discovery.example.gatria-system
 
     # Run the generated system in qemu (press `ctrl-c` to close QEMU after it is finished)
-    qemu-system-arm -M simple-armv7m -S -s -nographic -semihosting -kernel out/machine-qemu-simple/example/rigel-system/system
+    echronos-qemu-system-arm -mcu STM32F407VG -semihosting -S -s --kernel `pwd`/out/machine-stm32f4-discovery/example/gatria-system/system
 
     # To connect and view debug output run gdb in another shell prompt
-    # Note: The Rigel example will end by deliberately triggering a fatal error
-    arm-none-eabi-gdb -ex "target remote :1234" -ex "b fatal" out/machine-qemu-simple/example/rigel-system/system
+    arm-none-eabi-gdb -ex "target remote :1234" out/machine-stm32f4-discovery/example/gatria-system/system
+    (gdb) b fn_a
+    Breakpoint 1 at 0x800065c: file packages/rtos-example/gatria-test.c, line 41.
     (gdb) c
-    ...
-    task a: start delay
-    irq tick
-    irq tick
-    irq tick
-    irq tick
-    task a: complete delay
+    Continuing.
 
-    Breakpoint 1, fatal (error_id=error_id@entry=1 '\001')
-    (gdb) quit
+    Breakpoint 1, fn_a () at packages/rtos-example/gatria-test.c:41
+    41	{
+    (gdb) n
+    43	    rtos_unblock(0);
+    (gdb) n
+    44	    rtos_unblock(1);
+    (gdb) c
+    Continuing.
+    task a -- lock
+    task b -- try lock
+    task a -- unlock
+    ...
+
+## Prerequisites (PowerPC e500)
+
+To obtain the `powerpc-linux-gnu` GNU toolchain for building the RTOS for PowerPC e500 on Ubuntu Linux systems, run:
+
+    sudo apt-get install gcc-powerpc-linux-gnu
+
+To obtain the `qemu-system-ppc` emulator for running the [`machine-qemu-ppce500`](packages/machine-qemu-ppce500) systems on Ubuntu Linux systems, run:
+
+    sudo apt-get install qemu-system-ppc
+
+To obtain, build, and install `powerpc-linux-gdb` for debugging PowerPC e500 systems, run:
+
+    wget https://ftp.gnu.org/gnu/gdb/gdb-7.12.tar.xz
+    tar xaf gdb-7.12.tar.xz
+    cd gdb-7.12
+    ./configure --target=powerpc-linux --prefix=/usr/
+    make -s
+    sudo make -s install
+
+## Running an example system (PowerPC e500)
 
 Build and run an example system for the RTOS variant *Kochab* on QEMU-emulated PowerPC e500:
 
+    cd echronos
     prj/app/prj.py build machine-qemu-ppce500.example.kochab-system
 
     # Run the generated system in qemu (press `ctrl-a` then 'x' to close QEMU after you are finished)
@@ -100,51 +146,6 @@ Build and run an example system for the RTOS variant *Kochab* on QEMU-emulated P
     Breakpoint 1, debug_print (msg=0x33f8 "task b unblocked")
     (gdb) quit
 
-
-# Prerequisites
-
-To obtain the `arm-none-eabi` GNU toolchain and `arm-none-eabi-gdb` for building and debugging the RTOS for ARMv7-M, run:
-
-    sudo apt-get install gcc-arm-none-eabi gdb-arm-none-eabi
-
-Note: Older versions of Ubuntu have a known bug with ARM gdb package installation (see [here](https://bugs.launchpad.net/ubuntu/+source/gdb-arm-none-eabi/+bug/1267680)).
-If you are unable to install it due to a conflict, try adding a dpkg diversion for the gdb man pages first:
-
-    sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdbserver.1.gz --rename /usr/share/man/man1/gdbserver.1.gz
-    sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdb.1.gz --rename /usr/share/man/man1/gdb.1.gz
-
-And then retry the above installation command for `gdb-arm-none-eabi`.
-
-To obtain `qemu-system-arm` with target `simple-armv7m` for testing the [`machine-qemu-simple`](packages/machine-qemu-simple) systems, run:
-
-    git clone https://github.com/BreakawayConsulting/QEMU.git
-    cd QEMU
-    ./configure --target-list=arm-softmmu --disable-cocoa --disable-curses --disable-vnc --disable-tools --without-pixman --disable-console --disable-default-devices --disable-slirp --disable-curl --disable-guest-base --disable-guest-agent --disable-blobs --audio-drv-list= --audio-card-list= --disable-usb --disable-ide --disable-pie --enable-debug --disable-sdl --disable-fdt --disable-spice --disable-xen --disable-werror
-    make
-    export PATH=`pwd`/arm-softmmu:$PATH
-
-To obtain the `powerpc-linux-gnu` GNU toolchain for building the RTOS for PowerPC e500 on Ubuntu Linux systems, run:
-
-    sudo apt-get install gcc-powerpc-linux-gnu
-
-To obtain the `qemu-system-ppc` emulator for running the [`machine-qemu-ppce500`](packages/machine-qemu-ppce500) systems on Ubuntu Linux systems, run:
-
-    sudo apt-get install qemu-system-ppc
-
-To obtain, build, and install `powerpc-linux-gdb` for debugging PowerPC e500 systems, run:
-
-    wget https://ftp.gnu.org/gnu/gdb/gdb-7.12.tar.xz
-    tar xaf gdb-7.12.tar.xz
-    cd gdb-7.12
-    ./configure --target=powerpc-linux --prefix=/usr/
-    make -s
-    sudo make -s install
-
-To obtain `pandoc` and `wkhtmltopdf` needed for building user documentation on Ubuntu Linux systems:
-
-    sudo apt-get install pandoc
-    sudo apt-get install wkhtmltopdf
-
 # Documentation
 
 Basic RTOS concepts and usage are documented in this README.
@@ -153,7 +154,15 @@ More detailed documentation for the `x.py` tool can be found inside [`x.py`](x.p
 More detailed documentation for the `prj` tool can be found in [`prj/manual/prj-user-manual`](prj/manual/prj-user-manual).
 
 Pregenerated RTOS API manuals can be found on the [eChronos GitHub wiki](https://github.com/echronos/echronos/wiki).
-They can also be generated with the command `x.py build docs`.
+
+## Building documentation
+
+To obtain `pandoc` and `wkhtmltopdf` needed for building user documentation on Ubuntu Linux systems:
+
+    sudo apt-get install pandoc
+    sudo apt-get install wkhtmltopdf
+
+Documentation can then be  generated with the command `x.py build docs`.
 
 # Software model
 

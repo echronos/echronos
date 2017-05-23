@@ -45,7 +45,7 @@ done
 shift `expr ${OPTIND} - 1`
 
 # if there is no local master branch, create it because some tests depend on it
-if [ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]
+if ! git rev-parse --verify master > /dev/null 2>&1
 then
     git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
     git fetch --depth=1 origin master

@@ -1,0 +1,30 @@
+# Motivation
+
+The Travis CI regression tests currently fail on the master branch with the following error message:
+
+    git rev-parse --abbrev-ref HEAD
+    [ HEAD != master ]
+    git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
+    git fetch --depth=1 origin master
+        remote: Total 0 (delta 0), reused 0 (delta 0), pack-reused 0
+        From https://github.com/echronos/echronos
+        * branch            master     -> FETCH_HEAD
+    git branch --track master origin/master
+        fatal: A branch named 'master' already exists.
+
+The task do_not_update_master_branch_on_travis_ci introduce this code into test_setup.sh to prevent re-creating an already existing local master branch.
+However, the check tests whether the current head revision is the master branch, not whether the master branch exists.
+
+
+# Goals
+
+- The main goal is to make the regression tests on Travis CI pass.
+- In particular, the check whether the master branch already exists in the local repository needs to be changed so that it reliably detects the master branch.
+
+
+# Test Plan
+
+- Verify that all existing regression tests pass.
+- Verify that the changes meet the task goals and follow project conventions.
+- Unfortunately, this task is practically impossible to fully test before having been integrated into the master branch.
+

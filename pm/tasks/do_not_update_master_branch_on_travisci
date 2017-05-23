@@ -1,0 +1,25 @@
+# Motivation
+
+The regression tests on TravisCI currently fail on the master branch after having integrated the task integrate_pylint_package_and_use_for_regression_tests.
+
+The test failure is
+
+    $ git branch --track master origin/master
+    fatal: A branch named 'master' already exists.
+
+This stems from shell commands in .travis.yml that create a local master branch in the local git repository when using TravisCI.
+That local master branch is necessary for some tests to succeed.
+However, these shell commands fail when a local master branch already exists, i.e., when testing the master branch itself.
+
+
+# Goals
+
+- The main goal of this task is to ensure that the regression tests on TravisCI no longer fail.
+- .travis.yml shall be updated so that a local master branch is only created when it does not exist yet.
+
+
+# Test Plan
+
+- Verify that all existing regression tests pass.
+- Verify that the changes meet the task goals and follow project conventions.
+- Unfortunately, this task is practically impossible to fully test before having been integrated into the master branch.

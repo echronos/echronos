@@ -29,6 +29,7 @@ import sys
 from prj import execute, SystemBuildError
 
 
+# pylint: disable=invalid-name
 schema = {
     'type': 'dict',
     'name': 'module',
@@ -43,7 +44,7 @@ def run(system, configuration=None):
 def system_build(system, configuration):
     inc_path_args = ['-I%s' % i for i in system.include_paths]
 
-    if len(system.c_files) == 0:
+    if not system.c_files:
         raise SystemBuildError("Zero C files in system definition")
 
     if configuration['output_type'] == 'shared-library':

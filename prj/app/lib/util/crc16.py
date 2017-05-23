@@ -48,6 +48,7 @@ class Crc16Ccitt(object):
 
     """
     def __init__(self):
+        self.state = None
         self.reset()
 
     def reset(self):
@@ -60,10 +61,10 @@ class Crc16Ccitt(object):
 
         """
         # CRC-16 polynomial
-        s = byte ^ (self.state >> 8)
-        t = s ^ (s >> 4)
-        r = s16l(self.state, 8) ^ t ^ s16l(t, 5) ^ s16l(t, 12)
-        self.state = r
+        poly_s = byte ^ (self.state >> 8)
+        poly_t = poly_s ^ (poly_s >> 4)
+        result = s16l(self.state, 8) ^ poly_t ^ s16l(poly_t, 5) ^ s16l(poly_t, 12)
+        self.state = result
 
     def result(self, reset=True):
         """Return the CRC result.
@@ -71,10 +72,10 @@ class Crc16Ccitt(object):
         If reset is True the CRC engine will also be reset.
 
         """
-        r = self.state
+        result = self.state
         if reset:
             self.reset()
-        return r
+        return result
 
 
 def crc16ccitt(*datas):
@@ -92,8 +93,8 @@ def crc16ccitt(*datas):
     0x0d53
 
     """
-    c = Crc16Ccitt()
+    crc = Crc16Ccitt()
     for data in datas:
-        for ch in data:
-            c.add(ch)
-    return c.result()
+        for char in data:
+            crc.add(char)
+    return crc.result()

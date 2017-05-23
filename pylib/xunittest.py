@@ -78,7 +78,6 @@
 # matching.
 #
 
-import os
 import re
 import sys
 import inspect
@@ -87,9 +86,9 @@ import importlib
 import functools
 
 
-def ispackage(object):
+def ispackage(obj):
     """Return true if the object is a package."""
-    return inspect.ismodule(object) and hasattr(object, '__path__')
+    return inspect.ismodule(obj) and hasattr(obj, '__path__')
 
 
 def testcase_matches(testcase, test_desc):
@@ -103,11 +102,11 @@ def testcase_matches(testcase, test_desc):
     """
     name = testcase_name(testcase)
 
-    r = False
-    r = r or name == test_desc
-    r = r or test_desc[-1] in '.:' and name.startswith(test_desc)
-    r = r or re.match(test_desc + '$', name)
-    return r
+    result = False
+    result = result or name == test_desc
+    result = result or test_desc[-1] in '.:' and name.startswith(test_desc)
+    result = result or re.match(test_desc + '$', name)
+    return result
 
 
 def testcase_name(testcase):
@@ -122,9 +121,9 @@ def testcase_name(testcase):
     For generated testcases the format is <module_name>.<generator_name>:<description>
 
     """
-    if isinstance(testcase, unittest.suite._ErrorHolder):
+    if isinstance(testcase, unittest.suite._ErrorHolder):  # pylint: disable=protected-access
         return str(testcase)
-    return testcase._testcase_name
+    return testcase.testcase_name
 
 
 class SimpleTestNameResult(unittest.TextTestResult):
@@ -134,7 +133,7 @@ class SimpleTestNameResult(unittest.TextTestResult):
     See also: testcase_name
 
     """
-    def getDescription(self, testcase):
+    def getDescription(self, testcase):  # pylint: disable=arguments-differ
         return testcase_name(testcase)
 
 
@@ -170,19 +169,21 @@ def discover_tests_class(cls):
         if callable(method):
             if issubclass(cls, unittest.TestCase):
                 testcase = cls(name)
-                testcase._testcase_name = "{}.{}.{}".format(cls.__module__, cls.__name__, name)
+                testcase.testcase_name = "{}.{}.{}".format(cls.__module__, cls.__name__, name)
                 yield testcase
             else:
                 if inspect.isgeneratorfunction(method):
                     gen = getattr(cls(), name)
-                    for name, *test in gen():
-                        f = functools.partial(*test)
-                        testcase = MethodTestCase(f, cls)
-                        testcase._testcase_name = "{}.{}.{}".format(cls.__module__, cls.__name__, name)
+                    for gen_name, *test in gen():
+                        function = functools.partial(*test)
+                        testcase = MethodTestCase(function, cls)
+                        # pylint: disable=attribute-defined-outside-init
+                        testcase.testcase_name = "{}.{}.{}".format(cls.__module__, cls.__name__, gen_name)
                         yield testcase
                 else:
                     testcase = MethodTestCase(getattr(cls(), name), cls)
-                    testcase._testcase_name = "{}.{}.{}".format(cls.__module__, cls.__name__, name)
+                    # pylint: disable=attribute-defined-outside-init
+                    testcase.testcase_name = "{}.{}.{}".format(cls.__module__, cls.__name__, name)
                     yield testcase
 
 
@@ -193,14 +194,14 @@ def discover_tests_module(module):
             yield from discover_tests_class(obj)
         elif callable(obj) and re.match('test_.*', name):
             if inspect.isgeneratorfunction(obj):
-                for name, *test in obj():
-                    f = functools.partial(*test)
-                    testcase = unittest.FunctionTestCase(f)
-                    testcase._testcase_name = "{}.{}:{}".format(obj.__module__, obj.__name__, name)
+                for gen_name, *test in obj():
+                    function = functools.partial(*test)
+                    testcase = unittest.FunctionTestCase(function)
+                    testcase.testcase_name = "{}.{}:{}".format(obj.__module__, obj.__name__, gen_name)
                     yield testcase
             else:
                 testcase = unittest.FunctionTestCase(obj)
-                testcase._testcase_name = "{}.{}".format(obj.__module__, obj.__name__)
+                testcase.testcase_name = "{}.{}".format(obj.__module__, obj.__name__)
                 yield testcase
 
 

@@ -51,22 +51,22 @@ class TestCase(unittest.TestCase):
             self.assertEqual(crc16ccitt(*inp), expected)
 
     def test_reuse(self):
-        c = Crc16Ccitt()
+        crc = Crc16Ccitt()
 
-        for b in b'foo':
-            c.add(b)
-        self.assertEqual(c.result(reset=False), 0x630A)
+        for byte in b'foo':
+            crc.add(byte)
+        self.assertEqual(crc.result(reset=False), 0x630A)
 
-        for b in b'bar':
-            c.add(b)
-        self.assertEqual(c.result(reset=False), 0xBE35)
+        for byte in b'bar':
+            crc.add(byte)
+        self.assertEqual(crc.result(reset=False), 0xBE35)
 
-        c.reset()
+        crc.reset()
 
-        for b in b'foo':
-            c.add(b)
-        self.assertEqual(c.result(), 0x630A)
+        for byte in b'foo':
+            crc.add(byte)
+        self.assertEqual(crc.result(), 0x630A)
 
-        for b in b'bar':
-            c.add(b)
-        self.assertEqual(c.result(), 0x5F59)
+        for byte in b'bar':
+            crc.add(byte)
+        self.assertEqual(crc.result(), 0x5F59)

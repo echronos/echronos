@@ -45,4 +45,4 @@ class AcruxModule(Module):
 
         return config
 
-module = AcruxModule()
+module = AcruxModule()  # pylint: disable=invalid-name

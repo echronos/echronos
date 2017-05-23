@@ -30,7 +30,7 @@ import shutil
 import subprocess
 import sys
 
-from .utils import BASE_DIR, base_path, get_host_platform_name, get_executable_extension, find_path
+from .utils import BASE_DIR, get_host_platform_name, get_executable_extension
 from . import components
 from .cmdline import subcmd, Arg
 
@@ -71,7 +71,7 @@ def _get_package_dirs(required_files=None):
     if required_files is None:
         required_files = set()
 
-    for root, dirs, files in os.walk(os.path.join(BASE_DIR, 'packages')):
+    for root, _, files in os.walk(os.path.join(BASE_DIR, 'packages')):
         if required_files.issubset(files):
             yield root
 
@@ -85,7 +85,7 @@ def _get_doc_vars(markdown_file):
     return doc_vars
 
 
-def _build_doc(pkg_dir, top_dir, verbose=False):
+def _build_doc(pkg_dir, verbose=False):
     markdown_file = os.path.join(pkg_dir, 'docs.md')
     pdf_file = os.path.join(pkg_dir, 'docs.pdf')
     html_file = os.path.join(pkg_dir, 'docs.html')
@@ -143,7 +143,7 @@ The generated documentation files are called "docs.pdf" and can be found in each
 def build(args):
     components.build(args)
     for pkg_dir in _get_package_dirs(set(('docs.md',))):
-        _build_doc(pkg_dir, args.topdir, args.verbose)
+        _build_doc(pkg_dir, args.verbose)
     return 0
 
 

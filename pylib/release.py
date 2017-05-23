@@ -35,9 +35,8 @@ import subprocess
 import functools
 from glob import glob
 from contextlib import contextmanager
-from .utils import chdir, tempdir, get_host_platform_name, BASE_TIME, top_path, base_to_top_paths, find_path, Git
+from .utils import chdir, tempdir, BASE_TIME, top_path, base_to_top_paths, find_path, Git
 from .utils import walk
-from .components import build
 from .cmdline import subcmd, Arg
 from .docs import is_release_doc_file, is_nonrelease_doc_file
 
@@ -81,7 +80,7 @@ class Package:
             for pkg_name in pkg_names:
                 pkg_path = os.path.join(pkg_parent_dir, pkg_name)
                 if pkg_name in pkgs:
-                    logging.warn('Overriding package {} with package {}'.format(pkgs[pkg_name].path, pkg_path))
+                    logging.warning('Overriding package %s with package %s', pkgs[pkg_name].path, pkg_path)
                 pkgs[pkg_name] = Package(pkg_path)
         return pkgs
 
@@ -125,16 +124,15 @@ class _ReleasePackage:
     def get_doc_license(self):
         if hasattr(self._rls_cfg, 'doc_license'):
             return self._rls_cfg.doc_license
-        else:
-            return self._rls_cfg.license
+        return self._rls_cfg.license
 
 
 @contextmanager
 def _tarfile_open(name, mode, **kwargs):
     assert mode.startswith('w')
-    with tarfile.open(name, mode, **kwargs) as f:
+    with tarfile.open(name, mode, **kwargs) as file_obj:
         try:
-            yield f
+            yield file_obj
         except:
             os.unlink(name)
             raise
@@ -148,17 +146,17 @@ class _FileWithLicense:
     The original file object should not be used after passing it to the _FileWithLicense object.
 
     """
-    def __init__(self, f, lic, old_xml_prologue_len, old_license_len):
-        self._f = f
+    def __init__(self, file_obj, lic, old_xml_prologue_len, old_license_len):
+        self._file_obj = file_obj
         self._read_license = True
 
         if old_xml_prologue_len:
-            f.read(old_xml_prologue_len)
+            file_obj.read(old_xml_prologue_len)
 
         if old_license_len:
-            f.read(old_license_len)
+            file_obj.read(old_license_len)
 
-        if len(lic) > 0:
+        if lic:
             self._read_license = False
             self._license_io = io.BytesIO(lic)
 
@@ -172,17 +170,17 @@ class _FileWithLicense:
                 size -= len(data)
 
         if self._read_license:
-            data += self._f.read(size)
+            data += self._file_obj.read(size)
 
         return data
 
     def close(self):
-        self._f.close()
+        self._file_obj.close()
 
     def __enter__(self):
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, typ, value, traceback):
         self.close()
 
 
@@ -203,54 +201,58 @@ class _LicenseOpener:
     class UnknownFiletypeException(Exception):
         """Raised when the given file type is unknown."""
 
-    def __init__(self, license, doc_license, top_dir, allow_unknown_filetypes=False, filename=None):
-        self.license = license
+    # pylint: disable=too-many-arguments
+    def __init__(self, lic, doc_license, top_dir, allow_unknown_filetypes=False, filename=None):
+        self.license = lic
         self.doc_license = doc_license
         self.top_dir = top_dir
         self.allow_unknown_filetypes = allow_unknown_filetypes
         self.filename = filename
-        self.XML_PROLOGUE = '<?xml version="1.0" encoding="UTF-8" ?>'
+        self.xml_prologue = '<?xml version="1.0" encoding="UTF-8" ?>'
 
-    def _consume_xml_prologue(self, f):
-        xml_prologue_len = len(self.XML_PROLOGUE)
+    def _consume_xml_prologue(self, file_obj):
+        xml_prologue_len = len(self.xml_prologue)
 
-        file_header = f.read(xml_prologue_len)
-        if file_header != self.XML_PROLOGUE.encode('utf8'):
+        file_header = file_obj.read(xml_prologue_len)
+        if file_header != self.xml_prologue.encode('utf8'):
             raise Exception("XML File: '{}' does not contain expected prologue: {} expected {}".
-                            format(f.name, file_header, self.XML_PROLOGUE.encode('utf8')))
+                            format(file_obj.name, file_header, self.xml_prologue.encode('utf8')))
 
         # Files in repositories are guaranteed to have LF, but generated code may have OS-specific line endings
-        if f.peek(1).startswith(b'\n'):
-            f.read(1)
+        if file_obj.peek(1).startswith(b'\n'):
+            file_obj.read(1)
             xml_prologue_len += 1
         else:
-            line_sep = f.read(len(os.linesep))
+            line_sep = file_obj.read(len(os.linesep))
             if line_sep == os.linesep.encode('utf8'):
                 xml_prologue_len += len(os.linesep)
             else:
                 raise Exception("XML File: '{}' prologue does not end with a valid line separator: {}".
-                                format(f.name, line_sep))
+                                format(file_obj.name, line_sep))
 
         return xml_prologue_len
 
     @staticmethod
-    def _agpl_sentinel(ext):
+    def agpl_sentinel(ext):
+        result = None
         if ext in ['.c', '.h', '.ld', '.s']:
-            return _LicenseOpener.AGPL_TAG + '\n */\n'
+            result = _LicenseOpener.AGPL_TAG + '\n */\n'
         elif ext in ['.py', '.gdb', '.sh', '.yml']:
-            return _LicenseOpener.AGPL_TAG + '\n#\n'
+            result = _LicenseOpener.AGPL_TAG + '\n#\n'
         elif ext in ['.prx', '.xml', '.prj']:
-            return _LicenseOpener.AGPL_TAG + '\n  -->\n'
+            result = _LicenseOpener.AGPL_TAG + '\n  -->\n'
         elif ext in ['.asm']:
-            return _LicenseOpener.AGPL_TAG + '\n;\n'
+            result = _LicenseOpener.AGPL_TAG + '\n;\n'
         elif ext in ['.md', '.markdown', '.html']:
-            return _LicenseOpener.AGPL_DOC_TAG + '\n  -->\n'
+            result = _LicenseOpener.AGPL_DOC_TAG + '\n  -->\n'
         elif ext in ['.css']:
-            return _LicenseOpener.AGPL_DOC_TAG + '\n */\n'
+            result = _LicenseOpener.AGPL_DOC_TAG + '\n */\n'
         elif ext in _LicenseOpener.LICENSE_EXEMPTED_FILETYPES or ext in _LicenseOpener.BUILD_ARTIFACT_FILETYPES:
-            return None
+            result = None
         else:
             raise _LicenseOpener.UnknownFiletypeException('Unexpected ext: {}'.format(ext))
+
+        return result
 
     @staticmethod
     def _format_lic(lic, start, perline, emptyline, end):
@@ -284,16 +286,16 @@ class _LicenseOpener:
         if lic is None:
             lic = ''
         else:
-            with open(filename, 'rb') as f:
+            with open(filename, 'rb') as file_obj:
                 # Count the length of the XML prologue in the input file and standardize its line ending for output
                 if is_xml:
-                    old_xml_prologue_len = self._consume_xml_prologue(f)
-                    lic = self.XML_PROLOGUE + os.linesep + lic
+                    old_xml_prologue_len = self._consume_xml_prologue(file_obj)
+                    lic = self.xml_prologue + os.linesep + lic
 
                 # If the AGPL license is present in the original source file, count its length for deletion
-                agpl_sentinel = self._agpl_sentinel(ext)
+                agpl_sentinel = self.agpl_sentinel(ext)
                 assert agpl_sentinel is not None
-                old_lic_str, sentinel_found, _ = f.peek().decode('utf8').partition(agpl_sentinel)
+                old_lic_str, sentinel_found, _ = file_obj.peek().decode('utf8').partition(agpl_sentinel)
                 if sentinel_found:
                     old_license_len = len(old_lic_str + sentinel_found)
 
@@ -304,9 +306,9 @@ class _LicenseOpener:
     def open(self, filename, mode):
         assert mode == 'rb'
 
-        f = open(filename, mode)
+        file_obj = open(filename, mode)
         lic, old_xml_prologue_len, old_license_len = self._get_lic(filename)
-        return _FileWithLicense(f, lic, old_xml_prologue_len, old_license_len)
+        return _FileWithLicense(file_obj, lic, old_xml_prologue_len, old_license_len)
 
     def tar_info_filter(self, tarinfo):
         # exclude all documentation files except the final PDF
@@ -321,7 +323,7 @@ class _LicenseOpener:
             else:
                 # Infer the location of the original file in the 'packages' directory, from its destination path under
                 # 'share/packages' in the release archive.
-                assert(tarinfo.name.startswith('share/packages'))
+                assert tarinfo.name.startswith('share/packages')
                 filename = find_path(tarinfo.name.replace('share/packages', 'packages', 1), self.top_dir)
 
             lic, old_xml_prologue_len, old_license_len = self._get_lic(filename)
@@ -353,23 +355,24 @@ def _tar_info_filter(tarinfo, execute_permission=False):
     return tarinfo
 
 
-def _tar_add_data(tf, arcname, data, ti_filter=None):
+def _tar_add_data(tarfile_obj, arcname, data, ti_filter=None):
     """Directly add data to a tarfile.
 
-    tf is a tarfile.TarFile object.
+    tarfile_obj is a tarfile.TarFile object.
     arcname is the name the data will have in the archive.
     data is the raw data (which should be of type 'bytes').
     fi_filter filters the created TarInfo object. (In a similar manner to the tarfile.TarFile.add() method.
 
     """
-    ti = tarfile.TarInfo(arcname)
-    ti.size = len(data)
+    tar_info = tarfile.TarInfo(arcname)
+    tar_info.size = len(data)
     if ti_filter:
-        ti = ti_filter(ti)
-    tf.addfile(ti, io.BytesIO(data))
+        tar_info = ti_filter(tar_info)
+    tarfile_obj.addfile(tar_info, io.BytesIO(data))
 
 
-def _tar_gz_with_license(output, dir_path, file_paths, prefix, license, doc_license, allow_unknown_filetypes):
+# pylint: disable=too-many-arguments
+def _tar_gz_with_license(output, dir_path, file_paths, prefix, lic, doc_license, allow_unknown_filetypes):
 
     """Create a tar.gz file named `output` from a list of file paths relative to a directory path.
 
@@ -378,24 +381,24 @@ def _tar_gz_with_license(output, dir_path, file_paths, prefix, license, doc_lice
     When creating the tar.gz a standard set of meta-data will be used to help ensure things are consistent.
 
     """
-    lo = _LicenseOpener(license, doc_license, os.getcwd(), allow_unknown_filetypes)
+    opener = _LicenseOpener(lic, doc_license, os.getcwd(), allow_unknown_filetypes)
     try:
-        with tarfile.open(output, 'w:gz', format=tarfile.GNU_FORMAT) as tf:
-            tarfile.bltn_open = lo.open
+        with tarfile.open(output, 'w:gz', format=tarfile.GNU_FORMAT) as tarfile_obj:
+            tarfile.bltn_open = opener.open
             with chdir(dir_path):
-                for f in file_paths:
-                    if os.path.isabs(f):
-                        f = os.path.relpath(f, dir_path)
-                    tf.add(f, _arc_path_join(prefix, f), filter=lo.tar_info_filter)
+                for file_path in file_paths:
+                    if os.path.isabs(file_path):
+                        file_path = os.path.relpath(file_path, dir_path)
+                    tarfile_obj.add(file_path, _arc_path_join(prefix, file_path), filter=opener.tar_info_filter)
     finally:
         tarfile.bltn_open = open
 
 
 def _mk_partial(pkg, topdir, allow_unknown_filetypes):
-    fn = top_path(topdir, 'release', 'partials', '{}.tar.gz'.format(pkg.get_archive_name()))
+    file_path = top_path(topdir, 'release', 'partials', '{}.tar.gz'.format(pkg.get_archive_name()))
     src_prefix = 'share/packages/{}'.format(pkg.get_name())
-    _tar_gz_with_license(fn, pkg.get_path(), pkg.get_files(), src_prefix, pkg.get_license(), pkg.get_doc_license(),
-                         allow_unknown_filetypes)
+    _tar_gz_with_license(file_path, pkg.get_path(), pkg.get_files(), src_prefix, pkg.get_license(),
+                         pkg.get_doc_license(), allow_unknown_filetypes)
 
 
 @subcmd(name='partials', cmd='build', help='Build partial release files',
@@ -410,41 +413,42 @@ def build_partials(args):
     return 0
 
 
+# pylint: disable=too-many-locals
 def build_single_release(config, topdir):
     """Build a release archive for a specific release configuration."""
     # for an unknown reason, tarfile.bltn_open is not reliably reset to the open() function in the extra files loop
     tarfile.bltn_open = open
     basename = '{}-{}-{}'.format(config.product_name, config.release_name, config.version)
-    logging.info("Building {}".format(basename))
+    logging.info("Building %s", basename)
     tarfilename = top_path(topdir, 'release', '{}.tar.gz'.format(basename))
-    with _tarfile_open(tarfilename, 'w:gz', format=tarfile.GNU_FORMAT) as tf:
+    with _tarfile_open(tarfilename, 'w:gz', format=tarfile.GNU_FORMAT) as tarfile_obj:
         for pkg in config.packages:
             release_file_path = top_path(topdir, 'release', 'partials', '{}-{}.tar.gz')
             with tarfile.open(release_file_path.format(pkg, config.release_name), 'r:gz') as in_f:
-                for m in in_f.getmembers():
-                    m_f = in_f.extractfile(m)
-                    m.name = basename + '/' + m.name
-                    if is_release_doc_file(m.name):
-                        variant = os.path.basename(os.path.dirname(m.name)).replace('rtos-', '')
-                        m.name = '{}/{}-{}-{}-{}.pdf'.format(basename, config.product_name, config.release_name,
-                                                             variant, config.version)
-                    tf.addfile(m, m_f)
+                for member in in_f.getmembers():
+                    m_f = in_f.extractfile(member)
+                    member.name = basename + '/' + member.name
+                    if is_release_doc_file(member.name):
+                        variant = os.path.basename(os.path.dirname(member.name)).replace('rtos-', '')
+                        member.name = '{}/{}-{}-{}-{}.pdf'.format(basename, config.product_name, config.release_name,
+                                                                  variant, config.version)
+                    tarfile_obj.addfile(member, m_f)
 
         prj_build_dir = 'prj_build'
         for file_name in os.listdir(prj_build_dir):
             # mark all files except the zipped prj 'binary' as executable because prj cannot be executed itself
             file_filter = functools.partial(_tar_info_filter, execute_permission=not file_name.endswith('prj'))
             arcname = _arc_path_join(basename, 'bin', file_name)
-            tf.add(os.path.join(prj_build_dir, file_name), arcname=arcname, filter=file_filter)
+            tarfile_obj.add(os.path.join(prj_build_dir, file_name), arcname=arcname, filter=file_filter)
         for prj_release_files_path in base_to_top_paths(topdir, os.path.join('prj', 'release_files')):
             for file_name in os.listdir(prj_release_files_path):
                 if file_name != 'README.md':
                     file_path = os.path.join(prj_release_files_path, file_name)
                     archive_path = _arc_path_join(basename, file_name)
-                    tf.add(file_path, arcname=archive_path, filter=_tar_info_filter)
+                    tarfile_obj.add(file_path, arcname=archive_path, filter=_tar_info_filter)
 
         if config.top_level_license is not None:
-            _tar_add_data(tf, _arc_path_join(basename, 'LICENSE'),
+            _tar_add_data(tarfile_obj, _arc_path_join(basename, 'LICENSE'),
                           config.top_level_license.encode('utf8'),
                           _tar_info_filter)
 
@@ -452,24 +456,28 @@ def build_single_release(config, topdir):
         dummy_pkg = _ReleasePackage(None, config)
         for arcname, filename in config.extra_files:
             file_path = find_path(filename, topdir)
-            lo = _LicenseOpener(dummy_pkg.get_license(), dummy_pkg.get_doc_license(), topdir, filename=file_path)
-            tarfile.bltn_open = lo.open
-            tf.add(file_path, arcname=_arc_path_join(basename, arcname), filter=lo.tar_info_filter)
+            opener = _LicenseOpener(dummy_pkg.get_license(), dummy_pkg.get_doc_license(), topdir, filename=file_path)
+            tarfile.bltn_open = opener.open
+            tarfile_obj.add(file_path, arcname=_arc_path_join(basename, arcname), filter=opener.tar_info_filter)
             tarfile.bltn_open = open
 
         if 'TEAMCITY_VERSION' in os.environ:
             build_info = os.environ['BUILD_VCS_NUMBER']
         else:
-            g = Git()
-            build_info = g.branch_hash()
-            if not g.working_dir_clean():
+            git = Git()
+            build_info = git.branch_hash()
+            if not git.working_dir_clean():
                 build_info += "-unclean"
         build_info += '\n'
-        _tar_add_data(tf, _arc_path_join(basename, 'build_info'), build_info.encode('utf8'), _tar_info_filter)
+        _tar_add_data(tarfile_obj, _arc_path_join(basename, 'build_info'), build_info.encode('utf8'),
+                      _tar_info_filter)
 
-        _tar_add_data(tf, _arc_path_join(basename, 'version_info'), config.version.encode('utf8'), _tar_info_filter)
+        _tar_add_data(tarfile_obj, _arc_path_join(basename, 'version_info'), config.version.encode('utf8'),
+                      _tar_info_filter)
 
 
+# pylint: disable=too-many-locals
+# pylint: disable=too-many-branches
 def release_test_one(archive):
     """Test a single archive
 
@@ -488,19 +496,17 @@ def release_test_one(archive):
 """
 
     rel_file = os.path.abspath(archive)
-    with tarfile.open(rel_file, 'r:gz') as tf:
-        for m in tf.getmembers():
-            if m.gid != 1000:
-                raise Exception("m.gid != 1000 {} -- {}".format(m.gid, m.name))
-            if m.uid != 1000:
-                raise Exception("m.uid != 1000 {} -- {}".format(m.uid, m.name))
-            if m.mtime != BASE_TIME:
-                raise Exception("m.gid != BASE_TIME({}) {} -- {}".format(m.mtime, BASE_TIME, m.name))
+    with tarfile.open(rel_file, 'r:gz') as tarfile_obj:
+        for member in tarfile_obj.getmembers():
+            if member.gid != 1000:
+                raise Exception("member.gid != 1000 {} -- {}".format(member.gid, member.name))
+            if member.uid != 1000:
+                raise Exception("member.uid != 1000 {} -- {}".format(member.uid, member.name))
+            if member.mtime != BASE_TIME:
+                raise Exception("member.gid != BASE_TIME({}) {} -- {}".format(member.mtime, BASE_TIME, member.name))
 
-    platform = get_host_platform_name()
-
-    with tempdir() as td:
-        with chdir(td):
+    with tempdir() as temp_dir_path:
+        with chdir(temp_dir_path):
             assert shutil.which('tar')
             subprocess.check_call("tar xf {}".format(rel_file).split())
             release_dir = os.path.splitext(os.path.splitext(os.path.basename(archive))[0])[0]
@@ -512,37 +518,37 @@ def release_test_one(archive):
                 cmd = prj_path
                 try:
                     subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
-                except subprocess.CalledProcessError as e:
-                    if e.returncode != 1:
-                        raise e
+                except subprocess.CalledProcessError as exc:
+                    if exc.returncode != 1:
+                        raise
                 pkgs = []
                 pkg_root = './share/packages/'
                 for root, _, files in os.walk(pkg_root):
-                    for f in files:
-                        if f.endswith('.prx'):
-                            pkg = os.path.join(root, f)[len(pkg_root):-4].replace(os.sep, '.')
-                            pkgs.append((pkg, os.path.join(root, f)))
-                with open('project.prj', 'w') as f:
-                    f.write(project_prj_template.format(pkg_root))
-                for pkg, f in pkgs:
+                    for file_path in files:
+                        if file_path.endswith('.prx'):
+                            pkg = os.path.join(root, file_path)[len(pkg_root):-4].replace(os.sep, '.')
+                            pkgs.append(pkg)
+                with open('project.prj', 'w') as file_obj:
+                    file_obj.write(project_prj_template.format(pkg_root))
+                for pkg in pkgs:
                     cmd = "{} build {}".format(prj_path, pkg)
                     try:
                         subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
-                    except subprocess.CalledProcessError as e:
+                    except subprocess.CalledProcessError as exc:
                         err_str = None
-                        for l in e.output.splitlines():
-                            l = l.decode()
-                            if l.startswith('ERROR'):
-                                err_str = l
+                        for line in exc.output.splitlines():
+                            line = line.decode()
+                            if line.startswith('ERROR'):
+                                err_str = line
                                 break
                         if err_str is None:
-                            print(e.output)
-                            raise e
+                            print(exc.output)
+                            raise
                         elif 'missing or contains multiple Builder modules' in err_str:
                             pass
                         else:
                             print("Unexpected error:", err_str)
-                            raise e
+                            raise
 
 
 @subcmd(name='release', cmd='test')
@@ -580,8 +586,8 @@ def build(args):
     for config in get_release_configs():
         try:
             build_single_release(config, args.topdir)
-        except FileNotFoundError as e:
-            logging.warning("Unable to build '{}'. File not found: '{}'".format(config, e.filename))
+        except FileNotFoundError as exc:
+            logging.warning("Unable to build '%s'. File not found: '%s'", config, exc.filename)
             result = 1
 
     return result

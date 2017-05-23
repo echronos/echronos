@@ -24,15 +24,15 @@
 #
 # @TAG(NICTA_AGPL)
 #
-
-from pylib.utils import BASE_DIR, Git, get_top_dir
-from pylib.components import _sort_typedefs, _sort_by_dependencies, _DependencyNode, _UnresolvableDependencyError
-from pylib.task import _Review, Task, _InvalidTaskStateError, TaskConfiguration
-from pylib.task_commands import task_cfg
+# pylint: disable=protected-access
 import itertools
 import os
 import tempfile
 import unittest
+from pylib.utils import BASE_DIR
+from pylib.components import _sort_typedefs, _sort_by_dependencies, _DependencyNode, _UnresolvableDependencyError
+from pylib.task import _Review, Task, _InvalidTaskStateError, TaskConfiguration
+from pylib.task_commands import TASK_CFG
 
 
 class TestCase(unittest.TestCase):
@@ -45,82 +45,73 @@ class TestCase(unittest.TestCase):
                     'typedef foo bar;',
                     'typedef bar baz;']
         expected = '\n'.join(typedefs)
-        for x in itertools.permutations(typedefs):
-            assert _sort_typedefs('\n'.join(x)) == expected
+        for permutation in itertools.permutations(typedefs):
+            self.assertEqual(_sort_typedefs('\n'.join(permutation)), expected)
 
     def test_full_stop_in_reviewer_name(self):
-        with tempfile.TemporaryDirectory() as dir:
-            round = 0
+        with tempfile.TemporaryDirectory() as temp_dir:
+            round_ = 0
             author = 'john.doe'
-            review_file_path = os.path.join(dir, '{}.{}.md'.format(author, round))
+            review_file_path = os.path.join(temp_dir, '{}.{}.md'.format(author, round_))
             open(review_file_path, 'w').close()
             review = _Review(review_file_path)
-            assert review.author == author
-            assert review.round == round
+            self.assertEqual(review.author, author)
+            self.assertEqual(review.round, round_)
 
     def test_resolve_dependencies(self):
-        N = _DependencyNode
-        a = N(('a',), ('b', 'c'))
-        b = N(('b',), ('c',))
-        c = N(('c',), ())
-        nodes = (a, b, c)
+        node_a = _DependencyNode(('a',), ('b', 'c'))
+        node_b = _DependencyNode(('b',), ('c',))
+        node_c = _DependencyNode(('c',), ())
+        nodes = (node_a, node_b, node_c)
         output = list(_sort_by_dependencies(nodes))
-        assert output == [c, b, a]
+        self.assertEqual(output, [node_c, node_b, node_a])
 
     def test_resolve_unresolvable_dependencies(self):
-        N = _DependencyNode
-        a = N(('a',), ('b',))
-        b = N(('b',), ('c',))
-        nodes = (a, b)
-        try:
-            output = list(_sort_by_dependencies(nodes))
-            assert False
-        except _UnresolvableDependencyError:
-            pass
+        node_a = _DependencyNode(('a',), ('b',))
+        node_b = _DependencyNode(('b',), ('c',))
+        nodes = (node_a, node_b)
+
+        def test_func(nds):
+            list(_sort_by_dependencies(nds))
+
+        self.assertRaises(_UnresolvableDependencyError, test_func, nodes)
 
     def test_resolve_cyclic_dependencies(self):
-        N = _DependencyNode
-        a = N(('a',), ())
-        b = N(('b',), ('a',))
-        c = N(('c',), ('b', 'd'))
-        d = N(('d',), ('c',))
-        nodes = (a, b, c, d)
-        try:
-            output = list(_sort_by_dependencies(nodes))
-            assert False
-        except _UnresolvableDependencyError:
-            pass
+        node_a = _DependencyNode(('a',), ())
+        node_b = _DependencyNode(('b',), ('a',))
+        node_c = _DependencyNode(('c',), ('b', 'd'))
+        node_d = _DependencyNode(('d',), ('c',))
+        nodes = (node_a, node_b, node_c, node_d)
+
+        def test_func(nds):
+            list(_sort_by_dependencies(nds))
+
+        self.assertRaises(_UnresolvableDependencyError, test_func, nodes)
         output = list(_sort_by_dependencies(nodes, ignore_cyclic_dependencies=True))
-        assert sorted(output) == sorted(nodes)
+        self.assertEqual(sorted(output), sorted(nodes))
 
     @unittest.skipUnless(os.path.isdir(os.path.join(BASE_DIR, '.git')), 'Test depends on valid git repo')
-    def test_task_accepted(self):
+    def test_task_accepted(self):  # pylint: disable=no-self-use
         # This task was accepted without any rework reviews
         task_dummy_create("test_task_accepted")._check_is_accepted()
 
     @unittest.skipUnless(os.path.isdir(os.path.join(BASE_DIR, '.git')), 'Test depends on valid git repo')
-    def test_rework_is_accepted(self):
+    def test_rework_is_accepted(self):  # pylint: disable=no-self-use
         # This task had a rework review that was later accepted by its review author
         task_dummy_create("test_rework_is_accepted")._check_is_accepted()
 
     @unittest.skipUnless(os.path.isdir(os.path.join(BASE_DIR, '.git')), 'Test depends on valid git repo')
     def test_rework_not_accepted(self):
         # This task was erroneously integrated with a rework review not later accepted by its review author
-        try:
-            task_dummy_create("test_rework_not_accepted")._check_is_accepted()
-            assert False
-        except _InvalidTaskStateError:
-            pass
+        task = task_dummy_create("test_rework_not_accepted")
+        self.assertRaises(_InvalidTaskStateError, task._check_is_accepted)
 
     @unittest.skipUnless(os.path.isdir(os.path.join(BASE_DIR, '.git')), 'Test depends on valid git repo')
     def test_not_enough_accepted(self):
         # This task was integrated after being accepted by only one reviewer
         # before we placed a hard minimum in the check
-        try:
-            task_dummy_create("test_not_enough_accepted")._check_is_accepted()
-            assert False
-        except _InvalidTaskStateError:
-            pass
+        task = task_dummy_create("test_not_enough_accepted")
+        self.assertRaises(_InvalidTaskStateError, task._check_is_accepted)
 
 
 # Workaround for the following tests for the pre-integration check that don't use the Git module
@@ -134,7 +125,7 @@ class DummyGit:
 def task_dummy_create(task_name):
     cfg = TaskConfiguration(repo_path=BASE_DIR,
                             tasks_path=os.path.join('x_test_data', 'tasks'),
-                            description_template_path=task_cfg.description_template_path,
+                            description_template_path=TASK_CFG.description_template_path,
                             reviews_path=os.path.join('x_test_data', 'reviews'),
-                            mainline_branch=task_cfg.mainline_branch)
+                            mainline_branch=TASK_CFG.mainline_branch)
     return Task(cfg, task_name, checkout=False)

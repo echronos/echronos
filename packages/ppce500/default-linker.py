@@ -40,4 +40,4 @@ class DefaultLinkerModule(Module):
         {'input': 'default.ld', 'render': True, 'type': 'linker_script', 'stage': 'post_prepare'},
     ]
 
-module = DefaultLinkerModule()
+module = DefaultLinkerModule()  # pylint: disable=invalid-name

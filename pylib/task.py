@@ -34,7 +34,7 @@ from .utils import Git, string_to_path, walk
 
 
 TaskConfiguration = namedtuple('TaskConfiguration', ('repo_path', 'tasks_path', 'description_template_path',
-                               'reviews_path', 'mainline_branch'))
+                                                     'reviews_path', 'mainline_branch'))
 
 
 class Task:
@@ -190,7 +190,7 @@ class Task:
                 break
         else:
             raise FileNotFoundError('Unable to determine review round for task "{}" and reviewer "{}" ("{}")'
-                                    .format(branch, reviewer, review_path_template))
+                                    .format(self.name, reviewer, review_path_template))
 
         if not accept:
             review_template = """Reviewer: {} ({})
@@ -299,8 +299,8 @@ class _Review:
         self.file_path = file_path
         basename = os.path.basename(file_path)
         author_dot_round = os.path.splitext(basename)[0]
-        author, round = author_dot_round.rsplit('.', maxsplit=1)
-        self.round = int(round)
+        author, round_ = author_dot_round.rsplit('.', maxsplit=1)
+        self.round = int(round_)
         self.author = author
         self._conclusion = None
 
@@ -310,13 +310,13 @@ class _Review:
         The conclusion can be expected to be one of 'accepted/rework' (i.e., the review has not been completed),
         'accepted', or 'rework'.
         """
-        f = open(self.file_path)
-        for line in f:
+        file_obj = open(self.file_path)
+        for line in file_obj:
             if line.startswith('Conclusion: '):
                 conclusion = line.split(':')[1].strip()
-                f.close()
+                file_obj.close()
                 return conclusion.lower()
-        f.close()
+        file_obj.close()
         assert False
 
     @property

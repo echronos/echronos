@@ -134,4 +134,4 @@ def assign_signal_vals(sig_sets):
     return assigned
 
 
-module = RigelModule()
+module = RigelModule()  # pylint: disable=invalid-name

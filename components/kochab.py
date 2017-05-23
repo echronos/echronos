@@ -26,8 +26,8 @@
 #
 
 import os.path
-from prj import Module
 from operator import itemgetter
+from prj import Module
 
 
 class KochabModule(Module):
@@ -53,18 +53,18 @@ class KochabModule(Module):
 
         tasks = config['tasks']
         tasks.sort(key=itemgetter('priority'), reverse=True)
-        for idx, t in enumerate(tasks):
-            t['idx'] = idx
+        for idx, task in enumerate(tasks):
+            task['idx'] = idx
             # Create a timer for each task
-            timer = {'name': '_task_' + t['name'],
+            timer = {'name': '_task_' + task['name'],
                      'error': 0,
                      'reload': 0,
-                     'task': t,
+                     'task': task,
                      'idx': len(config['timers']),
                      'enabled': False,
                      'sig_set': '_task_timer'}
-            t['timer'] = timer
+            task['timer'] = timer
             config['timers'].append(timer)
         return config
 
-module = KochabModule()
+module = KochabModule()  # pylint: disable=invalid-name

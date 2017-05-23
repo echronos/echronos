@@ -37,7 +37,7 @@ import os
 import sys
 
 
-def do_nothing(*args, **kwargs):
+def do_nothing(*_, **__):
     """do_nothing may be used as a generic callback
     or handler function that does exactly nothing.
 
@@ -84,9 +84,9 @@ class Singleton:
 # can be a bit hairy. s16l provides a simple wrapper that reduces
 # error prone shift-and-mask code repeated everywhere.
 
-def s16l(value, n):
+def s16l(value, shift):
     """Shift an unsigned 16-bit value left by n-bits."""
-    return (value << n) & 0xffff
+    return (value << shift) & 0xffff
 
 
 def check_unique(lst):
@@ -116,19 +116,19 @@ def add_index(lst, key):
     If the value of existing keys is incorrect then a ValueError is raised.
 
     """
-    indexes = [d[key] for d in lst if d.get(key) is not None]
+    indexes = [dct[key] for dct in lst if dct.get(key) is not None]
     out_of_range = [idx for idx in indexes if idx >= len(lst) or idx < 0]
-    if len(out_of_range) > 0:
+    if out_of_range:
         raise ValueError("Some index value are out-of-range: {}".format(out_of_range))
     check_unique(indexes)
 
     # Assign missing indexes to dictionaries without the key.
     new_indexes = list(range(len(lst)))
     remove_multi(new_indexes, *indexes)
-    dicts_without_index = (d for d in lst if d.get(key) is None)
+    dicts_without_index = (dct for dct in lst if dct.get(key) is None)
 
-    for d, new_index in zip(dicts_without_index, new_indexes):
-        d[key] = new_index
+    for dct, new_index in zip(dicts_without_index, new_indexes):
+        dct[key] = new_index
 
     lst.sort(key=itemgetter(key))
 
@@ -163,23 +163,21 @@ def list_search(lst, key, value):
         raise KeyError()
 
 
-"""A `configuration` is a normal Python dictionary used for storing configuration data.
-
-The values may be any Python value, however any list or dictionary values are treated as holding traversable
-configuration data.
-
-A configuration may be accessed via a configuration key, which is a tuple containing a path to a configuration item.
-
-The utility module defines two functions that operate on configurations.
-
-`config_traverse` is a generator that products key, value pairs for all non-container data in the configuration.
-
-`config_set` sets a particular value in the configuration (as indexed by a configuration key).
-
-Future work may investigate encapsulating this functionality within a class, however the current approach allows
-for interoperability with existing Python modules that operate on dictionaries.
-
-"""
+# A `configuration` is a normal Python dictionary used for storing configuration data.
+#
+# The values may be any Python value, however any list or dictionary values are treated as holding traversable
+# configuration data.
+#
+# A configuration may be accessed via a configuration key, which is a tuple containing a path to a configuration item.
+#
+# The utility module defines two functions that operate on configurations.
+#
+# `config_traverse` is a generator that products key, value pairs for all non-container data in the configuration.
+#
+# `config_set` sets a particular value in the configuration (as indexed by a configuration key).
+#
+# Future work may investigate encapsulating this functionality within a class, however the current approach allows
+# for interoperability with existing Python modules that operate on dictionaries.
 
 
 def config_traverse(cfg):
@@ -204,7 +202,7 @@ def config_set(cfg, key, val):
     """
     # Note: This could be implemented pretty nicely as a recursive algortihm, but
     # I've avoided this since there is no tail-call optimisation available.
-    assert len(key) > 0
+    assert key
 
     while len(key) > 1:
         cfg, key = cfg[key[0]], key[1:]
@@ -219,14 +217,14 @@ def prepend_tool_binaries_to_path_environment_variable():
 
 
 def _get_platform_tool_paths():
-    TOOL_PATHS = {
+    tool_paths = {
         "darwin": (),
         "linux": ("tools/gcc-4.8.2-Ee500v2-eabispe/bin",),
         "win32": ("tools/win32/bin",),
         "cygwin": ("tools/win32/bin",),
     }
-    if sys.platform in TOOL_PATHS:
+    if sys.platform in tool_paths:
         base_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", ".."))
-        return [os.path.join(base_dir, directory) for directory in TOOL_PATHS[sys.platform]]
+        return [os.path.join(base_dir, directory) for directory in tool_paths[sys.platform]]
     else:
         raise RuntimeError('Unsupported platform {}'.format(sys.platform))

@@ -34,6 +34,8 @@ This can be used for testing purposes to ensure implementation matches the model
 from itertools import product
 import ctypes
 
+_RTOS_TASK_ID_NONE = 0xFF
+
 
 def head(iter_):
     """Return the first item in an iterator, or None if the iterator is empty."""
@@ -43,17 +45,17 @@ def head(iter_):
         return None
 
 
-def rotate(sequence, n):
-    """Rotate a sequence by n positions.
+def rotate(sequence, num):
+    """Rotate a sequence by num positions.
 
     Note: This function returns a new list; it does not mutate the seqeunce.
 
     """
-    return sequence[n:] + sequence[:n]
+    return sequence[num:] + sequence[:num]
 
 
-def incmod(i, n):
-    return (i + 1) % n
+def incmod(i, num):
+    return (i + 1) % num
 
 
 def get_rr_sched_struct(num_tasks):
@@ -65,6 +67,10 @@ def get_rr_sched_struct(num_tasks):
         _fields_ = [("cur", ctypes.c_uint8),
                     ("tasks", RrSchedTaskStruct * num_tasks)]
 
+        def __init__(self, *rargs, **kwargs):
+            self.cur = None
+            super().__init__(*rargs, **kwargs)
+
         def __str__(self):
             run_state = ''.join(['X' if x.runnable else ' ' for x in self.tasks])
             return "<RrSchedImpl cur={} runnable=[{}]".format(self.cur, run_state)
@@ -72,15 +78,15 @@ def get_rr_sched_struct(num_tasks):
         def __eq__(self, model):
             if model.cur != self.cur:
                 return False
-            for idx, r in model.indexed:
-                if self.tasks[idx].runnable != r:
+            for idx, runnable in model.indexed:
+                if self.tasks[idx].runnable != runnable:
                     return False
             return True
 
         def set(self, model):
             self.cur = model.cur
-            for idx, r in model.indexed:
-                self.tasks[idx].runnable = r
+            for idx, runnable in model.indexed:
+                self.tasks[idx].runnable = runnable
             assert self == model
     return RrSchedStruct
 
@@ -98,14 +104,14 @@ def get_prio_sched_struct(num_tasks):
             return "<PrioSchedImpl runnable=[{}]".format(run_state)
 
         def __eq__(self, model):
-            for idx, r in model.indexed:
-                if self.tasks[idx].runnable != r:
+            for idx, runnable in model.indexed:
+                if self.tasks[idx].runnable != runnable:
                     return False
             return True
 
         def set(self, model):
-            for idx, r in model.indexed:
-                self.tasks[idx].runnable = r
+            for idx, runnable in model.indexed:
+                self.tasks[idx].runnable = runnable
             assert self == model
     return PrioSchedStruct
 
@@ -119,22 +125,22 @@ def get_prio_inherit_sched_struct(num_tasks):
         _fields_ = [("tasks", PrioInheritTaskStruct * num_tasks)]
 
         def __str__(self):
-            blocked_on = ''.join(['{:d}'.format(x.blocked_on) if x.blocked_on is not 0xff else '.'
+            blocked_on = ''.join(['{:d}'.format(x.blocked_on) if x.blocked_on is not _RTOS_TASK_ID_NONE else '.'
                                   for x in self.tasks])
             return "<PrioInheritSchedImpl blocked_on=[{}]".format(blocked_on)
 
         def __eq__(self, model):
-            for idx, r in enumerate(model.blocked_on):
-                if r is None:
-                    r = 0xff
-                if self.tasks[idx].blocked_on != r:
+            for idx, result in enumerate(model.blocked_on):
+                if result is None:
+                    result = _RTOS_TASK_ID_NONE
+                if self.tasks[idx].blocked_on != result:
                     return False
             return True
 
         def set(self, model):
             for idx, blocked_on in enumerate(model.blocked_on):
                 if blocked_on is None:
-                    blocked_on = 0xff
+                    blocked_on = _RTOS_TASK_ID_NONE
                 self.tasks[idx].blocked_on = blocked_on
             assert self == model
     return PrioInheritSchedStruct
@@ -152,8 +158,9 @@ class BaseSchedModel:
 
     @property
     def runnable_str(self):
-        return ''.join(['X' if r else ' ' for r in self.runnable])
+        return ''.join(['X' if runnable else ' ' for runnable in self.runnable])
 
+    # pylint: disable=no-self-use
     def get_next(self):
         """Based on the scheduling algorithm return the next task to run.
 
@@ -176,19 +183,19 @@ class RrSchedModel(BaseSchedModel):
         return '<RrSched cur={} runnable=[{}]>'.format(self.cur, self.runnable_str)
 
     def get_next(self):
-        next_ = head(idx for idx, runnable in rotate(self.indexed, incmod(self.cur, self.size)) if runnable)
-        self.cur = self.size - 1 if next_ is None else next_
-        return next_
+        next_index = head(idx for idx, runnable in rotate(self.indexed, incmod(self.cur, self.size)) if runnable)
+        self.cur = self.size - 1 if next_index is None else next_index
+        return next_index
 
     @classmethod
-    def states(cls, n, assume_runnable=False):
-        """Return all possible round-robin scheduler states for n tasks.
+    def states(cls, num, assume_runnable=False):
+        """Return all possible round-robin scheduler states for num tasks.
 
         If assume_runnable is True then only include states where at least one task is runnable.
 
         """
-        g = (cls(*s) for s in product(product((True, False), repeat=n), range(n)))
-        return filter(lambda s: any(s.runnable), g) if assume_runnable else g
+        objects = (cls(*state) for state in product(product((True, False), repeat=num), range(num)))
+        return filter(lambda state: any(state.runnable), objects) if assume_runnable else objects
 
 
 class PrioSchedModel(BaseSchedModel):
@@ -201,25 +208,26 @@ class PrioSchedModel(BaseSchedModel):
         return head(idx for idx, runnable in self.indexed if runnable)
 
     @classmethod
-    def states(cls, n, assume_runnable=False):
-        """Return all possible priority scheduler states for n tasks.
+    def states(cls, num, assume_runnable=False):
+        """Return all possible priority scheduler states for num tasks.
 
         If assume_runnable is True then only include states where at least one task is runnable.
 
         """
-        g = (cls(s) for s in product((True, False), repeat=n))
-        return filter(lambda s: any(s.runnable), g) if assume_runnable else g
+        objects = (cls(state) for state in product((True, False), repeat=num))
+        return filter(lambda state: any(state.runnable), objects) if assume_runnable else objects
 
 
 class PrioInheritSchedModel(BaseSchedModel):
     """A model of the strict priority with inheritance scheduler."""
 
     def __init__(self, blocked_on):
+        super().__init__(runnable=[])
         self.blocked_on = blocked_on
 
     @property
     def blocked_on_str(self):
-        return ''.join(['{:d}'.format(r) if r is not None else '.' for r in self.blocked_on])
+        return ''.join(['{:d}'.format(runnable) if runnable is not None else '.' for runnable in self.blocked_on])
 
     @property
     def any_runnable(self):
@@ -245,8 +253,8 @@ class PrioInheritSchedModel(BaseSchedModel):
                     if task_id is not None)
 
     @classmethod
-    def states(cls, n, assume_runnable=False):
-        """Return all possible priority scheduler states for n tasks.
+    def states(cls, num, assume_runnable=False):
+        """Return all possible priority scheduler states for num tasks.
 
         If assume_runnable is True then only include states where at least one task is runnable.
 
@@ -264,14 +272,14 @@ class PrioInheritSchedModel(BaseSchedModel):
                     task_id = blocked_on
 
         def check_blocked_list(blocked_list):
-            r = all(check_blocked(blocked_list, task_id) for task_id in range(len(blocked_list)))
-            return r
-        g = (cls(s) for s in product(list(range(n)) + [None], repeat=n) if check_blocked_list(s))
-        return filter(lambda s: s.any_runnable, g) if assume_runnable else g
+            result = all(check_blocked(blocked_list, task_id) for task_id in range(len(blocked_list)))
+            return result
+        objects = (cls(state) for state in product(list(range(num)) + [None], repeat=num)
+                   if check_blocked_list(state))
+        return filter(lambda state: state.any_runnable, objects) if assume_runnable else objects
 
 
-if __name__ == '__main__':
-    import sys
+def main():
     import argparse
 
     parser = argparse.ArgumentParser()
@@ -284,8 +292,11 @@ if __name__ == '__main__':
 
     sched_class = {'prio': PrioSchedModel, 'rr': RrSchedModel}[args.sched]
 
-    for s in sched_class.states(args.N, args.assume_runnable):
-        before = str(s)
-        next_ = s.get_next()
-        after = str(s)
+    for state in sched_class.states(args.N, args.assume_runnable):
+        before = str(state)
+        next_ = state.get_next()
+        after = str(state)
         print("{:>5}  {}  {} ".format(next_, before, after))
+
+if __name__ == '__main__':
+    main()

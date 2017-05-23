@@ -30,59 +30,59 @@ from util.util import do_nothing, Singleton, s16l, check_unique, remove_multi, a
     LengthMixin, LengthList, config_traverse, config_set, list_search
 
 
-class TestCase(unittest.TestCase):
-    def test_do_nothing_no_args(self):
+class TestCase(unittest.TestCase):  # pylint: disable=too-many-public-methods
+    def test_do_nothing_no_args(self):  # pylint: disable=no-self-use
         do_nothing()
 
-    def test_do_nothing_some_args(self):
+    def test_do_nothing_some_args(self):  # pylint: disable=no-self-use
         do_nothing(1, 2, 3)
 
-    def test_do_nothing_kw_args(self):
+    def test_do_nothing_kw_args(self):  # pylint: disable=no-self-use
         do_nothing(x=1, b=2, c=3)
 
     def test_singleton(self):
-        x = Singleton('x')
-        x1 = x
-        y = Singleton('y')
-        y1 = y
+        singleton_x = Singleton('x')
+        singleton_x1 = singleton_x
+        singleton_y = Singleton('y')
+        singleton_y1 = singleton_y
 
-        self.assertIs(x1, x)
-        self.assertEqual(x1, x)
-        self.assertIs(y1, y)
-        self.assertEqual(y1, y)
-        self.assertIsNot(x, y)
+        self.assertIs(singleton_x1, singleton_x)
+        self.assertEqual(singleton_x1, singleton_x)
+        self.assertIs(singleton_y1, singleton_y)
+        self.assertEqual(singleton_y1, singleton_y)
+        self.assertIsNot(singleton_x, singleton_y)
 
-        self.assertEqual(str(x), '<Singleton: x>')
-        self.assertEqual(str(y), '<Singleton: y>')
+        self.assertEqual(str(singleton_x), '<Singleton: x>')
+        self.assertEqual(str(singleton_y), '<Singleton: y>')
 
     def test_s16l_zero(self):
-        for n in range(16):
-            self.assertEqual(s16l(0, n), 0)
+        for num in range(16):
+            self.assertEqual(s16l(0, num), 0)
 
     def test_s16l_ffff(self):
-        for n, expected in [(1, 0xfffe), (8, 0xff00), (15, 0x8000), (16, 0)]:
-            self.assertEqual(s16l(0xffff, n), expected)
+        for num, expected in [(1, 0xfffe), (8, 0xff00), (15, 0x8000), (16, 0)]:
+            self.assertEqual(s16l(0xffff, num), expected)
 
-    def test_check_unique_no_dups(self):
+    def test_check_unique_no_dups(self):  # pylint: disable=no-self-use
         check_unique(range(40))
 
     def test_check_unique_dups(self):
         lst = list(range(40)) + [39]
-        with self.assertRaises(ValueError) as cm:
+        with self.assertRaises(ValueError) as context:
             check_unique(lst)
-        self.assertEqual(str(cm.exception), "Duplicates found in list: [(39, 2)]")
+        self.assertEqual(str(context.exception), "Duplicates found in list: [(39, 2)]")
 
     def test_remove_multi(self):
-        x = list(range(3))
-        remove_multi(x)
-        self.assertEqual(x, list(range(3)))
+        test_list = list(range(3))
+        remove_multi(test_list)
+        self.assertEqual(test_list, list(range(3)))
 
-        remove_multi(x, 0, 2)
-        self.assertEqual(x, [1])
+        remove_multi(test_list, 0, 2)
+        self.assertEqual(test_list, [1])
 
-        x = list(range(3))
-        remove_multi(x, *list(range(3)))
-        self.assertEqual(x, [])
+        test_list = list(range(3))
+        remove_multi(test_list, *list(range(3)))
+        self.assertEqual(test_list, [])
 
     def test_add_index_no_exist(self):
         lst = add_index_setup()
@@ -93,8 +93,8 @@ class TestCase(unittest.TestCase):
 
     def test_add_index_idx_is_none(self):
         lst = add_index_setup()
-        for d in lst:
-            d['idx'] = None
+        for test_dict in lst:
+            test_dict['idx'] = None
 
         add_index(lst, 'idx')
 
@@ -108,7 +108,7 @@ class TestCase(unittest.TestCase):
 
         self.add_index_check(lst)
 
-    def test_add_index_sort(self):
+    def test_add_index_sort(self):  # pylint: disable=no-self-use
         lst = [{'value': 1, 'idx': 1},
                {'value': 0},
                {'value': 2}]
@@ -120,18 +120,18 @@ class TestCase(unittest.TestCase):
         lst = add_index_setup()
         lst[0]['idx'] = 4
 
-        with self.assertRaises(ValueError) as cm:
+        with self.assertRaises(ValueError) as context:
             add_index(lst, 'idx')
-        self.assertEqual(str(cm.exception), "Some index value are out-of-range: [4]")
+        self.assertEqual(str(context.exception), "Some index value are out-of-range: [4]")
 
     def test_add_index_idx_duplicate(self):
         lst = add_index_setup()
         lst[0]['idx'] = 1
         lst[1]['idx'] = 1
 
-        with self.assertRaises(ValueError) as cm:
+        with self.assertRaises(ValueError) as context:
             add_index(lst, 'idx')
-        self.assertEqual(str(cm.exception), "Duplicates found in list: [(1, 2)]")
+        self.assertEqual(str(context.exception), "Duplicates found in list: [(1, 2)]")
 
     def test_length_mixin(self):
         class Foo:
@@ -141,9 +141,9 @@ class TestCase(unittest.TestCase):
         class LengthFoo(LengthMixin, Foo):
             pass
 
-        lf = LengthFoo()
+        test_length = LengthFoo()
 
-        self.assertEqual(lf.length, 123)
+        self.assertEqual(test_length.length, 123)
 
     def test_length_list(self):
         self.assertEqual(LengthList(range(5)).length, 5)
@@ -177,9 +177,9 @@ class TestCase(unittest.TestCase):
             list_search(lst, 'foo', 8)
 
     def add_index_check(self, lst):
-        self.assertEqual(lst, [{'value': 0, 'idx': 0},
-                               {'value': 1, 'idx': 1},
-                               {'value': 2, 'idx': 2}])
+        self.assertListEqual(lst, [{'value': 0, 'idx': 0},
+                                   {'value': 1, 'idx': 1},
+                                   {'value': 2, 'idx': 2}])
 
 
 def add_index_setup():

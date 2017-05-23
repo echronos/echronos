@@ -86,6 +86,7 @@ import sys
 # Make pylib available for importing - this is necessary for x.py wrappers in client repositories to work
 sys.path.append(os.path.dirname(__file__))
 
+# pylint: disable=wrong-import-position
 from pylib.utils import BASE_DIR
 sys.path = [os.path.join(BASE_DIR, 'external_tools')] + sys.path
 sys.path.insert(0, os.path.join(BASE_DIR, 'prj/app/pystache'))
@@ -93,11 +94,11 @@ if __name__ == '__main__':
     sys.modules['x'] = sys.modules['__main__']
 
 from pylib.components import Component
-from pylib import release, components, prj, tests, docs
+from pylib import release, components, prj, tests, docs  # pylint: disable=unused-import
 from pylib.cmdline import add_subcommands_to_parser
 
 # Set up a specific logger with our desired output level
-logger = logging.getLogger()
+logger = logging.getLogger()  # pylint: disable=invalid-name
 logger.setLevel(logging.INFO)
 
 
@@ -107,7 +108,7 @@ logger.setLevel(logging.INFO)
 # If the user directly invokes x tool of the RTOS core, topdir is the directory of this file.
 # topdir defaults to the core directory.
 # It may be modified by an appropriate invocation of main().
-topdir = os.path.normpath(os.path.dirname(__file__))
+topdir = os.path.normpath(os.path.dirname(__file__))  # pylint: disable=invalid-name
 
 
 # The POSIX context switch component depends on ucontext.h which is supported on real POSIX platforms,
@@ -122,36 +123,29 @@ CORE_CONFIGURATIONS = {"posix": ["sched-rr-test", "sched-prio-inherit-test", "si
 CORE_SKELETONS = {
     'sched-rr-test': [Component('reentrant'),
                       Component('sched-rr', {'assume_runnable': False}),
-                      Component('sched-rr-test'),
-                      ],
+                      Component('sched-rr-test')],
     'sched-prio-test': [Component('reentrant'),
                         Component('sched-prio', {'assume_runnable': False}),
-                        Component('sched-prio-test'),
-                        ],
+                        Component('sched-prio-test')],
     'sched-prio-inherit-test': [Component('reentrant'),
                                 Component('sched-prio-inherit', {'assume_runnable': False}),
-                                Component('sched-prio-inherit-test'),
-                                ],
+                                Component('sched-prio-inherit-test')],
     'simple-mutex-test': [Component('reentrant'),
                           Component('simple-mutex'),
-                          Component('simple-mutex-test'),
-                          ],
+                          Component('simple-mutex-test')],
     'blocking-mutex-test': [Component('reentrant'),
                             Component('blocking-mutex', {'lock_timeout': False, 'prio_ceiling': False}),
-                            Component('blocking-mutex-test'),
-                            ],
+                            Component('blocking-mutex-test')],
     'simple-semaphore-test': [Component('reentrant'),
                               Component('preempt-null'),
                               Component('simple-semaphore', {'timeouts': False}),
-                              Component('simple-semaphore-test'),
-                              ],
+                              Component('simple-semaphore-test')],
     'acamar': [Component('reentrant'),
                Component('acamar'),
                Component('stack', pkg_component=True),
                Component('context-switch', pkg_component=True),
                Component('error'),
-               Component('task'),
-               ],
+               Component('task')],
     'gatria': [Component('reentrant'),
                Component('stack', pkg_component=True),
                Component('context-switch', pkg_component=True),
@@ -160,8 +154,7 @@ CORE_SKELETONS = {
                Component('simple-mutex'),
                Component('error'),
                Component('task'),
-               Component('gatria'),
-               ],
+               Component('gatria')],
     'kraz': [Component('reentrant'),
              Component('stack', pkg_component=True),
              Component('context-switch', pkg_component=True),
@@ -171,8 +164,7 @@ CORE_SKELETONS = {
              Component('simple-mutex'),
              Component('error'),
              Component('task'),
-             Component('kraz'),
-             ],
+             Component('kraz')],
     'acrux': [Component('reentrant'),
               Component('stack', pkg_component=True),
               Component('context-switch', pkg_component=True),
@@ -183,8 +175,7 @@ CORE_SKELETONS = {
               Component('simple-mutex'),
               Component('error'),
               Component('task'),
-              Component('acrux'),
-              ],
+              Component('acrux')],
     'rigel': [Component('docs'),
               Component('reentrant'),
               Component('stack', pkg_component=True),
@@ -204,8 +195,7 @@ CORE_SKELETONS = {
               # Please note that the task_start_api pystache tag is used solely to block out a rigel-specific section
               # of the Task Configuration chapter.
               Component('task', {'task_start_api': True}),
-              Component('rigel'),
-              ],
+              Component('rigel')],
     'kochab': [Component('docs'),
                Component('reentrant'),
                Component('stack', pkg_component=True),
@@ -221,8 +211,7 @@ CORE_SKELETONS = {
                Component('simple-semaphore', {'timeouts': True, 'preemptive': True}),
                Component('error'),
                Component('task', {'task_start_api': False}),
-               Component('kochab'),
-               ],
+               Component('kochab')],
     'phact': [Component('docs'),
               Component('reentrant'),
               Component('stack', pkg_component=True),
@@ -238,13 +227,12 @@ CORE_SKELETONS = {
               Component('simple-semaphore', {'timeouts': True, 'preemptive': True}),
               Component('error'),
               Component('task', {'task_start_api': False}),
-              Component('phact'),
-              ],
+              Component('phact')],
 }
 
 # client repositories may extend or override the following variables to control which configurations are available
-skeletons = CORE_SKELETONS.copy()
-configurations = CORE_CONFIGURATIONS.copy()
+skeletons = CORE_SKELETONS.copy()  # pylint: disable=invalid-name
+configurations = CORE_CONFIGURATIONS.copy()  # pylint: disable=invalid-name
 
 
 def main():
@@ -267,21 +255,21 @@ def main():
         # command or subcommand
         parser.print_help()
         return 1
-    else:
-        args.topdir = topdir
-        args.configurations = configurations
-        args.skeletons = skeletons
 
-        return args.execute(args)
+    args.topdir = topdir
+    args.configurations = configurations
+    args.skeletons = skeletons
+
+    return args.execute(args)
 
 
 if __name__ == "__main__":
-    result = main()
+    RESULT = main()
     # sys.exit(None) makes the process exit with exit code 0, which indicates successful completion.
     # In the past, e.g. test functions have returned None, even when there were test errors.
     # To prevent this, require the functions called by main() to consistently return an integer value.
-    if isinstance(result, int):
-        sys.exit(result)
+    if isinstance(RESULT, int):
+        sys.exit(RESULT)
     else:
         raise TypeError('The main() function shall return an integer, but returned a value of type {} instead.'
-                        .format(type(result)))
+                        .format(type(RESULT)))

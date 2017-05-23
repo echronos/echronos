@@ -39,4 +39,4 @@ class SemDemoModule(Module):
         {'input': 'sem-demo.c', 'render': True, 'type': 'c'},
     ]
 
-module = SemDemoModule()
+module = SemDemoModule()  # pylint: disable=invalid-name

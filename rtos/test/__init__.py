@@ -35,25 +35,25 @@ import sys
 from pylib.utils import get_executable_extension
 
 
-class testSimple:
+class testSimple:  # pylint: disable=invalid-name
     @classmethod
-    def setUpClass(cls):
-        r = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.simple")
+    def setUpClass(cls):  # pylint: disable=invalid-name
+        exit_code = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.simple")
         system = "out/posix/unittest/simple/system" + get_executable_extension()
-        assert r == 0
+        assert exit_code == 0
         cls.simple = ctypes.CDLL(system)
 
     def test_foo(self):
         assert self.simple.foo() == 37
 
     def test_bar(self):
-        def check_add(x, y):
-            assert x + y == self.simple.add(x, y)
+        def check_add(sum_x, sum_y):
+            assert sum_x + sum_y == self.simple.add(sum_x, sum_y)
 
         rand = random.Random()
         rand.seed(37)
 
-        for i in range(20):
-            x = rand.randint(0, 5000)
-            y = rand.randint(0, 5000)
-            yield "test_bar{}".format(i), check_add, x, y
+        for idx in range(20):
+            int_x = rand.randint(0, 5000)
+            int_y = rand.randint(0, 5000)
+            yield "test_bar{}".format(idx), check_add, int_x, int_y

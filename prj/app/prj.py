@@ -31,28 +31,6 @@
 Main entry point.
 
 """
-if __name__ == "__main__":
-    import sys
-    import os
-
-    for pth in ['pystache', 'ply', 'lib']:
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), pth))
-
-from util.util import prepend_tool_binaries_to_path_environment_variable
-# Logging is set up first since this is critical to the rest of the application working correctly.
-# It is possible that other modules will perform logging during import, so make sure this is very early.
-import logging as _logging  # Avoid unintended using of 'logging'
-# By default log everything from INFO up.
-logger = _logging.getLogger('prj')
-logger.setLevel(_logging.INFO)
-_logging.basicConfig()
-
-
-# Ensure that basicConfig is only called once.
-def error_fn(*args, **kwargs):
-    raise Exception("basicConfig called multiple times.")
-_logging.basicConfig = error_fn
-
 from distutils.spawn import find_executable
 from xml.parsers.expat import ExpatError
 import argparse
@@ -61,13 +39,34 @@ import imp
 import inspect
 import os
 import pdb
-import pystache.parser
-import pystache.renderer
 import shutil
 import signal
 import subprocess
 import sys
 import traceback
+
+if __name__ == "__main__":
+    for pth in ['pystache', 'ply', 'lib']:
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), pth))
+
+# Logging is set up first since this is critical to the rest of the application working correctly.
+# It is possible that other modules will perform logging during import, so make sure this is very early.
+# pylint: disable=wrong-import-position
+import logging as _logging  # Avoid unintended using of 'logging'
+# By default log everything from INFO up.
+logger = _logging.getLogger('prj')  # pylint: disable=invalid-name
+logger.setLevel(_logging.INFO)
+_logging.basicConfig()
+
+
+# Ensure that basicConfig is only called once.
+def error_fn(*_, **__):
+    raise Exception("basicConfig called multiple times.")
+_logging.basicConfig = error_fn
+
+import pystache.parser
+import pystache.renderer
+from util.util import prepend_tool_binaries_to_path_environment_variable
 from util.xml import UserError, NOTHING, xml_parse_file, single_text_child, maybe_single_named_child,\
     xml_parse_file_with_includes, xml_parse_string, get_attribute, single_named_child, xml2schema,\
     xml2dict, SystemParseError, xml_error_str, maybe_get_element_list, check_schema_is_valid, SchemaInvalidError
@@ -93,19 +92,19 @@ def canonical_paths(paths):
     return [canonical_path(path) for path in paths]
 
 
-def follow_link(l):
+def follow_link(link):
     """Return the underlying file form a symbolic link.
 
     This will (recursively) follow links until a non-symbolic link is found.
     No cycle checks are performed by this function.
 
     """
-    if not os.path.islink(l):
-        return l
-    p = os.readlink(l)
-    if os.path.isabs(p):
-        return p
-    return follow_link(os.path.join(os.path.dirname(l), p))
+    if not os.path.islink(link):
+        return link
+    path = os.readlink(link)
+    if os.path.isabs(path):
+        return path
+    return follow_link(os.path.join(os.path.dirname(link), path))
 
 
 def show_exit(exit_code):
@@ -113,8 +112,7 @@ def show_exit(exit_code):
     exit_status = exit_code >> 8
     if sig_num == 0:
         return "exit: {}".format(exit_status)
-    else:
-        return "signal: {}".format(SIG_NAMES.get(sig_num, 'Unknown signal {}'.format(sig_num)))
+    return "signal: {}".format(SIG_NAMES.get(sig_num, 'Unknown signal {}'.format(sig_num)))
 
 
 def cls_name(cls):
@@ -142,8 +140,8 @@ def pystache_render(file_in, file_out, config):
     try:
         parsed_template = pystache.parser.parse(template_data, name=file_in)
         data = renderer.render(parsed_template, config)
-    except pystache.common.PystacheError as e:
-        raise SystemBuildError("Error rendering template '{}'. {}.".format(e.location, str(e)))
+    except pystache.common.PystacheError as exc:
+        raise SystemBuildError("Error rendering template '{}'. {}.".format(exc.location, str(exc)))
 
     os.makedirs(os.path.dirname(file_out), exist_ok=True)
 
@@ -202,7 +200,7 @@ class ProjectStartupError(Exception):
 def valid_entity_name(name):
     """Return true if the name is a valid entity name.
 
-    Entity names can not contain / or \ characters.
+    Entity names can not contain forward slash or backslash characters.
 
     """
     return not any([bad_char in name for bad_char in '/\\'])
@@ -218,7 +216,7 @@ def execute(args, **kwargs):
 
     """
     cmd_line = ' '.join(args)
-    logger.info('Executing: %s' % cmd_line)
+    logger.info('Executing: %s', cmd_line)
     try:
         code = subprocess.call(args, **kwargs)
     except FileNotFoundError as exc:
@@ -253,20 +251,20 @@ class ModuleInstance:
 
         """
         self._config = config
-        self._module = module
+        self.module = module
         self._system = system
 
     def __repr__(self):
-        return '<{} {} of module {}>'.format(self.__class__.__name__, id(self), repr(self._module))
+        return '<{} {} of module {}>'.format(self.__class__.__name__, id(self), repr(self.module))
 
     def __getattr__(self, name):
         """ModuleInstances do not have methods, however they provide shortcuts to the underlying Module's methods.
 
-        `instance.<foo>()` is a short-cut for `instance._module.<foo>(instance._system, instance._config)`
+        `instance.<foo>()` is a short-cut for `instance.module.<foo>(instance._system, instance._config)`
 
         """
         try:
-            func = getattr(self._module, name)
+            func = getattr(self.module, name)
         except AttributeError:
             raise AttributeError("ModuleInstance '{}' has no attribute '{}'".format(self, name))
 
@@ -329,8 +327,8 @@ class Module:
         self.name = None
 
         if len(set([self.schema, self.xml_schema, self.xml_schema_path])) > 2:
-            raise Exception("Class '{}' in {} has multiple schema sources set.".format(self.__class__.__name__,
-                            os.path.abspath(inspect.getfile(self.__class__))))
+            raise Exception("Class '{}' in {} has multiple schema sources set."
+                            .format(self.__class__.__name__, os.path.abspath(inspect.getfile(self.__class__))))
 
         if self.schema is NOTHING:
             if self.xml_schema_path is not NOTHING:
@@ -354,8 +352,7 @@ xml_schema_path) set as a class member.".format(self.__class__.__name__,
         """
         if self.schema is NOTHING:
             return None
-        else:
-            return xml2dict(xml_config, self.schema)
+        return xml2dict(xml_config, self.schema)
 
     def validate(self, system, config):
         """Validate that the `config` is correct within the context of the given `system`.
@@ -377,30 +374,22 @@ xml_schema_path) set as a class member.".format(self.__class__.__name__,
         # Input file names are related to the module's path.
         module_path = sys.modules[self.__class__.__module__].__path__
 
-        for f in self.files:
-            if f.get('stage', 'prepare') != stage:
+        for file_obj in self.files:  # pylint: disable=not-an-iterable
+            if file_obj.get('stage', 'prepare') != stage:
                 continue
 
-            input_path = os.path.join(module_path, f['input'])
-            if 'output' in f:
-                output_path = os.path.join(system.output, f['output'])
+            input_path = os.path.join(module_path, file_obj['input'])
+            if 'output' in file_obj:
+                output_path = os.path.join(system.output, file_obj['output'])
             else:
-                output_path = system.get_output_path_for_file(f['input'], self.name)
+                output_path = system.get_output_path_for_file(file_obj['input'], self.name)
 
-            logger.info("Preparing: template %s -> %s", input_path, output_path)
-            try:
-                if f.get('render', False):
-                    pystache_render(input_path, output_path, config)
-                else:
-                    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-                    shutil.copyfile(input_path, output_path)
-            except FileNotFoundError as e:
-                raise SystemBuildError("File not found error during template preparation '{}'.".format(e.filename))
+            _prepare_template(input_path, output_path, file_obj.get('render', False), config)
 
-            _type = f.get('type')
+            _type = file_obj.get('type')
             if _type is None:
                 # make headers discoverable by the compiler
-                if os.path.splitext(f['input'])[1].lower() == '.h':
+                if os.path.splitext(file_obj['input'])[1].lower() == '.h':
                     system.add_include_path(os.path.dirname(output_path))
             elif _type == 'c':
                 system.add_c_file(output_path)
@@ -409,9 +398,9 @@ xml_schema_path) set as a class member.".format(self.__class__.__name__,
             elif _type == 'linker_script':
                 system.linker_script = output_path
             else:
-                raise Exception("Unexpected type '{}' for file '{}'".format(_type, f['input']))
+                raise Exception("Unexpected type '{}' for file '{}'".format(_type, file_obj['input']))
 
-    def prepare(self, system, config, **kwargs):
+    def prepare(self, system, config, **_):
         """Prepare the `system` for building based on a specific module `config`.
 
         This method should be implemented in a sub-class. It should update the system object
@@ -428,7 +417,20 @@ xml_schema_path) set as a class member.".format(self.__class__.__name__,
         return '<{}>'.format(cls_name(self.__class__))
 
 
+def _prepare_template(input_path, output_path, render, config):
+    logger.info("Preparing: template %s -> %s", input_path, output_path)
+    try:
+        if render:
+            pystache_render(input_path, output_path, config)
+        else:
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            shutil.copyfile(input_path, output_path)
+    except FileNotFoundError as exc:
+        raise SystemBuildError("File not found error during template preparation '{}'.".format(exc.filename))
+
+
 class NamedModule(Module):
+    # pylint: disable=super-init-not-called
     def __init__(self, name):
         self.name = name
 
@@ -437,6 +439,7 @@ class NamedModule(Module):
 
 
 class SourceModule(NamedModule):
+    # pylint: disable=too-many-branches
     """A Module contains the implementation of some aspect of the system.
 
     See the user manual for more details.
@@ -513,8 +516,7 @@ class SourceModule(NamedModule):
         def fix_path(hdr):
             if os.path.isabs(hdr):
                 return hdr
-            else:
-                return os.path.join(os.path.dirname(self.filename), hdr)
+            return os.path.join(os.path.dirname(self.filename), hdr)
 
         for hdr_el in hdr_els:
             code_gen = hdr_el.getAttributeNode('code_gen')
@@ -526,7 +528,7 @@ class SourceModule(NamedModule):
         schema = maybe_single_named_child(dom, 'schema')
         self.schema = xml2schema(schema) if schema else None
 
-    def prepare(self, system, config, *, copy_all_files=False):
+    def prepare(self, system, config, *, copy_all_files=False):  # pylint: disable=arguments-differ
         """prepare the `system` for building based on the specific config.
 
         This includes copying any header files to the correct locations, and running any templating.
@@ -564,9 +566,9 @@ class SourceModule(NamedModule):
                     logger.info("Preparing: template %s -> %s (%s)", header.path, path, config)
                     pystache_render(header.path, path, config)
                 system.add_include_path(os.path.dirname(path))
-            except FileNotFoundError as e:
-                s = xml_error_str(header.xml_element, "Resource not found: {}".format(header.path))
-                raise ResourceNotFoundError(s)
+            except FileNotFoundError:
+                error_str = xml_error_str(header.xml_element, "Resource not found: {}".format(header.path))
+                raise ResourceNotFoundError(error_str)
 
 
 class Action(NamedModule):
@@ -577,8 +579,8 @@ class Action(NamedModule):
         if hasattr(py_module, 'schema'):
             try:
                 check_schema_is_valid(py_module.schema)
-            except SchemaInvalidError as e:
-                raise SystemLoadError("The schema declared in module '{}' is invalid. {:s}".format(name, e))
+            except SchemaInvalidError as exc:
+                raise SystemLoadError("The schema declared in module '{}' is invalid. {:s}".format(name, exc))
             self.schema = py_module.schema
 
     def run(self, system, config):
@@ -586,10 +588,10 @@ class Action(NamedModule):
             self._py_module.run(system, config)
         except (SystemBuildError, ):
             raise
-        except Exception as e:
+        except Exception:
             file_name = '{}.errors.log'.format(self.name)
-            with open(file_name, "w") as f:
-                traceback.print_exception(*sys.exc_info(), file=f)
+            with open(file_name, "w") as file_obj:
+                traceback.print_exception(*sys.exc_info(), file=file_obj)
             msg_fmt = "An unexpected error occured while running custom module '{}'. Traceback saved to '{}'."
             raise SystemBuildError(msg_fmt.format(self.name, file_name))
 
@@ -602,6 +604,7 @@ class Loader(Action):
     pass
 
 
+# pylint: disable=too-many-instance-attributes
 class System:
     def __init__(self, name, dom, project):
         """Create a new System named `name`. The system definition will be parsed from
@@ -692,6 +695,8 @@ class System:
             self.__instances = self._get_instances()
         return self.__instances
 
+    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-branches
     def _get_instances(self):
         """Instantiate all modules referenced in the system definition file of this system and validate them.
         This is a prerequisite to invoking such operations as build or load on a system.
@@ -703,7 +708,8 @@ class System:
 
         # Parse the DOM to load all the entities.
         module_el = single_named_child(self.dom, 'modules')
-        module_els = [e for e in module_el.childNodes if e.nodeType == e.ELEMENT_NODE and e.tagName == 'module']
+        module_els = [elem for elem in module_el.childNodes
+                      if elem.nodeType == elem.ELEMENT_NODE and elem.tagName == 'module']
 
         instances = []
         rtos_config_data = {}
@@ -721,13 +727,13 @@ class System:
             if isinstance(module, Module):
                 try:
                     config_data = module.configure(m_el)
-                except SystemParseError as e:
+                except SystemParseError:
                     # The module's configure module is allowed to raise a SystemParseError
                     # we just re-raise it.
                     raise
-                except Exception as e:
-                    exc_type, exc_value, tb = sys.exc_info()
-                    tb_str = ''.join(traceback.format_exception(exc_type, exc_value, tb.tb_next, chain=False))
+                except Exception:
+                    exc_type, exc_value, trace = sys.exc_info()
+                    tb_str = ''.join(traceback.format_exception(exc_type, exc_value, trace.tb_next, chain=False))
                     msg = "Error running module '{}' configure method.".format(name)
                     detail = "Traceback:\n{}".format(tb_str)
                     raise EntityLoadError(msg, detail)
@@ -778,8 +784,8 @@ class System:
             return
 
         # Find all include elements, ignoring any that are empty
-        include_els = [e for e in include_el.childNodes
-                       if e.nodeType == e.ELEMENT_NODE and e.tagName == 'include_path' and e.firstChild]
+        include_els = [elem for elem in include_el.childNodes
+                       if elem.nodeType == elem.ELEMENT_NODE and elem.tagName == 'include_path' and elem.firstChild]
 
         for i_el in include_els:
             path = i_el.firstChild.nodeValue
@@ -879,7 +885,7 @@ module\'s functionality cannot be invoked.'.format(self, typ.__name__))
         return instances[0]
 
     def _get_instances_by_type(self, typ):
-        return [i for i in self._instances if isinstance(i._module, typ)]
+        return [i for i in self._instances if isinstance(i.module, typ)]
 
     def get_output_path_for_file(self, file_path, entity_name):
         """Derive (but do not create) a unique path in this system's output directory for the given input file."""
@@ -896,6 +902,8 @@ module\'s functionality cannot be invoked.'.format(self, typ.__name__))
 class Project:
     """The Project is a container for other objects in the system."""
 
+    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-branches
     def __init__(self, filename, search_paths=None, prx_include_paths=None):
         """Parses the project definition file `filename` and any imported system and module definition files.
 
@@ -925,22 +933,22 @@ class Project:
 
         # Find all startup-script items.
         ss_els = self.dom.getElementsByTagName('startup-script')
-        for ss in ss_els:
-            command = single_text_child(ss)
+        for script_element in ss_els:
+            command = single_text_child(script_element)
             if command.split()[0].endswith('.py'):
                 # prepend full path of python interpreter as .py files are not necessarily executable on Windows
                 # and the command 'python3' is likely not in PATH
                 command = '{} {}'.format(sys.executable, command)
             ret_code = os.system(command)
             if ret_code != 0:
-                err = xml_error_str(ss, "Error running startup-script"
-                                        ": '{}' {}".format(command, show_exit(ret_code)))
+                err = xml_error_str(script_element, "Error running startup-script"
+                                                    ": '{}' {}".format(command, show_exit(ret_code)))
                 raise ProjectStartupError(err)
 
         param_search_paths = search_paths if search_paths is not None else []
         project_search_paths = list(get_paths_from_dom(self.dom, 'search-path'))
         user_search_paths = param_search_paths + project_search_paths
-        if len(user_search_paths) == 0:
+        if not user_search_paths:
             user_search_paths = [self.project_dir]
 
         built_in_search_paths = []
@@ -984,8 +992,8 @@ class Project:
                     return path, ext
             return None, None
 
-        for sp in self.search_paths:
-            base = os.path.join(sp, *entity_name.split('.'))
+        for search_path in self.search_paths:
+            base = os.path.join(search_path, *entity_name.split('.'))
             path, ext = search_inner(base)
             if path is not None:
                 break
@@ -1004,7 +1012,7 @@ class Project:
 
         return path
 
-    def _parse_import(self, entity_name, path):
+    def parse_import(self, entity_name, path):
         """Parse an entity decribed in the specified path.
 
         Return the approriate object as determined by the file extension.
@@ -1018,14 +1026,14 @@ class Project:
                               xml_parse_file_with_includes(path, self._prx_include_paths,
                                                            os.path.join(self.output, entity_name + ext)),
                               self)
-            except ExpatError as e:
-                raise EntityLoadError("Error parsing system import '{}:{}': {!s}".format(e.path, e.lineno, e))
+            except ExpatError as exc:
+                raise EntityLoadError("Error parsing system import '{}:{}': {!s}".format(exc.path, exc.lineno, exc))
         elif ext == '.py':
             try:
                 py_module = imp.load_source("__prj.%s" % entity_name, path)
             except:
-                exc_type, exc_value, tb = sys.exc_info()
-                tb_str = ''.join(traceback.format_exception(exc_type, exc_value, tb.tb_next, chain=False))
+                exc_type, exc_value, trace = sys.exc_info()
+                tb_str = ''.join(traceback.format_exception(exc_type, exc_value, trace.tb_next, chain=False))
                 msg = "An error occured while loading '{}'".format(path)
                 detail = "Traceback:\n{}".format(tb_str)
                 raise EntityLoadError(msg, detail)
@@ -1059,7 +1067,7 @@ class Project:
         if entity_name not in self.entities:
             # Try and find the entity name
             path = self.entity_name_to_path(entity_name)
-            self.entities[entity_name] = self._parse_import(entity_name, path)
+            self.entities[entity_name] = self.parse_import(entity_name, path)
 
         return self.entities[entity_name]
 
@@ -1143,20 +1151,20 @@ def call_system_function(args, function, extra_args=None, sys_is_path=False):
         if sys_is_path:
             system_path = system_name
             system_name = os.path.splitext(os.path.basename(system_name))[0]
-            logger.info("Loading system: {}".format(system_name))
-            system = project._parse_import(system_name, system_path)
+            logger.info("Loading system: %s", system_name)
+            system = project.parse_import(system_name, system_path)
             system.output = os.path.curdir
         else:
             if not valid_entity_name(system_name):
-                logger.error("System name '{}' is invalid.".format(system_name))
+                logger.error("System name '%s' is invalid.", system_name)
                 return 1
-            logger.info("Loading system: {}".format(system_name))
+            logger.info("Loading system: %s", system_name)
             system = project.find(system_name)
-    except EntityLoadError as e:
-        logger.error("Unable to load system [{}]: {}, {}".format(system_name, e, e.detail))
+    except EntityLoadError as exc:
+        logger.error("Unable to load system [%s]: %s, %s", system_name, exc, exc.detail)
         return 1
     except EntityNotFoundError:
-        logger.error("Unable to find system [{}].".format(system_name))
+        logger.error("Unable to find system [%s].", system_name)
         return 1
 
     if args.output:
@@ -1164,11 +1172,11 @@ def call_system_function(args, function, extra_args=None, sys_is_path=False):
 
     prepend_tool_binaries_to_path_environment_variable()
 
-    logger.info("Invoking '{}' on system '{}'".format(function.__name__, system.name))
+    logger.info("Invoking '%s' on system '%s'", function.__name__, system.name)
     try:
         return function(system, **extra_args)
-    except UserError as e:
-        logger.error(str(e))
+    except UserError as exc:
+        logger.error(str(exc))
         return 1
 
     return 0
@@ -1241,31 +1249,32 @@ def report_error(exception):
 
 def commonpath(paths):
     if hasattr(os.path, 'commonpath'):
-        return os.path.commonpath(paths)
+        commonpath_func = getattr(os.path, 'commonpath')
+        return commonpath_func(paths)
     else:
-        prefix = commonprefix(paths)
+        prefix = os.path.commonprefix(paths)
         if not os.path.exists(prefix):
             return os.path.dirname(prefix)
 
 
-def commonprefix(m):
+def commonprefix(paths):
     if hasattr(os.path, 'commonprefix'):
-        return os.path.commonprefix(m)
+        return os.path.commonprefix(paths)
     else:
-        if not m:
+        if not paths:
             return ''
         # Some people pass in a list of pathname parts to operate in an OS-agnostic
         # fashion; don't try to translate in that case as that's an abuse of the
         # API and they are already doing what they need to be OS-agnostic and so
         # they most likely won't be using an os.PathLike object in the sublists.
-        if not isinstance(m[0], (list, tuple)):
-            m = tuple(map(os.fspath, m))
-        s1 = min(m)
-        s2 = max(m)
-        for i, c in enumerate(s1):
-            if c != s2[i]:
-                return s1[:i]
-        return s1
+        if not isinstance(paths[0], (list, tuple)):
+            raise ValueError("paths[0] has unsupported type {}".format(type(paths[0])))
+        str1 = min(paths)
+        str2 = max(paths)
+        for idx, component in enumerate(str1):
+            if component != str2[idx]:
+                return str1[:idx]
+        return str1
 
 
 def main():
@@ -1281,19 +1290,19 @@ def main():
     # Initialise project
     try:
         args.project = Project(args.project, args.search_path, args.prx_inc_path)
-    except (EntityLoadError, EntityNotFoundError, ProjectStartupError) as e:
-        return report_error(e)
-    except FileNotFoundError as e:
-        logger.error("Unable to initialise project from file [%s]. Exception: %s" % (args.project, e))
+    except (EntityLoadError, EntityNotFoundError, ProjectStartupError) as exc:
+        return report_error(exc)
+    except FileNotFoundError as exc:
+        logger.error("Unable to initialise project from file [%s]. Exception: %s", args.project, exc)
         return 1
-    except ExpatError as e:
-        logger.error("Parsing %s:%s ExpatError %s" % (e.path, e.lineno, e))
+    except ExpatError as exc:
+        logger.error("Parsing %s:%s ExpatError %s", exc.path, exc.lineno, exc)
         return 1
 
     try:
         return SUBCOMMAND_TABLE[args.command](args)
-    except EntityLoadError as e:
-        return report_error(e)
+    except EntityLoadError as exc:
+        return report_error(exc)
 
 
 def _start():
@@ -1303,18 +1312,18 @@ def _start():
     except KeyboardInterrupt:
         # Ignore Ctrl-C
         pass
-    except Exception as e:
+    except Exception as exc:  # pylint: disable=broad-except
         # Any uncaught errors are something we should send to an error dump,
         # if we are in developer mode though, we should enter the debugger.
         if developer_mode:
             pdb.post_mortem()
         else:
-            logger.error("An unhandled exception occurred: %s" % e)
+            logger.error("An unhandled exception occurred: %s", exc)
             try:
-                with open("prj.errors", "w") as f:
-                    traceback.print_exception(*sys.exc_info(), file=f)
+                with open("prj.errors", "w") as file_object:
+                    traceback.print_exception(*sys.exc_info(), file=file_object)
                 logger.error("Please include the 'prj.errors' file when submitting a bug report")
-            except:
+            except:  # pylint: disable=bare-except
                 pass
             sys.exit(1)
 

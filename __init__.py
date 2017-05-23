@@ -24,20 +24,3 @@
 #
 # @TAG(NICTA_AGPL)
 #
-
-from prj import Module
-
-
-class P2020UtilModule(Module):
-    # U-Boot on the P2020RDB-PCA inits the CCSRBAR to 0xffe00000
-    xml_schema = """
-<schema>
-   <entry name="ccsrbar" type="int" default="0xffe00000" />
-</schema>"""
-
-    files = [
-        {'input': 'p2020-util.h', 'render': True},
-        {'input': 'p2020-util.c', 'render': True, 'type': 'c'},
-    ]
-
-module = P2020UtilModule()  # pylint: disable=invalid-name

@@ -29,40 +29,40 @@ import ctypes
 import os
 import sys
 
-from rtos import sched
 from pylib.utils import get_executable_extension
 
 NUM_MUTEXES = 10
-
-
-BlockOnFuncPtr = ctypes.CFUNCTYPE(None, ctypes.c_ubyte)
-UnblockFuncPtr = ctypes.CFUNCTYPE(None, ctypes.c_ubyte)
-GetCurrentTaskPtr = ctypes.CFUNCTYPE(ctypes.c_ubyte)
 
 
 class MutexStruct(ctypes.Structure):
     _fields_ = [("holder", ctypes.c_uint8)]
 
 
-class testBlockingMutex:
+class testBlockingMutex:  # pylint: disable=invalid-name
     @classmethod
-    def setUpClass(cls):
-        r = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.blocking-mutex")
+    def setUpClass(cls):  # pylint: disable=invalid-name
+        result = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.blocking-mutex")
         system = "out/posix/unittest/blocking-mutex/system" + get_executable_extension()
-        assert r == 0
+        assert result == 0
         cls.impl = ctypes.CDLL(system)
         cls.impl_mutex = (ctypes.POINTER(MutexStruct * NUM_MUTEXES)).in_dll(cls.impl, 'pub_mutexes')[0]
 
-    def set_unblock_func(cls, fn):
-        cls.unblock_func_ptr = UnblockFuncPtr(fn)
+    # pylint: disable=no-self-argument
+    def set_unblock_func(cls, function):
+        # pylint: disable=attribute-defined-outside-init
+        cls.unblock_func_ptr = ctypes.CFUNCTYPE(None, ctypes.c_ubyte)(function)
         cls.impl.pub_set_unblock_ptr(cls.unblock_func_ptr)
 
-    def set_block_on_func(cls, fn):
-        cls.block_on_func_ptr = BlockOnFuncPtr(fn)
+    # pylint: disable=no-self-argument
+    def set_block_on_func(cls, function):
+        # pylint: disable=attribute-defined-outside-init
+        cls.block_on_func_ptr = ctypes.CFUNCTYPE(None, ctypes.c_ubyte)(function)
         cls.impl.pub_set_block_on_ptr(cls.block_on_func_ptr)
 
-    def set_get_current_task_func(cls, fn):
-        cls.get_current_task_ptr = GetCurrentTaskPtr(fn)
+    # pylint: disable=no-self-argument
+    def set_get_current_task_func(cls, function):
+        # pylint: disable=attribute-defined-outside-init
+        cls.get_current_task_ptr = ctypes.CFUNCTYPE(ctypes.c_ubyte)(function)
         cls.impl.pub_set_get_current_task_ptr(cls.get_current_task_ptr)
 
     def test_simple(self):

@@ -38,4 +38,4 @@ class SignalDemoModule(Module):
         {'input': 'signal-demo.c', 'render': True, 'type': 'c'},
     ]
 
-module = SignalDemoModule()
+module = SignalDemoModule()  # pylint: disable=invalid-name

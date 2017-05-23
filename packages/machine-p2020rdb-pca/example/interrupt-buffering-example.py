@@ -39,4 +39,4 @@ class InterruptBufferingExampleModule(Module):
         {'input': 'interrupt-buffering-example.h', 'render': True},
     ]
 
-module = InterruptBufferingExampleModule()
+module = InterruptBufferingExampleModule()  # pylint: disable=invalid-name

@@ -39,4 +39,4 @@ class SchedTestModule(Module):
         {'input': 'sched-demo.c', 'render': True, 'type': 'c'},
     ]
 
-module = SchedTestModule()
+module = SchedTestModule()  # pylint: disable=invalid-name

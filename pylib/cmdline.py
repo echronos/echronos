@@ -59,10 +59,10 @@ class Arg:
         self.kwargs = kwargs
 
 
-class cmd:
+class cmd:  # pylint: disable=invalid-name
     """The @cmd() function decorator marks a function as the implementation of a command-line command of an
     executable."""
-    def __init__(self, name=None, cmd=None, help=None, args=()):
+    def __init__(self, name=None, help=None, args=()):  # pylint: disable=redefined-builtin
         """Create a function decorator and wrapper for a function implementing a command-line command.
 
         For example, the command-line executable 'foo' may wish to implement a command-line command 'bar' with the
@@ -87,18 +87,19 @@ class cmd:
         self.name = name
         self.help = help
         self.args = args
+        self.execute = None
 
-    def __call__(self, f):
+    def __call__(self, wrapped_function):
         """Implementation of Python magic for wrapping functions."""
         # See functools.wraps() documentation
-        @wraps(f)
+        @wraps(wrapped_function)
         def wrapper(*args, **kwds):
-            return f(*args, **kwds)
+            return wrapped_function(*args, **kwds)
         # Let command name default to name of wrapped function
         if self.name is None:
-            self.name = f.__name__
+            self.name = wrapped_function.__name__
         # Set function wrapper as handler for command
-        self.execute = f
+        self.execute = wrapped_function
         # Make decorator object and its properties accessible as an attribute of the function wrapper
         wrapper.decorator = self
         return wrapper
@@ -124,32 +125,33 @@ def _get_decorators(global_attributes, decorator_type):
         if isinstance(attribute, ModuleType):
             yield from [func.decorator for func in vars(attribute).values()
                         if isinstance(func, FunctionType) and hasattr(func, 'decorator') and
-                        type(func.decorator) == decorator_type]
+                        isinstance(func.decorator, decorator_type)]
         elif isinstance(attribute, FunctionType) and hasattr(attribute, 'decorator') \
-                and type(attribute.decorator) == decorator_type:
+                and isinstance(attribute.decorator, decorator_type):
             yield attribute
 
 
 def _add_cmds_to_parser(cmds, parser, dest='command', title='commands'):
     """Configure an argparse.ArgumentParser based on cmd objects."""
     cmds_parsers = parser.add_subparsers(title=title, dest=dest)
-    for cmd in cmds:
-        cmd_parser = cmds_parsers.add_parser(cmd.name, help=cmd.help)
-        for arg in cmd.args:
+    for command in cmds:
+        cmd_parser = cmds_parsers.add_parser(command.name, help=command.help)
+        for arg in command.args:
             cmd_parser.add_argument(*arg.args, **arg.kwargs)
-        cmd_parser.set_defaults(execute=cmd.execute)
+        cmd_parser.set_defaults(execute=command.execute)
 
 
-class subcmd(cmd):
+class subcmd(cmd):  # pylint: disable=invalid-name
     """The @subcmd() function decorator marks a function as the implementation of an x.py command-line sub-command."""
+    # pylint: disable=redefined-builtin,redefined-outer-name
     def __init__(self, name=None, cmd=None, help=None, args=()):
         self.cmd = cmd
         super(subcmd, self).__init__(name=name, help=help, args=args)
 
-    def __call__(self, f):
+    def __call__(self, wrapped_function):
         if self.cmd is None:
-            self.cmd = f.__module__.split('.')[-1]
-        return super(subcmd, self).__call__(f)
+            self.cmd = wrapped_function.__module__.split('.')[-1]
+        return super(subcmd, self).__call__(wrapped_function)
 
 
 def add_subcommands_to_parser(global_attributes, parser):
@@ -167,16 +169,16 @@ def _get_cmd_tree(subcmds):
     """Convert flat list of subcmd objects into hierarchical dictionary
     {'command name': {'subcommand name 1': subcmd1, 'subcommand name 2': subcmd2}}"""
     cmds = {}
-    for subcmd in subcmds:
-        cmd_dict = cmds.setdefault(subcmd.cmd, {})
-        cmd_dict[subcmd.name] = subcmd
+    for sub_cmd in subcmds:
+        cmd_dict = cmds.setdefault(sub_cmd.cmd, {})
+        cmd_dict[sub_cmd.name] = sub_cmd
     return cmds
 
 
 def _add_cmd_tree_to_parser(cmd_tree, parser):
     """Create command-line parser from hierarchical subcmd objects."""
     cmds_parsers = parser.add_subparsers(title='commands', dest='command')
-    for cmd in sorted(cmd_tree.keys()):
-        cmd_parser = cmds_parsers.add_parser(cmd)
-        subcmds = sorted(cmd_tree[cmd].values(), key=lambda cmd: cmd.name)
+    for command in sorted(cmd_tree.keys()):
+        cmd_parser = cmds_parsers.add_parser(command)
+        subcmds = sorted(cmd_tree[command].values(), key=lambda tmp: tmp.name)
         _add_cmds_to_parser(subcmds, cmd_parser, dest="subcommand", title=None)

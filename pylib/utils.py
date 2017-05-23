@@ -25,6 +25,7 @@
 # @TAG(NICTA_AGPL)
 #
 
+# pylint: disable=too-many-public-methods
 import os
 import sys
 import shutil
@@ -36,24 +37,24 @@ from collections import namedtuple
 from contextlib import contextmanager
 
 
-def follow_link(l):
+def follow_link(link):
     """Return the underlying file from a symbolic link.
 
     This will (recursively) follow links until a non-symbolic link is found.
     No cycle checks are performed by this function.
 
     """
-    if not os.path.islink(l):
-        return l
-    p = os.readlink(l)
-    if os.path.isabs(p):
-        return p
-    return follow_link(os.path.join(os.path.dirname(l), p))
+    if not os.path.islink(link):
+        return link
+    path = os.readlink(link)
+    if os.path.isabs(path):
+        return path
+    return follow_link(os.path.join(os.path.dirname(link), path))
 
 
-"""Directory containing the core repository."""
+# Directory containing the core repository
 BASE_DIR = os.path.normpath(os.path.join(os.path.dirname(follow_link(__file__)), ".."))
-"""Top directory from which x.py (or a wrapper in the case of a client repository) was invoked."""
+# Top directory from which x.py (or a wrapper in the case of a client repository) was invoked
 TOP_DIR = os.path.dirname(os.path.normpath(follow_link(os.path.abspath(traceback.extract_stack()[0][0]))))
 BASE_TIME = calendar.timegm((2013, 1, 1, 0, 0, 0, 0, 0, 0))
 
@@ -169,8 +170,7 @@ def un_base_path(path):
     """
     if BASE_DIR == '':
         return path
-    else:
-        return path[len(BASE_DIR) + 1:]
+    return path[len(BASE_DIR) + 1:]
 
 
 @contextmanager
@@ -229,19 +229,19 @@ def get_host_platform_name():
         raise RuntimeError('Unsupported platform {}'.format(sys.platform))
 
 
-_executable_extension = None
+_EXECUTABLE_EXTENSION = None
 
 
 def get_executable_extension():
-    global _executable_extension
-    if _executable_extension is None:
-        _executable_extension = {'darwin': '',
+    global _EXECUTABLE_EXTENSION  # pylint: disable=global-statement
+    if _EXECUTABLE_EXTENSION is None:
+        _EXECUTABLE_EXTENSION = {'darwin': '',
                                  'linux': '',
-                                 'win32': '.exe',
-                                 }[sys.platform]
-    return _executable_extension
+                                 'win32': '.exe'}[sys.platform]
+    return _EXECUTABLE_EXTENSION
 
 
+# pylint: disable=too-many-public-methods
 class Git:
     """
     Represents common state applicable to a series of git invocations and provides a pythonic interface to git.
@@ -276,8 +276,7 @@ class Git:
 
         if isinstance(paths, str):
             return convert(paths)
-        else:
-            return [convert(path) for path in paths]
+        return [convert(path) for path in paths]
 
     @property
     def sep(self):
@@ -328,12 +327,11 @@ class Git:
         Execute the git command line tool with the given command-line parameters and return the console output as a
         string.
         """
-        assert type(parameters) == list
+        assert isinstance(parameters, list)
         raw_data = subprocess.check_output(['git'] + parameters, cwd=self.local_repository).decode()
         if as_lines:
             return raw_data.splitlines()
-        else:
-            return raw_data
+        return raw_data
 
     def get_active_branch(self):
         """
@@ -427,7 +425,7 @@ class Git:
         """
         assert isinstance(src, (str, list))
         assert isinstance(dst, str)
-        if type(src) == str:
+        if isinstance(src, str):
             src_list = [src]
         else:
             src_list = src
@@ -437,7 +435,7 @@ class Git:
         """Add the list of files to the index in preparation of a future commit."""
         return self._do(['add'] + self.convert_paths(files))
 
-    def rm(self, paths, force=True, *args):
+    def rm(self, paths, force=True, *args):  # pylint: disable=invalid-name
         """Remove the specified paths from the index and, by default, from the file system."""
         if force:
             force_option = ['--force']
@@ -518,7 +516,7 @@ class Git:
         try:
             tracking_branch = self.get_tracking_branch()
             remote = tracking_branch.split('/')[0]
-        except:
+        except AssertionError:
             remotes = list(set([r.name for r in self.get_remotes()]))
             index = 0
 
@@ -584,7 +582,7 @@ def string_to_path(string):
 
 Remote = namedtuple('Remote', ('name', 'url'))
 
-_top_dir = None
+_TOP_DIR = None
 
 
 def get_top_dir():
@@ -602,14 +600,14 @@ def get_top_dir():
     When executing ../x.py from the current working directory /client-repo/core/, this function returns '/client-repo'
 
     """
-    global _top_dir
-    if _top_dir is None:
+    global _TOP_DIR  # pylint: disable=global-statement
+    if _TOP_DIR is None:
         stack_frames = traceback.extract_stack()
         top_stack_frame = stack_frames[0]
         relative_file_path = top_stack_frame[0]
         absolute_file_path = _sanitize_path(relative_file_path)
-        _top_dir = os.path.dirname(absolute_file_path)
-    return _top_dir
+        _TOP_DIR = os.path.dirname(absolute_file_path)
+    return _TOP_DIR
 
 
 def _sanitize_path(path):

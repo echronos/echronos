@@ -54,8 +54,7 @@ splint --help
 @IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
 %PYTHON% x.py test prj
 @IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
-REM %PYTHON% x.py test units
-REM @IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+REM Unit tests are known to not work on Windows
 %PYTHON% x.py test systems
 @IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
 %PYTHON% x.py build prj

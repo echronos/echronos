@@ -28,12 +28,7 @@
 import os
 import subprocess
 import unittest
-import sys
 from pylib import tests
-
-
-def eprint(*args, **kwargs):
-    print(*args, file=sys.stderr, **kwargs)
 
 
 class TestCase(tests.GdbTestCase):
@@ -44,12 +39,12 @@ class TestCase(tests.GdbTestCase):
 
         # After gdb disconnects from qemu it will execute ridiculously fast and print lots of text.
         # Prevent this from happening by piping qemu's stdout/stderr to /dev/null
-        FNULL = open(os.devnull, 'w')
+        self.fnull = open(os.devnull, 'w')
 
-        args = ('xvfb-run', '-a', 'exec', 'echronos-qemu-system-arm', '-s', '-S', '-mcu', 'STM32F407VG',
-                '-semihosting', '-kernel', self.executable_path, stdout=FNULL, stderr=subprocess.STDOUT)
+        qemu_command = ('xvfb-run', '-a', 'exec', 'echronos-qemu-system-arm', '-s', '-S', '-mcu', 'STM32F407VG',
+                        '-semihosting', '-kernel', self.executable_path)
 
-        self.qemu = subprocess.Popen(args)
+        self.qemu = subprocess.Popen(qemu_command, stdout=self.fnull, stderr=subprocess.STDOUT)
 
     def _get_test_command(self):
         return ('arm-none-eabi-gdb', '--batch', self.executable_path, '-x', self.gdb_commands_path)
@@ -57,3 +52,4 @@ class TestCase(tests.GdbTestCase):
     def tearDown(self):
         self.qemu.terminate()
         self.qemu.wait()
+        self.fnull.close()

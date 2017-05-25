@@ -60,6 +60,11 @@ sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdbser
 sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdb.1.gz --rename /usr/share/man/man1/gdb.1.gz
 sudo apt-get -qq install -y gdb-arm-none-eabi
 
+# echronos-qemu: required for testing ARM systems.
+git clone --depth=1 https://github.com/echronos/qemu ${HOME}/echronos-qemu
+# libfdt-dev libsdl2-image-2.0-0 libsdl2-2.0-0: required by echronos-qemu
+sudo apt-get -qq install -y libfdt-dev libsdl2-image-2.0-0 libsdl2-2.0-0
+
 # workaround for https://github.com/travis-ci/travis-ci/issues/8363
 python${PY_VER} --version || pyenv global system ${PY_VER}
 

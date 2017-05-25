@@ -114,13 +114,6 @@ class TestCase(unittest.TestCase):
         self.assertRaises(_InvalidTaskStateError, task._check_is_accepted)
 
 
-# Workaround for the following tests for the pre-integration check that don't use the Git module
-class DummyGit:
-    def __init__(self, task_name):
-        self.branches = []
-        self.remote_branches = frozenset(["archive/%s" % task_name])
-
-
 # Helper for the pre-integration check tests
 def task_dummy_create(task_name):
     cfg = TaskConfiguration(repo_path=BASE_DIR,

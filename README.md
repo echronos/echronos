@@ -24,10 +24,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 @TAG(NICTA_DOC_AGPL)
   -->
-[![Build Status](https://travis-ci.org/echronos/echronos.svg?branch=master)](https://travis-ci.org/echronos/echronos)
+Core repository:
+[![Core Build Status on Linux](https://travis-ci.org/echronos/echronos.svg?branch=master)](https://travis-ci.org/echronos/echronos)
+[![Core Build Status on Windows](https://ci.appveyor.com/api/projects/status/u0l9tcx3r8x9fwj0/branch/master?svg=true)](https://ci.appveyor.com/project/stefangotz/echronos/branch/master)
 
-[![Build status](https://ci.appveyor.com/api/projects/status/u0l9tcx3r8x9fwj0/branch/master?svg=true)](https://ci.appveyor.com/project/stefangotz/echronos/branch/master)
+Client repository:
+[![Client Build Status on Linux](https://travis-ci.org/echronos/test-client-repo.svg?branch=master)](https://travis-ci.org/echronos/test-client-repo)
+[![Client Build Status on Windows](https://ci.appveyor.com/api/projects/status/wbyntsf0a5crcl62/branch/master?svg=true)](https://ci.appveyor.com/project/stefangotz/test-client-repo/branch/master)
 
+---
 
 # Yes, We Are Open for Business
 

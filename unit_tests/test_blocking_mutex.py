@@ -44,7 +44,7 @@ class TestBlockingMutex(unittest.TestCase):
     def setUpClass(cls):  # pylint: disable=invalid-name
         prj_path = base_path('prj', 'app', 'prj.py')
         command = "build posix.unittest.blocking-mutex"
-        result = os.system("{} {} {}".format(sys.executable, command, prj_path))
+        result = os.system("{} {} {}".format(sys.executable, prj_path, command))
         system = "out/posix/unittest/blocking-mutex/system" + get_executable_extension()
         assert result == 0
         cls.impl = ctypes.CDLL(system)

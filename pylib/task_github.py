@@ -1,6 +1,6 @@
 #
 # eChronos Real-Time Operating System
-# Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+# Copyright (C) 2017  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -25,13 +25,18 @@
 # @TAG(NICTA_AGPL)
 #
 
-from os import environ
 from github import Github
 
 
-def render_pr(pull_req):
-    rmd = "{}{}{}".format(render_header(pull_req), render_reviews(pull_req), render_comments(pull_req))
-    print(rmd)
+def render_pr(pr_number):
+    github = Github()
+    repo = github.get_repo('echronos/echronos')
+    pull_req = repo.get_pull(pr_number)
+    return render_pr_obj(pull_req)
+
+
+def render_pr_obj(pull_req):
+    return "{}{}{}".format(render_header(pull_req), render_reviews(pull_req), render_comments(pull_req))
 
 
 def render_header(pull_req):
@@ -39,14 +44,14 @@ def render_header(pull_req):
 
 {}
 
-_By [{}](mailto:{})_
+_By {}_
 _Base: revision [{}]({}/commits/{}) in [{}]({}/tree/{})_
 _Head: revision [{}]({}/commits/{}) in [{}]({}/tree/{})_
 
 """
     return fmt.format(pull_req.title, pull_req.html_url,
                       pull_req.body,
-                      pull_req.user.name, pull_req.user.email,
+                      render_user(pull_req.user),
                       pull_req.base.sha, pull_req.html_url, pull_req.base.sha, pull_req.base.label,
                       pull_req.base.repo.html_url, pull_req.base.ref,
                       pull_req.head.sha, pull_req.html_url, pull_req.head.sha, pull_req.head.label,
@@ -62,7 +67,7 @@ def render_reviews(pull_req):
         rmd = "# Reviews\n\n"
         for rvw in reviews:
             rmd += "**[{}]({})**  \n".format(rvw.state, rvw.html_url)
-            rmd += "_Author: [{}](mailto:{})_  \n".format(rvw.user.name, rvw.user.email)
+            rmd += "_Author: {}_  \n".format(render_user(rvw.user))
             rmd += "_Revision: [{}]({}/{})_  \n".format(rvw.commit_id, pull_req.commits_url, rvw.commit_id)
             # pylint: disable=protected-access
             rmd += "_Date: {}_  \n".format(rvw._rawData["submitted_at"].replace("T", " ").rstrip("Z"))
@@ -87,7 +92,7 @@ def render_comments(pull_req):
             if hasattr(cmt, "position"):
                 rmd += "_File {}:{}_  \n".format(cmt.path, cmt.position)
                 rmd += "_Revision {}_  \n".format(cmt.commit_id)
-            rmd += "_Author: [{}](mailto:{})_  \n".format(cmt.user.name, cmt.user.email)
+            rmd += "_Author: {}_  \n".format(render_user(cmt.user))
             rmd += "_Date: {}_  \n".format(cmt.updated_at)
             rmd += "_Link: {}_  \n".format(cmt.html_url)
             rmd += "> {}\n\n---\n\n".format(cmt.body.replace("\n", "\n> "))
@@ -97,9 +102,14 @@ def render_comments(pull_req):
     return rmd
 
 
-if __name__ == "__main__":
-    GITHUB = Github("stgstgstg", environ['GITHUB_PASSWORD'])
+def render_user(user):
+    if user.email:
+        return "[{}](mailto:{})".format(user.name, user.email)
+    return user.name
 
-    for repo in GITHUB.get_user().get_repos():
-        for pull in repo.get_pulls():
-            render_pr(pull)
+if __name__ == "__main__":
+    # GITHUB = Github("stgstgstg", environ['GITHUB_PASSWORD'])
+    # for repo in GITHUB.get_user().get_repos():
+    #     for pull in repo.get_pulls():
+    #         print(render_pr_obj(pull))
+    print(render_pr_obj(Github().get_repo("stgstgstg/testrepo").get_pull(2)))

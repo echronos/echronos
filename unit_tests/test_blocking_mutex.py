@@ -42,8 +42,9 @@ class MutexStruct(ctypes.Structure):
 class TestBlockingMutex(unittest.TestCase):
     @classmethod
     def setUpClass(cls):  # pylint: disable=invalid-name
-        result = os.system("{} {} build posix.unittest.blocking-mutex".format(sys.executable,
-                                                                              base_path('prj', 'app', 'prj.py')))
+        prj_path = base_path('prj', 'app', 'prj.py')
+        command = "build posix.unittest.blocking-mutex"
+        result = os.system("{} {} {}".format(sys.executable, command, prj_path))
         system = "out/posix/unittest/blocking-mutex/system" + get_executable_extension()
         assert result == 0
         cls.impl = ctypes.CDLL(system)

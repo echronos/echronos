@@ -14,3 +14,5 @@ Comment: Cosmetics: would it be worth splitting up this line into several? It
          command = "build posix.unittest.blocking-mutex"
          result = os.system("{} {} {}".format(sys.executable, command, prj_path)
 
+[stg: good point.
+Resolved as suggested.]

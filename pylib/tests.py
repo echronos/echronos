@@ -190,11 +190,12 @@ def _run_pylint(excludes, print_file_paths=False):
 
     pylint_runs = (PylintRun(search_paths=(('', False),
                                            ('pylib', True),
-                                           ('rtos', True)),
+                                           ('unit_tests', True)),
                              library_paths=tuple()),
                    PylintRun(search_paths=(('components', True),
                                            ('packages', True),
-                                           (os.path.join('prj', 'app'), True)),
+                                           (os.path.join('prj', 'app'), True),
+                                           (os.path.join('prj', 'example'), True)),
                              library_paths=(os.path.join('prj', 'app'),
                                             os.path.join('prj', 'app', 'lib'),
                                             os.path.join('prj', 'app', 'ply'))))

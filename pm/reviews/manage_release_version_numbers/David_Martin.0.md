@@ -17,7 +17,11 @@ Comment: Would it be worth mentioning that two accepting reviews have to be crea
          this, the `git reset --hard HEAD~1` would have to be updated as well
          though.
 
+[stg: resolved as suggested]
+
 Location: pm/tasks/manage_release_version_numbers:54
 Comment: > Run `git checkout manage_release_version_numbers` to switch back to this task.
          Not an actual review comment but an observation. This is one of the git
          niceties: `git checkout -` switches to the previous branch. :)
+
+[stg: resolved as suggested]

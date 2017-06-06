@@ -28,17 +28,19 @@
 import ctypes
 import os
 import sys
+import unittest
 
-from rtos import sched
-from pylib.utils import get_executable_extension
+from unit_tests import sched
+from pylib.utils import get_executable_extension, base_path
 
 
-class testRrSched:  # pylint: disable=invalid-name
+class TestRrSched(unittest.TestCase):
     @classmethod
     def setUpClass(cls):  # pylint: disable=invalid-name
-        r = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.sched-rr")
+        result = os.system("{} {} build posix.unittest.sched-rr"
+                           .format(sys.executable, base_path('prj', 'app', 'prj.py')))
         system = "out/posix/unittest/sched-rr/system" + get_executable_extension()
-        assert r == 0
+        assert result == 0
         cls.impl = ctypes.CDLL(system)
         cls.impl_sched = ctypes.POINTER(sched.get_rr_sched_struct(10)).in_dll(cls.impl, 'pub_sched_tasks')[0]
 
@@ -49,16 +51,17 @@ class testRrSched:  # pylint: disable=invalid-name
             assert self.impl_sched == model
 
         states = sched.RrSchedModel.states(10, assume_runnable=True)
-        for idx, state in enumerate(states):
-            yield "check_state.{}".format(idx), check_state, state
+        for state in states:
+            check_state(state)
 
 
-class testPrioSched:  # pylint: disable=invalid-name
+class TestPrioSched(unittest.TestCase):
     @classmethod
     def setUpClass(cls):  # pylint: disable=invalid-name
-        r = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.sched-prio")
+        result = os.system("{} {} build posix.unittest.sched-prio"
+                           .format(sys.executable, base_path('prj', 'app', 'prj.py')))
         system = "out/posix/unittest/sched-prio/system" + get_executable_extension()
-        assert r == 0
+        assert result == 0
         cls.impl = ctypes.CDLL(system)
         cls.impl_sched = ctypes.POINTER(sched.get_prio_sched_struct(10)).in_dll(cls.impl, 'pub_sched_tasks')[0]
 
@@ -69,18 +72,19 @@ class testPrioSched:  # pylint: disable=invalid-name
             assert self.impl_sched == model
 
         states = sched.PrioSchedModel.states(10, assume_runnable=True)
-        for idx, state in enumerate(states):
-            yield "check_state.{}".format(idx), check_state, state
+        for state in states:
+            check_state(state)
 
 
-class testPrioInheritSched:  # pylint: disable=invalid-name
+class TestPrioInheritSched(unittest.TestCase):
     test_size = 5
 
     @classmethod
     def setUpClass(cls):  # pylint: disable=invalid-name
-        r = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.sched-prio-inherit")
+        result = os.system("{} {} build posix.unittest.sched-prio-inherit"
+                           .format(sys.executable, base_path('prj', 'app', 'prj.py')))
         system = "out/posix/unittest/sched-prio-inherit/system" + get_executable_extension()
-        assert r == 0
+        assert result == 0
         cls.impl = ctypes.CDLL(system)
         pub_sched_tasks = ctypes.POINTER(sched.get_prio_inherit_sched_struct(cls.test_size))
         cls.impl_sched = pub_sched_tasks.in_dll(cls.impl, 'pub_sched_tasks')[0]
@@ -96,5 +100,5 @@ class testPrioInheritSched:  # pylint: disable=invalid-name
             assert self.impl_sched == model
 
         states = sched.PrioInheritSchedModel.states(self.test_size, assume_runnable=True)
-        for idx, state in enumerate(states):
-            yield "check_state.{}".format(idx), check_state, state
+        for state in states:
+            check_state(state)

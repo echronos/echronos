@@ -29,8 +29,9 @@ import ctypes
 import itertools
 import os
 import sys
+import unittest
 
-from pylib.utils import get_executable_extension
+from pylib.utils import get_executable_extension, base_path
 
 NUM_SEMAPHORES = 10
 ALL_SEMAPHORES = list(range(NUM_SEMAPHORES))
@@ -45,10 +46,11 @@ class SemaphoreStruct(ctypes.Structure):
     _fields_ = [("value", ctypes.c_ubyte)]
 
 
-class SemaphoreTest:
+class SemaphoreTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):  # pylint: disable=invalid-name
-        result = os.system(sys.executable + " ./prj/app/prj.py build posix.unittest.simple-semaphore")
+        result = os.system("{} {} build posix.unittest.simple-semaphore"
+                           .format(sys.executable, base_path('prj', 'app', 'prj.py')))
         system = "out/posix/unittest/simple-semaphore/system" + get_executable_extension()
         assert result == 0
         cls.impl = ctypes.CDLL(system)

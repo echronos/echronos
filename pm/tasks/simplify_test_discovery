@@ -1,0 +1,18 @@
+# Motivation
+
+The _xunittest_ Python module implements a test discovery mechanism that extends on the default logic in the _unittest_ package included in the Python standard library.
+However, the extra functionality provided by _xunittest_ is largely unused and easily replaced with _unittest_ standard functionality.
+Removing the _xunittest_ module helps to reduce the maintenance effort for the project.
+
+
+# Goals
+
+- remove the _xunittest_ Python module
+- where necessary, replace it with functionality from the _unittest_ package
+
+
+# Test Plan
+
+- all existing regression tests must pass
+- ensure that the same number of regression tests are executed on this and the upstream branch
+- code review

@@ -39,7 +39,6 @@ from collections import namedtuple
 import multiprocessing
 import pycodestyle
 
-from .xunittest import discover_tests, TestSuite, SimpleTestNameResult, testcase_matches, testsuite_list
 from .release import _LicenseOpener
 from .utils import get_executable_extension, BASE_DIR, find_path, base_to_top_paths, walk, base_path, get_top_dir
 from .cmdline import subcmd, Arg
@@ -56,21 +55,24 @@ _STD_SUBCMD_ARGS = (
 @subcmd(cmd="test", args=_STD_SUBCMD_ARGS)
 def prj(args):
     """Run tests associated with prj modules."""
-    modules = ['prj', 'util']
-    directories = [find_path(os.path.join('prj', 'app'), args.topdir),
-                   find_path(os.path.join('prj', 'app', 'pystache'), args.topdir),
-                   find_path(os.path.join('prj', 'app', 'lib'), args.topdir)]
+    with _python_path(os.path.join(BASE_DIR, 'prj', 'app', 'lib')):
+        rel_dirs = (os.path.join('prj', 'app', 'pystache'),
+                    os.path.join('prj', 'app'),
+                    os.path.join('prj', 'app', 'lib'))
 
-    return _run_module_tests_with_args(modules, directories, args)
+        for rel_dir in rel_dirs:
+            for dir_path in base_to_top_paths(args.topdir, rel_dir):
+                tests = unittest.TestLoader().discover(dir_path)
+                result = unittest.TextTestRunner().run(tests)
+                if not result.wasSuccessful():
+                    return 2
+
+    return 0
 
 
 @subcmd(cmd="test", args=_STD_SUBCMD_ARGS)
-def x(args):  # pylint: disable=invalid-name
-    """Run x-related tests."""
-    modules = ['x']
-    directories = ['.']
-
-    return _run_module_tests_with_args(modules, directories, args)
+def x(_):  # pylint: disable=invalid-name
+    return unittest.main(module="x_test", argv=[''])
 
 
 @subcmd(cmd="test")
@@ -83,82 +85,15 @@ def pystache(args):
 @subcmd(cmd="test", args=_STD_SUBCMD_ARGS)
 def units(args):
     """Run rtos unit tests."""
-    modules = ['rtos']
-    directories = ['.']
-
-    return _run_module_tests_with_args(modules, directories, args)
-
-
-def _run_module_tests_with_args(modules, directories, args):
-    """Call a fixed set of modules in specific directories, deriving all input for a call to _run_module_tests() from
-    the given command line arguments.
-
-    See `run_modules_tests` for more information.
-
-    """
-    patterns = args.tests
-    verbosity = 0
-    if args.verbose:
-        verbosity = 1
-    if args.quiet:
-        verbosity = -1
-    print_only = args.list
-    topdir = args.topdir
-
-    return _run_module_tests(modules, directories, patterns, verbosity, print_only, topdir)
-
-
-# pylint: disable=too-many-arguments
-def _run_module_tests(modules, directories, patterns=None, verbosity=0, print_only=False, topdir=""):
-    """Discover and run the tests associated with the given modules and located in the given directories.
-
-    'modules' is list of module names as a sequence of strings.
-    Only tests related to these modules are to be discovered.
-
-    'directories' is a list of relative directory names as a sequence of strings.
-    Only tests located in these directories are to be discovered.
-
-    'patterns' is a list of test name patterns as a sequence of strings.
-    If 'patterns' is not empty, only the tests whose names match one of the patterns are honored and all other
-    discovered tests are ignored.
-    If 'patterns' is empty, all discovered tests are honored.
-
-    The integer 'verbosity' controls the amount of generated console output when executing the tests.
-    A value of 0 selects the default verbosity level, positive values increase it, negative values reduce it.
-
-    If the boolean 'print_only' is True, the discovered tests are printed on the console but not executed.
-
-    Returns a process exit code suitable for passing to sys.exit().
-    The return values is 0 if there are no test failures and non-zero if there were test failures.
-
-    """
-    result = 0
-
-    paths = [os.path.join(topdir, dir) for dir in directories]
-    if all([os.path.exists(p) for p in paths]):
-        with _python_path(*paths):
-            all_tests = discover_tests(*modules)
-
-            if patterns:
-                tests = (t for t in all_tests if any(testcase_matches(t, p) for p in patterns))
-            else:
-                tests = all_tests
-
-            suite = TestSuite(tests)
-
-            if print_only:
-                testsuite_list(suite)
-            else:
-                base_verbosity = 1
-                runner = unittest.TextTestRunner(resultclass=SimpleTestNameResult,
-                                                 verbosity=base_verbosity + verbosity)
-                run_result = runner.run(suite)
-                if run_result.wasSuccessful() and run_result.testsRun > 0:
-                    result = 0
-                else:
-                    result = 1
-
-    return result
+    tests_run = 0
+    was_successful = True
+    for path in base_to_top_paths(args.topdir, 'unit_tests'):
+        result = unittest.main(module=None, argv=['', 'discover', '-s', path]).result
+        tests_run += result.testsRun
+        was_successful = was_successful and result.wasSuccessful()
+    if tests_run > 0 and was_successful:
+        return 0
+    return 1
 
 
 @contextmanager
@@ -471,7 +406,8 @@ def systems(args):
         for packages_dir in base_to_top_paths(args.topdir, 'packages'):
             tests.extend(find_gdb_test_py_files(packages_dir))
 
-    if unittest.main(module=None, argv=[''] + args.unknown_args + tests).result.wasSuccessful():
+    result = unittest.main(module=None, argv=[''] + args.unknown_args + tests).result
+    if result.testsRun > 0 and result.wasSuccessful():
         return 0
     return 1
 

@@ -9,6 +9,8 @@ Comment: > self._git.commit('{}\nUpdate {} number of release version .'.format(.
          full stop. When seeing it in the commit message it reads like there is
          something missing.
 
+[stg: indeed - removed whitespace as suggested.]
+
 Location: pm/tasks/manage_release_version_numbers:49
 Comment: Would it be worth mentioning that two accepting reviews have to be created
          to run `task.py integrate --offline`? Might be obvious. But, if we update

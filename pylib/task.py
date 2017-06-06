@@ -187,7 +187,7 @@ class Task:
     def _update_release_version(self, offline=False):
         release_cfg_path = self._update_release_version_file()
         self._git.add(files=[release_cfg_path])
-        self._git.commit('{}\nUpdate {} number of release version .'.format(self.name, self._get_release_impact()),
+        self._git.commit('{}\nUpdate {} number of release version.'.format(self.name, self._get_release_impact()),
                          files=[release_cfg_path])
         if not offline:
             self._git.push()

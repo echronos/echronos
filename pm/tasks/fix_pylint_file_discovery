@@ -1,0 +1,21 @@
+# Motivation
+
+The command `x.py test style` currently produces the output
+
+    Analyzed 74 files with pycodestyle
+    Analyzed 66 files with pylint
+
+This suggests that pylint discovers fewer Python files to analyze than pycodestyle.
+This may indicate a gap in the test coverage.
+
+
+# Goals
+
+- Ensure that pylint and pycodestyle analyze all project-specific Python files
+
+
+# Test Plan
+
+- Verify that all existing regression tests pass.
+- Verify that the changes meet the task goals and follow project conventions.
+- Verify that the command `x.py test style` reports approximately the same number of files analyzed by pycodestyle and pylint.

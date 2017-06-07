@@ -74,7 +74,7 @@ function-rgx=[a-z_][a-z0-9_]{2,99}$
 
 # Regular expression matching correct module names
 # This list includes a number of names of existing modules as a temporary work-around so that the module files do not need to re-named.
-module-rgx=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+)|blocking-mutex-test|sched-prio-inherit-test|sched-prio-test|sched-rr-test|simple-mutex-test|simple-semaphore-test|interrupt-buffering-example|interrupt-demux-example|machine-fp|p2020-util|task-echo-example|task-sync-example|acamar-system|gatria-system|kraz-system|default-linker|acamar-config-demo|fp-test|sched-demo|sem-demo|signal-demo|timer-test)$
+module-rgx=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+)|blocking-mutex-test|sched-prio-inherit-test|sched-prio-test|sched-rr-test|simple-mutex-test|simple-semaphore-test|interrupt-buffering-example|interrupt-demux-example|machine-fp|p2020-util|task-echo-example|task-sync-example|acamar-system|gatria-system|kraz-system|default-linker|acamar-config-demo|fp-test|sched-demo|sem-demo|signal-demo|timer-test|posix-build)$
 
 
 [FORMAT]

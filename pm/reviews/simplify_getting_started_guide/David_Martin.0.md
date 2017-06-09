@@ -21,3 +21,5 @@ Not sure if this is out of scope for this task though.
 
 Location: README.md:91
 Comment: The command should be './bin/prj.sh build posix.acamar'
+
+[stg: resolved as suggested]

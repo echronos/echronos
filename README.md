@@ -88,7 +88,7 @@ On Windows, obtain and install Python 3 from [python.org](https://www.python.org
 The following commands build a simple version of the eChronos RTOS together with a small example application:
 
     cd eChronos-posix-VERSION
-    ./prj/prj.sh build posix.acamar
+    ./bin/prj.sh build posix.acamar
 
 On Windows, run `prj\prj` instead of `./prj/prj.sh`.
 This produces the binary `out/posix/acamar/system` (`system.exe` on Windows).

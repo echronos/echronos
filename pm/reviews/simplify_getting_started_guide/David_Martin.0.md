@@ -18,6 +18,8 @@ sections might help with this. Even if it is just the toplevel sections as in
 
 Not sure if this is out of scope for this task though.
 
+[stg: split README.md into multiple files]
+
 
 Location: README.md:91
 Comment: The command should be './bin/prj.sh build posix.acamar'

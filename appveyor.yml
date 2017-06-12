@@ -32,7 +32,7 @@ branches:
         - abandoned/*
 clone_depth: 1
 environment:
-    PATH: C:\msys64\mingw64\bin;%PATH%;C:\Program Files\Git\cmd
+    PATH: "%PATH%;C:\\Program Files\\Git\\cmd"
     matrix:
         - PYTHON: "C:\\Python36-x64\\python"
         - PYTHON: "C:\\Python35-x64\\python"

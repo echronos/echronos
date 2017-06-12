@@ -27,6 +27,8 @@ REM
 REM @TAG(NICTA_AGPL)
 REM
 
+C:\cygwin64\setup-x86_64.exe -q -P gdb
+
 REM If the master branch does not exist locally, create it because some tests rely on it
 git rev-parse --verify master >nul 2>&1
 IF %ERRORLEVEL% NEQ 0 (

@@ -28,16 +28,37 @@ REM @TAG(NICTA_AGPL)
 REM
 
 set PATH=C:\splint-3.1.1\bin;%PATH%
-IF NOT DEFINED PYTHON set PYTHON="py -3"
+IF NOT DEFINED PYTHON set PYTHON=py -3
 IF NOT DEFINED COREDIR set COREDIR=.
 
 ECHO ON
+
+FOR %%P in ("C:\cygwin64\usr\bin;C:\cygwin64\bin" "C:\msys64\usr\bin;C:\msys64\bin") DO (CALL :runtestswithpath %%P)
+GOTO :eof
+
+
+:runtestswithpath
+@IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+
+SET OLDPATH=%PATH%
+SET PATH=%~1;%PATH%
+CALL :runtests
+SET TESTRESULT=%ERRORLEVEL%
+SET PATH=%OLDPATH%
+
+EXIT /B %TESTRESULT%
+
+
+:runtests
+@IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
 
 %PYTHON% --version
 @IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
 git --version
 @IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
 gcc --version
+@IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+gdb --version
 @IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
 splint --help
 @IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
@@ -55,7 +76,10 @@ splint --help
 %PYTHON% x.py test prj
 @IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
 REM Unit tests are known to not work on Windows
-%PYTHON% x.py test systems
+REM %PYTHON% x.py test units
+REM @IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+REM system tests on msys only work if invoked directly from an msys shell (instead of a batch file)
+ECHO %PATH% | FINDSTR msys64 > NUL || %PYTHON% x.py test systems
 @IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
 %PYTHON% x.py build prj
 @IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
@@ -98,3 +122,5 @@ REM Unit tests are known to not work on Windows
 @IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
 %PYTHON% x.py build release
 @IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+
+GOTO :eof

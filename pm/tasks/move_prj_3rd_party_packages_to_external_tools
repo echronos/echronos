@@ -16,6 +16,9 @@ Therefore, the `x.py` tool needs to specifically manipulate the Python search pa
 - The build process for the `prj` utility shall be updated so that it continues to include the packages in the `prj` executable.
 
 
+# Release Impact: Patch
+
+
 # Test Plan
 
 - Verify that all existing regression tests pass.

@@ -11,6 +11,9 @@ This avoids cross-platform tool chains and ensures that new developers start out
 - The new guide shall focus on working with RTOS releases instead of the source distribution to hide the complexities of code weaving with x.py.
 
 
+# Release Impact: Patch
+
+
 # Test Plan
 
 - Review the changes introduced by this task, attempt to follow the new "Getting Started" guide, and provide feedback.

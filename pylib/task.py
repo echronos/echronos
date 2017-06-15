@@ -30,11 +30,11 @@ import difflib
 import os
 import shutil
 import subprocess
-from .utils import Git, string_to_path, walk
+from .utils import Git, string_to_path, walk, LineFilter, update_file, get_release_version
 
 
 TaskConfiguration = namedtuple('TaskConfiguration', ('repo_path', 'tasks_path', 'description_template_path',
-                                                     'reviews_path', 'mainline_branch'))
+                                                     'reviews_path', 'mainline_branch', 'manage_release_version'))
 
 
 class Task:
@@ -95,24 +95,32 @@ class Task:
         if not offline:
             self._git.push(self.name, set_upstream=True)
 
-        task_fn = os.path.join(self.cfg.repo_path, self.cfg.tasks_path, self.name)
-        shutil.copyfile(self.cfg.description_template_path, task_fn)
-        self._git.add([task_fn])
+        shutil.copyfile(self.cfg.description_template_path, self._description_path)
+        self._git.add([self._description_path])
 
         print('1. edit file "{}"\n'
               '2. commit via #> git commit -m "New task: {}" {}\n'
-              '3. push task to remote repository via #> git push'.format(task_fn, self.name, task_fn))
+              '3. push task to remote repository via #> git push'.format(self._description_path, self.name,
+                                                                         self._description_path))
 
-    def integrate(self):
-        self._check_and_prepare(offline=False)
+    def integrate(self, offline=False):
+        self._check_and_prepare(offline=offline)
         if not self._is_on_review():
             raise _InvalidTaskStateError('The task {} is not on review.'.format(self.name))
         self._check_is_accepted()
 
+        if self.cfg.manage_release_version:
+            release_cfg_path = self._update_release_version(offline=offline)
         self._git.checkout(self.cfg.mainline_branch)
         self._git.merge_into_active_branch(self._mainline_tracking_branch, '--ff-only', '--no-squash')
         self._git.merge_into_active_branch(self.name, '--no-squash')
-        self._git.push()
+        if self.cfg.manage_release_version:
+            tag_name = 'v' + '.'.join(str(part) for part in get_release_version(release_cfg_path))
+            self._git.tag(tag_name, 'master')
+        if not offline:
+            self._git.push()
+            if self.cfg.manage_release_version:
+                self._git.push(tag_name)
 
     def _check_is_accepted(self):
         """Check whether all authors of completed reviews arrive at the 'accepted' conclusion in their final reviews,
@@ -175,6 +183,50 @@ class Task:
 
         if not offline:
             self._git.push()
+
+    def _update_release_version(self, offline=False):
+        release_cfg_path = self._update_release_version_file()
+        self._git.add(files=[release_cfg_path])
+        self._git.commit('{}\nUpdate {} number of release version.'.format(self.name, self._get_release_impact()),
+                         files=[release_cfg_path])
+        if not offline:
+            self._git.push()
+        return release_cfg_path
+
+    def _update_release_version_file(self):
+        prefix = '    version = '
+        release_impact = self._get_release_impact()
+
+        def matches(_, line, __, ___):
+            return line.startswith(prefix)
+
+        def replace(_, line, line_no, path):
+            try:
+                current_version_str = line.split(prefix)[1].strip().strip("'")
+                major, minor, patch = (int(part) for part in current_version_str.split('.'))
+            except (IndexError, ValueError):
+                raise _InvalidVersionError('Unable to parse release version in line {} ("{}") of the release '
+                                           'configuration file "{}"'.format(line_no, line, path))
+            if release_impact == 'major':
+                major += 1
+                minor = 0
+                patch = 0
+            elif release_impact == 'minor':
+                minor += 1
+                patch = 0
+            elif release_impact == 'patch':
+                patch += 1
+            return "{}'{}.{}.{}'\n".format(prefix, major, minor, patch)
+
+        def handle_no_matches(_, path):
+            raise _InvalidVersionError('Unable to find release version number based on prefix "{}" in release '
+                                       'configuration file "{}"'.format(prefix, path))
+
+        release_cfg_path = os.path.join(self.cfg.repo_path, 'release_cfg.py')
+        version_line_filter = LineFilter(matches, replace, handle_no_matches)
+        update_file(release_cfg_path, (version_line_filter,), only_if_all_matched=True)
+
+        return release_cfg_path
 
     def review(self, offline=False, accept=False):
         self._check_and_prepare(offline=offline)
@@ -287,6 +339,36 @@ This is necessary for our review system to work as expected.')
     def _is_valid_name(name):
         return all([c.isalnum() or c in ('-', '_') for c in name])
 
+    def _get_release_impact(self):
+        """Return the release impact of the current task as documented in the task's description.
+
+        This function either returns one of 'major', 'minor', or 'patch' or it raises an _InvalidReleaseImpactError.
+        """
+        prefix = '# Release Impact:'
+        valid_values = frozenset(('major', 'minor', 'patch'))
+        with open(self._description_path) as file_obj:
+            for line_no, line in enumerate(file_obj, 1):
+                if line.startswith(prefix):
+                    try:
+                        release_impact = line.split(prefix)[1].strip().lower()
+                    except IndexError:
+                        raise _InvalidReleaseImpactError('Unable to parse level of release impact from line {} ("{}")'
+                                                         ' in task description file "{}"'
+                                                         .format(line_no, line, self._description_path))
+                    if release_impact not in valid_values:
+                        raise _InvalidReleaseImpactError('The release impact value "{}" on line {} ("{}") in task '
+                                                         'description file "{}" is not among the acceptable values '
+                                                         '"{}"'.format(release_impact, line_no, line,
+                                                                       self._description_path, valid_values))
+                    return release_impact
+
+        raise _InvalidReleaseImpactError('Unable to find section "{}" in task description file "{}"'
+                                         .format(prefix, self._description_path))
+
+    @property
+    def _description_path(self):
+        return os.path.join(self.cfg.repo_path, self.cfg.tasks_path, self.name)
+
 
 class _Review:
     def __init__(self, file_path):
@@ -345,4 +427,12 @@ class _InvalidTaskNameError(RuntimeError):
 
 
 class _InconsistentUserNameError(RuntimeError):
+    pass
+
+
+class _InvalidReleaseImpactError(Exception):
+    pass
+
+
+class _InvalidVersionError(Exception):
     pass

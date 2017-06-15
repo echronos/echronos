@@ -35,9 +35,18 @@ sys.path.append(os.path.dirname(__file__))
 # pylint: disable=wrong-import-position
 from pylib import task_commands  # pylint: disable=unused-import
 from pylib.cmdline import add_commands_to_parser
+from pylib.task import TaskConfiguration
+from pylib.utils import TOP_DIR, BASE_DIR
+
+TASK_CFG = TaskConfiguration(repo_path=TOP_DIR,
+                             tasks_path=os.path.join('pm', 'tasks'),
+                             description_template_path=os.path.join(BASE_DIR, '.github', 'PULL_REQUEST_TEMPLATE.md'),
+                             reviews_path=os.path.join('pm', 'reviews'),
+                             mainline_branch='master',
+                             manage_release_version=True)
 
 
-def main():
+def main(task_cfg=TASK_CFG):
     parser = argparse.ArgumentParser(prog='task.py')
     add_commands_to_parser(globals(), parser)
     args = parser.parse_args()
@@ -47,7 +56,7 @@ def main():
         # command or subcommand
         parser.print_help()
     else:
-        args.execute(args)
+        args.execute(task_cfg, args)
 
 
 if __name__ == "__main__":

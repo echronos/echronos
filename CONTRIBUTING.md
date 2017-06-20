@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 You are new around here?
 Welcome to the project - we are glad to have you!
 
-If you have any questions, send us an e-mail to echronos@trustworthy.systems or tweet at us @echronosrtos.
+If you have any questions, send us an e-mail to echronos@trustworthy.systems or tweet at us [@echronosrtos](https://twitter.com/echronosrtos).
 
 If there is something in the project that you think is worth improving, please create a [github issue](https://github.com/echronos/echronos/issues).
 
@@ -68,7 +68,7 @@ It revolves around task branches (similar to branches and pull requests on githu
 
 A core goal of this approach is to create an audit trail within git, so all task descriptions, reviews, and comments are files in the git repository.
 
-[`internal-docs/task_management.md`](internal-docs/task_management.md) documents the details of this workflow and how our tools help with it.
+[The _Task Management_ section of the README](README.md#task-management) documents the details of this workflow and how our tools help with it.
 
 ## Contributor Agreements
 

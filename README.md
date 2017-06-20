@@ -90,7 +90,7 @@ You need the following tools installed and ready to go:
 - GCC compiler + GNU binutils
 
 On Linux, use your package manager to install these tools.
-On Windows, obtain and install Python 3 from [python.org](https://www.python.org) and install either [Cygwin](https://cygwin.com) or [MinGW](http://mingw.org) including the GCC compiler.
+On Windows, obtain and install Python 3 from [python.org](https://www.python.org) and install either [Cygwin](https://cygwin.com) or [MSys2](http://www.msys2.org/) including the GCC compiler.
 
 ## Build (Linux and Windows)
 

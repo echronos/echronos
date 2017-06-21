@@ -84,13 +84,7 @@ then
     python${PY_VER} -m pip --version
 fi
 
-# Install pylint Python package to be able to run "x.py test style"
-# On Travis CI's Python 3.6, pylint causes Python to hang.
-# Therefore, do not install it on that configuration.
-if [ "${PY_VER}" != "3.6" ]
-then
-    python${PY_VER} -m pip install --user pylint
-fi
+python${PY_VER} -m pip install --user pylint
 
 # install GDB with PowerPC support from source; required by x.py test systems
 # unpack gdb tar ball to home directory to prevent tests below from discovering and failing on unrelated files

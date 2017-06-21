@@ -18,3 +18,5 @@ Comment: The rtos link does not work. Should it be pointing to unit_tests instea
 
 Location: README.md:592
 Comment: [Providing Reviews] should be [Provide Reviews] for the link to work.
+
+[stg: resolved all issues by updating these links and ensuring that they work now]

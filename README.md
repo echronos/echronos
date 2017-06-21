@@ -284,7 +284,7 @@ Build and run an example system for the RTOS variant *Kochab* on QEMU-emulated P
 Basic RTOS concepts and usage are documented in README file and the [`docs`](docs) directory.
 
 More detailed documentation for the `x.py` tool can be found inside [`x.py`](x.py) itself.
-More detailed documentation for the `prj` tool can be found in [`prj/manual/prj-user-manual`](prj/manual/prj-user-manual).
+More detailed documentation for the `prj` tool can be found in [`prj/manual/prj-user-manual.md`](prj/manual/prj-user-manual.md).
 
 Pregenerated RTOS API manuals can be found on the [eChronos GitHub wiki](https://github.com/echronos/echronos/wiki) or you can [build them yourself](#building-user-documentation).
 
@@ -520,15 +520,15 @@ The [`prj`](prj) directory contains everything related to the `prj` tool, which 
 The `release` directory is created by `x.py`, and contains all releasable artifacts such as product releases.
 
 The [`external_tools`](external_tools) and [`tools`](tools) directories contain external tools committed to the repository in order for the repository to be self-contained in its ability to provide everything that is needed for development.
-See [`external_tools/LICENSE.txt`](external_tools/LICENSE.txt) and [`tools/LICENSE.txt`](tools/LICENSE.txt) for license information regarding the contents of these directories.
+See [`external_tools/LICENSE.md`](external_tools/LICENSE.md) and [`tools/LICENSE.md`](tools/LICENSE.md) for license information regarding the contents of these directories.
 
 The [`pm`](pm) directory contains project management related meta-data.
 This meta-data is crucial for documenting that our internal development processes are correctly followed, as well as providing a record for external audit.
-The feature documentation for development tasks resides in [`pm/tasks`](./.pm/tasks), and their reviews can be found under [`pm/reviews`](pm/reviews).
+The feature documentation for development tasks resides in [`pm/tasks`](pm/tasks), and their reviews can be found under [`pm/reviews`](pm/reviews).
 
 The [`docs`](docs) directory contains various release documentation-related content, including templates for auto-generated manuals and top-level README files for product releases.
 
-The [`rtos`](rtos) directory contains a model of the RTOS schedulers implemented in Python for testing purposes.
+The [`unit_tests`](unit_tests) directory contains unit-test code, including a model of the RTOS schedulers implemented in Python.
 
 
 # Task management
@@ -589,7 +589,7 @@ This is necessary to keep the audit trail intact that the review process establi
 
 1. When a developer considers a task ready for integration, they run `task.py request_reviews`.
 Make sure that all regression tests pass and notify reviewers.
-2. Reviewers provide their feedback as described under [Providing Reviews] below, resulting in the review conclusion *accepted* or *rework*.
+2. Reviewers provide their feedback as described under [Provide Reviews] below, resulting in the review conclusion *accepted* or *rework*.
 3. When a reviewer asks for a task to be reworked, the developer needs to resolve all concerns raised in the review until that same reviewer provides another review in which they accept the updates and the task branch as a whole.
 
 Steps 2 and 3 of the review process continue until there are at least two *accepted* conclusions *and* no more *rework* conclusions.

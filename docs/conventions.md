@@ -72,3 +72,9 @@ Architecture specific code, such as the interrupt or timer components and module
 3zAfAI: The term 'eChronos' shall not be used in documentation and code unless necessary for disambiguation or marketing purposes.
 To avoid any misuse of the term, it shall not be used at all in documentation and code (instead, 'the RTOS' or a similar term may be used).
 Rationale: to use eChronos as an unregistered trademark, it shall be used as an adjective, not a noun (see task Z2CK2B-echronos_as_unregistered_trademark).
+
+09aou0: The Python code of the project shall be compatible with the two most recent stable versions of Python 3.
+Rationale: The Python project officially supports the two most recent stable versions of Python 3, in particular by providing security updates.
+Users of the eChronos RTOS therefore have a vested interest in using these Python versions, so the project shall support them.
+Not needing to support older Python versions reduces the maintenance burden on the eChronos RTOS.
+Regression tests may additionally target older Python versions to make incompatibilities visible, but only if this can be achieved with little overhead on the regression test setups.

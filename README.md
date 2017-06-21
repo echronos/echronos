@@ -589,7 +589,7 @@ This is necessary to keep the audit trail intact that the review process establi
 
 1. When a developer considers a task ready for integration, they run `task.py request_reviews`.
 Make sure that all regression tests pass and notify reviewers.
-2. Reviewers provide their feedback as described under [Provide Reviews] below, resulting in the review conclusion *accepted* or *rework*.
+2. Reviewers provide their feedback as described under [Provide Reviews](#provide-reviews) below, resulting in the review conclusion *accepted* or *rework*.
 3. When a reviewer asks for a task to be reworked, the developer needs to resolve all concerns raised in the review until that same reviewer provides another review in which they accept the updates and the task branch as a whole.
 
 Steps 2 and 3 of the review process continue until there are at least two *accepted* conclusions *and* no more *rework* conclusions.

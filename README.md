@@ -34,14 +34,27 @@ Client repository:
 
 ---
 
+# Table of Contents
+
+- [Overview](#overview)
+- [Quick-start for Linux and Windows](#quick-start-for-linux-and-windows)
+- [Quick-start for ARMv7m](#quick-start-for-armv7m)
+- [Quick-start for PowerPC](#quick-start-for-powerpc-e500-targets)
+- [Documentation](#documentation)
+- [Software model](#software-model)
+- [Common development tasks](#common-development-tasks)
+- [Repository structure](#repository-structure)
+- [Task management](#task-management)
+- [Project conventions](docs/conventions.md)
+- [Design considerations](docs/design.md)
+
 # Yes, We Are Open for Business
 
-If you have any questions, send us an e-mail to echronos@trustworthy.systems or tweet at us @echronosrtos.
+If you have any questions, send us an e-mail to echronos@trustworthy.systems or tweet at us [@echronosrtos](https://twitter.com/echronosrtos).
 
 If there is something in the project that you think is worth improving, please create a [github issue](https://github.com/echronos/echronos/issues).
 
 Of course, we are also keen on your changes and contributions if you have any - [here is a primer](CONTRIBUTING.md).
-
 
 # Overview
 
@@ -53,14 +66,118 @@ To this end, the RTOS code base is designed to be highly modular and configurabl
 Available implementations currently target ARM Cortex-M4 and PowerPC e500.
 The RTOS also runs on POSIX platforms (e.g., Linux, MacOS-X, Windows with cygwin or MinGW) for rapid prototyping.
 
-To obtain the source code, use the following commands:
 
-    git clone --depth=1 https://github.com/echronos/echronos.git
+# Quick-start for Linux and Windows
+
+Get a first impression of how the RTOS is being used without delving into the details of any embedded hardware platform.
+This section covers how to build and run a simple application on top of the RTOS as a regular Linux or Windows process.
+
+## Download (Linux and Windows)
+
+Download the [latest _posix_ release](https://github.com/echronos/echronos/releases) and unpack it in a directory of your choice.
+
+The project makes frequent releases, based on improvements flowing into the master branch of the code repository.
+You'll notice that releases are not just snapshots of the code repository.
+Rather, they provide just the bits and pieces needed for individual target platforms, with some of the code and tools already pre-built.
+
+The _posix_ release is aimed at running the RTOS on top of any POSIX host operating system, such as Linux or Windows (with Cygwin or MinGW).
+
+## Prerequisites (Linux and Windows)
+
+You need the following tools installed and ready to go:
+
+- Python 3
+- GCC compiler + GNU binutils
+
+On Linux, use your package manager to install these tools.
+On Windows, obtain and install Python 3 from [python.org](https://www.python.org) and install either [Cygwin](https://cygwin.com) or [MSys2](http://www.msys2.org/) including the GCC compiler.
+
+## Build (Linux and Windows)
+
+The following commands build a simple version of the eChronos RTOS together with a small example application:
+
+    cd eChronos-posix-VERSION
+    ./bin/prj.sh build posix.acamar
+
+On Windows, run `prj\prj` instead of `./prj/prj.sh`.
+This produces the binary `out/posix/acamar/system` (`system.exe` on Windows).
+
+## Run (Linux and Windows)
+
+Run the sample system with the command `./out/posix/acamar/system`.
+It prints `task a` and `task b` to the screen until you stop it by pressing `ctrl-c`.
+
+If you have GDB installed, you can also run this RTOS system in a debugger.
+Start GDB with `gdb out/posix/acamar/system` and
+
+- set a break point with `b debug_print`
+- start the system with `run`
+- gdb now stops the system just before it prints `task a` or `task b`, allowing you to inspect the system state or to continue with `continue`
+
+## Under the Hood
+
+### The `prj` Tool
+
+To give you an idea of what goes on when building an running an RTOS system as above, here is a quick overview of what happens under the hood.
+
+The `prj` tool is the build tool of the RTOS.
+Its primary purpose is to
+1. find and load the system configuration,
+1. generate RTOS code specifically for the system configuration,
+1. and build the RTOS and application code into a single system binary.
+
+The command `./prj/prj.sh build posix.acamar` makes `prj` first search for a system configuration file with a `.prx` file name extension.
+Think of PRX files as make files.
+`prj` finds that system configuration file at [`share/packages/posix/acamar.prx`](packages/posix/acamar.prx), based on the search paths set up in [`project.prj`](prj/release_files/project.prj).
+
+[`acamar.prx`](packages/posix/acamar.prx) lists all the files that go into building this system plus some configuration information.
+For example, this system is configured with two tasks, _a_ and _b_, that have given entry point functions and stack sizes:
+
+    <task>
+        <name>a</name>
+        <function>fn_a</function>
+        <stack_size>8192</stack_size>
+    </task>
+    <task>
+        <name>b</name>
+        <function>fn_b</function>
+        <stack_size>8192</stack_size>
+    </task>
+
+In the second step, `prj` uses this configuration information to generate a custom copy of the RTOS source code.
+This makes the RTOS itself as small as possible to leave more resources for the application.
+
+The third step is to invoke the compiler and linker to build all the source code files listed in the system configuration into a binary.
+`prj` invokes the POSIX-specific [build module](packages/posix/build.py) to achieve that.
+
+### The Sample Application
+
+The file [`share/packages/rtos-example/acamar-test.c`](packages/rtos-example/acamar-test.c) contains the main application code of the example system (the PRX file refers to it as `rtos-example.acamar-test`).
+This file implements two tasks that perpetually print their name and yield to each other.
+
+You will notice that this file also contains the standard `main()` function found in all C programs.
+If necessary, it could, for example, initialize some hardware before starting the RTOS, which in turn starts the two tasks.
+
+### What is _Acamar_?
+
+The eChronos project is not a single RTOS, but provides a family of RTOS variants with different feature sets.
+Acamar is the name of the smallest one, but the POSIX release comes with a number of other, more powerful variants.
+Those provide "proper" RTOS features, such as mutexes, interrupts, and timers.
+The [Variants and Components](#variants-and-components) section has more information on this topic.
+
+## Where to from here?
+
+The rest of this README covers ARM and PowerPC quick-starts as well as all basic RTOS concepts and how to make use of them.
+It makes use of the full [source code repository](https://github.com/echronos/echronos/), not just a release as the Quick-start Guide did above.
 
 
-# Quick-start
+# Quick-start for ARMv7m
 
 ## Prerequisites (ARMv7m)
+
+Obtain the source code with the command
+
+    git clone --depth=1 https://github.com/echronos/echronos.git
 
 To obtain the `arm-none-eabi` GNU toolchain and `gdb-arm-none-eabi` for building and debugging the RTOS for ARMv7-M, run:
 
@@ -110,7 +227,14 @@ Build and run an example system for the RTOS variant *Gatria* on QEMU-emulated A
     task a -- unlock
     ...
 
+
+# Quick-start for PowerPC e500 Targets
+
 ## Prerequisites (PowerPC e500)
+
+Obtain the source code with the command
+
+    git clone --depth=1 https://github.com/echronos/echronos.git
 
 To obtain the `powerpc-linux-gnu` GNU toolchain for building the RTOS for PowerPC e500 on Ubuntu Linux systems, run:
 
@@ -154,25 +278,18 @@ Build and run an example system for the RTOS variant *Kochab* on QEMU-emulated P
     Breakpoint 1, debug_print (msg=0x33f8 "task b unblocked")
     (gdb) quit
 
+
 # Documentation
 
-Basic RTOS concepts and usage are documented in this README.
+Basic RTOS concepts and usage are documented in README file and the [`docs`](docs) directory.
 
 More detailed documentation for the `x.py` tool can be found inside [`x.py`](x.py) itself.
-More detailed documentation for the `prj` tool can be found in [`prj/manual/prj-user-manual`](prj/manual/prj-user-manual).
+More detailed documentation for the `prj` tool can be found in [`prj/manual/prj-user-manual.md`](prj/manual/prj-user-manual.md).
 
-Pregenerated RTOS API manuals can be found on the [eChronos GitHub wiki](https://github.com/echronos/echronos/wiki).
+Pregenerated RTOS API manuals can be found on the [eChronos GitHub wiki](https://github.com/echronos/echronos/wiki) or you can [build them yourself](#building-user-documentation).
 
-## Building documentation
 
-To obtain `pandoc` and `wkhtmltopdf` needed for building user documentation on Ubuntu Linux systems:
-
-    sudo apt-get install pandoc
-    sudo apt-get install wkhtmltopdf
-
-Documentation can then be  generated with the command `x.py build docs`.
-
-# Software model
+# Software Model
 
 The software model and structure of the RTOS is governed by two stages of customization.
 
@@ -290,37 +407,6 @@ This is done by including the following line in the `project.prj` file:
 Please see `prj/manuals/prj-user-manual` for more information on the `prj` tool.
 
 
-
-# Repository contents
-
-The [`components`](components) directory contains the RTOS component source and documentation.
-
-The [`packages`](packages) directory provides various platform-specific RTOS modules and other source modules.
-RTOS modules generated by `x.py` are output to locations within the `packages` directory structure.
-
-The [`x.py`](x.py) tool provides an interface for:
-* RTOS module and product release generation (`x.py build`),
-* task management (`x.py task`), and
-* testing (`x.py test`).
-
-Much of `x.py`'s underlying implementation resides in the [`pylib`](pylib) directory, and its self-test suite (`x.py test x`) is implemented in [`x_test.py`](x_test.py).
-
-The [`prj`](prj) directory contains everything related to the `prj` tool, which provides an interface for configuring and building systems as compositions of source modules.
-
-The `release` directory is created by `x.py`, and contains all releasable artifacts such as product releases.
-
-The [`external_tools`](external_tools) and [`tools`](tools) directories contain external tools committed to the repository in order for the repository to be self-contained in its ability to provide everything that is needed for development.
-See [`external_tools/LICENSE.txt`](external_tools/LICENSE.txt) and [`tools/LICENSE.txt`](tools/LICENSE.txt) for license information regarding the contents of these directories.
-
-The [`pm`](pm) directory contains project management related meta-data.
-This meta-data is crucial for documenting that our internal development processes are correctly followed, as well as providing a record for external audit.
-The feature documentation for development tasks resides in [`pm/tasks`](pm/tasks), and their reviews can be found under [`pm/reviews`](pm/reviews).
-
-The [`docs`](docs) directory contains various release documentation-related content, including templates for auto-generated manuals and top-level README files for product releases.
-
-The [`rtos`](rtos) directory contains a model of the RTOS schedulers implemented in Python for testing purposes.
-
-
 # Common Development Tasks
 
 ## Developing a RTOS variant
@@ -339,11 +425,10 @@ Please see the existing component code under [`components`](components) for exam
 
 ## Building user documentation
 
-Manuals for all RTOS variants are built using:
+Manuals for the main RTOS variants are built with the command `./x.py build docs`.
+On Linux, this depends on the tools _wkhtmltopdf_ and _pandoc_ to be installed.
 
-    ./x.py build docs
-
-The manuals are output to `packages/<platform>/rtos-<variant>/documentation.*` in HTML, Markdown and PDF.
+The manuals are created in `packages/<platform>/rtos-<variant>/documentation.*` in HTML, Markdown, and PDF.
 
 Like the RTOS component code, the user manual content is componentized so that only the user documentation for components present in a particular RTOS variant appears in the user manual for that variant.
 
@@ -414,3 +499,157 @@ For example, to build the Kochab timer demo system provided with the PowerPC e50
     x86_64-unknown-linux-gnu/bin/prj build machine-qemu-ppce500.example.kochab-timer-demo
 
 Note that the PATH environment variable needs to be set up manually so that it includes the tools invoked by `prj`.
+
+
+# Repository Structure
+
+The [`components`](components) directory contains the RTOS component source and documentation.
+
+The [`packages`](packages) directory provides various platform-specific RTOS modules and other source modules.
+RTOS modules generated by `x.py` are output to locations within the `packages` directory structure.
+
+The [`x.py`](x.py) tool provides an interface for:
+* RTOS module and product release generation (`x.py build`),
+* task management (`x.py task`), and
+* testing (`x.py test`).
+
+Much of `x.py`'s underlying implementation resides in the [`pylib`](pylib) directory, and its self-test suite (`x.py test x`) is implemented in [`x_test.py`](x_test.py).
+
+The [`prj`](prj) directory contains everything related to the `prj` tool, which provides an interface for configuring and building systems as compositions of source modules.
+
+The `release` directory is created by `x.py`, and contains all releasable artifacts such as product releases.
+
+The [`external_tools`](external_tools) and [`tools`](tools) directories contain external tools committed to the repository in order for the repository to be self-contained in its ability to provide everything that is needed for development.
+See [`external_tools/LICENSE.md`](external_tools/LICENSE.md) and [`tools/LICENSE.md`](tools/LICENSE.md) for license information regarding the contents of these directories.
+
+The [`pm`](pm) directory contains project management related meta-data.
+This meta-data is crucial for documenting that our internal development processes are correctly followed, as well as providing a record for external audit.
+The feature documentation for development tasks resides in [`pm/tasks`](pm/tasks), and their reviews can be found under [`pm/reviews`](pm/reviews).
+
+The [`docs`](docs) directory contains various release documentation-related content, including templates for auto-generated manuals and top-level README files for product releases.
+
+The [`unit_tests`](unit_tests) directory contains unit-test code, including a model of the RTOS schedulers implemented in Python.
+
+
+# Task management
+
+This document explains the work flows of creating, reviewing, integrating, and abandoning tasks.
+A task encapsulates the development and adoption of a feature into the project.
+
+The lifecycle of a task knows the following actions and states, which are described in more detail below.
+
+1. *create*: create a task branch for working on a specific change or improvement without impacting the mainline branch
+2. *update*: while work is ongoing in a task, keep it up-to-date with any changes in the mainline branch
+3. *review*: signal that work in a task is complete and ready for review and integration
+4. *integrate*: once reviewed and accepted, integrate a task into the mainline branch
+5. *abandon*: when work on a task ceases without it having been integrated, abandon it to keep it accessible but not clutter the list of active tasks
+
+
+## Tasks
+
+A task tracks a development effort for a certain feature or improvement.
+Every change to the repository needs to go through a task.
+
+A task also tracks the corresponding set of repository changes as a git branch.
+Typically, the terms *task*, *branch*, and *task branch* are used interchangeably.
+Therefore, managing a task effectively means managing a branch.
+
+
+## Create
+
+The command `task.py create TASKNAME` creates a new task with the given name.
+This also creates the corresponding branch.
+
+The name is a brief summary of the purpose or goal of the branch.
+By convention, the name must only contain characters, digits, hyphens, and underscores.
+Also, task names need to be unique.
+`task.py` checks for this and fails if the task to create has the same name as another task.
+
+From that point on, the developer of a task commits their changes to that branch.
+
+
+## Update
+
+While a developer works on a task, the mainline branch may integrate other tasks in the meantime.
+It is best practice to frequently bring a task up-to-date with changes on the mainline branch.
+
+As long as a task has not been put up for review, it is ok to rewrite its git history and to rebase it onto the mainline branch.
+After a task has been put up for review, it is important to maintain its git history to maintain an audit trail.
+Therefore, the mainline branch needs to be merged into the task branch.
+The command `task.py update` takes care of this.
+
+
+## Review
+
+This section describes the review process first from the perspective of a developer and then from the perspective of a reviewer.
+Note that once the first round of reviews has started, the git history must no longer be modified under any circumstances.
+This is necessary to keep the audit trail intact that the review process establishes.
+
+### Request Reviews
+
+1. When a developer considers a task ready for integration, they run `task.py request_reviews`.
+Make sure that all regression tests pass and notify reviewers.
+2. Reviewers provide their feedback as described under [Provide Reviews](#provide-reviews) below, resulting in the review conclusion *accepted* or *rework*.
+3. When a reviewer asks for a task to be reworked, the developer needs to resolve all concerns raised in the review until that same reviewer provides another review in which they accept the updates and the task branch as a whole.
+
+Steps 2 and 3 of the review process continue until there are at least two *accepted* conclusions *and* no more *rework* conclusions.
+
+### Provide Reviews
+
+A reviewer starts a review by running the command `task.py review`.
+This creates the file `pm/reviews/TASKNAME/_REVIEWERNAME_._INDEX_.md` where the review feedback goes.
+
+Changes are expected to meet very high quality standards.
+In a review, polite and constructive thoroughness is expected and encouraged.
+A review consists of:
+
+- reviewing the task description in `pm/tasks/TASKNAME` and checking whether the task motivation, goal, and test plan are necessary and sound
+- reviewing the regression test results and checking whether they pass
+- reviewing the differences to the branch point from the mainline branch and whether they:
+    * fulfill the requirements of the task description
+    * are correct, complete, minimal, efficient, clean, elegant, and meet the conventions documented in internal-docs/conventions.
+    * are covered adequately by tests (if applicable)
+    * pass the test plan documented in the task description
+
+If the reviewer's conclusion is *accepted*, that review is complete and neither the developer nor the reviewer would typically need to take any further action.
+
+If the reviewer concludes a review with a *rework* verdict, the developer and reviewer need to resolve the reviewer's concerns.
+In some cases a reviewer's feedback can be accidentally incomplete, off topic, out of scope, or result from misunderstandings.
+Reviewers and developers are expected to resolve such cases constructively and in good faith.
+
+Developers have two main avenues to resolve a *rework* verdict:
+1. They make the suggested changes and commit them to the task branch like any other change.
+2. They reply to the reviewer by leaving additional comments in the review file, explaining why they think that no changes are necessary.
+Again, they commit these changes to the review file on the task branch like any other change.
+The reviewer then replies by creating another review via the `task.py review` command.
+
+
+## Integrate
+
+Before a task may be integrated into the mainline branch, it needs to meet the following criteria:
+
+1. it has passed the review process as described above
+2. it is up-to-date with the latest revision of the mainline branch
+    * if merging the mainline branch into the task branch is not trivial and requires (or leads to) functional changes, it is recommended to re-open the review process to receive feedback on the result of the merge
+3. it passes the regression tests and the task's test plan
+
+When these conditions are met, the command `task.py integrate` merges the task into the mainline branch.
+
+
+## Abandon
+
+To abandon a task that is no longer being developed, manually add the prefix `abandoned/` to its name and delete the original branch in the remote repository.
+This can be accomplished with a command similar to `git push origin TASKNAME:abandoned/TASKNAME :TASKNAME`
+
+
+## Checking Integration Status
+
+There are several ways to check whether a task has been integrated into the mainline branch.
+
+1. Run the command `git merge-base --is-ancestor TASKNAME master`.
+   If the task branch `TASKNAME` has been integrated into the mainline branch, this command exits with exit code 0.
+   If the task branch is not yet integrated, the command exits with a non-zero exit code.
+2. Run the command `git log --grep TASKNAME master`.
+   If the task is integrated, this command typically lists a few changes.
+   If the task branch is not yet integrated, the command usually lists no changes.
+   This approach depends on the task name being very different from any other part of unrelated commit messages.

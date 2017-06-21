@@ -1,0 +1,20 @@
+# Motivation
+
+The current "Getting Started" guide in `README.md` is quite complex and not exactly a gentle introduction to the RTOS.
+To lower the barrier of entry, the guide could instead be based on the POSIX platform support.
+This avoids cross-platform tool chains and ensures that new developers start out in a relatively familiar environment.
+
+
+# Goals
+
+- Create a "Getting Started" guide that makes it as simple as possible for new developers to follow it and gain some insight into application development on top of the RTOS.
+- The new guide shall focus on working with RTOS releases instead of the source distribution to hide the complexities of code weaving with x.py.
+
+
+# Release Impact: Patch
+
+
+# Test Plan
+
+- Review the changes introduced by this task, attempt to follow the new "Getting Started" guide, and provide feedback.
+- Verify that all existing regression tests pass.

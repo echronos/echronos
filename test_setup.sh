@@ -74,6 +74,16 @@ sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdbser
 sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdb.1.gz --rename /usr/share/man/man1/gdb.1.gz
 sudo apt-get -qq install -y gdb-arm-none-eabi
 
+# If not available, install the Python package manager pip.
+# Currently, this is necessary for both Python 3.4 and Python 3.6
+if ! python${PY_VER} -m pip --version
+then
+    wget 'https://bootstrap.pypa.io/get-pip.py'
+    python${PY_VER} get-pip.py --user
+    rm get-pip.py # necessary so that license and pylint tests do not pick this up as a file belonging to the project
+    python${PY_VER} -m pip --version
+fi
+
 # Install pylint Python package to be able to run "x.py test style"
 # On Travis CI's Python 3.6, pylint causes Python to hang.
 # Therefore, do not install it on that configuration.

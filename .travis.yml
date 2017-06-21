@@ -27,9 +27,9 @@
 
 # make gnu build utils available
 language: c
-# make Ubuntu trusty available, required for Python >= 3.3
+# make Ubuntu trusty available, required for Python >= 3.4
 sudo: required
-# make Ubuntu trusty available, required for Python >= 3.3
+# make Ubuntu trusty available, required for Python >= 3.4
 dist: trusty
 # cache GDB builds
 cache:
@@ -37,7 +37,6 @@ cache:
   - "${HOME}/local"
 # build matrix across multiple Python version to parallelize builds with different Python versions
 env:
-  - PY_VER=3.3
   - PY_VER=3.4
   - PY_VER=3.5
   - PY_VER=3.6

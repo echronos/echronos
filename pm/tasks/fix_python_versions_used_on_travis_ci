@@ -1,0 +1,21 @@
+# Motivation
+
+Regression tests on Travis CI currently rely on Python version 3.3 and 3.4, among others, to be available, including the pip Python package manager.
+A recent update to the test environment on Travis CI removes Python 3.3 and does not provide pip.
+Therefore, all regression tests currently fail.
+
+
+# Goals
+
+- The overall goal of this task is to allow regression tests on Travis CI to pass again.
+- Regression tests shall no longer use Python 3.3, only newer versions of Python.
+  This is acceptable as per convention 09aou0.
+- Regression tests shall use Python 3.4 only if pip can be made available on the regression test setup with little extra effort (as per convention 09aou0).
+
+
+# Release Impact: Patch
+
+# Test Plan
+
+- Review the changes introduced by this task and verify that they meet project requirements and conventions.
+- Verify that all existing regression tests pass, in particular those on Travis CI with Python 3.5 and 3.6, and potentially 3.4.

@@ -27,7 +27,7 @@
 
 # make gnu build utils available
 language: c
-# make Ubuntu trusty available, required for Python >= 3.4
+# make full Ubuntu VM instead of just a container available, required for Python >= 3.4
 sudo: required
 # make Ubuntu trusty available, required for Python >= 3.4
 dist: trusty

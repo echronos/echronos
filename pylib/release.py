@@ -79,13 +79,14 @@ class Package:
             pkg_names = os.listdir(pkg_parent_dir)
             for pkg_name in pkg_names:
                 pkg_path = os.path.join(pkg_parent_dir, pkg_name)
-                if pkg_name in pkgs:
-                    logging.warning('Overriding package %s with package %s', pkgs[pkg_name].path, pkg_path)
-                pkgs[pkg_name] = Package(pkg_path)
+                if os.path.isdir(pkg_path):
+                    if pkg_name in pkgs:
+                        logging.warning('Overriding package %s with package %s', pkgs[pkg_name].path, pkg_path)
+                    pkgs[pkg_name] = Package(pkg_path)
         return pkgs
 
     def __init__(self, path):
-        assert os.path.isdir(path)
+        assert os.path.isdir(path), 'Path {} is not a directory'.format(path)
         self.path = path
         self.name = os.path.basename(self.path)
 

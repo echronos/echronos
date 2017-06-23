@@ -23,11 +23,13 @@ Therefore, to ensure that the system as a whole operates correctly, it is import
 
 [^context_switch_regularity]: The exact definition of regular in this context depends on the system timing attributes.
 
+[[#scheduler]]
 For example, if there are any runnable tasks, it is important that they have the opportunity to become the current task.
 When tasks are frequently interacting with other entities this is usually not a problem, as the task regularly block, providing the other runnable tasks with an opportunity to become the current task.
 There are cases, however, when a task may wish to perform a long running operation without blocking.
 In these cases, a task can perform a [<span class="api">yield</span>] operation.
 It makes the current task relinquish the CPU by performing a context switch, allowing another runnable task (selected by the [Scheduling Algorithm]) to become the current task.
+[[/scheduler]]
 
 /*| doc_api |*/
 /*| doc_configuration |*/

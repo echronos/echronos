@@ -28,7 +28,7 @@
 
 <system>
   <modules>
-    <module name="armv7m.build-mpu" />
+    <module name="machine-stm32f4-discovery.build_mpu" />
     <module name="armv7m.ctxt-switch" />
     <module name="armv7m.vectable">
       <flash_addr>0x8000000</flash_addr>

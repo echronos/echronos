@@ -467,7 +467,9 @@ class GdbTestCase(unittest.TestCase):
 
     def _get_test_output(self):
         test_command = self._get_test_command()
-        self.gdb_output = subprocess.check_output(test_command)
+        # A timeout is necessary to make the test fail if the test target hangs.
+        # A 10 second timeout is sufficient for all current test systems.
+        self.gdb_output = subprocess.check_output(test_command, timeout=10)
         # for an unknown reason, decode() handles Windows line breaks incorrectly so convert them to UNIX linebreaks
         output_str = self.gdb_output.replace(b'\r\n', b'\n').decode()
         return self._filter_gdb_output(output_str)

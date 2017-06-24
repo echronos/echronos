@@ -52,6 +52,7 @@ then
     git branch --track master origin/master
 fi
 
+# build-essential: installing gdb from source
 # python3 (>3.2): x.py
 # splint: prj.py analyze
 # gcc-powerpc-linux-gnu: prj.py build machine-qemu-ppce500.example.acamar-config-demo
@@ -62,7 +63,7 @@ fi
 # python3.6: currently not available in default Travis CI environment
 sudo add-apt-repository -y ppa:jonathonf/python-3.6
 sudo apt-get -qq update
-sudo apt-get -qq install -y python3 splint gcc gdb gcc-arm-none-eabi gcc-powerpc-linux-gnu qemu-system-ppc texinfo xvfb pandoc wkhtmltopdf
+sudo apt-get -qq install -y build-essential python3 splint gcc gdb gcc-arm-none-eabi gcc-powerpc-linux-gnu qemu-system-ppc texinfo xvfb pandoc wkhtmltopdf
 which python${PY_VER} || sudo apt-get install -y python${PY_VER}
 
 # gdb-arm-none-eabi: required for testing ARM systems.

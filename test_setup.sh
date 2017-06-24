@@ -96,7 +96,8 @@ then
     URL="https://mirror.aarnet.edu.au/pub/gnu/gdb/${FILE}"
 
     cd "${TMPDIR}"
-    wget -q "${URL}" || curl -o "${FILE}" "${URL}"
+    [ -e "${FILE}" ] || wget -q "${URL}" || curl -o "${FILE}" "${URL}"
+    [ ! -d "${DIR}" ] || rm -fr "${DIR}"
     tar xaf "${FILE}"
     cd "${DIR}"
     ./configure --target=powerpc-linux --prefix="${HOME}/local"

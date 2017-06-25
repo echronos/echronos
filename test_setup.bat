@@ -31,3 +31,12 @@ IF NOT EXIST C:\splint-3.1.2 (
 ) ELSE (
     EXIT /B 0
 )
+
+REM WinAVR cannot be installed from the default installer.
+REM Therefore, unpack an archive of a local installation instead.
+C: || EXIT /B %ERRORLEVEL%
+cd \ || EXIT /B %ERRORLEVEL%
+C:\cygwin64\bin\wget -q 'https://github.com/echronos/echronos/wiki/winavr.tar.xz' || EXIT /B %ERRORLEVEL%
+C:\cygwin64\bin\xz --decompress winavr.tar.xz || EXIT /B %ERRORLEVEL%
+C:\cygwin64\bin\tar xaf winavr.tar || EXIT /B %ERRORLEVEL%
+cd %APPVEYOR_BUILD_FOLDER% || EXIT /B %ERRORLEVEL%

@@ -25,7 +25,10 @@
 # @TAG(NICTA_AGPL)
 #
 import os.path
-from pylib import tests  # importing GdbTestCase would make the unittest framework to pick it up as a test case
+# 'from pylib.tests import GdbTestCase' would make the command 'x.py test units' attempt to run the unconfigured
+# GdbTestCase class as a test case which fails.
+# Therefore, import the tests module instead.
+from pylib import tests
 
 
 class Acamar(tests.GdbTestCase):

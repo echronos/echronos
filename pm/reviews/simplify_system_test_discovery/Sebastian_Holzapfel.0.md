@@ -10,3 +10,5 @@ Comment: Very minor nit. The comment:
      # importing <>TestCase would make the unittest framework to pick it up as a test case
 
 I'm not sure exactly what this is supposed to mean, looks like a typo.
+
+[stg: rephrased the comment to hopefully make more sense.]

@@ -25,7 +25,10 @@
 # @TAG(NICTA_AGPL)
 #
 import os.path
-from pylib import tests  # importing PpcQemuTestCase would make the unittest framework to pick it up as a test case
+# 'from pylib.tests import PpcQemuTestCase' would make the command 'x.py test units' attempt to run the unconfigured
+# PpcQemuTestCase class as a test case which fails.
+# Therefore, import the tests module instead.
+from pylib import tests
 
 
 class Acamar(tests.PpcQemuTestCase):

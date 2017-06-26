@@ -15,3 +15,15 @@
         </constraint>
     </entry>
 </entry>
+<entry name="tasks" type="list" auto_index_field="idx">
+    <entry name="task" type="dict">
+        <entry name="associated_domains" type="list" default="[]" auto_index_field="domx">
+            <entry name="domain" type="dict">
+                <entry name="name" type="ident"/>
+                <entry name="readable" type="bool" default="true"/>
+                <entry name="writeable" type="bool" default="false"/>
+                <entry name="executable" type="bool" default="false"/>
+            </entry>
+        </entry>
+    </entry>
+</entry>

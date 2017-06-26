@@ -78,4 +78,36 @@ If all the symbols provided do not fit into the indicated `domain_size`, the sys
 For an 'address' domain, this indicates the size of the address range corresponding to the domain.
 This is a mandatory configuration item with no default.
 
+### `tasks/task/associated_domains`
+
+This configuration item is a list of `domain` configuration objects.
+Each `domain` entry defines permissions that tasks have to a specific protection domain.
+A task will not have read or write access to any protection domains unless it is associated with them.
+This is not a mandatory configuration item, with a default of no associated domains.
+
+### `tasks/task/associated_domains/domain/name`
+
+This configuration item specifies the protection domain that this entry associates the task with.
+This property must have the same value as the corresponding `protection_domains/protection_domain/name`
+This is a mandatory configuration item with no default.
+A domain association with no properties except the domain name will result in read-only access.
+
+### `tasks/task/associated_domains/domain/readable`
+
+This configuration item is a boolean with a default of true.
+When true, the task may read from the indicated protection domain without causing a protection fault.
+
+### `tasks/task/associated_domains/domain/writeable`
+
+This configuration item is a boolean with a default of false.
+When true, the task may write to the indicated protection domain without causing a protection fault.
+Note that on most architectures, writeable permissions without readable permissions are not valid.
+
+### `tasks/task/associated_domains/domain/executable`
+
+This configuration item is a boolean with a default of false.
+When true, the task may execute code in the indicated protection domain without causing a protection fault.
+This is commonly used when (for example) the processor requires execution from a ROM to perform certain functions.
+Note that on most architectures, executable permissions without readable permissions are not valid.
+
 /*| doc_footer |*/

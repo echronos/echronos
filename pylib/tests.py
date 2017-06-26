@@ -608,7 +608,8 @@ class AvrTestCase(GdbTestCase):
             # On Windows, terminating the simulavr process itself is insufficient.
             # It spawns a child process and killing the parent process does not terminate the child process.
             # Therefore, determine the child processes and terminate them explicitly.
-            import psutil  # import here so that all other x.py functionality can be used without psutil
+            # import psutil here so that all other x.py functionality can be used without psutil
+            import psutil  # pylint: disable=import-error
             parent_process = psutil.Process(self._simulavr_popen.pid)
             child_processes = parent_process.children(recursive=True)
             for child_process in child_processes:

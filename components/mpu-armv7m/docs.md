@@ -7,6 +7,81 @@ task
 
 /*| doc_header |*/
 /*| doc_concepts |*/
+## Memory Protection
+
+The RTOS supports hardware memory protection by using the on-chip Memory Protection Unit (MPU).
+Using memory protection can protect systems from many different types of errors, from simple programming mistakes to hardware failures.
+The RTOS's implementation of memory protection provides:
+
+- *Memory Isolation*: tasks may only access memory they have been explicitly granted permission to use.
+
+- *Privileged/User modes*: only the RTOS kernel should perform some critical operations and thus runs in privileged mode.
+
+- *Determinism*: any violation of protection policies will result in a predictable execution path after the violation.
+
+### Protection Model
+
+If memory protection is enabled, and no extra configuration information is supplied:
+
+- Tasks will *only* be able to read/write to their stack.
+
+- All tasks will, in addition, be granted *read-only access to the code segment*.
+Note that this means tasks are not prevented from running code that does not belong to them[^mpu_code_segment].
+
+- Tasks *may still make RTOS 'system calls'*, which will now result in a switch to privileged mode, execution of the call, and then a return to the next schedulable task in usermode.
+
+- Any *protection faults will cause the `fatal_error` handler to be called* with the protection fault error code.
+
+[^mpu_code_segment]: Protecting the data and not the code is standard memory protection practice with such limited devices - it is a functionality tradeoff.
+
+### Protection Domains, Data & Tasks
+
+A key concept related to memory protection is how tasks are granted permission to access memory regions.
+The RTOS implements 'Protection Domains' as a way of bookkeeping memory regions.
+A *protection domain* can contain one or more pieces of data (this is known as a 'symbol' domain) *or* encompass an address range, like a peripheral (this is known as an 'address' domain).
+Tasks can be given *different permissions* to these domains, depending on what they require.
+This facilitates decoupling of logical functionality and memory. For example:
+
+<img src="docs/domain_abstraction.png"/>
+
+In the above diagram, Domain A is an 'address' domain that encompasses a GPIO peripheral, Domain B is a 'symbol' domain that contains some data, and Domain C is another 'address' domain encompassing an address range for an on-chip ROM.
+Task A is the only task that may write to Domain B, and thus can dictate how the 'STATE' data appears to Task B and Task C, with a guarantee that the data will not be modified by Task B or Task C.
+Task B is the only task that has access to Domain C, and so access to any memory in Domain C by Task A or Task C will cause a protection fault.
+
+Note that if a task has no domain associations at all, it will only be able to access it's own stack and make RTOS calls.
+
+When creating a system, the RTOS configuration mechanism is used to create and assign protection domains (See [Memory Protection Configuration] for more information).
+
+### The ARMv7m Memory Protection Unit
+
+Note that some devices in the ARMv7m family do not have an MPU, be sure to check the vendor documentation before using this feature.
+Most ARMv7m MPUs have the same set of capabilities:
+
+- *8 protection regions* (16 on some Cortex-M7 processors, but this is rare)
+- Each region has *Readable / Writeable / Executeable flags*
+- Each region has a *base address and region size*
+
+A 'protection region' is essentially a partition of the processor's address space that enforces an access restriction.
+Had we set up some basic protection regions, the address space might look like:
+
+<img src="docs/mpu_hardware.png"/>
+
+It is obvious that since there is a limitation on the number of protection regions, this must place some limitation on the RTOS.
+Since the RTOS will always need protection regions active during task execution to indicate both:
+
+- The task stack *and*
+- The system code section
+
+This leaves `8 - 2 = 6` regions for general-purpose use.
+In practice, this means that tasks may only have a maximum of *6* associated domains on this architecture.
+That is, any single task may only be granted access permissions to a maximum of *6* protection domains.
+
+Active protection regions are changed at runtime depending on which task is currently scheduled, and which protection domains the task has access to. For example:
+
+<img src="docs/mpu_visualization.png"/>
+
+With task B currently running, the active protection regions will be those corresponding to the system code segment, the stack of task b, the 'command domain' and the 'uart domain'. In the event that a new task is scheduled, the active protection regions will be changed to suit the new task in accordance with the RTOS configuration.
+
 /*| doc_api |*/
 /*| doc_configuration |*/
 ## Memory Protection Configuration

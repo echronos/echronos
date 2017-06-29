@@ -9,7 +9,11 @@ Compared to standard test discovery as per the unittest Python package, this lim
 - The `x.py` tool shall discover system tests via the standard test discovery implemented by the unittest Python package.
 
 
+# Release Impact: Patch
+
+
 # Test Plan
 
 - Verify that all existing regression tests pass.
 - Verify that the changes meet the task goals and follow project conventions.
+- Verify that the release impact is documented correctly.

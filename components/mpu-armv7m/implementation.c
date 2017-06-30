@@ -83,7 +83,9 @@ static struct mpu_region mpu_regions[{{tasks.length}}][MPU_MAX_REGIONS-1] =
     {
 {{#tasks}}
         {
-            // TODO: Fix this hardcoded initialization
+            /* Hardcoded init for MPU_MAX_REGIONS for now
+             * Note an entry for 0 is not required as the code region (#0)
+             * has constant configuration across context switches */
             {1 | MPU_BASE_VALID, 0},
             {2 | MPU_BASE_VALID, 0},
             {3 | MPU_BASE_VALID, 0},
@@ -333,7 +335,6 @@ mpu_initialize(void)
     mpu_enable();
 }
 
-__attribute__((optimize("unroll-loops")))
 void
 mpu_configure_for_current_task(void)
 {

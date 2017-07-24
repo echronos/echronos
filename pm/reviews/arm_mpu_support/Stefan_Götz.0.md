@@ -103,6 +103,9 @@ Comment 15: Rework
 Please prefix macro names, where sensible, with "MPU_" to indicate that they originate from the MPU component.
 Although not a rigid convention, many components follow this pattern.
 
+[sebastian.holzapfel: the macros I did not prefix with mpu_ have potential uses outside the mpu implementation, but I agree that keeping the naming convention is more important so it's obvious where things reside.
+Fixed by prepending the offending macros with MPU_ or mpu_ accordingly]
+
 Location: components/mpu-armv7m/implementation.c:77, 83 and following
 Comment 16: Rework
 For readability, please use a consistent line-break and indentation style.

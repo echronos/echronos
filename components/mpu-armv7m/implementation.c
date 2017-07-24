@@ -21,13 +21,13 @@
                                                 /* We exclude the additional alias
                                                  * regions as they are unavailable
                                                  * on some processors */
-/* MPU interrupt registers */
-#define SYS_HND_CTRL                0xE000ED24  /* System Handler Control and State */
-#define SYS_HND_CTRL_MEM            0x00010000  /* Memory Management Fault Enable   */
+/* Interrupt control registers */
+#define MPU_SYS_HND_CTRL            0xE000ED24  /* System Handler Control and State */
+#define MPU_SYS_HND_CTRL_MEM        0x00010000  /* Memory Management Fault Enable   */
 
-/* MPU fault status registers */
-#define NVIC_FAULT_STAT             0xE000ED28  /* Configurable Fault Status        */
-#define NVIC_MM_ADDR                0xE000ED34  /* Memory Management Fault Address  */
+/* Fault status registers */
+#define MPU_NVIC_FAULT_STAT         0xE000ED28  /* Configurable Fault Status        */
+#define MPU_NVIC_MM_ADDR            0xE000ED34  /* Memory Management Fault Address  */
 
 /* MPU type bitfields */
 #define MPU_TYPE_DREGION_M          0x0000FF00  /* Number of D Regions             */
@@ -106,7 +106,7 @@ static struct mpu_region mpu_regions[{{tasks.length}}][MPU_MAX_REGIONS-1] =
  * as the location of protection domains is computed at link-time.
  *
  * Note the *address* of these symbols must be taken to get their value.
- * This should always be through the 'linker_value' macro defined below.*/
+ * This should always be through the 'mpu_linker_value' macro defined below.*/
 extern const uint32_t linker_flash_start;
 extern const uint32_t linker_flash_size;
 extern const uint32_t linker_sram_size;
@@ -135,9 +135,9 @@ inline void mpu_configure_for_current_task(void);
 
 /*| function_like_macros |*/
 {{#memory_protection}}
-#define hardware_register(x) (*((volatile uint32_t *)(x)))
-#define is_pow2(x) ((x) && !((x) & ((x) - 1)))
-#define linker_value(x) ((uint32_t)&(x))
+#define mpu_hardware_register(x) (*((volatile uint32_t *)(x)))
+#define mpu_is_pow2(x) ((x) && !((x) & ((x) - 1)))
+#define mpu_linker_value(x) ((uint32_t)&(x))
 {{/memory_protection}}
 
 /*| functions |*/
@@ -145,7 +145,7 @@ inline void mpu_configure_for_current_task(void);
 static bool
 mpu_is_enabled(void)
 {
-    return (hardware_register(MPU_CTRL) & MPU_CTRL_ENABLE);
+    return (mpu_hardware_register(MPU_CTRL) & MPU_CTRL_ENABLE);
 }
 
 static void
@@ -154,7 +154,7 @@ mpu_enable(void)
     internal_assert(!mpu_is_enabled(), ERROR_ID_MPU_ALREADY_ENABLED );
 
     /* Turn on the MPU */
-    hardware_register(MPU_CTRL) |= MPU_CTRL_ENABLE;
+    mpu_hardware_register(MPU_CTRL) |= MPU_CTRL_ENABLE;
 }
 
 __attribute__((unused))
@@ -163,7 +163,7 @@ mpu_disable(void)
 {
     internal_assert(mpu_is_enabled(), ERROR_ID_MPU_ALREADY_DISABLED);
 
-    hardware_register(MPU_CTRL) &= ~MPU_CTRL_ENABLE;
+    mpu_hardware_register(MPU_CTRL) &= ~MPU_CTRL_ENABLE;
 }
 
 /* Gets the number of hardware regions supported by this MPU */
@@ -172,14 +172,14 @@ mpu_hardware_regions_supported(void)
 {
     /* Read the DREGION field of the MPU type register and mask off   */
     /* the bits of interest to get the count of regions.              */
-    return ((hardware_register(MPU_TYPE) & MPU_TYPE_DREGION_M) >> MPU_TYPE_DREGION_S);
+    return ((mpu_hardware_register(MPU_TYPE) & MPU_TYPE_DREGION_M) >> MPU_TYPE_DREGION_S);
 }
 
 /* Does our hardware have unified I & D regions? */
 static bool
 mpu_hardware_is_unified(void)
 {
-    return !(hardware_register(MPU_TYPE) & MPU_TYPE_SEPARATE);
+    return !(mpu_hardware_register(MPU_TYPE) & MPU_TYPE_SEPARATE);
 }
 
 inline static void
@@ -188,8 +188,8 @@ mpu_region_disable(const uint32_t mpu_region)
     internal_assert(mpu_region < MPU_MAX_REGIONS,
                     ERROR_ID_MPU_INTERNAL_INVALID_REGION_INDEX);
 
-    hardware_register(MPU_NUMBER) = mpu_region;
-    hardware_register(MPU_ATTR) &= ~MPU_ATTR_ENABLE;
+    mpu_hardware_register(MPU_NUMBER) = mpu_region;
+    mpu_hardware_register(MPU_ATTR) &= ~MPU_ATTR_ENABLE;
 }
 
 static uint32_t
@@ -226,18 +226,18 @@ static void
 mpu_memmanage_interrupt_enable(void)
 {
     /* Clear the NVIC FSR as it starts off as junk */
-    uint32_t fault_stat = hardware_register(NVIC_FAULT_STAT);
-    hardware_register(NVIC_FAULT_STAT) = fault_stat;
+    uint32_t fault_stat = mpu_hardware_register(MPU_NVIC_FAULT_STAT);
+    mpu_hardware_register(MPU_NVIC_FAULT_STAT) = fault_stat;
 
     /* Enable the interrupt */
-    hardware_register(SYS_HND_CTRL) |= SYS_HND_CTRL_MEM;
+    mpu_hardware_register(MPU_SYS_HND_CTRL) |= MPU_SYS_HND_CTRL_MEM;
 }
 
 static uint32_t
 mpu_region_size_flag(const uint32_t bytes)
 {
     /* armv7m MPU only supports regions of 2^n size, above 32 bytes */
-    internal_assert(is_pow2(bytes), ERROR_ID_MPU_INVALID_REGION_SIZE);
+    internal_assert(mpu_is_pow2(bytes), ERROR_ID_MPU_INVALID_REGION_SIZE);
     internal_assert(bytes >= 32, ERROR_ID_MPU_INVALID_REGION_SIZE);
 
     /* MPU region size flag for 2^x bytes is (x-1)<<1
@@ -275,14 +275,14 @@ mpu_populate_regions(void)
     #error "Write-only permissions unsupported on armv7m. Domain: {{name}}"
 {{/readable}}{{/writeable}}
     mpu_regions[{{idx}}][{{domx}}+1].base_flag =
-        mpu_get_base_flag({{domx}}+2, linker_value(linker_domain_{{name}}_start));
+        mpu_get_base_flag({{domx}}+2, mpu_linker_value(linker_domain_{{name}}_start));
     mpu_regions[{{idx}}][{{domx}}+1].attr_flag =
         mpu_get_attr_flag(
-            mpu_region_size_flag(linker_value(linker_domain_{{name}}_size)) | MPU_RGN_ENABLE |
+            mpu_region_size_flag(mpu_linker_value(linker_domain_{{name}}_size)) | MPU_RGN_ENABLE |
                 {{#readable}}{{^writeable}}MPU_P_RO{{/writeable}}{{/readable}} /* Read-only? */
                 {{#writeable}}{{#readable}}MPU_P_RW{{/readable}}{{/writeable}} /* Read-write? */
                 {{^executable}}| MPU_P_NOEXEC{{/executable}} /* Executable? (no flag = executable) */
-            , linker_value(linker_domain_{{name}}_start) );
+            , mpu_linker_value(linker_domain_{{name}}_start) );
 
 {{/associated_domains}}
 {{/tasks}}
@@ -306,8 +306,8 @@ mpu_initialize(void)
     internal_assert(mpu_hardware_is_unified(), ERROR_ID_MPU_NON_STANDARD);
 
     /* Make the MPU use a default region in privileged mode, disable it during a hard fault */
-    hardware_register(MPU_CTRL) |= MPU_CONFIG_PRIV_DEFAULT;
-    hardware_register(MPU_CTRL) &= ~(MPU_CONFIG_HARDFLT_NMI);
+    mpu_hardware_register(MPU_CTRL) |= MPU_CONFIG_PRIV_DEFAULT;
+    mpu_hardware_register(MPU_CTRL) &= ~(MPU_CONFIG_HARDFLT_NMI);
 
     /* Initially, we will only give tasks access to:
      * - Their own stack
@@ -318,11 +318,11 @@ mpu_initialize(void)
      * See SLOTH, or AUTOSAR OS specifications v5.0.0 */
 
     /* Create a read-only executable region for our FLASH */
-    uint32_t flash_size = linker_value(linker_flash_size);
-    hardware_register(MPU_BASE) = mpu_get_base_flag(0, linker_value(linker_flash_start));
-    hardware_register(MPU_ATTR) = mpu_get_attr_flag(
+    uint32_t flash_size = mpu_linker_value(linker_flash_size);
+    mpu_hardware_register(MPU_BASE) = mpu_get_base_flag(0, mpu_linker_value(linker_flash_start));
+    mpu_hardware_register(MPU_ATTR) = mpu_get_attr_flag(
             mpu_region_size_flag(flash_size) | MPU_P_EXEC | MPU_P_RO | MPU_RGN_ENABLE,
-            linker_value(linker_flash_start));
+            mpu_linker_value(linker_flash_start));
 
     /* fill up our region table for each task */
     mpu_populate_regions();
@@ -365,10 +365,10 @@ mpu_configure_for_current_task(void)
 void
 handle_mpu_fault(void)
 {
-    uint32_t fault_status  = hardware_register(NVIC_FAULT_STAT);
+    uint32_t fault_status  = mpu_hardware_register(MPU_NVIC_FAULT_STAT);
 
 {{#verbose_protection_faults}}
-    uint32_t fault_address = hardware_register(NVIC_MM_ADDR);
+    uint32_t fault_address = mpu_hardware_register(MPU_NVIC_MM_ADDR);
     debug_print("protection fault: [address=");
     debug_printhex32(fault_address);
     debug_print(", status=");
@@ -377,7 +377,7 @@ handle_mpu_fault(void)
 {{/verbose_protection_faults}}
 
     /* Clear the fault status register */
-    hardware_register(NVIC_FAULT_STAT) = fault_status;
+    mpu_hardware_register(MPU_NVIC_FAULT_STAT) = fault_status;
 }
 
 {{#skip_faulting_instructions}}

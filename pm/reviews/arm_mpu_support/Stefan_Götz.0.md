@@ -77,6 +77,8 @@ Comment 11: Rework
 To improve consistency with the rest of the documentation, please avoid the use of 'we'.
 This often improves clarity because the identify of 'we' can be ambiguous.
 
+[sebastian.holzapfel: this was fixed when switching to present tense earlier]
+
 Location: components/mpu-armv7m/docs.md:161
 Comment 12: Rework
 How about "This is an optional configuration item" instead of "This is not a mandatory configuration item"?

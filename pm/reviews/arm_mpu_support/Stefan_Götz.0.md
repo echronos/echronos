@@ -40,6 +40,8 @@ Comment 5: Rework
 This sentence contains two main clauses.
 Please separate them with a full stop.
 
+[sebastian.holzapfel: fixed]
+
 Location: components/mpu-armv7m/docs.md:69
 Comment 6: Rework
 How about replacing "there is a limitation on the number of protection regions" with "the number of protection regions is limited"?

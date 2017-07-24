@@ -54,7 +54,8 @@ When creating a system, the RTOS configuration mechanism is used to create and a
 
 ### The ARMv7m Memory Protection Unit
 
-Note that some devices in the ARMv7m family do not have an MPU, be sure to check the vendor documentation before using this feature.
+Note that some devices in the ARMv7m family do not have an MPU.
+Be sure to check the vendor documentation before using this feature.
 Most ARMv7m MPUs have the same set of capabilities:
 
 - *8 protection regions* (16 on some Cortex-M7 processors, but this is rare)

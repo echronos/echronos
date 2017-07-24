@@ -27,6 +27,8 @@ I find the use of italics in this section a bit excessive.
 For example, I don't understand the benefit of putting "or" and "different permissions" in italics.
 Although clearly a matter of preference, how about limiting italic text to quotes and newly introduced or unusual terms?
 
+[sebastian.holzapfel: reduced excessive italics usage in some areas]
+
 Location: components/mpu-armv7m/docs.md:51
 Comment 4: Rework
 Does "it's" need to be "its" instead?

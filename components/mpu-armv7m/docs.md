@@ -38,8 +38,8 @@ Note that this means tasks are not prevented from running code that does not bel
 
 A key concept related to memory protection is how tasks are granted permission to access memory regions.
 The RTOS implements 'Protection Domains' as a way of bookkeeping for memory regions.
-A *protection domain* can contain one or more pieces of data (this is known as a 'symbol' domain) *or* encompass an address range, like a peripheral (this is known as an 'address' domain).
-Tasks can be given *different permissions* to these domains, depending on what they require.
+A *protection domain* can contain one or more pieces of data (this is known as a 'symbol' domain) or encompass an address range, like a peripheral (this is known as an 'address' domain).
+Tasks can be given different permissions to these domains, depending on what they require.
 This facilitates decoupling of logical functionality and memory. For example:
 
 <img src="docs/domain_abstraction.png"/>
@@ -69,12 +69,12 @@ Had we set up some basic protection regions, the address space might look like:
 It is obvious that since there is a limitation on the number of protection regions, this must place some limitation on the RTOS.
 Since the RTOS always needs protection regions active during task execution to indicate both:
 
-- The task stack *and*
+- The task stack
 - The system code section
 
 This leaves `8 - 2 = 6` regions for general-purpose use.
 In practice, this means that tasks may only have a maximum of *6* associated domains on this architecture.
-That is, any single task may only be granted access permissions to a maximum of *6* protection domains.
+That is, any single task may only be granted access permissions to a maximum of 6 protection domains.
 
 Active protection regions are changed at runtime depending on which task is currently scheduled, and which protection domains the task has access to. For example:
 

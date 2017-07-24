@@ -83,6 +83,8 @@ Location: components/mpu-armv7m/docs.md:161
 Comment 12: Rework
 How about "This is an optional configuration item" instead of "This is not a mandatory configuration item"?
 
+[sebastian.holzapfel: good point, fixed]
+
 Location: components/mpu-armv7m/docs.md:166
 Comment 13: Rework
 Full stop missing at end of line.

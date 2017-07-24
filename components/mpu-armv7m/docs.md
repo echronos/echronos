@@ -159,7 +159,7 @@ This is a mandatory configuration item with no default.
 This configuration item is a list of `domain` configuration objects.
 Each `domain` entry defines permissions that tasks have to a specific protection domain.
 A task does not have read or write access to any protection domains unless it is associated with them.
-This is not a mandatory configuration item, with a default of no associated domains.
+This is an optional configuration item, with a default of no associated domains.
 
 ### `tasks/task/associated_domains/domain/name`
 

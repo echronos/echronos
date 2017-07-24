@@ -70,6 +70,8 @@ Location: components/mpu-armv7m/docs.md:132
 Comment 10: Rework
 The sentence on this line contains no main clause.
 
+[sebastian.holzapfel: fixed]
+
 Location: components/mpu-armv7m/docs.md:132 and following
 Comment 11: Rework
 To improve consistency with the rest of the documentation, please avoid the use of 'we'.

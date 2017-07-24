@@ -130,7 +130,7 @@ Either `symbols` or `base_address` needs to be specified for a protection domain
 ### `protection_domains/protection_domain/symbols/symbol`
 
 This configuration item denotes either a C identifier, or an object file that corresponds to a source file after the build process.
-For example, with an implementation file, `foobar.c`, containing:
+For example, with an implementation file, `foobar.c`, that contains the following:
 
     int foo_int;
     int bar_int;

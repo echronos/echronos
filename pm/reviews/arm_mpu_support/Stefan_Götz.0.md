@@ -19,6 +19,8 @@ Comment 2: Rework
 I believe that the phrase "as a way of bookkeeping memory regions" is not quite correct.
 Since "bookkeep" is not a verb, how about "as a way of bookkeeping for memory regions"?
 
+[sebastian.holzapfel: rephrased as required]
+
 Location: components/mpu-armv7m/docs.md:41 and following
 Comment 3: Rework
 I find the use of italics in this section a bit excessive.

@@ -164,7 +164,7 @@ This is an optional configuration item, with a default of no associated domains.
 ### `tasks/task/associated_domains/domain/name`
 
 This configuration item specifies the protection domain that this entry associates the task with.
-This property must have the same value as the corresponding `protection_domains/protection_domain/name`
+This property must have the same value as the corresponding `protection_domains/protection_domain/name`.
 This is a mandatory configuration item with no default.
 A domain association with no properties except the domain name results in read-only access being granted.
 

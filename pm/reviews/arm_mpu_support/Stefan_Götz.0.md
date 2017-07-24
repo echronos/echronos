@@ -89,6 +89,8 @@ Location: components/mpu-armv7m/docs.md:166
 Comment 13: Rework
 Full stop missing at end of line.
 
+[sebastian.holzapfel: fixed]
+
 Location: components/mpu-armv7m/implementation.c:13
 Comment 14: Rework
 Please surround all macro values that are compound expressions with parentheses.

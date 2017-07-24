@@ -125,6 +125,9 @@ Location: components/mpu-armv7m/implementation.c:188 and following
 Comment 18: Rework
 Feel free to use the full line length of 118 characters where possible.
 
+[sebastian.holzapfel: good point.
+Fixed by collapsing unnecessarily sparse lines onto a single line where appropriate.]
+
 Location: components/mpu-armv7m/implementation.c:339 following
 Comment 19: Rework
 For consistency, how about prefixing this and other public non-API functions with `rtos_internal_`?

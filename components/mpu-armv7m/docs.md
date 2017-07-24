@@ -48,7 +48,7 @@ In the above diagram, Domain A is an 'address' domain that encompasses a GPIO pe
 Task A is the only task that may write to Domain B, and thus can dictate how the 'STATE' data appears to Task B and Task C, with a guarantee that the data remains unmodified by Task B or Task C.
 Task B is the only task that has access to Domain C, and so access to any memory in Domain C by Task A or Task C results in a protection fault.
 
-Note that if a task has no domain associations at all, it is restricted to accessing it's own stack and making RTOS calls.
+Note that if a task has no domain associations at all, it is restricted to accessing its own stack and making RTOS calls.
 
 When creating a system, the RTOS configuration mechanism is used to create and assign protection domains (See [Memory Protection Configuration] for more information).
 

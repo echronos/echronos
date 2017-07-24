@@ -33,6 +33,8 @@ Location: components/mpu-armv7m/docs.md:51
 Comment 4: Rework
 Does "it's" need to be "its" instead?
 
+[sebastian.holzapfel: fixed]
+
 Location: components/mpu-armv7m/docs.md:57
 Comment 5: Rework
 This sentence contains two main clauses.

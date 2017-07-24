@@ -118,6 +118,9 @@ Location: components/mpu-armv7m/implementation.c:126 following
 Comment 17: Rework
 For consistency with the rest of the code base, by-value arguments in function declarations shall have no const qualifiers, even if they do in the corresponding function definition.
 
+[sebastian.holzapfel: missed that, fixed.
+also added some prototypes that I somehow missed]
+
 Location: components/mpu-armv7m/implementation.c:188 and following
 Comment 18: Rework
 Feel free to use the full line length of 118 characters where possible.

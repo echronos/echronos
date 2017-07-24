@@ -52,6 +52,8 @@ Location: components/mpu-armv7m/docs.md:70
 Comment 7: Rework
 Something appears to be missing on this line and the following list to make this a complete sentence.
 
+[sebastian.holzapfel: rephrased as required]
+
 Location: components/mpu-armv7m/docs.md:94
 Comment 8: Rework
 "its" instead of "it's"?

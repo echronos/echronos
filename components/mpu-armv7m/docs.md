@@ -68,7 +68,7 @@ Had we set up some basic protection regions, the address space might look like:
 <img src="docs/mpu_hardware.png"/>
 
 It is obvious that since the number of protection regions is limited, this must place some limitation on the RTOS.
-Since the RTOS always needs protection regions active during task execution to indicate both:
+The RTOS always needs at least 2 protection regions active during task execution to describe the following:
 
 - The task stack
 - The system code section

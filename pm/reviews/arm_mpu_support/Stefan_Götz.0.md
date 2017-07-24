@@ -12,6 +12,8 @@ The document uses the future tense in a number of cases.
 For consistency with the rest of the documentation and grammatical correctness, please generally use present tense.
 Future tense should only be used where necessary for clarity or correctness.
 
+[sebastian.holzapfel: Fixed up tenses for consistency]
+
 Location: components/mpu-armv7m/docs.md:40
 Comment 2: Rework
 I believe that the phrase "as a way of bookkeeping memory regions" is not quite correct.

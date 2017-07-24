@@ -92,7 +92,7 @@ With task B currently running, the active protection regions are those correspon
 This configuration item is a boolean with a default of false.
 When true, memory protection capabilities of the RTOS are enabled.
 The protection policies enforced depend on the rest of the memory protection configuration items.
-If no other configuration options are set, every task only has access to it's own stack.
+If no other configuration options are set, every task only has access to its own stack.
 Memory protected systems must be compiled with a special set of flags, so ensure that that the correct build scripts are used by the system to avoid strange error messages when memory protection is enabled.
 
 ### `verbose_protection_faults`

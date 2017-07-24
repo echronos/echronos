@@ -58,6 +58,8 @@ Location: components/mpu-armv7m/docs.md:94
 Comment 8: Rework
 "its" instead of "it's"?
 
+[sebastian.holzapfel: fixed]
+
 Location: components/mpu-armv7m/docs.md:112
 Comment 9: Rework
 Missing full stop at end of line.

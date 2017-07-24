@@ -74,28 +74,29 @@
 
 /*| structures |*/
 {{#memory_protection}}
-struct mpu_region {
+struct mpu_region
+{
     uint32_t base_flag;
     uint32_t attr_flag;
 };
 
 static struct mpu_region mpu_regions[{{tasks.length}}][MPU_MAX_REGIONS-1] =
-    {
+{
 {{#tasks}}
-        {
-            /* Hardcoded init for MPU_MAX_REGIONS for now
-             * Note an entry for 0 is not required as the code region (#0)
-             * has constant configuration across context switches */
-            {1 | MPU_BASE_VALID, 0},
-            {2 | MPU_BASE_VALID, 0},
-            {3 | MPU_BASE_VALID, 0},
-            {4 | MPU_BASE_VALID, 0},
-            {5 | MPU_BASE_VALID, 0},
-            {6 | MPU_BASE_VALID, 0},
-            {7 | MPU_BASE_VALID, 0},
-        },
+    {
+        /* Hardcoded init for MPU_MAX_REGIONS for now
+         * Note an entry for 0 is not required as the code region (#0)
+         * has constant configuration across context switches */
+        {1 | MPU_BASE_VALID, 0},
+        {2 | MPU_BASE_VALID, 0},
+        {3 | MPU_BASE_VALID, 0},
+        {4 | MPU_BASE_VALID, 0},
+        {5 | MPU_BASE_VALID, 0},
+        {6 | MPU_BASE_VALID, 0},
+        {7 | MPU_BASE_VALID, 0},
+    },
 {{/tasks}}
-    };
+};
 {{/memory_protection}}
 
 /*| extern_declarations |*/
@@ -352,14 +353,16 @@ mpu_configure_for_current_task(void)
      * the 8 adjacent MPU region alias registers */
     /* NOTE: Assumes the mpu_regions struct has been packed properly */
     /* The compiler wasn't intelligent enough to optimize this */
-    asm volatile (
+    asm volatile
+    (
             "ldm %0, {r2-r6, r8-r10}\n"
             "stm %1, {r2-r6, r8-r10}\n"
             "adds %0, #32   \n"
             "ldm %0, {r2-r6, r8}\n"
             "stm %1, {r2-r6, r8}\n"
             : "+r" (region_config_addr) : "r" (MPU_BASE)
-            : "memory", "r2", "r3", "r4", "r5", "r6", "r8", "r9", "r10");
+            : "memory", "r2", "r3", "r4", "r5", "r6", "r8", "r9", "r10"
+    );
 }
 
 void
@@ -389,7 +392,8 @@ rtos_internal_memmanage_handler(void)
     /* Load the offending PC, and increment it on the exception stack.
      * when we RFE, we will resume execution after the bad instruction.
      * Note that we only add 2 as we are in thumb mode */
-    asm volatile (
+    asm volatile
+    (
         "mrs r0, msp\n"
         "ldr r1, [r0, #6*4]\n"
         "add r1, r1, #2\n"
@@ -401,10 +405,11 @@ rtos_internal_memmanage_handler(void)
     /* Must load the lr with this special return value to indicate
      * an RFE (popping stacked registers (including PC) and
      * switching to usermode) */
-    asm volatile (
+    asm volatile
+    (
         "mvn lr, #6\n"
         "bx lr\n"
-        );
+    );
 }
 {{/skip_faulting_instructions}}
 

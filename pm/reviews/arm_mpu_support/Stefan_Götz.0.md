@@ -111,6 +111,9 @@ Comment 16: Rework
 For readability, please use a consistent line-break and indentation style.
 Most RTOS code places an opening brace on a separate line, starting at no indentation.
 
+[sebastian.holzapfel: good point, missed that.
+I also fixed up the bracing style used by inline assembly statements.]
+
 Location: components/mpu-armv7m/implementation.c:126 following
 Comment 17: Rework
 For consistency with the rest of the code base, by-value arguments in function declarations shall have no const qualifiers, even if they do in the corresponding function definition.

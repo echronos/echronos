@@ -110,7 +110,7 @@ This functionality is not recommended for use in 'real' systems, because it can 
 
 ### `protection_domains`
 
-This configuration item is a list of `protection_domain` configuration objects
+This configuration item is a list of `protection_domain` configuration objects.
 A protection domain denotes a named area of memory that can be associated with tasks.
 Tasks define the permissions they have to protection domains in their task configuration.
 

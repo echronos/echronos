@@ -64,6 +64,8 @@ Location: components/mpu-armv7m/docs.md:112
 Comment 9: Rework
 Missing full stop at end of line.
 
+[sebastian.holzapfel: fixed]
+
 Location: components/mpu-armv7m/docs.md:132
 Comment 10: Rework
 The sentence on this line contains no main clause.

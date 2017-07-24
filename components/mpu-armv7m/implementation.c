@@ -10,7 +10,7 @@
 /* MPU-related constants */
 #define MPU_MAX_REGIONS             8
 #define MPU_BUILTIN_REGIONS         2           /* Stack & flash regions           */
-#define MPU_MAX_ASSOCIATED_DOMAINS  MPU_MAX_REGIONS-MPU_BUILTIN_REGIONS
+#define MPU_MAX_ASSOCIATED_DOMAINS  (MPU_MAX_REGIONS-MPU_BUILTIN_REGIONS)
 
 /* MPU control registers */
 #define MPU_TYPE                    0xE000ED90  /* MPU Type                        */
@@ -136,8 +136,8 @@ inline void mpu_configure_for_current_task(void);
 /*| function_like_macros |*/
 {{#memory_protection}}
 #define hardware_register(x) (*((volatile uint32_t *)(x)))
-#define is_pow2(x) (x && !(x & (x - 1)))
-#define linker_value(x) ((uint32_t)&x)
+#define is_pow2(x) ((x) && !((x) & ((x) - 1)))
+#define linker_value(x) ((uint32_t)&(x))
 {{/memory_protection}}
 
 /*| functions |*/

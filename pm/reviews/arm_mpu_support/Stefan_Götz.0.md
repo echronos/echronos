@@ -96,6 +96,8 @@ Comment 14: Rework
 Please surround all macro values that are compound expressions with parentheses.
 This avoids surprises in operator precedence when using such macros and is a convention aimed for by the rest of the code base.
 
+[sebastian.holzapfel: good point, fixed in multiple places]
+
 Location: components/mpu-armv7m/implementation.c:25 and 138-140
 Comment 15: Rework
 Please prefix macro names, where sensible, with "MPU_" to indicate that they originate from the MPU component.

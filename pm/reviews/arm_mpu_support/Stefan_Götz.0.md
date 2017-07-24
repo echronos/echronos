@@ -46,6 +46,8 @@ Location: components/mpu-armv7m/docs.md:69
 Comment 6: Rework
 How about replacing "there is a limitation on the number of protection regions" with "the number of protection regions is limited"?
 
+[sebastian.holzapfel: good point, fixed]
+
 Location: components/mpu-armv7m/docs.md:70
 Comment 7: Rework
 Something appears to be missing on this line and the following list to make this a complete sentence.

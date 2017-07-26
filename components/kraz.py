@@ -40,7 +40,7 @@ class KrazModule(Module):
         config = super().configure(xml_config)
 
         # This variant does not support memory protection at this time
-        config['memory_protection'] = False
+        config['mpu_enabled'] = False
 
         # Create signal_set definitions from signal definitions:
         config['signal_sets'] = [{'name': sig['name'], 'value': 1 << sig['idx'], 'singleton': True}

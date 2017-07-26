@@ -52,9 +52,9 @@ rtos_internal_context_switch:
 /* void rtos_internal_context_switch_first(context_t *to); */
 rtos_internal_context_switch_first:
         ldr sp, [r0]
-        {{#rtos.memory_protection}}
+        {{#rtos.mpu_enabled}}
         bl rtos_internal_mpu_configure_for_current_task
-        {{/rtos.memory_protection}}
+        {{/rtos.mpu_enabled}}
         pop {r4-r12,pc}
 .size rtos_internal_context_switch_first, .-rtos_internal_context_switch_first
 .size rtos_internal_context_switch, .-rtos_internal_context_switch
@@ -66,21 +66,21 @@ rtos_internal_context_switch_first:
  * It is designed to be used in conjunction with the context
  * switch code for the initial switch to a particular task.
  * The tasks entry point is stored in 'r4'.
- *{{#rtos.memory_protection}}
+ *{{#rtos.mpu_enabled}}
  * When memory protection is enabled, we must ensure that
  * we drop into user-mode before branching into our task.
  * Normally, this is the responsibility of API call wrappers,
  * however the first context switch into a function requires
  * us to explicitly drop privileges as we do here.
- *{{/rtos.memory_protection}} */
+ *{{/rtos.mpu_enabled}} */
 rtos_internal_trampoline:
-        {{#rtos.memory_protection}}
+        {{#rtos.mpu_enabled}}
         bl rtos_internal_drop_privileges
-        {{/rtos.memory_protection}}
+        {{/rtos.mpu_enabled}}
         blx r4
 .size rtos_internal_trampoline, .-rtos_internal_trampoline
 
-{{#rtos.memory_protection}}
+{{#rtos.mpu_enabled}}
 .global rtos_internal_elevate_privileges
 .type rtos_internal_elevate_privileges,#function
 rtos_internal_elevate_privileges:
@@ -120,4 +120,4 @@ rtos_internal_svc_handler:
     /* RFE to straight after the offending svc call */
     bx lr
 .size rtos_internal_svc_handler, .-rtos_internal_svc_handler
-{{/rtos.memory_protection}}
+{{/rtos.mpu_enabled}}

@@ -1,1 +1,1 @@
-<entry name="memory_protection" type="bool" default="false"/>
+<entry name="mpu_enabled" type="bool" default="false"/>

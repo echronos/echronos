@@ -13,20 +13,20 @@
 /*| function_declarations |*/
 
 /*| state |*/
-{{#memory_protection}}
+{{#mpu_enabled}}
 /* We need to align stack addresses on their size to create a valid MPU region.
  * Additionally, we place the stack in a specially named section so that
  * we are able to see where the linker places it and configure the MPU accordingly. */
-{{/memory_protection}}
+{{/mpu_enabled}}
 {{#tasks}}
-{{#memory_protection}}
+{{#mpu_enabled}}
 static uint32_t stack_{{idx}}[{{stack_size}}]
     __attribute__(( aligned({{stack_size}}*sizeof(uint32_t)) ))
     __attribute__(( section (".bss.stack.task_{{idx}}") ));
-{{/memory_protection}}
-{{^memory_protection}}
+{{/mpu_enabled}}
+{{^mpu_enabled}}
 static uint32_t stack_{{idx}}[{{stack_size}}] __attribute__((aligned(8)));
-{{/memory_protection}}
+{{/mpu_enabled}}
 {{/tasks}}
 
 /*| function_like_macros |*/

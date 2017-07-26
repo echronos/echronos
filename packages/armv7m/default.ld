@@ -78,7 +78,7 @@ SECTIONS
         /* Check that bitband variables don't overflow */
         dummy = ASSERT(SIZEOF(.data.bitband) <= {{bitband_size}}, "bitband variables too large");
 
-        {{#memory_protection}}
+        {{#mpu_enabled}}
         /* Sections that encapsulate protection domains.
          *
          * SYMBOL DOMAINS:
@@ -100,7 +100,7 @@ SECTIONS
          *
          * ADDRESS DOMAINS:
          * These simply use a base address and size to declare a domain. */
-        {{#rtos.protection_domains}}
+        {{#rtos.mpu_protection_domains}}
 
         dummy = ASSERT({{domain_size}} == (1 << LOG2CEIL({{domain_size}})),
             "Protection domain {{name}} has size that is not power-of-2.");
@@ -137,8 +137,8 @@ SECTIONS
             "Failed to fit symbols in protection domain: {{name}}");
         {{/base_address}}
 
-        {{/rtos.protection_domains}}
-        {{/memory_protection}}
+        {{/rtos.mpu_protection_domains}}
+        {{/mpu_enabled}}
 
         .data :
         {
@@ -149,15 +149,15 @@ SECTIONS
         data_load_addr = LOADADDR(.data.bitband);
         data_virt_addr = ADDR(.data.bitband);
         data_size = SIZEOF(.data.bitband) + SIZEOF(.data)
-            {{#memory_protection}}
+            {{#mpu_enabled}}
             /* We must increase the .data size by our symbol protection domain sizes
              * so that they are appropriately initialized when the RTOS starts */
-            {{#rtos.protection_domains}}
+            {{#rtos.mpu_protection_domains}}
             {{^base_address}}
             + SIZEOF(.domain_{{name}})
             {{/base_address}}
-            {{/rtos.protection_domains}}
-            {{/memory_protection}}
+            {{/rtos.mpu_protection_domains}}
+            {{/mpu_enabled}}
             ;
 
         /* Check addresses are correct */
@@ -167,13 +167,13 @@ SECTIONS
 
         .bss :
         {
-            {{#memory_protection}}
+            {{#mpu_enabled}}
             {{#rtos.tasks}}
             dummy = ASSERT({{stack_size}} == (1 << LOG2CEIL({{stack_size}})),
                            "Stack size for task: {{name}} is not a power-of-2.");
             *(.bss.stack.task_{{idx}})
             {{/rtos.tasks}}
-            {{/memory_protection}}
+            {{/mpu_enabled}}
             *(.bss*)
             *(COMMON)
             . = ALIGN(4);
@@ -192,13 +192,13 @@ SECTIONS
         {{.}}_bitband = {{bitband_alias}} + (({{.}} - {{bitband_base}}) * 32);
         {{/bit_aliases}}
 
-        {{#memory_protection}}
+        {{#mpu_enabled}}
         /* Constants used by the MPU for run-time assertions. Necessary here
          * because these are properties of the vectable module, not the RTOS */
         linker_flash_start = {{flash_load_addr}};
         linker_flash_size = {{flash_size}};
         linker_sram_size = {{sram_size}};
-        {{/memory_protection}}
+        {{/mpu_enabled}}
 
         /* Debug sections */
 

@@ -34,7 +34,7 @@
       <flash_addr>0x8000000</flash_addr>
       <flash_size>0x100000</flash_size>
       <sram_size>0x20000</sram_size>
-      <memory_protection>true</memory_protection>
+      <mpu_enabled>true</mpu_enabled>
       <nmi>nmi</nmi>
       <hardfault>hardfault</hardfault>
       <usagefault>usagefault</usagefault>
@@ -44,10 +44,10 @@
     <module name="generic.debug" />
 
     <module name="armv7m.rtos-acamar">
-      <memory_protection>true</memory_protection>
-      <verbose_protection_faults>true</verbose_protection_faults>
-      <skip_faulting_instructions>true</skip_faulting_instructions>
-      <protection_domains>
+      <mpu_enabled>true</mpu_enabled>
+      <mpu_verbose_faults>true</mpu_verbose_faults>
+      <mpu_skip_faulting_instructions>true</mpu_skip_faulting_instructions>
+      <mpu_protection_domains>
           <protection_domain>
               <name>dom1</name>
               <domain_size>256</domain_size>
@@ -63,7 +63,7 @@
                   <symbol>dom2_variable</symbol>
               </symbols>
           </protection_domain>
-      </protection_domains>
+      </mpu_protection_domains>
 
 
       <prefix>rtos</prefix>
@@ -77,7 +77,7 @@
           <name>a</name>
           <function>fn_a</function>
           <stack_size>256</stack_size>
-          <associated_domains>
+          <mpu_associated_domains>
               <domain>
                   <name>dom1</name>
                   <writeable>true</writeable>
@@ -85,14 +85,14 @@
               <domain>
                   <name>dom2</name>
               </domain>
-          </associated_domains>
+          </mpu_associated_domains>
         </task>
 
         <task>
           <name>b</name>
           <function>fn_b</function>
           <stack_size>256</stack_size>
-          <associated_domains>
+          <mpu_associated_domains>
               <domain>
                   <name>dom1</name>
               </domain>
@@ -100,7 +100,7 @@
                   <name>dom2</name>
                   <writeable>true</writeable>
               </domain>
-          </associated_domains>
+          </mpu_associated_domains>
         </task>
 
       </tasks>

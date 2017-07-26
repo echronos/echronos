@@ -155,6 +155,9 @@ Comment 22: Accepted
 How about giving at least the top-level configuration items a common prefix?
 For example: mpu_enabled, mpu_verbose_faults, mpu_skip_faulting_instructions, etc.
 
+[sebastian.holzapfel: I agree that this is a worthwhile improvement.
+I have given all top-level configuration items a common prefix.]
+
 Location: packages/machine-stm32f4-discovery/build_mpu.py:2 and other files
 Comment 23: Rework
 For all new files, please update the copyright year to 2017.

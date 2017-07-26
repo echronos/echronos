@@ -38,9 +38,9 @@ void
     {{/tasks}}
 
 
-    {{#memory_protection}}
+    {{#mpu_enabled}}
     mpu_initialize();
-    {{/memory_protection}}
+    {{/mpu_enabled}}
 
     context_switch_first(get_task_context({{prefix_const}}TASK_ID_ZERO));
 }

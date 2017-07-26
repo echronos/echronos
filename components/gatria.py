@@ -40,7 +40,7 @@ class GatriaModule(Module):
         config = super().configure(xml_config)
 
         # This variant does not support memory protection at this time
-        config['memory_protection'] = False
+        config['mpu_enabled'] = False
 
         config['prefix_func'] = config['prefix'] + '_' if config['prefix'] is not None else ''
         config['prefix_type'] = config['prefix'].capitalize() if config['prefix'] is not None else ''

@@ -1,12 +1,12 @@
 /*| headers |*/
-{{#memory_protection}}
-{{#verbose_protection_faults}}
+{{#mpu_enabled}}
+{{#mpu_verbose_faults}}
 #include "debug.h"
-{{/verbose_protection_faults}}
-{{/memory_protection}}
+{{/mpu_verbose_faults}}
+{{/mpu_enabled}}
 
 /*| object_like_macros |*/
-{{#memory_protection}}
+{{#mpu_enabled}}
 /* MPU-related constants */
 #define MPU_MAX_REGIONS             8
 #define MPU_BUILTIN_REGIONS         2           /* Stack & flash regions           */
@@ -68,12 +68,12 @@
 /* MPU region attribute flags */
 #define MPU_ATTR_SIZE_M             0x0000003E  /* Region Size Mask */
 #define MPU_ATTR_ENABLE             0x00000001  /* Region Enable    */
-{{/memory_protection}}
+{{/mpu_enabled}}
 
 /*| types |*/
 
 /*| structures |*/
-{{#memory_protection}}
+{{#mpu_enabled}}
 struct mpu_region
 {
     uint32_t base_flag;
@@ -97,10 +97,10 @@ static struct mpu_region mpu_regions[{{tasks.length}}][MPU_MAX_REGIONS-1] =
     },
 {{/tasks}}
 };
-{{/memory_protection}}
+{{/mpu_enabled}}
 
 /*| extern_declarations |*/
-{{#memory_protection}}
+{{#mpu_enabled}}
 /* These declarations allow us to use symbols that were declared inside the
  * linker script. For flash & sram this is necessary as these parameters
  * are part of the vectable module. For protection domains, this is necessary
@@ -111,14 +111,14 @@ static struct mpu_region mpu_regions[{{tasks.length}}][MPU_MAX_REGIONS-1] =
 extern const uint32_t linker_flash_start;
 extern const uint32_t linker_flash_size;
 extern const uint32_t linker_sram_size;
-{{#protection_domains}}
+{{#mpu_protection_domains}}
 extern const uint32_t linker_domain_{{name}}_start;
 extern const uint32_t linker_domain_{{name}}_size;
-{{/protection_domains}}
-{{/memory_protection}}
+{{/mpu_protection_domains}}
+{{/mpu_enabled}}
 
 /*| function_declarations |*/
-{{#memory_protection}}
+{{#mpu_enabled}}
 static bool mpu_is_enabled(void);
 static void mpu_enable(void);
 static void mpu_disable(void);
@@ -133,19 +133,19 @@ static void mpu_populate_regions(void);
 static void mpu_handle_fault(void);
 static void mpu_initialize(void);
 inline void rtos_internal_mpu_configure_for_current_task(void);
-{{/memory_protection}}
+{{/mpu_enabled}}
 
 /*| state |*/
 
 /*| function_like_macros |*/
-{{#memory_protection}}
+{{#mpu_enabled}}
 #define mpu_hardware_register(x) (*((volatile uint32_t *)(x)))
 #define mpu_is_pow2(x) ((x) && !((x) & ((x) - 1)))
 #define mpu_linker_value(x) ((uint32_t)&(x))
-{{/memory_protection}}
+{{/mpu_enabled}}
 
 /*| functions |*/
-{{#memory_protection}}
+{{#mpu_enabled}}
 static bool
 mpu_is_enabled(void)
 {
@@ -259,7 +259,7 @@ mpu_populate_regions(void)
      * altogether when switching tasks. */
 
 {{#tasks}}
-    #if {{associated_domains.length}} > MPU_MAX_ASSOCIATED_DOMAINS
+    #if {{mpu_associated_domains.length}} > MPU_MAX_ASSOCIATED_DOMAINS
     #error "Too many associated domains for task: {{name}}"
     #endif
 
@@ -270,7 +270,7 @@ mpu_populate_regions(void)
     mpu_regions[{{idx}}][0].base_flag = mpu_get_base_flag(1, (uint32_t)&stack_{{idx}});
 
     /* Protection domains for task: {{name}} */
-{{#associated_domains}}
+{{#mpu_associated_domains}}
 {{#writeable}}{{^readable}}
     #error "Write-only permissions unsupported on armv7m. Domain: {{name}}"
 {{/readable}}{{/writeable}}
@@ -283,7 +283,7 @@ mpu_populate_regions(void)
                 {{#writeable}}{{#readable}}MPU_P_RW{{/readable}}{{/writeable}} /* Read-write? */
                 {{^executable}}| MPU_P_NOEXEC{{/executable}} /* Executable? (no flag = executable) */
             , mpu_linker_value(linker_domain_{{name}}_start) );
-{{/associated_domains}}
+{{/mpu_associated_domains}}
 {{/tasks}}
 }
 
@@ -292,14 +292,14 @@ mpu_handle_fault(void)
 {
     uint32_t fault_status = mpu_hardware_register(MPU_NVIC_FAULT_STAT);
 
-{{#verbose_protection_faults}}
+{{#mpu_verbose_faults}}
     uint32_t fault_address = mpu_hardware_register(MPU_NVIC_MM_ADDR);
     debug_print("protection fault: [address=");
     debug_printhex32(fault_address);
     debug_print(", status=");
     debug_printhex32(fault_status);
     debug_print("]\n");
-{{/verbose_protection_faults}}
+{{/mpu_verbose_faults}}
 
     /* Clear the fault status register */
     mpu_hardware_register(MPU_NVIC_FAULT_STAT) = fault_status;
@@ -379,7 +379,7 @@ rtos_internal_mpu_configure_for_current_task(void)
     );
 }
 
-{{#skip_faulting_instructions}}
+{{#mpu_skip_faulting_instructions}}
 __attribute__((naked))
 void
 rtos_internal_memmanage_handler(void)
@@ -406,9 +406,9 @@ rtos_internal_memmanage_handler(void)
         "bx lr\n"
     );
 }
-{{/skip_faulting_instructions}}
+{{/mpu_skip_faulting_instructions}}
 
-{{^skip_faulting_instructions}}
+{{^mpu_skip_faulting_instructions}}
 void
 rtos_internal_memmanage_handler(void)
 {
@@ -421,8 +421,8 @@ rtos_internal_memmanage_handler(void)
     /* An MPU policy violation is a fatal error (normally) */
     {{fatal_error}}(ERROR_ID_MPU_VIOLATION);
 }
-{{/skip_faulting_instructions}}
-{{/memory_protection}}
+{{/mpu_skip_faulting_instructions}}
+{{/mpu_enabled}}
 
 /*| public_functions |*/
 

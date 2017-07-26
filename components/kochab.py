@@ -41,7 +41,7 @@ class KochabModule(Module):
         config = super().configure(xml_config)
 
         # This variant does not support memory protection at this time
-        config['memory_protection'] = False
+        config['mpu_enabled'] = False
 
         # Create builtin signals
         config['signal_labels'].append({'name': '_task_timer', 'idx': len(config['signal_labels'])})

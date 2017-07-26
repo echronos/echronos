@@ -1,7 +1,7 @@
-<entry name="memory_protection" type="bool" default="false"/>
-<entry name="verbose_protection_faults" type="bool" default="false"/>
-<entry name="skip_faulting_instructions" type="bool" default="false"/>
-<entry name="protection_domains" type="list" default="[]" auto_index_field="idx">
+<entry name="mpu_enabled" type="bool" default="false"/>
+<entry name="mpu_verbose_faults" type="bool" default="false"/>
+<entry name="mpu_skip_faulting_instructions" type="bool" default="false"/>
+<entry name="mpu_protection_domains" type="list" default="[]" auto_index_field="idx">
     <entry name="protection_domain" type="dict">
         <entry name="name" type="ident" />
         <entry name="domain_size" type="int" optional="false" />
@@ -17,7 +17,7 @@
 </entry>
 <entry name="tasks" type="list" auto_index_field="idx">
     <entry name="task" type="dict">
-        <entry name="associated_domains" type="list" default="[]" auto_index_field="domx">
+        <entry name="mpu_associated_domains" type="list" default="[]" auto_index_field="domx">
             <entry name="domain" type="dict">
                 <entry name="name" type="ident"/>
                 <entry name="readable" type="bool" default="true"/>

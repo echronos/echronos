@@ -1,7 +1,7 @@
 /*| public_headers |*/
-{{#memory_protection}}
+{{#mpu_enabled}}
 #include <stdbool.h>
-{{/memory_protection}}
+{{/mpu_enabled}}
 
 /*| public_types |*/
 

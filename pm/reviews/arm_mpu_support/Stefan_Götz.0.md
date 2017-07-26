@@ -162,6 +162,10 @@ Location: packages/machine-stm32f4-discovery/build_mpu.py:2 and other files
 Comment 23: Rework
 For all new files, please update the copyright year to 2017.
 
+[sebastian.holzapfel: Done.
+Should probably fix all the project licenses to refer to Data61 instead of NICTA as well.
+I'll leave that to a future task]
+
 Location: README.md:63
 Comment 24: Rework
 Please update the README so it no longer states that the RTOS is intended for devices without memory protection.

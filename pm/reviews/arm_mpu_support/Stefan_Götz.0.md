@@ -132,6 +132,9 @@ Location: components/mpu-armv7m/implementation.c:339 following
 Comment 19: Rework
 For consistency, how about prefixing this and other public non-API functions with `rtos_internal_`?
 
+[sebastian.holzapfel: good point, done.
+Also fixed the naming consistency of mpu_handle_fault while I was here.]
+
 Location: components/mpu-armv7m/implementation.c:368
 Comment 20: Rework
 Remove extra space before assignment operator.

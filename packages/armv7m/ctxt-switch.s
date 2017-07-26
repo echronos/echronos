@@ -53,7 +53,7 @@ rtos_internal_context_switch:
 rtos_internal_context_switch_first:
         ldr sp, [r0]
         {{#rtos.memory_protection}}
-        bl mpu_configure_for_current_task
+        bl rtos_internal_mpu_configure_for_current_task
         {{/rtos.memory_protection}}
         pop {r4-r12,pc}
 .size rtos_internal_context_switch_first, .-rtos_internal_context_switch_first

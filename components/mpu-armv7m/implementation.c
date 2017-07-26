@@ -130,8 +130,9 @@ static uint32_t mpu_get_base_flag(uint32_t mpu_region_index, uint32_t mpu_base_a
 static void mpu_memmanage_interrupt_enable(void);
 static uint32_t mpu_region_size_flag(uint32_t bytes);
 static void mpu_populate_regions(void);
+static void mpu_handle_fault(void);
 static void mpu_initialize(void);
-inline void mpu_configure_for_current_task(void);
+inline void rtos_internal_mpu_configure_for_current_task(void);
 {{/memory_protection}}
 
 /*| state |*/
@@ -289,6 +290,24 @@ mpu_populate_regions(void)
 }
 
 static void
+mpu_handle_fault(void)
+{
+    uint32_t fault_status  = mpu_hardware_register(MPU_NVIC_FAULT_STAT);
+
+{{#verbose_protection_faults}}
+    uint32_t fault_address = mpu_hardware_register(MPU_NVIC_MM_ADDR);
+    debug_print("protection fault: [address=");
+    debug_printhex32(fault_address);
+    debug_print(", status=");
+    debug_printhex32(fault_status);
+    debug_print("]\n");
+{{/verbose_protection_faults}}
+
+    /* Clear the fault status register */
+    mpu_hardware_register(MPU_NVIC_FAULT_STAT) = fault_status;
+}
+
+static void
 mpu_initialize(void)
 {
     /* Check hardware registers to see if this processor actually has
@@ -334,7 +353,7 @@ mpu_initialize(void)
 }
 
 void
-mpu_configure_for_current_task(void)
+rtos_internal_mpu_configure_for_current_task(void)
 {
     /* Note: region 0 is always the RX-only flash protection region
      * as set up during MPU initialization, so we do not touch that.
@@ -362,24 +381,6 @@ mpu_configure_for_current_task(void)
     );
 }
 
-void
-handle_mpu_fault(void)
-{
-    uint32_t fault_status  = mpu_hardware_register(MPU_NVIC_FAULT_STAT);
-
-{{#verbose_protection_faults}}
-    uint32_t fault_address = mpu_hardware_register(MPU_NVIC_MM_ADDR);
-    debug_print("protection fault: [address=");
-    debug_printhex32(fault_address);
-    debug_print(", status=");
-    debug_printhex32(fault_status);
-    debug_print("]\n");
-{{/verbose_protection_faults}}
-
-    /* Clear the fault status register */
-    mpu_hardware_register(MPU_NVIC_FAULT_STAT) = fault_status;
-}
-
 {{#skip_faulting_instructions}}
 __attribute__((naked))
 void
@@ -397,7 +398,7 @@ rtos_internal_memmanage_handler(void)
         "str r1, [r0, #6*4]\n"
     );
 
-    handle_mpu_fault();
+    mpu_handle_fault();
 
     /* Must load the lr with this special return value to indicate
      * an RFE (popping stacked registers (including PC) and
@@ -415,7 +416,7 @@ void
 rtos_internal_memmanage_handler(void)
 {
 
-    handle_mpu_fault();
+    mpu_handle_fault();
 
     /* Turn off the MPU in case we managed to block ourselves
      * from doing memory accesses in privileged mode */

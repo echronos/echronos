@@ -292,7 +292,7 @@ mpu_populate_regions(void)
 static void
 mpu_handle_fault(void)
 {
-    uint32_t fault_status  = mpu_hardware_register(MPU_NVIC_FAULT_STAT);
+    uint32_t fault_status = mpu_hardware_register(MPU_NVIC_FAULT_STAT);
 
 {{#verbose_protection_faults}}
     uint32_t fault_address = mpu_hardware_register(MPU_NVIC_MM_ADDR);
@@ -373,7 +373,7 @@ rtos_internal_mpu_configure_for_current_task(void)
     (
             "ldm %0, {r2-r6, r8-r10}\n"
             "stm %1, {r2-r6, r8-r10}\n"
-            "adds %0, #32   \n"
+            "adds %0, #32\n"
             "ldm %0, {r2-r6, r8}\n"
             "stm %1, {r2-r6, r8}\n"
             : "+r" (region_config_addr) : "r" (MPU_BASE)

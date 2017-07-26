@@ -140,6 +140,9 @@ Comment 20: Rework
 Remove extra space before assignment operator.
 Maybe check for other extra whitespace in this and other added files.
 
+[sebastian.holzapfel: fixed.
+Also searched for excessive spaces before operators in other added files.]
+
 Location: components/mpu-armv7m/implementation.c:388
 Comment 21: Rework
 Remove empty line.

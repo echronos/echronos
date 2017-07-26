@@ -148,6 +148,8 @@ Comment 21: Rework
 Remove empty line.
 Maybe check for similar patterns in this and other added files.
 
+[sebastian.holzapfel: removed extra empty lines, looked at all added files.]
+
 Location: components/mpu-armv7m/schema.xml
 Comment 22: Accepted
 How about giving at least the top-level configuration items a common prefix?

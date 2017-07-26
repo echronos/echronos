@@ -212,7 +212,6 @@ mpu_get_attr_flag(const uint32_t mpu_size_and_permission_flags, const uint32_t m
      * penalty on armv7m processors that have a cache. This is rare though. */
     return ((mpu_size_and_permission_flags & ~(MPU_ATTR_TEX_M | MPU_ATTR_CACHEABLE)) |
             MPU_ATTR_SHAREABLE | MPU_ATTR_BUFFRABLE);
-
 }
 
 static uint32_t
@@ -284,7 +283,6 @@ mpu_populate_regions(void)
                 {{#writeable}}{{#readable}}MPU_P_RW{{/readable}}{{/writeable}} /* Read-write? */
                 {{^executable}}| MPU_P_NOEXEC{{/executable}} /* Executable? (no flag = executable) */
             , mpu_linker_value(linker_domain_{{name}}_start) );
-
 {{/associated_domains}}
 {{/tasks}}
 }
@@ -386,7 +384,6 @@ __attribute__((naked))
 void
 rtos_internal_memmanage_handler(void)
 {
-
     /* Load the offending PC, and increment it on the exception stack.
      * when we RFE, we will resume execution after the bad instruction.
      * Note that we only add 2 as we are in thumb mode */
@@ -415,7 +412,6 @@ rtos_internal_memmanage_handler(void)
 void
 rtos_internal_memmanage_handler(void)
 {
-
     mpu_handle_fault();
 
     /* Turn off the MPU in case we managed to block ourselves
@@ -424,7 +420,6 @@ rtos_internal_memmanage_handler(void)
 
     /* An MPU policy violation is a fatal error (normally) */
     {{fatal_error}}(ERROR_ID_MPU_VIOLATION);
-
 }
 {{/skip_faulting_instructions}}
 {{/memory_protection}}

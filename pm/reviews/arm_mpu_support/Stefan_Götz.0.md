@@ -171,6 +171,8 @@ Comment 24: Rework
 Please update the README so it no longer states that the RTOS is intended for devices without memory protection.
 Maybe "without memory management units and virtual memory support" or something along those lines would be more appropriate?
 
+[sebastian.holzapfel: fixed.]
+
 Location: components/mpu-armv7m/docs.md or other location
 Comment 25: Rework
 Could you add documentation for system designers that provides basic instructions on how to add MPU support to a system?

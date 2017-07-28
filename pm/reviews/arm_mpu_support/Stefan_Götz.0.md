@@ -183,3 +183,12 @@ Location: N/A
 Comment 26: Rework
 How about adding a system test for the MPU support for regression testing?
 Would that be possible with reasonable effort?
+
+[sebastian.holzapfel: I would like to, but this is not possible with reasonable effort at the moment.
+When I created this patch, mainline qemu didn't have MPU support yet.
+As of a couple of weeks ago it now does, BUT:
+- It will take another few months for these changes to propogate to the stm32-qemu fork we're using.
+    - The entire VIC was rewritten so it's nontrivial to just cherry pick the changes on top.
+- The cortex-M MPU support is currently mostly copying the cortex-R support.
+    - This means that the minimum region size is 1K, which is incorrect and makes it almost impossible to run a hardware-accurate system.
+Thus, I would prefer delaying this to a future task as it will be much easier in a few months.]

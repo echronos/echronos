@@ -83,6 +83,39 @@ Active protection regions are changed at runtime depending on which task is curr
 
 With task B currently running, the active protection regions are those corresponding to the system code segment, the stack of task b, the 'command domain' and the 'uart domain'. In the event that a new task is scheduled, the active protection regions are changed to suit the new task in accordance with the RTOS configuration.
 
+### Adding Memory Protection to an Existing System
+
+To begin converting an ordinary Acamar system into a protected system one must first:
+
+- Enable the memory protection configuration option (`mpu_enabled`), and debugging information (`mpu_verbose_faults`)
+- Change the build script (in the system configuration) to an MPU build script (i.e replace the `<machine>.build` module with `<machine>.build_mpu` or similar)
+
+At this point, memory protection is enabled but the system is not very useful as tasks don't have any permissions.
+To assign permissions to tasks, one must first create some protection domains.
+
+General guidelines are provided below:
+
+- Memory-mapped peripherals make great protection domains - any task that requires use of that peripheral can later be given read or write access to the domain.
+- State that is shared between multiple tasks, and is logically related, makes a good candidate for a protection domain.
+- ROM images that sit outside the processor's code region (by necessity) have to exist in a protection domain.
+
+Keep in mind that choosing appropriate protection domains can often be quite application-specific.
+Additionally, refactoring the system codebase may be necessary in order for protection domains to be assignable.
+For example, if one task accesses more than 6 different memory regions (the upper limit on protection domains that can be associated with a single task), the functionality encompassed by that task may have to be split up.
+When possible, global state that is used only by a single task should be moved to that task's stack - removing the need for a domain altogether.
+
+In some cases (especially when using large third party drivers), it becomes difficult to figure out exactly what memory regions should be in a protection domain.
+On ARM systems, GDB and the RTOS's debugging output is your friend.
+By setting a breakpoint on the RTOS `fatal` handler, one can use GDB's `where` command for a backtrace.
+If `fatal` was caused by a protection fault, the backtrace usually displays exactly which function or variable triggered the fault, as well as its address.
+In cases when the backtrace does not display the faulting address (sometimes ROM calls can cause this), one can simply read it from the semihosting output that the RTOS emits.
+In any event, this procedure can be used to create an appropriate protection domain for deep API calls.
+Note that with this technique one must be careful to ensure that all meaningful control flow paths are traversed.
+
+Once appropriate protection domains exist, the next step is to assign them to tasks.
+That being said, often it is useful to create a domain, assign it to a task, quickly test to ensure the previous protection fault is no longer there, and repeat.
+Generally, if creation of appropriate protection domains requires a lot of refactoring, it is easier to create most of the protection domains before associating them with tasks.
+
 /*| doc_api |*/
 /*| doc_configuration |*/
 ## Memory Protection Configuration

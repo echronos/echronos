@@ -179,6 +179,8 @@ Could you add documentation for system designers that provides basic instruction
 Something along the lines of how to upgrade a regular acamar system to an MPU-enabled acamar system?
 So this would be not so much about the details of the hardware, concepts, configuration options, API, etc. but how to tie them all together.
 
+[sebastian.holzapfel: Added a section to the documentation on upgrading an existing system]
+
 Location: N/A
 Comment 26: Rework
 How about adding a system test for the MPU support for regression testing?

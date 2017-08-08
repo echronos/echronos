@@ -126,3 +126,9 @@ class Posix(Standard):
     packages = ['posix', 'generic', 'rtos-example', 'unittest']
     platforms = ['x86_64-apple-darwin', 'x86_64-unknown-linux-gnu', 'win32']
     release_name = 'posix'
+
+
+class Avr(Standard):
+    packages = ['avr', 'generic', 'rtos-example']
+    platforms = ['x86_64-apple-darwin', 'x86_64-unknown-linux-gnu', 'win32']
+    release_name = 'avr'

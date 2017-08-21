@@ -8,7 +8,7 @@ docs
 /*| doc_header |*/
 <!-- %title eChronos RTOS Manual: Acamar Variant -->
 <!-- %version 0.2 -->
-<!-- %docid Wq8tAN -->
+<!-- %docid 2SmYxA -->
 
 
 # Introduction
@@ -41,6 +41,21 @@ It avoids the need for dynamic memory allocation and permits a much higher degre
 The [Configuration Reference] chapter describes the available configuration options for each type of object in the RTOS.
 
 
+## The Acamar Variant
+
+The acamar variant of the RTOS is a bare-bones RTOS with a single feature: context switching between multiple tasks.
+This narrow feature set makes it a good candidate to start experimenting with the RTOS, but is unlikely to provide much benefit to real-world applications.
+
+An application built on top of this RTOS variant barely differs from an application that does not use any operating system at all.
+The main difference is that the application logic can be split into multiple [Tasks].
+For example, periodic sensor reads and user interaction could be performed by two separate tasks.
+
+Since there is no scheduler in the RTOS variant, the tasks need to explicitly switch between each other.
+To do so, they call the [<span class="api">yield_to</span>] API function, specifying the other task, respectively, as the target of the context switch.
+
+For more complex application behavior, the RTOS provides other variants with more features.
+
+
 ## Startup
 
 The RTOS does not start automatically when a system boots.
@@ -51,7 +66,7 @@ This allows the user to customize how the system is initialized before starting 
 The RTOS provides a [<span class="api">start</span>] API that needs to be called to initialize the RTOS and begin its execution.
 The [<span class="api">start</span>] API never returns because it transfers control to the RTOS and its [Tasks].
 From the application's point of view, calling the [<span class="api">start</span>] API function makes the first task in the system execute its task function (see [Task Functions]).
-From this point onwards, tasks need to use the RTOS APIs (such as [<span class="api">yield</span>]) to trigger task switches.
+From this point onwards, task implementations must explicitly [<span class="api">yield_to</span>] other tasks to allow all tasks to perform their respective functions.
 
 There is no API to shut down or stop the RTOS once it has started.
 

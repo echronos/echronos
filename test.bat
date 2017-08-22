@@ -101,6 +101,21 @@ ECHO %PATH% | FINDSTR msys64 > NUL || %PYTHON% x.py test systems
 %PYTHON% %COREDIR%\prj\app\prj.py build stub.rigel
 @IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
 
+%PYTHON% %COREDIR%\prj\app\prj.py gen stub.acamar
+@IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+%PYTHON% %COREDIR%\prj\app\prj.py gen stub.acrux
+@IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+%PYTHON% %COREDIR%\prj\app\prj.py gen stub.gatria
+@IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+%PYTHON% %COREDIR%\prj\app\prj.py gen stub.kochab
+@IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+%PYTHON% %COREDIR%\prj\app\prj.py gen stub.kraz
+@IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+%PYTHON% %COREDIR%\prj\app\prj.py gen stub.phact
+@IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+%PYTHON% %COREDIR%\prj\app\prj.py gen stub.rigel
+@IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+
 %PYTHON% %COREDIR%\prj\app\prj.py analyze stub.acamar
 @IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
 %PYTHON% %COREDIR%\prj\app\prj.py analyze stub.acrux

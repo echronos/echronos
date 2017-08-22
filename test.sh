@@ -75,6 +75,17 @@ run_test () {
     echo ""
 }
 
+test_gen_test_systems () {
+    local PASSES FAILS PKG
+    PASSES=0
+    FAILS=0
+    for PKG in ${TEST_PACKAGES}
+    do
+        python${PY_VER} "${CORE_DIR}/prj/app/prj.py" gen ${PKG} && PASSES=$((${PASSES}+1)) || FAILS=$((${FAILS}+1))
+    done
+    [ ${PASSES} -gt 0 ] && [ ${FAILS} -eq 0 ]
+}
+
 test_build_test_systems () {
     local PASSES FAILS PKG
     PASSES=0

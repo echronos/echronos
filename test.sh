@@ -121,6 +121,7 @@ do
     run_test python${PY_VER} x.py test pystache
     run_test python${PY_VER} x.py test prj
     run_test python${PY_VER} x.py build packages
+    run_test test_gen_test_systems
     run_test test_build_test_systems
     run_test test_analyze_test_systems
     run_test python${PY_VER} x.py test units

@@ -999,7 +999,8 @@ class Project:
                 break
 
         if path is None:
-            raise EntityNotFoundError("Unable to find entity named '{}'".format(entity_name))
+            raise EntityNotFoundError("Unable to find entity named '{}' in search paths '{}'"
+                                      .format(entity_name, self.search_paths))
 
         if ext == '':
             if not os.path.isdir(path):
@@ -1163,8 +1164,8 @@ def call_system_function(args, function, extra_args=None, sys_is_path=False):
     except EntityLoadError as exc:
         logger.error("Unable to load system [%s]: %s, %s", system_name, exc, exc.detail)
         return 1
-    except EntityNotFoundError:
-        logger.error("Unable to find system [%s].", system_name)
+    except EntityNotFoundError as exc:
+        logger.error("Unable to find system [%s] (%s).", system_name, str(exc))
         return 1
 
     if args.output:

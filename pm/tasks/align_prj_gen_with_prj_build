@@ -1,0 +1,23 @@
+# Motivation
+
+The command 'prj gen' generates the source files for an RTOS system without building the system.
+The invocation of this command differs slightly from that of 'prj build'.
+Originally, this difference was meant to simplify the invocation.
+However, in practice, it is more useful to be able to swap a working 'prj build' for a 'prj gen' command and vice versa.
+
+
+# Goals
+
+The goal of this task is that 'prj gen' can be invoked with the same command line arguments as 'prj build', so that the RTOS system is generated instead of fully built.
+The invocation of 'prj gen' shall not fundamentally differ from that of 'prj build' for the same system.
+
+
+# Release Impact: Major
+
+
+# Test Plan
+
+- Verify that all existing regression tests pass.
+- Verify that the changes meet the task goals and follow project conventions.
+    - Verify that in the test setups, 'prj gen' and 'prj build' are invoked with the same command line parameters.
+- Verify that the release impact is documented correctly.

@@ -53,12 +53,12 @@ def _prj_build(output_dir):
                 with open(file_path, 'rb') as file_obj:
                     ext = os.path.splitext(file_path)[1]
                     try:
-                        agpl_sentinel = _LicenseOpener.agpl_sentinel(ext)
+                        license_sentinel = _LicenseOpener.license_sentinel(ext)
                     except _LicenseOpener.UnknownFiletypeException:
-                        agpl_sentinel = None
+                        license_sentinel = None
 
-                    if agpl_sentinel is not None:
-                        old_lic_str, sentinel_found, _ = file_obj.peek().decode('utf8').partition(agpl_sentinel)
+                    if license_sentinel is not None:
+                        old_lic_str, sentinel_found, _ = file_obj.peek().decode('utf8').partition(license_sentinel)
                         if sentinel_found:
                             old_license_len = len(old_lic_str + sentinel_found)
                             file_obj.read(old_license_len)

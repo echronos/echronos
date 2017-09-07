@@ -178,8 +178,8 @@ class _LicenseOpener:
     The 'license' is passed to the object during construction.
 
     """
-    AGPL_TAG = '@TAG(NICTA_AGPL)'
-    AGPL_DOC_TAG = '@TAG(NICTA_DOC_AGPL)'
+    LICENSE_TAG = '@TAG(NICTA_LICENSE)'
+    LICENSE_DOC_TAG = '@TAG(NICTA_DOC_LICENSE)'
     BUILD_ARTIFACT_FILETYPES = ['.pyc']
     LICENSE_EXEMPTED_FILETYPES = ['.pdf', '.svg', '.png', '.txt', '.gdbout']
 
@@ -218,22 +218,22 @@ class _LicenseOpener:
         return xml_prologue_len
 
     @staticmethod
-    def agpl_sentinel(ext):
+    def license_sentinel(ext):
         result = None
         if ext in ['.c', '.h', '.ld', '.s']:
-            result = _LicenseOpener.AGPL_TAG + '\n */\n'
+            result = _LicenseOpener.LICENSE_TAG + '\n */\n'
         elif ext in ['.py', '.gdb', '.sh', '.yml']:
-            result = _LicenseOpener.AGPL_TAG + '\n#\n'
+            result = _LicenseOpener.LICENSE_TAG + '\n#\n'
         elif ext in ['.prx', '.xml', '.prj']:
-            result = _LicenseOpener.AGPL_TAG + '\n  -->\n'
+            result = _LicenseOpener.LICENSE_TAG + '\n  -->\n'
         elif ext in ['.asm']:
-            result = _LicenseOpener.AGPL_TAG + '\n;\n'
+            result = _LicenseOpener.LICENSE_TAG + '\n;\n'
         elif ext in ['.md', '.markdown', '.html']:
-            result = _LicenseOpener.AGPL_DOC_TAG + '\n  -->\n'
+            result = _LicenseOpener.LICENSE_DOC_TAG + '\n  -->\n'
         elif ext in ['.css']:
-            return _LicenseOpener.AGPL_DOC_TAG + '\n */\n'
+            return _LicenseOpener.LICENSE_DOC_TAG + '\n */\n'
         elif ext in ['.bat']:
-            return _LicenseOpener.AGPL_TAG + '\r\nREM\r\n'
+            return _LicenseOpener.LICENSE_TAG + '\r\nREM\r\n'
         elif ext in _LicenseOpener.LICENSE_EXEMPTED_FILETYPES or ext in _LicenseOpener.BUILD_ARTIFACT_FILETYPES:
             result = None
         else:
@@ -281,10 +281,10 @@ class _LicenseOpener:
                     old_xml_prologue_len = self._consume_xml_prologue(file_obj)
                     lic = self.xml_prologue + os.linesep + lic
 
-                # If the AGPL license is present in the original source file, count its length for deletion
-                agpl_sentinel = self.agpl_sentinel(ext)
-                assert agpl_sentinel is not None
-                old_lic_str, sentinel_found, _ = file_obj.peek().decode('utf8').partition(agpl_sentinel)
+                # If the LICENSE license is present in the original source file, count its length for deletion
+                license_sentinel = self.license_sentinel(ext)
+                assert license_sentinel is not None
+                old_lic_str, sentinel_found, _ = file_obj.peek().decode('utf8').partition(license_sentinel)
                 if sentinel_found:
                     old_license_len = len(old_lic_str + sentinel_found)
 

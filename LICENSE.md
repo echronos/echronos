@@ -9,7 +9,6 @@
 
      @TAG(CSIRO_BSD_MIT)
 -->
--->
 eChronos is an unregistered trademark of National ICT Australia Limited, ABN 62 102 206 173 ("NICTA") in Australia and/or other countries.
 
 Except for any material protected by a trade mark, and where otherwise noted, all files in the eChronos software distribution (including those not containing an explicit license statement, and including all files in the git history) are released under the CSIRO_BSD_MIT license (see "LICENSE_CSIRO_BSD_MIT.txt" for details).

@@ -10,6 +10,8 @@
 #
 # @TAG(CSIRO_BSD_MIT)
 #
+
+"""
 Overview
 ---------
 `x.py` is the main *project management script* for the RTOS project.

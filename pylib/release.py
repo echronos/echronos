@@ -178,8 +178,8 @@ class _LicenseOpener:
     The 'license' is passed to the object during construction.
 
     """
-    LICENSE_TAG = '@TAG(NICTA_LICENSE)'
-    LICENSE_DOC_TAG = '@TAG(NICTA_DOC_LICENSE)'
+    LICENSE_TAG = '@TAG(CSIRO_BSD_MIT)'
+    LICENSE_DOC_TAG = '@TAG(CSIRO_BSD_MIT)'
     BUILD_ARTIFACT_FILETYPES = ['.pyc']
     LICENSE_EXEMPTED_FILETYPES = ['.pdf', '.svg', '.png', '.txt', '.gdbout']
 
@@ -225,11 +225,11 @@ class _LicenseOpener:
         elif ext in ['.py', '.gdb', '.sh', '.yml']:
             result = _LicenseOpener.LICENSE_TAG + '\n#\n'
         elif ext in ['.prx', '.xml', '.prj']:
-            result = _LicenseOpener.LICENSE_TAG + '\n  -->\n'
+            result = _LicenseOpener.LICENSE_TAG + '\n-->\n'
         elif ext in ['.asm']:
             result = _LicenseOpener.LICENSE_TAG + '\n;\n'
         elif ext in ['.md', '.markdown', '.html']:
-            result = _LicenseOpener.LICENSE_DOC_TAG + '\n  -->\n'
+            result = _LicenseOpener.LICENSE_DOC_TAG + '\n-->\n'
         elif ext in ['.css']:
             return _LicenseOpener.LICENSE_DOC_TAG + '\n */\n'
         elif ext in ['.bat']:
@@ -259,14 +259,14 @@ class _LicenseOpener:
         elif ext in ['.py', '.gdb', '.yml']:
             lic = self._format_lic(self.license, '#', '# ', '#', '#')
         elif ext in ['.prx', '.xml', '.prj']:
-            lic = self._format_lic(self.license, '<!--', '', '', '  -->')
+            lic = self._format_lic(self.license, '<!--', '', '', '-->')
             is_xml = True
         elif ext in ['.asm']:
             lic = self._format_lic(self.license, ';', '; ', ';', ';')
         elif ext in ['.md', '.markdown']:
-            lic = self._format_lic(self.doc_license, '<!---', '', '', '  -->')
+            lic = self._format_lic(self.doc_license, '<!--', '', '', '-->')
         elif ext in ['.html']:
-            lic = self._format_lic(self.doc_license, '<!--', '', '', '  -->')
+            lic = self._format_lic(self.doc_license, '<!--', '', '', '-->')
         elif ext in ['.bat']:
             lic = self._format_lic(self.doc_license, 'REM', 'REM ', 'REM', 'REM')
         elif ext not in self.LICENSE_EXEMPTED_FILETYPES and not self.allow_unknown_filetypes:

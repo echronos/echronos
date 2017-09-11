@@ -57,4 +57,4 @@ A core goal of this approach is to create an audit trail within git, so all task
 ## Contributor Agreements
 
 All contributions to the repository need to be accompanied by a scan of a signed copy of the eChronos Contributor Assignment Agreement.
-There is a version of the agreement for [individuals](https://ssrg.nicta.com.au/projects/TS/echronos/CAA-individual.pdf) and a version for [companies](https://ssrg.nicta.com.au/projects/TS/echronos/CAA-entity.pdf).
+There is a version of the agreement for [individuals](https://ts.data61.csiro.au/projects/TS/echronos/CAA-individual.pdf) and a version for [companies](https://ts.data61.csiro.au/projects/TS/echronos/CAA-entity.pdf).

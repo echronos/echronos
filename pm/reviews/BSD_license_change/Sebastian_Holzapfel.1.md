@@ -9,6 +9,7 @@ It also has a duplicate license header, but I don't think that's the cause of th
     $ /x.py test licenses
     ERROR:root:License check found files without a license header:
     ERROR:root:    echronos_root/test_setup.bat
+[clewis: resolved, it was failing due to the line endings]
 
 Location: many files, i.e: packages/armv7m/default.ld
 Comment:

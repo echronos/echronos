@@ -20,7 +20,7 @@ REM the file "LICENSE_CSIRO_BSD_MIT.txt" for details.
 REM
 REM @TAG(CSIRO_BSD_MIT)
 REM
-REM
+
 C:\cygwin64\setup-x86_64.exe -q -P gdb
 
 REM If the master branch does not exist locally, create it because some tests rely on it

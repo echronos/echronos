@@ -9,6 +9,7 @@
  *
  * @TAG(CSIRO_BSD_MIT)
  */
+
 #include "rtos-{{variant}}.h"
 #include "machine-timer.h"
 #include "debug.h"

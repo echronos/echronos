@@ -9,6 +9,7 @@
 
      @TAG(CSIRO_BSD_MIT)
 -->
+
 %title ARMv7M package: user manual
 %version 1-draft
 %docid GQH8W1

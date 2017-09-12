@@ -9,6 +9,7 @@
 #
 # @TAG(CSIRO_BSD_MIT)
 #
+
 """A set of generic utility functions and classes.
 
 This module provides a holding space for small chunks of

@@ -9,15 +9,6 @@ REM All rights reserved. CSIRO is willing to grant you a licence to the eChronos
 REM real-time operating system under the terms of the CSIRO_BSD_MIT license. See
 REM the file "LICENSE_CSIRO_BSD_MIT.txt" for details.
 REM
-REM
-REM eChronos Real-Time Operating System
-REM Copyright (c) 2017, Commonwealth Scientific and Industrial Research
-REM Organisation (CSIRO) ABN 41 687 119 230.
-REM
-REM All rights reserved. CSIRO is willing to grant you a licence to the eChronos
-REM real-time operating system under the terms of the CSIRO_BSD_MIT license. See
-REM the file "LICENSE_CSIRO_BSD_MIT.txt" for details.
-REM
 REM @TAG(CSIRO_BSD_MIT)
 REM
 

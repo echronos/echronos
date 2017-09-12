@@ -9,6 +9,7 @@
 #
 # @TAG(CSIRO_BSD_MIT)
 #
+
 # pylint: disable=too-many-public-methods
 import io
 import os

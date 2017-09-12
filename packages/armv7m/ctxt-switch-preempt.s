@@ -9,6 +9,7 @@
  *
  * @TAG(CSIRO_BSD_MIT)
  */
+
 /*
  * This module implements context switch on ARMv7-M for RTOS variants that support task preemption by exceptions.
  *

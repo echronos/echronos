@@ -9,6 +9,7 @@
 #
 # @TAG(CSIRO_BSD_MIT)
 #
+
 """
 A model of the RTOS schedulers in Python.
 

@@ -9,6 +9,7 @@
 #
 # @TAG(CSIRO_BSD_MIT)
 #
+
 from collections import namedtuple
 import difflib
 import os

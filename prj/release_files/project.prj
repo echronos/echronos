@@ -10,6 +10,7 @@
 
      @TAG(CSIRO_BSD_MIT)
 -->
+
 <project>
     <!-- In release archives, all packages live in the directory share/packages.
     This file and the following line allow prj to find them out-of-the-box.

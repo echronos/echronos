@@ -9,6 +9,7 @@
  *
  * @TAG(CSIRO_BSD_MIT)
  */
+
 #define CCSRBAR {{ccsrbar|hex}}
 
 void debug_putc(char c);

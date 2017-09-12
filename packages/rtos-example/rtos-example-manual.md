@@ -9,6 +9,7 @@
 
      @TAG(CSIRO_BSD_MIT)
 -->
+
 %title RTOS Example package: user manual
 %version 1-draft
 %docid ApE1iw

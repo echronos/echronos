@@ -9,6 +9,7 @@
 
      @TAG(CSIRO_BSD_MIT)
 -->
+
 lupHw1: All project (i.e., non-third-party) Python files shall be PEP8 compliant.
 Rationale: consistent code style and improved readability.
 

@@ -9,6 +9,7 @@
 
      @TAG(CSIRO_BSD_MIT)
 -->
+
 %title PowerPC e500 package: user manual
 %version 1-draft
 %docid r2BkWF

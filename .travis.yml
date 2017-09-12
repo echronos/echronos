@@ -9,6 +9,7 @@
 #
 # @TAG(CSIRO_BSD_MIT)
 #
+
 # make gnu build utils available
 language: c
 # make full Ubuntu VM instead of just a container available, required for Python >= 3.4

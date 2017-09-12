@@ -9,6 +9,7 @@
  *
  * @TAG(CSIRO_BSD_MIT)
  */
+
 void debug_puts(__attribute__((unused)) char *s);
 
 void

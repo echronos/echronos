@@ -9,6 +9,7 @@
 #
 # @TAG(CSIRO_BSD_MIT)
 #
+
 # This file was initially generated via `python -m pylint --generate-rcfile`.
 # All default options were then stripped so that only non-default settings remain.
 

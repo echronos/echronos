@@ -9,6 +9,7 @@
  *
  * @TAG(CSIRO_BSD_MIT)
  */
+
 .syntax unified
 
 /* See ARMv7M Architecture Reference Manual */

@@ -9,5 +9,6 @@
 
      @TAG(CSIRO_BSD_MIT)
 -->
+
 Files in this directory are added to release archives by the command `x.py build release`.
 They are files that are necessary or useful in running prj in its released form.

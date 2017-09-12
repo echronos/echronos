@@ -9,6 +9,7 @@
  *
  * @TAG(CSIRO_BSD_MIT)
  */
+
 #include <stdint.h>
 
 #define PIC_SPURIOUS_VECTOR_CODE 0xffff

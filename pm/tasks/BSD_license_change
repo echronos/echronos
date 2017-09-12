@@ -9,6 +9,7 @@
 
      @TAG(CSIRO_BSD_MIT)
 -->
+
 # Motivation
 
 We want to change from the more restrictive AGPLv3 license to the permissive standard CSIRO_BSD_MIT license.

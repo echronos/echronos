@@ -9,6 +9,7 @@
 
      @TAG(CSIRO_BSD_MIT)
 -->
+
 # Motivation
 
 - There are some issues with the armv7m linker script the RTOS uses.

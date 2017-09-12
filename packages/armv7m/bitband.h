@@ -9,6 +9,7 @@
  *
  * @TAG(CSIRO_BSD_MIT)
  */
+
 #ifndef BITBAND_H
 #define BITBAND_H
 

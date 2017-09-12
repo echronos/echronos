@@ -9,6 +9,7 @@
 #
 # @TAG(CSIRO_BSD_MIT)
 #
+
 import unittest
 from util.crc16 import Crc16Ccitt, crc16ccitt
 

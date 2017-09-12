@@ -9,6 +9,7 @@
 #
 # @TAG(CSIRO_BSD_MIT)
 #
+
 # gdb --batch <SYSTEM_BINARY> -x <THIS_FILE>
 # Don't prompt for terminal input
 set height 0

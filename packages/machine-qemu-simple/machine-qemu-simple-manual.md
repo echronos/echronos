@@ -9,6 +9,7 @@
 
      @TAG(CSIRO_BSD_MIT)
 -->
+
 %title Machine QEMU Simple package: user manual
 %version 1-draft
 %docid H8LKmc

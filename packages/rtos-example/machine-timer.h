@@ -9,6 +9,7 @@
  *
  * @TAG(CSIRO_BSD_MIT)
  */
+
 /**
  * Start a platform-specific timer (typically some hardware timer) that produces periodic timer ticks at about 100ms
  * intervals.

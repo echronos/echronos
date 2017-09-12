@@ -9,6 +9,7 @@
 #
 # @TAG(CSIRO_BSD_MIT)
 #
+
 """Implement the CCITTT-16 CRC algorithm.
 
 Unfortunately the built in Python modules don't provide

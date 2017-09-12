@@ -9,6 +9,7 @@
  *
  * @TAG(CSIRO_BSD_MIT)
  */
+
 #include <stdint.h>
 #include <p2020-util.h>
 #include "p2020-duart.h"

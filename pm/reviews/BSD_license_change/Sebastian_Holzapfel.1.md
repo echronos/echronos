@@ -15,3 +15,4 @@ Location: many files, i.e: packages/armv7m/default.ld
 Comment:
 Most of these files previously had a newline after the end of the license header before the code started.
 I would prefer that we keep this for consistency.
+[clewis: resolved]

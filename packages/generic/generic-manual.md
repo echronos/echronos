@@ -9,6 +9,7 @@
 
      @TAG(CSIRO_BSD_MIT)
 -->
+
 %title Generic package: user manual
 %version 1-draft
 %docid SEekKp

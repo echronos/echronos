@@ -9,6 +9,7 @@
  *
  * @TAG(CSIRO_BSD_MIT)
  */
+
 #ifndef STDDEF_H
 
 #define NULL ((void*)0)

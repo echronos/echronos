@@ -9,6 +9,7 @@
 
      @TAG(CSIRO_BSD_MIT)
 -->
+
 %title Machine STM32F4-Discovery package: user manual
 %version 1-draft
 %docid 9i9P2r

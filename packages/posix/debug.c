@@ -9,6 +9,7 @@
  *
  * @TAG(CSIRO_BSD_MIT)
  */
+
 #if __MINGW32__ == 1
 /* MinGW GCC does not place STDOUT_FILENO or _exit in the header file
 defined by the POSIX standard.  It is not clear why this is, however

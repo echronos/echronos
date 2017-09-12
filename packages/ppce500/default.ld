@@ -9,6 +9,7 @@
  *
  * @TAG(CSIRO_BSD_MIT)
  */
+
 OUTPUT_FORMAT("elf32-powerpc", "elf32-powerpc", "elf32-powerpcle")
 OUTPUT_ARCH(powerpc)
 ENTRY(entry)

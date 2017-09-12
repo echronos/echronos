@@ -9,6 +9,7 @@
 #
 # @TAG(CSIRO_BSD_MIT)
 #
+
 import os.path
 # 'from pylib.tests import PpcQemuTestCase' would make the command 'x.py test units' attempt to run the unconfigured
 # PpcQemuTestCase class as a test case which fails.

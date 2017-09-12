@@ -9,6 +9,7 @@
  *
  * @TAG(CSIRO_BSD_MIT)
  */
+
 /*<module>
   <code_gen>template</code_gen>
 </module>*/

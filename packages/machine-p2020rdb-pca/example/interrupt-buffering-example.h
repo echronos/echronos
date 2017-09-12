@@ -9,6 +9,7 @@
  *
  * @TAG(CSIRO_BSD_MIT)
  */
+
 /* 16 bytes is the size of the DUART FIFOs.
  * But we can pick a totally arbitrary size for the buffer we use to pass bytes to the task. */
 #define BUF_CAPACITY 256

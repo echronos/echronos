@@ -9,6 +9,7 @@
  *
  * @TAG(CSIRO_BSD_MIT)
  */
+
 #include <stdbool.h>
 
 #include "rtos-{{variant}}.h"

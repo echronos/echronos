@@ -9,6 +9,7 @@
 #
 # @TAG(CSIRO_BSD_MIT)
 #
+
 import unittest
 from util.util import do_nothing, Singleton, s16l, check_unique, remove_multi, add_index, \
     LengthMixin, LengthList, config_traverse, config_set, list_search

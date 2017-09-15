@@ -18,5 +18,8 @@ We want to change from the more restrictive AGPLv3 license to the permissive sta
 
 The goal of this task is that the CSIRO_BSD_MIT license is used and the license headers are updated.
 
+# Release Impact: Patch
+
 # Test Plan
 
+The license regression test should succeed and the generated releases need to be inspected.

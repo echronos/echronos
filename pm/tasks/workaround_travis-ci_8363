@@ -33,8 +33,7 @@ tests in the echronos repository.
 
 # Goals
 
-- _What is the intended outcome?_
-- _Is the solution and approach to it clear cut or do they need to be identified first as part of this?_
+Have the Travic CI tests succeeding again.
 
 # Release Impact: Patch
 

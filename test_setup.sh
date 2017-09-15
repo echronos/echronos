@@ -60,6 +60,9 @@ sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdbser
 sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdb.1.gz --rename /usr/share/man/man1/gdb.1.gz
 sudo apt-get -qq install -y gdb-arm-none-eabi
 
+# workaround for https://github.com/travis-ci/travis-ci/issues/8363
+python${PY_VER} --version || pyenv global system ${PY_VER}
+
 # If not available, install the Python package manager pip.
 # Currently, this is necessary for both Python 3.4 and Python 3.6
 if ! python${PY_VER} -m pip --version

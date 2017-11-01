@@ -1,0 +1,27 @@
+<!--
+     eChronos Real-Time Operating System
+     Copyright (c) 2017, Commonwealth Scientific and Industrial Research
+     Organisation (CSIRO) ABN 41 687 119 230.
+
+     All rights reserved. CSIRO is willing to grant you a licence to the eChronos
+     real-time operating system under the terms of the CSIRO_BSD_MIT license. See
+     the file "LICENSE_CSIRO_BSD_MIT.txt" for details.
+
+     @TAG(CSIRO_BSD_MIT)
+-->
+
+# Motivation
+
+The latest release of Travis CI introduced an issue with the behaviour of pyenv, which
+can be seen at https://github.com/travis-ci/travis-ci/issues/8363. This is breaking the
+tests in the echronos repository.
+
+# Goals
+
+Have the Travic CI tests succeeding again.
+
+# Release Impact: Patch
+
+# Test Plan
+
+Check https://travis-ci.org/echronos/echronos/branches to see whether the tests succeed for this branch.

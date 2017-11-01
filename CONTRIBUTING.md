@@ -1,29 +1,14 @@
-<!---
-eChronos Real-Time Operating System
-Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+<!--
+     eChronos Real-Time Operating System
+     Copyright (c) 2017, Commonwealth Scientific and Industrial Research
+     Organisation (CSIRO) ABN 41 687 119 230.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published by
-the Free Software Foundation, version 3, provided that these additional
-terms apply under section 7:
+     All rights reserved. CSIRO is willing to grant you a licence to the eChronos
+     real-time operating system under the terms of the CSIRO_BSD_MIT license. See
+     the file "LICENSE_CSIRO_BSD_MIT.txt" for details.
 
-  No right, title or interest in or to any trade mark, service mark, logo
-  or trade name of of National ICT Australia Limited, ABN 62 102 206 173
-  ("NICTA") or its licensors is granted. Modified versions of the Program
-  must be plainly marked as such, and must not be distributed using
-  "eChronos" as a trade mark or product name, or misrepresented as being
-  the original Program.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-@TAG(NICTA_DOC_AGPL)
-  -->
+     @TAG(CSIRO_BSD_MIT)
+-->
 
 # Welcome!
 
@@ -73,4 +58,4 @@ A core goal of this approach is to create an audit trail within git, so all task
 ## Contributor Agreements
 
 All contributions to the repository need to be accompanied by a scan of a signed copy of the eChronos Contributor Assignment Agreement.
-There is a version of the agreement for [individuals](https://ssrg.nicta.com.au/projects/TS/echronos/CAA-individual.pdf) and a version for [companies](https://ssrg.nicta.com.au/projects/TS/echronos/CAA-entity.pdf).
+There is a version of the agreement for [individuals](https://ts.data61.csiro.au/projects/TS/echronos/CAA-individual.pdf) and a version for [companies](https://ts.data61.csiro.au/projects/TS/echronos/CAA-entity.pdf).

@@ -1,29 +1,14 @@
 #!/usr/bin/env python3
 #
 # eChronos Real-Time Operating System
-# Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+# Copyright (c) 2017, Commonwealth Scientific and Industrial Research
+# Organisation (CSIRO) ABN 41 687 119 230.
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, version 3, provided that these additional
-# terms apply under section 7:
+# All rights reserved. CSIRO is willing to grant you a licence to the eChronos
+# real-time operating system under the terms of the CSIRO_BSD_MIT license. See
+# the file "LICENSE_CSIRO_BSD_MIT.txt" for details.
 #
-#   No right, title or interest in or to any trade mark, service mark, logo or
-#   trade name of of National ICT Australia Limited, ABN 62 102 206 173
-#   ("NICTA") or its licensors is granted. Modified versions of the Program
-#   must be plainly marked as such, and must not be distributed using
-#   "eChronos" as a trade mark or product name, or misrepresented as being the
-#   original Program.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-# @TAG(NICTA_AGPL)
+# @TAG(CSIRO_BSD_MIT)
 #
 
 """Firmware system project management tool.
@@ -999,7 +984,8 @@ class Project:
                 break
 
         if path is None:
-            raise EntityNotFoundError("Unable to find entity named '{}'".format(entity_name))
+            raise EntityNotFoundError("Unable to find entity named '{}' in search paths '{}'"
+                                      .format(entity_name, self.search_paths))
 
         if ext == '':
             if not os.path.isdir(path):
@@ -1097,7 +1083,7 @@ def generate(args):
     This function returns 0 on success and 1 if an error occurs.
 
     """
-    return call_system_function(args, System.generate, extra_args={'copy_all_files': True}, sys_is_path=True)
+    return call_system_function(args, System.generate, extra_args={'copy_all_files': True})
 
 
 def build(args):
@@ -1139,7 +1125,7 @@ def analyze(args):
     return call_system_function(args, System.analyze)
 
 
-def call_system_function(args, function, extra_args=None, sys_is_path=False):
+def call_system_function(args, function, extra_args=None):
     """Instantiate a system and call the given member function of the System class on it."""
     project = args.project
     system_name = args.system
@@ -1148,23 +1134,16 @@ def call_system_function(args, function, extra_args=None, sys_is_path=False):
         extra_args = {}
 
     try:
-        if sys_is_path:
-            system_path = system_name
-            system_name = os.path.splitext(os.path.basename(system_name))[0]
-            logger.info("Loading system: %s", system_name)
-            system = project.parse_import(system_name, system_path)
-            system.output = os.path.curdir
-        else:
-            if not valid_entity_name(system_name):
-                logger.error("System name '%s' is invalid.", system_name)
-                return 1
-            logger.info("Loading system: %s", system_name)
-            system = project.find(system_name)
+        if not valid_entity_name(system_name):
+            logger.error("System name '%s' is invalid.", system_name)
+            return 1
+        logger.info("Loading system: %s", system_name)
+        system = project.find(system_name)
     except EntityLoadError as exc:
         logger.error("Unable to load system [%s]: %s, %s", system_name, exc, exc.detail)
         return 1
-    except EntityNotFoundError:
-        logger.error("Unable to find system [%s].", system_name)
+    except EntityNotFoundError as exc:
+        logger.error("Unable to find system [%s] (%s).", system_name, str(exc))
         return 1
 
     if args.output:
@@ -1231,7 +1210,7 @@ def get_command_line_arguments():
         parser.print_help()
         parser.exit(1, "\nSee 'prj <subcommand> -h' for more information on a specific command\n")
 
-    if args.command in ('build', 'load', 'analyze') and args.project is None:
+    if not args.no_project and args.project is None:
         args.project = 'project.prj'
 
     if args.no_project:

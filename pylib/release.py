@@ -1,28 +1,13 @@
 #
 # eChronos Real-Time Operating System
-# Copyright (C) 2015  National ICT Australia Limited (NICTA), ABN 62 102 206 173.
+# Copyright (c) 2017, Commonwealth Scientific and Industrial Research
+# Organisation (CSIRO) ABN 41 687 119 230.
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published by
-# the Free Software Foundation, version 3, provided that these additional
-# terms apply under section 7:
+# All rights reserved. CSIRO is willing to grant you a licence to the eChronos
+# real-time operating system under the terms of the CSIRO_BSD_MIT license. See
+# the file "LICENSE_CSIRO_BSD_MIT.txt" for details.
 #
-#   No right, title or interest in or to any trade mark, service mark, logo or
-#   trade name of of National ICT Australia Limited, ABN 62 102 206 173
-#   ("NICTA") or its licensors is granted. Modified versions of the Program
-#   must be plainly marked as such, and must not be distributed using
-#   "eChronos" as a trade mark or product name, or misrepresented as being the
-#   original Program.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-# @TAG(NICTA_AGPL)
+# @TAG(CSIRO_BSD_MIT)
 #
 
 import io
@@ -194,8 +179,8 @@ class _LicenseOpener:
     The 'license' is passed to the object during construction.
 
     """
-    AGPL_TAG = '@TAG(NICTA_AGPL)'
-    AGPL_DOC_TAG = '@TAG(NICTA_DOC_AGPL)'
+    LICENSE_TAG = '@TAG(CSIRO_BSD_MIT)'
+    LICENSE_DOC_TAG = '@TAG(CSIRO_BSD_MIT)'
     BUILD_ARTIFACT_FILETYPES = ['.pyc']
     LICENSE_EXEMPTED_FILETYPES = ['.pdf', '.svg', '.png', '.txt', '.gdbout']
 
@@ -234,22 +219,22 @@ class _LicenseOpener:
         return xml_prologue_len
 
     @staticmethod
-    def agpl_sentinel(ext):
+    def license_sentinel(ext):
         result = None
         if ext in ['.c', '.h', '.ld', '.s']:
-            result = _LicenseOpener.AGPL_TAG + '\n */\n'
+            result = _LicenseOpener.LICENSE_TAG + '\n */\n'
         elif ext in ['.py', '.gdb', '.sh', '.yml']:
-            result = _LicenseOpener.AGPL_TAG + '\n#\n'
+            result = _LicenseOpener.LICENSE_TAG + '\n#\n'
         elif ext in ['.prx', '.xml', '.prj']:
-            result = _LicenseOpener.AGPL_TAG + '\n  -->\n'
+            result = _LicenseOpener.LICENSE_TAG + '\n-->\n'
         elif ext in ['.asm']:
-            result = _LicenseOpener.AGPL_TAG + '\n;\n'
+            result = _LicenseOpener.LICENSE_TAG + '\n;\n'
         elif ext in ['.md', '.markdown', '.html']:
-            result = _LicenseOpener.AGPL_DOC_TAG + '\n  -->\n'
+            result = _LicenseOpener.LICENSE_DOC_TAG + '\n-->\n'
         elif ext in ['.css']:
-            return _LicenseOpener.AGPL_DOC_TAG + '\n */\n'
+            return _LicenseOpener.LICENSE_DOC_TAG + '\n */\n'
         elif ext in ['.bat']:
-            return _LicenseOpener.AGPL_TAG + '\r\nREM\r\n'
+            return _LicenseOpener.LICENSE_TAG + '\r\nREM\r\n'
         elif ext in _LicenseOpener.LICENSE_EXEMPTED_FILETYPES or ext in _LicenseOpener.BUILD_ARTIFACT_FILETYPES:
             result = None
         else:
@@ -275,14 +260,14 @@ class _LicenseOpener:
         elif ext in ['.py', '.gdb', '.yml']:
             lic = self._format_lic(self.license, '#', '# ', '#', '#')
         elif ext in ['.prx', '.xml', '.prj']:
-            lic = self._format_lic(self.license, '<!--', '', '', '  -->')
+            lic = self._format_lic(self.license, '<!--', '', '', '-->')
             is_xml = True
         elif ext in ['.asm']:
             lic = self._format_lic(self.license, ';', '; ', ';', ';')
         elif ext in ['.md', '.markdown']:
-            lic = self._format_lic(self.doc_license, '<!---', '', '', '  -->')
+            lic = self._format_lic(self.doc_license, '<!--', '', '', '-->')
         elif ext in ['.html']:
-            lic = self._format_lic(self.doc_license, '<!--', '', '', '  -->')
+            lic = self._format_lic(self.doc_license, '<!--', '', '', '-->')
         elif ext in ['.bat']:
             lic = self._format_lic(self.doc_license, 'REM', 'REM ', 'REM', 'REM')
         elif ext not in self.LICENSE_EXEMPTED_FILETYPES and not self.allow_unknown_filetypes:
@@ -297,10 +282,10 @@ class _LicenseOpener:
                     old_xml_prologue_len = self._consume_xml_prologue(file_obj)
                     lic = self.xml_prologue + os.linesep + lic
 
-                # If the AGPL license is present in the original source file, count its length for deletion
-                agpl_sentinel = self.agpl_sentinel(ext)
-                assert agpl_sentinel is not None
-                old_lic_str, sentinel_found, _ = file_obj.peek().decode('utf8').partition(agpl_sentinel)
+                # If the LICENSE license is present in the original source file, count its length for deletion
+                license_sentinel = self.license_sentinel(ext)
+                assert license_sentinel is not None
+                old_lic_str, sentinel_found, _ = file_obj.peek().decode('utf8').partition(license_sentinel)
                 if sentinel_found:
                     old_license_len = len(old_lic_str + sentinel_found)
 

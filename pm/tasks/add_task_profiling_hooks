@@ -1,0 +1,25 @@
+<!--
+     eChronos Real-Time Operating System
+     Copyright (c) 2017, Commonwealth Scientific and Industrial Research
+     Organisation (CSIRO) ABN 41 687 119 230.
+
+     All rights reserved. CSIRO is willing to grant you a licence to the eChronos
+     real-time operating system under the terms of the CSIRO_BSD_MIT license. See
+     the file "LICENSE_CSIRO_BSD_MIT.txt" for details.
+
+     @TAG(CSIRO_BSD_MIT)
+-->
+
+# Motivation
+
+- It is desired to be able to optionally monitor how long a task is active for a give system activity.
+
+# Goals
+
+- Allow developers to enable task profiling and later be able to implement hooks to collect collect active duration for each task.
+
+# Release Impact: Minor
+
+# Test Plan
+
+- All regressin tests pass

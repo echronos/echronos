@@ -10,8 +10,4 @@
 # @TAG(CSIRO_BSD_MIT)
 #
 
-from . import testcase
-
-
-class Acamar(testcase.TestCase):
-    pass
+# The presence of this file is necessary for the unittest package to be able to discover tests

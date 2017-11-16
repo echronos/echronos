@@ -4,11 +4,11 @@
 
 # Goals
 
-- Create system tests for all variants supported on ARMv7m.
+- Create system tests for ARMv7m RTOS variants.
 - Add these tests to CI, where required updating the test setup scripts with prerequisites.
 
 # Test Plan
 
 - Code review
 - Existing regression tests must pass
-- System tests for all supported variants on ARMv7m must have been added and must pass
+- System tests for ARMv7m RTOS variants must have been added, and must pass

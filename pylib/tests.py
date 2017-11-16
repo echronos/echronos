@@ -526,7 +526,7 @@ class Stm32f407QemuTestCase(GdbTestCase):
         super().setUp()
 
         # After gdb disconnects from qemu it will execute ridiculously fast and print lots of text.
-        # Prevent this from happening by piping qemu's stdout/stderr to /dev/null
+        # Prevent this from happening by piping qemu's stdout to /dev/null
         self.fnull = open(os.devnull, 'w')
 
         qemu_command = ('xvfb-run', '-a', 'exec', 'echronos-qemu-system-arm', '-s', '-S', '-mcu', 'STM32F407VG',

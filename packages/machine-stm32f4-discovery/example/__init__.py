@@ -9,3 +9,5 @@
 #
 # @TAG(CSIRO_BSD_MIT)
 #
+
+# The presence of this file is necessary for the unittest package to be able to discover tests

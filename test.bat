@@ -12,7 +12,7 @@ REM
 REM @TAG(CSIRO_BSD_MIT)
 REM
 
-set PATH=C:\splint-3.1.1\bin;%PATH%
+set PATH=C:\splint-3.1.2\bin;%PATH%
 IF NOT DEFINED PYTHON set PYTHON=py -3
 IF NOT DEFINED COREDIR set COREDIR=.
 

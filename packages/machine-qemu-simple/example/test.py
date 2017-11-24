@@ -11,24 +11,24 @@
 #
 
 import os.path
-# 'from pylib.tests import Stm32f407QemuTestCase' would make the command
+# 'from pylib.tests import Armv7mQemuTestCase' would make the command
 # 'x.py test units' attempt to run the unconfigured
-# Stm32f407QemuTestCase class as a test case which fails.
+# Armv7mQemuTestCase class as a test case which fails.
 # Therefore, import the tests module instead.
 from pylib import tests
 
 
-class Acamar(tests.Stm32f407QemuTestCase):
+class Acamar(tests.Armv7mQemuTestCase):
     prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'acamar-system.prx')
 
 
-class Gatria(tests.Stm32f407QemuTestCase):
+class Gatria(tests.Armv7mQemuTestCase):
     prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'gatria-system.prx')
 
 
-class Kraz(tests.Stm32f407QemuTestCase):
+class Kraz(tests.Armv7mQemuTestCase):
     prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'kraz-system.prx')
 
 
-class Kochab(tests.Stm32f407QemuTestCase):
+class Kochab(tests.Armv7mQemuTestCase):
     prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'kochab-system.prx')

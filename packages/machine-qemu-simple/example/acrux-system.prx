@@ -13,11 +13,11 @@
 
 <system>
   <modules>
-    <module name="armv7m.build" />
+    <module name="machine-qemu-simple.build" />
     <module name="armv7m.ctxt-switch" />
     <module name="armv7m.vectable">
-      <flash_size>0x100000</flash_size>
-      <sram_size>0x100000</sram_size>
+      <flash_size>0x40000</flash_size>
+      <sram_size>0x10000</sram_size>
       <systick>tick_irq</systick>
     </module>
     <module name="armv7m.semihost-debug" />

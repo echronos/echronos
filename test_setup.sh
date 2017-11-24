@@ -52,18 +52,18 @@ sudo apt-get -qq install -y build-essential python3 splint gcc gdb gcc-arm-none-
 which python${PY_VER} || sudo apt-get install -y python${PY_VER}
 
 # gdb-arm-none-eabi: required for testing ARM systems.
-# Note: ARM systems are not currently regression tested however this file should serve as a rough
-# guide to creating a basic RTOS development system, gdb with ARM support is required for this.
 # The diversion is required due to an Ubuntu package bug that has been patched but may be present in some systems.
 # See: https://bugs.launchpad.net/ubuntu/+source/gdb-arm-none-eabi/+bug/1267680
 sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdbserver.1.gz --rename /usr/share/man/man1/gdbserver.1.gz
 sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdb.1.gz --rename /usr/share/man/man1/gdb.1.gz
 sudo apt-get -qq install -y gdb-arm-none-eabi
 
-# echronos-qemu: required for testing ARM systems.
-git clone --depth=1 https://github.com/echronos/qemu ${HOME}/echronos-qemu
-# libfdt-dev libsdl2-image-2.0-0 libsdl2-2.0-0: required by echronos-qemu
-sudo apt-get -qq install -y libfdt-dev libsdl2-image-2.0-0 libsdl2-2.0-0
+# libpixman-1-0, libglib2.0-0: required by qemy-system-arm
+sudo apt-get -qq install -y libpixman-1-0 libglib2.0-0
+
+# qemu-system-arm: required for testing ARM systems.
+wget 'https://github.com/echronos/qemu/releases/download/v2.11.0-rc2/qemu-system-arm_2.11.0-rc2_trusty.deb'
+sudo dpkg -i qemu-system-arm_2.11.0-rc2_trusty.deb
 
 # workaround for https://github.com/travis-ci/travis-ci/issues/8363
 python${PY_VER} --version || pyenv global system ${PY_VER}

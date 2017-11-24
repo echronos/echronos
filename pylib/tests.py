@@ -519,7 +519,7 @@ class PpcQemuTestCase(GdbTestCase):
         self.qemu.wait()
 
 
-class Stm32f407QemuTestCase(GdbTestCase):
+class Armv7mQemuTestCase(GdbTestCase):
     @unittest.skipIf(os.name == 'nt', "not supported on this operating system because cross-platform toolchain is not\
  available")
     def setUp(self):
@@ -529,7 +529,9 @@ class Stm32f407QemuTestCase(GdbTestCase):
         # Prevent this from happening by piping qemu's stdout to /dev/null
         self.fnull = open(os.devnull, 'w')
 
-        qemu_command = ('xvfb-run', '-a', 'exec', 'echronos-qemu-system-arm', '-s', '-S', '-mcu', 'STM32F407VG',
+        # The LM3S6965 is arbitrarily chosen due to it's simple memory model
+        # (Non-aliased XIP ROM @ 0x00000000)
+        qemu_command = ('qemu-system-arm', '-s', '-S', '-M', 'lm3s6965evb', '--nographic',
                         '-semihosting', '-kernel', self.executable_path)
 
         self.qemu = subprocess.Popen(qemu_command, stdout=self.fnull)

@@ -64,6 +64,7 @@ sudo apt-get -qq install -y libpixman-1-0 libglib2.0-0
 # qemu-system-arm: required for testing ARM systems.
 wget 'https://github.com/echronos/qemu/releases/download/v2.11.0-rc2/qemu-system-arm_2.11.0-rc2_trusty.deb'
 sudo dpkg -i qemu-system-arm_2.11.0-rc2_trusty.deb
+rm qemu-system-arm_2.11.0-rc2_trusty.deb # so license check doesn't fail later
 
 # workaround for https://github.com/travis-ci/travis-ci/issues/8363
 python${PY_VER} --version || pyenv global system ${PY_VER}

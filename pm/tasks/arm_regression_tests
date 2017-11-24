@@ -4,7 +4,7 @@
 
 # Goals
 
-- Create system tests for ARMv7m RTOS variants.
+- Create system tests for ARMv7m RTOS variants, updating QEMU if required.
 - Add these tests to CI, where required updating the test setup scripts with prerequisites.
 
 # Test Plan

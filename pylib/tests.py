@@ -531,7 +531,7 @@ class Armv7mQemuTestCase(GdbTestCase):
 
         # The LM3S6965 is arbitrarily chosen due to it's simple memory model
         # (Non-aliased XIP ROM @ 0x00000000)
-        qemu_command = ('qemu-system-arm', '-s', '-S', '-M', 'lm3s6965evb', '--nographic',
+        qemu_command = ('qemu-system-arm', '-s', '-S', '-M', 'lm3s6965evb', '-nographic',
                         '-semihosting', '-kernel', self.executable_path)
 
         self.qemu = subprocess.Popen(qemu_command, stdout=self.fnull)

@@ -58,9 +58,8 @@ sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdbser
 sudo dpkg-divert --package gdb --divert /usr/share/man/man1/arm-none-eabi-gdb.1.gz --rename /usr/share/man/man1/gdb.1.gz
 sudo apt-get -qq install -y gdb-arm-none-eabi
 
-# libpixman-1-0, libglib2.0-0: required by qemy-system-arm
+# libpixman-1-0, libglib2.0-0: required by qemu-system-arm
 sudo apt-get -qq install -y libpixman-1-0 libglib2.0-0
-
 # qemu-system-arm: required for testing ARM systems.
 wget 'https://github.com/echronos/qemu/releases/download/v2.11.0-rc2/qemu-system-arm_2.11.0-rc2_trusty.deb'
 sudo dpkg -i qemu-system-arm_2.11.0-rc2_trusty.deb

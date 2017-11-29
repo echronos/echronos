@@ -19,6 +19,8 @@ Comment:
              be more concise to call `os.path.dirname(os.path.abspath(__file__))`
              once and then refer back to it.
 
+[sebh: I agree, however all the existing `test.py` scripts (i.e `machine-qemu-ppce500/example/test.py`) use the verbose form; and to change all of them would probably be out of the task scope.
+Keeping as-is for consistency.]
 
 [0] https://travis-ci.org/echronos/echronos/jobs/306662705
     ```

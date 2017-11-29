@@ -8,6 +8,12 @@ Comment:
     The output of the new tests is currently very verbose in the logs [0]. Is
     there a way of reducing it or not having it print those?
 
+[sebh: 100% agree that it is annoyingly verbose.
+Unfortunately despite spending a few hours on this I have not found a reliable way to quench it.
+Strangely, using a `&> /dev/null` works as intended in a shell.
+However, I attempted a stderr/stdout redirect to `/dev/null` using 3 different methods with Popen, and either the output always appears in the logs, or QEMU eats CPU and the test never completes.
+If you consider this a dealbreaker, submit another rework I'll spend some more time on it]
+
 Location: packages/machine-qemu-simple/example/test.py:linenum
 Comment:
     ```

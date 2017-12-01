@@ -1,5 +1,8 @@
 /*| headers |*/
 #include "rtos-rigel.h"
+{{#header_file_for_task_profiling_hook}}
+#include "{{header_file_for_task_profiling_hook}}"
+{{/header_file_for_task_profiling_hook}}
 
 /*| object_like_macros |*/
 
@@ -50,6 +53,10 @@ yield_to(const {{prefix_type}}TaskId to) {{prefix_const}}REENTRANT
     const {{prefix_type}}TaskId from = get_current_task();
 
     internal_assert(to < {{tasks.length}}, ERROR_ID_INTERNAL_INVALID_ID);
+
+    {{#task_profiling_hook}}
+    {{task_profiling_hook}}(from, to);
+    {{/task_profiling_hook}}
 
     current_task = to;
     context_switch(get_task_context(from), get_task_context(to));

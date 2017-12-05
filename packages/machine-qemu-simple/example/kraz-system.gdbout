@@ -1,0 +1,132 @@
+entry () at out/machine-stm32f4-discovery/example/kraz-system/armv7m/vectable.s:306
+306	        ldr r0, =data_load_addr
+Breakpoint 1 at 0x80005e0: file out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c, line 38.
+Breakpoint 2 at 0x8000400: file /home/seb/dev/echronos-official/packages/rtos-example/kraz-test.c, line 144.
+
+Breakpoint 2, main () at /home/seb/dev/echronos-official/packages/rtos-example/kraz-test.c:144
+144	{
+
+Breakpoint 1, debug_println (msg=0x800085a "task a: taking lock") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800086e "task a: got lock") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000922 "task b: attempting lock") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800087f "task a: yielded") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x80008b0 "task a: releasing lock") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800093a "task b: got lock") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800094b "task b") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000952 "task b: blocking") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x80008c7 "task a") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x80008ce "task a: unblocking b") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000963 "task b: unblocked") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800094b "task b") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x80008c7 "task a") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800094b "task b") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x80008c7 "task a") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800094b "task b") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x80008c7 "task a") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800094b "task b") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000952 "task b: blocking") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x80008c7 "task a") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x80008c7 "task a") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x80008ce "task a: unblocking b") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000963 "task b: unblocked") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800094b "task b") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x80008c7 "task a") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800094b "task b") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x80008c7 "task a") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800094b "task b") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x80008c7 "task a") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000975 "task b: finished receiving signals.") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000a08 "task b: no signal available on peek") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000a53 "task b: Success: no signal available to poll after no-peek.") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x80008c7 "task a") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000a08 "task b: no signal available on peek") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000a53 "task b: Success: no signal available to poll after no-peek.") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x80008e3 "task a: finished sending signals") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000904 "task a: completed.") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000917 " completed") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000999 "task b: signal available on peek") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x80009e4 "task b: Successful poll after peek.") at out/machine-stm32f4-discovery/example/kraz-system/generic/debug.c:38
+38	{
+A debugging session is active.
+
+	Inferior 1 [Remote target] will be detached.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]

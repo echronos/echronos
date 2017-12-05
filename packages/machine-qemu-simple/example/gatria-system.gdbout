@@ -1,0 +1,138 @@
+entry () at out/machine-stm32f4-discovery/example/gatria-system/armv7m/vectable.s:306
+306	        ldr r0, =data_load_addr
+Breakpoint 1 at 0x800057c: file out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c, line 38.
+Breakpoint 2 at 0x8000400: file /home/seb/dev/echronos-official/packages/rtos-example/gatria-test.c, line 83.
+
+Breakpoint 2, main () at /home/seb/dev/echronos-official/packages/rtos-example/gatria-test.c:83
+83	{
+
+Breakpoint 1, debug_println (msg=0x800071e "task a -- lock") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800076f "task b -- try lock") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800074a "task a -- unlock") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000782 "task b -- got lock") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000795 "task b") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800079c "b blocking") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800075b "task a") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000762 "unblocking b") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000795 "task b") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800075b "task a") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000795 "task b") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800075b "task a") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000795 "task b") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800075b "task a") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000795 "task b") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800079c "b blocking") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800075b "task a") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800075b "task a") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000762 "unblocking b") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000795 "task b") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800075b "task a") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000795 "task b") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800075b "task a") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000795 "task b") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800075b "task a") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000795 "task b") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800079c "b blocking") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800075b "task a") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800075b "task a") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000762 "unblocking b") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000795 "task b") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800075b "task a") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000795 "task b") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800075b "task a") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000795 "task b") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800075b "task a") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000795 "task b") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800079c "b blocking") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800075b "task a") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x800075b "task a") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000762 "unblocking b") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+
+Breakpoint 1, debug_println (msg=0x8000795 "task b") at out/machine-stm32f4-discovery/example/gatria-system/generic/debug.c:38
+38	{
+A debugging session is active.
+
+	Inferior 1 [Remote target] will be detached.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]

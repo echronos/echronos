@@ -1,3 +1,15 @@
+<!--
+     eChronos Real-Time Operating System
+     Copyright (c) 2017, Commonwealth Scientific and Industrial Research
+     Organisation (CSIRO) ABN 41 687 119 230.
+
+     All rights reserved. CSIRO is willing to grant you a licence to the eChronos
+     real-time operating system under the terms of the CSIRO_BSD_MIT license. See
+     the file "LICENSE_CSIRO_BSD_MIT.txt" for details.
+
+     @TAG(CSIRO_BSD_MIT)
+-->
+
 # Motivation
 
 - The RTOS does not currently have any regression tests for its ARMv7m support.
@@ -6,6 +18,8 @@
 
 - Create system tests for ARMv7m RTOS variants, updating QEMU if required.
 - Add these tests to CI, where required updating the test setup scripts with prerequisites.
+
+# Release Impact: Patch
 
 # Test Plan
 

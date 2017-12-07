@@ -1,0 +1,36 @@
+entry () at out/machine-stm32f4-discovery/example/acamar-system/armv7m/vectable.s:321
+321	        ldr r0, =data_load_addr
+Breakpoint 1 at 0x800050e: file out/machine-stm32f4-discovery/example/acamar-system/generic/debug.c, line 53.
+Breakpoint 2 at 0x8000402: file /home/seb/dev/echronos-official/packages/rtos-example/acamar-test.c, line 61.
+
+Breakpoint 2, main () at /home/seb/dev/echronos-official/packages/rtos-example/acamar-test.c:61
+61	    rtos_start();
+
+Breakpoint 1, debug_println (msg=0x800060e "task a") at out/machine-stm32f4-discovery/example/acamar-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8000615 "task b") at out/machine-stm32f4-discovery/example/acamar-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x800060e "task a") at out/machine-stm32f4-discovery/example/acamar-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8000615 "task b") at out/machine-stm32f4-discovery/example/acamar-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x800060e "task a") at out/machine-stm32f4-discovery/example/acamar-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8000615 "task b") at out/machine-stm32f4-discovery/example/acamar-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x800060e "task a") at out/machine-stm32f4-discovery/example/acamar-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8000615 "task b") at out/machine-stm32f4-discovery/example/acamar-system/generic/debug.c:53
+53	{
+A debugging session is active.
+
+	Inferior 1 [Remote target] will be detached.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]

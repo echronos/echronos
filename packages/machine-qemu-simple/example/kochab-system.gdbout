@@ -1,0 +1,90 @@
+entry () at out/machine-stm32f4-discovery/example/kochab-system/armv7m/vectable.s:321
+321	        ldr r0, =data_load_addr
+Breakpoint 1 at 0x8000f0a: file out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c, line 53.
+Breakpoint 2 at 0x8000400: file /home/seb/dev/echronos-official/packages/rtos-example/kochab-test.c, line 113.
+
+Breakpoint 2, main () at /home/seb/dev/echronos-official/packages/rtos-example/kochab-test.c:113
+113	{
+
+Breakpoint 1, debug_println (msg=0x80011df "Starting RTOS") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x800111c "task a: taking lock") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x800114d "task a: releasing lock") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8001164 "task a") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x800116b "unblocking b") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8001164 "task a") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8001164 "task a") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8001164 "task a") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8001164 "task a") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8001164 "task a") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x800116b "unblocking b") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8001164 "task a") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8001164 "task a") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8001164 "task a") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8001164 "task a") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8001178 "A now waiting for ticks") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8001195 "task b: attempting lock") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x80011ad "task b: got lock") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x80011be "task b blocking") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8001190 "tick") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x80011ce "task b unblocked") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8001190 "tick") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x80011be "task b blocking") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8001190 "tick") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x80011ce "task b unblocked") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+
+Breakpoint 1, debug_println (msg=0x8001190 "tick") at out/machine-stm32f4-discovery/example/kochab-system/generic/debug.c:53
+53	{
+A debugging session is active.
+
+	Inferior 1 [Remote target] will be detached.
+
+Quit anyway? (y or n) [answered Y; input not from terminal]

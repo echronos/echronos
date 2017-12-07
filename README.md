@@ -179,22 +179,22 @@ If you are unable to install it due to a conflict, try adding a dpkg diversion f
 
 And then retry the above installation command for `gdb-arm-none-eabi`.
 
-To obtain `echronos-qemu-system-arm` for emulating ARM systems, read the README.md for [our QEMU fork](https://github.com/echronos/qemu/) (make sure to use the `echronos-qemu` branch).
+To obtain `qemu-system-arm` for emulating ARM systems, read the README.md for [our QEMU fork](https://github.com/echronos/qemu/) (make sure to use the `master` branch).
 
-On most linux distributions, it will be simplest to use the binaries included in the QEMU fork repository - see 'Using the binaries' section of the QEMU README.md.
+On most linux distributions, it will be simplest to use the binary releases included alongside the QEMU fork repository - see 'Using the binaries' section of the QEMU README.md.
 
 ## Running an example system (ARMv7m)
 
-Build and run an example system for the RTOS variant *Gatria* on QEMU-emulated ARMv7-M (STM32):
+Build and run an example system for the RTOS variant *Gatria* on QEMU-emulated ARMv7-M (LM3S):
 
     cd echronos
-    prj/app/prj.py build machine-stm32f4-discovery.example.gatria-system
+    prj/app/prj.py build machine-qemu-simple.example.gatria-system
 
     # Run the generated system in qemu (press `ctrl-c` to close QEMU after it is finished)
-    echronos-qemu-system-arm -mcu STM32F407VG -semihosting -S -s --kernel `pwd`/out/machine-stm32f4-discovery/example/gatria-system/system
+    qemu-system-arm -M lm3s6965evb -nographic -semihosting -S -s --kernel out/machine-qemu-simple/example/gatria-system/system
 
     # To connect and view debug output run gdb in another shell prompt
-    arm-none-eabi-gdb -ex "target remote :1234" out/machine-stm32f4-discovery/example/gatria-system/system
+    arm-none-eabi-gdb -ex "target remote :1234" out/machine-qemu-simple/example/gatria-system/system
     (gdb) b fn_a
     Breakpoint 1 at 0x800065c: file packages/rtos-example/gatria-test.c, line 41.
     (gdb) c
@@ -301,7 +301,7 @@ For example:
 It is available for QEMU-emulated ARMv7-M.
 
 * The RTOS variant *Kochab* supports tasks, preemptive priority scheduling, mutexes with priority inheritance, semaphores, signals, and interrupt events which can cause task preemption and trigger the sending of signals.
-It is available for the ARMv7-M STM32F4-Discovery board, and QEMU-emulated PowerPC e500.
+It is available for the ARMv7e-M STM32F4-Discovery board, QEMU-emulated ARMv7-M, and QEMU-emulated PowerPC e500.
 
 Features are implemented as individual *components* in individual C files.
 Unlike typical C-based software, the RTOS does not compile components individually and later link them into a single binary.

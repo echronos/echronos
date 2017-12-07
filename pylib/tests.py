@@ -517,3 +517,29 @@ class PpcQemuTestCase(GdbTestCase):
     def tearDown(self):
         self.qemu.terminate()
         self.qemu.wait()
+
+
+class Armv7mQemuTestCase(GdbTestCase):
+    @unittest.skipIf(os.name == 'nt', "not supported on this operating system because cross-platform toolchain is not\
+ available")
+    def setUp(self):
+        super().setUp()
+
+        # After gdb disconnects from qemu it will execute ridiculously fast and print lots of text.
+        # Prevent this from happening by piping qemu's stdout to /dev/null
+        self.fnull = open(os.devnull, 'w')
+
+        # The LM3S6965 is arbitrarily chosen due to it's simple memory model
+        # (Non-aliased XIP ROM @ 0x00000000)
+        qemu_command = ('qemu-system-arm', '-s', '-S', '-M', 'lm3s6965evb', '-nographic',
+                        '-semihosting', '-kernel', self.executable_path)
+
+        self.qemu = subprocess.Popen(qemu_command, stdout=self.fnull)
+
+    def _get_test_command(self):
+        return ('arm-none-eabi-gdb', '--batch', self.executable_path, '-x', self.gdb_commands_path)
+
+    def tearDown(self):
+        self.qemu.terminate()
+        self.qemu.wait()
+        self.fnull.close()

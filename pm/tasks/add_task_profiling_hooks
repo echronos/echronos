@@ -12,11 +12,12 @@
 
 # Motivation
 
-- A debug feature providing an interface through which an application is notified when task switching occurs. This can be useful when profiling system activity, active tasks, number of calls per task ...
+- A debug feature providing an interface through which an application is notified when task switching occurs.
+- This can be useful when profiling system activity, active tasks, number of calls per task ...
 
 # Goals
 
-- Extend rigel's task switching mechanism such that if the external task profiling hook is provided, it will be called with from and to ids of switching tasks.
+- Extend task switching mechanism such that if the external task profiling hook is provided, it will be called with from and to ids of switching tasks.
 
 # Release Impact: Minor
 

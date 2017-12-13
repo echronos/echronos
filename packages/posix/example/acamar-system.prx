@@ -36,6 +36,10 @@
         </task>
 
       </tasks>
+      <profiling>
+        <!-- <task_uptime>false</task_uptime> -->
+        <hook_for_task_switch>fn_task_switch_notify</hook_for_task_switch>
+      </profiling>
     </module>
 
     <module name="rtos-example.acamar-test" />

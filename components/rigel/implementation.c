@@ -8,6 +8,11 @@
 /*| structures |*/
 
 /*| extern_declarations |*/
+{{#profiling}}
+{{#profiling.hook_for_task_switch}}
+extern void {{hook_for_task_switch}}({{prefix_type}}TaskId from, {{prefix_type}}TaskId to);
+{{/profiling.hook_for_task_switch}}
+{{/profiling}}
 
 /*| function_declarations |*/
 static void yield_to({{prefix_type}}TaskId to) {{prefix_const}}REENTRANT;
@@ -52,9 +57,9 @@ yield_to(const {{prefix_type}}TaskId to) {{prefix_const}}REENTRANT
     internal_assert(to < {{tasks.length}}, ERROR_ID_INTERNAL_INVALID_ID);
 
     {{#profiling}}
-    {{#profiling.extern_task_profiling_hook}}
-    {{extern_task_profiling_hook}}(from, to);
-    {{/profiling.extern_task_profiling_hook}}
+    {{#profiling.hook_for_task_switch}}
+    {{hook_for_task_switch}}(from, to);
+    {{/profiling.hook_for_task_switch}}
     {{/profiling}}
 
     current_task = to;

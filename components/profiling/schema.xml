@@ -1,4 +1,4 @@
 <entry name="profiling" type="dict" optional="true">
     <entry name="task_uptime" type="bool" optional="true" default="true" />
-    <entry name="extern_task_profiling_hook" type="c_ident" optional="true" default=""/>
+    <entry name="hook_for_task_switch" type="c_ident" optional="true" default=""/>
 </entry>

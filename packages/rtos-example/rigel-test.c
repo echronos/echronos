@@ -22,6 +22,7 @@ void tick_irq(void);
 void fatal(RtosErrorId error_id);
 void fn_a(void);
 void fn_b(void);
+void record_task_switch(RtosTaskId from, RtosTaskId to);
 
 void
 tick_irq(void)
@@ -136,6 +137,16 @@ fn_b(void)
         debug_println("task b: sleeping for 7");
         rtos_sleep(7);
     }
+}
+
+void
+record_task_switch(RtosTaskId from, RtosTaskId to)
+{
+    debug_print("Task switch from ");
+    debug_printhex8(from);
+    debug_print(" to ");
+    debug_printhex8(to);
+    debug_println("");
 }
 
 int

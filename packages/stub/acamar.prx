@@ -33,7 +33,6 @@
           <function>fn_b</function>
           <stack_size>8192</stack_size>
         </task>
-
       </tasks>
     </module>
 

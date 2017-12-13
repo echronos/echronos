@@ -30,7 +30,7 @@
                 </task>
             </tasks>
             <profiling>
-                <hook_for_task_switch>fn_task_switch_notify</hook_for_task_switch>
+                <hook_for_task_switch>fn_task_switch_profiling</hook_for_task_switch>
             </profiling>
         </module>
         <module name="rtos-example.acamar-test"/>

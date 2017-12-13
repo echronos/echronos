@@ -22,6 +22,7 @@ extern void debug_printhex8(uint8_t val);
 
 void fn_a(void);
 void fn_b(void);
+void fn_task_switch_profiling(RtosTaskId from, RtosTaskId to);
 
 void
 fn_a(void)
@@ -44,7 +45,7 @@ fn_b(void)
 }
 
 void
-fn_task_switch_notify(RtosTaskId from, RtosTaskId to)
+fn_task_switch_profiling(RtosTaskId from, RtosTaskId to)
 {
     debug_print("\nTask switch from ");
     debug_printhex8(from);

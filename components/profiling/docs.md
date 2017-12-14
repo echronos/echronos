@@ -56,7 +56,7 @@ Example:
 ### `profiling/task_uptime`
 
 This configuration item enables the applcaton to periodically record tasks uptime (also see [Task Uptime](#task_uptime).
-This is item is option and is of a boolean type, which defaults to true.
+This is item is optional and is of a boolean type, which defaults to true.
 
 ### `profiling/hook_for_task_switch`
 

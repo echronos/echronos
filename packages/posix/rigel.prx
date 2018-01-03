@@ -80,6 +80,7 @@
             </mutex>
             <profiling>
                 <task_uptime>true</task_uptime>
+                <hook_for_task_switch>record_task_switch</hook_for_task_switch>
             </profiling>
             <message_queues>
                 <message_queue>

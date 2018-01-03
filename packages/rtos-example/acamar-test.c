@@ -16,9 +16,13 @@
 #include "rtos-acamar.h"
 
 extern void debug_println(const char *msg);
+extern void debug_print(const char *msg);
+extern void debug_printhex32(uint32_t val);
+extern void debug_printhex8(uint8_t val);
 
 void fn_a(void);
 void fn_b(void);
+void fn_task_switch_profiling(RtosTaskId from, RtosTaskId to);
 
 void
 fn_a(void)
@@ -38,6 +42,16 @@ fn_b(void)
         rtos_yield_to(0);
         debug_println("task b");
     }
+}
+
+void
+fn_task_switch_profiling(RtosTaskId from, RtosTaskId to)
+{
+    debug_print("\nTask switch from ");
+    debug_printhex8(from);
+    debug_print(" to ");
+    debug_printhex8(to);
+    debug_print("\n");
 }
 
 int

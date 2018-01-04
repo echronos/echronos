@@ -421,7 +421,7 @@ class Git:
         """Add the list of files to the index in preparation of a future commit."""
         return self._do(['add'] + self.convert_paths(files))
 
-    def rm(self, paths, force=True, *args):  # pylint: disable=invalid-name
+    def rm(self, paths, *args, force=True):  # pylint: disable=invalid-name
         """Remove the specified paths from the index and, by default, from the file system."""
         if force:
             force_option = ['--force']

@@ -239,9 +239,9 @@ def _run_pylint_on_paths(file_paths):
     from pylint.lint import Run
     from pylint.__pkginfo__ import numversion, version
 
-    if numversion[:2] != (1, 7):
+    if numversion[:2] != (1, 8):
         print('WARNING: '
-              'The supported version of pylint is 1.7. '
+              'The supported version of pylint is 1.8. '
               'The locally installed version of pylint is ' + version + '. '
               'It may report unexpected style violations.')
 

@@ -1,0 +1,18 @@
+# Motivation
+
+The command `x.py test style` currently uses the pylint static analysis tool to find syntactic and sematic issues in the Python source code.
+The pylint package has recently been updated from the currently supported version 1.7 to version 1.8.
+This version reports issues that version 1.7 does not detect.
+Therefore, the command `x.py test style` fails with the current version of pylint.
+
+# Goals
+
+The main goal of this task is for the `x.py test style` command to not fail with pylint version 1.8.
+The Python code that causes the issues reported by pylint 1.8 shall be updated and improved for pylint to pass.
+
+# Release Impact: Patch
+
+# Test Plan
+
+- Update pylint with the command `pip3 install --upgrade pylint`
+- Run the command `x.py test style` and verify that it completes successfully and without reporting issues

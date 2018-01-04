@@ -855,6 +855,8 @@ might not be available on the PATH search path for executables.")
                     print("Static analysis of '{}' with splint command {} failed".format(c_file, cmd))
                     return 2
 
+        return 0
+
     def _run_action(self, typ):
         try:
             return self._get_instance_by_type(typ).run()
@@ -1234,6 +1236,8 @@ def commonpath(paths):
         prefix = os.path.commonprefix(paths)
         if not os.path.exists(prefix):
             return os.path.dirname(prefix)
+        assert False
+        return None
 
 
 def commonprefix(paths):

@@ -661,3 +661,4 @@ def get_release_version(release_cfg_path):
         for line in file_obj:
             if line.startswith('    version = '):
                 return tuple(int(part) for part in line.split(' = ')[1].strip().strip("'").split('.'))
+    return None

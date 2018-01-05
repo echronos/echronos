@@ -1,44 +1,61 @@
-Breakpoint 1 at 0x40132b
-[New Thread 1884.0xfd0]
-[New Thread 1884.0x1bb8]
-[New Thread 1884.0x17fc]
+Breakpoint 1 at 0x4008df
 
-Breakpoint 1, 0x0040132b in debug_println ()
+Task switch from 0x00 to 0x01
+
+Task switch from 0x01 to 0x00
+
+Breakpoint 1, 0x00000000004008df in debug_println ()
 1: rtos_internal_current_task = 0
 task a
 
-Breakpoint 1, 0x0040132b in debug_println ()
+Task switch from 0x00 to 0x01
+
+Breakpoint 1, 0x00000000004008df in debug_println ()
 1: rtos_internal_current_task = 1
 task b
 
-Breakpoint 1, 0x0040132b in debug_println ()
+Task switch from 0x01 to 0x00
+
+Breakpoint 1, 0x00000000004008df in debug_println ()
 1: rtos_internal_current_task = 0
 task a
 
-Breakpoint 1, 0x0040132b in debug_println ()
+Task switch from 0x00 to 0x01
+
+Breakpoint 1, 0x00000000004008df in debug_println ()
 1: rtos_internal_current_task = 1
 task b
 
-Breakpoint 1, 0x0040132b in debug_println ()
+Task switch from 0x01 to 0x00
+
+Breakpoint 1, 0x00000000004008df in debug_println ()
 1: rtos_internal_current_task = 0
 task a
 
-Breakpoint 1, 0x0040132b in debug_println ()
+Task switch from 0x00 to 0x01
+
+Breakpoint 1, 0x00000000004008df in debug_println ()
 1: rtos_internal_current_task = 1
 task b
 
-Breakpoint 1, 0x0040132b in debug_println ()
+Task switch from 0x01 to 0x00
+
+Breakpoint 1, 0x00000000004008df in debug_println ()
 1: rtos_internal_current_task = 0
 task a
 
-Breakpoint 1, 0x0040132b in debug_println ()
+Task switch from 0x00 to 0x01
+
+Breakpoint 1, 0x00000000004008df in debug_println ()
 1: rtos_internal_current_task = 1
 task b
 
-Breakpoint 1, 0x0040132b in debug_println ()
+Task switch from 0x01 to 0x00
+
+Breakpoint 1, 0x00000000004008df in debug_println ()
 1: rtos_internal_current_task = 0
 A debugging session is active.
 
-	Inferior 1 [process 1884] will be killed.
+	Inferior 1 [process 1474] will be killed.
 
 Quit anyway? (y or n) [answered Y; input not from terminal]

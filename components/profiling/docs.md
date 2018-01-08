@@ -3,7 +3,6 @@ profiling
 
 /*| requires |*/
 task
-sched
 
 /*| doc_header |*/
 

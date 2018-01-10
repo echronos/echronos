@@ -21,3 +21,8 @@ instead of raising an assertion error? Because that's the whole point, right?
 
 
 [0] https://docs.python.org/3.5/library/os.path.html#os.path.commonprefix
+
+[stg: you are right, and I changed the code to address that.
+However, I believe there was another bug here in that commonpath() calls os.path.commonprefix() and completely ignores the commonprefix() function in the prj module.
+I have therefore also changed commonpath() to call commonprefix() instead.
+Please review.]

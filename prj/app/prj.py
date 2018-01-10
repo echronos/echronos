@@ -1233,11 +1233,10 @@ def commonpath(paths):
         commonpath_func = getattr(os.path, 'commonpath')
         return commonpath_func(paths)
     else:
-        prefix = os.path.commonprefix(paths)
-        if not os.path.exists(prefix):
-            return os.path.dirname(prefix)
-        assert False
-        return None
+        prefix = commonprefix(paths)
+        if os.path.exists(prefix):
+            return prefix
+        return os.path.dirname(prefix)
 
 
 def commonprefix(paths):

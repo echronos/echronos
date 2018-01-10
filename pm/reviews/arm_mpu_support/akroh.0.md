@@ -9,10 +9,30 @@ The tests are a great demonstration of the new features, but it would be nice to
 policy violations. Unfortunately, I acknowledge that the violation would be a reset event and is
 hence difficult to demonstrate.
 
+[sebastian.holzapfel: I agree that 'hard reset' violation behaviour is hard to demonstrate.
+I could be misunderstanding, but I believe the tests already show the result of protection policy violations.
+The acamar test uses a special debugging switch `mpu_skip_faulting_instructions`, which is implemented at:
+    - `components/mpu-armv7m/implementation.c:382`
+This injects a different implementation of the fault handling IRQ.
+The replaced IRQ, instead of locking up with the RTOS `fatal` handler, will display debugging information indicating a protection fault occurred.
+It will alter the stacked registers populated by the `memmanage` IRQ such that when the IRQ completes, execution is resumed and the faulting instruction is skipped.
+It is easy to imagine situations where simply skipping a faulting instruction would cause some pretty nasty things to happen (in real applications) - so there are warnings about this flag in the documentation.]
+
 The per-task protection domain limit of 8/16 could be extended by detecting memmanage faults and swapping
 regions as needed (much like a TLB). I am curious if there is a demand for this, and how this would impact the
 real-time properties of the RTOS. Perhaps this could be considered future work to avoid prolonging this review.
 
+[sebastian.holzapfel: I am glad that you brought this up, as it is something that was discussed at the start of this year and is buried in my notes somewhere (nowhere official until now).
+Such a feature would probably be useful, but concerns we had (some of which you have already mentioned) were:
+    - Depending on the domain working set, there is potential for large performance overhead
+    - It may prove difficult to reason about how this would affect the real-time properties of the RTOS
+        - A pathological example would easily blow up the WCET between yields by an order of magnitude.
+    - It was thought that an RTOS application (that consists of many protection domains & tasks) generally gains more from memory protection IF tasks are loosely coupled (as far as shared memory is concerned), and each task accesses a minimal amount of peripherals.
+        - It becomes less likely for an invalid access (in a task that is overassociated with protection domains) to occur without error.
+        - Allowing users to 'ignore' this practice more easily may not be a good idea.
+        - Of course the more complex a task network becomes, the slower an application will be as well.
+This is definitely worth investigating further.
+For now, I would prefer we consider this future work.]
 
 Location: various  
 Comment 1: Rework  
@@ -143,4 +163,4 @@ Location: packages/rtos-example/acamar-mpu-test.c
 Comment 20: Rework  
 Could the tests be extended to demonstrate a protection policy violation?
 
-
+[sebastian.holzapfel: See response to first general comment above]

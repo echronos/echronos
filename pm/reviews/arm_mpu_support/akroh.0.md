@@ -43,6 +43,13 @@ The diff with master contains changes that do not seem relevant to this task.
  - components/task/docs.md
  - x.py
 
+[sebastian.holzapfel: True, these changes are not directly referenced in the task description.
+I have added scope for the documentation changes in the task description.
+Justification:
+    - Acamar had some holes in it's documentation support, which I filled in so that the documentation for this variant was able to be built. (Most of the 'new' file is just copied from another RTOS variant)
+        - This was necessary as only this variant has memory protection support at this time, and documentation builds needed to be tested.
+    - The rest of the changes in the files you describe are also victims of the above.
+If this isn't satisfactory, let me know and I will split this into another task.]
 
 Location: components/mpu-armv7m/docs.md:26  
 Comment 2: Rework  

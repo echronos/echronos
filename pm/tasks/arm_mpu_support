@@ -10,6 +10,7 @@
 - Implement a privileged/unprivileged execution model
 - Implement a driver for armv7m that allows the MPU to be used
 - Implement support into some existing RTOS variant(s)
+    - Update/fix documentation support for RTOS variant(s) as required
 - Provide sample system(s) that demonstrate the functionality
 - This first task will provide very basic RTOS variant support
     - Future tasks will add support for preemptive RTOS variants and more platforms

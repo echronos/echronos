@@ -87,6 +87,7 @@ Location: components/mpu-armv7m/docs.md:65
 Comment 6: Rework  
 * 'essentially' can be removed.
 
+[sebastian.holzapfel: fixed.]
 
 Location: components/mpu-armv7m/docs.md:84  
 Comment 7: Rework  

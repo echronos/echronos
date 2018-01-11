@@ -62,7 +62,7 @@ Most ARMv7m MPUs have the same set of capabilities:
 - Each region has *Readable / Writeable / Executeable flags*
 - Each region has a *base address and region size*
 
-A 'protection region' is essentially a partition of the processor's address space that enforces an access restriction.
+A 'protection region' is a partition of the processor's address space that enforces an access restriction.
 Had we set up some basic protection regions, the address space might look like:
 
 <img src="docs/mpu_hardware.png"/>

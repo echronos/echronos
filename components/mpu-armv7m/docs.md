@@ -81,7 +81,7 @@ Active protection regions are changed at runtime depending on which task is curr
 
 <img src="docs/mpu_visualization.png"/>
 
-With task B currently running, the active protection regions are those corresponding to the system code segment, the stack of task b, the 'command domain' and the 'uart domain'. In the event that a new task is scheduled, the active protection regions are changed to suit the new task in accordance with the RTOS configuration.
+With task B currently running, the active protection regions are those corresponding to the system code segment, the stack of task b, the 'command domain' and the 'UART domain'. In the event that a new task is scheduled, the active protection regions are changed to suit the new task in accordance with the RTOS configuration.
 
 ### Adding Memory Protection to an Existing System
 

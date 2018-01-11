@@ -93,6 +93,7 @@ Location: components/mpu-armv7m/docs.md:84
 Comment 7: Rework  
 * uart -> UART
 
+[sebastian.holzapfel: fixed.]
 
 Location: components/mpu-armv7m/docs.md:90  
 Comment 8: Rework  

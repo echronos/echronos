@@ -63,6 +63,7 @@ Location: components/mpu-armv7m/docs.md:31
 Comment 3: Rework  
 usermode -> user mode
 
+[sebastian.holzapfel: fixed.]
 
 Location: components/mpu-armv7m/docs.md:35  
 Comment 4: Rework  

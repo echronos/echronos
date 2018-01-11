@@ -28,7 +28,7 @@ If memory protection is enabled, and no extra configuration information is suppl
 - All tasks are, in addition, granted *read-only access to the code segment*.
 Note that this means tasks are not prevented from running code that does not belong to them[^mpu_code_segment].
 
-- Tasks *may still make RTOS 'system calls'*, which now result in a switch to privileged mode, execution of the call, and a return to the next schedulable task in usermode.
+- Tasks *may still make RTOS 'system calls'*, which now result in a switch to privileged mode, execution of the call, and a return to the next schedulable task in user mode.
 
 - Any *protection faults cause the `fatal_error` handler to be called* with the protection fault error code.
 

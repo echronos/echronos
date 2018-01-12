@@ -102,6 +102,7 @@ using the MPU feature?
  - If optional, please rephrase.
  - If required, is it possible to rename this feature, or separate debug code from the required code?
 
+[sebastian.holzapfel: good point, I have indicated that this feature is optional.]
 
 Location: components/mpu-armv7m/docs.md:91  
 Comment 9: Rework  

@@ -109,6 +109,10 @@ Comment 9: Rework
 Though I am unaware of the standard practice for this project, I feel that <machine>\_mpu.build is more
 appropriate than <machine>.build\_mpu
 
+[sebastian.holzapfel: As the dot separators represent directories, making this change would imply duplicating the top-level machine directory under a different name.
+I would prefer we remain with one top-level package directory per machine as is standard practice in this project.
+Leaving as is - let me know if this is unsatisfactory.]
+
 Location: components/mpu-armv7m/docs.md:107  
 Comment 10: Rework  
 I recall that you personally had problems with third-party drivers. Are these problems limited to

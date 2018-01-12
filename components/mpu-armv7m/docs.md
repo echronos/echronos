@@ -105,7 +105,7 @@ Additionally, refactoring the system codebase may be necessary in order for prot
 For example, if one task accesses more than 6 different memory regions (the upper limit on protection domains that can be associated with a single task), the functionality encompassed by that task may have to be split up.
 When possible, global state that is used only by a single task should be moved to that task's stack - removing the need for a domain altogether.
 
-In some cases (especially when using large third party drivers), it becomes difficult to figure out exactly what memory regions should be in a protection domain.
+In some cases (especially when dealing with large third party codebases), it becomes difficult to figure out exactly what memory regions should be in a protection domain.
 On ARM systems, GDB and the RTOS's debugging output is your friend.
 By setting a breakpoint on the RTOS `fatal` handler, one can use GDB's `where` command for a backtrace.
 If `fatal` was caused by a protection fault, the backtrace usually displays exactly which function or variable triggered the fault, as well as its address.

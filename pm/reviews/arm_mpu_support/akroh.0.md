@@ -119,6 +119,8 @@ I recall that you personally had problems with third-party drivers. Are these pr
 driver-specific code?  
 Perhaps you could s/drivers/software' to extend the scope of this statement.
 
+[sebastian.holzapfel: fixed.]
+
 Location: components/mpu-armv7m/docs.md:108  
 Comment 11: Rework  
 "is your friend" is very informal. What about "are useful tools for..."

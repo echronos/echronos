@@ -201,6 +201,10 @@ Location: packages/machine-stm32f4-discovery/build_mpu.py
 Comment 19: Rework  
 This file is very similar to the corresponding build.py. Would it be much effort to factor out the common parts?
 
+[sebastian.holzapfel: Good point.
+You'll see similar redundant code across most platforms in their respective build scripts.
+I actually already have a branch under construction (for libopencm3 support) that has improving this as a goal.
+Since doing this nicely requires modifications to prj and I'm already working on it, leaving as-is for this task.]
 
 Location: packages/rtos-example/acamar-mpu-test.c:116/126  
 Comment 20: Rework  

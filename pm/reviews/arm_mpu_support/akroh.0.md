@@ -77,6 +77,7 @@ This is also true for high-end Cortex-A processors, but I am not sure about othe
 In any case, you could argue that providing read permissions on execute segments by default will
 ensure consistent default permissions across devices.
 
+[sebastian.holzapfel: fixed as suggested.]
 
 Location: components/mpu-armv7m/docs.md:41  
 Comment 5: Rework  

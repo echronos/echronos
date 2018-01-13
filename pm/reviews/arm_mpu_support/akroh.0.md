@@ -191,6 +191,11 @@ Location: packages/armv7m/vectable.py:28 and packages/armv7m/vectable.s:26
 Comment 18: Rework  
 Is it possible to continue to use a default value for memmanage? Would this clean up the vector table code?
 
+[sebastian.holzapfel: Possibly, but I would prefer to keep these changes as-is because:
+    - The default value of memmanage depends on whether the MPU is enabled
+    - Not using a default value and doing pystache predicates is the style that is already used for similar parts elsewhere in the vectable (by `pendsv`, `svc`)
+    - The specifics of how the vectable would handle `memmanage` was cleared with other RTOS developers while the task was being implemented.
+]
 
 Location: packages/machine-stm32f4-discovery/build_mpu.py  
 Comment 19: Rework  

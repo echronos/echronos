@@ -210,6 +210,8 @@ Location: packages/rtos-example/acamar-mpu-test.c:116/126
 Comment 20: Rework  
 Is it possible to use task labels rather than magic numbers here?
 
+[sebastian.holzapfel: fixed.]
+
 Location: packages/rtos-example/acamar-mpu-test.c  
 Comment 20: Rework  
 Could the tests be extended to demonstrate a protection policy violation?

@@ -113,7 +113,7 @@ fn_a(void)
     for (;;)
     {
         iteration();
-        rtos_yield_to(1);
+        rtos_yield_to(RTOS_TASK_ID_B);
     }
 }
 
@@ -123,7 +123,7 @@ fn_b(void)
     for (;;)
     {
         iteration();
-        rtos_yield_to(0);
+        rtos_yield_to(RTOS_TASK_ID_A);
     }
 }
 

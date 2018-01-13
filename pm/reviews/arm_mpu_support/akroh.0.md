@@ -148,6 +148,15 @@ Location: components/stack-armv7m/implementation.c:24
 Comment 14: Rework  
 The argument to aligned() should be in bytes. Is stack\_size measured in words?
 
+[sebastian.holzapfel: nice find, you seem to have found an inconsistency in the RTOS that existed before this task.
+When implementing this task I just read the old stack code (no docs) and took it (size in words) as truth.
+Since fixing this on all platforms is out of scope for this task, I have filed an issue here:
+
+    https://github.com/echronos/echronos/issues/51
+
+See the issue for more information, but basically this is a problem on both `armv7m` and `ppce500`.
+The documentation is inconsistent with the implementation.
+Surprising that this was missed across the last platform port!]
 
 Location: packages/armv7m/ctxt-switch.s:13  
 Comment 15: Rework  

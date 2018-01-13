@@ -40,7 +40,7 @@ Note that this means tasks are not prevented from running code that does not bel
 
 A key concept related to memory protection is how tasks are granted permission to access memory regions.
 The RTOS implements 'Protection Domains' as a way of bookkeeping for memory regions.
-A *protection domain* can contain one or more pieces of data (this is known as a 'symbol' domain) or encompass an address range, like a peripheral (this is known as an 'address' domain).
+A *protection domain* can contain one or more data elements (such as global variables or arrays - this is known as a 'symbol' domain) or encompass an address range, such as an MMIO peripheral region (this is known as an 'address' domain).
 Tasks can be given different permissions to these domains, depending on what they require.
 This facilitates decoupling of logical functionality and memory. For example:
 

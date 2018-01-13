@@ -83,6 +83,7 @@ Comment 5: Rework
 * Can "pieces of data" be phrased more concretely? Variables? Arrays?  
 * like a peripheral ->  such as an MMIO peripheral region
 
+[sebastian.holzapfel: fixed.]
 
 Location: components/mpu-armv7m/docs.md:65  
 Comment 6: Rework  

@@ -173,6 +173,7 @@ The second part of this comment is a little confusing:
  First context switch with respect to? System boot?  
  "as we do here" suggests to me that the previous clause is not relevant here.  
 
+[sebastian.holzapfel: fixed.]
 
 Location: packages/armv7m/ctxt-switch.s:74  
 Comment 17: Rework  

@@ -52,11 +52,10 @@ rtos_internal_context_switch_first:
  * switch code for the initial switch to a particular task.
  * The tasks entry point is stored in 'r4'.
  *{{#rtos.mpu_enabled}}
- * When memory protection is enabled, we must ensure that
- * we drop into user-mode before branching into our task.
- * Normally, this is the responsibility of API call wrappers,
- * however the first context switch into a function requires
- * us to explicitly drop privileges as we do here.
+ * When memory protection is enabled, we must drop into
+ * user-mode before branching into our task.
+ * The first context switch into a function after system boot
+ * requires us to explicitly drop privileges as we do here.
  *{{/rtos.mpu_enabled}} */
 rtos_internal_trampoline:
         {{#rtos.mpu_enabled}}

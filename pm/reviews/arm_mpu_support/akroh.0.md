@@ -134,6 +134,9 @@ It is unclear what a strange error message is. Please provide a specific example
 Also, I feel that developers may overlook this sentence and invest a significant amount of effort in trying to
 resolve the error message. Perhaps this sentence should be in its own paragraph with keywords highlighted?
 
+[sebastian.holzapfel: good point. fixed.
+Did not add an example error message as it will depend on which version of binutils is used.
+Rephrased to remove 'strange']
 
 Location: components/stack-armv7m/implementation.c:17  
 Comment 13: Rework  

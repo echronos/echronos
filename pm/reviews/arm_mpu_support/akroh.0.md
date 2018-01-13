@@ -142,6 +142,7 @@ Location: components/stack-armv7m/implementation.c:17
 Comment 13: Rework  
 on their size -> by stack size
 
+[sebastian.holzapfel: fixed.]
 
 Location: components/stack-armv7m/implementation.c:24  
 Comment 14: Rework  

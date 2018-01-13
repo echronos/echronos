@@ -14,7 +14,7 @@
 
 /*| state |*/
 {{#mpu_enabled}}
-/* We need to align stack addresses on their size to create a valid MPU region.
+/* We need to align stack addresses by stack size to create a valid MPU region.
  * Additionally, we place the stack in a specially named section so that
  * we are able to see where the linker places it and configure the MPU accordingly. */
 {{/mpu_enabled}}

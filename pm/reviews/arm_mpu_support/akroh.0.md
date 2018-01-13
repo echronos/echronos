@@ -162,6 +162,9 @@ Location: packages/armv7m/ctxt-switch.s:13
 Comment 15: Rework  
 This code seem unrelated to this task, is commented out, and should be removed.
 
+[sebastian.holzapfel: this is actually a trigger for prj to process this file as a template, so that all of the pystache templating is applied to this file.
+Leaving as-is.]
+
 Location: packages/armv7m/ctxt-switch.s:55  
 Comment 16: Rework  
 we must ensure that we -> we must  

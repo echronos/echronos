@@ -125,6 +125,8 @@ Location: components/mpu-armv7m/docs.md:108
 Comment 11: Rework  
 "is your friend" is very informal. What about "are useful tools for..."
 
+[sebastian.holzapfel: fixed.]
+
 Location: components/mpu-armv7m/docs.md:129  
 Comment 12: Rework  
 "by the system to avoid strange error messages when memory protection is enabled."  

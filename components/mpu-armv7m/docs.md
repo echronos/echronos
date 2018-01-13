@@ -106,7 +106,7 @@ For example, if one task accesses more than 6 different memory regions (the uppe
 When possible, global state that is used only by a single task should be moved to that task's stack - removing the need for a domain altogether.
 
 In some cases (especially when dealing with large third party codebases), it becomes difficult to figure out exactly what memory regions should be in a protection domain.
-On ARM systems, GDB and the RTOS's debugging output is your friend.
+On ARM systems, GDB and the RTOS's debugging output are useful tools for gathering information about protection faults and discovering where protection domains should be placed.
 By setting a breakpoint on the RTOS `fatal` handler, one can use GDB's `where` command for a backtrace.
 If `fatal` was caused by a protection fault, the backtrace usually displays exactly which function or variable triggered the fault, as well as its address.
 In cases when the backtrace does not display the faulting address (sometimes ROM calls can cause this), one can simply read it from the semihosting output that the RTOS emits.

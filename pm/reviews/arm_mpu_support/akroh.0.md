@@ -180,6 +180,12 @@ Comment 17: Rework
  The magic number "#1" should be a #define.  
  Ideally, this would be a list in a well-defined place to avoid aliasing... (out of scope?)
 
+[sebastian.holzapfel: moved into a define as suggested.
+I believe this is sufficient because:
+    - This first task only implements support for non preemptive variants (one type of svc)
+    - There will only ever be 2 types of SVC calls once this feature is fully implemented in later tasks
+    - The SVC numbers will only be used in one file `ctxt-switch.s` (or preemptive equivalent)
+]
 
 Location: packages/armv7m/vectable.py:28 and packages/armv7m/vectable.s:26  
 Comment 18: Rework  

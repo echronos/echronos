@@ -18,6 +18,14 @@
 .syntax unified
 .section .text
 
+{{#rtos.mpu_enabled}}
+/* Types of SVC calls used in non-preemptive RTOS variants. */
+
+/* 0 is used for preemption on other variants, so we
+ * use 1 to indicate an svc for a privilege raise request */
+.set svc_type_elevate_privileges, 1
+{{/rtos.mpu_enabled}}
+
 /*
  * A subroutine must preserve the contents of the registers r4-r8,
  * r10, r11 and SP (and r9 in PCS variants that
@@ -68,9 +76,7 @@ rtos_internal_trampoline:
 .global rtos_internal_elevate_privileges
 .type rtos_internal_elevate_privileges,#function
 rtos_internal_elevate_privileges:
-    /* 0 is used for pre-emption on other variants, so we
-     * use 1 to indicate an svc for a privilege raise request */
-    svc #1
+    svc #svc_type_elevate_privileges
     /* At this point we are running in privileged mode */
     mov pc, lr
 .size rtos_internal_elevate_privileges, .-rtos_internal_elevate_privileges

@@ -23,7 +23,7 @@ The RTOS's implementation of memory protection provides:
 
 If memory protection is enabled, and no extra configuration information is supplied:
 
-- Tasks may *only* read/write to their stack.
+- Tasks may *only* read/write to their stack[^mpu_stack_only].
 
 - All tasks are, in addition, granted *read-only access to the code segment*.
 Note that this means tasks are not prevented from running code that does not belong to them[^mpu_code_segment].
@@ -33,6 +33,8 @@ Note that this means tasks are not prevented from running code that does not bel
 - Any *protection faults cause the `fatal_error` handler to be called* with the protection fault error code.
 
 [^mpu_code_segment]: Protecting the data and not the code is standard memory protection practice with such limited devices - it is a functionality tradeoff.
+
+[^mpu_stack_only]: A task that can only access its own stack may not seem very useful. The reason this state does not represent a build error is twofold. Firstly, such a task can make RTOS system calls (to communicate with other tasks). Secondly, tasks with no permissions are useful when debug tracing methods are used to find memory regions as described in [Adding Memory Protection to an Existing System]
 
 ### Protection Domains, Data & Tasks
 

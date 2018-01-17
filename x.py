@@ -133,7 +133,7 @@ CORE_SKELETONS = {
                Component('preempt-null', {'scheduler': False}),
                Component('error'),
                Component('task', {'task_start_api': False, 'scheduler': False}),
-               Component('profiling')],
+               Component('profiling', {'scheduler': False})],
     'gatria': [Component('reentrant'),
                Component('stack', pkg_component=True),
                Component('context-switch', pkg_component=True),
@@ -177,7 +177,7 @@ CORE_SKELETONS = {
               Component('interrupt-event', {'timer_process': True}),
               Component('interrupt-event-signal', {'task_set': True}),
               Component('blocking-mutex', {'lock_timeout': False, 'preemptive': False, 'prio_ceiling': False}),
-              Component('profiling'),
+              Component('profiling', {'scheduler': True}),
               Component('message-queue'),
               Component('error'),
               # Please note that the task_start_api pystache tag is used solely to block out a rigel-specific section

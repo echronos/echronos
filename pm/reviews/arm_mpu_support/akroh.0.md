@@ -51,6 +51,9 @@ Justification:
     - The rest of the changes in the files you describe are also victims of the above.
 If this isn't satisfactory, let me know and I will split this into another task.]
 
+[sebastian.holzapfel: after further discussion it was agreed that these changes should be moved.
+The changes have been reverted and now exist in the 'acamar_documentation' branch]
+
 Location: components/mpu-armv7m/docs.md:26  
 Comment 2: Rework  
 "Tasks may only read/write to their own stack."  

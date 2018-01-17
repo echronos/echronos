@@ -91,7 +91,7 @@ To begin converting an ordinary Acamar system into a protected system one must f
 
 - Enable the memory protection configuration option (`mpu_enabled`)
 - Change the build script (in the system configuration) to an MPU build script (i.e replace the `<machine>.build` module with `<machine>.build_mpu` or similar)
-- Enable (optionally) extra debugging information (`mpu_verbose_faults`)
+- Optionally, enable extra debugging information (`mpu_verbose_faults`)
 
 At this point, memory protection is enabled but the system is not very useful as tasks don't have any permissions.
 To assign permissions to tasks, one must first create some protection domains.

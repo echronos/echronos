@@ -130,6 +130,7 @@ During a context switch, the RTOS saves the current task's state on the task's s
 
 The [Preemption] section provides more details on context switches, what can lead to them, and how to control them, which is an important aspect of constructing correct system behavior.
 
+[[#scheduler]]
 ### Task States
 
 An RTOS task can be in one of three primary states: current, runnable, or blocked.
@@ -153,6 +154,7 @@ If the platform supports it, the RTOS places the hardware into a low-power state
 
 When there is more than one task in the runnable state, the RTOS must use the scheduling algorithm to determine the task that becomes current.
 The scheduling algorithm is described in the [Scheduling Algorithm] section.
+[[/scheduler]]
 
 /*| doc_api |*/
 ## Task API

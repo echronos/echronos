@@ -23,7 +23,7 @@ The RTOS's implementation of memory protection provides:
 
 If memory protection is enabled, and no extra configuration information is supplied:
 
-- Tasks may *only* read/write to their stack[^mpu_stack_only].
+- Tasks may read/write to their stack[^mpu_stack_only].
 
 - All tasks are, in addition, granted *read-only, executable access to the code segment*.
 Note that this means tasks are not prevented from running code that does not belong to them[^mpu_code_segment].
@@ -32,9 +32,9 @@ Note that this means tasks are not prevented from running code that does not bel
 
 - Any *protection faults cause the `fatal_error` handler to be called* with the protection fault error code.
 
-[^mpu_code_segment]: Protecting the data and not the code is standard memory protection practice given our focus on *safety, but not security*. On armv7m, complete code protection would incur an unreasonable ROM overhead due to section rounding (especially for systems with many tasks). It would also significantly increase overheads incurred during context switches and system calls. For more information on this protection model, see: *D. Danner, R. Müller, W. Schröder-Preikschat, W. Hofer, D. Lohmann, "Safer sloth: Efficient hardware-tailored memory protection", Proceedings of the 20th Real-Time and Embedded Technology and Applications Symposium (RTAS ‘14), IEEE Computer Society, pp. 37-47, 2014.* and *AUTOSAR.  Specification of operating system (version 5.0.0).  Technical report, Automotive Open System Architecture GbR, November 2011.*
+[^mpu_stack_only]: A task that can only access its own stack and code segment may not seem very useful. The reason this state does not represent a build error is twofold. Firstly, such a task can make RTOS system calls (to communicate with other tasks). Secondly, tasks with no permissions are useful when debug tracing methods are used to find memory regions as described in [Adding Memory Protection to an Existing System]
 
-[^mpu_stack_only]: A task that can only access its own stack may not seem very useful. The reason this state does not represent a build error is twofold. Firstly, such a task can make RTOS system calls (to communicate with other tasks). Secondly, tasks with no permissions are useful when debug tracing methods are used to find memory regions as described in [Adding Memory Protection to an Existing System]
+[^mpu_code_segment]: Protecting the data and not the code is standard memory protection practice given our focus on *safety, but not security*. On armv7m, complete code protection would incur an unreasonable ROM overhead due to section rounding (especially for systems with many tasks). It would also significantly increase overheads incurred during context switches and system calls. For more information on this protection model, see: *D. Danner, R. Müller, W. Schröder-Preikschat, W. Hofer, D. Lohmann, "Safer sloth: Efficient hardware-tailored memory protection", Proceedings of the 20th Real-Time and Embedded Technology and Applications Symposium (RTAS ‘14), IEEE Computer Society, pp. 37-47, 2014.* and *AUTOSAR.  Specification of operating system (version 5.0.0).  Technical report, Automotive Open System Architecture GbR, November 2011.*
 
 ### Protection Domains, Data & Tasks
 

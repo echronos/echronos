@@ -58,7 +58,8 @@ Is this sensible behaviour? Should this case result in a build error?
 What could such a task possibly execute?  
 Perhaps the motivation for this design decision should be briefly provided.
 
-[sebastian.holzapfel: added motivation for this design decision.]
+[sebastian.holzapfel: added motivation for this design decision.
+fixed incorrect wording in stack access bullet point.]
 
 Location: components/mpu-armv7m/docs.md:31  
 Comment 3: Rework  

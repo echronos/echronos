@@ -232,6 +232,7 @@ class PrioInheritSchedModel(BaseSchedModel):
                 else:
                     seen.add(task_id)
                     task_id = blocked_on
+            return None
 
         return head(task_id for
                     task_id in map(resolve_block_chain, range(len(self.blocked_on)))
@@ -255,6 +256,7 @@ class PrioInheritSchedModel(BaseSchedModel):
                 else:
                     seen.add(task_id)
                     task_id = blocked_on
+            return False
 
         def check_blocked_list(blocked_list):
             result = all(check_blocked(blocked_list, task_id) for task_id in range(len(blocked_list)))

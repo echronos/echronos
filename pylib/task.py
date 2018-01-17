@@ -385,6 +385,7 @@ class _Review:
                 return conclusion.lower()
         file_obj.close()
         assert False
+        return False
 
     @property
     def conclusion(self):

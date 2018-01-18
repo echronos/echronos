@@ -3,7 +3,6 @@ profiling
 
 /*| requires |*/
 task
-sched
 
 /*| doc_header |*/
 
@@ -35,8 +34,10 @@ If specified, the RTOS expects the hook to have the signature `void hook(const T
 If the hook function uses any RTOS API, the system behavior becomes undefined.
 Therefore, an application shall not call any RTOS API function from the hook function.
 
+[[#scheduler]]
 It is worth noting that the `from` and `to` arguments may have the same value.
 This case arises, for example, when the only runnable task in the system calls the [<span class="api">yield</span>] API function.
+[[/scheduler]]
 
 /*| doc_api |*/
 ## Profiling API

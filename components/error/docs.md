@@ -56,7 +56,7 @@ The names of these constants follow the pattern `ERROR_ID_<error-state>`.
 
 This configuration item is a boolean with a default of false.
 When true, the RTOS checks the arguments passed to API functions at runtime for consistency.
-For example, it checks whether the value of the [<span class="api">MutexId</span>] argument of the [<span class="api">mutex_lock</span>] API identifies a valid mutex.
+For example, it checks whether identifiers for RTOS objects passed to API functions identify valid objects.
 If the check passes, the check has no effect on the behavior of the API.
 If the check fails, the RTOS calls the [`fatal_error`] function.
 

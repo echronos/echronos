@@ -18,7 +18,7 @@ For example, a driver task can use a signal to notify a handler task whenever ne
 Typically, the driver task would send a signal every time new data becomes available while the handler task would repeatedly wait to receive the signal and then process the data.
 
 The signal mechanism typically blocks the handler task while it waits, and makes the task runnable again when it receives the exact signal it is waiting for.
-Interrupt service routines can also send signals to a task via the interrupt event mechanism described in the [Interrupt Events] section.
+[[#has_interrupts]]Interrupt service routines can also send signals to a task via the interrupt event mechanism described in the [Interrupt Events] section.[[/has_interrupts]]
 
 Each task is associated with a set of pending signals.
 When the system starts, this set is empty for all tasks, so there are no signals to receive for any task.

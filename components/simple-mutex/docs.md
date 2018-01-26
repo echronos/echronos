@@ -103,7 +103,9 @@ The main property of a mutex is its name, such as `CRC` in the example above.
 Therefore, the implementation refers to a mutex via its symbolic name [`MUTEX_ID_<name>`] that has the type [<span class="api">MutexId</span>].
 Applications must not make any assumptions about or rely on the numeric values that the configuration tool assigns to such symbolic names.
 
+[[#has_interrupts]]
 As with any other objects that are not interrupt events, mutexes and their related APIs can not be used by interrupt service routines.
+[[/has_interrupts]]
 
 /*| doc_api |*/
 ## Mutex API

@@ -112,7 +112,7 @@ Stacks are used for several purposes while an application runs:
 
 - Additionally, when the RTOS performs a task switch away from a task, it saves that task's context (such as its register values) on its stack.
 
-- Furthermore, [Interrupt Service Routines] use the stack of the task they interrupt.
+[[#has_interrupts]]- Furthermore, [Interrupt Service Routines] use the stack of the task they interrupt.[[/has_interrupts]]
 
 The size of each stack is chosen by the system designer and configured statically and individually for each task (see the [`tasks/task/stack_size`] configuration item in the [Task Configuration] Section).
 This size needs to be chosen carefully to ensure that there is sufficient space on the stack for all the kinds of stack usage listed above.
@@ -146,9 +146,9 @@ The blocked task unblocks and becomes runnable when the entity it is waiting on 
 
 It is possible for the overall system to arrive in a state where all tasks are in the blocked state[^blocked_state].
 In this situation, there is no current task and the system enters an idle mode.
-When the system is in idle mode, interrupts may still occur and interrupt handlers are still processed.
+[[#has_interrupts]]When the system is in idle mode, interrupts may still occur and interrupt handlers are still processed.
 Tasks may become runnable again when an interrupt handler unblocks a task via an interrupt event (see [Interrupt Events]).
-If the platform supports it, the RTOS places the hardware into a low-power state while the system is idle.
+[[/has_interrupts]]If the platform supports it, the RTOS places the hardware into a low-power state while the system is idle.
 
 [^blocked_state]: In a system designed to operate with low power consumption, it is desirable for this to be the case most of the time.
 

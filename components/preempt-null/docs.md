@@ -12,7 +12,8 @@ task
 
 The RTOS is non-preemptive, which means that any context switch (see [Task Switching]) is actively caused by code that the current task executes.
 In other words, once a task becomes the current task, it is in full control of the CPU, which it can relinquish only by actively causing a task switch.
-While [Interrupt Service Routines] interrupt the current task, they immediately resume the same task and do not lead to task switches.
+[[#has_interrupts]]While [Interrupt Service Routines] interrupt the current task, they immediately resume the same task and do not lead to task switches.
+[[/has_interrupts]]
 
 This also means that the system never performs a context switch asynchronously on its own or without an explicit action from the current task itself.
 To put it another way, only tasks are active entities in a system, whereas the RTOS merely provides passive library code invoked by tasks.

@@ -25,7 +25,7 @@ The next diagram shows the state of the algorithm after choosing C.
 
 <img src="docs/round_robin_2.png" width="33%" />
 
-While C is executing, task B may exit the blocked state and become runnable (e.g., via an interrupt).
+While C is executing, task B may exit the blocked state and become runnable[[#has_interrupts]] (e.g., via an interrupt)[[/has_interrupts]].
 If C now calls the [<span class="api">yield</span>] API, the scheduling algorithm continues and chooses the next runnable task D.
 
 <img src="docs/round_robin_3.png" width="33%" />

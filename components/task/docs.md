@@ -198,9 +198,16 @@ This function returns the task ID for the current task.
 /*| doc_configuration |*/
 ## Task Configuration
 
+### `taskid_size`
+
+This integer configuration item provides control over the maximum number of tasks in the system.
+It determines the bit width of the [<span class="api">TaskId</span>] type.
+When this items is configured to integer value _n_, the maximum number of tasks supported by the system is _2^n - 1_.
+The default value for this configuration item is _8_, resulting in a maximum of 255 tasks by default.
+
 ### `tasks`
 
-This configuration is a list of `task` configuration objects.
+This configuration item is a list of `task` configuration objects.
 The configuration must include at least one task because a system without tasks cannot run application functionality.
 
 ### `tasks/task/name`

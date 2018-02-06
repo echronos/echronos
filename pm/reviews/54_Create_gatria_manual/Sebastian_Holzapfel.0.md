@@ -6,6 +6,8 @@ Location: components/task/docs.md:148
 Comment 1: Rework
 These 2 statements seem to conflict.
 
+[stg: updated the task/scheduler documentation to say that the behavior in the absence of runnable tasks is variant and platform specific.]
+
 Location: components/simple-mutex/docs.md:92, 154
 Comment 2: Accepted
 I don't really like the re-use of 'block' in these places as the 'blocked' task is not actually blocked (from a scheduler perspective), it just spins on a `yield`.

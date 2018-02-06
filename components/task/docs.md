@@ -144,13 +144,13 @@ The blocked task unblocks and becomes runnable when the entity it is waiting on 
 
 <img src="docs/task_states.png" width="100%" />
 
-It is possible for the overall system to arrive in a state where all tasks are in the blocked state[^blocked_state].
-In this situation, there is no current task and the system enters an idle mode.
-[[#has_interrupts]]When the system is in idle mode, interrupts may still occur and interrupt handlers are still processed.
+It is possible for the overall system to arrive in a state where all tasks are in the blocked state.
+In this situation, there is no current task and the system behavior depends on the RTOS variant and platform implementation.
+[[#has_interrupts]]When the variant and platform implementation supports an idle state in the absence of runnable tasks, interrupts may still occur and interrupt handlers are still processed.
 Tasks may become runnable again when an interrupt handler unblocks a task via an interrupt event (see [Interrupt Events]).
-[[/has_interrupts]]If the platform supports it, the RTOS places the hardware into a low-power state while the system is idle.
+If the platform supports it, the RTOS places the hardware into a low-power state while the system is idle[^blocked_state].
 
-[^blocked_state]: In a system designed to operate with low power consumption, it is desirable for this to be the case most of the time.
+[^blocked_state]: In a system designed to operate with low power consumption, it is desirable for this to be the case most of the time.[[/has_interrupts]]
 
 When there is more than one task in the runnable state, the RTOS must use the scheduling algorithm to determine the task that becomes current.
 The scheduling algorithm is described in the [Scheduling Algorithm] section.

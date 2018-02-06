@@ -89,13 +89,14 @@ crc_calculate(const unsigned char *const src,
 
 The API guarantees that only a single task in the system can hold a mutex at a given time.
 In other words, it is guaranteed that when any number of tasks attempt to acquire a mutex, only one of them succeeds.
-When a task A has already acquired a mutex and another task B uses [<span class="api">mutex_lock</span>] on the same mutex, the API blocks task B.
-Only when task A releases the mutex, task B unblocks, acquires the mutex, and returns from its call to [<span class="api">mutex_lock</span>].
+When a task A has already acquired a mutex and another task B uses [<span class="api">mutex_lock</span>] on the same mutex, the API function does not return until task A releases the mutex.
+Internally, [<span class="api">mutex_lock</span>] yields continuously until the mutex becomes available.
+Only when task A releases the mutex and task B becomes the current task again will task B acquire the mutex and return from its call to [<span class="api">mutex_lock</span>].
 
 It is an implementation error for a task to call [<span class="api">mutex_lock</span>] on a mutex it has already acquired.
 It is also an implementation error to call [<span class="api">mutex_unlock</span>] on a mutex not acquired by the calling task (i.e., if the mutex is either not acquired by any task or acquired by a different task).
 
-The [<span class="api">mutex_try_lock</span>] API allows a task to avoid being blocked by always returning immediately.
+The [<span class="api">mutex_try_lock</span>] API always returns immediately and allows a task to attempt to acquire a mutex without waiting for it to become available.
 If the mutex is already acquired by another task, the API returns immediately, indicating that the calling task has not acquired the mutex.
 
 The system designer defines at configuration time which mutexes are available in a system.
@@ -151,8 +152,8 @@ A task must release a mutex before acquiring it again.
 
 If the mutex is in the *available* state, it transitions into the *acquired* state and the API returns immediately.
 
-If the mutex is in the *acquired* state, the mutex state does not change, but the calling task blocks and a task switch occurs.
-After the task unblocks and becomes the current task again, it attempts to acquire the mutex again in the same fashion until successful.
+If the mutex is in the *acquired* state, the mutex state does not change, but the calling task yields and a task switch occurs.
+When the calling task becomes the current task again, it attempts to acquire the mutex again in the same fashion until successful.
 
 This API is guaranteed to return only after the calling task has transitioned successfully the mutex from the *available* into the *acquired* state.
 
@@ -180,7 +181,7 @@ This API does not cause a task switch.
 This API releases the specified mutex so that other tasks can acquire it.
 A task should not release a mutex that it has not previously acquired.
 
-This API transitions a mutex into the *available* state, unblocks all blocked tasks that have called [<span class="api">mutex_lock</span>] while it was in the *acquired* state, and returns.
+This API transitions a mutex into the *available* state and returns.
 
 [[^preemptive]]
 This API does not cause a task switch.

@@ -14,6 +14,8 @@ I don't really like the re-use of 'block' in these places as the 'blocked' task 
 This may be confusing as this RTOS variant actually does have a 'real' blocking API.
 I guess from a user's perspective it shouldn't matter, but since this is the main thing distinguishing `simple-mutex` from `blocking-mutex` it may be worth making the distinction.
 
+[stg: described behavior of API of simple-mutex component more accurately without referring to blocking.]
+
 Location: x.py:137
 Comment 3: Accepted
 I realise that I also contributed to this, but managing these documentation interdependencies with long dictionaries seems to be getting ugly.

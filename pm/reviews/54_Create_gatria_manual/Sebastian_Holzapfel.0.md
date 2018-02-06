@@ -29,3 +29,5 @@ Comment 4: Accepted
 There are some improvements in clarity that you bring to this documentation that is not present in other variant's documentation, despite the topic being exactly the same.
 I'd say it's worth adding these to the other docs while you're at it.
 Probably out of scope, but wanted to mention anyway...
+
+[stg: carried applicable improvements in gatria documentation over to other variants.]

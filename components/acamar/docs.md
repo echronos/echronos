@@ -32,6 +32,7 @@ Since each application configures the RTOS to its specific requirements, this do
 
 In terms of its functionality, the RTOS is a task-based operating system that multiplexes the available CPU time between tasks.
 Since it is non-preemptive, tasks execute on the CPU until they voluntarily relinquish the CPU by calling an appropriate RTOS API function.
+The RTOS API (see [API Reference]) gives tasks access to the objects that the RTOS provides.
 
 A distinctive feature of the RTOS is that these objects, including tasks, are defined and configured at build time (see [Configuration Reference]), not at run time.
 This configuration defines, for example, the tasks that exist in a system at compile and run time.
@@ -48,9 +49,9 @@ The C runtime environment invokes the canonical `main` function without any invo
 This allows the user to customize how the system is initialized before starting the RTOS.
 
 The RTOS provides a [<span class="api">start</span>] API that needs to be called to initialize the RTOS and begin its execution.
-The [<span class="api">start</span>] API never returns.
-The first task declared in the system configuration file will be the first task to be executed.
-From this point onwards, task implementations must explicitly [<span class="api">yield_to</span>] other tasks to allow all tasks to perform their respective functions.
+The [<span class="api">start</span>] API never returns because it transfers control to the RTOS and its [Tasks].
+From the application's point of view, calling the [<span class="api">start</span>] API function makes the first task in the system execute its task function (see [Task Functions]).
+From this point onwards, tasks need to use the RTOS APIs (such as [<span class="api">yield</span>]) to trigger task switches.
 
 There is no API to shut down or stop the RTOS once it has started.
 
@@ -68,15 +69,18 @@ This is an implementation detail and the use of all APIs must conform to the for
 
 <div class="codebox">void start(void);</div>
 
-The [<span class="api">start</span>] API initializes the RTOS and starts executing the first task declared in the system configuration.
+The [<span class="api">start</span>] API initializes the RTOS and starts the first task in its task function (see [Task Functions]).
+That first task is the first task defined in the system configuration file (see [Configuration Reference]), which also specifies the task function.
+
 This function must be called from the system's main function.
 This function does not return.
 
 ### <span class="api">yield_to</span>
 
-<div class="codebox">void yield_to(TaskId to);</div>
+<div class="codebox">void yield_to(TaskId task_id);</div>
 
-The [<span class="api">yield_to</span>] API performs a context switch to the task ID provided as an argument.
+The [<span class="api">yield_to</span>] API causes a context switch to the task with the specified task ID.
+If the specified task ID identifies the current task, [<span class="api">yield_to</span>] returns without a context switch and has no application-visible effect.
 
 
 /*| doc_configuration |*/

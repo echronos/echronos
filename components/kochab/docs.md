@@ -63,6 +63,9 @@ Some compilers do not support function inlining.
 For performance or code space considerations, some APIs described in this chapter are implemented as function-like macros.
 This is an implementation detail and the use of all APIs must conform to the formal function definitions provided in this chapter.
 
+
+## Core API
+
 ### <span class="api">start</span>
 
 <div class="codebox">void start(void);</div>

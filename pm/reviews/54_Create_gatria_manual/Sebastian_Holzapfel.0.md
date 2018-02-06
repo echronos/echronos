@@ -21,8 +21,7 @@ Comment 3: Accepted
 I realise that I also contributed to this, but managing these documentation interdependencies with long dictionaries seems to be getting ugly.
 I wonder how difficult it would be to allow the documentation templating engine to query instantiated component names in the variant before the template is generated?
 
-[stg: That sounds feasible.
-I assume that you propose to pass the list of all components in a variant as configuration parameters to each component?]
+[stg: That sounds feasible, but is indeed out of scope for this branch.]
 
 Location: components/gatria/docs.md:63 and elsewhere
 Comment 4: Accepted

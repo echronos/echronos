@@ -87,14 +87,6 @@ That first task is the first task defined in the system configuration file (see 
 This function must be called from the system's main function.
 This function does not return.
 
-### <span class="api">block</span>
-
-<div class="codebox">void block(void);</div>
-
-The [<span class="api">block</span>] API causes the current task to enter the blocked state (see [Task States]).
-As a consequence, the scheduler causes a context switch to the next runnable task based on the [Scheduling Algorithm].
-If the current task is the only runnable task in the system, the result of calling this API function is undefined.
-
 ### <span class="api">yield</span>
 
 <div class="codebox">void yield(void);</div>
@@ -102,21 +94,6 @@ If the current task is the only runnable task in the system, the result of calli
 The [<span class="api">yield</span>] API causes a context switch from the current task to a runnable task in the system.
 That task is determined by the scheduler based on the [Scheduling Algorithm].
 If the current task is the only runnable task in the system, [<span class="api">yield</span>] returns without a context switch and has no application-visible effect.
-
-### <span class="api">yield_to</span>
-
-<div class="codebox">void yield_to(TaskId task_id);</div>
-
-The [<span class="api">yield_to</span>] API causes a context switch to the task with the specified task ID.
-If the specified task ID identifies the current task, [<span class="api">yield_to</span>] returns without a context switch and has no application-visible effect.
-
-### <span class="api">unblock</span>
-
-<div class="codebox">void unblock(TaskId task_id);</div>
-
-The [<span class="api">unblock</span>] API marks the task with the specified task ID as runnable (see [Task States]).
-Calling this API function does not cause an immediate context switch.
-If the specified task is already in the runnable state when this API function is called, it has no application-visible effect.
 
 
 /*| doc_configuration |*/

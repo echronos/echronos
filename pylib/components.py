@@ -280,7 +280,7 @@ def _generate(rtos_name, components, pkg_name, search_paths):
             if section == 'public_function_declarations':
                 file_object.write("#ifdef __cplusplus\nextern \"C\" {\n#endif\n")
             file_object.write("\n".join(h_sections[section] for h_sections in all_h_sections) + "\n")
-            if section == 'public_function_declarations':
+            if section == 'public_privileged_function_declarations':
                 file_object.write("#ifdef __cplusplus\n}\n#endif\n")
         file_object.write("\n#endif /* {}_H */".format(mod_name))
 

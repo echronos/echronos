@@ -1,0 +1,16 @@
+# Motivation
+
+Functions in the _public_privileged_function_declarations_ section in base templates, such as _components/acamar/header.h_, are not declared as _extern "C"_ to disable C++ name mangling. This can be reproduced by running the command _x.py build packages_ and looking at the file _packages/posix/rtos-acamar/rtos-acamar.h_.
+
+# Goals
+
+- The overall goal of this task is to ensure that all API functions are declared so that C++ mangling does not occur.
+- Functions declared in the _public_privileged_function_declarations_ section of base templates need to be enclosed in an _extern "C"_ block when generating package templates.
+
+# Release Impact: Major
+
+# Test Plan
+
+- verify that the task goals are met by manually inspecting generated package templates
+- verify that all existing regression tests pass
+- verify that the release impact is documented correctly

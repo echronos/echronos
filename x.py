@@ -168,6 +168,7 @@ CORE_SKELETONS = {
               Component('sched-rr', {'assume_runnable': False, 'has_interrupts': True}),
               Component('interrupt-event', pkg_component=True),
               Component('interrupt-event', {'timer_process': False}),
+              Component('interrupt-event-make-runnable'),
               Component('simple-mutex', {'preemptive': False, 'has_interrupts': True}),
               Component('error'),
               Component('task', {'task_start_api': False, 'scheduler': True, 'has_interrupts': True}),

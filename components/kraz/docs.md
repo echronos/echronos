@@ -47,7 +47,7 @@ The kraz variant of the RTOS is a bare-bones RTOS with very limited functionalit
 This narrow feature set makes it a good candidate to start experimenting with the RTOS, but is unlikely to provide much benefit to real-world applications.
 
 An application built on top of this RTOS variant can be split into multiple tasks that interact to deliver an application's functionality.
-For example, with a task for sensor reads and another for user interaction, the sensor task may send a signal to the UI talk to indicate a particular sensor reading to the user.
+For example, with a task for sensor reads and another for user interaction, the sensor task may send a signal to the UI task to indicate a particular sensor reading to the user.
 
 For more complex application behavior, the RTOS provides other variants with more features.
 

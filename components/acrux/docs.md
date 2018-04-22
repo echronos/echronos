@@ -48,7 +48,7 @@ This narrow feature set makes it a good candidate to start experimenting with th
 
 An application built on top of this RTOS variant can be split into multiple tasks that interact to deliver an application's functionality.
 For example, with an interrupt and a task for sensor reads and another task for user interaction, the sensor interrupt service routine may implement time-critical interrupt processing and then activate the sensor task.
-The senor task may then perform non-critical sensor handling and eventually activate the UI task to indicate a particular sensor reading to the user.
+The sensor task may then perform non-critical sensor handling and eventually activate the UI task to indicate a particular sensor reading to the user.
 
 For more complex application behavior, the RTOS provides other variants with more features.
 

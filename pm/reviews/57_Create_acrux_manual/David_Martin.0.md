@@ -10,3 +10,6 @@ Comment:
     Nitpick:
     `The senor task`
     s/senor/sensor/
+
+[stg: thanks a lot for the review!
+Resolved typo as suggested.]

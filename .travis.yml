@@ -22,7 +22,6 @@ cache:
   - "${HOME}/local"
 # build matrix across multiple Python version to parallelize builds with different Python versions
 env:
-  - PY_VER=3.4
   - PY_VER=3.5
   - PY_VER=3.6
 

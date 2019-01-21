@@ -46,7 +46,6 @@ fi
 # texinfo: required for installing gdb from source
 # xvfb pandoc wkhtmltopdf: required for building documentation
 # python3.5, python3.6: currently not available in default Travis CI environment
-sudo add-apt-repository -y ppa:jonathonf/python-3.5
 sudo add-apt-repository -y ppa:jonathonf/python-3.6
 sudo apt-get -qq update
 sudo apt-get -qq install -y build-essential python3 splint gcc gdb gcc-arm-none-eabi gcc-powerpc-linux-gnu qemu-system-ppc texinfo xvfb pandoc wkhtmltopdf

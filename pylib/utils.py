@@ -144,8 +144,7 @@ def find_path(path, topdir):
     paths = list(base_to_top_paths(topdir, path))
     if paths:
         return paths[-1]
-    else:
-        raise IOError("Unable to find the relative path '{}' in the repository hierarchy".format(path))
+    raise IOError("Unable to find the relative path '{}' in the repository hierarchy".format(path))
 
 
 def un_base_path(path):
@@ -206,12 +205,11 @@ def walk(path, flt=None):
 def get_host_platform_name():
     if sys.platform == 'darwin':
         return 'x86_64-apple-darwin'
-    elif sys.platform == 'linux':
+    if sys.platform == 'linux':
         return 'x86_64-unknown-linux-gnu'
-    elif sys.platform == 'win32':
+    if sys.platform == 'win32':
         return 'win32'
-    else:
-        raise RuntimeError('Unsupported platform {}'.format(sys.platform))
+    raise RuntimeError('Unsupported platform {}'.format(sys.platform))
 
 
 _EXECUTABLE_EXTENSION = None

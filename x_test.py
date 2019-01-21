@@ -19,7 +19,6 @@ from pylib.components import _sort_typedefs, _sort_by_dependencies, _DependencyN
 class TestCase(unittest.TestCase):
     def test_empty(self):
         """Test whether an empty test can be run at all given the test setup in x.py."""
-        pass
 
     def test_sort_typedefs(self):
         typedefs = ['typedef uint8_t foo;',

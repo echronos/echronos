@@ -46,14 +46,8 @@ fi
 # texinfo: required for installing gdb from source
 # xvfb pandoc wkhtmltopdf: required for building documentation
 # python3.5, python3.6: currently not available in default Travis CI environment
-sudo apt-get -qq install software-properties-common
-sudo add-apt-repository -y ppa:jonathonf/python-3.6
 sudo apt-get -qq update
 sudo apt-get -qq install -y build-essential python3 splint gcc gdb gcc-arm-none-eabi gcc-powerpc-linux-gnu qemu-system-ppc texinfo xvfb pandoc wkhtmltopdf wget libc6-dev-powerpc-cross ipxe-qemu
-
-if ! python${PY_VER} --version; then
-    sudo apt-get install -y python${PY_VER}
-fi
 
 # gdb-arm-none-eabi: required for testing ARM systems.
 # The diversion is required due to an Ubuntu package bug that has been patched but may be present in some systems.
@@ -69,20 +63,7 @@ wget 'https://github.com/echronos/qemu/releases/download/v2.11.0-rc2/qemu-system
 sudo dpkg -i qemu-system-arm_2.11.0-rc2_trusty.deb
 rm qemu-system-arm_2.11.0-rc2_trusty.deb # so license check doesn't fail later
 
-# workaround for https://github.com/travis-ci/travis-ci/issues/8363
-python${PY_VER} --version || pyenv global system ${PY_VER}
-
-# If not available, install the Python package manager pip.
-# Currently, this is necessary for both Python 3.4 and Python 3.6
-if ! python${PY_VER} -m pip --version
-then
-    wget 'https://bootstrap.pypa.io/get-pip.py'
-    python${PY_VER} get-pip.py --user
-    rm get-pip.py # necessary so that license and pylint tests do not pick this up as a file belonging to the project
-    python${PY_VER} -m pip --version
-fi
-
-python${PY_VER} -m pip install --user "pylint<2"
+pip install "pylint<2"
 
 # install GDB with PowerPC support from source; required by x.py test systems
 # unpack gdb tar ball to home directory to prevent tests below from discovering and failing on unrelated files

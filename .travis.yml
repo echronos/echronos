@@ -12,6 +12,10 @@
 
 # make Python versions available
 language: python
+# build matrix across multiple Python version to parallelize builds with different Python versions
+python:
+  - "3.5"
+  - "3.6"
 # make full Ubuntu VM instead of just a container available, required for Python >= 3.4
 sudo: required
 # use Ubuntu 16.04 (xenial) because it (currently) is the most recent available Ubuntu version
@@ -20,17 +24,13 @@ dist: xenial
 cache:
   directories:
   - "${HOME}/local"
-# build matrix across multiple Python version to parallelize builds with different Python versions
-env:
-  - PY_VER=3.5
-  - PY_VER=3.6
 
 # install and set up all third-party software necessary to run tests and builds
 install:
   - sh ./test_setup.sh
 
 # run tests and builds
-script: sh ./test.sh -p ${PY_VER}
+script: sh ./test.sh
 
 # deploy certain build outputs to an external service
 deploy:
@@ -58,4 +58,4 @@ deploy:
     # This prevents the parallel builds in the matrix of the different Python versions from all trying to deploy concurrently, which can cause failures.
     # Limiting the deployment to a specific case in the build matrix (i.e., to a specific Python version) ensures that only one set of build outputs is deployed.
     # Any Python version is fine and 3.6 is simply the most recent one.
-    condition: $PY_VER = 3.6
+    condition: "${TRAVIS_PYTHON_VERSION}" = "3.6"

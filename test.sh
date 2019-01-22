@@ -14,16 +14,13 @@
 set -eu
 
 USAGE="Run all regression tests available in the repository. \
--c CORE_DIR: the directory containing the repository contents; defaults to the parent directory of this script. \
--p PYTHON_VERSIONS: list of versions of Python the script shall test; version numbers are separated by blanks (e.g., '3.5 3.6'); defaults to all Python versions >= 3.4."
+-c CORE_DIR: the directory containing the repository contents; defaults to the parent directory of this script."
 CORE_DIR="$(dirname "${0}")"
-PY_VERSIONS="$(for V in 3.4 3.5 3.6 3.7 3.8 3.9; do ! python${V} --version > /dev/null 2>&1 || printf "${V} "; done)"
 
 while getopts c:p: OPT
 do
         case ${OPT} in
         c)  CORE_DIR="${OPTARG}";;
-        p)  PY_VERSIONS="${OPTARG}";;
         \?) echo ${USAGE}; exit 1;;
         esac
 done
@@ -67,7 +64,7 @@ test_gen_test_systems () {
     for PKG in ${TEST_PACKAGES}
     do
         echo ${PKG}
-        python${PY_VER} "${CORE_DIR}/prj/app/prj.py" gen ${PKG} && PASSES=$((${PASSES}+1)) || FAILS=$((${FAILS}+1))
+        python "${CORE_DIR}/prj/app/prj.py" gen ${PKG} && PASSES=$((${PASSES}+1)) || FAILS=$((${FAILS}+1))
     done
     [ ${PASSES} -gt 0 ] && [ ${FAILS} -eq 0 ]
 }
@@ -79,7 +76,7 @@ test_build_test_systems () {
     for PKG in ${TEST_PACKAGES}
     do
         echo ${PKG}
-        python${PY_VER} "${CORE_DIR}/prj/app/prj.py" build ${PKG} && PASSES=$((${PASSES}+1)) || FAILS=$((${FAILS}+1))
+        python "${CORE_DIR}/prj/app/prj.py" build ${PKG} && PASSES=$((${PASSES}+1)) || FAILS=$((${FAILS}+1))
     done
     [ ${PASSES} -gt 0 ] && [ ${FAILS} -eq 0 ]
 }
@@ -94,32 +91,29 @@ test_analyze_test_systems () {
         if test "${PREFIX}" = "stub"
         then
             echo ${PKG}
-            python${PY_VER} "${CORE_DIR}/prj/app/prj.py" analyze ${PKG} && PASSES=$((${PASSES}+1)) || FAILS=$((${FAILS}+1))
+            python "${CORE_DIR}/prj/app/prj.py" analyze ${PKG} && PASSES=$((${PASSES}+1)) || FAILS=$((${FAILS}+1))
         fi
     done
     [ ${PASSES} -gt 0 ] && [ ${FAILS} -eq 0 ]
 }
 
-for PY_VER in ${PY_VERSIONS}
-do
-    run_test python${PY_VER} x.py test licenses
-    run_test python${PY_VER} x.py test provenance
-    run_test python${PY_VER} x.py test style
-    run_test python${PY_VER} x.py test x
-    run_test python${PY_VER} x.py test pystache
-    run_test python${PY_VER} x.py test prj
-    run_test python${PY_VER} x.py build packages
-    run_test test_gen_test_systems
-    run_test test_build_test_systems
-    run_test test_analyze_test_systems
-    run_test python${PY_VER} x.py test units
-    run_test python${PY_VER} x.py test systems
-    run_test python${PY_VER} x.py build prj
-    run_test eval "TMPDIR=/tmp xvfb-run -a -s '-screen 0 640x480x16' python${PY_VER} x.py build docs"
-    run_test python${PY_VER} x.py build partials
-    run_test python${PY_VER} x.py build release
-    run_test python${PY_VER} x.py test release
-done
+run_test python x.py test licenses
+run_test python x.py test provenance
+run_test python x.py test style
+run_test python x.py test x
+run_test python x.py test pystache
+run_test python x.py test prj
+run_test python x.py build packages
+run_test test_gen_test_systems
+run_test test_build_test_systems
+run_test test_analyze_test_systems
+run_test python x.py test units
+run_test python x.py test systems
+run_test python x.py build prj
+run_test eval "TMPDIR=/tmp xvfb-run -a -s '-screen 0 640x480x16' python x.py build docs"
+run_test python x.py build partials
+run_test python x.py build release
+run_test python x.py test release
 
 # make the script exit with a non-zero exit code (indicating a test failure) if the number of failed tests is greater than 0
 echo ""

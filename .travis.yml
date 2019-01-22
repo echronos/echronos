@@ -10,8 +10,8 @@
 # @TAG(CSIRO_BSD_MIT)
 #
 
-# make gnu build utils available
-language: c
+# make Python versions available
+language: python
 # make full Ubuntu VM instead of just a container available, required for Python >= 3.4
 sudo: required
 # use Ubuntu 16.04 (xenial) because it (currently) is the most recent available Ubuntu version

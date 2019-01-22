@@ -46,11 +46,14 @@ fi
 # texinfo: required for installing gdb from source
 # xvfb pandoc wkhtmltopdf: required for building documentation
 # python3.5, python3.6: currently not available in default Travis CI environment
-sudo add-apt-repository -y ppa:jonathonf/python-3.5
+sudo apt-get -qq install software-properties-common
 sudo add-apt-repository -y ppa:jonathonf/python-3.6
 sudo apt-get -qq update
-sudo apt-get -qq install -y build-essential python3 splint gcc gdb gcc-arm-none-eabi gcc-powerpc-linux-gnu qemu-system-ppc texinfo xvfb pandoc wkhtmltopdf
-which python${PY_VER} || sudo apt-get install -y python${PY_VER}
+sudo apt-get -qq install -y build-essential python3 splint gcc gdb gcc-arm-none-eabi gcc-powerpc-linux-gnu qemu-system-ppc texinfo xvfb pandoc wkhtmltopdf wget libc6-dev-powerpc-cross ipxe-qemu
+
+if ! python${PY_VER} --version; then
+    sudo apt-get install -y python${PY_VER}
+fi
 
 # gdb-arm-none-eabi: required for testing ARM systems.
 # The diversion is required due to an Ubuntu package bug that has been patched but may be present in some systems.
@@ -98,15 +101,3 @@ then
     make -s > make.log 2>&1 || { cat make.log; false; }
     make -s install > make.log 2>&1 || { cat make.log; false; }
 fi
-
-# The x tests depend on the master branch to exist in the git repository.
-# Travis clones the git repository in such a way that the master branch is not available.
-# Make it available:
-cd "${TRAVIS_BUILD_DIR}"
-if ! grep -e "fetch.*master" .git/config && ! grep -e "heads/\*" .git/config
-then
-    git config --add remote.origin.fetch "+refs/heads/master:refs/remotes/origin/master"
-    git fetch --depth=1
-    git branch --track master origin/master
-fi
-cd -

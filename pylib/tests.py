@@ -478,6 +478,7 @@ class GdbTestCase(unittest.TestCase):
                             re.compile('( <__register_frame_info\+[0-9a-f]+>)'),
                             re.compile('=(0x[0-9a-f]+)'),
                             re.compile('Inferior( [0-9]+ )\[process( [0-9]+\]) will be killed'),
+                            re.compile('Inferior [0-9]+ \[Remote target\] will be (killed|detached)'),
                             re.compile('^([0-9]+\t.+)$'),
                             re.compile('^entry \(\) at (.+)$'),
                             re.compile('^(Thread [0-9]+ "[^"]+" hit )'),

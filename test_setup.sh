@@ -50,7 +50,10 @@ sudo apt-get -qq install software-properties-common
 sudo add-apt-repository -y ppa:jonathonf/python-3.6
 sudo apt-get -qq update
 sudo apt-get -qq install -y build-essential python3 splint gcc gdb gcc-arm-none-eabi gcc-powerpc-linux-gnu qemu-system-ppc texinfo xvfb pandoc wkhtmltopdf wget
-which python${PY_VER} || sudo apt-get install -y python${PY_VER}
+
+if ! python${PY_VER} --version; then
+    sudo apt-get install -y python${PY_VER}
+fi
 
 # gdb-arm-none-eabi: required for testing ARM systems.
 # The diversion is required due to an Ubuntu package bug that has been patched but may be present in some systems.

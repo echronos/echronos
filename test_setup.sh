@@ -49,7 +49,7 @@ fi
 sudo apt-get -qq install software-properties-common
 sudo add-apt-repository -y ppa:jonathonf/python-3.6
 sudo apt-get -qq update
-sudo apt-get -qq install -y build-essential python3 splint gcc gdb gcc-arm-none-eabi gcc-powerpc-linux-gnu qemu-system-ppc texinfo xvfb pandoc wkhtmltopdf wget
+sudo apt-get -qq install -y build-essential python3 splint gcc gdb gcc-arm-none-eabi gcc-powerpc-linux-gnu qemu-system-ppc texinfo xvfb pandoc wkhtmltopdf wget libc6-dev-powerpc-cross
 
 if ! python${PY_VER} --version; then
     sudo apt-get install -y python${PY_VER}

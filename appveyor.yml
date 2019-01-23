@@ -20,12 +20,7 @@ environment:
     PATH: "%PATH%;C:\\Program Files\\Git\\cmd"
     matrix:
         - PYTHON: "C:\\Python36-x64\\python"
-        - PYTHON: "C:\\Python35-x64\\python"
-        # Python 3.4 and 3.4 are no longer officially supported.
-        # Therefore, the project also does not have to support them.
-        # However, we still test against those versions to learn when we break support for them.
-        - PYTHON: "C:\\Python34-x64\\python"
-        - PYTHON: "C:\\Python33-x64\\python"
+        - PYTHON: "C:\\Python37-x64\\python"
 build_script: test_setup.bat
 test_script: test.bat
 artifacts:

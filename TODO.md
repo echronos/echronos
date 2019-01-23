@@ -11,7 +11,6 @@
 -->
 
 - release
-- documentation
 - library documentation
 - library example sketches
 - arduino libraries for acrux and rigel

@@ -17,13 +17,13 @@ class Acamar(tests.AvrTestCase):
     prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'acamar.prx')
 
 
-class Acrux(tests.AvrTestCase):
-    prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'acrux.prx')
+# class Acrux(tests.AvrTestCase):
+#     prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'acrux.prx')
 
 
-class Gatria(tests.AvrTestCase):
-    prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'gatria.prx')
+# class Gatria(tests.AvrTestCase):
+#     prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'gatria.prx')
 
 
-class Kraz(tests.AvrTestCase):
-    prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'kraz.prx')
+# class Kraz(tests.AvrTestCase):
+#     prx_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'kraz.prx')

@@ -1,0 +1,15 @@
+# Motivation
+
+There is currently no manual for the acrux variant of the RTOS.
+
+# Goals
+
+- Add missing information to be be able to build a manual for acrux variants.
+- Adjust existing information so that a acrux manual is consistent with the acrux implementation.
+
+# Release Impact: Patch
+
+# Test Plan
+
+- Verify that all regression tests pass
+- Verify that the task goals are met by building the manuals (x.py build docs) and review the acrux manuals to contain accurate and complete information about the acrux RTOS variant

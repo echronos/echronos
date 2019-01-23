@@ -1,14 +1,14 @@
 /*| provides |*/
-kraz
+acrux
 rtos
 
 /*| requires |*/
 docs
 
 /*| doc_header |*/
-<!-- %title eChronos RTOS Manual: Kraz Variant -->
-<!-- %version 0.2 -->
-<!-- %docid sCkAA6 -->
+<!-- %title eChronos RTOS Manual: Acrux Variant -->
+<!-- %version 0.1 -->
+<!-- %docid T57d49 -->
 
 
 # Introduction
@@ -21,7 +21,7 @@ The [API Reference] chapter documents the details of the run-time programming in
 
 The [Configuration Reference] chapter details the interface to the build-time configuration of the RTOS that system designers use to tailor the RTOS to their applications.
 
-Throughout this document, *eChronos RTOS* or *the RTOS* will refer specifically to the *Kraz* variant of the eChronos RTOS.
+Throughout this document, *eChronos RTOS* or *the RTOS* will refer specifically to the *Acrux* variant of the eChronos RTOS.
 
 /*| doc_concepts |*/
 ## Overview
@@ -41,13 +41,14 @@ It avoids the need for dynamic memory allocation and permits a much higher degre
 The [Configuration Reference] chapter describes the available configuration options for each type of object in the RTOS.
 
 
-## The Kraz Variant
+## The Acrux Variant
 
-The kraz variant of the RTOS is a bare-bones RTOS with very limited functionality: support for [Task States], [Signals], [Mutexes], and a [round-robin scheduler](#scheduling-algorithm).
+The acrux variant of the RTOS is a bare-bones RTOS with very limited functionality: support for [Task States], [Mutexes], a [round-robin scheduler](#scheduling-algorithm), and [Interrupt Service Routines].
 This narrow feature set makes it a good candidate to start experimenting with the RTOS, but is unlikely to provide much benefit to real-world applications.
 
 An application built on top of this RTOS variant can be split into multiple tasks that interact to deliver an application's functionality.
-For example, with a task for sensor reads and another for user interaction, the sensor task may send a signal to the UI task to indicate a particular sensor reading to the user.
+For example, with an interrupt and a task for sensor reads and another task for user interaction, the sensor interrupt service routine may implement time-critical interrupt processing and then activate the sensor task.
+The sensor task may then perform non-critical sensor handling and eventually activate the UI task to indicate a particular sensor reading to the user.
 
 For more complex application behavior, the RTOS provides other variants with more features.
 
@@ -77,6 +78,14 @@ This is an implementation detail and the use of all APIs must conform to the for
 
 ## Core API
 
+### <span class="api">block</span>
+
+<div class="codebox">void block(void);</div>
+
+The [<span class="api">block</span>] API causes the current task to enter the blocked state (see [Task States]).
+As a consequence, the scheduler causes a context switch to the next runnable task based on the [Scheduling Algorithm].
+If the current task is the only runnable task in the system, only an interrupt event is able to make a task runnable again.
+
 ### <span class="api">start</span>
 
 <div class="codebox">void start(void);</div>
@@ -87,6 +96,14 @@ That first task is the first task defined in the system configuration file (see 
 This function must be called from the system's main function.
 This function does not return.
 
+### <span class="api">unblock</span>
+
+<div class="codebox">void unblock(TaskId task_id);</div>
+
+The [<span class="api">unblock</span>] API marks the task with the specified task ID as runnable (see [Task States]).
+Calling this API function does not cause an immediate context switch.
+If the specified task is already in the runnable state when this API function is called, it has no application-visible effect.
+
 ### <span class="api">yield</span>
 
 <div class="codebox">void yield(void);</div>
@@ -95,6 +112,14 @@ The [<span class="api">yield</span>] API causes a context switch from the curren
 That task is determined by the scheduler based on the [Scheduling Algorithm].
 If the current task is the only runnable task in the system, [<span class="api">yield</span>] returns without a context switch and has no application-visible effect.
 
+### <span class="api">yield_to</span>
+
+<div class="codebox">void yield_to(TaskId task_id);</div>
+
+The [<span class="api">yield_to</span>] API causes a context switch to the task with the specified task ID.
+If the specified task ID identifies the current task, [<span class="api">yield_to</span>] returns without a context switch and has no application-visible effect.
+
+The result of yielding to a task that is not runnable is undefined.
 
 /*| doc_configuration |*/
 ## RTOS Configuration

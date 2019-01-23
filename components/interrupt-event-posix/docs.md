@@ -1,5 +1,5 @@
 /*| provides |*/
-interrupt-event-armv7m
+interrupt-event-posix
 interrupt-event-arch
 
 /*| requires |*/

@@ -285,5 +285,6 @@ def main():
         after = str(state)
         print("{:>5}  {}  {} ".format(next_, before, after))
 
+
 if __name__ == '__main__':
     main()

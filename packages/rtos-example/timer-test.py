@@ -23,4 +23,5 @@ class TimerTestModule(Module):
         {'input': 'timer-test.c', 'render': True, 'type': 'c'},
     ]
 
+
 module = TimerTestModule()  # pylint: disable=invalid-name

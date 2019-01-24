@@ -30,4 +30,5 @@ class AcamarModule(Module):
 
         return config
 
+
 module = AcamarModule()  # pylint: disable=invalid-name

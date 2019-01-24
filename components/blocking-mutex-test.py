@@ -30,4 +30,5 @@ class BlockingMutexTestModule(Module):
 
         return config
 
+
 module = BlockingMutexTestModule()  # pylint: disable=invalid-name

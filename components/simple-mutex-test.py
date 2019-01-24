@@ -30,4 +30,5 @@ class SimpleMutexTestModule(Module):
 
         return config
 
+
 module = SimpleMutexTestModule()  # pylint: disable=invalid-name

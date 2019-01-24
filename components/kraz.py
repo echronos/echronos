@@ -37,4 +37,5 @@ class KrazModule(Module):
 
         return config
 
+
 module = KrazModule()  # pylint: disable=invalid-name

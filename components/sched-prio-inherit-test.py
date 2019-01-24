@@ -30,4 +30,5 @@ class SchedPrioInheritTestModule(Module):
 
         return config
 
+
 module = SchedPrioInheritTestModule()  # pylint: disable=invalid-name

@@ -30,4 +30,5 @@ class SchedRrTestModule(Module):
 
         return config
 
+
 module = SchedRrTestModule()  # pylint: disable=invalid-name

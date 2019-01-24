@@ -24,4 +24,5 @@ class MachineFpModule(Module):
         {'input': 'machine-fp.h'},
     ]
 
+
 module = MachineFpModule()  # pylint: disable=invalid-name

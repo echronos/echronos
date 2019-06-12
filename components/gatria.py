@@ -33,4 +33,5 @@ class GatriaModule(Module):
 
         return config
 
+
 module = GatriaModule()  # pylint: disable=invalid-name

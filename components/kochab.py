@@ -55,4 +55,5 @@ class KochabModule(Module):
             config['timers'].append(timer)
         return config
 
+
 module = KochabModule()  # pylint: disable=invalid-name

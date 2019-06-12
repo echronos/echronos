@@ -30,4 +30,5 @@ class SimpleSemaphoreTestModule(Module):
 
         return config
 
+
 module = SimpleSemaphoreTestModule()  # pylint: disable=invalid-name

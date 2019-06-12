@@ -82,7 +82,7 @@ then
     python${PY_VER} -m pip --version
 fi
 
-python${PY_VER} -m pip install --user "pylint==2.2"
+python${PY_VER} -m pip install --user "pylint==2.2" "pycodestyle==2.4"
 
 # install GDB with PowerPC support from source; required by x.py test systems
 # unpack gdb tar ball to home directory to prevent tests below from discovering and failing on unrelated files

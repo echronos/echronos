@@ -23,4 +23,5 @@ class TaskEchoExampleModule(Module):
         {'input': 'task-echo-example.c', 'render': True, 'type': 'c'},
     ]
 
+
 module = TaskEchoExampleModule()  # pylint: disable=invalid-name

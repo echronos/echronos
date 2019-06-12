@@ -23,4 +23,5 @@ class InterruptDemuxExampleModule(Module):
         {'input': 'interrupt-demux-example.c', 'render': True, 'type': 'c'},
     ]
 
+
 module = InterruptDemuxExampleModule()  # pylint: disable=invalid-name

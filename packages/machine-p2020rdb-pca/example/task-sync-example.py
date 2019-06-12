@@ -23,4 +23,5 @@ class TaskSyncExampleModule(Module):
         {'input': 'task-sync-example.c', 'render': True, 'type': 'c'},
     ]
 
+
 module = TaskSyncExampleModule()  # pylint: disable=invalid-name

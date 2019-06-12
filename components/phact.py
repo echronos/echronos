@@ -77,4 +77,5 @@ class PhactModule(Module):
 
         return config
 
+
 module = PhactModule()  # pylint: disable=invalid-name

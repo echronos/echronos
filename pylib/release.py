@@ -119,7 +119,7 @@ def _tarfile_open(name, mode, **kwargs):
     with tarfile.open(name, mode, **kwargs) as file_obj:
         try:
             yield file_obj
-        except:
+        except Exception:
             os.unlink(name)
             raise
 

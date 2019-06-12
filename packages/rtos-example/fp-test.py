@@ -26,4 +26,5 @@ class FpTestModule(Module):
         {'input': 'fp-test.c', 'render': True, 'type': 'c'},
     ]
 
+
 module = FpTestModule()  # pylint: disable=invalid-name

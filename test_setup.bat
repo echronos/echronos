@@ -24,7 +24,7 @@ IF %ERRORLEVEL% NEQ 0 (
 
 REM Install pylint because `x.py test style` depends on it
 %PYTHON% -m pip install --user --upgrade pip
-%PYTHON% -m pip install --user --upgrade "pylint<2"
+%PYTHON% -m pip install --user --upgrade "pylint==2.2"
 %PYTHON% -m pip install --user --upgrade "pycodestyle==2.4"
 
 IF NOT EXIST C:\splint-3.1.2 (

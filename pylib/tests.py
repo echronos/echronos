@@ -240,17 +240,16 @@ def _run_pylint_on_paths(file_paths):
     from pylint.lint import Run
     from pylint.__pkginfo__ import numversion, version
 
-    if numversion[:2] != (1, 8):
+    if numversion[:2] != (2, 2):
         print('WARNING: '
-              'The supported version of pylint is 1.8. '
+              'The supported version of pylint is 2.2. '
               'The locally installed version of pylint is ' + version + '. '
               'It may report unexpected style violations.')
 
     if not isinstance(file_paths, list):
         file_paths = list(file_paths)
 
-    runner = Run(['--rcfile=' + base_path('.pylintrc'), '-j', str(_get_number_of_cpus())] + file_paths,
-                 exit=False)
+    runner = Run(['--rcfile=' + base_path('.pylintrc'), '-j', str(_get_number_of_cpus())] + file_paths)
     if len(file_paths) == 1 and runner.linter.msg_status != 0:
         print(os.path.relpath(file_paths[0], get_top_dir()) + "\n")
 

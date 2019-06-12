@@ -229,9 +229,8 @@ class PrioInheritSchedModel(BaseSchedModel):
                 assert blocked_on not in seen
                 if blocked_on in (task_id, None):
                     return blocked_on
-                else:
-                    seen.add(task_id)
-                    task_id = blocked_on
+                seen.add(task_id)
+                task_id = blocked_on
             return None
 
         return head(task_id for
@@ -251,11 +250,10 @@ class PrioInheritSchedModel(BaseSchedModel):
                 blocked_on = blocked_list[task_id]
                 if blocked_on in seen:
                     return False
-                elif blocked_on in (task_id, None):
+                if blocked_on in (task_id, None):
                     return True
-                else:
-                    seen.add(task_id)
-                    task_id = blocked_on
+                seen.add(task_id)
+                task_id = blocked_on
             return False
 
         def check_blocked_list(blocked_list):

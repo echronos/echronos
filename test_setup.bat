@@ -23,9 +23,7 @@ IF %ERRORLEVEL% NEQ 0 (
 )
 
 REM Install pylint because `x.py test style` depends on it
-%PYTHON% -m pip install --user --upgrade pip
-%PYTHON% -m pip install --user --upgrade "pylint==2.2"
-%PYTHON% -m pip install --user --upgrade "pycodestyle==2.4"
+%PYTHON% -m pip install --user --upgrade pylint
 
 IF NOT EXIST C:\splint-3.1.2 (
     powershell.exe -nologo -noprofile -command "& { Invoke-WebRequest 'https://raw.githubusercontent.com/wiki/echronos/echronos/splint-3.1.2.win32.zip' -OutFile 'splint-3.1.2.win32.zip'; Add-Type -A 'System.IO.Compression.FileSystem'; [IO.Compression.ZipFile]::ExtractToDirectory('splint-3.1.2.win32.zip', 'C:\'); }" || EXIT /B %ERRORLEVEL%

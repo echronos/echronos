@@ -144,8 +144,7 @@ def style(args):
     excludes = ['external_tools', 'tools'] + args.excludes
     # ignored warnings and errors:
     # E402 module level import not at top of file
-    codestyle = pycodestyle.StyleGuide(max_line_length=118, paths=[args.topdir], ignore=['E402', 'W503', 'W504'],
-                                       exclude=excludes)
+    codestyle = pycodestyle.StyleGuide(max_line_length=118, paths=[args.topdir], ignore=['E402'], exclude=excludes)
     if args.teamcity:
         codestyle.init_report(_TeamcityReport)
     report = codestyle.check_files()
@@ -240,16 +239,17 @@ def _run_pylint_on_paths(file_paths):
     from pylint.lint import Run
     from pylint.__pkginfo__ import numversion, version
 
-    if numversion[:2] != (2, 2):
+    if numversion[:2] != (1, 8):
         print('WARNING: '
-              'The supported version of pylint is 2.2. '
+              'The supported version of pylint is 1.8. '
               'The locally installed version of pylint is ' + version + '. '
               'It may report unexpected style violations.')
 
     if not isinstance(file_paths, list):
         file_paths = list(file_paths)
 
-    runner = Run(['--rcfile=' + base_path('.pylintrc'), '-j', str(_get_number_of_cpus())] + file_paths)
+    runner = Run(['--rcfile=' + base_path('.pylintrc'), '-j', str(_get_number_of_cpus())] + file_paths,
+                 exit=False)
     if len(file_paths) == 1 and runner.linter.msg_status != 0:
         print(os.path.relpath(file_paths[0], get_top_dir()) + "\n")
 
@@ -278,10 +278,10 @@ def licenses(_):
     sep = os.path.sep
     if sep == '\\':
         sep = '\\\\'
-    pattern = re.compile(r'\.git|components{0}.*\.(c|h|xml|md)$|external_tools{0}|pm{0}|'
-                         r'provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|'
-                         r'packages{0}[^{0}]+{0}rtos-|.*__pycache__|x_test_data{0}.*\.md|'
-                         r'x_test_data{0}tasks{0}.*'.format(sep))
+    # pylint: disable=anomalous-backslash-in-string
+    pattern = re.compile('\.git|components{0}.*\.(c|h|xml|md)$|external_tools{0}|pm{0}|\
+provenance{0}|out{0}|release{0}|prj_build|tools{0}|docs{0}manual_template|packages{0}[^{0}]+{0}rtos-|\
+.*__pycache__|x_test_data{0}.*\.md|x_test_data{0}tasks{0}.*'.format(sep))
     for dirpath, _, files in os.walk(BASE_DIR):
         for file_name in files:
             path = os.path.join(dirpath, file_name)
@@ -471,18 +471,17 @@ class GdbTestCase(unittest.TestCase):
     @staticmethod
     def _filter_gdb_output(gdb_output):
         # pylint: disable=anomalous-backslash-in-string
-        delete_patterns = (re.compile(r'^(\[New Thread .+)$'),)
-        replace_patterns = (re.compile(r'Breakpoint [0-9]+ at (0x[0-9a-f]+): file (.+), line ([0-9]+)'),
-                            re.compile(r'^Breakpoint .* at (.+)$'),
-                            re.compile(r'Breakpoint [0-9]+, (0x[0-9a-f]+) in'),
-                            re.compile(r'( <__register_frame_info\+[0-9a-f]+>)'),
-                            re.compile(r'=(0x[0-9a-f]+)'),
-                            re.compile(r'Inferior( [0-9]+ )\[process( [0-9]+\]) will be killed'),
-                            re.compile(r'Inferior [0-9]+ \[Remote target\] will be (killed|detached)'),
-                            re.compile(r'^([0-9]+\t.+)$'),
-                            re.compile(r'^entry \(\) at (.+)$'),
-                            re.compile(r'^(Thread [0-9]+ "[^"]+" hit )'),
-                            re.compile(r'^(Thread [0-9]+ hit )Breakpoint '))
+        delete_patterns = (re.compile('^(\[New Thread .+)$'),)
+        replace_patterns = (re.compile('Breakpoint [0-9]+ at (0x[0-9a-f]+): file (.+), line ([0-9]+)'),
+                            re.compile('^Breakpoint .* at (.+)$'),
+                            re.compile('Breakpoint [0-9]+, (0x[0-9a-f]+) in'),
+                            re.compile('( <__register_frame_info\+[0-9a-f]+>)'),
+                            re.compile('=(0x[0-9a-f]+)'),
+                            re.compile('Inferior( [0-9]+ )\[process( [0-9]+\]) will be killed'),
+                            re.compile('^([0-9]+\t.+)$'),
+                            re.compile('^entry \(\) at (.+)$'),
+                            re.compile('^(Thread [0-9]+ "[^"]+" hit )'),
+                            re.compile('^(Thread [0-9]+ hit )Breakpoint '))
         filtered_result = io.StringIO()
         for line in gdb_output.splitlines(True):
             match = None

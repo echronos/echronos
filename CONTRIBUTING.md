@@ -23,16 +23,39 @@ If there is something in the project that you think is worth improving, please c
 
 We have a few basic rules for how contributing works exactly:
 
+- [your first contribution](#your-first-contribution)
+- [further contributions](#further-contributions)
 - [contributor agreements](#contributor-agreements)
-- [pull requests](#pull-requests)
+
+Let's walk you through that fine print briefly.
+
+## Your First Contribution
+
+If this is your first contribution to the eChronos RTOS, we will try and make this painless for you.
+Assuming you already have a clone/branch of the repository with your changes sitting somewhere, simply submit a github pull request.
+
+The only snag is the [contributor agreement](#contributor-agreements) which we need to be able to integrate your changes.
+We will sort out and walk you through the rest to make this easy for you.
+
+_The rest_ includes our workflows that help to make every contribution the best it can be (reviews, tests, the works).
+More on that below.
+
+## Further Contributions
+
+Currently, the project does not use github pull requests and reviews to handle changes.
+We have a purely git-based work flow in place that is supported by custom tools.
+It revolves around task branches (similar to branches and pull requests on github) that have the following, common-sense life cycle:
+
+- create a task branch with a description of the work planned
+- commit changes to task branch
+- submit task branch for review until all review comments have been addressed
+- integrate task branch into mainline branch
+
+A core goal of this approach is to create an audit trail within git, so all task descriptions, reviews, and comments are files in the git repository.
+
+[The _Task Management_ section of the README](README.md#task-management) documents the details of this workflow and how our tools help with it.
 
 ## Contributor Agreements
 
-All contributors to the eChronos RTOS need to supply a scan of a signed copy of the eChronos Contributor Assignment Agreement.
+All contributions to the repository need to be accompanied by a scan of a signed copy of the eChronos Contributor Assignment Agreement.
 There is a version of the agreement for [individuals](https://ts.data61.csiro.au/projects/TS/echronos/CAA-individual.pdf) and a version for [companies](https://ts.data61.csiro.au/projects/TS/echronos/CAA-entity.pdf).
-In summary, this agreement signs over your copyright and intellectual property on the contributions you make to CSIRO Australia, which helps them manage this project.
-
-## Pull Requests
-
-Contributions to the eChronos RTOS are made through GitHub pull requests, like for most other projects on GitHub.
-We have a few requirements in place, such as PRs needing to be signed off by at least one reviewer and to pass the automated regression tests to ensure a high degree of code quality.

@@ -34,8 +34,6 @@ def monkey_start_element_handler(self, name, attributes):
     node = self.curNode
     node.line_for_error_message = self.getParser().CurrentLineNumber
     node.column_for_error_message = self.getParser().CurrentColumnNumber
-
-
 real_start_element_handler = xml.dom.expatbuilder.ExpatBuilderNS.start_element_handler  # pylint: disable=invalid-name
 xml.dom.expatbuilder.ExpatBuilderNS.start_element_handler = monkey_start_element_handler
 

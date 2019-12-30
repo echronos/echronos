@@ -11,6 +11,7 @@
 #
 
 # pylint: disable=too-many-public-methods
+import io
 import os
 import sys
 import shutil
@@ -144,7 +145,8 @@ def find_path(path, topdir):
     paths = list(base_to_top_paths(topdir, path))
     if paths:
         return paths[-1]
-    raise IOError("Unable to find the relative path '{}' in the repository hierarchy".format(path))
+    else:
+        raise IOError("Unable to find the relative path '{}' in the repository hierarchy".format(path))
 
 
 def un_base_path(path):
@@ -205,11 +207,12 @@ def walk(path, flt=None):
 def get_host_platform_name():
     if sys.platform == 'darwin':
         return 'x86_64-apple-darwin'
-    if sys.platform == 'linux':
+    elif sys.platform == 'linux':
         return 'x86_64-unknown-linux-gnu'
-    if sys.platform == 'win32':
+    elif sys.platform == 'win32':
         return 'win32'
-    raise RuntimeError('Unsupported platform {}'.format(sys.platform))
+    else:
+        raise RuntimeError('Unsupported platform {}'.format(sys.platform))
 
 
 _EXECUTABLE_EXTENSION = None
@@ -281,6 +284,30 @@ class Git:
                 return line[0]
         raise LookupError('git ls-tree does not list any files in pm/reviews as expected')
 
+    @property
+    def branches(self):
+        if self._branches is None:
+            self._branches = self._get_branches()
+        return self._branches
+
+    def _get_branches(self):
+        """Return a list of local branches."""
+        return [x[2:] for x in self._do(['branch'], as_lines=True)]
+
+    @property
+    def remote_branches(self):
+        if self._remote_branches is None:
+            self._remote_branches = self._get_remote_branches()
+        return self._remote_branches
+
+    def _get_remote_branches(self):
+        """Return a set of remote branches excluding the remote prefix."""
+        return frozenset([ref.split('/', maxsplit=1)[1] for ref in self._get_remote_refs()])
+
+    def _get_remote_refs(self):
+        """Return a set of remote refs including the remote prefix (typically 'origin/')."""
+        return frozenset([line[2:].strip() for line in self._do(['branch', '-r'], as_lines=True)])
+
     def _do(self, parameters, as_lines=False):
         """
         Execute the git command line tool with the given command-line parameters and return the console output as a
@@ -291,6 +318,144 @@ class Git:
         if as_lines:
             return raw_data.splitlines()
         return raw_data
+
+    def get_active_branch(self):
+        """
+        Determine the currently active branch in the local git repository and return its name as a string.
+        """
+        pattern = '* '
+        for line in self._do(['branch'], as_lines=True):
+            if line.startswith(pattern):
+                return line.split(' ', maxsplit=1)[1].strip()
+        raise LookupError('No active branch in git repository ' + self.local_repository)
+
+    def branch(self, name, start_point=None, *, track=None):
+        """Create a new branch, optionally from a specific start point.
+
+        If track is set to True, then '--track' will be passed to git.
+        If track is set to False, then '--no-track' will be passed to git.
+        If track is None, then no tracking flag will be passed to git.
+
+        """
+        params = ['branch']
+        if track is not None:
+            params.append('--track' if track else '--no-track')
+        params.append(name)
+        if start_point is not None:
+            params.append(start_point)
+        return self._do(params)
+
+    def set_upstream(self, upstream, branch=None):
+        """Set the upstream / tracking branch of a given branch.
+
+        If branch is None, it defaults to the current branch.
+
+        """
+        params = ['branch', '-u', upstream]
+        if branch:
+            params.append(branch)
+
+        return self._do(params)
+
+    def checkout(self, revid):
+        """
+        Check out the specified revision ID (typically a branch name) in the local repository.
+        """
+        assert isinstance(revid, str)
+        return self._do(['checkout', revid])
+
+    def merge_into_active_branch(self, revid, *options):
+        """
+        Merge the specified revision ID into the currently active branch.
+        """
+        assert isinstance(revid, str)
+        return self._do(['merge'] + list(options) + [revid])
+
+    def fetch(self, remote='--all', prune=False):
+        """Fetch new revisions from the specified remote."""
+        if prune:
+            prune_option = ['--prune']
+        else:
+            prune_option = []
+        return self._do(['fetch'] + prune_option + [remote])
+
+    def push(self, src=None, force=False, set_upstream=False):
+        """Push the local revision 'src' to a remote.
+
+        If 'src' has a remote tracking branch, that is where 'src' is pushed to.
+        If 'src' has no remote tracking branch:
+            - if the local repository contains only one remote, 'src' is pushed there
+            - if the local repository contains multiple remotes, the correct remote is determined interactively
+        """
+        assert src is None or isinstance(src, str)
+        assert isinstance(force, bool)
+
+        if src is None:
+            src = self.get_active_branch()
+        if force:
+            force_option = ['--force']
+        else:
+            force_option = []
+        if set_upstream:
+            set_upstream_option = ['--set-upstream']
+        else:
+            set_upstream_option = []
+        remote = self.get_branch_remote(src, interactive=True)
+
+        return self._do(['push'] + force_option + set_upstream_option + [remote, src])
+
+    def move(self, src, dst):
+        """
+        Rename a local resource from its old name 'src' to its new name 'dst' or move a list of local files 'src' into
+        a directory 'dst'.
+        """
+        assert isinstance(src, (str, list))
+        assert isinstance(dst, str)
+        if isinstance(src, str):
+            src_list = [src]
+        else:
+            src_list = src
+        return self._do(['mv'] + self.convert_paths(src_list) + [self.convert_paths(dst)])
+
+    def add(self, files):
+        """Add the list of files to the index in preparation of a future commit."""
+        return self._do(['add'] + self.convert_paths(files))
+
+    def rm(self, paths, *args, force=True):  # pylint: disable=invalid-name
+        """Remove the specified paths from the index and, by default, from the file system."""
+        if force:
+            force_option = ['--force']
+        else:
+            force_option = []
+        return self._do(['rm'] + force_option + list(args) + self.convert_paths(paths))
+
+    def commit(self, msg, files=None):
+        """Commit the changes in the specified 'files' with the given 'message' to the currently active branch.
+
+        If 'files' is None (or unspecified), all staged files are committed.
+
+        """
+        assert isinstance(msg, str)
+        assert files is None or isinstance(files, list)
+        if files is None:
+            file_args = []
+        else:
+            file_args = self.convert_paths(files)
+        return self._do(['commit', '-m', msg] + file_args)
+
+    def rename_branch(self, src, dst):
+        """
+        Rename a local branch from its current name 'src' to the new name 'dst'.
+        """
+        assert isinstance(src, str)
+        assert isinstance(dst, str)
+        return self._do(['branch', '-m', src, dst])
+
+    def delete_remote_branch(self, branch, remote=None):
+        assert isinstance(branch, str)
+        if remote is None:
+            remote = self.get_branch_remote(branch)
+        return self._do(['push', '--delete', remote, branch])
 
     def _log_pretty(self, pretty_fmt, branch=None):
         """Return information from the latest commit with a specified `pretty` format.
@@ -321,10 +486,88 @@ class Git:
         """
         return self._log_pretty('%H', branch=branch)
 
+    def is_clean(self):
+        return self.working_dir_clean() and not self.get_staged_files()
+
     def working_dir_clean(self):
         """Return True is the working directory is clean."""
         return self._do(['status', '--porcelain']) == ''
 
+    def get_staged_files(self):
+        return self._do(['diff', '--name-only', '--cached'], as_lines=True)
+
+    def get_branch_remote(self, branch=None, interactive=False):
+        if branch is None:
+            branch = self.get_active_branch()
+        try:
+            tracking_branch = self.get_tracking_branch()
+            remote = tracking_branch.split('/')[0]
+        except AssertionError:
+            remotes = list(set([r.name for r in self.get_remotes()]))
+            index = 0
+
+            if len(remotes) > 1:
+                if interactive:
+                    idx_names = ['{}: {}'.format(idx, remote) for idx, remote in enumerate(remotes)]
+                    str_index = input("This repository has multiple git remotes registered. Enter the index of the \
+appropriate one:\n    {}\n".format('\n    '.join(idx_names)))
+                    index = int(str_index)
+                else:
+                    raise
+
+            remote = remotes[index]
+
+        return remote
+
+    def get_tracking_branch(self, ref=None):
+        if ref is None:
+            ref = self.get_active_branch()
+        output = self._do(['branch', '--list', '-vv', ref]).strip()
+        assert '[' in output, 'Branch {} has no remote tracking branch'.format(ref)
+        tracking_branch = output.split('[')[1].split(']')[0].split(':')[0]
+        return tracking_branch
+
+    def get_remotes(self):
+        """Retrieve all remotes known in the local repository as a set of Remote objects."""
+        remotes = set()
+        for line in self._do(['remote', '-v'], as_lines=True):
+            parts = line.split('\t')
+            remotes.add(Remote(parts[0], parts[1]))
+        return remotes
+
+    def get_user_name(self):
+        return self._get_config_value('user.name')
+
+    def get_user_email(self):
+        return self._get_config_value('user.email')
+
+    def _get_config_value(self, name):
+        return self._do(['config', '--get', name]).strip()
+
+    def is_ref_uptodate_with_tracking_branch(self, ref=None, offline=False):
+        if ref is None:
+            ref = self.get_active_branch()
+        if not offline:
+            self.fetch()
+        local_revid = self.branch_hash(ref)
+        remote_ref = self.get_tracking_branch(ref)
+        remote_revid = self.branch_hash(remote_ref)
+        return local_revid == remote_revid
+
+    def rebase(self, upstream, *options):
+        return self._do(['rebase'] + list(options) + [upstream])
+
+    def get_branches_that_contain_revid(self, revid):
+        return [l.strip().replace('* ', '') for l in self._do(['branch', '--contains', revid], as_lines=True)]
+
+    def tag(self, tag_name, rev_spec):
+        self._do(['tag', tag_name, rev_spec])
+
+
+def string_to_path(string):
+    string = string.replace(' ', '_')
+    safe_path_characters = ('.', '-', '_')
+    return ''.join([c for c in string if c.isalnum() or c in safe_path_characters])
 
 Remote = namedtuple('Remote', ('name', 'url'))
 
@@ -372,3 +615,50 @@ def _sanitize_path(path):
 
     """
     return os.path.normpath(follow_link(os.path.abspath(path)))
+
+
+def update_file(path, line_filters, only_if_all_matched=False):
+    """Modify a file by matching and replacing individual lines.
+
+    `path` is a string identifying the path of the file to modify.
+    `line_filters` is an iterable container of LineFilter objects.
+    For each line in the file, each filter is applied in order.
+    `only_if_all_matched` is a boolean controlling when the file is rewritten.
+    When `only_if_all_matched` is False, the file is always rewritten, regardless whether any line matched any filter.
+    When it is True, the file is only rewritten if each filter matched at least one line in the file.
+
+    The function returns whether the file was rewritten or not.
+    """
+    sio_obj = io.StringIO()
+    updated = {flt: False for flt in line_filters}
+    newlines = None
+    with open(path, encoding='utf8') as file_obj:
+        for line_no, line in enumerate(file_obj, 1):
+            if newlines is None:
+                newlines = file_obj.newlines
+            for line_filter in line_filters:
+                if line_filter.matches(line_filter, line, line_no, path):
+                    line = line_filter.replace(line_filter, line, line_no, path)
+                    updated[line_filter] = True
+            sio_obj.write(line)
+    for line_filter, is_updated in updated.items():
+        if not is_updated:
+            line_filter.handle_no_matches(line_filter, path)
+
+    if not only_if_all_matched or all(updated.values()):
+        assert isinstance(newlines, str)
+        with open(path, 'w', encoding='utf8', newline=newlines) as file_obj:
+            file_obj.write(sio_obj.getvalue())
+        return True
+    return False
+
+
+LineFilter = namedtuple('LineFilter', ('matches', 'replace', 'handle_no_matches'))
+
+
+def get_release_version(release_cfg_path):
+    with open(release_cfg_path, encoding='utf8') as file_obj:
+        for line in file_obj:
+            if line.startswith('    version = '):
+                return tuple(int(part) for part in line.split(' = ')[1].strip().strip("'").split('.'))
+    return None

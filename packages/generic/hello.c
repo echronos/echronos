@@ -20,12 +20,9 @@
 #include <stdint.h>
 #include "debug.h"
 
-int
-main(void)
+int main()
 {
+    
     debug_println("{{phrase}}");
-
-    for (;;)
-    {
-    }
+    return 0;
 }

@@ -1,0 +1,11 @@
+# Source Code
+
+https://github.com/PyCQA/pycodestyle/releases/tag/2.0.0
+
+# Integration Package
+
+https://pypi.python.org/pypi/pycodestyle/2.0.0
+
+# Integration Procedure
+
+py -3 -m pip install --target=external_tools --no-compile pycodestyle

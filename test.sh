@@ -66,7 +66,6 @@ test_gen_test_systems () {
     FAILS=0
     for PKG in ${TEST_PACKAGES}
     do
-        echo ${PKG}
         python${PY_VER} "${CORE_DIR}/prj/app/prj.py" gen ${PKG} && PASSES=$((${PASSES}+1)) || FAILS=$((${FAILS}+1))
     done
     [ ${PASSES} -gt 0 ] && [ ${FAILS} -eq 0 ]
@@ -78,7 +77,6 @@ test_build_test_systems () {
     FAILS=0
     for PKG in ${TEST_PACKAGES}
     do
-        echo ${PKG}
         python${PY_VER} "${CORE_DIR}/prj/app/prj.py" build ${PKG} && PASSES=$((${PASSES}+1)) || FAILS=$((${FAILS}+1))
     done
     [ ${PASSES} -gt 0 ] && [ ${FAILS} -eq 0 ]
@@ -93,7 +91,6 @@ test_analyze_test_systems () {
         PREFIX="${PKG%%.*}"
         if test "${PREFIX}" = "stub"
         then
-            echo ${PKG}
             python${PY_VER} "${CORE_DIR}/prj/app/prj.py" analyze ${PKG} && PASSES=$((${PASSES}+1)) || FAILS=$((${FAILS}+1))
         fi
     done

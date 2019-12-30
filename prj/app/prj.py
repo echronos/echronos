@@ -47,8 +47,6 @@ _logging.basicConfig()
 # Ensure that basicConfig is only called once.
 def error_fn(*_, **__):
     raise Exception("basicConfig called multiple times.")
-
-
 _logging.basicConfig = error_fn
 
 import pystache.parser
@@ -1021,7 +1019,7 @@ class Project:
         elif ext == '.py':
             try:
                 py_module = imp.load_source("__prj.%s" % entity_name, path)
-            except Exception:
+            except:
                 exc_type, exc_value, trace = sys.exc_info()
                 tb_str = ''.join(traceback.format_exception(exc_type, exc_value, trace.tb_next, chain=False))
                 msg = "An error occured while loading '{}'".format(path)
@@ -1307,10 +1305,9 @@ def _start():
                 with open("prj.errors", "w") as file_object:
                     traceback.print_exception(*sys.exc_info(), file=file_object)
                 logger.error("Please include the 'prj.errors' file when submitting a bug report")
-            except Exception:  # pylint: disable=broad-except
+            except:  # pylint: disable=bare-except
                 pass
             sys.exit(1)
-
 
 if __name__ == "__main__":
     _start()

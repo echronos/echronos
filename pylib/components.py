@@ -48,6 +48,7 @@ _REQUIRED_DOC_SECTIONS = ['doc_header', 'doc_concepts', 'doc_api',
 
 class _SchemaFormatError(RuntimeError):
     """To be raised when a component configuration schema violates assumptions or conventions."""
+    pass
 
 
 def _merge_schema_entries(left, right, path=''):
@@ -383,8 +384,9 @@ def _sort_by_dependencies(nodes, ignore_cyclic_dependencies=False):
                 if todo_required.issubset(all_provided):
                     yield from todo
                     return
-                msg = 'The nodes {} have the unresolvable dependencies {}.'.format(todo,
-                                                                                   todo_required - all_provided)
+                else:
+                    msg = 'The nodes {} have the unresolvable dependencies {}.'.format(todo,
+                                                                                       todo_required - all_provided)
             else:
                 msg = 'The dependencies of the nodes {} cannot be resolved.'.format(todo)
             raise _UnresolvableDependencyError(msg)

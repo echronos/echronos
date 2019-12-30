@@ -21,6 +21,11 @@
   </schema>
 </module>*/
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+
 #include <stdint.h>
 #include "debug.h"
 
@@ -40,51 +45,13 @@ void
     {{ll_debug}}debug_puts("\n");
 }
 
-static char
-get_hexdigit(const uint8_t val)
-{
-    char ch;
-    if (val < 10)
-    {
-        ch = '0' + val;
-    }
-    else if ((val >= 10) && (val < 16))
-    {
-        ch = 'a' + (val - 10);
-    }
-    else
-    {
-        ch = '?';
-    }
-    return ch;
-}
 
 void
-{{prefix}}debug_printhex32(const uint32_t val)
+debug_puts(const char *s)
 {
-    char str[11];
-    str[0] = '0';
-    str[1] = 'x';
-    str[2] = get_hexdigit((val >> 28) & 0xf);
-    str[3] = get_hexdigit((val >> 24) & 0xf);
-    str[4] = get_hexdigit((val >> 20) & 0xf);
-    str[5] = get_hexdigit((val >> 16) & 0xf);
-    str[6] = get_hexdigit((val >> 12) & 0xf);
-    str[7] = get_hexdigit((val >> 8) & 0xf);
-    str[8] = get_hexdigit((val >> 4) & 0xf);
-    str[9] = get_hexdigit((val >> 0) & 0xf);
-    str[10] = 0;
-    debug_print(str);
-}
-
-void
-{{prefix}}debug_printhex8(const uint8_t val)
-{
-    char str[5];
-    str[0] = '0';
-    str[1] = 'x';
-    str[2] = get_hexdigit((val >> 4) & 0xf);
-    str[3] = get_hexdigit((val >> 0) & 0xf);
-    str[4] = 0;
-    debug_print(str);
+    ssize_t l = strlen(s);
+    if (write(STDOUT_FILENO, s, l) != l)
+    {
+        _exit(1);
+    }
 }

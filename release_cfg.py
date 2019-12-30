@@ -17,7 +17,7 @@ class Standard(Release):
     packages = ['armv7m', 'generic', 'rtos-example', 'machine-qemu-simple', 'machine-stm32f4-discovery',
                 'machine-armv7m-common']
     platforms = ['x86_64-apple-darwin', 'x86_64-unknown-linux-gnu']
-    version = '3.0.6'
+    version = '3.0.2'
     product_name = 'eChronos'
     release_name = 'std'
     enabled = True
